@@ -19,14 +19,14 @@
 
     <properties>
         <commons-collections.version>3.2.2</commons-collections.version>
-        <google-api-services-admin-directory.version>directory_v1-rev109-1.23.0</google-api-services-admin-directory.version>
-        <google-api-services-groupssettings.version>v1-rev77-1.23.0</google-api-services-groupssettings.version>
+        <google-api-services-admin-directory.version>directory_v1-rev118-1.25.0</google-api-services-admin-directory.version>
+        <google-api-services-groupssettings.version>v1-rev82-1.25.0</google-api-services-groupssettings.version>
         <joda-time.version>2.9.9</joda-time.version>
         <mockito.version>1.8.5</mockito.version>
         <powermock.version>1.4.9</powermock.version>
 
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
+        <maven.compiler.source>17</maven.compiler.source>
+        <maven.compiler.target>17</maven.compiler.target>
     </properties>
 
     <dependencies>

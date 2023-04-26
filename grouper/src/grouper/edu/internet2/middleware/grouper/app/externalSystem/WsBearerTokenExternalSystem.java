@@ -102,6 +102,7 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       // we need to get another one
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       final String url = GrouperUtil.stripLastSlashIfExists(endpoint) + "/" + GrouperUtil.stripFirstSlashIfExists(testUrlSuffix);
+      grouperHttpClient.assignUrl(url);
       grouperHttpClient.assignGrouperHttpMethod(testHttpMethod);
       grouperHttpClient.addHeader("Authorization", "Bearer " + accessTokenPassword);
       
@@ -119,18 +120,24 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
         code = grouperHttpClient.getResponseCode();
         response = grouperHttpClient.getResponseBody();
       } catch (Exception e) {
-        ret.add("Error connecting to '" + url + "' " + GrouperUtil.getFullStackTrace(e));
+        ret.add("Error connecting to '" + url + "' <pre>" + GrouperUtil.getFullStackTrace(e) + "</pre>");
+        return ret;
       }
 
       if (code != testHttpResponseCode) {
         ret.add("Response code to " + url + " expecting " + testHttpResponseCode + " but received " + code);
+        return ret;
       }
       
       if (!StringUtils.isBlank(testUrlResponseBodyRegex)) {
-        Pattern pattern = Pattern.compile(testUrlResponseBodyRegex);
-        Matcher matcher = pattern.matcher(response);
-        if (!matcher.matches()) {
-          ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but no match " + GrouperUtil.escapeHtml(response, true));
+        if (response == null) {
+          ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but response was null");
+        } else {
+          Pattern pattern = Pattern.compile(testUrlResponseBodyRegex);
+          Matcher matcher = pattern.matcher(response);
+          if (!matcher.matches()) {
+            ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but no match " + GrouperUtil.escapeHtml(response, true));
+          }
         }
       }
     }

@@ -45,45 +45,6 @@ import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
  */
 public enum WsRestRequestContentType {
 
-  /** default xhtml content type
-   * http request content type should be set to application/xhtml+xml
-   */
-  xhtml(new String[]{"application/xhtml+xml"}) {
-
-    /**
-     * parse a string to an object
-     * @param input
-     * @param warnings is where warnings should be written to
-     * @return the object
-     */
-    @Override
-    public Object parseString(String input, StringBuilder warnings) {
-      WsXhtmlInputConverter wsXhtmlInputConverter = new WsXhtmlInputConverter();
-      Object object = wsXhtmlInputConverter.parseXhtmlString(input);
-      return object;
-    }
-
-    /**
-     * based on the request type, calculate the response type
-     * @return the response type
-     */
-    @Override
-    public WsRestResponseContentType calculateResponseContentType() {
-      return WsRestResponseContentType.xhtml;
-    }
-
-    /**
-     * write a string representation to result string
-     * @param object to write to output
-     * @return the string representation
-     */
-    @Override
-    public String writeString(Object object) {
-      StringWriter stringWriter = new StringWriter();
-      WsRestResponseContentType.xhtml.writeString(object, stringWriter);
-      return stringWriter.toString();
-    }
-  },
   /** http params set fields in a lite object
    * http request content type should not be set, or set to:
    * application/x-www-form-urlencoded
@@ -316,7 +277,7 @@ public enum WsRestRequestContentType {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsRestRequestContentType.class);
+  private static final Log LOG = GrouperUtil.getLog(WsRestRequestContentType.class);
 
   /**
    * friendly content type error

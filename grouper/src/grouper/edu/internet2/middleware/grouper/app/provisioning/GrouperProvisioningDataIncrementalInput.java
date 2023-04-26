@@ -64,61 +64,10 @@ public class GrouperProvisioningDataIncrementalInput {
   
   private GrouperProvisioner grouperProvisioner = null;
 
-  /**
-   * grouper uuids to retrieve without first retrieving from target
-   */
-  private GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithoutRecalc;
-
-  /**
-   * grouper uuids to retrieve from grouper and grouper sync
-   * @return
-   */
-  public GrouperIncrementalDataToProcess getGrouperIncrementalDataToProcessWithoutRecalc() {
-    if (this.grouperIncrementalDataToProcessWithoutRecalc == null) {
-      this.grouperIncrementalDataToProcessWithoutRecalc = new GrouperIncrementalDataToProcess();
-    }
-    return grouperIncrementalDataToProcessWithoutRecalc;
-  }
-
-  /**
-   * grouper uuids to retrieve from grouper and grouper sync
-   * @param grouperIncrementalUuidsToRetrieveFromGrouper
-   */
-  public void setGrouperIncrementalDataToProcessWithoutRecalc(
-      GrouperIncrementalDataToProcess grouperIncrementalUuidsToRetrieveFromGrouper) {
-    this.grouperIncrementalDataToProcessWithoutRecalc = grouperIncrementalUuidsToRetrieveFromGrouper;
-  }
-
-  /**
+/**
    * grouper target objects to get from target for incremental sync
    */
   private TargetDaoRetrieveIncrementalDataRequest targetDaoRetrieveIncrementalDataRequest;
-
-  /**
-   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
-   */
-  private GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc;
-  
-  /**
-   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
-   * @return
-   */
-  public GrouperIncrementalDataToProcess getGrouperIncrementalDataToProcessWithRecalc() {
-    if (this.grouperIncrementalDataToProcessWithRecalc == null) {
-      this.grouperIncrementalDataToProcessWithRecalc = new GrouperIncrementalDataToProcess();
-    }
-    return grouperIncrementalDataToProcessWithRecalc;
-  }
-
-  /**
-   * grouper uuids to retrieve with a recalc (retrieve from target and do full compare)
-   * @param grouperIncrementalDataToProcessWithRecalc
-   */
-  public void setGrouperIncrementalDataToProcessWithRecalc(
-      GrouperIncrementalDataToProcess grouperIncrementalDataToProcessWithRecalc) {
-    this.grouperIncrementalDataToProcessWithRecalc = grouperIncrementalDataToProcessWithRecalc;
-  }
-
 
   /**
    * grouper target objects to get from target for incremental sync
@@ -188,24 +137,18 @@ public class GrouperProvisioningDataIncrementalInput {
     if (this.fullSync) {
       return true;
     }
-    if (this.grouperIncrementalDataToProcessWithoutRecalc != null && this.grouperIncrementalDataToProcessWithoutRecalc.isHasIncrementalDataToProcess()) {
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0) {
       return true;
     }
-    if (this.grouperIncrementalDataToProcessWithRecalc != null && this.grouperIncrementalDataToProcessWithRecalc.isHasIncrementalDataToProcess()) {
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) > 0) {
       return true;
     }
+    if (GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) > 0) {
+      return true;
+    }
+    
     this.getGrouperProvisioner().getDebugMap().put("hasIncrementalDataToProcess", false);
     return false;
   }
-
-  /**
-   * keep an index after everything is determined so we can easily look up if something is recalc
-   */
-  public void indexIncrementalData() {
-    this.getGrouperIncrementalDataToProcessWithoutRecalc().indexData();
-    this.getGrouperIncrementalDataToProcessWithRecalc().indexData();
-    
-  }
-  
 
 }

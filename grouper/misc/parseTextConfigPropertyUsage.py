@@ -31,7 +31,6 @@ projects = [
     'grouper-misc/grouper-installer',
     'grouper-ws/grouper-ws-java-generated-client',
     'grouper-ws/grouper-ws-java-manual-client',
-    'grouper-ws/grouper-ws-scim',
     'grouper-ws/grouper-ws-test',
     'grouper-misc/googleapps-grouper-provisioner',
     'grouper-misc/grouper-azure',

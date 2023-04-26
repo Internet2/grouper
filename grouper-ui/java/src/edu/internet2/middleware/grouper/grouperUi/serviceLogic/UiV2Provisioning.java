@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItemFormElementType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
@@ -1156,6 +1157,15 @@ public class UiV2Provisioning {
           provisioningAttributeValue.setDirectAssignment(isDirect);
         }
 //      }
+        
+      String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
+      if (StringUtils.isNotBlank(shouldDoProvisionString)) {
+        boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+        provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
+      }
+      
+      String stemScopeString = request.getParameter("provisioningStemScopeName");
+      provisioningAttributeValue.setStemScopeString(stemScopeString);
       
       GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(provisioningAttributeValue);
       provisioningContainer.setCurrentGuiGrouperProvisioningAttributeValue(guiGrouperProvisioningAttributeValue);
@@ -1200,8 +1210,11 @@ public class UiV2Provisioning {
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
           } else {
-            elVariableMap.put(name,  metadataItem.getDefaultValue());
+            elVariableMap.put(name,  "");
           }
+//          else {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
           
         }
         
@@ -1919,8 +1932,11 @@ public class UiV2Provisioning {
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
           } else {
-            elVariableMap.put(name,  metadataItem.getDefaultValue());
-          }
+            elVariableMap.put(name,  "");
+          } 
+//          else {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
           
         }
         
@@ -1947,10 +1963,12 @@ public class UiV2Provisioning {
               }
             }
             
-            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncGroup == null || gcGrouperSyncGroup.isInTarget())) {
-              metadataItem.setReadOnly(true);
+            if (!metadataItem.isCanChange()) {
+              if (value != null && gcGrouperSyncGroup != null && gcGrouperSyncGroup.isInTarget()) {
+                metadataItem.setReadOnly(true);
+              }
             }
-            
+            metadataItems.add(metadataItem);
           }
         }
         
@@ -2120,8 +2138,11 @@ public class UiV2Provisioning {
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
           } else {
-            elVariableMap.put(name,  metadataItem.getDefaultValue());
-          }
+            elVariableMap.put(name,  "");
+          } 
+//          else {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
           
         }
         
@@ -2196,9 +2217,22 @@ public class UiV2Provisioning {
     for (GrouperProvisioningObjectMetadataItem metadataItem: metadataItems) {
 
       String name = metadataItem.getName();
-      String value = request.getParameter(name);
+      String value = null;
+      String[] values = null;
       
-      if (metadataItem.isRequired() && StringUtils.isBlank(value)) {
+      if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.CHECKBOX) {
+        values = request.getParameterValues(name+"[]");
+        if (metadataItem.isRequired() && GrouperUtil.length(values) == 0) {
+          errors = true;
+        }
+        
+      } else {
+        value = request.getParameter(name);
+        if (metadataItem.isRequired() && StringUtils.isBlank(value)) {
+          errors = true;
+        }
+      }
+      if (errors) {
         String labelKey = metadataItem.getLabelKey();
         String label = GrouperTextContainer.textOrNull(labelKey);
         if (StringUtils.isBlank(label)) {
@@ -2207,11 +2241,9 @@ public class UiV2Provisioning {
         String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataItemRequired");
         errorMessage = errorMessage.replace("$$metadataLabel$$", label);
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
-        errors = true;
       }
       
-      if (metadataItem.isValidateUniqueValue()) {
-        
+      if (metadataItem.isValidateUniqueValue() && StringUtils.isNotBlank(value)) {
         //TODO optimize
         //TODO refactor and move to grouper core
         if (metadataItem.isShowForGroup()) {
@@ -2249,9 +2281,24 @@ public class UiV2Provisioning {
       if (!errors && StringUtils.isNotBlank(value)) {
         try {          
           Object convertedValue = metadataItem.getValueType().convert(value);
-          if (!GrouperUtil.equals(value, metadataItem.getDefaultValue())) {
-            metadataNameValuesToPopulate.put(name, convertedValue);
-          }
+          metadataNameValuesToPopulate.put(name, convertedValue);
+//          if (!GrouperUtil.equals(convertedValue, metadataItem.getDefaultValue())) {
+//            metadataNameValuesToPopulate.put(name, convertedValue);
+//          }
+        } catch (Exception e) {
+          String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
+          errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");
+          errorMessage = errorMessage.replace("$$type$$", metadataItem.getValueType().name());
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
+          errors = true;
+        }
+        
+      }
+      
+      if (!errors && GrouperUtil.length(values) > 0) {
+        try {         
+          Object convertedValues = metadataItem.getValueType().convert(values);
+          metadataNameValuesToPopulate.put(name, convertedValues);
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
           errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");

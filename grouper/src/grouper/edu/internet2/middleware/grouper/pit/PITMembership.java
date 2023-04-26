@@ -26,15 +26,12 @@ import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
-import edu.internet2.middleware.grouper.Field;
-import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
-import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -828,8 +825,6 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
   @Override
   public void onPostSave(HibernateSession hibernateSession) {
 
-    Map<String, PITField> pitFieldCache = new HashMap<String, PITField>();
-
     // add change log entry for permissions
     if (this.isActive() && this.getNotificationsForRolesWithPermissionChangesOnSaveOrUpdate()) {
       Set<ChangeLogEntry> changeLogEntryBatch = new LinkedHashSet<ChangeLogEntry>();
@@ -908,81 +903,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         changeLogEntryBatch.clear();
       }
     }
-    
-    // if the member is a group, add the PIT immediate group set.
-    if (this.isActive() && this.getMember().getSubjectTypeId().equals("group")) {
-      PITField pitField = pitFieldCache.get(this.getFieldId());
-      
-      if (pitField == null) {
-        pitField = GrouperDAOFactory.getFactory().getPITField().findById(this.getFieldId(), true);
-        pitFieldCache.put(pitField.getId(), pitField);
-      }
-      Field field = FieldFinder.findById(pitField.getSourceId(), false);
-      if (field == null) {
-        // if the field was deleted, then there's nothing to do
-        super.onPostSave(hibernateSession);
-        return;
-      }
-      
-      PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(this.getMember().getSubjectId(), true);
-
-      GroupSet immediateGroupSet = null;
-      PITGroupSet pitImmediateGroupSet = new PITGroupSet();
-
-      if (this.getOwnerGroupId() != null) {
-        PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findById(this.getOwnerGroupId(), true);
-        pitImmediateGroupSet.setOwnerGroupId(this.getOwnerGroupId());
-        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerGroupAndMemberGroupAndField(pitOwner.getSourceId(), memberGroup.getSourceId(), field);
-      } else if (this.getOwnerStemId() != null) {
-        PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findById(this.getOwnerStemId(), true);
-        pitImmediateGroupSet.setOwnerStemId(this.getOwnerStemId());
-        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerStemAndMemberGroupAndField(pitOwner.getSourceId(), memberGroup.getSourceId(), field);
-      } else if (this.getOwnerAttrDefId() != null) {
-        PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(this.getOwnerAttrDefId(), true);
-        pitImmediateGroupSet.setOwnerAttrDefId(this.getOwnerAttrDefId());
-        immediateGroupSet = GrouperDAOFactory.getFactory().getGroupSet().findImmediateByOwnerAttrDefAndMemberGroupAndField(pitOwner.getSourceId(), memberGroup.getSourceId(), field);
-      } else {
-        throw new RuntimeException("Not expecting");
-      }
-      
-      if (immediateGroupSet == null) {
-        // if the immediate group set was deleted, then there's nothing to do
-        super.onPostSave(hibernateSession);
-        return;
-      }
-      
-      if (!GrouperUtil.isEmpty(this.getContextId()) && !GrouperUtil.isEmpty(immediateGroupSet.getContextId()) &&
-          !this.getContextId().equals(immediateGroupSet.getContextId())) {
-        // this group set must have been added, deleted and then readded.  Don't add to point in time
-        super.onPostSave(hibernateSession);
-        return;
-      }
-            
-      PITField pitMemberField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(immediateGroupSet.getMemberFieldId(), true);
-      PITGroupSet pitParent = GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceIdActive(immediateGroupSet.getParentId(), true);
-      
-      pitImmediateGroupSet.setId(GrouperUuid.getUuid());
-      pitImmediateGroupSet.setSourceId(immediateGroupSet.getId());
-      pitImmediateGroupSet.setFieldId(this.getFieldId());
-      pitImmediateGroupSet.setMemberFieldId(pitMemberField.getId());
-      pitImmediateGroupSet.setMemberGroupId(memberGroup.getId());
-      pitImmediateGroupSet.setDepth(1);
-      pitImmediateGroupSet.setParentId(pitParent.getId());
-      pitImmediateGroupSet.setActiveDb("T");
-      pitImmediateGroupSet.setStartTimeDb(this.getStartTimeDb());
-      pitImmediateGroupSet.setContextId(this.getContextId());
-      pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
-      pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-      pitImmediateGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(this.getNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate());
-      pitImmediateGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
-      pitImmediateGroupSet.saveOrUpdate();
-      
-      if (!saveChangeLogUpdates) {
-        changeLogUpdates.addAll(pitImmediateGroupSet.getChangeLogUpdates());
-        pitImmediateGroupSet.clearChangeLogUpdates();
-      }
-    }
-    
+        
     super.onPostSave(hibernateSession);
   }
   
@@ -990,58 +911,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPostUpdate(edu.internet2.middleware.grouper.hibernate.HibernateSession)
    */
   @Override
-  public void onPostUpdate(HibernateSession hibernateSession) {
-
-    // if the member is a group and the membership is ending, add an end time to the PIT immediate group set.
-    if (!this.isActive() && this.dbVersion().isActive() && this.getMember().getSubjectTypeId().equals("group")) {
-
-      PITGroupSet pitImmediateGroupSet = null;
-      PITGroup memberGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(this.getMember().getSubjectId(), false);
-      if (memberGroup == null) {
-        // probably a bad membership being deleted, but let's make sure no prior version of the group has group sets
-        Set<PITGroup> memberGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(this.getMember().getSubjectId(), false);
-        for (PITGroup currMemberGroup : memberGroups) {
-          pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateByPITOwnerAndPITMemberAndPITField(
-              this.getOwnerId(), currMemberGroup.getId(), this.getFieldId());
-          if (pitImmediateGroupSet != null) {
-            break;
-          }
-        }
-      }
-      
-      if (memberGroup == null && pitImmediateGroupSet == null) {
-        // ok nothing to do then
-        super.onPostUpdate(hibernateSession);
-        return;
-      }
-      
-      // get the PIT immediate group set
-      if (pitImmediateGroupSet == null) {
-        pitImmediateGroupSet = GrouperDAOFactory.getFactory().getPITGroupSet().findActiveImmediateByPITOwnerAndPITMemberAndPITField(
-            this.getOwnerId(), memberGroup.getId(), this.getFieldId());
-      }
-      
-      if (pitImmediateGroupSet == null) {
-        // this must have already been deleted...
-        super.onPostUpdate(hibernateSession);
-        return;
-      }
-
-      pitImmediateGroupSet.setActiveDb("F");
-      pitImmediateGroupSet.setEndTimeDb(this.getEndTimeDb());
-      pitImmediateGroupSet.setContextId(this.getContextId());
-      pitImmediateGroupSet.setFlatMembershipNotificationsOnSaveOrUpdate(this.getFlatMembershipNotificationsOnSaveOrUpdate());
-      pitImmediateGroupSet.setFlatPrivilegeNotificationsOnSaveOrUpdate(this.getFlatPrivilegeNotificationsOnSaveOrUpdate());
-      pitImmediateGroupSet.setNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate(this.getNotificationsForSubjectsWithPermissionChangesOnSaveOrUpdate());
-      pitImmediateGroupSet.setSaveChangeLogUpdates(saveChangeLogUpdates);
-      pitImmediateGroupSet.saveOrUpdate();
-      
-      if (!saveChangeLogUpdates) {
-        changeLogUpdates.addAll(pitImmediateGroupSet.getChangeLogUpdates());
-        pitImmediateGroupSet.clearChangeLogUpdates();
-      }
-    }
-    
+  public void onPostUpdate(HibernateSession hibernateSession) {    
     super.onPostUpdate(hibernateSession);
   }
   

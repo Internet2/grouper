@@ -526,7 +526,7 @@ public class StemViewPrivilege implements Serializable {
     }
     
     List<String> memberIdsList = new ArrayList<String>(memberIdsSet);
-    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(memberIdsSet);
+    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(stemIdsSet);
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -646,7 +646,7 @@ public class StemViewPrivilege implements Serializable {
     }
     
     List<String> memberIdsList = new ArrayList<String>(memberIdsSet);
-    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(memberIdsSet);
+    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(stemIdsSet);
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -744,7 +744,7 @@ public class StemViewPrivilege implements Serializable {
     }
     
     List<String> memberIdsList = new ArrayList<String>(memberIdsSet);
-    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(memberIdsSet);
+    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(stemIdsSet);
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -876,7 +876,7 @@ public class StemViewPrivilege implements Serializable {
     }
     
     List<String> memberIdsList = new ArrayList<String>(memberIdsSet);
-    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(memberIdsSet);
+    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(stemIdsSet);
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -954,7 +954,7 @@ public class StemViewPrivilege implements Serializable {
     }
     
     List<String> memberIdsList = new ArrayList<String>(memberIdsSet);
-    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(memberIdsSet);
+    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(stemIdsSet);
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -1054,7 +1054,7 @@ public class StemViewPrivilege implements Serializable {
     }
     
     List<String> memberIdsList = new ArrayList<String>(memberIdsSet);
-    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(memberIdsSet);
+    List<String> stemIdsList = stemIdsSet == null ? null : new ArrayList<String>(stemIdsSet);
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     

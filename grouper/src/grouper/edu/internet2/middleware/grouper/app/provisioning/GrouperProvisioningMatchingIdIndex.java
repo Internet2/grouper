@@ -31,6 +31,434 @@ public class GrouperProvisioningMatchingIdIndex {
     this.grouperProvisioner = grouperProvisioner;
   }
 
+  /**
+   * these inputs might not have a group wrapper, might not have a matching id
+   * @param targetGroups
+   */
+  public List<ProvisioningGroup> mergeInNewTargetGroupsForMemberships(List<ProvisioningGroup> targetGroups) {
+    
+    List<ProvisioningGroup> result = new ArrayList<>();
+    if (GrouperUtil.length(targetGroups) == 0) {
+      return targetGroups;
+    }
+
+    int cantMatchMembershipGroup = 0;
+    
+    String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    
+    // index the existing target groups by matching id, and pick the best one if multiple
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningGroup> existingTargetMatchingAttributeToTargetGroup = new HashMap<>();
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningGroup> newUnmatchedTargetMatchingAttributeToTargetGroup = new HashMap<>();
+
+    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups())) {
+      if (GrouperUtil.length(targetGroup.getMatchingIdAttributeNameToValues()) > 0) {
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetGroup.getMatchingIdAttributeNameToValues().iterator().next();
+        existingTargetMatchingAttributeToTargetGroup.put(bestMatchingId, targetGroup);
+      }
+    }
+    
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(membershipAttributeName);
+    
+    if (grouperProvisioningConfigurationAttribute == null) {
+      return targetGroups;
+    }
+    
+    String defaultValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
+    if (StringUtils.equals(defaultValue, GrouperProvisioningAttributeManipulation.DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
+      defaultValue = "";
+    }
+    
+    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
+      if (GrouperUtil.length(targetGroup.getMatchingIdAttributeNameToValues()) > 0) {
+        
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetGroup.getMatchingIdAttributeNameToValues().iterator().next();
+        
+        ProvisioningGroup existingTargetGroup = existingTargetMatchingAttributeToTargetGroup.get(bestMatchingId);        
+
+        if (existingTargetGroup != null) {
+          result.add(existingTargetGroup);
+          mergeInMembershipValues(existingTargetGroup, targetGroup, membershipAttributeName, defaultValue);
+        } else {
+          
+          ProvisioningGroup firstTargetGroup = newUnmatchedTargetMatchingAttributeToTargetGroup.get(bestMatchingId);
+          if (firstTargetGroup == null) {
+            firstTargetGroup = targetGroup;
+            newUnmatchedTargetMatchingAttributeToTargetGroup.put(bestMatchingId, targetGroup);
+            result.add(targetGroup);
+          } else {
+            mergeInMembershipValues(firstTargetGroup, targetGroup, membershipAttributeName, defaultValue);
+          }
+          cantMatchMembershipGroup++;
+        }
+      }
+    }
+    
+    if (cantMatchMembershipGroup > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "cantMatchMembershipGroup", cantMatchMembershipGroup);
+    }
+    return result;
+  }
+
+  public void mergeInMembershipValues(ProvisioningGroup existingTargetGroup, ProvisioningGroup targetGroup, String membershipAttributeName, Object defaultValue) {
+    Set<?> values = targetGroup.retrieveAttributeValueSet(membershipAttributeName);
+
+    // if the new part has nothing, continue
+    if (GrouperUtil.length(values) == 0) {
+      return;
+    }
+    
+    // if the new part only has default, then ignore it
+    if (GrouperUtil.length(values) == 0 && defaultValue != null && GrouperUtil.equals(defaultValue, values.iterator().next())) {
+      return;
+    }
+    
+    // if the old part only has default, and the new exists, remove the old default
+    Set<?> membershipAttributeValueSet = existingTargetGroup.retrieveAttributeValueSet(membershipAttributeName);
+    if (GrouperUtil.length(membershipAttributeValueSet) == 1
+        && GrouperUtil.equals(defaultValue, values.iterator().next())) {
+      membershipAttributeValueSet.remove(defaultValue);
+    }
+    
+    for (Object membershipValue : GrouperUtil.nonNull(values)) {
+      existingTargetGroup.addAttributeValue(membershipAttributeName, membershipValue);
+    }
+
+  }
+  
+  /**
+   * these inputs might not have a entity wrapper, might not have a matching id
+   * @param targetEntities
+   */
+  public List<ProvisioningEntity> mergeInNewTargetEntitiesForMemberships(List<ProvisioningEntity> targetEntities) {
+    
+    List<ProvisioningEntity> result = new ArrayList<>();
+    if (GrouperUtil.length(targetEntities) == 0) {
+      return targetEntities;
+    }
+
+    int cantMatchMembershipEntity = 0;
+    
+    String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    
+    // index the existing target entities by matching id, and pick the best one if multiple
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningEntity> existingTargetMatchingAttributeToTargetEntity = new HashMap<>();
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningEntity> newUnmatchedTargetMatchingAttributeToTargetEntity = new HashMap<>();
+
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveTargetProvisioningEntities())) {
+      if (GrouperUtil.length(targetEntity.getMatchingIdAttributeNameToValues()) > 0) {
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetEntity.getMatchingIdAttributeNameToValues().iterator().next();
+        existingTargetMatchingAttributeToTargetEntity.put(bestMatchingId, targetEntity);
+      }
+    }
+    
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(membershipAttributeName);
+    
+    if (grouperProvisioningConfigurationAttribute == null) {
+      return targetEntities;
+    }
+    
+    String defaultValue = grouperProvisioningConfigurationAttribute.getDefaultValue();
+    if (StringUtils.equals(defaultValue, GrouperProvisioningAttributeManipulation.DEFAULT_VALUE_EMPTY_STRING_CONFIG)) {
+      defaultValue = "";
+    }
+    
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+      if (GrouperUtil.length(targetEntity.getMatchingIdAttributeNameToValues()) > 0) {
+        
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetEntity.getMatchingIdAttributeNameToValues().iterator().next();
+        
+        ProvisioningEntity existingTargetEntity = existingTargetMatchingAttributeToTargetEntity.get(bestMatchingId);        
+
+        if (existingTargetEntity != null) {
+          result.add(existingTargetEntity);
+          mergeInMembershipValues(existingTargetEntity, targetEntity, membershipAttributeName, defaultValue);
+        } else {
+          
+          ProvisioningEntity firstTargetEntity = newUnmatchedTargetMatchingAttributeToTargetEntity.get(bestMatchingId);
+          if (firstTargetEntity == null) {
+            firstTargetEntity = targetEntity;
+            newUnmatchedTargetMatchingAttributeToTargetEntity.put(bestMatchingId, targetEntity);
+            result.add(targetEntity);
+          } else {
+            mergeInMembershipValues(firstTargetEntity, targetEntity, membershipAttributeName, defaultValue);
+          }
+          cantMatchMembershipEntity++;
+        }
+      }
+    }
+    
+    if (cantMatchMembershipEntity > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "cantMatchMembershipEntity", cantMatchMembershipEntity);
+    }
+    return result;
+  }
+
+  /**
+   * 
+   * @param targetGroups
+   */
+  public void mergeInNewTargetGroups(List<ProvisioningGroup> targetGroups) {
+    
+    if (GrouperUtil.length(targetGroups) == 0) {
+      return;
+    }
+    
+    int duplicateTargetGroups = 0;
+    
+    // lets try to merge these in, if they replace newer ones
+    Set<ProvisioningGroupWrapper> newWrappers = new HashSet<>();
+    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
+      if (targetGroup.getProvisioningGroupWrapper() != null) {
+        newWrappers.add(targetGroup.getProvisioningGroupWrapper());
+      }
+    }
+
+    // index the new target groups by matching id, and pick the best one if multiple
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningGroupWrapper> targetMatchingAttributeToNewWrapper = new HashMap<>();
+    for (ProvisioningGroup targetGroup : GrouperUtil.nonNull(targetGroups)) {
+      if (targetGroup.getProvisioningGroupWrapper() == null) {
+        continue;
+      }
+      if (GrouperUtil.length(targetGroup.getMatchingIdAttributeNameToValues()) > 0) {
+        
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetGroup.getMatchingIdAttributeNameToValues().iterator().next();
+        ProvisioningGroupWrapper previousNewTargetGroupWrapper = targetMatchingAttributeToNewWrapper.get(bestMatchingId);
+        ProvisioningGroupWrapper currentNewTargetGroupWrapper = targetGroup.getProvisioningGroupWrapper();
+        
+        boolean useNew = shouldReplaceTargetProvisioningGroup(previousNewTargetGroupWrapper, currentNewTargetGroupWrapper);
+        
+        if (useNew) {
+          targetMatchingAttributeToNewWrapper.put(
+              bestMatchingId, targetGroup.getProvisioningGroupWrapper());
+        }
+      }
+    }
+    
+    // loop through existing wrappers and see if the targets match, and pick the best one
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningGroupWrapper> foundMatchOfMatchingAttributeToWrapper = new HashMap<>();
+    for (ProvisioningGroupWrapper existingGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+      if (existingGroupWrapper.getGrouperTargetGroup() != null && existingGroupWrapper.getTargetProvisioningGroup() != null) {
+        if (GrouperUtil.length(existingGroupWrapper.getTargetProvisioningGroup().getMatchingIdAttributeNameToValues()) > 0) {
+          ProvisioningUpdatableAttributeAndValue matchingId = existingGroupWrapper.getTargetProvisioningGroup().getMatchingIdAttributeNameToValues().iterator().next();
+          if (targetMatchingAttributeToNewWrapper.containsKey(matchingId)) {
+            foundMatchOfMatchingAttributeToWrapper.put(matchingId, existingGroupWrapper);
+            ProvisioningGroupWrapper newWrapper = targetMatchingAttributeToNewWrapper.get(matchingId);
+            boolean useNew = shouldReplaceTargetProvisioningGroup(existingGroupWrapper, newWrapper);
+            if (useNew) {
+              existingGroupWrapper.setTargetProvisioningGroup(newWrapper.getTargetProvisioningGroup());
+              duplicateTargetGroups++;
+            }
+          }
+        }
+      }
+    }
+
+    // loop through wrappers and remove the new ones which arent needed
+    Iterator<ProvisioningGroupWrapper> iterator = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers().iterator();
+    while (iterator.hasNext()) {
+      ProvisioningGroupWrapper newGroupWrapper = iterator.next();
+      // see if this is a new one
+      if (newGroupWrapper.getTargetProvisioningGroup() != null && newGroupWrapper.getGrouperTargetGroup() == null) {
+        if (foundMatchOfMatchingAttributeToWrapper.containsKey(newGroupWrapper.getTargetProvisioningGroup().getMatchingIdAttributeNameToValues().iterator().next())) {
+          iterator.remove();
+          // note: no need to remove from indexes...
+        }
+      }
+    }
+    if (duplicateTargetGroups > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "duplicateTargetGroups", duplicateTargetGroups);
+    }
+  }
+
+  /**
+   * 
+   * @param targetEntities
+   */
+  public void mergeInNewTargetEntities(List<ProvisioningEntity> targetEntities) {
+    
+    if (GrouperUtil.length(targetEntities) == 0) {
+      return;
+    }
+    
+    int duplicateTargetEntities = 0;
+    
+    // lets try to merge these in, if they replace newer ones
+    Set<ProvisioningEntityWrapper> newWrappers = new HashSet<>();
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+      if (targetEntity.getProvisioningEntityWrapper() != null) {
+        newWrappers.add(targetEntity.getProvisioningEntityWrapper());
+      }
+    }
+
+    // index the new target entities by matching id, and pick the best one if multiple
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningEntityWrapper> targetMatchingAttributeToNewWrapper = new HashMap<>();
+    for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetEntities)) {
+      if (targetEntity.getProvisioningEntityWrapper() == null) {
+        continue;
+      }
+      if (GrouperUtil.length(targetEntity.getMatchingIdAttributeNameToValues()) > 0) {
+        
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetEntity.getMatchingIdAttributeNameToValues().iterator().next();
+        ProvisioningEntityWrapper previousNewTargetEntityWrapper = targetMatchingAttributeToNewWrapper.get(bestMatchingId);
+        ProvisioningEntityWrapper currentNewTargetEntityWrapper = targetEntity.getProvisioningEntityWrapper();
+        
+        boolean useNew = shouldReplaceTargetProvisioningEntity(previousNewTargetEntityWrapper, currentNewTargetEntityWrapper);
+        
+        if (useNew) {
+          targetMatchingAttributeToNewWrapper.put(
+              bestMatchingId, targetEntity.getProvisioningEntityWrapper());
+        }
+      }
+    }
+    
+    // loop through existing wrappers and see if the targets match, and pick the best one
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningEntityWrapper> foundMatchOfMatchingAttributeToWrapper = new HashMap<>();
+    for (ProvisioningEntityWrapper existingEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+      if (existingEntityWrapper.getGrouperTargetEntity() != null && existingEntityWrapper.getTargetProvisioningEntity() != null) {
+        if (GrouperUtil.length(existingEntityWrapper.getTargetProvisioningEntity().getMatchingIdAttributeNameToValues()) > 0) {
+          ProvisioningUpdatableAttributeAndValue matchingId = existingEntityWrapper.getTargetProvisioningEntity().getMatchingIdAttributeNameToValues().iterator().next();
+          if (targetMatchingAttributeToNewWrapper.containsKey(matchingId)) {
+            foundMatchOfMatchingAttributeToWrapper.put(matchingId, existingEntityWrapper);
+            ProvisioningEntityWrapper newWrapper = targetMatchingAttributeToNewWrapper.get(matchingId);
+            boolean useNew = shouldReplaceTargetProvisioningEntity(existingEntityWrapper, newWrapper);
+            if (useNew) {
+              existingEntityWrapper.setTargetProvisioningEntity(newWrapper.getTargetProvisioningEntity());
+              duplicateTargetEntities++;
+            }
+          }
+        }
+      }
+    }
+
+    // loop through wrappers and remove the new ones which arent needed
+    Iterator<ProvisioningEntityWrapper> iterator = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers().iterator();
+    while (iterator.hasNext()) {
+      ProvisioningEntityWrapper newEntityWrapper = iterator.next();
+      // see if this is a new one
+      if (newEntityWrapper.getTargetProvisioningEntity() != null && newEntityWrapper.getGrouperTargetEntity() == null) {
+        if (foundMatchOfMatchingAttributeToWrapper.containsKey(newEntityWrapper.getTargetProvisioningEntity().getMatchingIdAttributeNameToValues().iterator().next())) {
+          iterator.remove();
+          // note: no need to remove from indexes...
+        }
+      }
+    }
+    if (duplicateTargetEntities > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "duplicateTargetEntities", duplicateTargetEntities);
+    }
+  }
+
+  public boolean shouldReplaceTargetProvisioningGroup(
+      ProvisioningGroupWrapper previousNewTargetGroupWrapper,
+      ProvisioningGroupWrapper currentNewTargetGroupWrapper) {
+    boolean useNew = false;
+    boolean isGroupAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.groupAttributes;
+    String groupMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName();
+
+    if (previousNewTargetGroupWrapper == null) {
+      useNew = true;
+    } else if (isGroupAttributes 
+        && GrouperUtil.length(previousNewTargetGroupWrapper.getTargetProvisioningGroup().retrieveAttributeValueSet(groupMembershipAttribute))
+        > GrouperUtil.length(currentNewTargetGroupWrapper.getTargetProvisioningGroup().retrieveAttributeValueSet(groupMembershipAttribute))) {
+      // if the current one that is new has the most memberships, then keep it
+      useNew = false;
+    } else {
+      useNew = true;
+    }
+    return useNew;
+  }
+
+
+  public boolean shouldReplaceTargetProvisioningEntity(
+      ProvisioningEntityWrapper previousNewTargetEntityWrapper,
+      ProvisioningEntityWrapper currentNewTargetEntityWrapper) {
+    boolean useNew = false;
+    boolean isEntityAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.entityAttributes;
+    String entityMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
+
+    if (previousNewTargetEntityWrapper == null) {
+      useNew = true;
+    } else if (isEntityAttributes 
+        && GrouperUtil.length(previousNewTargetEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSet(entityMembershipAttribute))
+        > GrouperUtil.length(currentNewTargetEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSet(entityMembershipAttribute))) {
+      // if the current one that is new has the most memberships, then keep it
+      useNew = false;
+    } else {
+      useNew = true;
+    }
+    return useNew;
+  }
+
+  /**
+   * 
+   * @param targetMemberships
+   */
+  public void mergeInNewTargetMemberships(List<ProvisioningMembership> targetMemberships) {
+    
+    if (GrouperUtil.length(targetMemberships) == 0) {
+      return;
+    }
+    
+    int duplicateTargetMemberships = 0;
+
+    // lets try to merge these in, if they replace newer ones
+    Set<ProvisioningMembershipWrapper> newWrappers = new HashSet<>();
+    for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMemberships)) {
+      if (targetMembership.getProvisioningMembershipWrapper() != null) {
+        newWrappers.add(targetMembership.getProvisioningMembershipWrapper());
+      }
+    }
+
+    // index the new target Memberships by matching id, and pick the best one if multiple
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningMembershipWrapper> targetMatchingAttributeToNewWrapper = new HashMap<>();
+    for (ProvisioningMembership targetMembership : GrouperUtil.nonNull(targetMemberships)) {
+      if (targetMembership.getProvisioningMembershipWrapper() == null) {
+        continue;
+      }
+      if (GrouperUtil.length(targetMembership.getMatchingIdAttributeNameToValues()) > 0) {
+        
+        ProvisioningUpdatableAttributeAndValue bestMatchingId = targetMembership.getMatchingIdAttributeNameToValues().iterator().next();
+        
+        targetMatchingAttributeToNewWrapper.put(
+            bestMatchingId, targetMembership.getProvisioningMembershipWrapper());
+      }
+    }
+    
+    // loop through existing wrappers and see if the targets match, and pick the best one
+    Map<ProvisioningUpdatableAttributeAndValue, ProvisioningMembershipWrapper> foundMatchOfMatchingAttributeToWrapper = new HashMap<>();
+    for (ProvisioningMembershipWrapper existingMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+      if (existingMembershipWrapper.getGrouperTargetMembership() != null && existingMembershipWrapper.getTargetProvisioningMembership() != null) {
+        if (GrouperUtil.length(existingMembershipWrapper.getTargetProvisioningMembership().getMatchingIdAttributeNameToValues()) > 0) {
+          ProvisioningUpdatableAttributeAndValue matchingId = existingMembershipWrapper.getTargetProvisioningMembership().getMatchingIdAttributeNameToValues().iterator().next();
+          if (targetMatchingAttributeToNewWrapper.containsKey(matchingId)) {
+            foundMatchOfMatchingAttributeToWrapper.put(matchingId, existingMembershipWrapper);
+            ProvisioningMembershipWrapper newWrapper = targetMatchingAttributeToNewWrapper.get(matchingId);
+            existingMembershipWrapper.setTargetProvisioningMembership(newWrapper.getTargetProvisioningMembership());
+          }
+        }
+      }
+    }
+
+    // loop through wrappers and remove the new ones which arent needed
+    Iterator<ProvisioningMembershipWrapper> iterator = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().iterator();
+    while (iterator.hasNext()) {
+      ProvisioningMembershipWrapper newMembershipWrapper = iterator.next();
+      // see if this is a new one
+      if (newMembershipWrapper.getTargetProvisioningMembership() != null && newMembershipWrapper.getGrouperTargetMembership() == null) {
+        if (foundMatchOfMatchingAttributeToWrapper.containsKey(newMembershipWrapper.getTargetProvisioningMembership().getMatchingIdAttributeNameToValues().iterator().next())) {
+          iterator.remove();
+          // note: no need to remove from indexes...
+        }
+      }
+    }
+    if (duplicateTargetMemberships > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "duplicateTargetMemberships", duplicateTargetMemberships);
+    }
+
+  }
 
   /**
    * look through group wrappers and add matching IDs to the index and make sure everything is linked up
@@ -40,7 +468,7 @@ public class GrouperProvisioningMatchingIdIndex {
   
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningGroup>> groupMatchingIdToTargetProvisioningGroupWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningGroup>>();
     
-    if (GrouperUtil.length(useTheseTargetProvisioningGroups) == 0) {
+    if (useTheseTargetProvisioningGroups == null) {
       // lets index the target objects first
       for (ProvisioningGroupWrapper provisioningGroupWrapper : new ArrayList<ProvisioningGroupWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()))) {
@@ -131,7 +559,7 @@ public class GrouperProvisioningMatchingIdIndex {
             }
 
             // make sure we are doing the right deleted flag
-            if (deleted != provisioningGroupWrapper.isDelete()) {
+            if (deleted != provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
               continue;
             }
 
@@ -291,6 +719,16 @@ public class GrouperProvisioningMatchingIdIndex {
         continue;
       }
       
+      if (grouperTargetGroup != null && targetProvisioningGroup == null && 
+          provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+        continue;
+      }
+      
+      if (grouperTargetGroup != null && targetProvisioningGroup == null && 
+          !provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+        continue;
+      }
+      
       if (grouperTargetGroup == null) {
         provisioningGroupWrappersWithNoMatch++;
         continue;
@@ -300,7 +738,7 @@ public class GrouperProvisioningMatchingIdIndex {
         provisioningGroupWrappersWithNoMatchingId++;
         continue;
       }
-      if (provisioningGroupWrapper.isRecalcObject()) {
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
         provisioningGroupWrappersWithNoMatch++;
       }
       continue;
@@ -334,9 +772,68 @@ public class GrouperProvisioningMatchingIdIndex {
    */
   public void indexMatchingIdMemberships(List<ProvisioningMembership> useTheseTargetProvisioningMemberships) {
   
+    /**
+     * 
+     *  4 membership wrappers 
+     *    2 have grouper and target side and matching ids are populated
+     *    2 have only the target side and matching ids
+     *    
+     *    the matching ids can be more than one plain object. It can be a set - Set(String(uuid), MultiKey(groupId, entityId))
+     *  
+     *    loop through membership wrappers and find ones that have grouper side and target side
+     *    // for each one of them, get their matching id value objects ProvisioningUpdatableAttributeAndValue
+     *    // and for each one add them to the set
+     *    // e.g. you can have 1 or more ProvisioningUpdatableAttributeAndValue objects per wrapper 
+     *      Set<ProvisioningUpdatableAttributeAndValue> 
+     *      
+     *    //  membershipWrappers.iterator use this to iterate and when we find a wrapper that has only the target side
+     *    // look through their matching ids and if even one of them matches with the items in the set above, toss it out
+     *    
+     *     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsForGroup()) {
+        iterator.remove();
+        this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
+        filterNonRecalcActionsCapturedByRecalc++;
+      }
+     * 
+     */
+    
+    Set<ProvisioningUpdatableAttributeAndValue> matchingIds = new HashSet<>();
+    
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
+        GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
+      
+      
+      if (provisioningMembershipWrapper.getGrouperProvisioningMembership() != null 
+          && provisioningMembershipWrapper.getTargetProvisioningMembership() != null) {
+        
+        ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
+        
+        matchingIds.addAll(GrouperUtil.nonNull(targetProvisioningMembership.getMatchingIdAttributeNameToValues()));
+        
+      }
+      
+    }
+    
+    Iterator<ProvisioningMembershipWrapper> membershipWrappersIterator = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().iterator();
+    
+    while (membershipWrappersIterator.hasNext()) {
+      
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipWrappersIterator.next();
+      if (provisioningMembershipWrapper.getTargetProvisioningMembership() != null 
+          && provisioningMembershipWrapper.getGrouperTargetMembership() == null) {
+        
+        for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : GrouperUtil.nonNull(provisioningMembershipWrapper.getTargetProvisioningMembership().getMatchingIdAttributeNameToValues())) {
+          if (matchingIds.contains(provisioningUpdatableAttributeAndValue)) {
+            membershipWrappersIterator.remove();
+          }
+        }
+        
+      }
+    }
+    
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningMembership>> membershipMatchingIdToTargetProvisioningMembershipWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningMembership>>();
     
-    if (GrouperUtil.length(useTheseTargetProvisioningMemberships) == 0) {
+    if (useTheseTargetProvisioningMemberships == null) {
       // lets index the target objects first
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
@@ -411,7 +908,7 @@ public class GrouperProvisioningMatchingIdIndex {
         String matchingAttributeName = "id";
         
         // go through unmatched grouper objects and try to find a match
-        LOOP_THROUGH_GROUPS: for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
+        LOOP_THROUGH_MEMBERSHIPS: for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
             GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
 
           if (provisioningMembershipWrapper.getGrouperTargetMembership() == null) {
@@ -426,7 +923,7 @@ public class GrouperProvisioningMatchingIdIndex {
           }
 
           // make sure we are doing the right deleted flag
-          if (deleted != provisioningMembershipWrapper.isDelete()) {
+          if (deleted != provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
             continue;
           }
 
@@ -523,7 +1020,7 @@ public class GrouperProvisioningMatchingIdIndex {
             }
 
             targetProvisioningMembershipToMatchCount.put(targetProvisioningMembership, 1);
-            continue LOOP_THROUGH_GROUPS;
+            continue LOOP_THROUGH_MEMBERSHIPS;
           }
         }
         
@@ -569,7 +1066,7 @@ public class GrouperProvisioningMatchingIdIndex {
     int provisioningMembershipWrappersWithNoMatch = 0;
     
   
-    // go through unmatched grouper objects and try to find a match
+    // go through unmatched grouper objects and try to find a matc
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : new ArrayList<ProvisioningMembershipWrapper>(
         GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()))) {
   
@@ -577,6 +1074,16 @@ public class GrouperProvisioningMatchingIdIndex {
       ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
   
       if (grouperTargetMembership != null && targetProvisioningMembership != null) {
+        continue;
+      }
+      
+      if (grouperTargetMembership != null && targetProvisioningMembership == null && 
+          provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+        continue;
+      }
+      
+      if (grouperTargetMembership != null && targetProvisioningMembership == null && 
+          !provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
         continue;
       }
       
@@ -620,7 +1127,7 @@ public class GrouperProvisioningMatchingIdIndex {
   
     Map<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningEntity>> entityMatchingIdToTargetProvisioningEntityWrapper = new HashMap<ProvisioningUpdatableAttributeAndValue, Set<ProvisioningEntity>>();
     
-    if (GrouperUtil.length(useTheseTargetProvisioningEntities) == 0) {
+    if (useTheseTargetProvisioningEntities == null) {
       // lets index the target objects first
       for (ProvisioningEntityWrapper provisioningEntityWrapper : new ArrayList<ProvisioningEntityWrapper>(
           GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()))) {
@@ -711,7 +1218,7 @@ public class GrouperProvisioningMatchingIdIndex {
             }
   
             // make sure we are doing the right deleted flag
-            if (deleted != provisioningEntityWrapper.isDelete()) {
+            if (deleted != provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
               continue;
             }
   
@@ -871,6 +1378,17 @@ public class GrouperProvisioningMatchingIdIndex {
         continue;
       }
       
+
+      if (grouperTargetEntity != null && targetProvisioningEntity == null && 
+          provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
+        continue;
+      }
+      
+      if (grouperTargetEntity != null && targetProvisioningEntity == null && 
+          !provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+        continue;
+      }
+      
       if (grouperTargetEntity == null) {
         provisioningEntityWrappersWithNoMatch++;
         continue;
@@ -880,7 +1398,7 @@ public class GrouperProvisioningMatchingIdIndex {
         provisioningEntityWrappersWithNoMatchingId++;
         continue;
       }
-      if (provisioningEntityWrapper.isRecalcObject()) {
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
         provisioningEntityWrappersWithNoMatch++;
       }
       continue;
@@ -908,6 +1426,32 @@ public class GrouperProvisioningMatchingIdIndex {
     }
   }
 
+
+  public void mergeInMembershipValues(ProvisioningEntity existingTargetEntity, ProvisioningEntity targetEntity, String membershipAttributeName, Object defaultValue) {
+    Set<?> values = targetEntity.retrieveAttributeValueSet(membershipAttributeName);
+  
+    // if the new part has nothing, continue
+    if (GrouperUtil.length(values) == 0) {
+      return;
+    }
+    
+    // if the new part only has default, then ignore it
+    if (GrouperUtil.length(values) == 0 && defaultValue != null && GrouperUtil.equals(defaultValue, values.iterator().next())) {
+      return;
+    }
+    
+    // if the old part only has default, and the new exists, remove the old default
+    Set<?> membershipAttributeValueSet = existingTargetEntity.retrieveAttributeValueSet(membershipAttributeName);
+    if (GrouperUtil.length(membershipAttributeValueSet) == 1
+        && GrouperUtil.equals(defaultValue, values.iterator().next())) {
+      membershipAttributeValueSet.remove(defaultValue);
+    }
+    
+    for (Object membershipValue : GrouperUtil.nonNull(values)) {
+      existingTargetEntity.addAttributeValue(membershipAttributeName, membershipValue);
+    }
+  
+  }
 
   
 }

@@ -1,8 +1,9 @@
 package edu.internet2.middleware.grouper.authentication;
 
 import java.io.File;
+import java.io.IOException;
+import java.net.Proxy;
 import java.net.URI;
-import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.TreeMap;
@@ -12,21 +13,36 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 
-import com.fasterxml.jackson.databind.JsonNode;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
 import com.nimbusds.oauth2.sdk.AuthorizationGrant;
+import com.nimbusds.oauth2.sdk.ErrorObject;
+import com.nimbusds.oauth2.sdk.ParseException;
+import com.nimbusds.oauth2.sdk.ResponseType;
+import com.nimbusds.oauth2.sdk.Scope;
+import com.nimbusds.oauth2.sdk.SerializeException;
 import com.nimbusds.oauth2.sdk.TokenErrorResponse;
 import com.nimbusds.oauth2.sdk.TokenRequest;
 import com.nimbusds.oauth2.sdk.TokenResponse;
 import com.nimbusds.oauth2.sdk.auth.ClientAuthentication;
 import com.nimbusds.oauth2.sdk.auth.ClientSecretBasic;
 import com.nimbusds.oauth2.sdk.auth.Secret;
+import com.nimbusds.oauth2.sdk.http.HTTPRequest;
+import com.nimbusds.oauth2.sdk.http.HTTPResponse;
 import com.nimbusds.oauth2.sdk.id.ClientID;
+import com.nimbusds.oauth2.sdk.id.State;
 import com.nimbusds.oauth2.sdk.token.AccessToken;
+import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
+import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
+import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
+import com.nimbusds.openid.connect.sdk.UserInfoRequest;
+import com.nimbusds.openid.connect.sdk.UserInfoResponse;
+import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -34,10 +50,10 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
-import edu.internet2.middleware.grouper.util.GrouperHttpClient;
-import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
+import edu.internet2.middleware.grouper.util.GrouperProxyBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
+import net.minidev.json.JSONObject;
 
 public class GrouperOidc {
 
@@ -150,6 +166,8 @@ public class GrouperOidc {
   }
 
   private Map<String, String> accessTokenAttributes;
+
+  private AccessToken accessTokenObject;
   
   /**
    * get an access token, unwrap it and get the attributes from the access token
@@ -159,42 +177,46 @@ public class GrouperOidc {
    */
   public void decodeAccessToken() {
     
-    GrouperUtil.assertion(this.grouperOidcConfig != null, "config is required");
-    GrouperUtil.assertion(!StringUtils.isBlank(this.accessToken), "accessToken is required");
+    UserInfoRequest userInfoReq = new UserInfoRequest(
+        this.grouperOidcConfig.getUserInfoUri(),
+        (BearerAccessToken) this.accessTokenObject);
 
-    GrouperUtil.assertion(!StringUtils.isBlank(this.grouperOidcConfig.getUserInfoUri()), "userInfoUri is required");
-
-    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-
-    grouperHttpClient.assignUrl(this.grouperOidcConfig.getUserInfoUri());
-    grouperHttpClient.addBodyParameter("access_token", this.accessToken);
-    grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
-    
-    grouperHttpClient.assignProxyUrl(this.grouperOidcConfig.getProxyUrl());
-    grouperHttpClient.assignProxyType(this.grouperOidcConfig.getProxyType());
-    
-    grouperHttpClient.executeRequest();
-
-    String responseBody = grouperHttpClient.getResponseBody();
-    this.debugMap.put("decodeAccessTokenResponseBody", responseBody);
-    
-    int responseCode = grouperHttpClient.getResponseCode();
-    this.debugMap.put("decodeAccessTokenResponseCode", responseCode);
-
-    if (responseCode != 200) {
-      throw new RuntimeException("Error: " + responseCode + ", " + responseBody);
-    }
-    
-    JsonNode responseBodyNode = GrouperUtil.jsonJacksonNode(responseBody);
-    // {"sub":"mchyzer","name":"Hyzer, Chris","given_name":"Chris","family_name":"Hyzer","email":"mchyzer@upenn.edu","username":"mchyzer@upenn.edu"}
-
-    this.accessTokenAttributes = new TreeMap<String, String>();
-    
-    Iterator<String> fieldNameIterator = responseBodyNode.fieldNames();
-    while (fieldNameIterator.hasNext()) {
+    HTTPResponse userInfoHTTPResp = null;
+    try {
+      HTTPRequest httpRequest = userInfoReq.toHTTPRequest();
       
-      String fieldName = fieldNameIterator.next();
-      String fieldValue = GrouperUtil.jsonJacksonGetString(responseBodyNode, fieldName);
+      GrouperProxyBean grouperProxyBean = GrouperProxyBean.proxyConfig(this.grouperOidcConfig.getProxyType(), 
+          this.grouperOidcConfig.getProxyUrl(), this.grouperOidcConfig.getTokenEndpointUri().toString());
+
+      if (grouperProxyBean != null) {
+        Proxy proxy = grouperProxyBean.retrieveProxy();
+        httpRequest.setProxy(proxy);
+      }
+      
+      userInfoHTTPResp = httpRequest.send();
+      
+    } catch (SerializeException | IOException e) {
+     throw new RuntimeException(e);
+    }
+
+    UserInfoResponse userInfoResponse = null;
+    try {
+      userInfoResponse = UserInfoResponse.parse(userInfoHTTPResp);
+    } catch (ParseException e) {
+      throw new RuntimeException(e);
+    }
+
+    if (userInfoResponse instanceof UserInfoErrorResponse) {
+      ErrorObject error = ((UserInfoErrorResponse) userInfoResponse).getErrorObject();
+      throw new RuntimeException("Error: "+error.toString());
+    }
+
+    UserInfoSuccessResponse successResponse = (UserInfoSuccessResponse) userInfoResponse;
+    JSONObject claims = successResponse.getUserInfo().toJSONObject();
+  
+    this.accessTokenAttributes = new TreeMap<>();
+    for (String fieldName : claims.keySet()) {
+      String fieldValue = claims.getAsString(fieldName);
       this.accessTokenAttributes.put(fieldName, fieldValue);
     }
     
@@ -205,19 +227,26 @@ public class GrouperOidc {
    * get an access token from the code, assign to field in this object
    */
   public void retrieveAccessToken() {
-    
+
     GrouperUtil.assertion(this.grouperOidcConfig != null, "config is required");
     GrouperUtil.assertion(!StringUtils.isBlank(this.oidcCodeString), "code is required");
     GrouperUtil.assertion(!StringUtils.isBlank(this.grouperOidcConfig.getClientId()), "clientId is required");
     GrouperUtil.assertion(!StringUtils.isBlank(this.grouperOidcConfig.getClientSecret()), "clientSecret is required");
-    GrouperUtil.assertion(!StringUtils.isBlank(this.redirectUri), "redirectUri is required");
-    GrouperUtil.assertion(!StringUtils.isBlank(this.grouperOidcConfig.getTokenEndpointUri()), "tokenEndpoint is required");
+    
+    String redirectUriLocal = this.redirectUri;
+    
+    if (StringUtils.isBlank(redirectUriLocal)) {
+      redirectUriLocal = this.grouperOidcConfig.getRedirectUri();
+    }
+    
+    GrouperUtil.assertion(!StringUtils.isBlank(redirectUriLocal), "redirectUri is required");
+    GrouperUtil.assertion(this.grouperOidcConfig.getTokenEndpointUri() != null, "tokenEndpoint is required");
 
     try {
       // Construct the code grant from the code obtained from the authz endpoint
       // and the original callback URI used at the authz endpoint
       AuthorizationCode authorizationCode = new AuthorizationCode(this.oidcCodeString);
-      URI callback = new URI(this.redirectUri);
+      URI callback = new URI(redirectUriLocal);
       AuthorizationGrant codeGrant = new AuthorizationCodeGrant(authorizationCode, callback);
   
       // The credentials to authenticate the client at the token endpoint
@@ -226,12 +255,21 @@ public class GrouperOidc {
       ClientAuthentication clientAuth = new ClientSecretBasic(clientIdObject, clientSecretObject);
   
       // The token endpoint
-      URI tokenEndpointUri = new URI(this.grouperOidcConfig.getTokenEndpointUri());
+      URI tokenEndpointUri = this.grouperOidcConfig.getTokenEndpointUri();
   
       // Make the token request
       TokenRequest request = new TokenRequest(tokenEndpointUri, clientAuth, codeGrant);
+      
+      GrouperProxyBean grouperProxyBean = GrouperProxyBean.proxyConfig(this.grouperOidcConfig.getProxyType(), 
+          this.grouperOidcConfig.getProxyUrl(), tokenEndpointUri.toString());
+
+      HTTPRequest httpRequest = request.toHTTPRequest();
+      if (grouperProxyBean != null) {
+        Proxy proxy = grouperProxyBean.retrieveProxy();
+        httpRequest.setProxy(proxy);
+      }
   
-      TokenResponse response = TokenResponse.parse(request.toHTTPRequest().send());
+      TokenResponse response = TokenResponse.parse(httpRequest.send());
 
       this.debugMap.put("tokenServiceSuccess", response.indicatesSuccess());
       
@@ -252,6 +290,7 @@ public class GrouperOidc {
       AccessToken accessTokenObject = successResponse.getTokens().getAccessToken();
 
       this.accessToken = accessTokenObject.getValue();
+      this.accessTokenObject = accessTokenObject;
 
       this.debugMap.put("accessToken", StringUtils.abbreviate(this.accessToken, 8));
 
@@ -265,7 +304,7 @@ public class GrouperOidc {
 
   private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-  private String configId;
+//  private String externalSystemConfigId;
 
   /**
    * 
@@ -302,7 +341,18 @@ public class GrouperOidc {
       }
     }
   }
-
+  
+  public GrouperOidc assignExternalSystemConfigId(String clientConfigId) {
+    
+    this.grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(clientConfigId);
+    
+    if (grouperOidcConfig == null) {
+      throw new RuntimeException("Cant find oidc config: '" + clientConfigId + "'");
+    }
+    
+    return this;
+  }
+  
   private void retrieveCodeFromHeader() {
     
     if (StringUtils.isBlank(this.bearerTokenHeader)) {
@@ -328,14 +378,12 @@ public class GrouperOidc {
 
     debugMap.put("uriPattern", uriPattern);
 
-    this.configId = matcher.group(1);
-    debugMap.put("configId", configId);
+    this.assignExternalSystemConfigId(matcher.group(1));
     
-    this.grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(configId);
-    
-    if (grouperOidcConfig == null) {
-      throw new RuntimeException("Cant find oidc config: '" + configId + "'");
+    if (this.ws && !grouperOidcConfig.isWs()) {
+      throw new RuntimeException(matcher.group(1) + " is not enabled for ws in the external system.");
     }
+//    debugMap.put("configId", externalSystemConfigId);
     
     this.oidcCodeString = matcher.group(uriPattern ? 3 : 2);
 
@@ -354,7 +402,66 @@ public class GrouperOidc {
 
   private Subject subject = null;
   
-  private void findSubject() {
+  
+  /**
+   * is this for WS or not
+   */
+  private boolean ws;
+
+  
+  
+  public String generateLoginUrl() {
+    
+    try {
+   // Generate random state string for pairing the response to the request
+      State state = new State();
+      // Generate nonce
+      Nonce nonce = new Nonce();
+      // Specify scope
+      Scope scope = Scope.parse(grouperOidcConfig.getScope());
+      
+      // Compose the request
+      AuthenticationRequest authenticationRequest = new AuthenticationRequest(
+      grouperOidcConfig.getAuthorizationEndpointUri(),
+      new ResponseType(grouperOidcConfig.getResponseType()),
+      scope, new ClientID(grouperOidcConfig.getClientId()), new URI(grouperOidcConfig.getRedirectUri()), state, nonce);
+
+      URI authReqURI = authenticationRequest.toURI();
+      return authReqURI.toString();
+    } catch (Exception e) {
+      throw new RuntimeException(e);
+    }
+    
+  }
+  
+  
+  public String retrieveResponseType() {
+    return grouperOidcConfig.getResponseType(); 
+  }
+  
+  public String findSubjectClaim() {
+    
+    String subjectIdClaimName = null;
+    if (!StringUtils.isBlank(grouperOidcConfig.getSubjectIdClaimName())) {
+      
+      subjectIdClaimName = grouperOidcConfig.getSubjectIdClaimName();
+      
+    }
+
+    if (!StringUtils.isBlank(subjectIdClaimName)) {
+     
+      debugMap.put("subjectIdClaimName", subjectIdClaimName);
+      
+      String subjectId = GrouperOidc.this.accessTokenAttributes.get(subjectIdClaimName);
+      return subjectId;
+      
+    }
+    
+    return null;
+    
+  }
+  
+  public Subject findSubject() {
     
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
@@ -445,5 +552,17 @@ public class GrouperOidc {
       }
     });
     
+    return this.subject;
+    
+  }
+
+  public GrouperOidc assignAuthorizationCode(String authorizationCode) {
+    this.oidcCodeString = authorizationCode;
+    return this;
+  }
+
+  public GrouperOidc assignWs(boolean isWs) {
+    this.ws = isWs;
+    return this;
   }
 }

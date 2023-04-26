@@ -20,8 +20,8 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.GrouperWsConfig;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsHasMemberLiteResult.WsHasMemberLiteResultCode;
@@ -38,7 +38,7 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
 public class WsHasMemberResult implements ResultMetadataHolder {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsHasMemberResult.class);
+  private static final Log LOG = GrouperUtil.getLog(WsHasMemberResult.class);
 
   /** sujbect info for hasMember */
   private WsSubject wsSubject;

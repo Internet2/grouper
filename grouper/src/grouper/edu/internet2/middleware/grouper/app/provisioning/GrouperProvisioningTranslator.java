@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -49,18 +50,38 @@ public class GrouperProvisioningTranslator {
    */
   private static ThreadLocal<ProvisioningMembershipWrapper> provisioningMembershipWrapperThreadLocal = new InheritableThreadLocal<ProvisioningMembershipWrapper>();
   
+  /**
+   * keep a reference to the membership wrapper so attributes can register with membership
+   * @return membership wrapper
+   */
+  public static void assignThreadLocalProvisioningMembershipWrapper(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
+    provisioningMembershipWrapperThreadLocal.set(provisioningMembershipWrapper);
+  }
   
   /**
    * keep a reference to the membership wrapper so attributes can register with membership
    * @return membership wrapper
    */
-  public static ProvisioningMembershipWrapper retrieveProvisioningMembershipWrapper() {
+  public static void clearThreadLocalProvisioningMembershipWrapper() {
+    provisioningMembershipWrapperThreadLocal.remove();
+  }
+  
+  /**
+   * keep a reference to the membership wrapper so attributes can register with membership
+   * @return membership wrapper
+   */
+  public static ProvisioningMembershipWrapper retrieveThreadLocalProvisioningMembershipWrapper() {
     return provisioningMembershipWrapperThreadLocal.get();
   }
 
   public List<ProvisioningMembership> translateGrouperToTargetMemberships(
       List<ProvisioningMembership> grouperProvisioningMemberships, boolean includeDelete) {
     
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()
+        ) {
+      return null;
+    }
+
     Collection<Object> changedMemberships = new HashSet<Object>();
 
     int invalidMembershipsDuringTranslation = 0;
@@ -96,7 +117,7 @@ public class GrouperProvisioningTranslator {
 
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
-
+      
       GcGrouperSyncErrorCode errorCode = provisioningGroupWrapper.getErrorCode();
       String errorMessage = provisioningGroupWrapper.getGcGrouperSyncGroup().getErrorMessage();
       if (errorCode == null && !StringUtils.isBlank(errorMessage)) {
@@ -105,7 +126,7 @@ public class GrouperProvisioningTranslator {
           
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
       ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
-
+      
       if (errorCode == null) {
         errorCode = provisioningEntityWrapper.getErrorCode();
         errorMessage = provisioningEntityWrapper.getGcGrouperSyncMember().getErrorMessage();
@@ -113,6 +134,17 @@ public class GrouperProvisioningTranslator {
           errorCode = GcGrouperSyncErrorCode.ERR;
         }
       }
+      
+      // if this is an add, and the user isnt there, then there is a problem
+      boolean isDelete = gcGrouperSyncMembership.isInTarget() || provisioningMembershipWrapper.getProvisioningStateMembership().isDelete();
+
+      boolean isEntityInTarget = provisioningEntityWrapper.getGcGrouperSyncMember().isInTarget() || provisioningEntityWrapper.getTargetProvisioningEntity() != null;
+      
+      if (!isDelete && errorCode == null && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOnlyAddMembershipsIfUserExistsInTarget()
+          && !isEntityInTarget) {
+        errorCode = GcGrouperSyncErrorCode.DNE;
+      }
+      
       if (errorCode != null) {
         this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
         continue;
@@ -153,10 +185,18 @@ public class GrouperProvisioningTranslator {
         // attribute translations
         for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
           String expressionToUse = getTargetExpressionToUse(!gcGrouperSyncMembership.isInTarget(), grouperProvisioningConfigurationAttribute);
+          
+          boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
+          if (!continueTranslation) {
+            throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+          }
+          
           if (StringUtils.isNotBlank(expressionToUse) 
               || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())
+              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperTargetGroupField())
+              || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperTargetEntityField())
               || StringUtils.isNotBlank(grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
-            Object result = attributeTranslation( 
+            Object result = attributeTranslationOrCache( 
                 grouperTargetMembership.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, !gcGrouperSyncMembership.isInTarget(), 
                 grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, provisioningEntityWrapper);
 
@@ -223,7 +263,7 @@ public class GrouperProvisioningTranslator {
               }
 
               if (result != null) {
-                if (!grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper().isDelete()) {
+                if (!grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper().getProvisioningStateEntity().isDelete()) {
                   MultiKey validationError = this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().validFieldOrAttributeValue(grouperTargetEntity, grouperProvisioningConfigurationAttribute, result);
                   if (validationError != null) {
                     
@@ -284,6 +324,7 @@ public class GrouperProvisioningTranslator {
           grouperTargetMembership.setProvisioningGroupId(grouperTargetGroup.getId());
           grouperTargetMembership.setProvisioningGroup(grouperTargetGroup);
         }
+        
       }
       
       if (grouperTargetEntity != null) {
@@ -298,6 +339,15 @@ public class GrouperProvisioningTranslator {
 //        grouperTargetMembership.getProvisioningMembershipWrapper().setDelete(true);
 //      }
 
+      if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject() 
+          && grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.delete) {
+        grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setDelete(true);
+      }
+      if (!grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().isRecalcObject() 
+          && grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.insert) {
+        grouperTargetMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setCreate(true);
+      }
+      
       grouperTargetMemberships.add(grouperTargetMembership); 
     }
     
@@ -333,6 +383,10 @@ public class GrouperProvisioningTranslator {
   public List<ProvisioningEntity> translateGrouperToTargetEntities(
       List<ProvisioningEntity> grouperProvisioningEntities, boolean includeDelete, boolean forCreate) {
     
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities()) {
+      return null;
+    }
+
     Collection<Object> changedEntities = new HashSet<Object>();
     List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
 
@@ -388,10 +442,16 @@ public class GrouperProvisioningTranslator {
             String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
             String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
+            boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
+            if (!continueTranslation) {
+              throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+            }
+            
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningEntityField)
-                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isEntityAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())) {
+                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isEntityAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
+                || this.shouldTranslateEntityAttribute(provisioningEntityWrapper, grouperProvisioningConfigurationAttribute)) { 
 
-              Object result = attributeTranslation( 
+              Object result = attributeTranslationOrCache( 
                   grouperTargetEntity.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                   grouperProvisioningConfigurationAttribute, null, provisioningEntityWrapper);
               
@@ -431,9 +491,9 @@ public class GrouperProvisioningTranslator {
       
       provisioningEntityWrapper.setGrouperTargetEntity(grouperTargetEntity);
       if (includeDelete) {
-        provisioningEntityWrapper.setDelete(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setDelete(true);
       } else if (forCreate) {
-        provisioningEntityWrapper.setCreate(true);
+        provisioningEntityWrapper.getProvisioningStateEntity().setCreate(true);
       }
 
     }
@@ -444,12 +504,57 @@ public class GrouperProvisioningTranslator {
     return grouperTargetEntities;
   }
 
+  /**
+   * @param elVariableMap
+   * @param grouperProvisioningConfigurationAttribute
+   * @return true if continue with translation otherwise false
+   */
+  private boolean continueTranslation(Map<String, Object> elVariableMap,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    
+    boolean checkForNullsInScript = grouperProvisioningConfigurationAttribute.isCheckForNullsInScript();
+    
+    if (checkForNullsInScript) {
+      String translationContinueCondition = grouperProvisioningConfigurationAttribute.getTranslationContinueCondition();
+      if (StringUtils.isNotBlank(translationContinueCondition)) {
+        try {
+          Object result = GrouperUtil.substituteExpressionLanguageScript(translationContinueCondition, elVariableMap, true, false, true);
+          boolean resultBoolean = GrouperUtil.booleanValue(result, false);
+          return resultBoolean;
+        } catch (RuntimeException re) {
+          GrouperUtil.injectInException(re, ", script: '" + translationContinueCondition + "', ");
+          GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(elVariableMap));
+          throw re;
+        }
+      }
+    }
+    
+    return true;
+  }
+
+  /**
+   * 
+   * @param provisioningEntityWrapper
+   * @param grouperProvisioningConfigurationAttribute
+   * @return
+   */
+  public boolean shouldTranslateEntityAttribute(
+      ProvisioningEntityWrapper provisioningEntityWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    return false;
+  }
+
   public Collection<GrouperProvisioningConfigurationAttribute> entityTargetAttributesInTranslationOrder() {
     return this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values();
   }
 
   public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups, boolean includeDelete, boolean forCreate) {
 
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups()) {
+      return null;
+    }
+    
     Collection<Object> changedEntities = new HashSet<Object>();
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(
@@ -506,9 +611,15 @@ public class GrouperProvisioningTranslator {
             String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
             String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
 
+            boolean continueTranslation = continueTranslation(elVariableMap, grouperProvisioningConfigurationAttribute);
+            if (!continueTranslation) {
+              throw new RuntimeException("Not continuing translation because the translation continue condition '" + grouperProvisioningConfigurationAttribute.getTranslationContinueCondition()+"'  did not evaluate to be true");
+            }
+            
             if (!StringUtils.isBlank(expressionToUse) || !StringUtils.isBlank(staticValuesToUse) || !StringUtils.isBlank(grouperProvisioningGroupField)
-                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isGroupAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())) { 
-              Object result = attributeTranslation( 
+                || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isGroupAttributeNameHasCache(grouperProvisioningConfigurationAttribute.getName())
+                || this.shouldTranslateGroupAttribute(provisioningGroupWrapper, grouperProvisioningConfigurationAttribute)) { 
+              Object result = attributeTranslationOrCache( 
                   grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                   grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, null);
 
@@ -545,9 +656,9 @@ public class GrouperProvisioningTranslator {
 
       provisioningGroupWrapper.setGrouperTargetGroup(grouperTargetGroup);
       if (includeDelete) {
-        provisioningGroupWrapper.setDelete(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
       } else if (forCreate) {
-        provisioningGroupWrapper.setCreate(true);
+        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(true);
       }
       grouperTargetGroups.add(grouperTargetGroup);
         
@@ -557,6 +668,18 @@ public class GrouperProvisioningTranslator {
     }
 
     return grouperTargetGroups;
+  }
+
+  /**
+   * if the provisioner might generate a transation
+   * @param provisioningGroupWrapper
+   * @param grouperProvisioningConfigurationAttribute
+   * @return
+   */
+  public boolean shouldTranslateGroupAttribute(
+      ProvisioningGroupWrapper provisioningGroupWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    return false;
   }
 
   public Collection<GrouperProvisioningConfigurationAttribute> groupAttributesInTranslationOrder() {
@@ -604,11 +727,17 @@ public class GrouperProvisioningTranslator {
       if (StringUtils.equals("subjectIdentifier0", field) && !StringUtils.isBlank(provisioningEntity.getSubjectIdentifier0())) {
         return provisioningEntity.getSubjectIdentifier0();
       }
-      if (StringUtils.equals("subjectIdentifier1", field)) {
+      if (StringUtils.equals("subjectIdentifier1", field) && !StringUtils.isBlank(provisioningEntity.getSubjectIdentifier1())) {
         return provisioningEntity.getSubjectIdentifier1();
       }
-      if (StringUtils.equals("subjectIdentifier2", field)) {
+      if (StringUtils.equals("subjectIdentifier2", field) && !StringUtils.isBlank(provisioningEntity.getSubjectIdentifier2())) {
         return provisioningEntity.getSubjectIdentifier2();
+      }
+      if (StringUtils.equals("subjectIdentifier", field)) {
+        return provisioningEntity.getSubjectIdentifier();
+      }
+      if (StringUtils.equals("idIndex", field)) {
+        return provisioningEntity.getIdIndex();
       }
     }
     
@@ -676,7 +805,7 @@ public class GrouperProvisioningTranslator {
     //if we couldnt find the data but the field was ok, its just null
     if (StringUtils.equalsAny(field, "id", "email", "loginid", "memberId", "entityAttributeValueCache0", 
         "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", 
-        "subjectId", "subjectSourceId", "description", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
+        "subjectId", "subjectSourceId", "description", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "idIndex")) {
       return null;
     }
     
@@ -684,24 +813,62 @@ public class GrouperProvisioningTranslator {
   }
   
 
-  public Object attributeTranslation(Object currentValue, Map<String, Object> elVariableMap, boolean forCreate,
+  public Object attributeTranslationOrCache(Object currentValue, Map<String, Object> elVariableMap, boolean forCreate,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, 
       ProvisioningGroupWrapper provisioningGroupWrapper, ProvisioningEntityWrapper provisioningEntityWrapper) {
     
     if (grouperProvisioningConfigurationAttribute == null) {
       return currentValue;
     }
+    
+    boolean[] translate = new boolean[] {false};
+    boolean[] shouldRetrieveFromCache = new boolean[] {false};
 
+    Object result = attributeTranslation(elVariableMap, forCreate,
+        grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
+        provisioningEntityWrapper, translate, shouldRetrieveFromCache);
+    
+    if (GrouperUtil.isBlank(result) && translate[0] && shouldRetrieveFromCache[0]) {
+      Object cachedResult = attributeTranslationRetrieveFromCache(
+          grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
+          provisioningEntityWrapper);
+      
+      if (cachedResult != null) {
+        result = cachedResult;
+      }
+    }
+    
+    return result;
+    
+  }
+
+  /**
+   * 
+   * @param elVariableMap
+   * @param forCreate
+   * @param grouperProvisioningConfigurationAttribute
+   * @param provisioningGroupWrapper
+   * @param provisioningEntityWrapper
+   * @param translate
+   * @param shouldRetrieveFromCache - Only retrieve from cache if the object is delete or if there's no other translation possibility, e.g. originated from target
+   * @return
+   */
+  public Object attributeTranslation(Map<String, Object> elVariableMap, boolean forCreate,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
+      ProvisioningGroupWrapper provisioningGroupWrapper,
+      ProvisioningEntityWrapper provisioningEntityWrapper, boolean[] translate, boolean[] shouldRetrieveFromCache) {
+    
     String expressionToUse = getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
     String staticValuesToUse = getTranslateFromStaticValuesToUse(forCreate, grouperProvisioningConfigurationAttribute);
     String grouperProvisioningGroupField = getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
+    String grouperTargetGroupField = getTranslateFromGrouperTargetGroupField(forCreate, grouperProvisioningConfigurationAttribute);
     String grouperProvisioningEntityField = getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
+    String grouperTargetEntityField = getTranslateFromGrouperTargetEntityField(forCreate, grouperProvisioningConfigurationAttribute);
 
     Object result = null;
-    boolean translate = false;
     if (!StringUtils.isBlank(expressionToUse)) {
       result = runScript(expressionToUse, elVariableMap);
-      translate = true;
+      translate[0] = true;
     } else if (!StringUtils.isBlank(staticValuesToUse)) {
       if (grouperProvisioningConfigurationAttribute.isMultiValued()) {
         result = GrouperUtil.splitTrimToSet(staticValuesToUse, ",");
@@ -709,15 +876,27 @@ public class GrouperProvisioningTranslator {
         result = staticValuesToUse;
       }
       
-      translate = true;
+      translate[0] = true;
     } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGrouperProvisioningGroup() != null && !StringUtils.isBlank(grouperProvisioningGroupField)) {
       result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
           grouperProvisioningGroupField);
-      translate = true;
+      translate[0] = true;
     } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGrouperProvisioningEntity() != null && !StringUtils.isBlank(grouperProvisioningEntityField)) {
       result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
           grouperProvisioningEntityField);
-      translate = true;
+      translate[0] = true;
+    } else if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGrouperTargetGroup() != null && !StringUtils.isBlank(grouperTargetGroupField)) {
+      
+      ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+      result = grouperTargetGroup.retrieveAttributeValue(grouperTargetGroupField);
+      translate[0] = true;
+      
+    } else if (provisioningEntityWrapper != null && provisioningEntityWrapper.getGrouperTargetEntity() != null && !StringUtils.isBlank(grouperTargetEntityField)) {
+      
+      ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+      result = grouperTargetEntity.retrieveAttributeValue(grouperTargetEntityField);
+      translate[0] = true;
+      
     } else {
       if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() != null 
           && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
@@ -725,9 +904,8 @@ public class GrouperProvisioningTranslator {
         for (GrouperProvisioningConfigurationAttributeDbCache groupCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
           if (groupCache != null && StringUtils.equals(groupCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
               && groupCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
-            result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
-                "groupAttributeValueCache" + groupCache.getIndex());
-            translate = true;
+            shouldRetrieveFromCache[0] = true;
+            translate[0] = true;
             break;
           }
         }
@@ -738,48 +916,58 @@ public class GrouperProvisioningTranslator {
         for (GrouperProvisioningConfigurationAttributeDbCache entityCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
           if (entityCache != null && StringUtils.equals(entityCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
               && entityCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
-            result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
-                "entityAttributeValueCache" + entityCache.getIndex());
-            translate = true;
+            shouldRetrieveFromCache[0] = true;
+            translate[0] = true;
             break;
           }
         }
       }
     }
     
-    // TODO still translate if in cache, maybe have both values?
-    if (translate) {
-      if (GrouperUtil.isBlank(result) && provisioningEntityWrapper != null && provisioningEntityWrapper.isDelete() 
-          && provisioningEntityWrapper.getGcGrouperSyncMember() != null
-          && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
-
-        for (GrouperProvisioningConfigurationAttributeDbCache entityCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
-          if (entityCache != null && StringUtils.equals(entityCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
-              && entityCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
-            result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
-                "entityAttributeValueCache" + entityCache.getIndex());
-            break;
-          }
-        }
-        
-      }
-      
-      if (GrouperUtil.isBlank(result) && provisioningGroupWrapper != null && provisioningGroupWrapper.isDelete() 
-          && provisioningGroupWrapper.getGcGrouperSyncGroup() != null
-          && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
-        for (GrouperProvisioningConfigurationAttributeDbCache groupCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
-          if (groupCache != null && StringUtils.equals(groupCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
-              && groupCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
-            result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
-                "groupAttributeValueCache" + groupCache.getIndex());
-            break;
-          }
-        }
-      }
-      
-      return result;
+    if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) {
+      shouldRetrieveFromCache[0] = true;
     }
-    return currentValue;
+    
+    if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+      shouldRetrieveFromCache[0] = true;
+    }
+    return result;
+  }
+
+  public Object attributeTranslationRetrieveFromCache(
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
+      ProvisioningGroupWrapper provisioningGroupWrapper,
+      ProvisioningEntityWrapper provisioningEntityWrapper) {
+    
+    if (provisioningEntityWrapper != null
+        && provisioningEntityWrapper.getGcGrouperSyncMember() != null
+        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity) {
+
+      for (GrouperProvisioningConfigurationAttributeDbCache entityCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
+        if (entityCache != null && StringUtils.equals(entityCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
+            && entityCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+          Object result = translateFromGrouperProvisioningEntityField(provisioningEntityWrapper, 
+              "entityAttributeValueCache" + entityCache.getIndex());
+          return result;
+        }
+      }
+      
+    }
+    
+    if (provisioningGroupWrapper != null
+        && provisioningGroupWrapper.getGcGrouperSyncGroup() != null
+        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group) {
+      for (GrouperProvisioningConfigurationAttributeDbCache groupCache : this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+        if (groupCache != null && StringUtils.equals(groupCache.getAttributeName(), grouperProvisioningConfigurationAttribute.getName()) 
+            && groupCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+          Object result = translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, 
+              "groupAttributeValueCache" + groupCache.getIndex());
+          return result;
+        }
+      }
+    }
+    
+    return null;
     
   }
   
@@ -807,7 +995,8 @@ public class GrouperProvisioningTranslator {
         String matchingAttributeName = matchingAttribute.getName();
         
         // dont worry if dupes... oh well
-        Object targetCurrentValue = massageToString(targetGroup.retrieveAttributeValue(matchingAttributeName), 2);
+//        Object targetCurrentValue = massageToString(targetGroup.retrieveAttributeValue(matchingAttributeName), 2);
+        Object targetCurrentValue = targetGroup.retrieveAttributeValue(matchingAttributeName);
 
         if(!GrouperUtil.isBlank(targetCurrentValue)) {
           
@@ -892,6 +1081,7 @@ public class GrouperProvisioningTranslator {
       }
       
     }
+    
   }
 
   public void idTargetEntities(List<ProvisioningEntity> targetEntities) {
@@ -916,7 +1106,8 @@ public class GrouperProvisioningTranslator {
         String matchingAttributeName = matchingAttribute.getName();
         
         // dont worry if dupes... oh well
-        Object targetCurrentValue = massageToString(targetEntity.retrieveAttributeValue(matchingAttributeName), 2);
+//        Object targetCurrentValue = massageToString(targetEntity.retrieveAttributeValue(matchingAttributeName), 2);
+        Object targetCurrentValue = targetEntity.retrieveAttributeValue(matchingAttributeName);
 
         if(!GrouperUtil.isBlank(targetCurrentValue)) {
           
@@ -1053,7 +1244,7 @@ public class GrouperProvisioningTranslator {
       }
     }
     
-    for (ProvisioningMembership targetMembership: GrouperUtil.nonNull(targetMemberships)) {
+    OUTER: for (ProvisioningMembership targetMembership: GrouperUtil.nonNull(targetMemberships)) {
       
       Object id = null;
       if (!StringUtils.isBlank(membershipIdAttribute)) {
@@ -1076,8 +1267,21 @@ public class GrouperProvisioningTranslator {
       } else {
         throw new RuntimeException("Must have membershipMatchingIdAttribute, or membershipMatchingIdExpression");
       }
-      id = massageToString(id, 2);
-
+//      id = massageToString(id, 2);
+      if (id instanceof MultiKey) {
+        
+        MultiKey matchingIdMultiKey = (MultiKey)id;
+        for (int i=0; i<matchingIdMultiKey.size(); i++) {
+          if (matchingIdMultiKey.getKey(i) == null) {
+            GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.DNE;
+            String errorMessage = "membership multiKey has blank value in index: " + i;
+            this.grouperProvisioner.retrieveGrouperProvisioningValidation()
+              .assignMembershipError(targetMembership.getProvisioningMembershipWrapper(), errorCode, errorMessage);
+            continue OUTER;
+          }
+        }
+        
+      }
       // just hard code to "id" since memberships just have one matching id
       ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = new ProvisioningUpdatableAttributeAndValue("id", id);
       provisioningUpdatableAttributeAndValue.setCurrentValue(true);
@@ -1089,6 +1293,10 @@ public class GrouperProvisioningTranslator {
   }
 
   public Object runScript(String script, Map<String, Object> elVariableMap) {
+    return runScriptStatic(script, elVariableMap);
+  }
+
+  public static Object runScriptStatic(String script, Map<String, Object> elVariableMap) {
     try {
       if (!script.contains("${")) {
         script = "${" + script + "}";
@@ -1263,6 +1471,16 @@ public class GrouperProvisioningTranslator {
     }
 
     return expressionToUse;
+  }
+  
+  public String getTranslateFromGrouperTargetGroupField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperTargetGroupField();
+    return expression;
+  }
+  
+  public String getTranslateFromGrouperTargetEntityField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    String expression = grouperProvisioningConfigurationAttribute.getTranslateFromGrouperTargetEntityField();
+    return expression;
   }
 
   public String getTranslateFromGrouperProvisioningEntityField(boolean forCreate, GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {

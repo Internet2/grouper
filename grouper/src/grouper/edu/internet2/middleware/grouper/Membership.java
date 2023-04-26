@@ -2041,7 +2041,7 @@ public class Membership extends GrouperAPI implements
     
     // take care of the changelog
     if (this.enabled) {
-      addMembershipAddChangeLog();
+      addMembershipAddChangeLog(null);
     }
     
     if (this.enabled) {
@@ -2373,7 +2373,7 @@ public class Membership extends GrouperAPI implements
           this.processPostMembershipSaveOrUpdate();
           
           // change log
-          addMembershipAddChangeLog();
+          addMembershipAddChangeLog(null);
           
           // enable attributes
           Set<AttributeAssign> assignmentsToEnable = GrouperDAOFactory.getFactory().getAttributeAssign().findByOwnerMembershipId(this.immediateMembershipId);
@@ -2410,7 +2410,7 @@ public class Membership extends GrouperAPI implements
         
         // change log
         dbVersion().addMembershipDeleteChangeLog(this.dbVersion().getMember());
-        addMembershipAddChangeLog();
+        addMembershipAddChangeLog(null);
       }
       
       super.onPostUpdate(hibernateSession);
@@ -2914,10 +2914,11 @@ public class Membership extends GrouperAPI implements
   /**
    * add a change log entry for a membership add
    */
-  public void addMembershipAddChangeLog() {
+  public void addMembershipAddChangeLog(String contextId) {
     
+    ChangeLogEntry changeLogEntry;
     if (this.getListType().equals(FieldType.LIST.getType())) {
-      new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
+      changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.MEMBERSHIP_ADD, 
           ChangeLogLabels.MEMBERSHIP_ADD.id.name(), this.getImmediateMembershipId(),
           ChangeLogLabels.MEMBERSHIP_ADD.fieldName.name(), this.getField().getName(), 
           ChangeLogLabels.MEMBERSHIP_ADD.fieldId.name(), this.getFieldId(), 
@@ -2927,11 +2928,11 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.MEMBERSHIP_ADD.groupId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.MEMBERSHIP_ADD.membershipType.name(), this.getType(),
           ChangeLogLabels.MEMBERSHIP_ADD.groupName.name(), this.getGroup().getName(),
-          ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0.name(), this.getMember().getSubjectIdentifier0()).save();
+          ChangeLogLabels.MEMBERSHIP_ADD.subjectIdentifier0.name(), this.getMember().getSubjectIdentifier0());
       
       InstrumentationThread.addCount(InstrumentationDataBuiltinTypes.API_MEMBERSHIP_ADD.name());
     } else if (this.getListType().equals(FieldType.ACCESS.getType())) {
-      new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
+      changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
           ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getImmediateMembershipId(),
           ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AccessPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), this.getFieldId(), 
@@ -2942,9 +2943,9 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_GROUP,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerGroupId(),
           ChangeLogLabels.PRIVILEGE_ADD.membershipType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getGroup().getName()).save();
+          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getGroup().getName());
     } else if (this.getListType().equals(FieldType.NAMING.getType())) {
-      new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
+      changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
           ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getImmediateMembershipId(),
           ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), NamingPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), this.getFieldId(), 
@@ -2955,9 +2956,9 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_STEM,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerStemId(),
           ChangeLogLabels.PRIVILEGE_ADD.membershipType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getStem().getName()).save();
+          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getStem().getName());
     } else if (this.getListType().equals(FieldType.ATTRIBUTE_DEF.getType())) {
-      new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
+      changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.PRIVILEGE_ADD, 
           ChangeLogLabels.PRIVILEGE_ADD.id.name(), this.getImmediateMembershipId(),
           ChangeLogLabels.PRIVILEGE_ADD.privilegeName.name(), AttributeDefPrivilege.listToPriv(this.getField().getName()).getName(), 
           ChangeLogLabels.PRIVILEGE_ADD.fieldId.name(), this.getFieldId(), 
@@ -2968,10 +2969,16 @@ public class Membership extends GrouperAPI implements
           ChangeLogLabels.PRIVILEGE_ADD.ownerType.name(), OWNER_TYPE_ATTRIBUTE_DEF,
           ChangeLogLabels.PRIVILEGE_ADD.ownerId.name(), this.getOwnerAttrDefId(),
           ChangeLogLabels.PRIVILEGE_ADD.membershipType.name(), this.getType(),
-          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getAttributeDef().getName()).save();
+          ChangeLogLabels.PRIVILEGE_ADD.ownerName.name(), this.getAttributeDef().getName());
     } else {
       throw new RuntimeException("unexpected field type: " + this.getListType());
     }
+    
+    if (!StringUtils.isEmpty(contextId)) {
+      changeLogEntry.setContextId(contextId);
+    }
+    
+    changeLogEntry.save();
   }
   
   /**

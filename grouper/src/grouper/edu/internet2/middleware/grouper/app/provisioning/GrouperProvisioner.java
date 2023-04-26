@@ -1,34 +1,43 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.sql.Timestamp;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.Set;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ThreadPoolExecutor;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import com.amazonaws.endpointdiscovery.DaemonThreadFactory;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobException;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoAdapter;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
-import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncIntegration;
+import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.DurationFormatUtils;
 
@@ -38,6 +47,93 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.time.D
  *
  */
 public abstract class GrouperProvisioner {
+  
+  private ProvisioningStateGlobal provisioningStateGlobal = new ProvisioningStateGlobal();
+  
+  
+  public GrouperProvisioner() {
+    this.provisioningStateGlobal.setGrouperProvisioner(this);
+  }
+  
+  public ProvisioningStateGlobal getProvisioningStateGlobal() {
+    return provisioningStateGlobal;
+  }
+  
+  
+  public void setProvisioningStateGlobal(ProvisioningStateGlobal provisioningStateGlobal) {
+    this.provisioningStateGlobal = provisioningStateGlobal;
+  }
+
+  /**
+   * cache the thread pool
+   */
+  public static Map<String, ExecutorService> executorConfigIdToThreadPool = new HashMap<String, ExecutorService>();
+  
+  /**
+   * if running threads, this is the pool.  if null then dont use threads
+   */
+  private ExecutorService executorService = null;
+
+  /**
+   * cache if has executor service
+   */
+  private boolean executorServiceInitted = false;
+
+  /**
+   * if running threads, this is the pool.  if null then dont use threads
+   * @return executor service
+   */
+  public ExecutorService retrieveExecutorService() {
+    if (!this.executorServiceInitted) {
+
+      this.executorServiceInitted = true;
+
+      ThreadPoolExecutor cachedExecutorService = (ThreadPoolExecutor)executorConfigIdToThreadPool.get(this.getConfigId());
+
+      int threadPoolSize = this.retrieveGrouperProvisioningConfiguration().getThreadPoolSize();
+
+      boolean changeExecutorService = false;
+
+      // if this is the first time...
+      if (cachedExecutorService == null) {
+        if (threadPoolSize > 1) {
+          this.getDebugMap().put("initThreadPool", true);
+          changeExecutorService = true;
+        }
+      } else {
+        if (cachedExecutorService.getMaximumPoolSize() != threadPoolSize) {
+          changeExecutorService = true;
+        }
+      }
+
+      if (changeExecutorService) {
+        
+        // shut down old
+        if (cachedExecutorService != null) {
+          this.getDebugMap().put("shutdownCachedThreadPool", true);
+          try {
+            cachedExecutorService.shutdown();
+          } catch (Exception e) {
+            LOG.error("Error shutting down executor service", e);
+          }
+        }
+
+        if (threadPoolSize > 1) {
+          this.getDebugMap().put("createThreadPool", true);
+          this.executorService = Executors.newFixedThreadPool(
+              threadPoolSize, new DaemonThreadFactory());
+        } else {
+          this.getDebugMap().put("noThreadPool", true);
+          this.executorService = null;
+        }
+        executorConfigIdToThreadPool.put(this.getConfigId(), this.executorService);
+      } else {
+        this.executorService = cachedExecutorService;
+      }
+      
+    }
+    return this.executorService;
+  }
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperProvisioner.class);
@@ -169,9 +265,6 @@ public abstract class GrouperProvisioner {
     if (!(this.retrieveGrouperProvisioningDataIndex().getClass().equals(GrouperProvisioningDataIndex.class))) {
       result.append(", DataIndex: ").append(this.retrieveGrouperProvisioningDataIndex().getClass().getName());
     }
-    if (!(this.retrieveGrouperProvisioningDataSync().getClass().equals(GrouperProvisioningDataSync.class))) {
-      result.append(", DataSync: ").append(this.retrieveGrouperProvisioningDataSync().getClass().getName());
-    }
     if (!(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().equals(GrouperProvisioningDiagnosticsContainer.class))) {
       result.append(", DiagnosticsContainer: ").append(this.retrieveGrouperProvisioningDiagnosticsContainer().getClass().getName());
     }
@@ -254,8 +347,6 @@ public abstract class GrouperProvisioner {
   }
 
   private GrouperProvisioningData grouperProvisioningData;
-
-  private GrouperProvisioningDataSync grouperProvisioningDataSync;
 
   private GrouperProvisioningDataIncrementalInput grouperProvisioningDataIncrementalInput ;
 
@@ -367,6 +458,30 @@ public abstract class GrouperProvisioner {
 //  }
   
   
+
+  private GrouperProvisioningSyncIntegration grouperProvisioningSyncIntegration = null;
+
+  /**
+   * return the class of the attribute manipulation
+   */
+  protected Class<? extends GrouperProvisioningSyncIntegration> grouperProvisioningSyncIntegrationClass() {
+    return GrouperProvisioningSyncIntegration.class;
+  }
+  
+  /**
+   * return the instance of the attribute manipulation
+   * @return the logic
+   */
+  public GrouperProvisioningSyncIntegration retrieveGrouperProvisioningSyncIntegration() {
+    if (this.grouperProvisioningSyncIntegration == null) {
+      Class<? extends GrouperProvisioningSyncIntegration> grouperProvisioningLogicClass = this.grouperProvisioningSyncIntegrationClass();
+      this.grouperProvisioningSyncIntegration = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningSyncIntegration.setGrouperProvisioner(this);
+    }
+    return this.grouperProvisioningSyncIntegration;
+    
+  }
+
   private GrouperProvisioningAttributeManipulation grouperProvisioningAttributeManipulation = null;
 
   /**
@@ -545,7 +660,22 @@ public abstract class GrouperProvisioner {
   /**
    * debug map for this provisioner
    */
-  private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  private Map<String, Object> debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
+  
+  private static ThreadLocal<GrouperProvisioner> threadLocalGrouperProvisioner = new InheritableThreadLocal<>();
+  
+  public static GrouperProvisioner retrieveCurrentGrouperProvisioner() {
+    return threadLocalGrouperProvisioner.get();
+  }
+  
+  public static void assignCurrentGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    threadLocalGrouperProvisioner.set(grouperProvisioner);
+  }
+  
+  public static void removeCurrentGrouperProvisioner() {
+    threadLocalGrouperProvisioner.remove();
+  }
+  
   /**
    * provisioning table about this provisioner
    */
@@ -622,7 +752,9 @@ public abstract class GrouperProvisioner {
 
     if (!this.initialized) {
 
-      this.debugMap = new LinkedHashMap<String, Object>();
+      this.debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
+      
+      threadLocalGrouperProvisioner.set(this);
 
       GcDbAccess.threadLocalQueryCountReset();
 
@@ -805,6 +937,8 @@ public abstract class GrouperProvisioner {
     }
     
     this.retrieveGrouperProvisioningOutput().setMessage(theMessage);
+    
+    threadLocalGrouperProvisioner.remove();
 
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
@@ -813,6 +947,7 @@ public abstract class GrouperProvisioner {
       }
       throw new RuntimeException(debugString);
     }
+        
   }
 
   
@@ -902,14 +1037,6 @@ public abstract class GrouperProvisioner {
   }
 
   
-  public GrouperProvisioningDataSync retrieveGrouperProvisioningDataSync() {
-    if (this.grouperProvisioningDataSync == null) {
-      this.grouperProvisioningDataSync = new GrouperProvisioningDataSync();
-      this.grouperProvisioningDataSync.setGrouperProvisioner(this);
-    }
-    return grouperProvisioningDataSync;
-  }
-
   public GrouperProvisioningData retrieveGrouperProvisioningData() {
     if (this.grouperProvisioningData == null) {
       this.grouperProvisioningData = new GrouperProvisioningData();
@@ -1124,15 +1251,17 @@ public abstract class GrouperProvisioner {
 
     ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult();
     this.setProvisioningSyncResult(provisioningSyncResult);
-    ProvisioningSyncIntegration.fullSyncGroups(provisioningSyncResult, this.getGcGrouperSync(),
-        this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncGroups(),
-        calculatedProvisioningAttributes);
+    
+    List<GcGrouperSyncGroup> initialGcGrouperSyncGroups = GrouperUtil.nonNull(this.retrieveGrouperProvisioningData().retrieveGcGrouperSyncGroups());
+    
+    this.retrieveGrouperProvisioningSyncIntegration().fullSyncGroups(calculatedProvisioningAttributes, new HashSet<GcGrouperSyncGroup>(initialGcGrouperSyncGroups));
     
     //Get the attributes from the attributes framework and store those in grouper sync member table
     Map<String, GrouperProvisioningObjectAttributes> grouperProvisioningMemberAttributes = this.retrieveGrouperDao().retrieveProvisioningMemberAttributes(true, null);
     
-    ProvisioningSyncIntegration.fullSyncMembers(this, provisioningSyncResult, gcGrouperSync, 
-        this.retrieveGrouperProvisioningDataSync().getGcGrouperSyncMembers(), grouperProvisioningMemberAttributes);
+    List<GcGrouperSyncMember> initialGcGrouperSyncMembers = GrouperUtil.nonNull(this.retrieveGrouperProvisioningData().retrieveGcGrouperSyncMembers());
+    
+    this.retrieveGrouperProvisioningSyncIntegration().fullSyncMembers(grouperProvisioningMemberAttributes, new HashSet<GcGrouperSyncMember>(initialGcGrouperSyncMembers));
     
     this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
 

@@ -65,7 +65,7 @@
         <dependency>
             <groupId>org.apache.ws.security</groupId>
             <artifactId>wss4j</artifactId>
-            <version>1.5.12</version>
+            <version>1.6.19</version>
         </dependency>
         <dependency>
             <groupId>commons-lang</groupId>
@@ -116,6 +116,7 @@
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/grouperWsTestInterfaces.jar</systemPath>
+            <!-- systemPath>/Users/mchyzer/git/grouper_v2_6/grouper-ws/grouper-ws-java-generated-client/lib/grouperWsTestInterfaces.jar</systemPath -->
         </dependency>
     </dependencies>
     

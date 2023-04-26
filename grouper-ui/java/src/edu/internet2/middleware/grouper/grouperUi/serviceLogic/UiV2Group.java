@@ -1012,6 +1012,13 @@ public class UiV2Group {
             TextContainer.retrieveFromRequest().getText().get("groupViewToDateInvalid")));
         return;
       }
+      
+      if (startDate != null && endDate != null && !endDate.after(startDate)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#member-end-date",
+            TextContainer.retrieveFromRequest().getText().get("groupViewToDateAfterFromDateError")));
+        return;
+      }
 
       Boolean defaultPrivs = null;
       
@@ -2288,6 +2295,13 @@ public class UiV2Group {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#groupDisabledDate",
             TextContainer.retrieveFromRequest().getText().get("groupCreateErrorDisabledDateInvalid")));
+        return;
+      }
+      
+      if (enabledDate != null && disabledDate != null && !disabledDate.after(enabledDate)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
+            "#groupDisabledDate",
+            TextContainer.retrieveFromRequest().getText().get("groupCreateErrorDisabledDateAfterEnabledDateError")));
         return;
       }
       

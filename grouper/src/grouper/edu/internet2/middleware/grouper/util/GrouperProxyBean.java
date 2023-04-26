@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.util;
 
+import java.net.InetSocketAddress;
+import java.net.Proxy;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -215,7 +217,7 @@ public class GrouperProxyBean {
     this.port = -1;
     this.scheme = null;
   }
-
+  
   /**
    * create a proxy url based on type, host, and port
    * @param grouperProxyType2
@@ -237,6 +239,12 @@ public class GrouperProxyBean {
     }
     return grouperProxyType.getScheme() + "://" + proxyHost + ":" + proxyPort;
     
+  }
+  
+  
+  
+  public Proxy retrieveProxy() {
+    return new Proxy(this.grouperProxyType.getProxyType(), new InetSocketAddress(this.proxyUrl, this.port));
   }
   
   

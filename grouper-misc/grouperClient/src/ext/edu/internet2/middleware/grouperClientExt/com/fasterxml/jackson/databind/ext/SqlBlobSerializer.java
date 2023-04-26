@@ -47,7 +47,7 @@ extends StdScalarSerializer<Blob>
         _writeValue(value, gen, ctxt);
     }
 
-    // Copied from `com.fasterxml.jackson.databind.ser.std.ByteArraySerializer`
+    // Copied from `edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ser.std.ByteArraySerializer`
     @Override
     public void serializeWithType(Blob value, JsonGenerator gen, SerializerProvider ctxt,
             TypeSerializer typeSer)
@@ -73,7 +73,7 @@ extends StdScalarSerializer<Blob>
         gen.writeBinary(ctxt.getConfig().getBase64Variant(), in, -1);
     }
 
-    // Copied from `com.fasterxml.jackson.databind.ser.std.ByteArraySerializer`
+    // Copied from `edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ser.std.ByteArraySerializer`
     @Override
     public void acceptJsonFormatVisitor(JsonFormatVisitorWrapper visitor, JavaType typeHint)
         throws JsonMappingException

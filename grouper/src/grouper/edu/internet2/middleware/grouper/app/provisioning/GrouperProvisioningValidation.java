@@ -221,7 +221,7 @@ public class GrouperProvisioningValidation {
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getGcGrouperSyncMember();
 
       //if we're not provisioning this entity, maybe this is used in membership that needs to be removed so we shouldn't validate.  
-      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable() && !gcGrouperSyncMember.isInTarget()) {
+      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable() && (!gcGrouperSyncMember.isInTarget() || provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
         continue;
       }
       
@@ -359,6 +359,7 @@ public class GrouperProvisioningValidation {
 
     Set<ProvisioningMembership> invalidMemberships = new LinkedHashSet<ProvisioningMembership>();
     int membershipsMissingRequiredData = 0;
+    int membershipsDoNotExist = 0;
     int membershipsViolateMaxLength = 0;
     int membershipsViolateValidExpression = 0;
     //check for required attributes
@@ -369,24 +370,7 @@ public class GrouperProvisioningValidation {
       if (provisioningMembershipWrapper.getErrorCode() != null) {
         continue;
       }
-      for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : provisioningMembership.getMatchingIdAttributeNameToValues()) {
-        Object matchingId = provisioningUpdatableAttributeAndValue.getAttributeValue();
-        if (matchingId instanceof MultiKey) {
-          MultiKey matchingIdMultiKey = (MultiKey)matchingId;
-          for (int i=0;i<matchingIdMultiKey.size();i++) {
-            if (matchingIdMultiKey.getKey(i) == null) {
-              GcGrouperSyncErrorCode errorCode = GcGrouperSyncErrorCode.REQ;
-              String errorMessage = "membership multiKey has blank value in index: " + i;
-              this.assignMembershipError(provisioningMembershipWrapper, errorCode, errorMessage);
-              invalidMemberships.add(provisioningMembership);
-              if (removeInvalid) {
-                iterator.remove();
-              }
-              continue MEMBERSHIPS;
-            }
-          }
-        }
-      }
+      
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
           this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().values()) {
         MultiKey validationError = this.validFieldOrAttributeValue(provisioningMembership, grouperProvisioningConfigurationAttribute);
@@ -405,6 +389,9 @@ public class GrouperProvisioningValidation {
             case REQ:
               membershipsMissingRequiredData++;
               break;
+            case DNE:
+              membershipsDoNotExist++;
+              break;
             default:
               throw new RuntimeException("Not expecting error code: " + errorCode);
           }
@@ -422,6 +409,9 @@ public class GrouperProvisioningValidation {
     }
     if (membershipsMissingRequiredData > 0) {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipsMissingRequiredData", membershipsMissingRequiredData);
+    }
+    if (membershipsDoNotExist > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipsDoNotExist", membershipsDoNotExist);
     }
     if (membershipsViolateValidExpression > 0) {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipsViolateValidExpression", membershipsViolateValidExpression);
@@ -690,7 +680,7 @@ public class GrouperProvisioningValidation {
         } else {
           // remove the target group
           if (provisioningGroupWrapper != null) {
-            provisioningGroupWrapper.setDelete(true);
+            provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
           }
         }
       }

@@ -134,7 +134,7 @@ public class WsSampleFindStemsRestLite implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findStemsLite(WsSampleRestType.xhtml);
+    findStemsLite(WsSampleRestType.json);
   }
 
   /**

@@ -16,7 +16,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * log requests and responses
@@ -27,7 +28,7 @@ public class ServletFilterLogger implements Filter {
    * logger 
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(ServletFilterLogger.class);
+  private static final Log LOG = GrouperUtil.getLog(ServletFilterLogger.class);
 
   /**
    * @see javax.servlet.Filter#destroy()
@@ -42,8 +43,8 @@ public class ServletFilterLogger implements Filter {
    */
   @Override
   public void doFilter(ServletRequest servletRequest, ServletResponse servletResponse,
-      FilterChain filterChain)
-      throws IOException, ServletException {
+    FilterChain filterChain)
+    throws IOException, ServletException {
 
     //see if logging
     if (!LOG.isDebugEnabled()) {
@@ -61,7 +62,6 @@ public class ServletFilterLogger implements Filter {
     } finally {
       logStuff(requestCopier, responseCopier);
     }
-
   }
 
   /**

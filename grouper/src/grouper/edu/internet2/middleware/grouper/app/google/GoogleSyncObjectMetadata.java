@@ -166,13 +166,16 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAllowExternalMembersLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowExternalMembers");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
       
@@ -188,13 +191,16 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAllowWebPostingLabel");
       grouperProvisioningObjectMetadataItem.setName("md_grouper_allowWebPosting");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
       

@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.io.PrintWriter;
 import java.util.Enumeration;
 import java.util.Map;
+import java.util.regex.Pattern;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServlet;
@@ -16,9 +17,12 @@ import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
+import edu.internet2.middleware.grouper.app.boxProvisioner.BoxMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.DuoMockServiceHandler;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleMockServiceHandler;
 import edu.internet2.middleware.grouper.app.google.GoogleMockServiceHandler;
+import edu.internet2.middleware.grouper.app.remedyV2.RemedyMockServiceHandler;
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceMockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GithubScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -45,11 +49,42 @@ public class MockServiceServlet extends HttpServlet {
   private static final Map<String, String> urlToHandler = GrouperUtil.toMap(
       "azure", AzureMockServiceHandler.class.getName(),
       "awsScim", AwsScim2MockServiceHandler.class.getName(),
+      "box", BoxMockServiceHandler.class.getName(),
       "duo", DuoMockServiceHandler.class.getName(),
       "duoRole", DuoRoleMockServiceHandler.class.getName(),
       "githubScim", GithubScim2MockServiceHandler.class.getName(),
-      "google", GoogleMockServiceHandler.class.getName()
+      "google", GoogleMockServiceHandler.class.getName(),
+      "remedy", RemedyMockServiceHandler.class.getName(),
+      "digitalMarketplace", DigitalMarketplaceMockServiceHandler.class.getName()
       );
+  
+  static {
+    /**
+     * go through grouper properties to look for extra mock service handlers and add them to 
+     * urlToHandler map
+     *  e.g. grouperExtraMockServer.configId.class = edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisioner.ExampleWsMockServiceHandler
+     *  e.g.  grouperExtraMockServer.configId.path = exampleWs
+     */
+    String extraMockServerRegex = "^grouperExtraMockServer\\.([^.]+)\\.class$";
+    Pattern extraMockServerPattern = Pattern.compile(extraMockServerRegex);
+    Map<String, String> extraMockServerClasses = GrouperConfig.retrieveConfig().propertiesMap(extraMockServerPattern);
+    if (GrouperUtil.length(extraMockServerClasses) > 0) {
+      
+      for (String propertyName: extraMockServerClasses.keySet()) {
+        
+        String[] threeSubParts = GrouperUtil.split(propertyName, ".");
+        String configId = threeSubParts[1];
+        
+        String path = GrouperConfig.retrieveConfig().propertyValueString("grouperExtraMockServer."+configId+".path");
+        
+        urlToHandler.put(path, extraMockServerClasses.get(propertyName));
+        
+      }
+      
+      
+    }
+    
+  }
   
   /**
    * @param tableName

@@ -95,7 +95,7 @@ public class WsAttributeDefLookup implements GrouperWsToStringCompact {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefLookup.class);
+  private static final Log LOG = GrouperUtil.getLog(WsAttributeDefLookup.class);
 
   /** find the attributeDef */
   @XStreamOmitField

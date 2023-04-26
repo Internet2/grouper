@@ -268,7 +268,7 @@ public enum SerializationFeature implements ConfigFeature
      * @since 2.5
      */
     WRITE_DURATIONS_AS_TIMESTAMPS(true),
-    
+
     /**
      * Feature that determines how type <code>char[]</code> is serialized:
      * when enabled, will be serialized as an explict JSON array (with
@@ -322,7 +322,7 @@ public enum SerializationFeature implements ConfigFeature
      * @since 2.10
      */
     WRITE_ENUM_KEYS_USING_INDEX(false),
-    
+
     /**
      * Feature that determines whether Map entries with null values are
      * to be serialized (true) or not (false).
@@ -398,7 +398,7 @@ public enum SerializationFeature implements ConfigFeature
      * Feature is disabled by default.
      * 
      * @deprecated Since 2.5: use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.JsonGenerator.Feature#WRITE_BIGDECIMAL_AS_PLAIN} instead
-     *    (using {@link ObjectWriter#with(com.fasterxml.jackson.core.JsonGenerator.Feature)}).
+     *    (using {@link ObjectWriter#with(edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.JsonGenerator.Feature)}).
      */
     @Deprecated // since 2.5
     WRITE_BIGDECIMAL_AS_PLAIN(false),

@@ -8,6 +8,7 @@ import java.sql.Timestamp;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
@@ -585,8 +586,8 @@ public class GcTableSyncConfiguration {
         try {
           this.gcTableSync.getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.CONFIG_ERROR);
           this.gcTableSync.getGcGrouperSync().getGcGrouperSyncLogDao().internal_logStore(this.gcTableSync.getGcGrouperSyncLog());
-        } catch (RuntimeException re2) {
-          GrouperClientUtils.injectInException(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
+        } catch (RuntimeException re2) {        
+          re = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, "***** START ANOTHER EXCEPTON *******" + GrouperClientUtils.getFullStackTrace(re2) + "***** END ANOTHER EXCEPTON *******");
         }
       }
       throw re;

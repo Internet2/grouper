@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -683,6 +684,10 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("showAdvanced", "true");
     }
     
-    
+  }
+
+  @Override
+  public Class<? extends ProvisioningConfiguration> getProvisioningConfiguration() {
+    return SqlProvisionerConfiguration.class;
   }
 }

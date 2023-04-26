@@ -2,27 +2,23 @@ package edu.internet2.middleware.grouper.app.provisioning.targetDao;
 
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
+
 public class TargetDaoRetrieveMembershipsResponse {
   
-  /**
-   * <pre>
-   * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
-   * If there:
-   * ProvisioningGroup {
-   *   name: cn=a:b:c,ou=groups,ou=institution,dc=edu
-   *   attribute: member
-   *      value: cn=jsmith,ou=users,ou=institution,dc=edu
-   * }
-   * If not there, not in results
-   * </pre>
-   */
-  private List<Object> targetMemberships;
+  private List<ProvisioningMembership> targetMemberships;
+  
+  private List<ProvisioningGroup> targetGroups;
+  
+  private List<ProvisioningEntity> targetEntities;
 
   /**
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @return
    */
-  public List<Object> getTargetMemberships() {
+  public List<ProvisioningMembership> getTargetMemberships() {
     return targetMemberships;
   }
 
@@ -30,7 +26,7 @@ public class TargetDaoRetrieveMembershipsResponse {
    * depends on type of membership provisioning.  This is ProvisioningGroup if groupMemberships, ProvisioningEntity if entityAttributes, and ProvisioningMembership if memberships
    * @param targetMemberships
    */
-  public void setTargetMemberships(List<Object> targetMemberships) {
+  public void setTargetMemberships(List<ProvisioningMembership> targetMemberships) {
     this.targetMemberships = targetMemberships;
   }
 
@@ -43,10 +39,28 @@ public class TargetDaoRetrieveMembershipsResponse {
    * @param targetMemberships
    */
   public TargetDaoRetrieveMembershipsResponse(
-      List<Object> targetMemberships) {
+      List<ProvisioningMembership> targetMemberships) {
     this.targetMemberships = targetMemberships;
   }
+
   
+  public List<ProvisioningGroup> getTargetGroups() {
+    return targetGroups;
+  }
+
   
+  public void setTargetGroups(List<ProvisioningGroup> targetGroups) {
+    this.targetGroups = targetGroups;
+  }
+
+  
+  public List<ProvisioningEntity> getTargetEntities() {
+    return targetEntities;
+  }
+
+  
+  public void setTargetEntities(List<ProvisioningEntity> targetEntities) {
+    this.targetEntities = targetEntities;
+  }
   
 }

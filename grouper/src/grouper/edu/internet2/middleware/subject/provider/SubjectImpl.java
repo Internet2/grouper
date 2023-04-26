@@ -276,12 +276,18 @@ public class SubjectImpl implements Subject {
       
       String translation = virtualAttributes.get(virtualAttributeName);
       
-      Object valueObject = GrouperUtil.substituteExpressionLanguageScript(translation, this.translationMap, true, false, true);
-      valueObject = GrouperUtil.stringValue(valueObject);
-      this.attributes.put(virtualAttributeName, GrouperUtil.toSet((String)valueObject));
-      this.translationMap.put("subject_attribute__" + virtualAttributeName.toLowerCase(), valueObject);
+      String value = runScriptStatic(translation, this.translationMap);
+      this.attributes.put(virtualAttributeName, GrouperUtil.toSet(value));
+      this.translationMap.put("subject_attribute__" + virtualAttributeName.toLowerCase(), value);
       
     }
+  }
+  
+  public static String runScriptStatic(String script, Map<String, Object> translationMap) {
+    
+    Object valueObject = GrouperUtil.substituteExpressionLanguageScript(script, translationMap, true, false, true);
+    String value = GrouperUtil.stringValue(valueObject);
+    return value;
   }
   
 
@@ -312,7 +318,7 @@ public class SubjectImpl implements Subject {
       return null;
     }
     
-    if (attributes != null && attributes.containsKey(nameAttribute) && attributes.get(nameAttribute).size() > 0) {
+    if (attributes != null && attributes.containsKey(nameAttribute) && GrouperUtil.length(attributes.get(nameAttribute)) > 0) {
       return attributes.get(nameAttribute).iterator().next();
     }
     

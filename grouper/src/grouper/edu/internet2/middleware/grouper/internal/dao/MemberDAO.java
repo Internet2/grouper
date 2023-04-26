@@ -38,12 +38,9 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotUniqueException;
-import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.membership.MembershipType;
-import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 
@@ -376,5 +373,11 @@ public interface MemberDAO extends GrouperDAO {
    * @return set of member ids
    */
   public Set<String> findAllMemberIdsNoLongerSubjectResolutionEligible();
+  
+  /**
+   * @return member
+   */
+  public Member findByIdIndex(Long idIndex, boolean exceptionIfNotFound) 
+    throws MemberNotFoundException;
 } 
 

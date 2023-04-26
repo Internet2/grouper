@@ -19,7 +19,7 @@ public abstract class Java7Support
     static {
         Java7Support impl = null;
         try {
-            Class<?> cls = Class.forName("com.fasterxml.jackson.databind.ext.Java7SupportImpl");
+            Class<?> cls = Class.forName("edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ext.Java7SupportImpl");
             impl = (Java7Support) ClassUtil.createInstance(cls, false);
         } catch (Throwable t) {
             // 09-Sep-2019, tatu: Used to log earlier, but with 2.10.0 let's not log

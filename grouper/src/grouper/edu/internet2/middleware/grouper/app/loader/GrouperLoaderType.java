@@ -83,6 +83,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -101,6 +102,7 @@ import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafeBean;
 import edu.internet2.middleware.grouper.misc.GrouperReport;
 import edu.internet2.middleware.grouper.misc.GrouperReportException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -2904,27 +2906,27 @@ public enum GrouperLoaderType {
    * @return number of changes made
    */
   public static int scheduleLoads() {
-    
-    GrouperSession grouperSession = null;
-    Set<String> jobNames = new HashSet<String>();
 
-    int changesMade = 0;
+    final Set<String> jobNames = new HashSet<String>();
+
+    final int[] changesMade = new int[1];
     
-    try {
-      grouperSession = GrouperSession.startRootSession();
-  
-      Set<Group> groups = retrieveGroups(grouperSession);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
-      for (Group group : groups) {
-        if (validateAndScheduleSqlLoad(group, jobNames, true)) {
-          changesMade++;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+        Set<Group> groups = retrieveGroups(grouperSession);
+        
+        for (Group group : groups) {
+          if (validateAndScheduleSqlLoad(group, jobNames, true)) {
+            changesMade[0]++;
+          }
         }
+
+        return null;
       }
-    } catch (Exception e) {
-      throw new RuntimeException(e);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    });
     
     // check to see if anything should be unscheduled.
     try {
@@ -2939,7 +2941,7 @@ public enum GrouperLoaderType {
           try {
             String triggerName = "triggerFor_" + jobName;
             if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
-              changesMade++;
+              changesMade[0]++;
             }
           } catch (Exception e) {
             String errorMessage = "Could not unschedule job: '" + jobName + "'";
@@ -2977,7 +2979,7 @@ public enum GrouperLoaderType {
         LOG.error("Problem logging to loader db log", e2);
       }
     }
-    return changesMade;
+    return changesMade[0];
   }
     
   /**
@@ -4514,13 +4516,17 @@ public enum GrouperLoaderType {
    */
   public static int scheduleAttributeLoads() {
     
-    GrouperSession grouperSession = null;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean grouperSessionStarted = false;
     Set<String> jobNames = new HashSet<String>();
 
     int changesMade = 0;
     
     try {
-      grouperSession = GrouperSession.startRootSession();
+      if (grouperSession == null) {
+        grouperSession = GrouperSession.startRootSession();
+        grouperSessionStarted = true;
+      }
 
       //lets see if there is configuration
       String attrRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
@@ -4619,7 +4625,9 @@ public enum GrouperLoaderType {
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      if (grouperSessionStarted) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
     
     // check to see if anything should be unscheduled.
@@ -4811,13 +4819,17 @@ public enum GrouperLoaderType {
    */
   public static int scheduleLdapLoads() {
     
-    GrouperSession grouperSession = null;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
+    boolean grouperSessionStarted = false;
     Set<String> jobNames = new HashSet<String>();
 
     int changesMade = 0;
     
     try {
-      grouperSession = GrouperSession.startRootSession();
+      if (grouperSession == null) {
+        grouperSessionStarted = true;
+        grouperSession = GrouperSession.startRootSession();
+      }
 
       Set<AttributeAssign> attributeAssigns = retrieveLdapAttributeAssigns();
 
@@ -4833,7 +4845,9 @@ public enum GrouperLoaderType {
     } catch (Exception e) {
       throw new RuntimeException(e);
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      if (grouperSessionStarted) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
     
     // check to see if anything should be unscheduled.

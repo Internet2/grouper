@@ -141,7 +141,7 @@ public class WsSampleFindGroupsRest implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    findGroups(WsSampleRestType.xhtml);
+    findGroups(WsSampleRestType.json);
   }
 
   /**

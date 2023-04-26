@@ -2,13 +2,10 @@ package edu.internet2.middleware.grouper.app.azure;
 
 import java.sql.Types;
 
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
-
-import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GrouperAzureAuth {

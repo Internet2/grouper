@@ -433,19 +433,21 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
   }
 
   /**
-   * get an id for this type of object, if needed, increment the index in the database
+   * get ids for this type of object, if needed, increment the index in the database
    * @param tableIndexType
+   * @param count
    * @return the id that can be used for the type of object
    */
-  public static long reserveId(TableIndexType tableIndexType) {
+  public static List<Long> reserveIds(TableIndexType tableIndexType, int count) {
     
-    long id = reserveIdHelper(tableIndexType);
+    List<Long> ids = reserveIdHelper(tableIndexType, count);
     
     if (LOG.isDebugEnabled()) {
-      LOG.debug("Reserved idIndex: " + id + ", for type: " + tableIndexType);
+      LOG.debug("Reserved " + count + " idIndexes: " + ids.get(0) + ", for type: " + tableIndexType);
     }
 
-    return id;
+    return ids;
+    
   }
 
   /**
@@ -453,11 +455,27 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
    * @param tableIndexType
    * @return the id that can be used for the type of object
    */
-  private static long reserveIdHelper(TableIndexType tableIndexType) {
+  public static long reserveId(TableIndexType tableIndexType) {
+    
+    List<Long> ids = reserveIdHelper(tableIndexType, 1);
+    
+    if (LOG.isDebugEnabled()) {
+      LOG.debug("Reserved idIndex: " + ids.get(0) + ", for type: " + tableIndexType);
+    }
+
+    return ids.get(0);
+  }
+
+  /**
+   * get an id for this type of object, if needed, increment the index in the database
+   * @param tableIndexType
+   * @return the id that can be used for the type of object
+   */
+  private static List<Long> reserveIdHelper(TableIndexType tableIndexType, Integer count) {
     
     synchronized (tableIndexType) {
       
-      Long result = null;
+      List<Long> result = new ArrayList<Long>();
       
       List<Long> longList = reservedIds.get(tableIndexType);
       
@@ -466,14 +484,20 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
         reservedIds.put(tableIndexType, longList);
       }
       
-      result = reserveOneFromList(longList);
+      while (result.size() < count) {
+        Long nextOne = reserveOneFromList(longList);
+        if (nextOne == null) {
+          break;
+        }
+        result.add(nextOne);
+      }
       
-      if (result != null) {
+      if (result.size() == count) {
         return result;
       }
       
       //ok, we need to reserve some more...
-      int idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsDefault", 10);
+      int defaultCount = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsDefault", 10);
       GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
       
       GrouperEngineBuiltin grouperEngineBuiltin = grouperContext == null ? null : grouperContext.getGrouperEngine();
@@ -481,48 +505,47 @@ public class TableIndex extends GrouperAPI implements Hib3GrouperVersioned {
       if (grouperEngineBuiltin != null) {
         switch(grouperEngineBuiltin) {
           case GSH:
-            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsGsh", 1);
+            defaultCount = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsGsh", 1);
             break;
           case LOADER:
-            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsLoader", 10);
+            defaultCount = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsLoader", 10);
             break;
           case WS:
-            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsWs", 10);
+            defaultCount = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsWs", 10);
             break;
           case UI:
-            idsToReserve = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsUi", 10);
+            defaultCount = GrouperConfig.retrieveConfig().propertyValueInt("grouper.tableIndex.reserveIdsUi", 10);
             break;
           default:
             //nothing
         }
       }
           
+      int idsToReserve = defaultCount + (count - result.size());
+
       TableIndex tableIndex = GrouperDAOFactory.getFactory().getTableIndex().reserveIds(tableIndexType,idsToReserve);
       
       //last index reserved
       long lastIndexReserved = tableIndex.getLastIndexReserved();
+      
+      // note it should be empty but just in case
       longList.clear();
-      for (long currentIdIndex=(lastIndexReserved-idsToReserve) + 1; currentIdIndex<=lastIndexReserved; currentIdIndex++) {
+      for (long currentIdIndex=lastIndexReserved; currentIdIndex>=((lastIndexReserved-idsToReserve) + 1); currentIdIndex--) {
         longList.add(currentIdIndex);
       }
       
-      result = reserveOneFromList(longList);
-      
-      if (result == null) {
-        throw new NullPointerException("Cannot reserve table index for: " + tableIndexType);
+      while (result.size() < count) {
+        Long nextOne = reserveOneFromList(longList);
+        result.add(nextOne);
       }
+      
       return result;
     }
     
   }
   private static Long reserveOneFromList(List<Long> longList) {
-    //see if there is one which is reserved
-    for (int i=0;i<longList.size();i++) {
-      Long id = longList.get(i);
-      if (id != null) {
-        longList.set(i, null);
-        return id;
-      }
+    if (longList.size() > 0) {
+      return longList.remove(longList.size()-1);
     }
     return null;
   }

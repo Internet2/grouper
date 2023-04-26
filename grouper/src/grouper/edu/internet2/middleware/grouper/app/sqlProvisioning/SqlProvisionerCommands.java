@@ -34,7 +34,7 @@ public class SqlProvisionerCommands {
   public static List<Object[]> retrieveObjectsAttributeFilter(String dbExternalSystemConfigId, List<String> columnList, String tableName, 
       String mainTableIdColumnName, String attributeTableName,  String attributeForeignKeyColumnName,
       String attributeTableAttributeNameColumn, String attributeTableAttributeValueColumn,
-      String attributeNameFilter, List<?> attributeValuesFilter) {
+      String attributeNameFilter, List<?> attributeValuesFilter, String deletedColumnName, boolean deleted) {
 
     StringBuilder sqlInitial = new StringBuilder("select " + GrouperUtil.join(columnList.iterator(), ", ") + " from " + tableName);
 
@@ -49,8 +49,15 @@ public class SqlProvisionerCommands {
       StringBuilder sql = new StringBuilder(sqlInitial);
       
       boolean first = true;
+      
+      sql.append(" where ");
+      if (StringUtils.isNotBlank(deletedColumnName)) {
+        sql.append("  "+ deletedColumnName + " = ? ");
+        sql.append(" and ");
+        gcDbAccess.addBindVar(deleted ? "T" : "F");
+      }
 
-      sql.append(" where exists (select 1 from " + attributeTableName 
+      sql.append(" exists (select 1 from " + attributeTableName 
           + " where " + attributeTableName + "." + attributeForeignKeyColumnName + " = " + tableName + "." + mainTableIdColumnName
           + " and " + attributeTableName + "." + attributeTableAttributeNameColumn + " = ? " + " and ");
       gcDbAccess.addBindVar(attributeNameFilter);
@@ -89,9 +96,8 @@ public class SqlProvisionerCommands {
    * @return the data
    */
   public static List<Object[]> retrieveObjectsColumnFilter(String dbExternalSystemConfigId, List<String> columnList, String tableName,
-      List<String> filterColumns0small, List<Object> filterValuesByColumn0small, List<String> filterColumns1large, List<Object> filterValuesByColumn1large) {
-
-    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+      List<String> filterColumns0small, List<Object> filterValuesByColumn0small, List<String> filterColumns1large, List<Object> filterValuesByColumn1large,
+      String deletedColumnName, boolean deleted) {
 
     StringBuilder sqlInitial = new StringBuilder("select " + GrouperUtil.join(columnList.iterator(), ", ") + " from " + tableName);
 
@@ -119,11 +125,22 @@ public class SqlProvisionerCommands {
 
     for (int i = 0; i < numberOfBatches; i++) {
       
+      GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
+
+
       List<Object> currentBatchFilterValues1large = GrouperUtil.batchList(filterValuesByColumn1large, 900, i);
       StringBuilder sql = new StringBuilder(sqlInitial);
       
       boolean first = true;
       sql.append(" where  ");
+      
+      if (StringUtils.isNotBlank(deletedColumnName)) {
+        sql.append(" "+ deletedColumnName + " = ? ");
+        if (hasfilter0 || hasfilter1) {
+          sql.append(" and ");
+        }
+        gcDbAccess.addBindVar(deleted ? "T" : "F");
+      }
       
       if (hasfilter0) {
         sql.append(" ( ");
@@ -231,14 +248,15 @@ public class SqlProvisionerCommands {
    */
   public static void deleteObjects(List<Object[]> dataToDelete, 
       String dbExternalSystemConfigId, String ownerTableName, List<String> columnNames, String ownerAttributesTableName,
-      String attributesOwnerForeignKeyColumn) {
+      String attributesOwnerForeignKeyColumn, String sqlDeletedColumn, boolean deleted, boolean physicallyDelete) {
 
     if (GrouperUtil.length(dataToDelete) == 0) { 
       return;
     }
 
     if (!StringUtils.isBlank(ownerAttributesTableName)) {
-      deleteObjects(dataToDelete, dbExternalSystemConfigId, ownerAttributesTableName, GrouperUtil.toList(attributesOwnerForeignKeyColumn), null, null);
+      deleteObjects(dataToDelete, dbExternalSystemConfigId, ownerAttributesTableName, 
+          GrouperUtil.toList(attributesOwnerForeignKeyColumn), null, null, sqlDeletedColumn, deleted, physicallyDelete);
     }    
 
     List<Object[]> rowsLastValueNotNull = new ArrayList<Object[]>();
@@ -254,11 +272,11 @@ public class SqlProvisionerCommands {
     
     if (GrouperUtil.length(rowsLastValueNotNull) > 0) {
       deleteObjectsLastValueNotNull(rowsLastValueNotNull, dbExternalSystemConfigId, ownerTableName,
-          columnNames);
+          columnNames, sqlDeletedColumn, deleted, physicallyDelete);
     }
     if (GrouperUtil.length(rowsLastValueNull) > 0) {
       deleteObjectsLastValueNull(rowsLastValueNull, dbExternalSystemConfigId, ownerTableName,
-          columnNames);
+          columnNames, sqlDeletedColumn, deleted, physicallyDelete);
     }
 
   }
@@ -271,49 +289,78 @@ public class SqlProvisionerCommands {
    * @param columnNames
    */
   private static void deleteObjectsLastValueNull(List<Object[]> dataToDelete, 
-      String dbExternalSystemConfigId, String ownerTableName, List<String> columnNames) {
+      String dbExternalSystemConfigId, String ownerTableName, List<String> columnNames, String sqlDeletedColumn,
+      boolean deleted, boolean physicallyDelete) {
     
     if (GrouperUtil.length(dataToDelete) == 0) { 
       return;
     }
-
-    StringBuilder sql = new StringBuilder("delete from  " + ownerTableName + " where ");
-
-    // loop through columns
-    for (int i=0;i<columnNames.size();i++) {
-      
-      if (i>0) {
-        sql.append(" and ");
-      }
-      sql.append(columnNames.get(i));
-      if (i != columnNames.size()-1) {
-        sql.append(" = ? ");
-      } else {
-        sql.append(" is null ");
-      }
-
+    
+    if (physicallyDelete == false && StringUtils.isBlank(sqlDeletedColumn)) {
+      throw new RuntimeException("phsically delete can only be false when sqlDeletedColumn is not blank");
     }
     
-    int batchSize = 900 / dataToDelete.get(0).length;
-    List<List<Object>> batchBindVarsForTable = new ArrayList<List<Object>>();
-    for (int i=0;i<dataToDelete.size();i++) {
+    if (physicallyDelete) {
+      StringBuilder sql = new StringBuilder("delete from  " + ownerTableName + " where ");
+      
+      if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+        sql.append(sqlDeletedColumn + " =  "+ (deleted ? " 'T' ": " 'F' ") );
+      }
 
-      Object[] currentRow = dataToDelete.get(i);
-      List<Object> bindVars = new ArrayList<Object>();
-      batchBindVarsForTable.add(bindVars);
-
-      for (int j=0;j<currentRow.length;j++) {
-        if (j != currentRow.length-1) {
-          GrouperUtil.assertion(currentRow[j] != null, "value should not be null: " + GrouperUtil.toStringForLog(currentRow));
-          bindVars.add(currentRow[j]);
+      // loop through columns
+      for (int i=0;i<columnNames.size();i++) {
+        
+        if (i>0 || StringUtils.isNotBlank(sqlDeletedColumn)) {
+          sql.append(" and ");
+        }
+        sql.append(columnNames.get(i));
+        if (i != columnNames.size()-1) {
+          sql.append(" = ? ");
         } else {
-          GrouperUtil.assertion(currentRow[j] == null, "value should be null: " + GrouperUtil.toStringForLog(currentRow));
+          sql.append(" is null ");
+        }
+
+      }
+      
+      int batchSize = 900 / dataToDelete.get(0).length;
+      List<List<Object>> batchBindVarsForTable = new ArrayList<List<Object>>();
+      for (int i=0;i<dataToDelete.size();i++) {
+
+        Object[] currentRow = dataToDelete.get(i);
+        List<Object> bindVars = new ArrayList<Object>();
+        batchBindVarsForTable.add(bindVars);
+
+        for (int j=0;j<currentRow.length;j++) {
+          if (j != currentRow.length-1) {
+            GrouperUtil.assertion(currentRow[j] != null, "value should not be null: " + GrouperUtil.toStringForLog(currentRow));
+            bindVars.add(currentRow[j]);
+          } else {
+            GrouperUtil.assertion(currentRow[j] == null, "value should be null: " + GrouperUtil.toStringForLog(currentRow));
+          }
         }
       }
+      
+      new GcDbAccess().connectionName(dbExternalSystemConfigId).batchSize(batchSize)
+          .sql(sql.toString()).batchBindVars(batchBindVarsForTable).executeBatchSql();
+    } else {
+      
+      List<Object[]> valuesToUpdate = new ArrayList<>();
+      
+      for (int i=0;i<dataToDelete.size();i++) {
+        
+        Object[] valueToUpdate = new Object[1];
+        valueToUpdate[0] = "T";
+        
+        valuesToUpdate.add(valueToUpdate);
+      
+      }
+      
+      updateObjectsOldValueNull(dbExternalSystemConfigId, ownerTableName, GrouperUtil.toList(sqlDeletedColumn),
+          valuesToUpdate, columnNames, dataToDelete);
+      
     }
+
     
-    new GcDbAccess().connectionName(dbExternalSystemConfigId).batchSize(batchSize)
-        .sql(sql.toString()).batchBindVars(batchBindVarsForTable).executeBatchSql();
     
   }
 
@@ -325,41 +372,66 @@ public class SqlProvisionerCommands {
    * @param columnNames
    */
   private static void deleteObjectsLastValueNotNull(List<Object[]> dataToDelete, 
-      String dbExternalSystemConfigId, String ownerTableName, List<String> columnNames) {
+      String dbExternalSystemConfigId, String ownerTableName, List<String> columnNames, 
+      String sqlDeletedColumn, boolean deleted, boolean physicallyDelete) {
     
     if (GrouperUtil.length(dataToDelete) == 0) { 
       return;
     }
 
-    StringBuilder sql = new StringBuilder("delete from " + ownerTableName + " where ");
+    if (physicallyDelete) {
+      StringBuilder sql = new StringBuilder("delete from " + ownerTableName + " where ");
 
-    // loop through columns
-    for (int i=0;i<columnNames.size();i++) {
+      if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+        sql.append(sqlDeletedColumn + " =  "+ (deleted ? " 'T' ": " 'F' ") );
+      }
       
-      if (i>0) {
-        sql.append(" and ");
-      }
-      sql.append(columnNames.get(i));
-      sql.append(" = ? ");
+      // loop through columns
+      for (int i=0;i<columnNames.size();i++) {
+        
+        if (i>0 || StringUtils.isNotBlank(sqlDeletedColumn)) {
+          sql.append(" and ");
+        }
+        sql.append(columnNames.get(i));
+        sql.append(" = ? ");
 
+      }
+      
+      int batchSize = 900 / dataToDelete.get(0).length;
+      List<List<Object>> batchBindVarsForTable = new ArrayList<List<Object>>();
+      for (int i=0;i<dataToDelete.size();i++) {
+
+        Object[] currentRow = dataToDelete.get(i);
+        List<Object> bindVars = new ArrayList<Object>();
+        batchBindVarsForTable.add(bindVars);
+
+        for (int j=0;j<currentRow.length;j++) {
+          GrouperUtil.assertion(currentRow[j] != null, "value should not be null: " + GrouperUtil.toStringForLog(currentRow));
+          bindVars.add(currentRow[j]);
+        }
+      }
+      
+      new GcDbAccess().connectionName(dbExternalSystemConfigId).batchSize(batchSize)
+          .sql(sql.toString()).batchBindVars(batchBindVarsForTable).executeBatchSql();
+      
+    } else {
+      List<Object[]> valuesToUpdate = new ArrayList<>();
+      
+      for (int i=0;i<dataToDelete.size();i++) {
+        
+        Object[] valueToUpdate = new Object[1];
+        valueToUpdate[0] = "T";
+        
+        valuesToUpdate.add(valueToUpdate);
+      
+      }
+      
+      updateObjectsOldValueNotNull(dbExternalSystemConfigId, ownerTableName, GrouperUtil.toList(sqlDeletedColumn),
+          valuesToUpdate, columnNames, dataToDelete);
+      
     }
     
-    int batchSize = 900 / dataToDelete.get(0).length;
-    List<List<Object>> batchBindVarsForTable = new ArrayList<List<Object>>();
-    for (int i=0;i<dataToDelete.size();i++) {
-
-      Object[] currentRow = dataToDelete.get(i);
-      List<Object> bindVars = new ArrayList<Object>();
-      batchBindVarsForTable.add(bindVars);
-
-      for (int j=0;j<currentRow.length;j++) {
-        GrouperUtil.assertion(currentRow[j] != null, "value should not be null: " + GrouperUtil.toStringForLog(currentRow));
-        bindVars.add(currentRow[j]);
-      }
-    }
     
-    new GcDbAccess().connectionName(dbExternalSystemConfigId).batchSize(batchSize)
-        .sql(sql.toString()).batchBindVars(batchBindVarsForTable).executeBatchSql();
     
   }
  

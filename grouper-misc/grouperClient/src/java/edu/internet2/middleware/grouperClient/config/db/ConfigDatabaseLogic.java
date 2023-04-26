@@ -29,6 +29,7 @@ import java.util.Properties;
 import java.util.UUID;
 
 import edu.internet2.middleware.grouperClient.config.GrouperHibernateConfigClient;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
@@ -724,12 +725,13 @@ public class ConfigDatabaseLogic {
           try {
             // TODO dont decrypt this in memory?
             value = Morph.decrypt(value);
-          } catch (RuntimeException re) {
-            GrouperClientUtils.injectInException(re, " Problem with configFile: '" + configFileName + "', configKey: '" + configKey + "' ");
+          } catch (RuntimeException re) {            
+            RuntimeException re2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(re, " Problem with configFile: '" + configFileName + "', configKey: '" + configKey + "' ");
+            
             if (GrouperHibernateConfigClient.retrieveConfig().propertyValueBoolean("grouper.ignoreMorphErrorsOnStartup", false)) {
-              LOG.error("Error decrypting", re);
+              LOG.error("Error decrypting", re2);
             } else {
-              throw re;
+              throw re2;
             }
           }
         }

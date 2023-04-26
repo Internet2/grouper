@@ -19,5 +19,12 @@ CREATE INDEX grouper_mship_req_time_idx ON grouper_mship_req_change (the_timesta
 
 CREATE INDEX grouper_mship_req_conf_id_idx ON grouper_mship_req_change (config_id);
 
+ALTER TABLE grouper_members ADD COLUMN id_index BIGINT;
+
+CREATE UNIQUE INDEX member_id_index_idx ON grouper_members (id_index);
+
+ALTER TABLE grouper_stem_view_privilege DROP FOREIGN KEY fk_grouper_st_v_pr_mem;
+ALTER TABLE grouper_stem_view_privilege DROP FOREIGN KEY fk_grouper_st_v_pr_st;
+
 update grouper_ddl set last_updated = date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), history = substring(concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V', db_version, ' to V43, ', history), 1, 3500), db_version = 43 where object_name = 'Grouper';
 commit;

@@ -64,7 +64,7 @@
                     <goals><goal>add-source</goal></goals>
                     <configuration>
                         <sources>
-                            <source>src/java/etc</source>
+                            <source>src/java/ext</source>
                         </sources>
                     </configuration>
                 </execution>

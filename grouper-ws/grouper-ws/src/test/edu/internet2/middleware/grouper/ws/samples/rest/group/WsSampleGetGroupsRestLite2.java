@@ -133,7 +133,7 @@ public class WsSampleGetGroupsRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getGroupsLite(WsSampleRestType.xhtml);
+    getGroupsLite(WsSampleRestType.json);
   }
 
   /**

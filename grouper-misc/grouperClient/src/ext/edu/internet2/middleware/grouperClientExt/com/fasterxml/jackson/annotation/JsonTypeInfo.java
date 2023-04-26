@@ -268,15 +268,15 @@ public @interface JsonTypeInfo
      * implementation to use, it does not help with structural issues that
      * may arise if type information is missing. This means that most often
      * this is used with type-name -based resolution, to cover cases
-     * where new sub-types are added, but base type is not changed to
-     * reference new sub-types.
+     * where new subtypes are added, but base type is not changed to
+     * reference new subtypes.
      *<p>
      * There are certain special values that indicate alternate behavior:
      *<ul>
      * <li>{@link java.lang.Void} means that objects with unmappable (or missing)
      *    type are to be mapped to null references.
      *    For backwards compatibility (2.5 and below), value of
-     *    <code>com.fasterxml.jackson.databind.annotation.NoClass</code> is also allowed
+     *    <code>edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.annotation.NoClass</code> is also allowed
      *    for such usage.
      *  </li>
      * <li>Placeholder value of {@link JsonTypeInfo} (that is, this annotation type
@@ -326,7 +326,7 @@ public @interface JsonTypeInfo
      * annotation property, to indicate that there is no default implementation
      * specified.
      * 
-     * @deprecated Since 2.5, use any Annotation type (such as {@link JsonTypeInfo},
+     * @deprecated Since 2.5, use any Annotation type (such as {@link JsonTypeInfo}),
      *    if such behavior is needed; this is rarely necessary.
      */
     @Deprecated

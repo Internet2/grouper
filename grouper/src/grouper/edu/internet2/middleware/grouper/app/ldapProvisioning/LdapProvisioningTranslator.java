@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
@@ -19,6 +20,28 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author shilen
  */
 public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
+
+  @Override
+  public boolean shouldTranslateEntityAttribute(
+      ProvisioningEntityWrapper provisioningEntityWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    if (grouperProvisioningConfigurationAttribute != null
+        && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
+      return true;
+    }
+    return super.shouldTranslateEntityAttribute(provisioningEntityWrapper, grouperProvisioningConfigurationAttribute);
+  }
+
+  @Override
+  public boolean shouldTranslateGroupAttribute(
+      ProvisioningGroupWrapper provisioningGroupWrapper,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
+    if (grouperProvisioningConfigurationAttribute != null
+        && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
+      return true;
+    }
+    return super.shouldTranslateGroupAttribute(provisioningGroupWrapper, grouperProvisioningConfigurationAttribute);
+  }
 
   /**
    * we need the rdn to be evaled before the dn
@@ -65,61 +88,72 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
   }
 
   @Override
-  public Object attributeTranslation(Object currentValue, Map<String, Object> elVariableMap,
-      boolean forCreate,
+  public Object attributeTranslation(Map<String, Object> elVariableMap, boolean forCreate,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute,
       ProvisioningGroupWrapper provisioningGroupWrapper,
-      ProvisioningEntityWrapper provisioningEntityWrapper) {
+      ProvisioningEntityWrapper provisioningEntityWrapper, boolean[] translate, boolean[] shouldRetrieveFromCache) {
 
-    Object attributeValue = super.attributeTranslation(currentValue, elVariableMap, forCreate,
-        grouperProvisioningConfigurationAttribute, provisioningGroupWrapper,
-        provisioningEntityWrapper);
+    Object attributeValue = super.attributeTranslation(elVariableMap, forCreate,
+         grouperProvisioningConfigurationAttribute,
+         provisioningGroupWrapper,
+         provisioningEntityWrapper, translate, shouldRetrieveFromCache);
     
     String expressionToUse = grouperProvisioningConfigurationAttribute == null ? null : getTargetExpressionToUse(forCreate, grouperProvisioningConfigurationAttribute);
     String translateFromGrouperProvisioningEntityField = grouperProvisioningConfigurationAttribute == null ? null : getTranslateFromGrouperProvisioningEntityField(forCreate, grouperProvisioningConfigurationAttribute);
     String translateFromGrouperProvisioningGroupField = grouperProvisioningConfigurationAttribute == null ? null : getTranslateFromGrouperProvisioningGroupField(forCreate, grouperProvisioningConfigurationAttribute);
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    String groupRdnAttributeName = ldapSyncConfiguration.getGroupRdnAttribute();
+    String entityRdnAttributeName = ldapSyncConfiguration.getUserRdnAttribute();
+
+
+    if (LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName()) 
+        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.entity 
+        && StringUtils.isNotBlank(translateFromGrouperProvisioningGroupField)
+        && !StringUtils.isBlank(entityRdnAttributeName)) {
     
-    if (grouperProvisioningConfigurationAttribute != null 
-        && !StringUtils.isBlank(translateFromGrouperProvisioningEntityField)
-        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
-          == GrouperProvisioningConfigurationAttributeType.entity
-        && StringUtils.isBlank(expressionToUse)
-        && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
-
-      LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-
-      String userRdnAttributeName = ldapSyncConfiguration.getUserRdnAttribute();
-
-      if (!StringUtils.isBlank(userRdnAttributeName)) {
-        String fieldValueString = GrouperUtil.stringValue(attributeValue);
-
-        if (StringUtils.isBlank(fieldValueString)) {
-          //throw new RuntimeException("Not expecting null DN part! " + provisioningEntityWrapper.getGrouperProvisioningEntity());
-          // allow this so a validation can happen not exception
-          attributeValue = null;
-        } else {
-        
-          String dn = GrouperUtil.ldapEscapeRdn(userRdnAttributeName + "=" + fieldValueString) + "," + ldapSyncConfiguration.getUserSearchBaseDn();
+      GrouperProvisioningConfigurationAttribute rdnConfigurationAttribute = ldapSyncConfiguration.getTargetEntityAttributeNameToConfig().get(entityRdnAttributeName);
+      
+      String rdnTranslateFromGrouperProvisioningEntityField = rdnConfigurationAttribute == null ? null : getTranslateFromGrouperProvisioningEntityField(forCreate, rdnConfigurationAttribute);
+      
+      if (StringUtils.equals(rdnTranslateFromGrouperProvisioningEntityField, translateFromGrouperProvisioningEntityField)) {
+        translateFromGrouperProvisioningEntityField = null;
+        attributeValue = null;
+      } 
     
-          attributeValue = dn;
-        }
-      }
     }
 
+    
+    if (LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName()) 
+          && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() == GrouperProvisioningConfigurationAttributeType.group 
+          && StringUtils.isNotBlank(translateFromGrouperProvisioningGroupField)
+          && !StringUtils.isBlank(groupRdnAttributeName)) {
+      
+      GrouperProvisioningConfigurationAttribute rdnConfigurationAttribute = ldapSyncConfiguration.getTargetGroupAttributeNameToConfig().get(groupRdnAttributeName);
+      
+      String rdnTranslateFromGrouperProvisioningGroupField = rdnConfigurationAttribute == null ? null : getTranslateFromGrouperProvisioningGroupField(forCreate, rdnConfigurationAttribute);
+      
+      if (StringUtils.equals(rdnTranslateFromGrouperProvisioningGroupField, translateFromGrouperProvisioningGroupField)) {
+        translateFromGrouperProvisioningGroupField = null;
+        attributeValue = null;
+      } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy &&
+          StringUtils.equals(rdnTranslateFromGrouperProvisioningGroupField, "extension") && 
+          StringUtils.equals(translateFromGrouperProvisioningGroupField, "name")) {
+        translateFromGrouperProvisioningGroupField = null;
+        attributeValue = null;
+      }
+    
+    }
     
     if (grouperProvisioningConfigurationAttribute != null
         && StringUtils.isBlank(translateFromGrouperProvisioningGroupField)
         && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
           == GrouperProvisioningConfigurationAttributeType.group
         && StringUtils.isBlank(expressionToUse)
+        && !StringUtils.isBlank(groupRdnAttributeName)
         && StringUtils.isBlank(GrouperUtil.stringValue(attributeValue))
         && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
       
-      LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-
       String dn = null;
-      String groupRdnAttributeName = ldapSyncConfiguration.getGroupRdnAttribute();
-
       boolean dnOnly = ldapSyncConfiguration.isOnlyLdapGroupDnOverride();
       if (ldapSyncConfiguration.isAllowLdapGroupDnOverride()) {
         dn = provisioningGroupWrapper.getGrouperProvisioningGroup().retrieveAttributeValueString("md_grouper_ldapGroupDnOverride");
@@ -136,7 +170,8 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
             }
 
             dn = GrouperUtil.ldapBushyDn(provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
-          } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat) {
+          } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat
+              || (ldapSyncConfiguration.getGroupDnType() == null)) {
             String groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
             dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + groupRdnAttributeValue) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
           } else {
@@ -147,9 +182,24 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
       attributeValue = dn;
     }
     
-    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-    String groupRdnAttributeName = ldapSyncConfiguration.getGroupRdnAttribute();
-
+    if (grouperProvisioningConfigurationAttribute != null
+        && StringUtils.isBlank(translateFromGrouperProvisioningEntityField)
+        && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType()
+          == GrouperProvisioningConfigurationAttributeType.entity
+        && StringUtils.isBlank(expressionToUse)
+        && !StringUtils.isBlank(entityRdnAttributeName)
+        && StringUtils.isBlank(GrouperUtil.stringValue(attributeValue))
+        && LdapProvisioningTargetDao.ldap_dn.equals(grouperProvisioningConfigurationAttribute.getName())) {
+      
+      if (!StringUtils.isBlank(ldapSyncConfiguration.getUserSearchBaseDn())) {
+        String dn = null;
+  
+        String entityRdnAttributeValue = (String)((ProvisioningEntity)elVariableMap.get("grouperTargetEntity")).getAttributes().get(entityRdnAttributeName).getValue();
+        dn = GrouperUtil.ldapEscapeRdn(entityRdnAttributeName + "=" + entityRdnAttributeValue) + "," + ldapSyncConfiguration.getUserSearchBaseDn();
+        attributeValue = dn;
+      }
+    }
+    
     if (grouperProvisioningConfigurationAttribute != null 
         && grouperProvisioningConfigurationAttribute.getGrouperProvisioningConfigurationAttributeType() 
           == GrouperProvisioningConfigurationAttributeType.group

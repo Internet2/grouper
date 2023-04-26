@@ -108,6 +108,7 @@ public abstract class LdapSyncDao {
     for (String attributeName : ldapModificationItemsUniqueAttributes) {
       LdapAttribute addAttribute = null;
       LdapAttribute removeAttribute = null;
+//      LdapAttribute removeDefaultAttribute = null;
       LdapAttribute replaceAttribute = null;
       for (LdapModificationItem ldapModificationItem : ldapModificationItems) {
         if (ldapModificationItem.getAttribute().getName().equals(attributeName)) {
@@ -133,11 +134,23 @@ public abstract class LdapSyncDao {
               }
             }
             
-            if (removeAttribute == null) {
-              removeAttribute = new LdapAttribute(attributeName);
-            }
-            removeAttribute.addBinaryValues(ldapModificationItem.getAttribute().getBinaryValues());
-            removeAttribute.addStringValues(ldapModificationItem.getAttribute().getStringValues());
+//            if (ldapModificationItem.isDefaultAttributeValue()) {
+//
+//              if (removeDefaultAttribute == null) {
+//                removeDefaultAttribute = new LdapAttribute(attributeName);
+//              }
+//              removeDefaultAttribute.addBinaryValues(ldapModificationItem.getAttribute().getBinaryValues());
+//              removeDefaultAttribute.addStringValues(ldapModificationItem.getAttribute().getStringValues());
+//
+//            } else {
+            
+              if (removeAttribute == null) {
+                removeAttribute = new LdapAttribute(attributeName);
+              }
+              removeAttribute.addBinaryValues(ldapModificationItem.getAttribute().getBinaryValues());
+              removeAttribute.addStringValues(ldapModificationItem.getAttribute().getStringValues());
+              
+//            }
           } else if (ldapModificationItem.getLdapModificationType() == LdapModificationType.REPLACE_ATTRIBUTE) {
             if (addAttribute != null || removeAttribute != null) {
               throw new RuntimeException("Not expecting to replace values and add/delete values for the same attribute: " + attributeName);
@@ -169,6 +182,10 @@ public abstract class LdapSyncDao {
       if (addAttribute != null) {
         ldapModificationItemsSorted.add(new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, addAttribute));
       }
+      
+//      if (removeDefaultAttribute != null) {
+//        ldapModificationItemsSorted.add(new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, removeDefaultAttribute));
+//      }
     }
     
     LdapModificationResult result = new LdapModificationResult();

@@ -740,14 +740,6 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
   }
   
   /**
-   * if this group exists in the target/destination
-   * @param inTarget
-   */
-  public void setInTarget(Boolean inTarget) {
-    this.inTargetDb = inTarget ? "T" : "F";
-  }
-  
-  /**
    * when this record was last updated
    */
   private Timestamp lastUpdated;
@@ -878,6 +870,22 @@ public class GcGrouperSyncMembership implements GcSqlAssignPrimaryKey, GcDbVersi
     if (this.grouperSync == null || !GrouperClientUtils.equals(this.grouperSync.getId(), grouperSyncId1)) {
       this.grouperSync = null;
     }
+  }
+
+  public void assignSyncReferences() {
+    // these are probably there...
+    GcGrouperSyncGroup theGrouperSyncGroup1 = this.grouperSync.getGcGrouperSyncGroupDao().groupRetrieveByIdFromCache(
+      this.getGrouperSyncGroupId());
+    if (theGrouperSyncGroup1 != null) {
+      this.setGrouperSyncGroup(theGrouperSyncGroup1);
+    }
+    GcGrouperSyncMember grouperSyncMember1 = this.grouperSync.getGcGrouperSyncMemberDao().memberRetrieveByIdFromCache(
+        this.getGrouperSyncMemberId());
+    if (grouperSyncMember1 != null) {
+      this.setGrouperSyncMember(grouperSyncMember1);
+    }
+
+    
   }
 
 }

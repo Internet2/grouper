@@ -6,6 +6,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
@@ -111,4 +112,8 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
     
   }
 
+  @Override
+  public Class<? extends ProvisioningConfiguration> getProvisioningConfiguration() {
+    return DuoProvisionerConfiguration.class;
+  }
 }

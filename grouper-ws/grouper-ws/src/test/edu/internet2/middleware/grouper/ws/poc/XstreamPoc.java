@@ -23,10 +23,6 @@ import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
-
 import com.thoughtworks.xstream.XStream;
 import com.thoughtworks.xstream.converters.javabean.JavaBeanConverter;
 import com.thoughtworks.xstream.io.json.JettisonMappedXmlDriver;
@@ -34,8 +30,9 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouper.ws.rest.contentType.WsXhtmlInputConverter;
-import edu.internet2.middleware.grouper.ws.rest.contentType.WsXhtmlOutputConverter;
+import net.sf.json.JSONObject;
+import net.sf.json.JsonConfig;
+import net.sf.json.util.PropertyFilter;
 
 
 /**
@@ -110,28 +107,6 @@ public class XstreamPoc {
     System.out.println(group.getName() + ", number of members: " 
         + group.getMembers().length);
   
-  }
-
-  /**
-   * 
-   */
-  public static void xhtmlConversion() {
-    XstreamPocGroup group = new XstreamPocGroup("myGroup",
-        new XstreamPocMember[]{
-         new XstreamPocMember("John", "John Smith - Employee"),
-         new XstreamPocMember("Mary", "Mary Johnson - Student")});
-    WsXhtmlOutputConverter wsXhtmlOutputConverter = new WsXhtmlOutputConverter(true,
-        null);
-    StringWriter stringWriter = new StringWriter();
-    wsXhtmlOutputConverter.writeBean(group, stringWriter);
-    String xhtml = stringWriter.toString();
-    System.out.println(GrouperUtil.indent(xhtml, true));
-    WsXhtmlInputConverter wsXhtmlInputConverter = new WsXhtmlInputConverter();
-    wsXhtmlInputConverter.addAlias("XstreamPocGroup", XstreamPocGroup.class);
-    wsXhtmlInputConverter.addAlias("XstreamPocMember", XstreamPocMember.class);
-    group = (XstreamPocGroup)wsXhtmlInputConverter.parseXhtmlString(xhtml);
-    System.out.println(group.getName() + ", number of members: " 
-        + group.getMembers().length);
   }
 
   /**

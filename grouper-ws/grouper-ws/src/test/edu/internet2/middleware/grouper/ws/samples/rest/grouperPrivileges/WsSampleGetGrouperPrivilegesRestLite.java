@@ -134,7 +134,7 @@ public class WsSampleGetGrouperPrivilegesRestLite implements WsSampleRest {
 
     RestClientSettings.resetData();
     
-    getGrouperPrivilegesLite(WsSampleRestType.xhtml);
+    getGrouperPrivilegesLite(WsSampleRestType.json);
   }
 
   /**

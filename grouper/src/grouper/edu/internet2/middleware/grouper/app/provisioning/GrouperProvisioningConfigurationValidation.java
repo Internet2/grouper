@@ -8,7 +8,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -20,7 +19,6 @@ import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 /**
  * this could be a deep validate though
@@ -71,9 +69,12 @@ public class GrouperProvisioningConfigurationValidation {
       
     Collection<String> groupAttributeNamesAllowed = validateGroupAttributeNamesAllowed();
     Collection<String> groupAttributeNamesRequired = validateGroupAttributeNamesRequired();
+    Collection<String> groupAttributeNamesForbidden = validateGroupAttributeNamesForbidden();
     if (groupAttributeNamesRequired != null) {
       groupAttributeNamesRequired = new HashSet<String>(groupAttributeNamesRequired);
-      
+    }    
+    if (groupAttributeNamesForbidden != null) {
+      groupAttributeNamesForbidden = new HashSet<String>(groupAttributeNamesForbidden);
     }    
     if (groupAttributeNamesAllowed != null) {
       groupAttributeNamesAllowed = new HashSet<String>(groupAttributeNamesAllowed);
@@ -92,6 +93,12 @@ public class GrouperProvisioningConfigurationValidation {
       
       if (StringUtils.isBlank(name)) {
         break;
+      }
+      
+      if (groupAttributeNamesForbidden != null && groupAttributeNamesForbidden.contains(name)) {
+        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectGroupAttributeConfigured");
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
       }
 
       if (groupAttributeNamesAllowed != null && !groupAttributeNamesAllowed.contains(name)) {
@@ -155,8 +162,12 @@ public class GrouperProvisioningConfigurationValidation {
       
     Collection<String> entityAttributeNamesAllowed = validateEntityAttributeNamesAllowed();
     Collection<String> entityAttributeNamesRequired = validateEntityAttributeNamesRequired();
+    Collection<String> entityAttributeNamesForbidden = validateEntityAttributeNamesForbidden();
     if (entityAttributeNamesRequired != null) {
       entityAttributeNamesRequired = new HashSet<String>(entityAttributeNamesRequired);
+    }    
+    if (entityAttributeNamesForbidden != null) {
+      entityAttributeNamesForbidden = new HashSet<String>(entityAttributeNamesForbidden);
     }    
  
     if (entityAttributeNamesAllowed != null) {
@@ -176,6 +187,13 @@ public class GrouperProvisioningConfigurationValidation {
       
       if (StringUtils.isBlank(name)) {
         break;
+      }
+      
+      if (entityAttributeNamesForbidden != null && entityAttributeNamesForbidden.contains(name)) {
+
+        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.incorrectEntityAttributeConfigured");
+        errorMessage = StringUtils.replace(errorMessage, "$$attributeName$$", name);
+        this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(errorMessage).assignJqueryHandle(nameConfigKey));
       }
 
       if (entityAttributeNamesAllowed != null && !entityAttributeNamesAllowed.contains(name)) {
@@ -368,7 +386,7 @@ public class GrouperProvisioningConfigurationValidation {
 //      }
 //    }
     if (grouperProvisioningConfiguration.isOperateOnGrouperMemberships() && grouperProvisioningConfiguration.isCustomizeMembershipCrud()) {
-      if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships()) {
+      if (!grouperProvisioningConfiguration.isSelectMemberships() && !grouperProvisioningConfiguration.isInsertMemberships() && !grouperProvisioningConfiguration.isReplaceMemberships()) {
         this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustSelectOrInsertMemberships")).assignJqueryHandle("operateOnGrouperMemberships"));
       }
     }
@@ -398,7 +416,8 @@ public class GrouperProvisioningConfigurationValidation {
     validateEntityLinkHasConfiguration();
     validateGroupLinkOnePerBucket();
     validateEntityLinkOnePerBucket();
-    validateNoUnsedConfigs();
+//    validateNoUnsedConfigs();
+    validateMembershipReplace();
     validateAttributeNamesNotReused();
     validateAttributeCount();
     validateGroupIdToProvisionExists();
@@ -1270,6 +1289,25 @@ public class GrouperProvisioningConfigurationValidation {
       }
     }      
   }
+  
+  
+  /**
+   * 
+   */
+  public void validateMembershipReplace() {
+    
+    if (GrouperUtil.booleanValue(suffixToConfigValue.get("replaceMemberships"), false)) {
+      
+      if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
+        String errorMessage = GrouperTextContainer.textOrNull("provisioning.configuration.validation.replaceMembershipsNotSupported");
+        this.addErrorMessage(new ProvisioningValidationIssue()
+            .assignMessage(errorMessage)
+            .assignRuntimeError(true));
+      }
+      
+    }
+          
+  }
 
   /**
    * 
@@ -1556,6 +1594,14 @@ public class GrouperProvisioningConfigurationValidation {
         }
       }
     }      
+  }
+
+  public Collection<String> validateGroupAttributeNamesForbidden() {
+    return null;
+  }
+
+  public Collection<String> validateEntityAttributeNamesForbidden() {
+    return null;
   }
 
 }

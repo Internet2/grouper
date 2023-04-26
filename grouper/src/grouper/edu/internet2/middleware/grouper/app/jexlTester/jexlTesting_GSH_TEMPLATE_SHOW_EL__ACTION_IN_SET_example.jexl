@@ -1,0 +1,1 @@
+${gsh_input_action == 'changeGuid' || gsh_input_action == 'displayState'}

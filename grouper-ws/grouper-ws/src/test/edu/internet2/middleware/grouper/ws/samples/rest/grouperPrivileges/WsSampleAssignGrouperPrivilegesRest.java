@@ -190,7 +190,7 @@ public class WsSampleAssignGrouperPrivilegesRest implements WsSampleRest {
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
     RestClientSettings.resetData();
-    assignGrouperPrivileges(WsSampleRestType.xhtml);
+    assignGrouperPrivileges(WsSampleRestType.json);
   }
 
   /**

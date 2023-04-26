@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperAzureUser {
 
-  private boolean accountEnabled;
+  private boolean accountEnabled = true;
 
   private String displayName;
 
@@ -154,6 +154,11 @@ public class GrouperAzureUser {
    * @return the group
    */
   public static GrouperAzureUser fromJson(JsonNode entityNode) {
+
+    if (entityNode == null || !entityNode.has("userPrincipalName")) {
+      return null;
+    }
+
     GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
     
     /**

@@ -432,6 +432,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
+    grouperProvisionerDaoCapabilities.setDefaultBatchSize(1000);
     grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);

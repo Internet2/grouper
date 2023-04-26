@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.std;
 
 import java.io.IOException;
+import java.util.Collection;
 
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.JsonParser;
 
@@ -9,6 +10,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.deser.ResolvableDeserializer;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.jsontype.TypeDeserializer;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.type.LogicalType;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.AccessPattern;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.ClassUtil;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.Converter;
 
@@ -139,33 +141,7 @@ public class StdDelegatingDeserializer<T>
 
     /*
     /**********************************************************
-    /* Accessors
-    /**********************************************************
-     */
-
-    @Override
-    public JsonDeserializer<?> getDelegatee() {
-        return _delegateDeserializer;
-    }
-
-    @Override
-    public Class<?> handledType() {
-        return _delegateDeserializer.handledType();
-    }
-
-    @Override // since 2.12
-    public LogicalType logicalType() {
-        return _delegateDeserializer.logicalType();
-    }
-    
-    @Override // since 2.9
-    public Boolean supportsUpdate(DeserializationConfig config) {
-        return _delegateDeserializer.supportsUpdate(config);
-    }
-
-    /*
-    /**********************************************************
-    /* Serialization
+    /* Deserialization
     /**********************************************************
      */
     
@@ -229,7 +205,81 @@ public class StdDelegatingDeserializer<T>
                 ("Cannot update object of type %s (using deserializer for type %s)"
                         +intoValue.getClass().getName(), _delegateType));
     }
-    
+
+    /*
+    /**********************************************************
+    /* Accessors
+    /**********************************************************
+     */
+
+    @Override
+    public Class<?> handledType() {
+        return _delegateDeserializer.handledType();
+    }
+
+    @Override // since 2.12
+    public LogicalType logicalType() {
+        return _delegateDeserializer.logicalType();
+    }
+
+    // Let's assume we should be cachable if delegate is
+    @Override
+    public boolean isCachable() {
+        return (_delegateDeserializer != null) && _delegateDeserializer.isCachable();
+    }
+
+    @Override
+    public JsonDeserializer<?> getDelegatee() {
+        return _delegateDeserializer;
+    }
+
+    @Override
+    public Collection<Object> getKnownPropertyNames() {
+        return _delegateDeserializer.getKnownPropertyNames();
+    }
+
+    /*
+    /**********************************************************
+    /* Null/empty/absent accessors
+    /**********************************************************
+     */
+
+    @Override
+    public T getNullValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _convertIfNonNull(_delegateDeserializer.getNullValue(ctxt));
+    }
+
+    @Override
+    public AccessPattern getNullAccessPattern() {
+        return _delegateDeserializer.getNullAccessPattern();
+    }
+
+    @Override
+    public Object getAbsentValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _convertIfNonNull(_delegateDeserializer.getAbsentValue(ctxt));
+    }
+
+    @Override
+    public Object getEmptyValue(DeserializationContext ctxt) throws JsonMappingException {
+        return _convertIfNonNull(_delegateDeserializer.getEmptyValue(ctxt));
+    }
+
+    @Override
+    public AccessPattern getEmptyAccessPattern() {
+        return _delegateDeserializer.getEmptyAccessPattern();
+    }
+
+    /*
+    /**********************************************************
+    /* Other accessors
+    /**********************************************************
+     */
+        
+    @Override // since 2.9
+    public Boolean supportsUpdate(DeserializationConfig config) {
+        return _delegateDeserializer.supportsUpdate(config);
+    }
+
     /*
     /**********************************************************
     /* Overridable methods
@@ -250,5 +300,17 @@ public class StdDelegatingDeserializer<T>
      */
     protected T convertValue(Object delegateValue) {
         return _converter.convert(delegateValue);
+    }
+
+    /*
+    /**********************************************************
+    /* Helper methods
+    /**********************************************************
+     */
+
+    // @since 2.14.2
+    protected T _convertIfNonNull(Object delegateValue) {
+        return (delegateValue == null) ? null
+                : _converter.convert(delegateValue);
     }
 }

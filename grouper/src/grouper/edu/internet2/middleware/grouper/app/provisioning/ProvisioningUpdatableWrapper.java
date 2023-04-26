@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.LinkedHashSet;
-import java.util.Set;
-
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 
 /**
@@ -11,28 +8,20 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
  */
 public abstract class ProvisioningUpdatableWrapper {
 
-  /**
-   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
-   */
-  private boolean recalcObject;
+
+  public ProvisioningStateBase getProvisioningState() {
+    if (this instanceof ProvisioningGroupWrapper) {
+      return ((ProvisioningGroupWrapper)this).getProvisioningStateGroup();
+    }
+    if (this instanceof ProvisioningEntityWrapper) {
+      return ((ProvisioningEntityWrapper)this).getProvisioningStateEntity();
+    }
+    if (this instanceof ProvisioningMembershipWrapper) {
+      return ((ProvisioningMembershipWrapper)this).getProvisioningStateMembership();
+    }
+    throw new RuntimeException("Not expecting type: " + this);
+  }
   
-  /**
-   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
-   * @return
-   */
-  public boolean isRecalcObject() {
-    return recalcObject;
-  }
-
-  /**
-   * if incremental and recalc, this applies to the entity / group / membership, but not the groupMemberships (for that provisioning) or entityMemberships (for that provisioning)
-   * @param recalc
-   */
-  public void setRecalcObject(boolean recalc) {
-    this.recalcObject = recalc;
-  }
-
-
   /**
    * if this object should not be provisioned because there is an error, list it here
    */

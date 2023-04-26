@@ -1466,5 +1466,28 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         .options(queryOptions)
         .listSet(Member.class);
   }
+  
+  /**
+   * not a secure method, find by id index
+   */
+  @Override
+  public Member findByIdIndex(Long idIndex, boolean exceptionIfNotFound)
+      throws MemberNotFoundException {
+    
+    StringBuilder hql = new StringBuilder("select theMember from Member as theMember where (theMember.idIndex = :theIdIndex)");
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+      .setCacheable(true).setCacheRegion(KLASS + ".FindByIdIndex");
+    
+    byHqlStatic.createQuery(hql.toString());
+    
+    Member member = byHqlStatic.setLong("theIdIndex", idIndex).uniqueResult(Member.class);
+
+    //handle exceptions out of data access method...
+    if (member == null && exceptionIfNotFound) {
+      throw new MemberNotFoundException("Cannot find member with idIndex: '" + idIndex + "'");
+    }
+    return member;
+    
+  }
 } 
 

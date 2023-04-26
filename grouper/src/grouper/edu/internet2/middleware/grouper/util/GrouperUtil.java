@@ -110,9 +110,9 @@ import org.apache.commons.jexl2.parser.JexlNode;
 import org.apache.commons.jexl3.JexlBuilder;
 import org.apache.commons.jexl3.JxltEngine;
 import org.apache.commons.jexl3.JxltEngine.Template;
-import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.lang.exception.Nestable;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.commons.validator.routines.EmailValidator;
@@ -148,6 +148,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -156,6 +157,7 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
 import edu.internet2.middleware.grouper.misc.GrouperId;
+import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -184,6 +186,7 @@ public class GrouperUtil {
 
     GrouperStartup.startup();
 
+    try {
 //    System.out.println(ldapBushyDn("Juicy\\, Fruit:b:c", "cn", "o\\u", true, false));
 //    System.out.println(ldapBushyDn("Juicy, Fruit:b:c", "cn", "ou", true, false));
 
@@ -365,8 +368,54 @@ public class GrouperUtil {
 //
 //    System.out.println(result);
     
-    System.out.println(GrouperUtil.stringFormatNameReverseReplaceTruncate("penn:isc:ait:apps:twoFactor:groups:requiredUsersStaff:twoFactorStaff", ".", 64));
+//    System.out.println(GrouperUtil.stringFormatNameReverseReplaceTruncate("penn:isc:ait:apps:twoFactor:groups:requiredUsersStaff:twoFactorStaff", ".", 64));
+  
+//    ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//    grouperProvisioningGroup.setName("First:Second");
+//    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+//    elVariableMap.put("grouperProvisioningGroup", true);
+//    Object result = GrouperUtil.substituteExpressionLanguageScript(
+//        "${grouperProvisioningGroup.name}", elVariableMap, true, false, false);
+//    System.out.println(result);
     
+//      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//      grouperProvisioningGroup.setName("First:Second");
+//      //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
+//      Map<String, Object> elVariableMap = new HashMap<String, Object>();
+//      elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//      Object result = GrouperUtil.substituteExpressionLanguageScript(
+//          "${ var extensionExists = grouperProvisioningGroup.extension ? true : false;  var idIndexExists = grouperProvisioningGroup.idIndex ? true : false;  if (extensionExists && idIndexExists) { edu.internet2.middleware.grouper.util.GrouperUtil.ldapEscapeRdnValue(grouperProvisioningGroup.extension + '-' + grouperProvisioningGroup.idIndex) ; } else {null;} } ", 
+//          elVariableMap, true, false, false);
+//      System.out.println(result);
+
+//  ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+//  grouperProvisioningGroup.setName("First:Second");
+//  //grouperProvisioningGroup.assignAttributeValue("displayName", "a:b");
+//  Map<String, Object> elVariableMap = new HashMap<String, Object>();
+//  //elVariableMap.put("grouperProvisioningGroup", grouperProvisioningGroup);
+//  Object result = GrouperUtil.substituteExpressionLanguageScript(
+//      "${ grouperProvisioningGroup.name != null }", 
+//      elVariableMap, true, false, true);
+//  System.out.println(result);
+
+      ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+      provisioningEntity.setSubjectIdentifier0("hello");
+
+    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+      elVariableMap.put("provisioningEntity", provisioningEntity);
+      
+      String el = "${provisioningEntity.subjectIdentifier0 ? provisioningEntity.subjectIdentifier0 : null}";
+      
+      boolean silent = false;
+      boolean lenient = false;
+      boolean allowStaticClasses = true;
+
+      Object result = substituteExpressionLanguageScript(el,elVariableMap, allowStaticClasses, silent, lenient);
+    System.out.println(result);
+
+    } finally {
+      GrouperShutdown.shutdown();
+    }
   }
 
   /**
@@ -1125,7 +1174,7 @@ public class GrouperUtil {
    */
   public static Log getLog(Class<?> theClass) {
     logDirsCreateIfNotDone();
-    return LogFactory.getLog(theClass);
+    return new GrouperLogger(LogFactory.getLog(theClass));
   }
 
   /**
@@ -3085,6 +3134,16 @@ public class GrouperUtil {
   }
 
   /**
+   * 
+   * @param collection
+   * @param object
+   * @return true if the collection contains this object
+   */
+  public static boolean collectionContains(Collection<Object> collection, Object object) {
+    return collection != null && object != null && collection.contains(object);
+  }
+
+  /**
    * convert a set to a string (comma separate)
    * @param collection
    * @return the String
@@ -3103,7 +3162,11 @@ public class GrouperUtil {
         result.append(", ");
       }
       first = false;
-      result.append(object);
+      
+      String objectString = GrouperUtil.stringValue(object);
+      objectString = StringUtils.replace(objectString, ",", "U+002C");
+      
+      result.append(objectString);
     }
     return result.toString();
 
@@ -7838,6 +7901,21 @@ public class GrouperUtil {
       return ((Number)input).floatValue();
     }
     throw new RuntimeException("Cannot convert to float: " + className(input));
+  }
+
+  /**
+   * get the float value of an object
+   *
+   * @param input
+   *          is a number or String
+   *
+   * @return the float equivalent
+   */
+  public static float floatValue(Object input, float defaultValue) {
+    if (isEmpty(input)) {
+      return defaultValue;
+    }
+    return floatValue(input);
   }
 
   /**
@@ -13892,6 +13970,29 @@ public class GrouperUtil {
   }
   
   /**
+   * 
+   * @param executorService if null just run it in this thread
+   * @param callable
+   * @param willRetry 
+   * @return the future
+   */
+  public static void executorServiceSubmit(ExecutorService executorService, List<GrouperCallable<Void>> callables) {
+    if (executorService == null || GrouperUtil.length(callables) <= 1) {
+      for (GrouperCallable grouperCallable : GrouperUtil.nonNull(callables)) {
+        grouperCallable.callLogic();
+      }
+      return;
+    }
+    List<GrouperFuture> grouperFutures = new ArrayList<GrouperFuture>();
+    for (GrouperCallable grouperCallable : GrouperUtil.nonNull(callables)) {
+      Future future = executorService.submit(grouperCallable);
+      GrouperFuture grouperFuture = new GrouperFuture(future, grouperCallable);
+      grouperFutures.add(grouperFuture);
+    }
+    GrouperFuture.waitForJob(grouperFutures, 0, null);
+  }
+  
+  /**
    * concat two strings
    * @param a
    * @param b
@@ -14229,7 +14330,7 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd long
    */
-  public static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
+  public synchronized static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
     if (map == null) {
       return;
     }
@@ -14253,7 +14354,7 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd long
    */
-  public static long mapAddValueObjectKey(Map<Object, Object> map, Object key, long numberToAdd) {
+  public synchronized static long mapAddValueObjectKey(Map<Object, Object> map, Object key, long numberToAdd) {
     if (map == null) {
       return -1;
     }
@@ -14277,7 +14378,7 @@ public class GrouperUtil {
    * @param key
    * @param numberToAdd int
    */
-  public static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
+  public synchronized static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
     if (map == null) {
       return;
     }
@@ -14302,7 +14403,7 @@ public class GrouperUtil {
    * @param numberToAdd int
    * @return new count
    */
-  public static int mapAddValueObjectKey(Map<Object, Object> map, Object key, int numberToAdd) {
+  public synchronized static int mapAddValueObjectKey(Map<Object, Object> map, Object key, int numberToAdd) {
     if (map == null) {
       return -1;
     }
@@ -15043,5 +15144,19 @@ public class GrouperUtil {
       newName = newName.substring(0, maxLength);
     }
     return newName;
+  }
+
+  public static void collectionRemoveNulls(Collection<?> input) {
+    
+    if (input == null) {
+      return;
+    }
+    Iterator<?> iterator = input.iterator();
+    while(iterator.hasNext()) {
+      Object object = iterator.next();
+      if (object == null) {
+        iterator.remove();
+      }
+    }
   }
 }

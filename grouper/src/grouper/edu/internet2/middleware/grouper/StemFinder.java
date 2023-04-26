@@ -902,19 +902,23 @@ public class StemFinder {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
     
       // if passed in empty set of stem ids and no names, then no stems found
-      // uncomment this if we can search by stem names
-      if (this.stemIds != null && this.stemIds.size() == 0 /* && GrouperUtil.length(this.stemNames) == 0 */ ) {
+      if (this.stemIds != null && this.stemIds.size() == 0 && GrouperUtil.length(this.stemNames) == 0) {
         return new HashSet<Stem>();
       }
-    }    
+
+      // if passed in empty set of stem names and no ids, then no stems found
+      if (this.stemNames != null && this.stemNames.size() == 0 && GrouperUtil.length(this.stemIds) == 0) {
+        return new HashSet<Stem>();
+      }
+    }
 
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
   
     Set<Stem> stems = GrouperDAOFactory.getFactory().getStem()
-        .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges, 
+        .getAllStemsSecure(this.scope, grouperSession, this.subject, this.privileges,
             this.queryOptions, this.splitScope, this.parentStemId, this.stemScope, 
             this.findByUuidOrName, this.userHasInGroupFields,
-            this.userHasInAttributeFields, this.stemIds, 
+            this.userHasInAttributeFields, this.stemIds, this.stemNames,
             this.attributeDefNameId, this.attributeValue, this.attributeCheckReadOnAttributeDef,
             this.attributeValuesOnAssignment, 
             this.attributeDefNameId2, this.attributeValue2, this.attributeValuesOnAssignment2,
@@ -967,6 +971,30 @@ public class StemFinder {
    */
   public StemFinder assignStemIds(Collection<String> theStemIds) {
     this.stemIds = theStemIds;
+    return this;
+  }
+
+
+  /**
+   * stem names to find
+   */
+  private Collection<String> stemNames;
+
+  /**
+   *
+   * @param stemName
+   * @return this for chaining
+   */
+  public StemFinder addStemName(String stemName) {
+    if (this.stemNames == null) {
+      this.stemNames = new HashSet<String>();
+    }
+    this.stemNames.add(stemName);
+    return this;
+  }
+
+  public StemFinder assignStemNames(Collection<String> theStemNames) {
+    this.stemNames = theStemNames;
     return this;
   }
 

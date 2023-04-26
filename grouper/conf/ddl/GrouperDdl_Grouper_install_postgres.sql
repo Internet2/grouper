@@ -128,17 +128,18 @@ CREATE TABLE grouper_members
     subject_identifier0 VARCHAR(255),
     subject_identifier1 VARCHAR(255),
     subject_identifier2 VARCHAR(255),
+    id_index BIGINT NOT NULL,
     email0 VARCHAR(255),
     sort_string0 VARCHAR(50),
     sort_string1 VARCHAR(50),
     sort_string2 VARCHAR(50),
     sort_string3 VARCHAR(50),
     sort_string4 VARCHAR(50),
-    search_string0 VARCHAR(2048),
-    search_string1 VARCHAR(2048),
-    search_string2 VARCHAR(2048),
-    search_string3 VARCHAR(2048),
-    search_string4 VARCHAR(2048),
+    search_string0 VARCHAR(1500),
+    search_string1 VARCHAR(1500),
+    search_string2 VARCHAR(1500),
+    search_string3 VARCHAR(1500),
+    search_string4 VARCHAR(1500),
     name VARCHAR(2048),
     description VARCHAR(2048),
     context_id VARCHAR(40),
@@ -177,6 +178,8 @@ CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0)
 CREATE INDEX member_subjidentifier1_idx ON grouper_members (subject_identifier1);
 
 CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2);
+
+CREATE UNIQUE INDEX member_id_index_idx ON grouper_members (id_index);
 
 CREATE INDEX member_email0_idx ON grouper_members (email0);
 
@@ -660,7 +663,7 @@ CREATE TABLE grouper_attribute_assign
     owner_member_id VARCHAR(40),
     owner_membership_id VARCHAR(40),
     owner_stem_id VARCHAR(40),
-    disallowed VARCHAR(1),
+    disallowed VARCHAR(1) DEFAULT 'F' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -1047,7 +1050,7 @@ CREATE TABLE grouper_pit_attribute_assign
     end_time BIGINT,
     context_id VARCHAR(40),
     hibernate_version_number BIGINT,
-    disallowed VARCHAR(1),
+    disallowed VARCHAR(1) DEFAULT 'F' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -2361,17 +2364,13 @@ ALTER TABLE grouper_sync_log
 ALTER TABLE grouper_last_login
     ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) ON DELETE CASCADE;
 
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) ON DELETE CASCADE;
-
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_st FOREIGN KEY (stem_uuid) REFERENCES grouper_stems (id) ON DELETE CASCADE;
-
 COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of the subject';
 
 COMMENT ON COLUMN grouper_members.subject_identifier1 IS 'subject identifier of the subject';
 
 COMMENT ON COLUMN grouper_members.subject_identifier2 IS 'subject identifier of the subject';
+
+COMMENT ON COLUMN grouper_members.id_index IS 'Sequential id index integer that can we used outside of Grouper';
 
 COMMENT ON COLUMN grouper_members.email0 IS 'email of the subject';
 
@@ -7112,7 +7111,7 @@ COMMENT ON COLUMN grouper_mship_req_change.require_group_id IS 'grouper_groups i
 COMMENT ON COLUMN grouper_mship_req_change.config_id IS 'config id in the grouper.properties config file';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 43, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V43, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 44, to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V44, ');
 commit;
 

@@ -153,6 +153,7 @@ import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.ws.GrouperWsConfigInApi;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.morphString.MorphStringConfig;
@@ -1049,7 +1050,17 @@ public class GrouperCheckConfig {
                 "wheel group from grouper.properties key: groups.wheel.group", null);
           }
         }
+      } 
+      
+      {
+        String groupName = GrouperConfig.retrieveConfig().propertyValueString("jexlScriptTestingGroup");
+        if (StringUtils.isBlank(groupName) && wasInCheckConfig) {
+        } else {
+          checkGroup(grouperSession, groupName, wasInCheckConfig, null, wasInCheckConfig, null, "members of this group can run jexl script testing from UI", 
+              "jexlScriptTestingGroup group from grouper.properties key: jexlScriptTestingGroup", null);
+        }
       }      
+      
       {
         boolean useViewonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false);
         if (useViewonlyWheel) {
@@ -1092,6 +1103,20 @@ public class GrouperCheckConfig {
       if (StringUtils.isNotBlank(groupAllowedToRenameStem)) {
         checkGroup(grouperSession, groupAllowedToRenameStem, wasInCheckConfig, null, wasInCheckConfig, null, 
             null, "grouper.properties key: " + allowedGroupName, null);        
+      }
+      
+      {
+        String wsClientUserGroupName = GrouperWsConfigInApi.retrieveConfig().propertyValueString("ws.client.user.group.name");
+  
+        if (!StringUtils.isBlank(wsClientUserGroupName)) {
+          if (GroupFinder.findByName(wsClientUserGroupName, false) == null) {
+            checkGroup(grouperSession, wsClientUserGroupName, wasInCheckConfig, true, 
+                wasInCheckConfig, null,
+                GrouperUtil.extensionFromName(wsClientUserGroupName),
+                "Group contains people who can call web services",
+                null);
+          }
+        }
       }
       
       // security.stem.groupAllowedToCopyStem
@@ -3124,6 +3149,10 @@ public class GrouperCheckConfig {
         
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_DESCRIPTION, 
             "Textarea which describes the information in the report. Must be less than 4k", wasInCheckConfig);
+        
+        
+        checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_SQL_CONFIG, 
+            "sql config id", wasInCheckConfig);
         
         checkAttribute(reportConfigStem, grouperReportConfigAttrType, GrouperReportConfigAttributeNames.GROUPER_REPORT_CONFIG_VIEWERS_GROUP_ID, 
             "GroupId of people who can view this report. Grouper admins can view any report", wasInCheckConfig);

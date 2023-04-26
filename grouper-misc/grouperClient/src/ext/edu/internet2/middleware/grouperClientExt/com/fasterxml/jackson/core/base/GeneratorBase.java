@@ -497,4 +497,72 @@ scale, MAX_BIG_DECIMAL_SCALE, MAX_BIG_DECIMAL_SCALE));
         int c = 0x10000 + ((surr1 - SURR1_FIRST) << 10) + (surr2 - SURR2_FIRST);
         return c;
     }
+
+    /*
+    /**********************************************************************
+    /* Helper methods for validating parameters
+    /**********************************************************************
+     */
+
+    // @since 2.14
+    protected void _checkRangeBoundsForByteArray(byte[] data, int offset, int len)
+        throws IOException
+    {
+        if (data == null) {
+            _reportError("Invalid `byte[]` argument: `null`");
+        }
+        final int dataLen = data.length;
+        final int end = offset+len;
+
+        // Note: we are checking that:
+        //
+        // !(offset < 0)
+        // !(len < 0)
+        // !((offset + len) < 0) // int overflow!
+        // !((offset + len) > dataLen) == !((datalen - (offset+len)) < 0)
+
+        // All can be optimized by OR'ing and checking for negative:
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `byte[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    // @since 2.14
+    protected void _checkRangeBoundsForCharArray(char[] data, int offset, int len)
+        throws IOException
+    {
+        if (data == null) {
+            _reportError("Invalid `char[]` argument: `null`");
+        }
+        final int dataLen = data.length;
+        final int end = offset+len;
+        // Note: we are checking same things as with other bounds-checks
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `char[]` of length %d",
+offset, len, dataLen));
+        }
+    }
+
+    // @since 2.14
+    protected void _checkRangeBoundsForString(String data, int offset, int len)
+        throws IOException
+    {
+        if (data == null) {
+            _reportError("Invalid `String` argument: `null`");
+        }
+        final int dataLen = data.length();
+        final int end = offset+len;
+        // Note: we are checking same things as with other bounds-checks
+        int anyNegs = offset | len | end | (dataLen - end);
+        if (anyNegs < 0) {
+            _reportError(String.format(
+"Invalid 'offset' (%d) and/or 'len' (%d) arguments for `String` of length %d",
+offset, len, dataLen));
+        }
+    }
 }

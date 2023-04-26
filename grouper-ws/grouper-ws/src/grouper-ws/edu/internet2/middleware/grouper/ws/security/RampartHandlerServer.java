@@ -43,7 +43,7 @@ public class RampartHandlerServer implements CallbackHandler {
    * logger 
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(RampartHandlerServer.class);
+  private static final Log LOG = GrouperUtil.getLog(RampartHandlerServer.class);
 
   /**
    * retrieve the class for rampart customizer

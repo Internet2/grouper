@@ -8,10 +8,8 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.cfg.annotations.Nullability;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class GrouperProvisioningConfigurationAttribute {
 
@@ -323,6 +321,38 @@ public class GrouperProvisioningConfigurationAttribute {
       String translateFromGrouperProvisioningGroupField) {
     this.translateFromGrouperProvisioningGroupField = translateFromGrouperProvisioningGroupField;
   }
+  
+  /**
+   * grouper target group field
+   */
+  private String translateFromGrouperTargetGroupField;
+  
+  /**
+   * grouper target entity field
+   */
+  private String translateFromGrouperTargetEntityField;
+  
+  
+  public String getTranslateFromGrouperTargetGroupField() {
+    return translateFromGrouperTargetGroupField;
+  }
+
+  
+  public void setTranslateFromGrouperTargetGroupField(
+      String translateFromGrouperTargetGroupField) {
+    this.translateFromGrouperTargetGroupField = translateFromGrouperTargetGroupField;
+  }
+
+  
+  public String getTranslateFromGrouperTargetEntityField() {
+    return translateFromGrouperTargetEntityField;
+  }
+
+  
+  public void setTranslateFromGrouperTargetEntityField(
+      String translateFromGrouperTargetEntityField) {
+    this.translateFromGrouperTargetEntityField = translateFromGrouperTargetEntityField;
+  }
 
   /**
    * attribute or field name
@@ -458,6 +488,36 @@ public class GrouperProvisioningConfigurationAttribute {
    */
   private String translateFromStaticValuesCreateOnly;
   
+  /**
+   * Check for nulls for jexl translation
+   */
+  private boolean checkForNullsInScript;
+  
+  /**
+   * condition that must be evaluated to true in order to continue translation e.g. ${grouperProvisioningEntity.subjectIdentifier2 != null}
+   */
+  private String translationContinueCondition;
+  
+  
+  public boolean isCheckForNullsInScript() {
+    return checkForNullsInScript;
+  }
+
+  
+  public void setCheckForNullsInScript(boolean checkForNullsInScript) {
+    this.checkForNullsInScript = checkForNullsInScript;
+  }
+
+  
+  public String getTranslationContinueCondition() {
+    return translationContinueCondition;
+  }
+
+  
+  public void setTranslationContinueCondition(String translationContinueCondition) {
+    this.translationContinueCondition = translationContinueCondition;
+  }
+
   /**
    * attribute or field name
    * @return

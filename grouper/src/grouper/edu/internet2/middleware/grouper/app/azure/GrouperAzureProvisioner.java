@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.app.azure;
 
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;

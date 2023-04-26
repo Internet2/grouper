@@ -39,8 +39,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsBulkRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsBulkResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesRequest;
@@ -101,28 +99,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
    */
   public TargetDaoRetrieveMembershipsResponse retrieveMemberships(TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {
     TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = new TargetDaoRetrieveMembershipsResponse();
-    if (GrouperUtil.length(targetDaoRetrieveMembershipsRequest.getTargetMemberships()) == 0) {
-      return targetDaoRetrieveMembershipsResponse;
-    }
-    
-    List<ProvisioningGroup> grouperTargetGroups = new ArrayList<ProvisioningGroup>();
-    List<ProvisioningEntity> grouperTargetEntities = new ArrayList<ProvisioningEntity>();
-    List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
-    
-    for (Object object : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
-      if (object instanceof ProvisioningGroup) {
-        grouperTargetGroups.add((ProvisioningGroup)object);
-      }
-      if (object instanceof ProvisioningEntity) {
-        grouperTargetEntities.add((ProvisioningEntity)object);
-      }
-      if (object instanceof ProvisioningMembership) {
-        grouperTargetMemberships.add((ProvisioningMembership)object);
-      }
-    }
-    
-    List<ProvisioningMembership> memberships = retrieveMemberships(grouperTargetGroups, grouperTargetEntities, (List<Object>)(Object)grouperTargetMemberships);
-    targetDaoRetrieveMembershipsResponse.setTargetMemberships((List<Object>)(Object)memberships);
+    List<ProvisioningMembership> memberships = retrieveMemberships(targetDaoRetrieveMembershipsRequest.getTargetGroups(), 
+        targetDaoRetrieveMembershipsRequest.getTargetEntities(), targetDaoRetrieveMembershipsRequest.getTargetMemberships());
+    targetDaoRetrieveMembershipsResponse.setTargetMemberships(memberships);
     return targetDaoRetrieveMembershipsResponse;
   }
 
@@ -134,7 +113,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
    * @return memberships
    */
   public List<ProvisioningMembership> retrieveMemberships(List<ProvisioningGroup> grouperTargetGroups, 
-      List<ProvisioningEntity> grouperTargetEntities, List<Object> grouperTargetMembershipsInput) {
+      List<ProvisioningEntity> grouperTargetEntities, List<ProvisioningMembership> grouperTargetMembershipsInput) {
     
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
@@ -182,7 +161,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       if (GrouperUtil.length(grouperTargetMemberships) > 0) {
         List<Object[]> membershipAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
             dbExternalSystemConfigId, membershipColumnNames, membershipTableName, null, null, 
-            GrouperUtil.toList(membershipGroupColumn, membershipEntityColumn), grouperTargetMemberships);
+            GrouperUtil.toList(membershipGroupColumn, membershipEntityColumn), grouperTargetMemberships, 
+            sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
         retrieveMembershipsAddRecord(overallResult, membershipAttributeValues, membershipColumnNames);
       }
@@ -196,7 +176,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         List<Object[]> membershipAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
             dbExternalSystemConfigId, membershipColumnNames, membershipTableName, null, null, 
-            GrouperUtil.toList(membershipGroupColumn), idsToRetrieve);
+            GrouperUtil.toList(membershipGroupColumn), idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
         retrieveMembershipsAddRecord(overallResult, membershipAttributeValues, membershipColumnNames);
       }
@@ -210,7 +190,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         List<Object[]> membershipAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
             dbExternalSystemConfigId, membershipColumnNames, membershipTableName, null, null, 
-            GrouperUtil.toList(membershipGroupColumn), idsToRetrieve);
+            GrouperUtil.toList(membershipGroupColumn), idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
         retrieveMembershipsAddRecord(overallResult, membershipAttributeValues, membershipColumnNames);
       }
@@ -270,9 +250,11 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     String groupAttributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
 
-    String groupAttributesLastModifiedColumn = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumn();
+    String sqlLastModifiedColumn = sqlProvisioningConfiguration.getSqlLastModifiedColumnName();
     
-    String groupAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumnType();
+    String sqlDeletedColumn = sqlProvisioningConfiguration.getSqlDeletedColumnName();
+    
+    String sqlLastModifiedColumnType = sqlProvisioningConfiguration.getSqlLastModifiedColumnType();
     
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
     
@@ -306,15 +288,22 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<String> attributeColumnsWhereClause = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, 
         groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
     
-    if (!StringUtils.isBlank(groupAttributesLastModifiedColumn)) {
-      attributeColumnsToInsert.add(groupAttributesLastModifiedColumn);
+    if (!StringUtils.isBlank(sqlLastModifiedColumn)) {
+      attributeColumnsToInsert.add(sqlLastModifiedColumn);
     }
-
+    
+    if (!StringUtils.isBlank(sqlDeletedColumn)) {
+      attributeColumnsToInsert.add(sqlDeletedColumn);
+    }
+    
     // owner id, attribute name, old value, new value, last updated
     List<String> attributeColumnsToUpdate = GrouperUtil.toList(groupAttributesGroupForeignKeyColumn, 
         groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn);
-    if (!StringUtils.isBlank(groupAttributesLastModifiedColumn)) {
-      attributeColumnsToUpdate.add(groupAttributesLastModifiedColumn);
+    if (!StringUtils.isBlank(sqlLastModifiedColumn)) {
+      attributeColumnsToUpdate.add(sqlLastModifiedColumn);
+    }
+    if (!StringUtils.isBlank(sqlDeletedColumn)) {
+      attributeColumnsToUpdate.add(sqlDeletedColumn);
     }
 
     List<Object[]> primaryTableUpdates = new ArrayList<Object[]>();
@@ -323,20 +312,21 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<Object[]> attributeTableUpdatesWhereClause = new ArrayList<Object[]>();
     List<Object[]> attributeTableInserts = new ArrayList<Object[]>();
     List<Object[]> attributeTableDeletes = new ArrayList<Object[]>();
+    List<Object[]> attributeTableInsertDeletes = new ArrayList<Object[]>();
     List<Object[]> attributeTableDeletesWhereClause = new ArrayList<Object[]>();
     
     for (ProvisioningGroup targetGroup: targetGroups) {
       
-      String groupIdentifierValueNew = targetGroup.retrieveAttributeValueString(groupTableIdColumn);
-      String groupIdentifierValueOld = groupIdentifierValueNew;
+      Object groupIdentifierValueNew = targetGroup.retrieveAttributeValue(groupTableIdColumn);
+      Object groupIdentifierValueOld = groupIdentifierValueNew;
       if (targetGroup.getProvisioningGroupWrapper() != null && targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null) {
-        groupIdentifierValueOld = targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueString(groupTableIdColumn);
-        if (StringUtils.isBlank(groupIdentifierValueOld)) {
+        groupIdentifierValueOld = targetGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValue(groupTableIdColumn);
+        if (GrouperUtil.isBlank(groupIdentifierValueOld)) {
           groupIdentifierValueOld = groupIdentifierValueNew;
         }
       }
       
-      if (StringUtils.isBlank(groupIdentifierValueNew)) {
+      if (GrouperUtil.isBlank(groupIdentifierValueNew)) {
         throw new RuntimeException("Unable to retrieve entitiy identifier value");
       }
       Object[] mainData = new Object[primaryColumnsToUpdate.size()];
@@ -352,7 +342,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         if (StringUtils.equals(attributeName, groupTableIdColumn) && provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update 
             && !GrouperUtil.isBlank(provisioningObjectChange.getOldValue()) 
-            && !StringUtils.equals(groupIdentifierValueNew, GrouperUtil.stringValue(provisioningObjectChange.getOldValue()))) {
+            && !GrouperUtil.equals(groupIdentifierValueNew, provisioningObjectChange.getOldValue())) {
           groupIdentifierValueOld = GrouperUtil.stringValue(provisioningObjectChange.getOldValue());
         }
         
@@ -367,32 +357,48 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             updateData[0] = groupIdentifierValueNew;
             updateData[1] = attributeName;
             updateData[2] = provisioningObjectChange.getNewValue();
-            if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-              if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
-                updateData[3] = new Timestamp(System.currentTimeMillis());
-              } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
-                updateData[3] = System.currentTimeMillis();
+            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+              if (StringUtils.equals(sqlLastModifiedColumnType, "timestamp")) {
+                updateData[3] = new Timestamp(lastModified());
+              } else if (StringUtils.equals(sqlLastModifiedColumnType, "long")) {
+                updateData[3] = lastModified();
               } else {
-                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
               }
+            }
+            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+              int columnIndex = StringUtils.isNotBlank(sqlLastModifiedColumn) ? 4: 3;
+              updateData[columnIndex] = "F";
             }
             attributeTableUpdatesWhereClause.add(new Object[] {groupIdentifierValueNew, attributeName, provisioningObjectChange.getOldValue()});
             
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             
-            Object[] insertData = new Object[attributeColumnsToInsert.size()];
+            Object[] insertDelete = new Object[attributeColumnsToDelete.size()];
+            attributeTableInsertDeletes.add(insertDelete);
+            insertDelete[0] = groupIdentifierValueNew;
+            insertDelete[1] = attributeName;
+            insertDelete[2] = provisioningObjectChange.getNewValue();
+            
+            int attributeColumnsToInsertSize = attributeColumnsToInsert.size();
+            Object[] insertData = new Object[attributeColumnsToInsertSize];
             attributeTableInserts.add(insertData);
             insertData[0] = groupIdentifierValueNew;
             insertData[1] = attributeName;
             insertData[2] = provisioningObjectChange.getNewValue();
-            if (StringUtils.isNotBlank(groupAttributesLastModifiedColumn)) {
-              if (StringUtils.equals(groupAttributesLastModifiedColumnType, "timestamp")) {
-                insertData[3] = new Timestamp(System.currentTimeMillis());
-              } else if (StringUtils.equals(groupAttributesLastModifiedColumnType, "long")) {
-                insertData[3] = System.currentTimeMillis();
+            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+              if (StringUtils.equals(sqlLastModifiedColumnType, "timestamp")) {
+                insertData[3] = new Timestamp(lastModified());
+              } else if (StringUtils.equals(sqlLastModifiedColumnType, "long")) {
+                insertData[3] = lastModified();
               } else {
-                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+groupAttributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
               }
+            }
+            
+            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+              int columnIndex = StringUtils.isNotBlank(sqlLastModifiedColumn) ? 4: 3;
+              insertData[columnIndex] = "F";
             }
 
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
@@ -414,12 +420,33 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
       }
       if (hasPrimaryUpdate) {
+        
+        if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+          Integer columnIndex = primaryColumnNameToIndex.get(sqlLastModifiedColumn);
+          if (columnIndex == null) {
+            throw new RuntimeException("You must have an attribute in the groups table called: "+sqlLastModifiedColumn + " because"
+                + " you set the configuration last modified sql column name so it must exist on all provisioned tables");
+          }
+          if (StringUtils.equals("long", sqlLastModifiedColumnType)) {
+            mainData[columnIndex] = lastModified(); 
+          } else if (StringUtils.equals("timestamp", sqlLastModifiedColumnType)) {
+            mainData[columnIndex] = new Timestamp(lastModified());
+          } else {
+            throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+          } 
+        }
+        
+        if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlDeletedColumnName())) {
+          int columnIndex = primaryColumnNameToIndex.get(sqlProvisioningConfiguration.getSqlDeletedColumnName());
+          mainData[columnIndex] = "F";
+        }
+        
         primaryTableUpdates.add(mainData);
         primaryTableWhereClause.add(new Object[] {groupIdentifierValueOld});
       }
 
       // if the groupIdentiferNew and groupIdentifierOld do not match...
-      if (!StringUtils.equals(groupIdentifierValueNew, groupIdentifierValueOld) && sqlProvisioningConfiguration.isUseSeparateTableForGroupAttributes()) {
+      if (!GrouperUtil.equals(groupIdentifierValueNew, groupIdentifierValueOld) && sqlProvisioningConfiguration.isUseSeparateTableForGroupAttributes()) {
 
         List<Object[]> groupAttributesGroupForeignKeyColumnOld = new ArrayList<Object[]>();
         groupAttributesGroupForeignKeyColumnOld.add(new Object[] {groupIdentifierValueOld});
@@ -434,25 +461,32 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }      
     if (primaryTableUpdates.size() > 0) {
       
-      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, groupTableName, primaryColumnsToUpdate, primaryTableUpdates, primaryColumnsWhereClause, primaryTableWhereClause);
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, groupTableName, primaryColumnsToUpdate, primaryTableUpdates,
+          primaryColumnsWhereClause, primaryTableWhereClause);
       
     }
     
     if (attributeTableUpdates.size() > 0 ) {
       
-      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToUpdate, attributeTableUpdates, attributeColumnsWhereClause, attributeTableUpdatesWhereClause);
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToUpdate, 
+          attributeTableUpdates, attributeColumnsWhereClause, attributeTableUpdatesWhereClause);
       
     }
     
     if (attributeTableInserts.size() > 0 ) {
+      
+      SqlProvisionerCommands.deleteObjects(attributeTableInsertDeletes, dbExternalSystemConfigId, groupAttributesTableName, 
+          attributeColumnsToDelete, null, null, 
+          sqlDeletedColumn, false, true);
       
       SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToInsert, attributeTableInserts); 
       
     }
     
     if (attributeTableDeletes.size() > 0 ) {
-      
-      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, groupAttributesTableName, attributeColumnsToDelete, null, null); 
+      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, groupAttributesTableName, 
+          attributeColumnsToDelete, null, null, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false, 
+          StringUtils.isBlank(sqlProvisioningConfiguration.getSqlDeletedColumnName())); 
       
     }
     
@@ -491,9 +525,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     String entityAttributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
 
-    String entityAttributesLastModifiedColumn = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumn();
+    String sqlLastModifiedColumn = sqlProvisioningConfiguration.getSqlLastModifiedColumnName();
+    String sqlDeletedColumn = sqlProvisioningConfiguration.getSqlDeletedColumnName();
     
-    String entityAttributesLastModifiedColumnType = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumnType();
+    String sqlLastModifiedColumnType = sqlProvisioningConfiguration.getSqlLastModifiedColumnType();
     
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
     
@@ -527,15 +562,22 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<String> attributeColumnsWhereClause = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
         entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
     
-    if (!StringUtils.isBlank(entityAttributesLastModifiedColumn)) {
-      attributeColumnsToInsert.add(entityAttributesLastModifiedColumn);
+    if (!StringUtils.isBlank(sqlLastModifiedColumn)) {
+      attributeColumnsToInsert.add(sqlLastModifiedColumn);
+    }
+
+    if (!StringUtils.isBlank(sqlDeletedColumn)) {
+      attributeColumnsToInsert.add(sqlDeletedColumn);
     }
 
     // owner id, attribute name, old value, new value, last updated
     List<String> attributeColumnsToUpdate = GrouperUtil.toList(entityAttributesEntityForeignKeyColumn, 
         entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn);
-    if (!StringUtils.isBlank(entityAttributesLastModifiedColumn)) {
-      attributeColumnsToUpdate.add(entityAttributesLastModifiedColumn);
+    if (!StringUtils.isBlank(sqlLastModifiedColumn)) {
+      attributeColumnsToUpdate.add(sqlLastModifiedColumn);
+    }
+    if (!StringUtils.isBlank(sqlDeletedColumn)) {
+      attributeColumnsToUpdate.add(sqlDeletedColumn);
     }
 
     List<Object[]> primaryTableUpdates = new ArrayList<Object[]>();
@@ -544,20 +586,21 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<Object[]> attributeTableUpdatesWhereClause = new ArrayList<Object[]>();
     List<Object[]> attributeTableInserts = new ArrayList<Object[]>();
     List<Object[]> attributeTableDeletes = new ArrayList<Object[]>();
+    List<Object[]> attributeTableInsertDeletes = new ArrayList<Object[]>();
     List<Object[]> attributeTableDeletesWhereClause = new ArrayList<Object[]>();
     
     for (ProvisioningEntity targetEntity: targetEntities) {
       
-      String entityIdentifierValueNew = targetEntity.retrieveAttributeValueString(entityTableIdColumn);
-      String entityIdentifierValueOld = entityIdentifierValueNew;
+      Object entityIdentifierValueNew = targetEntity.retrieveAttributeValue(entityTableIdColumn);
+      Object entityIdentifierValueOld = entityIdentifierValueNew;
       if (targetEntity.getProvisioningEntityWrapper() != null && targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity() != null) {
-        entityIdentifierValueOld = targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity().retrieveAttributeValueString(entityTableIdColumn);
-        if (StringUtils.isBlank(entityIdentifierValueOld)) {
+        entityIdentifierValueOld = targetEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity().retrieveAttributeValue(entityTableIdColumn);
+        if (GrouperUtil.isBlank(entityIdentifierValueOld)) {
           entityIdentifierValueOld = entityIdentifierValueNew;
         }
       }
 
-      if (StringUtils.isBlank(entityIdentifierValueNew)) {
+      if (GrouperUtil.isBlank(entityIdentifierValueNew)) {
         throw new RuntimeException("Unable to retrieve entitiy identifier value");
       }
       Object[] mainData = new Object[primaryColumnsToUpdate.size()];
@@ -573,7 +616,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         if (StringUtils.equals(attributeName, entityTableIdColumn) && provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update 
             && !GrouperUtil.isBlank(provisioningObjectChange.getOldValue()) 
-            && !StringUtils.equals(entityIdentifierValueNew, GrouperUtil.stringValue(provisioningObjectChange.getOldValue()))) {
+            && !GrouperUtil.equals(entityIdentifierValueNew, provisioningObjectChange.getOldValue())) {
           entityIdentifierValueOld = GrouperUtil.stringValue(provisioningObjectChange.getOldValue());
         }
 
@@ -588,32 +631,57 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             updateData[0] = entityIdentifierValueNew;
             updateData[1] = attributeName;
             updateData[2] = provisioningObjectChange.getNewValue();
-            if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-              if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
-                updateData[3] = new Timestamp(System.currentTimeMillis());
-              } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
-                updateData[3] = System.currentTimeMillis();
+            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+              if (StringUtils.equals(sqlLastModifiedColumnType, "timestamp")) {
+                updateData[3] = new Timestamp(lastModified());
+              } else if (StringUtils.equals(sqlLastModifiedColumnType, "long")) {
+                updateData[3] = lastModified();
               } else {
-                throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
               }
             }
+            
+            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+              int columnIndex = StringUtils.isNotBlank(sqlLastModifiedColumn) ? 4: 3;
+              updateData[columnIndex] = "F";
+            }
+            
             attributeTableUpdatesWhereClause.add(new Object[] {entityIdentifierValueNew, attributeName, provisioningObjectChange.getOldValue()});
             
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
             
-            Object[] insertData = new Object[attributeColumnsToInsert.size()];
+            Object[] insertDelete = new Object[attributeColumnsToDelete.size()];
+            attributeTableInsertDeletes.add(insertDelete);
+            insertDelete[0] = entityIdentifierValueNew;
+            insertDelete[1] = attributeName;
+            insertDelete[2] = provisioningObjectChange.getNewValue();
+            
+            int attributeColumnsToInsertSize = attributeColumnsToInsert.size();
+            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+              attributeColumnsToInsertSize++;
+            }
+            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+              attributeColumnsToInsertSize++;
+            }
+            Object[] insertData = new Object[attributeColumnsToInsertSize];
             attributeTableInserts.add(insertData);
             insertData[0] = entityIdentifierValueNew;
             insertData[1] = attributeName;
             insertData[2] = provisioningObjectChange.getNewValue();
-            if (StringUtils.isNotBlank(entityAttributesLastModifiedColumn)) {
-              if (StringUtils.equals(entityAttributesLastModifiedColumnType, "timestamp")) {
-                insertData[3] = new Timestamp(System.currentTimeMillis());
-              } else if (StringUtils.equals(entityAttributesLastModifiedColumnType, "long")) {
-                insertData[3] = System.currentTimeMillis();
+            
+            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+              if (StringUtils.equals(sqlLastModifiedColumnType, "timestamp")) {
+                insertData[3] = new Timestamp(lastModified());
+              } else if (StringUtils.equals(sqlLastModifiedColumnType, "long")) {
+                insertData[3] = lastModified();
               } else {
-                throw new RuntimeException("Invalid entityAttributesLastModifiedColumnType: '"+entityAttributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
               }
+            }
+            
+            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+              int columnIndex = StringUtils.isNotBlank(sqlLastModifiedColumn) ? 4: 3;
+              insertData[columnIndex] = "F";
             }
 
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
@@ -634,11 +702,32 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
       }
       if (hasPrimaryUpdate) {
+        
+        if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+          Integer columnIndex = primaryColumnNameToIndex.get(sqlLastModifiedColumn);
+          if (columnIndex == null) {
+            throw new RuntimeException("You must have an attribute in the entities table called: "+sqlLastModifiedColumn + " because"
+                + " you set the configuration last modified sql column name so it must exist on all provisioned tables");
+          }
+          if (StringUtils.equals("long", sqlLastModifiedColumnType)) {
+            mainData[columnIndex] = lastModified(); 
+          } else if (StringUtils.equals("timestamp", sqlLastModifiedColumnType)) {
+            mainData[columnIndex] = new Timestamp(lastModified());
+          } else {
+            throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+          } 
+        }
+        
+        if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlDeletedColumnName())) {
+          int columnIndex = primaryColumnNameToIndex.get(sqlProvisioningConfiguration.getSqlDeletedColumnName());
+          mainData[columnIndex] = "F";
+        }
+        
         primaryTableUpdates.add(mainData);
         primaryTableWhereClause.add(new Object[] {entityIdentifierValueOld});
       }
       // if the groupIdentiferNew and groupIdentifierOld do not match...
-      if (!StringUtils.equals(entityIdentifierValueNew, entityIdentifierValueOld) && sqlProvisioningConfiguration.isUseSeparateTableForGroupAttributes()) {
+      if (!GrouperUtil.equals(entityIdentifierValueNew, entityIdentifierValueOld) && sqlProvisioningConfiguration.isUseSeparateTableForGroupAttributes()) {
 
         List<Object[]> entityAttributesEntityForeignKeyColumnOld = new ArrayList<Object[]>();
         entityAttributesEntityForeignKeyColumnOld.add(new Object[] {entityIdentifierValueOld});
@@ -652,29 +741,31 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       }
 
     }
-    
+
     if (primaryTableUpdates.size() > 0) {
-      
-      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityTableName, primaryColumnsToUpdate, primaryTableUpdates, primaryColumnsWhereClause, primaryTableWhereClause);
-      
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityTableName, primaryColumnsToUpdate, primaryTableUpdates,
+          primaryColumnsWhereClause, primaryTableWhereClause);
     }
     
     if (attributeTableUpdates.size() > 0 ) {
-      
-      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToUpdate, attributeTableUpdates, attributeColumnsWhereClause, attributeTableUpdatesWhereClause);
-      
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToUpdate, 
+          attributeTableUpdates, attributeColumnsWhereClause, attributeTableUpdatesWhereClause);
     }
     
     if (attributeTableInserts.size() > 0 ) {
+      
+      SqlProvisionerCommands.deleteObjects(attributeTableInsertDeletes, dbExternalSystemConfigId, entityAttributesTableName, 
+          attributeColumnsToDelete, null, null, 
+          sqlDeletedColumn, false, true);
       
       SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToInsert, attributeTableInserts); 
       
     }
     
     if (attributeTableDeletes.size() > 0 ) {
-      
-      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, entityAttributesTableName, attributeColumnsToDelete, null, null); 
-
+      SqlProvisionerCommands.deleteObjects(attributeTableDeletes, dbExternalSystemConfigId, entityAttributesTableName, 
+          attributeColumnsToDelete, null, null, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false, 
+          StringUtils.isBlank(sqlProvisioningConfiguration.getSqlDeletedColumnName())); 
     }
     
     for (ProvisioningEntity targetEntity: targetEntities) {
@@ -712,11 +803,43 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<Object[]> ownerIds = new ArrayList<Object[]>();
     
     for (ProvisioningGroup targetGroup: targetGroups) {
-      String groupIdValue = targetGroup.retrieveAttributeValueString(objectTableIdColumn);
+      Object groupIdValue = targetGroup.retrieveAttributeValue(objectTableIdColumn);
       ownerIds.add(new Object[] {groupIdValue});
     }
-        
-    SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, GrouperUtil.toList(objectTableIdColumn), objectAttributesTableName, objectAttributesGroupForeignKeyColumn);
+    
+    if (StringUtils.isBlank(sqlProvisioningConfiguration.getSqlDeletedColumnName())) {
+      SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, GrouperUtil.toList(objectTableIdColumn),
+          objectAttributesTableName, objectAttributesGroupForeignKeyColumn, null, false, true);
+    } else {
+      
+      List<String> columnsToUpdate = new ArrayList<>();
+      List<Object[]> valuesToUpdate = new ArrayList<>();
+      columnsToUpdate.add(sqlProvisioningConfiguration.getSqlDeletedColumnName());
+      if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlLastModifiedColumnName())) {
+        columnsToUpdate.add(sqlProvisioningConfiguration.getSqlLastModifiedColumnName());
+      }
+      
+      for (ProvisioningGroup targetGroup: targetGroups) {
+        Object[] singleRowValues = new Object[columnsToUpdate.size()];
+        singleRowValues[0] = "T";
+        if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlLastModifiedColumnName())) {
+          if (StringUtils.equals("long", sqlProvisioningConfiguration.getSqlLastModifiedColumnType())) {
+            singleRowValues[1] = lastModified(); 
+          } else if (StringUtils.equals("timestamp", sqlProvisioningConfiguration.getSqlLastModifiedColumnType())) {
+            singleRowValues[1] = new Timestamp(lastModified());
+          } else {
+            throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlProvisioningConfiguration.getSqlLastModifiedColumnType()+"'");
+          } 
+          
+        }
+        valuesToUpdate.add(singleRowValues);
+      }
+      
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, objectTableName, columnsToUpdate, valuesToUpdate, GrouperUtil.toList(objectTableIdColumn), ownerIds);
+
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, objectAttributesTableName, columnsToUpdate, valuesToUpdate, GrouperUtil.toList(objectAttributesGroupForeignKeyColumn), ownerIds);
+      
+    }
     
     for (ProvisioningGroup targetGroup: targetGroups) {
       
@@ -752,12 +875,43 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<Object[]> ownerIds = new ArrayList<Object[]>();
 
     for (ProvisioningEntity targetEntity: targetEntities) {
-      String entityIdValue = targetEntity.retrieveAttributeValueString(entityTableIdColumn);
+      Object entityIdValue = targetEntity.retrieveAttributeValue(entityTableIdColumn);
       ownerIds.add(new Object[] {entityIdValue});
     }
     
-    SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, entityTableName, GrouperUtil.toList(entityTableIdColumn), 
-        entityAttributesTableName, entityAttributesGroupForeignKeyColumn);
+    if (StringUtils.isBlank(sqlProvisioningConfiguration.getSqlDeletedColumnName())) {
+      SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, entityTableName, GrouperUtil.toList(entityTableIdColumn),
+          entityAttributesTableName, entityAttributesGroupForeignKeyColumn, null, false, true);
+    } else {
+      
+      List<String> columnsToUpdate = new ArrayList<>();
+      List<Object[]> valuesToUpdate = new ArrayList<>();
+      columnsToUpdate.add(sqlProvisioningConfiguration.getSqlDeletedColumnName());
+      if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlLastModifiedColumnName())) {
+        columnsToUpdate.add(sqlProvisioningConfiguration.getSqlLastModifiedColumnName());
+      }
+      
+      for (ProvisioningEntity targetEntity: targetEntities) {
+        Object[] singleRowValues = new Object[columnsToUpdate.size()];
+        singleRowValues[0] = "T";
+        if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlLastModifiedColumnName())) {
+          if (StringUtils.equals("long", sqlProvisioningConfiguration.getSqlLastModifiedColumnType())) {
+            singleRowValues[1] = lastModified(); 
+          } else if (StringUtils.equals("timestamp", sqlProvisioningConfiguration.getSqlLastModifiedColumnType())) {
+            singleRowValues[1] = new Timestamp(lastModified());
+          } else {
+            throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlProvisioningConfiguration.getSqlLastModifiedColumnType()+"'");
+          } 
+          
+        }
+        valuesToUpdate.add(singleRowValues);
+      }
+      
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityTableName, columnsToUpdate, valuesToUpdate, GrouperUtil.toList(entityTableIdColumn), ownerIds);
+
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, entityAttributesTableName, columnsToUpdate, valuesToUpdate, GrouperUtil.toList(entityAttributesGroupForeignKeyColumn), ownerIds);
+      
+    }
     
     for (ProvisioningEntity targetEntity: targetEntities) {
       
@@ -795,12 +949,44 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     List<Object[]> ownerIds = new ArrayList<Object[]>();
     
     for (ProvisioningMembership targetMembership: targetMemberships) {
-      MultiKey membershipMatchingId = new MultiKey(targetMembership.retrieveAttributeValueString(groupIdColumn), targetMembership.retrieveAttributeValueString(entityIdColumn));
+      MultiKey membershipMatchingId = new MultiKey(targetMembership.retrieveAttributeValue(groupIdColumn), targetMembership.retrieveAttributeValue(entityIdColumn));
       ownerIds.add(membershipMatchingId.getKeys());
     }
+    
+    if (StringUtils.isBlank(sqlProvisioningConfiguration.getSqlDeletedColumnName())) {
+      
+      SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, 
+          GrouperUtil.toList(groupIdColumn, entityIdColumn), null, null, null, false, true);
+      
+    } else {
+      
+      List<String> columnsToUpdate = new ArrayList<>();
+      List<Object[]> valuesToUpdate = new ArrayList<>();
+      columnsToUpdate.add(sqlProvisioningConfiguration.getSqlDeletedColumnName());
+      if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlLastModifiedColumnName())) {
+        columnsToUpdate.add(sqlProvisioningConfiguration.getSqlLastModifiedColumnName());
+      }
+      
+      for (ProvisioningMembership targetMembership: targetMemberships) {
+        Object[] singleRowValues = new Object[columnsToUpdate.size()];
+        singleRowValues[0] = "T";
+        if (StringUtils.isNotBlank(sqlProvisioningConfiguration.getSqlLastModifiedColumnName())) {
+          if (StringUtils.equals("long", sqlProvisioningConfiguration.getSqlLastModifiedColumnType())) {
+            singleRowValues[1] = lastModified(); 
+          } else if (StringUtils.equals("timestamp", sqlProvisioningConfiguration.getSqlLastModifiedColumnType())) {
+            singleRowValues[1] = new Timestamp(lastModified());
+          } else {
+            throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlProvisioningConfiguration.getSqlLastModifiedColumnType()+"'");
+          }
+          
+        }
         
-    SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, 
-        GrouperUtil.toList(groupIdColumn, entityIdColumn), null, null);
+        valuesToUpdate.add(singleRowValues);
+      }
+      
+      SqlProvisionerCommands.updateObjects(dbExternalSystemConfigId, objectTableName, columnsToUpdate, valuesToUpdate, GrouperUtil.toList(groupIdColumn, entityIdColumn), ownerIds);
+      
+    }
     
     for (ProvisioningMembership targetMembership: targetMemberships) {
       
@@ -828,6 +1014,12 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
     
     String objectTableName = sqlProvisioningConfiguration.getMembershipTableName();
+    
+    String sqlLastModifiedColumn = sqlProvisioningConfiguration.getSqlLastModifiedColumnName();
+    String sqlLastModifiedColumnType = sqlProvisioningConfiguration.getSqlLastModifiedColumnType();
+
+    String sqlDeletedColumn = sqlProvisioningConfiguration.getSqlDeletedColumnName();
+    
     
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig();
     
@@ -859,8 +1051,50 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
           attributeValuePrimaryTable[columnIndex] = provisioningObjectChange.getNewValue();
         }
       }
+      
+      if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+        Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(sqlLastModifiedColumn);
+        if (columnIndex == null) {
+          throw new RuntimeException("You must have an attribute in the memberships table called: "+sqlLastModifiedColumn + " because"
+              + " you set the configuration last modified sql column name so it must exist on all provisioned tables");
+        }
+        if (StringUtils.equals("long", sqlLastModifiedColumnType)) {
+          attributeValuePrimaryTable[columnIndex] = lastModified(); 
+        } else if (StringUtils.equals("timestamp", sqlLastModifiedColumnType)) {
+          attributeValuePrimaryTable[columnIndex] = new Timestamp(lastModified());
+        } else {
+          throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+        } 
+      }
+      
+      if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+        Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(sqlDeletedColumn);
+        if (columnIndex == null) {
+          throw new RuntimeException("You must have an attribute in the memberships table called: "+sqlDeletedColumn + " because"
+              + " you set the configuration deleted sql column name so it must exist on all provisioned tables");
+        }
+        attributeValuePrimaryTable[columnIndex] = "F";
+      }
+      
     }
 
+    if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+      
+      String groupIdColumn = sqlProvisioningConfiguration.getMembershipGroupMatchingIdAttribute();
+      String entityIdColumn = sqlProvisioningConfiguration.getMembershipEntityMatchingIdAttribute();
+
+      List<Object[]> ownerIds = new ArrayList<Object[]>();
+      
+      for (ProvisioningMembership targetMembership: targetMemberships) {
+        MultiKey membershipMatchingId = new MultiKey(targetMembership.retrieveAttributeValue(groupIdColumn), targetMembership.retrieveAttributeValue(entityIdColumn));
+        ownerIds.add(membershipMatchingId.getKeys());
+      }
+      
+      SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, 
+          GrouperUtil.toList(groupIdColumn, entityIdColumn), null, null, sqlDeletedColumn, true, true);
+    }
+    
+    
     SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, objectTableName, columnsToInsertInPrimaryTable, attributeValuesPrimaryTable);
     
     for (ProvisioningMembership targetMembership : targetMemberships) {
@@ -898,8 +1132,10 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     String attributesAttributeValueColumn = sqlProvisioningConfiguration.getGroupAttributesAttributeValueColumn();
 
-    String attributesLastModifiedColumn = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumn();
-    String attributesLastModifiedColumnType = sqlProvisioningConfiguration.getGroupAttributesLastModifiedColumnType();
+    String sqlLastModifiedColumn = sqlProvisioningConfiguration.getSqlLastModifiedColumnName();
+    String sqlLastModifiedColumnType = sqlProvisioningConfiguration.getSqlLastModifiedColumnType();
+
+    String sqlDeletedColumn = sqlProvisioningConfiguration.getSqlDeletedColumnName();
 
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetGroupAttributeNameToConfig();
     
@@ -918,8 +1154,11 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }
 
     List<String> columnsToInsertInAttributeTable = GrouperUtil.toList(attributeForeignKeyColumn, attributesAttributeNameColumn, attributesAttributeValueColumn);
-    if (!StringUtils.isBlank(attributesLastModifiedColumn)) {
-      columnsToInsertInAttributeTable.add(attributesLastModifiedColumn);
+    if (!StringUtils.isBlank(sqlLastModifiedColumn)) {
+      columnsToInsertInAttributeTable.add(sqlLastModifiedColumn);
+    }
+    if (!StringUtils.isBlank(sqlDeletedColumn)) {
+      columnsToInsertInAttributeTable.add(sqlDeletedColumn);
     }
     
     List<Object[]> attributeValuesAttributeTable = new ArrayList<Object[]>();
@@ -944,14 +1183,19 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             groupIdAttributeNameAttributeValue[0] = targetGroup.retrieveAttributeValue(objectIdColumnName);
             groupIdAttributeNameAttributeValue[1] = attributeName;
             groupIdAttributeNameAttributeValue[2] = provisioningObjectChange.getNewValue();
-            if (StringUtils.isNotBlank(attributesLastModifiedColumn)) {
-              if (StringUtils.equals(attributesLastModifiedColumnType, "timestamp")) {
-                groupIdAttributeNameAttributeValue[3] = new Timestamp(System.currentTimeMillis());
-              } else if (StringUtils.equals(attributesLastModifiedColumnType, "long")) {
-                groupIdAttributeNameAttributeValue[3] = System.currentTimeMillis();
+            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+              if (StringUtils.equals(sqlLastModifiedColumnType, "timestamp")) {
+                groupIdAttributeNameAttributeValue[3] = new Timestamp(lastModified());
+              } else if (StringUtils.equals(sqlLastModifiedColumnType, "long")) {
+                groupIdAttributeNameAttributeValue[3] = lastModified();
               } else {
-                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+attributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
               }
+            }
+            
+            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+              int columnIndex = StringUtils.isNotBlank(sqlLastModifiedColumn) ? 4: 3;
+              groupIdAttributeNameAttributeValue[columnIndex] = "F";
             }
 
             attributeValuesAttributeTable.add(groupIdAttributeNameAttributeValue);
@@ -962,8 +1206,46 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
           }
         }
       }
+      if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+        Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(sqlLastModifiedColumn);
+        if (columnIndex == null) {
+          throw new RuntimeException("You must have an attribute in the groups table called: "+sqlLastModifiedColumn + " because"
+              + " you set the configuration last modified sql column name so it must exist on all provisioned tables");
+        }
+        if (StringUtils.equals("long", sqlLastModifiedColumnType)) {
+          attributeValuePrimaryTable[columnIndex] = lastModified(); 
+        } else if (StringUtils.equals("timestamp", sqlLastModifiedColumnType)) {
+          attributeValuePrimaryTable[columnIndex] = new Timestamp(lastModified());
+        } else {
+          throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+        } 
+      }
+      
+      if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+        Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(sqlDeletedColumn);
+        if (columnIndex == null) {
+          throw new RuntimeException("You must have an attribute in the groups table called: "+sqlDeletedColumn + " because"
+              + " you set the configuration deleted sql column name so it must exist on all provisioned tables");
+        }
+        attributeValuePrimaryTable[columnIndex] = "F";
+      }
     }
 
+    if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+      String objectTableIdColumn = sqlProvisioningConfiguration.getGroupTableIdColumn();
+      String objectAttributesTableName = sqlProvisioningConfiguration.getGroupAttributesTableName();
+      String objectAttributesGroupForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
+
+      List<Object[]> ownerIds = new ArrayList<Object[]>();
+      
+      for (ProvisioningGroup targetGroup: targetGroups) {
+        Object groupIdValue = targetGroup.retrieveAttributeValue(objectTableIdColumn);
+        ownerIds.add(new Object[] {groupIdValue});
+      }
+      SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, GrouperUtil.toList(objectTableIdColumn), 
+          objectAttributesTableName, objectAttributesGroupForeignKeyColumn, sqlDeletedColumn, true, true);
+    }
+    
     // TODO put in transaction (along with other operations)
     SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, objectTableName, columnsToInsertInPrimaryTable, attributeValuesPrimaryTable);
     
@@ -979,6 +1261,21 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     return new TargetDaoInsertGroupsResponse();
     
+  }
+  
+  private static long lastModifiedUsed = -1;
+  
+  /**
+   * to avoid race conditions, we don't want the same last modified date appearing twice. 
+   * @return 
+   */
+  private static synchronized long lastModified() {
+    long lastModified = System.currentTimeMillis();
+    if (lastModified <= lastModifiedUsed) {
+      lastModified = lastModifiedUsed + 1 ;
+    }
+    lastModifiedUsed = lastModified;
+    return lastModified;
   }
   
   /**
@@ -1004,8 +1301,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     String attributesAttributeValueColumn = sqlProvisioningConfiguration.getEntityAttributesAttributeValueColumn();
 
-    String attributesLastModifiedColumn = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumn();
-    String attributesLastModifiedColumnType = sqlProvisioningConfiguration.getEntityAttributesLastModifiedColumnType();
+    String sqlLastModifiedColumn = sqlProvisioningConfiguration.getSqlLastModifiedColumnName();
+    String sqlDeletedColumn = sqlProvisioningConfiguration.getSqlDeletedColumnName();
+    String sqlLastModifiedColumnType = sqlProvisioningConfiguration.getSqlLastModifiedColumnType();
 
     Map<String, GrouperProvisioningConfigurationAttribute> attributeNameToConfig = sqlProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
     
@@ -1024,10 +1322,13 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }
     
     List<String> columnsToInsertInAttributeTable = GrouperUtil.toList(attributeForeignKeyColumn, attributesAttributeNameColumn, attributesAttributeValueColumn);
-    if (!StringUtils.isBlank(attributesLastModifiedColumn)) {
-      columnsToInsertInAttributeTable.add(attributesLastModifiedColumn);
+    if (!StringUtils.isBlank(sqlLastModifiedColumn)) {
+      columnsToInsertInAttributeTable.add(sqlLastModifiedColumn);
     }
-
+    if (!StringUtils.isBlank(sqlDeletedColumn)) {
+      columnsToInsertInAttributeTable.add(sqlDeletedColumn);
+    }
+    
     List<Object[]> attributeValuesAttributeTable = new ArrayList<Object[]>();
     List<Object[]> attributeValuesPrimaryTable = new ArrayList<Object[]>();
     
@@ -1051,14 +1352,19 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             entityIdAttributeNameAttributeValue[0] = targetEntity.retrieveAttributeValue(objectIdColumnName);
             entityIdAttributeNameAttributeValue[1] = attributeName;
             entityIdAttributeNameAttributeValue[2] = provisioningObjectChange.getNewValue();
-            if (StringUtils.isNotBlank(attributesLastModifiedColumn)) {
-              if (StringUtils.equals(attributesLastModifiedColumnType, "timestamp")) {
-                entityIdAttributeNameAttributeValue[3] = new Timestamp(System.currentTimeMillis());
-              } else if (StringUtils.equals(attributesLastModifiedColumnType, "long")) {
-                entityIdAttributeNameAttributeValue[3] = System.currentTimeMillis();
+            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+              if (StringUtils.equals(sqlLastModifiedColumnType, "timestamp")) {
+                entityIdAttributeNameAttributeValue[3] = new Timestamp(lastModified());
+              } else if (StringUtils.equals(sqlLastModifiedColumnType, "long")) {
+                entityIdAttributeNameAttributeValue[3] = lastModified();
               } else {
-                throw new RuntimeException("Invalid groupAttributesLastModifiedColumnType: '"+attributesLastModifiedColumnType+"'");
+                throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
               }
+            }
+            
+            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+              int columnIndex = StringUtils.isNotBlank(sqlLastModifiedColumn) ? 4: 3;
+              entityIdAttributeNameAttributeValue[columnIndex] = "F";
             }
 
             attributeValuesAttributeTable.add(entityIdAttributeNameAttributeValue);
@@ -1069,8 +1375,46 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
           }
         }
       }
+      if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+        Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(sqlLastModifiedColumn);
+        if (columnIndex == null) {
+          throw new RuntimeException("You must have an attribute in the entities table called: "+sqlLastModifiedColumn + " because"
+              + " you set the configuration last modified sql column name so it must exist on all provisioned tables");
+        }
+        if (StringUtils.equals("long", sqlLastModifiedColumnType)) {
+          attributeValuePrimaryTable[columnIndex] = lastModified(); 
+        } else if (StringUtils.equals("timestamp", sqlLastModifiedColumnType)) {
+          attributeValuePrimaryTable[columnIndex] = new Timestamp(lastModified());
+        } else {
+          throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+        } 
+      }
+      
+      if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+        Integer columnIndex = columnsToInsertInPrimaryTableToIndex.get(sqlDeletedColumn);
+        if (columnIndex == null) {
+          throw new RuntimeException("You must have an attribute in the entities table called: "+sqlDeletedColumn + " because"
+              + " you set the configuration deleted sql column name so it must exist on all provisioned tables");
+        }
+        attributeValuePrimaryTable[columnIndex] = "F";
+      }
     }
 
+    if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+      String objectTableIdColumn = sqlProvisioningConfiguration.getEntityTableIdColumn();
+      String objectAttributesTableName = sqlProvisioningConfiguration.getEntityAttributesTableName();
+      String objectAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
+
+      List<Object[]> ownerIds = new ArrayList<Object[]>();
+      
+      for (ProvisioningEntity targetEntity: targetEntities) {
+        Object entityIdValue = targetEntity.retrieveAttributeValue(objectTableIdColumn);
+        ownerIds.add(new Object[] {entityIdValue});
+      }
+      SqlProvisionerCommands.deleteObjects(ownerIds, dbExternalSystemConfigId, objectTableName, GrouperUtil.toList(objectTableIdColumn), 
+          objectAttributesTableName, objectAttributesEntityForeignKeyColumn, sqlDeletedColumn, true, true);
+    }
+    
     // TODO put in transaction (along with other operations)
     SqlProvisionerCommands.insertObjects(dbExternalSystemConfigId, objectTableName, columnsToInsertInPrimaryTable, attributeValuesPrimaryTable);
     
@@ -1184,7 +1528,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, groupTableAttributesColNamesList, 
           groupAttributesTableName, GrouperUtil.toList(groupAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
-          GrouperUtil.toList(groupAttributesEntityForeignKeyColumn), mainTableIdsFound);
+          GrouperUtil.toList(groupAttributesEntityForeignKeyColumn), mainTableIdsFound, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
           
     }
      
@@ -1441,13 +1785,18 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   
 
       if (filterByColumn) {
+        
+        List<String> columnsToFilterOn = GrouperUtil.toList(targetDaoRetrieveGroupsRequest.getSearchAttribute());
+        
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
-            dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, GrouperUtil.toList(targetDaoRetrieveGroupsRequest.getSearchAttribute()), idsToRetrieve);
+            dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, 
+            columnsToFilterOn, idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
       } else if (filterByAttribute) {
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
             groupTablePrimaryColNamesList, groupTableName, groupTableIdColumn, groupAttributesTableName, groupAttributesGroupForeignKeyColumn, 
-            groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn, targetDaoRetrieveGroupsRequest.getSearchAttribute(), idsToRetrieve);
+            groupAttributesAttributeNameColumn, groupAttributesAttributeValueColumn, targetDaoRetrieveGroupsRequest.getSearchAttribute(), 
+            idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
             
       }
       
@@ -1465,7 +1814,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, groupTableAttributesColNamesList, 
             groupAttributesTableName, GrouperUtil.toList(groupAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
-            GrouperUtil.toList(groupAttributesGroupForeignKeyColumn), mainTableIdsFound);
+            GrouperUtil.toList(groupAttributesGroupForeignKeyColumn), mainTableIdsFound, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
 
       }
 
@@ -1476,20 +1825,6 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }
     
     return new TargetDaoRetrieveGroupsResponse(result);
-  }
-
-  /**
-   * 
-   */
-  @Override
-  public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
-    List<ProvisioningGroup> grouperTargetGroups = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetGroupsForAllMemberships();
-    List<ProvisioningEntity> grouperTargetEntities = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetEntitiesForAllMemberships();
-    List<Object> grouperTargetMemberships = targetDaoRetrieveMembershipsBulkRequest == null ? null : targetDaoRetrieveMembershipsBulkRequest.getTargetMemberships();
-    List<ProvisioningMembership> targetMemberships = this.retrieveMemberships(grouperTargetGroups, grouperTargetEntities, grouperTargetMemberships);
-    List<Object> targetMembershipsObjects = new ArrayList<Object>();
-    targetMembershipsObjects.addAll(targetMemberships);
-    return new TargetDaoRetrieveMembershipsBulkResponse(targetMembershipsObjects);
   }
 
   /**
@@ -1593,7 +1928,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       
       attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, entityTableAttributesColNamesList, 
           entityAttributesTableName, GrouperUtil.toList(entityAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
-          GrouperUtil.toList(entityAttributesEntityForeignKeyColumn), mainTableIdsFound);
+          GrouperUtil.toList(entityAttributesEntityForeignKeyColumn), mainTableIdsFound, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
           
     }
     
@@ -1693,12 +2028,14 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
       if (filterByColumn) {
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
-            dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, GrouperUtil.toList(targetDaoRetrieveEntitiesRequest.getSearchAttribute()), idsToRetrieve);
+            dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, 
+            GrouperUtil.toList(targetDaoRetrieveEntitiesRequest.getSearchAttribute()), idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
       } else if (filterByAttribute) {
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
             entityTablePrimaryColNamesList, entityTableName, entityTableIdColumn, entityAttributesTableName, entityAttributesEntityForeignKeyColumn, 
-            entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn, targetDaoRetrieveEntitiesRequest.getSearchAttribute(), idsToRetrieve);
+            entityAttributesAttributeNameColumn, entityAttributesAttributeValueColumn, targetDaoRetrieveEntitiesRequest.getSearchAttribute(),
+            idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
             
       }
       
@@ -1716,7 +2053,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsColumnFilter(dbExternalSystemConfigId, entityTableAttributesColNamesList, 
             entityAttributesTableName, GrouperUtil.toList(entityAttributesAttributeNameColumn),  (List<Object>)(Object)attributeTableAttributesNamesList, 
-            GrouperUtil.toList(entityAttributesEntityForeignKeyColumn), mainTableIdsFound);
+            GrouperUtil.toList(entityAttributesEntityForeignKeyColumn), mainTableIdsFound, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
 
       }
 
@@ -1733,10 +2070,14 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public void registerGrouperProvisionerDaoCapabilities(GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     
-    grouperProvisionerDaoCapabilities.setCanDeleteGroups(true);
-    grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
-    grouperProvisionerDaoCapabilities.setCanDeleteEntities(true);
+    grouperProvisionerDaoCapabilities.setDefaultBatchSize(1000);
     
+    grouperProvisionerDaoCapabilities.setCanDeleteGroups(true);
+
+    grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
+
+    grouperProvisionerDaoCapabilities.setCanDeleteEntities(true);
+
     grouperProvisionerDaoCapabilities.setCanInsertEntities(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroups(true);
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
@@ -1751,6 +2092,21 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithGroup(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByGroups(true);
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithEntity(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByEntities(true);
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByGroups(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByEntities(true);
+    }
     
   }
 }

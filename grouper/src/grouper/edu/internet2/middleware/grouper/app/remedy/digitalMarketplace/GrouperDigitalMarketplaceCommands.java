@@ -105,7 +105,7 @@ public class GrouperDigitalMarketplaceCommands {
     
     try {
 
-      int pageSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperDigitalMarketplace.usersPageSize", 2000);
+      int pageSize = 2000;
       
       for (int i=0;i<6000;i++) {
       

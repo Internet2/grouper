@@ -6,6 +6,18 @@ public class TargetDaoRetrieveAllEntitiesRequest {
   public TargetDaoRetrieveAllEntitiesRequest() {
   }
 
+  private boolean includeNativeEntity;
+  
+  
+  public boolean isIncludeNativeEntity() {
+    return includeNativeEntity;
+  }
+
+  
+  public void setIncludeNativeEntity(boolean includeNativeEntity) {
+    this.includeNativeEntity = includeNativeEntity;
+  }
+
   /**
    * if memberships are part of entity (e.g. in attribute), then if true, get all memberships too, otherwise just get entity part
    */

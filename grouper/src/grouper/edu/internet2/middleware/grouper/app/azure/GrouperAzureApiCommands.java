@@ -3,30 +3,39 @@ package edu.internet2.middleware.grouper.app.azure;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * This class interacts with the Microsoft Graph API.
  */
 public class GrouperAzureApiCommands {
+  
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperAzureApiCommands.class);
 
   public static void main(String[] args) {
 
@@ -124,7 +133,10 @@ public class GrouperAzureApiCommands {
     grouperAzureGroup.setMailNickname("myMailNick3");
     grouperAzureGroup.setGroupTypeUnified(true);
     grouperAzureGroup.setVisibility(AzureVisibility.Public);
-    createAzureGroup("azure1", grouperAzureGroup, null);
+    
+    Map<GrouperAzureGroup, Set<String>> map = new HashMap<>();
+    map.put(grouperAzureGroup, null);
+    createAzureGroups("azure1", map);
 
     //deleteAzureGroup("azure1", "fa356bb8ddb14600be7994cd7b5239a7");
     
@@ -138,10 +150,10 @@ public class GrouperAzureApiCommands {
   
 
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
-      String urlSuffix) {
+      String urlSuffix, int[] returnCode) {
 
     return executeMethod(debugMap, "GET", configId, urlSuffix,
-        GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
+        GrouperUtil.toSet(200, 404, 429), returnCode, null);
 
   }
 
@@ -214,32 +226,141 @@ public class GrouperAzureApiCommands {
     }
 
   }
-
+  
   /**
-   * create a group
-   * @param grouperAzureGroup
+   * 
+   * @param configId
+   * @param debugMap
+   * @param groupsInOneHttpRequest
+   * @param groupToMayBeException
+   * @param groupToFieldNamesToInsert
+   */
+  private static void createGroupsHelper(String configId, Map<String, Object> debugMap, 
+      List<GrouperAzureGroup> groupsInOneHttpRequest, Map<GrouperAzureGroup, Exception> groupToMayBeException, 
+      Map<GrouperAzureGroup, Set<String>> groupToFieldNamesToInsert) {
+    
+    List<GrouperAzureGroup> throttledGroupsToCreate = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (GrouperAzureGroup singleGroupToBeCreated: groupsInOneHttpRequest) {
+      
+      JsonNode jsonToSend = singleGroupToBeCreated.toJson(groupToFieldNamesToInsert.get(singleGroupToBeCreated));
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/groups");
+      innerRequestNode.put("method", "POST");
+      innerRequestNode.set("body", jsonToSend);
+      
+      ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();
+      headersNode.put("Content-Type", "application/json");
+      innerRequestNode.set("headers", headersNode);
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int groupIndex = GrouperUtil.intValue(id);
+        
+        GrouperAzureGroup grouperAzureGroup = groupsInOneHttpRequest.get(groupIndex);
+        
+        if (statusCode == 429) {
+          throttledGroupsToCreate.add(grouperAzureGroup);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 201) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          groupToMayBeException.put(grouperAzureGroup, new RuntimeException(error.toString()));
+          
+        } else { 
+        
+          GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(bodyNode);
+          
+          grouperAzureGroup.setId(grouperAzureGroupResult.getId());
+          
+          groupToMayBeException.put(grouperAzureGroup, null);
+        }
+      }
+    }
+    
+    if (throttledGroupsToCreate.size() > 0) {
+      
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      createGroupsHelper(configId, debugMap, throttledGroupsToCreate, groupToMayBeException, groupToFieldNamesToInsert);
+    }
+    
+  }
+  
+  
+  /**
+   * create groups
    * @return the result
    */
-  public static GrouperAzureGroup createAzureGroup(String configId,
-      GrouperAzureGroup grouperAzureGroup, Set<String> fieldsToUpdate) {
+  public static Map<GrouperAzureGroup, Exception> createAzureGroups(String configId, Map<GrouperAzureGroup, Set<String>> groupToFieldNamesToInsert) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "createAzureGroup");
+    debugMap.put("method", "createAzureGroups");
 
     long startTime = System.nanoTime();
+    
+    Map<GrouperAzureGroup, Exception> groupToMayBeException = new HashMap<>();
 
+    List<GrouperAzureGroup> groupsToInsert = new ArrayList<>(groupToFieldNamesToInsert.keySet());
+    
     try {
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(groupsToInsert, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<GrouperAzureGroup> groupsInOneHttpRequest = GrouperUtil.batchList(groupsToInsert, 20, httpRequestIndex);
+        
+        createGroupsHelper(configId, debugMap, groupsInOneHttpRequest, groupToMayBeException, groupToFieldNamesToInsert);
+      }
 
-      JsonNode jsonToSend = grouperAzureGroup.toJson(fieldsToUpdate);
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups",
-          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend);
-
-      GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(jsonNode);
-
-      return grouperAzureGroupResult;
+      return groupToMayBeException;
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -248,6 +369,35 @@ public class GrouperAzureApiCommands {
     }
 
   }
+
+
+  /**
+   * 
+   * @param oneResponse
+   * @param statusCode
+   * @param bodyNode
+   * @return
+   */
+  private static StringBuilder buildError(JsonNode oneResponse, Integer statusCode, JsonNode bodyNode) {
+    StringBuilder error = new StringBuilder("statusCode = "+statusCode);
+    
+    if (bodyNode != null) {
+      JsonNode errorNode = GrouperUtil.jsonJacksonGetNode(bodyNode, "error");
+      if (errorNode != null) {
+        String errorCode = GrouperUtil.jsonJacksonGetString(errorNode, "code");
+        if (StringUtils.isNotBlank(errorCode)) {
+          error.append(", errorCode = "+errorCode);
+        }
+        
+        String errorMessage = GrouperUtil.jsonJacksonGetString(errorNode, "message");
+        if (StringUtils.isNotBlank(errorMessage)) {
+          error.append(", errorMessage = "+errorMessage);
+        }
+      }
+    }
+    return error;
+  }
+  
   
   //https://www.baeldung.com/java-generate-secure-password
   private static String generateRandomPassword() {
@@ -271,41 +421,147 @@ public class GrouperAzureApiCommands {
   }
   
   /**
-   * create a user
+   * 
+   * @param configId
+   * @param debugMap
+   * @param usersInOneHttpRequest
+   * @param userToMayBeException
+   * @param fieldsToCreate
+   */
+  private static void createUsersHelper(String configId, Map<String, Object> debugMap, 
+      List<GrouperAzureUser> usersInOneHttpRequest, Map<GrouperAzureUser, Exception> userToMayBeException, 
+      Set<String> fieldsToCreate) {
+    
+    List<GrouperAzureUser> throttledUsersToCreate = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (GrouperAzureUser singleUserToBeCreated: usersInOneHttpRequest) {
+      
+      String password = generateRandomPassword();
+      singleUserToBeCreated.setPassword(password);
+      
+      JsonNode jsonToSend = singleUserToBeCreated.toJson(fieldsToCreate);
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/users");
+      innerRequestNode.put("method", "POST");
+      innerRequestNode.set("body", jsonToSend);
+      
+      ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();
+      headersNode.put("Content-Type", "application/json");
+      innerRequestNode.set("headers", headersNode);
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int userIndex = GrouperUtil.intValue(id);
+        
+        GrouperAzureUser grouperAzureUser = usersInOneHttpRequest.get(userIndex);
+        
+        if (statusCode == 429) {
+          throttledUsersToCreate.add(grouperAzureUser);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 201) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          userToMayBeException.put(grouperAzureUser, new RuntimeException(error.toString()));
+          
+        } else {
+        
+          GrouperAzureUser grouperAzureUserResult = GrouperAzureUser.fromJson(bodyNode);
+          
+          grouperAzureUser.setId(grouperAzureUserResult.getId());
+          
+          userToMayBeException.put(grouperAzureUser, null);
+        }
+      }
+    }
+    
+    if (throttledUsersToCreate.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      createUsersHelper(configId, debugMap, throttledUsersToCreate, userToMayBeException, fieldsToCreate);
+      
+    }
+  }
+  
+  /**
+   * create users
    * @param configId
    * @param grouperAzureUser
    * @return
    */
-  public static GrouperAzureUser createAzureUser(String configId, GrouperAzureUser grouperAzureUser, Set<String> fieldsToCreate) {
+  public static Map<GrouperAzureUser, Exception> createAzureUsers(String configId, List<GrouperAzureUser> grouperAzureUsers, Set<String> fieldsToCreate) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "createAzureUser");
+    debugMap.put("method", "createAzureUsers");
 
     long startTime = System.nanoTime();
+    
+    Map<GrouperAzureUser, Exception> userToMayBeException = new HashMap<>();
 
     try {
       
-      String password = generateRandomPassword();
-      grouperAzureUser.setPassword(password);
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(grouperAzureUsers, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
       
-      JsonNode jsonToSend = grouperAzureUser.toJson(fieldsToCreate);
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<GrouperAzureUser> usersInOneHttpRequest = GrouperUtil.batchList(grouperAzureUsers, 20, httpRequestIndex);
+        
+        createUsersHelper(configId, debugMap, usersInOneHttpRequest, userToMayBeException, fieldsToCreate);
+        
+      }
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
-          GrouperUtil.toSet(201), new int[] { -1 }, jsonStringToSend);
-      
-      GrouperAzureUser grouperAzureUserResult = GrouperAzureUser.fromJson(jsonNode);
-
-      return grouperAzureUserResult;
+      return userToMayBeException;
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperDuoLog.duoLog(debugMap, startTime);
+      GrouperAzureLog.azureLog(debugMap, startTime);
     }
-    
     
   }
 
@@ -314,7 +570,7 @@ public class GrouperAzureApiCommands {
    * @param grouperAzureGroup
    * @return the result
    */
-  public static void createAzureMembership(String configId,
+  private static void createAzureMembership(String configId,
       String groupId, String userId) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -333,8 +589,31 @@ public class GrouperAzureApiCommands {
       objectNode.put("@odata.id", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
       
-      executeMethod(debugMap, "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
-          GrouperUtil.toSet(204, 400), new int[] { -1 }, jsonStringToSend);
+      int[] returnCode = new int[] { -1 };
+      
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureMemberhipErrorCount", 1);
+      }
+      
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
+          GrouperUtil.toSet(204, 400, 429), returnCode, jsonStringToSend);
+      
+      if (returnCode[0] == 429) {
+        int secondsToSleep = retrieveSecondsToSleep(null);
+        GrouperUtil.sleep(secondsToSleep * 1000);
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+        }
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+        }
+        
+        createAzureMembership(configId, groupId, userId);
+      }
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -344,16 +623,141 @@ public class GrouperAzureApiCommands {
     }
 
   }
+  
+  /**
+   * @param configId
+   * @param debugMap
+   * @param groupId
+   * @param userIdsInOneHttpRequest
+   * @param groupIdUserIdToException
+   */
+  private static void createMembershipsHelper(String configId, Map<String, Object> debugMap, String groupId,
+      List<String> userIdsInOneHttpRequest, Map<MultiKey, Exception> groupIdUserIdToException) {
+    
+    List<String> throttledUserIdsToCreate = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    int batchSize = 20;
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsInOneHttpRequest, batchSize, false);
+    debugMap.put("numberOfBatches", numberOfBatches);
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
+      debugMap.put("batchIndex", batchIndex);
+      List<String> batchOfUserIds = GrouperUtil.batchList(userIdsInOneHttpRequest, batchSize, batchIndex);
+
+      ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+          "grouper.azureConnector."+configId+".resourceEndpoint");
+      
+      for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
+        String userId = batchOfUserIds.get(i);
+        arrayNode.add(GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
+      }
+      
+      ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
+
+      objectNode.set("members@odata.bind", arrayNode);
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(batchIndex));
+      innerRequestNode.put("url", "/groups/" + GrouperUtil.escapeUrlEncode(groupId));
+      innerRequestNode.put("method", "PATCH");
+      innerRequestNode.set("body", objectNode);
+      
+      ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();
+      headersNode.put("Content-Type", "application/json");
+      innerRequestNode.set("headers", headersNode);
+      
+      requestsArrayNode.add(innerRequestNode);
+
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        
+        if (statusCode == 429) {
+          
+          String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+          JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+          
+          int batchIndex = GrouperUtil.intValue(id);
+          
+          List<String> batchOfUserIdsThatDidNotSucceed = GrouperUtil.batchList(userIdsInOneHttpRequest, batchSize, batchIndex);
+          
+          throttledUserIdsToCreate.addAll(batchOfUserIdsThatDidNotSucceed);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204 && statusCode != 400) {
+          String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+          
+          int batchIndexWithProblem = GrouperUtil.intValue(id);
+          
+          List<String> batchOfUserIdsWithProblem = GrouperUtil.batchList(userIdsInOneHttpRequest, batchSize, batchIndexWithProblem);
+          
+          for (String userId: batchOfUserIdsWithProblem) {
+            try {
+              createAzureMembership(configId, groupId, userId);
+            } catch (Exception e) {
+              groupIdUserIdToException.put(new MultiKey(groupId, userId), e);
+            }
+          }
+          
+        }
+      }
+    }
+    
+    if (throttledUserIdsToCreate.size() > 0) {
+
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      createMembershipsHelper(configId, debugMap, groupId, throttledUserIdsToCreate, groupIdUserIdToException);
+    }
+    
+    
+    
+  }
 
   /**
    * create a membership
    * @param grouperAzureGroup
    * @return the result
    */
-  public static void createAzureMemberships(String configId,
+  public static Map<MultiKey, Exception> createAzureMemberships(String configId,
       String groupId, Collection<String> userIds) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    Map<MultiKey, Exception> groupIdUserIdToException = new HashMap<>();
 
     debugMap.put("method", "createAzureMemberships");
 
@@ -369,46 +773,23 @@ public class GrouperAzureApiCommands {
     //      ]
     //  }
     
+    
+    // new way - https://docs.microsoft.com/en-us/graph/json-batching#first-json-batch-request
     long startTime = System.nanoTime();
 
     try {
 
-      int batchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureMembershipPagingSize", 20);
       List<String> userIdsList = new ArrayList<String>(userIds);
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, batchSize, false);
-      debugMap.put("numberOfBatches", numberOfBatches);
-      for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
-        debugMap.put("batchIndex", batchIndex);
-        List<String> batchOfUserIds = GrouperUtil.batchList(userIdsList, batchSize, batchIndex);
-
-        ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(userIdsList, 400, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
         
-        String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-            "grouper.azureConnector."+configId+".resourceEndpoint");
+        List<String> userIdsInOneHttpRequest = GrouperUtil.batchList(userIdsList, 400, httpRequestIndex);
         
-        for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
-          String userId = batchOfUserIds.get(i);
-          arrayNode.add(GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
-        }
+        createMembershipsHelper(configId, debugMap, groupId, userIdsInOneHttpRequest, groupIdUserIdToException);
         
-        ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
-
-        objectNode.set("members@odata.bind", arrayNode);
-        String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
-        try {
-          executeMethod(debugMap, "PATCH", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId),
-              GrouperUtil.toSet(204), new int[] { -1 }, jsonStringToSend);
-        } catch (Exception e) {
-
-          debugMap.put("innerException", GrouperClientUtils.getFullStackTrace(e));
-
-          // if this fails, try individually
-          for (int i=0;i<GrouperUtil.length(batchOfUserIds);i++) {
-            String userId = batchOfUserIds.get(i);
-            createAzureMembership(configId, groupId, userId);
-          }
-        }
-
       }
 
     } catch (RuntimeException re) {
@@ -417,120 +798,391 @@ public class GrouperAzureApiCommands {
     } finally {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
+    
+    return groupIdUserIdToException;
 
   }
 
-  /**
-   * update a group
-   * @param grouperAzureGroup
-   * @return the result
-   */
-  public static GrouperAzureGroup updateAzureGroup(String configId,
-      GrouperAzureGroup grouperAzureGroup, Set<String> fieldsToUpdate) {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "updateAzureGroup");
-
-    long startTime = System.nanoTime();
-
-    try {
-
-      String id = grouperAzureGroup.getId();
+  private static void updateGroupsHelper(String configId, Map<String, Object> debugMap, 
+      List<GrouperAzureGroup> groupsInOneHttpRequest, Map<GrouperAzureGroup, Exception> groupToMayBeException, 
+      Map<GrouperAzureGroup, Set<String>> azureGroupToFieldNamesToUpdate) {
+    
+    List<GrouperAzureGroup> throttledGroupsToUpdate = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (GrouperAzureGroup singleGroupToBeUpdated: groupsInOneHttpRequest) {
       
-      if (StringUtils.isBlank(id)) {
-        throw new RuntimeException("id is null: " + grouperAzureGroup);
-      }
-
-      if (fieldsToUpdate.contains("id")) {
-        throw new RuntimeException("Cant update the id field: " + grouperAzureGroup + ", " + GrouperUtil.setToString(fieldsToUpdate));
-      }
+      String id = singleGroupToBeUpdated.getId();
       
-      JsonNode jsonToSend = grouperAzureGroup.toJson(fieldsToUpdate);
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-
-      JsonNode jsonNode = executeMethod(debugMap, "PATCH", configId, "/groups/" + GrouperUtil.escapeUrlEncode(id),
-          GrouperUtil.toSet(204), new int[] { -1 }, jsonStringToSend);
-
-      GrouperAzureGroup grouperAzureGroupResult = GrouperAzureGroup.fromJson(jsonNode);
-
-      return grouperAzureGroupResult;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
+      JsonNode jsonToSend = singleGroupToBeUpdated.toJson(azureGroupToFieldNamesToUpdate.get(singleGroupToBeUpdated));
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/groups/" + GrouperUtil.escapeUrlEncode(id));
+      innerRequestNode.put("method", "PATCH");
+      innerRequestNode.set("body", jsonToSend);
+      
+      ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();
+      headersNode.put("Content-Type", "application/json");
+      innerRequestNode.set("headers", headersNode);
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
     }
-
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int userIndex = GrouperUtil.intValue(id);
+        
+        GrouperAzureGroup grouperAzureGroup = groupsInOneHttpRequest.get(userIndex);
+        if (statusCode == 429) {
+          throttledGroupsToUpdate.add(grouperAzureGroup);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          groupToMayBeException.put(grouperAzureGroup, new RuntimeException(error.toString()));
+          
+        } else {
+          groupToMayBeException.put(grouperAzureGroup, null);
+        }
+      }
+    }
+    
+    if (throttledGroupsToUpdate.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      updateGroupsHelper(configId, debugMap, throttledGroupsToUpdate, groupToMayBeException, azureGroupToFieldNamesToUpdate);
+    }
+    
   }
   
   /**
-   * update a user
-   * @param grouperAzureUser
+   * update groups
+   * @param configId
+   * @param azureGroupToFieldNamesToUpdate
    * @return the result
    */
-  public static GrouperAzureUser updateAzureUser(String configId,
-      GrouperAzureUser grouperAzureUser, Set<String> fieldsToUpdate) {
-
+  public static Map<GrouperAzureGroup, Exception> updateAzureGroups(String configId, Map<GrouperAzureGroup, Set<String>> azureGroupToFieldNamesToUpdate) {
+    
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "updateAzureUser");
-
+    
+    debugMap.put("method", "updateAzureGroups");
+    
     long startTime = System.nanoTime();
+    
+    Map<GrouperAzureGroup, Exception> groupToMayBeException = new HashMap<>();
+    
+    List<GrouperAzureGroup> groupsToUpdate = new ArrayList<>(azureGroupToFieldNamesToUpdate.keySet());
 
     try {
-
-      String id = grouperAzureUser.getId();
       
-      if (StringUtils.isBlank(id)) {
-        throw new RuntimeException("id is null: " + grouperAzureUser);
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(groupsToUpdate, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<GrouperAzureGroup> groupsInOneHttpRequest = GrouperUtil.batchList(groupsToUpdate, 20, httpRequestIndex);
+        
+        updateGroupsHelper(configId, debugMap, groupsInOneHttpRequest, groupToMayBeException, azureGroupToFieldNamesToUpdate);
+        
       }
 
-      if (fieldsToUpdate.contains("id")) {
-        throw new RuntimeException("Cant update the id field: " + grouperAzureUser + ", " + GrouperUtil.setToString(fieldsToUpdate));
-      }
+      return groupToMayBeException;
       
-      JsonNode jsonToSend = grouperAzureUser.toJson(fieldsToUpdate);
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-
-      JsonNode jsonNode = executeMethod(debugMap, "PATCH", configId, "/users/" + GrouperUtil.escapeUrlEncode(id),
-          GrouperUtil.toSet(204), new int[] { -1 }, jsonStringToSend);
-
-      GrouperAzureUser grouperAzureUserResult = GrouperAzureUser.fromJson(jsonNode);
-
-      return grouperAzureUserResult;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
+    
+  }
+  
+  
+  private static void updateUsersHelper(String configId, Map<String, Object> debugMap, 
+      List<GrouperAzureUser> usersInOneHttpRequest, Map<GrouperAzureUser, Exception> userToMayBeException, 
+      Map<GrouperAzureUser, Set<String>> azureUserToFieldNamesToUpdate) {
+    
+    List<GrouperAzureUser> throttledUsersToUpdate = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (GrouperAzureUser singleUserToBeUpdated: usersInOneHttpRequest) {
+      
+      String id = singleUserToBeUpdated.getId();
+      
+      JsonNode jsonToSend = singleUserToBeUpdated.toJson(azureUserToFieldNamesToUpdate.get(singleUserToBeUpdated));
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/users/" + GrouperUtil.escapeUrlEncode(id));
+      innerRequestNode.put("method", "PATCH");
+      innerRequestNode.set("body", jsonToSend);
+      
+      ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();
+      headersNode.put("Content-Type", "application/json");
+      innerRequestNode.set("headers", headersNode);
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int userIndex = GrouperUtil.intValue(id);
+        
+        GrouperAzureUser grouperAzureUser = usersInOneHttpRequest.get(userIndex);
+        if (statusCode == 429) {
+          throttledUsersToUpdate.add(grouperAzureUser);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          userToMayBeException.put(grouperAzureUser, new RuntimeException(error.toString()));
+          
+        } else {
+        
+          userToMayBeException.put(grouperAzureUser, null);
+        }
+      }
+    }
+    
+    if (throttledUsersToUpdate.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      updateUsersHelper(configId, debugMap, throttledUsersToUpdate, userToMayBeException, azureUserToFieldNamesToUpdate);
+      
+    }
+    
+  }
+  
+  /**
+   * update users
+   * @param configId
+   * @param azureUserToFieldNamesToUpdate
+   * @return the result
+   */
+  public static Map<GrouperAzureUser, Exception> updateAzureUsers(String configId, Map<GrouperAzureUser, Set<String>> azureUserToFieldNamesToUpdate) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "updateAzureUsers");
+    
+    long startTime = System.nanoTime();
+    
+    Map<GrouperAzureUser, Exception> userToMayBeException = new HashMap<>();
+    
+    List<GrouperAzureUser> usersToUpdate = new ArrayList<>(azureUserToFieldNamesToUpdate.keySet());
 
+    try {
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(usersToUpdate, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<GrouperAzureUser> usersInOneHttpRequest = GrouperUtil.batchList(usersToUpdate, 20, httpRequestIndex);
+        
+        updateUsersHelper(configId, debugMap, usersInOneHttpRequest, userToMayBeException, azureUserToFieldNamesToUpdate);
+      }
+
+      return userToMayBeException;
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+    
   }
 
-  public static void deleteAzureGroup(String configId,
-      String groupId) {
+
+  private static void deleteGroupsHelper(String configId, Map<String, Object> debugMap, 
+      List<GrouperAzureGroup> groupsInOneHttpRequest, Map<GrouperAzureGroup, Exception> groupToMayBeException) {
+    
+    List<GrouperAzureGroup> throttledGroupsToDelete = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (GrouperAzureGroup singleGroupToBeDeleted: groupsInOneHttpRequest) {
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/groups/" + GrouperUtil.escapeUrlEncode(singleGroupToBeDeleted.getId()));
+      innerRequestNode.put("method", "DELETE");
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int groupIndex = GrouperUtil.intValue(id);
+        
+        GrouperAzureGroup grouperAzureGroup = groupsInOneHttpRequest.get(groupIndex);
+        if (statusCode == 429) {
+          throttledGroupsToDelete.add(grouperAzureGroup);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204 && statusCode != 404) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          groupToMayBeException.put(grouperAzureGroup, new RuntimeException(error.toString()));
+          
+        } else {
+        
+          groupToMayBeException.put(grouperAzureGroup, null);
+        }
+      }
+    }
+    
+    if (throttledGroupsToDelete.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      deleteGroupsHelper(configId, debugMap, throttledGroupsToDelete, groupToMayBeException);
+      
+    }
+    
+  }
+  
+  public static Map<GrouperAzureGroup, Exception> deleteAzureGroups(String configId, List<GrouperAzureGroup> grouperAzureGroups) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "deleteAzureGroup");
+    debugMap.put("method", "deleteAzureGroups");
 
     long startTime = System.nanoTime();
+    
+    Map<GrouperAzureGroup, Exception> groupToMayBeException = new HashMap<>();
 
     try {
-    
-      if (StringUtils.isBlank(groupId)) {
-        throw new RuntimeException("id is null");
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(grouperAzureGroups, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<GrouperAzureGroup> groupsInOneHttpRequest = GrouperUtil.batchList(grouperAzureGroups, 20, httpRequestIndex);
+        
+        deleteGroupsHelper(configId, debugMap, groupsInOneHttpRequest, groupToMayBeException);
       }
-    
-      executeMethod(debugMap, "DELETE", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId),
-          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
 
+      return groupToMayBeException;
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
+    
   }
 
 
@@ -549,18 +1201,39 @@ public class GrouperAzureApiCommands {
     // dont endless loop
     int j = -1;
     int maxPages = 10000;
-    for (j=0;j<maxPages;j++) {
+    for (j=0; j<maxPages; j++) {
 
       try {
-  
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink);
-  
+        
+        int[] returnCode = new int[] { -1 };
+        
+        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink, returnCode);
+        
+        if (returnCode[0] == 429) {
+          int secondsToSleep = retrieveSecondsToSleep(null);
+          GrouperUtil.sleep(secondsToSleep * 1000);
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+          }
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+          }
+          
+          continue;
+        }
+        
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("value");
-  
+        
         for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
           JsonNode groupNode = groupsArray.get(i);
           GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
-          results.add(grouperAzureGroup);
+          if (grouperAzureGroup != null) {
+            results.add(grouperAzureGroup);
+          }
         }
   
         nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
@@ -600,14 +1273,35 @@ public class GrouperAzureApiCommands {
 
       try {
 
-        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink);
+        int[] returnCode = new int[] { -1 };
+        
+        JsonNode jsonNode = executeGetMethod(debugMap, configId, nextLink, returnCode);
+        
+        if (returnCode[0] == 429) {
+          int secondsToSleep = retrieveSecondsToSleep(null);
+          GrouperUtil.sleep(secondsToSleep * 1000);
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+          }
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+          }
+          
+          continue;
+        }
   
         ArrayNode usersArray = (ArrayNode) jsonNode.get("value");
   
         for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
           JsonNode userNode = usersArray.get(i);
           GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromJson(userNode);
-          results.add(grouperAzureUser);
+          if (grouperAzureUser != null) {
+            results.add(grouperAzureUser);
+          }
         }
         nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
         
@@ -630,23 +1324,25 @@ public class GrouperAzureApiCommands {
 
   }
 
-  /**
-   * @param configId
-   * @param fieldName id or userPrincipalName
-   * @param fieldValue is value of id or userPrincipalName
-   * @return
-   */
-  public static GrouperAzureUser retrieveAzureUser(String configId, String fieldName,
-      String fieldValue) {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "retrieveAzureUser");
-
-    long startTime = System.nanoTime();
-
-    try {
-
+  
+  private static void retrieveUsersHelper(String configId, Map<String, Object> debugMap, 
+      String fieldName,
+      List<String> fieldValuesInOneHttpRequest, List<GrouperAzureUser> result) {
+    
+    List<String> throttledFieldValues = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (String fieldValue : fieldValuesInOneHttpRequest) {
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      
       String urlSuffix = null;
       if (StringUtils.equals(fieldName, "id")
           || StringUtils.equals(fieldName, "userPrincipalName")) {
@@ -658,31 +1354,122 @@ public class GrouperAzureApiCommands {
             + GrouperAzureUser.fieldsToSelect;
 
       }
-
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
-
-      //lets get the group node
-      ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-      if (value != null) {
-        jsonNode = null;
-      }
-
-      if (value != null && value.size() > 0) {
-        if (value.size() == 1) {
-          jsonNode = value.get(0);
+      
+      innerRequestNode.put("url", urlSuffix);
+      innerRequestNode.put("method", "GET");
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int index1 = GrouperUtil.intValue(id);
+        
+        String fieldValue = fieldValuesInOneHttpRequest.get(index1);
+        if (statusCode == 429) {
+          throttledFieldValues.add(fieldValue);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 200 && statusCode != 404) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          LOG.error(error.toString());
+          
         } else {
-          throw new RuntimeException("Query returned multiple results: " + urlSuffix);
+        
+          GrouperAzureUser grouperAzureUser = null;
+          JsonNode userNode = bodyNode;
+          
+          ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
+
+          boolean hasError = false;
+          if (value != null && value.size() > 0) {
+            if (value.size() == 1) {
+              userNode = value.get(0);
+            } else {
+              hasError = true;
+              LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: "+fieldValue);
+            }
+          }
+          if (!hasError) {
+            grouperAzureUser = GrouperAzureUser.fromJson(userNode);
+            if (grouperAzureUser != null) {
+              result.add(grouperAzureUser);
+            }
+          }
         }
       }
-
-      debugMap.put("found", jsonNode != null);
-
-      if (jsonNode == null) {
-        return null;
+    }
+    
+    if (throttledFieldValues.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
       }
-      GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromJson(jsonNode);
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      retrieveUsersHelper(configId, debugMap, fieldName, throttledFieldValues, result);
+    }
+    
+    
+    
+  }
+  
+  /**
+   * @param configId
+   * @param fieldValues
+   * @param fieldName id or userPrincipalName
+   * @return
+   */
+  public static List<GrouperAzureUser> retrieveAzureUsers(String configId, List<String> fieldValues, String fieldName) {
 
-      return grouperAzureUser;
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveAzureUsers");
+
+    long startTime = System.nanoTime();
+    
+    List<GrouperAzureUser> result = new ArrayList<>();
+
+    try {
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(fieldValues, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<String> fieldValuesInOneHttpRequest = GrouperUtil.batchList(fieldValues, 20, httpRequestIndex);
+        
+        retrieveUsersHelper(configId, debugMap, fieldName, fieldValuesInOneHttpRequest, result);
+      }
+
+      return result;
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -692,6 +1479,48 @@ public class GrouperAzureApiCommands {
 
   }
 
+  
+  private static void retrieveUserGroupsHelper(String configId, Map<String, Object> debugMap, 
+      String urlSuffix, boolean securityEnabledOnly, Set<String> result) {
+    
+    int[] returnCode = new int[] {-1};
+    JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200, 429), returnCode,
+        "{\"securityEnabledOnly\": " + securityEnabledOnly + "}");
+
+    if (returnCode[0] == 429) {
+      int secondsToSleep = retrieveSecondsToSleep(null);
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      retrieveUserGroupsHelper(configId, debugMap, urlSuffix, securityEnabledOnly, result);
+    } else {
+      ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
+      if (value != null && value.size() > 0) {
+        
+        int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
+        if (value.size() == azureGetUserGroupsMax) {
+          throw new RuntimeException("Too many groups! " + value.size());
+        }
+        
+        for (int i=0;i<value.size();i++) {
+          String groupId = value.get(i).asText();
+          result.add(groupId);
+        }
+      }
+    }
+
+  }
+  
+  
   /**
    * return user ids in the group
    * @param configId
@@ -714,23 +1543,8 @@ public class GrouperAzureApiCommands {
 
       for (boolean securityEnabledOnly: new boolean[] {true, false}) { 
 
-        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), new int[] {-1}, "{\"securityEnabledOnly\": " + securityEnabledOnly + "}");
-
-        //lets get the group node
-  
-        ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-        if (value != null && value.size() > 0) {
-          
-          int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
-          if (value.size() == azureGetUserGroupsMax) {
-            throw new RuntimeException("Too many groups! " + value.size());
-          }
-          
-          for (int i=0;i<value.size();i++) {
-            String groupId = value.get(i).asText();
-            result.add(groupId);
-          }
-        }
+        retrieveUserGroupsHelper(configId, debugMap, urlSuffix, securityEnabledOnly, result);
+        
       }
       
       return result;
@@ -765,19 +1579,40 @@ public class GrouperAzureApiCommands {
       
       String urlSuffix = "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members?$select=id&$top=" + azureGetMembershipPagingSize;
 
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
-
+      int[] returnCode = new int[] { -1 };
+      
+      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+      
+      if (returnCode[0] == 429) {
+        int secondsToSleep = retrieveSecondsToSleep(null);
+        GrouperUtil.sleep(secondsToSleep * 1000);
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+        }
+        
+        GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+        }
+        
+        return retrieveAzureGroupMembers(configId, groupId);
+      }
+      
       //lets get the group node
       retrieveAzureGroupMembersHelper(result, jsonNode);
       debugMap.put("calls", ++calls);
       
-      for (int i=0;i<1000000;i++) {
+      String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
+          "grouper.azureConnector."+configId+".resourceEndpoint");
+      
+      for (int i=0; i<1000000; i++) {
         String nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
         if (StringUtils.isBlank(nextLink)) {
           break;
         }
-        String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
-            "grouper.azureConnector."+configId+".resourceEndpoint");
+        
         if (!nextLink.startsWith(resourceEndpoint)) {
           if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperAzureAllowNextLinkPrefixMismatch", false)) {
             throw new RuntimeException("@odata.nextLink is going to a different URL! '" + nextLink + "', '" + resourceEndpoint + "'");
@@ -785,7 +1620,26 @@ public class GrouperAzureApiCommands {
         } else {
           urlSuffix = nextLink.substring(resourceEndpoint.length(), nextLink.length());
         }
-        jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+        JsonNode localJsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
+        
+        if (returnCode[0] == 429) {
+          int secondsToSleep = retrieveSecondsToSleep(null);
+          GrouperUtil.sleep(secondsToSleep * 1000);
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+          }
+          
+          GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+          }
+          
+          continue;
+        }
+        
+        jsonNode = localJsonNode;
+        
         retrieveAzureGroupMembersHelper(result, jsonNode);
         debugMap.put("calls", ++calls);
       }
@@ -809,23 +1663,24 @@ public class GrouperAzureApiCommands {
     }
   }
 
-  /**
-   * @param configId
-   * @param fieldName is id or displayName
-   * @param fieldValue is value of id or displayName
-   * @return the user
-   */
-  public static GrouperAzureGroup retrieveAzureGroup(String configId, String fieldName,
-      String fieldValue) {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "retrieveAzureGroup");
-
-    long startTime = System.nanoTime();
-
-    try {
-
+  private static void retrieveGroupsHelper(String configId, Map<String, Object> debugMap, 
+      String fieldName,
+      List<String> fieldValuesInOneHttpRequest, List<GrouperAzureGroup> result) {
+    
+    List<String> throttledFieldValues = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (String fieldValue: fieldValuesInOneHttpRequest) {
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      
       String urlSuffix = null;
       if (StringUtils.equals(fieldName, "id")) {
         urlSuffix = "/groups/" + GrouperUtil.escapeUrlEncode(fieldValue) + "?$select="
@@ -835,28 +1690,123 @@ public class GrouperAzureApiCommands {
             + "%20eq%20'" + GrouperUtil.escapeUrlEncode(StringUtils.replace(fieldValue, "'", "''")) + "'&$select="
             + GrouperAzureGroup.fieldsToSelect;
       }
-
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
-
-      //lets get the group node
-      ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-      if (value != null) {
-        jsonNode = null;
-      }
-      if (value != null && value.size() > 0) {
-        if (value.size() == 1) {
-          jsonNode = value.get(0);
+      
+      innerRequestNode.put("url", urlSuffix);
+      innerRequestNode.put("method", "GET");
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int index1 = GrouperUtil.intValue(id);
+        
+        String fieldValue = fieldValuesInOneHttpRequest.get(index1);
+        
+        if (statusCode == 429) {
+          throttledFieldValues.add(fieldValue);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 200 && statusCode != 404) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          LOG.error(error.toString());
+          
         } else {
-          throw new RuntimeException("Query returned multiple results: " + urlSuffix);
+        
+          GrouperAzureGroup grouperAzureGroup = null;
+          JsonNode groupNode = bodyNode;
+          boolean hasError = false;
+          
+          ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
+
+          if (value != null && value.size() > 0) {
+            if (value.size() == 1) {
+              groupNode = value.get(0);
+            } else {
+              hasError = true;
+              LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: "+fieldValue);
+            }
+          }
+          
+          if (!hasError) {
+            grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
+            if (grouperAzureGroup != null) {
+              result.add(grouperAzureGroup);
+            }
+          }
         }
       }
-
-      if (jsonNode == null) {
-        return null;
+    }
+    
+    if (throttledFieldValues.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
       }
-      GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromJson(jsonNode);
+     
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      retrieveGroupsHelper(configId, debugMap, fieldName, throttledFieldValues, result);
+    }
+  
+  }
+  
+  
+  /**
+   * @param configId
+   * @return
+   */
+  public static List<GrouperAzureGroup> retrieveAzureGroups(String configId, List<String> fieldValues, String fieldName) {
 
-      return grouperAzureGroup;
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveAzureGroups");
+
+    long startTime = System.nanoTime();
+    
+    List<GrouperAzureGroup> result = new ArrayList<>();
+
+    try {
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(fieldValues, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<String> fieldValuesInOneHttpRequest = GrouperUtil.batchList(fieldValues, 20, httpRequestIndex);
+        
+        retrieveGroupsHelper(configId, debugMap, fieldName, fieldValuesInOneHttpRequest, result);
+      }
+
+      return result;
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -865,28 +1815,117 @@ public class GrouperAzureApiCommands {
     }
 
   }
-
-
+  
+  private static void deleteMembershipsHelper(String configId, Map<String, Object> debugMap, 
+      List<ProvisioningMembership> membershipsInOneHttpRequest, Map<ProvisioningMembership, Exception> membershipToMayBeException) {
+    
+    List<ProvisioningMembership> throttledMembershipsToDelete = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    
+    for (ProvisioningMembership singleMembershipToBeDeleted: membershipsInOneHttpRequest) {
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/groups/" + 
+          GrouperUtil.escapeUrlEncode(singleMembershipToBeDeleted.getProvisioningGroupId()) + "/members/" +
+          GrouperUtil.escapeUrlEncode(singleMembershipToBeDeleted.getProvisioningEntityId()) + "/$ref");
+      innerRequestNode.put("method", "DELETE");
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int userIndex = GrouperUtil.intValue(id);
+        
+        ProvisioningMembership provisioningMembership = membershipsInOneHttpRequest.get(userIndex);
+        if (statusCode == 429) {
+          throttledMembershipsToDelete.add(provisioningMembership);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204 && statusCode != 404) {
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          membershipToMayBeException.put(provisioningMembership, new RuntimeException(error.toString()));
+          
+        } else {
+          membershipToMayBeException.put(provisioningMembership, null);
+        }
+      }
+    }
+    
+    if (throttledMembershipsToDelete.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      deleteMembershipsHelper(configId, debugMap, throttledMembershipsToDelete, membershipToMayBeException);
+      
+    }
+    
+  }
 
   /**
-   * delete membership
-   * @param grouperAzureGroup
-   * @return the result
+   * delete memberships
    */
-  public static void deleteAzureMembership(String configId,
-      String groupId, String userId) {
+  public static Map<ProvisioningMembership, Exception> deleteAzureMemberships(String configId, List<ProvisioningMembership> membershipsToDelete) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "deleteAzureMembership");
+    debugMap.put("method", "deleteAzureMemberships");
 
     long startTime = System.nanoTime();
+    
+    Map<ProvisioningMembership, Exception> membershipToMayBeException = new HashMap<>();
 
     try {
-  
-      executeMethod(debugMap, "DELETE", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/" + GrouperUtil.escapeUrlEncode(userId) + "/$ref",
-          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
-  
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(membershipsToDelete, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<ProvisioningMembership> membershipsInOneHttpRequest = GrouperUtil.batchList(membershipsToDelete, 20, httpRequestIndex);
+        
+        deleteMembershipsHelper(configId, debugMap, membershipsInOneHttpRequest, membershipToMayBeException);
+        
+      }
+
+      return membershipToMayBeException;
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -896,31 +1935,143 @@ public class GrouperAzureApiCommands {
   
   }
 
+  private static void deleteUsersHelper(String configId, Map<String, Object> debugMap, 
+      List<GrouperAzureUser> usersToDelete, Map<GrouperAzureUser, Exception> userToMayBeException) {
+    
+    List<GrouperAzureUser> throttledUsersToDelete = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    for (GrouperAzureUser singleUserToBeDeleted: usersToDelete) {
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/users/" + GrouperUtil.escapeUrlEncode(singleUserToBeDeleted.getId()));
+      innerRequestNode.put("method", "DELETE");
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int userIndex = GrouperUtil.intValue(id);
+        
+        GrouperAzureUser grouperAzureUser = usersToDelete.get(userIndex);
+        
+        if (statusCode == 429) {
+          throttledUsersToDelete.add(grouperAzureUser);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204 && statusCode != 404) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          userToMayBeException.put(grouperAzureUser, new RuntimeException(error.toString()));
+          
+        } else {
+        
+          userToMayBeException.put(grouperAzureUser, null);
+        }
+      }
+    }
+    
+    if (throttledUsersToDelete.size() > 0) {
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      deleteUsersHelper(configId, debugMap, throttledUsersToDelete, userToMayBeException);
+    }
+    
+  }
+  
+  private static int retrieveSecondsToSleep(JsonNode oneResponse) {
+    int secondsToSleep = 155;
+    
+    if (oneResponse != null) {
+      return secondsToSleep;
+    }
+    try {
+      
+      JsonNode headers = GrouperUtil.jsonJacksonGetNode(oneResponse, "headers");
+      String retryAfter = GrouperUtil.jsonJacksonGetString(headers, "Retry-After");
+      secondsToSleep = GrouperUtil.intValue(retryAfter, 155);
+      
+    } catch (Exception e) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Problem with: "+oneResponse, e);
+      }
+    }
+    
+    return secondsToSleep;
+  }
+  
 
-
-  public static void deleteAzureUser(String configId,
-      String userId) {
+  public static Map<GrouperAzureUser, Exception> deleteAzureUsers(String configId, List<GrouperAzureUser> grouperAzureUsers) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
-    debugMap.put("method", "deleteAzureUser");
+    debugMap.put("method", "deleteAzureUsers");
   
     long startTime = System.nanoTime();
-  
+    
+    Map<GrouperAzureUser, Exception> userToMayBeException = new HashMap<>();
+
     try {
-    
-      if (StringUtils.isBlank(userId)) {
-        throw new RuntimeException("id is null");
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(grouperAzureUsers, 20, false);
+      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<GrouperAzureUser> usersInOneHttpRequest = GrouperUtil.batchList(grouperAzureUsers, 20, httpRequestIndex);
+        
+        deleteUsersHelper(configId, debugMap, usersInOneHttpRequest, userToMayBeException);
+        
       }
-    
-      executeMethod(debugMap, "DELETE", configId, "/users/" + GrouperUtil.escapeUrlEncode(userId),
-          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
-  
+
+      return userToMayBeException;
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       GrouperAzureLog.azureLog(debugMap, startTime);
     }
+   
+    
+    
   }
 
 }

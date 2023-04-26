@@ -592,7 +592,17 @@ public class ObjectMapper
      */
     protected ObjectMapper(ObjectMapper src)
     {
-        _jsonFactory = src._jsonFactory.copy();
+        this(src, null);
+    }
+
+    
+    /**
+     * Copy-constructor, mostly used to support {@link #copyWith(JsonFactory)}.
+     * @since 2.14
+     */
+    protected ObjectMapper(ObjectMapper src, JsonFactory factory)
+    {
+        _jsonFactory = (factory != null) ? factory : src._jsonFactory.copy();
         _jsonFactory.setCodec(this);
         _subtypeResolver = src._subtypeResolver.copy();
         _typeFactory = src._typeFactory;
@@ -658,10 +668,12 @@ public class ObjectMapper
         _configOverrides = new ConfigOverrides();
         _coercionConfigs = new CoercionConfigs();
         _serializationConfig = new SerializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides);
+                _subtypeResolver, mixins, rootNames, _configOverrides,
+                DatatypeFeatures.defaultFeatures());
         _deserializationConfig = new DeserializationConfig(base,
-                    _subtypeResolver, mixins, rootNames, _configOverrides,
-                    _coercionConfigs);
+                _subtypeResolver, mixins, rootNames, _configOverrides,
+                _coercionConfigs,
+                DatatypeFeatures.defaultFeatures());
 
         // Some overrides we may need
         final boolean needOrder = _jsonFactory.requiresPropertyOrdering();
@@ -714,14 +726,28 @@ public class ObjectMapper
     }
 
     /**
+     * Method for creating a new {@link ObjectMapper}. Differs from a regular copy, as a
+     * {@link JsonFactory} to be used can be passed as an argument, which will be used to
+     * create the copy rather than the one present on the object to be copied.
+     *
+     * @param factory JsonFactory to be used.
+     * @return ObjectMapper
+     * @since 2.14
+     */
+    public ObjectMapper copyWith(JsonFactory factory) {
+        _checkInvalidCopy(ObjectMapper.class);
+        return new ObjectMapper(this, factory);
+    }
+
+    /**
      * @since 2.1
      */
     protected void _checkInvalidCopy(Class<?> exp)
     {
         if (getClass() != exp) {
             // 10-Nov-2016, tatu: could almost use `ClassUtil.verifyMustOverride()` but not quite
-            throw new IllegalStateException("Failed copy(): "+getClass().getName()
-                    +" (version: "+version()+") does not override copy(); it has to");
+            throw new IllegalStateException("Failed copy()/copyWith(): "+getClass().getName()
+                    +" (version: "+version()+") does not override copy()/copyWith(); it has to");
         }
     }
 
@@ -880,7 +906,7 @@ public class ObjectMapper
             public boolean isEnabled(DeserializationFeature f) {
                 return ObjectMapper.this.isEnabled(f);
             }
-            
+
             @Override
             public boolean isEnabled(SerializationFeature f) {
                 return ObjectMapper.this.isEnabled(f);
@@ -1138,6 +1164,7 @@ public class ObjectMapper
     public ObjectMapper findAndRegisterModules() {
         return registerModules(findModules());
     }
+
 
     /*
     /**********************************************************
@@ -2552,7 +2579,7 @@ public class ObjectMapper
     }
     
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(SerializationFeature f) {
@@ -2561,7 +2588,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(SerializationFeature first,
@@ -2569,7 +2596,7 @@ public class ObjectMapper
         _serializationConfig = _serializationConfig.without(first, f);
         return this;
     }
-    
+
     /*
     /**********************************************************
     /* Configuration, simple features: DeserializationFeature
@@ -2612,9 +2639,9 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.with(first, f);
         return this;
     }
-    
+
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(DeserializationFeature feature) {
@@ -2623,7 +2650,7 @@ public class ObjectMapper
     }
 
     /**
-     * Method for enabling specified {@link DeserializationConfig} features.
+     * Method for disabling specified {@link DeserializationConfig} features.
      * Modifies and returns this instance; no new object is created.
      */
     public ObjectMapper disable(DeserializationFeature first,
@@ -2631,7 +2658,28 @@ public class ObjectMapper
         _deserializationConfig = _deserializationConfig.without(first, f);
         return this;
     }
-    
+
+    /*
+    /**********************************************************
+    /* Configuration, simple features: DatatypeFeature
+    /**********************************************************
+     */
+
+    /**
+     * Method for changing state of an on/off datatype-specific feature for
+     * this object mapper.
+     */
+    public ObjectMapper configure(DatatypeFeature f, boolean state) {
+        if (state) {
+            _deserializationConfig = _deserializationConfig.with(f);
+            _serializationConfig = _serializationConfig.with(f);
+        } else {
+            _deserializationConfig = _deserializationConfig.without(f);
+            _serializationConfig = _serializationConfig.without(f);
+        }
+        return this;
+    }
+
     /*
     /**********************************************************
     /* Configuration, simple features: JsonParser.Feature
@@ -4104,7 +4152,8 @@ public class ObjectMapper
      * unless overridden by other factory methods of {@link ObjectReader}
      */
     public ObjectReader readerForUpdating(Object valueToUpdate) {
-        JavaType t = _typeFactory.constructType(valueToUpdate.getClass());
+        JavaType t = (valueToUpdate == null) ? null
+                : _typeFactory.constructType(valueToUpdate.getClass());
         return _newReader(getDeserializationConfig(), t, valueToUpdate,
                 null, _injectableValues);
     }
@@ -4127,7 +4176,8 @@ public class ObjectMapper
      * @since 2.6
      */
     public ObjectReader readerFor(Class<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+        JavaType t = (type == null) ? null : _typeFactory.constructType(type);
+        return _newReader(getDeserializationConfig(), t, null,
                 null, _injectableValues);
     }
 
@@ -4137,8 +4187,9 @@ public class ObjectMapper
      * 
      * @since 2.6
      */
-    public ObjectReader readerFor(TypeReference<?> type) {
-        return _newReader(getDeserializationConfig(), _typeFactory.constructType(type), null,
+    public ObjectReader readerFor(TypeReference<?> typeRef) {
+        _assertNotNull("type", typeRef);
+        return _newReader(getDeserializationConfig(), _typeFactory.constructType(typeRef), null,
                 null, _injectableValues);
     }
 
@@ -4153,6 +4204,7 @@ public class ObjectMapper
      * @since 2.11
      */
     public ObjectReader readerForArrayOf(Class<?> type) {
+        _assertNotNull("type", type);
         return _newReader(getDeserializationConfig(),
                 _typeFactory.constructArrayType(type), null,
                 null, _injectableValues);
@@ -4169,6 +4221,7 @@ public class ObjectMapper
      * @since 2.11
      */
     public ObjectReader readerForListOf(Class<?> type) {
+        _assertNotNull("type", type);
         return _newReader(getDeserializationConfig(),
                 _typeFactory.constructCollectionType(List.class, type), null,
                 null, _injectableValues);
@@ -4185,6 +4238,7 @@ public class ObjectMapper
      * @since 2.11
      */
     public ObjectReader readerForMapOf(Class<?> type) {
+        _assertNotNull("type", type);
         return _newReader(getDeserializationConfig(),
                 _typeFactory.constructMapType(Map.class, String.class, type), null,
                 null, _injectableValues);
@@ -4194,8 +4248,9 @@ public class ObjectMapper
      * Factory method for constructing {@link ObjectReader} that will
      * use specified {@link JsonNodeFactory} for constructing JSON trees.
      */
-    public ObjectReader reader(JsonNodeFactory f) {
-        return _newReader(getDeserializationConfig()).with(f);
+    public ObjectReader reader(JsonNodeFactory nodeFactory) {
+        _assertNotNull("nodeFactory", nodeFactory);
+        return _newReader(getDeserializationConfig()).with(nodeFactory);
     }
 
     /**
@@ -4206,6 +4261,7 @@ public class ObjectMapper
      * @param schema Schema to pass to parser
      */
     public ObjectReader reader(FormatSchema schema) {
+        // NOTE: ok to have `null` for schema; means none used
         _verifySchemaType(schema);
         return _newReader(getDeserializationConfig(), null, null,
                 schema, _injectableValues);

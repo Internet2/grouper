@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.ldap.ldaptive;
 
 import java.io.IOException;
 import java.net.URL;
+import java.time.Duration;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
@@ -306,10 +307,13 @@ public class LdaptiveSessionImpl implements LdapSession {
           
           int validateTimerPeriod = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".validateTimerPeriod", 0);
           if (validateTimerPeriod > 0) {
-            ldapPoolConfig.setValidatePeriod(validateTimerPeriod / 1000);
+            ldapPoolConfig.setValidatePeriod(Duration.ofMillis(validateTimerPeriod));
           }
           
-          result.setPruneStrategy(new IdlePruneStrategy(pruneTimerPeriod / 1000, expirationTime / 1000));
+          IdlePruneStrategy idlePruneStrategy = new IdlePruneStrategy();
+          idlePruneStrategy.setIdleTime(Duration.ofMillis(expirationTime));
+          idlePruneStrategy.setPrunePeriod(Duration.ofMillis(pruneTimerPeriod));
+          result.setPruneStrategy(idlePruneStrategy);
           
           Validator<Connection> validator = retrieveValidator(ldapServerId);
           
@@ -381,7 +385,18 @@ public class LdaptiveSessionImpl implements LdapSession {
         if (propValue == null) {
           propValue = "";
         }
-        
+
+        // GRP-4484: ldaptive upgrade now uses durations
+        if (propNameTail.equalsIgnoreCase("timeout") || propNameTail.equalsIgnoreCase("timeLimit")) {
+          if (!StringUtils.isBlank(propValue)) {
+            try {
+              propValue = "PT" + (GrouperUtil.longValue(propValue)/1000) + "S";
+            } catch (Throwable t) {
+              // if its not a number, then forget it
+              LOG.debug("Error parsing: " + propValue, t);
+            }
+          }
+        }
         _ldaptiveProperties.put("org.ldaptive." + propNameTail, propValue);
 
         if (propNameTail.equalsIgnoreCase("url")) {

@@ -87,7 +87,7 @@ public class GrouperRestServlet extends HttpServlet {
   public static final String X_GROUPER_RESULT_CODE2 = "X-Grouper-resultCode2";
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(GrouperRestServlet.class);
+  private static final Log LOG = GrouperUtil.getLog(GrouperRestServlet.class);
 
   /**
    * id

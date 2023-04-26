@@ -7627,16 +7627,26 @@ public class GrouperInstallerUtils  {
       result.add("log4j-1.2-api");
       return result;
     }
+    Pattern pattern = null;
+    Matcher matcher = null;
 
-    Pattern pattern = Pattern.compile("^(.*?)-[0-9].*.jar$");
-    Matcher matcher = pattern.matcher(fileName);
+    pattern = Pattern.compile("^(.*?)-[0-9].*-tests.jar$");
+    matcher = pattern.matcher(fileName);
     String baseName = null;
     if (matcher.matches()) {
-      baseName = matcher.group(1);
-    } else if (fileName.endsWith(".jar")) {
-      baseName = fileName.substring(0, fileName.length() - ".jar".length());
+      baseName = matcher.group(1) + "-tests";
     } else {
-      return result;
+
+      pattern = Pattern.compile("^(.*?)-[0-9].*.jar$");
+      matcher = pattern.matcher(fileName);
+
+      if (matcher.matches()) {
+        baseName = matcher.group(1);
+      } else if (fileName.endsWith(".jar")) {
+        baseName = fileName.substring(0, fileName.length() - ".jar".length());
+      } else {
+        return result;
+      }
     }
     
     if (fileName.toLowerCase().startsWith("okhttp-2")) {
@@ -7647,7 +7657,9 @@ public class GrouperInstallerUtils  {
     
       result.add(baseName.toLowerCase());
     }
-    if (baseName.endsWith("-core") && !baseName.toLowerCase().contains("aws")) {
+    
+    // we should remove this and add cores to handle instead of remove ones which shouldnt...
+    if (baseName.endsWith("-core") && !baseName.toLowerCase().contains("aws") && !baseName.toLowerCase().contains("jersey")) {
       baseName = baseName.substring(0, baseName.length() - "-core".length());
       result.add(baseName.toLowerCase());
     }

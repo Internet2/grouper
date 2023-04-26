@@ -1,16 +1,27 @@
 package edu.internet2.middleware.grouper.misc;
 
-import org.osgi.framework.BundleContext;
-import org.osgi.framework.FrameworkUtil;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 
-import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
-
+/**
+ * called when grouper is shutting down
+ * @author mchyzer
+ *
+ */
 public class GrouperShutdown {
 
+  /**
+   * 
+   */
   public GrouperShutdown() {
   }
 
+  /**
+   * 
+   */
   public static void shutdown() {
     //FrameworkStarter.getInstance().stop();
+    
+    // this has a daemon thread
+    EhcacheController.ehcacheController().stop();
   }
 }

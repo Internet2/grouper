@@ -135,7 +135,7 @@ public class WsSampleAssignAttributeDefNameInheritanceRestLite implements WsSamp
    * @param args
    */
   public static void main(String[] args) {
-    assignAttributeDefNameInheritanceLite(WsSampleRestType.xhtml);
+    assignAttributeDefNameInheritanceLite(WsSampleRestType.json);
   }
 
   /**

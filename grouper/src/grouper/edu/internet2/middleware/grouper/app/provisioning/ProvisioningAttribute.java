@@ -77,7 +77,7 @@ public class ProvisioningAttribute {
   
   /**
    * if this attribute is multivalued and represents a membership, this map links a value with a specific membership
-   * so it can be logged and tracked
+   * so it can be logged and tracked.  Note: this might be null
    * @return the map
    */
   public Map<Object, ProvisioningMembershipWrapper> getValueToProvisioningMembershipWrapper() {

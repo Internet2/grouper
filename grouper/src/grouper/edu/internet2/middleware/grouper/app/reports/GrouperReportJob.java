@@ -144,7 +144,7 @@ public class GrouperReportJob implements Job {
         hib3GrouploaderLog.setJobMessage("No config found for attributeAssignmentMarkerId: "+attributeAssignmentMarkerId);
       }
             
-    } catch(Exception e) {
+    } catch(Throwable e) {
       LOG.error("Error running up job", e);
       if (!(e instanceof JobExecutionException)) {
         e = new JobExecutionException(e);

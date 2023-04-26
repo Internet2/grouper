@@ -22,14 +22,12 @@ package edu.internet2.middleware.grouper.misc;
 import static edu.internet2.middleware.grouper.util.GrouperUtil.isBlank;
 
 import java.io.File;
-import java.util.List;
+import java.sql.Driver;
+import java.sql.DriverManager;
 
-import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
-import org.hibernate.type.LongType;
-import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -49,16 +47,14 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAO;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.log.GrouperLoggingDynamicConfig;
+import edu.internet2.middleware.grouper.plugins.FrameworkStarter;
 import edu.internet2.middleware.grouper.registry.RegistryInstall;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperToStringStyle;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -253,7 +249,7 @@ public class GrouperStartup {
     String env = GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name");
     env = StringUtils.defaultIfEmpty(env, "<no label configured>");
 
-    String grouperStartup = "version: " + GrouperVersion.grouperVersion()
+    String grouperStartup = "version: " + GrouperUtil.defaultString(System.getenv("GROUPER_CONTAINER_VERSION"), GrouperVersion.grouperVersion())
       + ", build date: " + buildTimestamp + ", env: " + env;
     
     return grouperStartup;
@@ -273,6 +269,14 @@ public class GrouperStartup {
           return false;
         }
 
+        // this has to be loaded first for some reason
+        try {
+          Class clazz = Class.forName("com.p6spy.engine.spy.P6SpyDriver");
+          Object p6SpyDriver = clazz.newInstance();
+          DriverManager.registerDriver((Driver)p6SpyDriver);
+        } catch (Exception e) {
+          // ignore
+        }
         started = true;
         GcDbAccess.setGrouperIsStarted(false);
         finishedStartupSuccessfully = false;
@@ -375,9 +379,6 @@ public class GrouperStartup {
             // verify member search and sort config
             verifyMemberSortAndSearchConfig();
             
-            // verify id indexes
-            verifyTableIdIndexes();
-
             verifyUtf8andTransactions();
             
             finishedStartupSuccessfully = true;
@@ -596,39 +597,6 @@ public class GrouperStartup {
       
       if (source.getSearchAttributes() == null || source.getSearchAttributes().size() == 0) {
         throw new RuntimeException("At least one search column should be specified for source " + source.getId());
-      }
-    }
-  }
-  
-  /**
-   * verify that table id indexes
-   */
-  public static void verifyTableIdIndexes() {
-    if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.tableIndex.verifyOnStartup", true)) {
-      return;
-    }
-
-    //lets see if there are any nulls
-    for (TableIndexType tableIndexType : TableIndexType.values()) {
-      
-      if (tableIndexType == TableIndexType.membershipRequire) {
-        continue;
-      }
-      List<String> ids = HibernateSession.bySqlStatic().listSelect(
-          String.class, "select id from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by id" , null, null);
-
-      if (GrouperUtil.length(ids) > 0) {
-        LOG.error("Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting... please wait...");
-        for (int i=0;i<GrouperUtil.length(ids); i++) {
-          HibernateSession.bySqlStatic().executeSql("update " + tableIndexType.tableName() 
-              + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?", 
-              GrouperUtil.toListObject(TableIndex.reserveId(tableIndexType), ids.get(i)),
-              HibUtils.listType(LongType.INSTANCE, StringType.INSTANCE));
-          if (i+1 % 1000 == 0) {
-            LOG.warn("Updated " + (i-1) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
-          }
-        }
-        LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
       }
     }
   }

@@ -716,6 +716,25 @@ public class GrouperRequestContainer {
     
     return this.sqlSyncConfigurationContainer;
   }
+  
+  /**
+   * container for script tester configs
+   */
+  private ScriptTesterContainer scriptTesterContainer;
+  
+  /**
+   * container for script tester configs
+   * @return the container
+   */
+  public ScriptTesterContainer getScriptTesterContainer() {
+   
+    if (this.scriptTesterContainer == null) {
+      this.scriptTesterContainer = new ScriptTesterContainer();
+    }
+    
+    return this.scriptTesterContainer;
+  }
+  
 
   /**
    * container for gsh templates

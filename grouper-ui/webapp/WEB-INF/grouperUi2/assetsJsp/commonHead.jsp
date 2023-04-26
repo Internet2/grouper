@@ -6,6 +6,11 @@
 <link href="../../grouperExternal/public/assets/dojo/dojo/resources/dojo.css" rel="stylesheet" type="text/css" />
 <link href="../../grouperExternal/public/assets/css/grouperTooltip.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/bootstrap.css?updated=02132013_2" rel="stylesheet">
+<style>
+.container-fluid {
+  max-width: ${grouperRequestContainer.indexContainer.containerFluidMaxWidth};
+}
+</style>
 <link href="../../grouperExternal/public/assets/css/responsive.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/font-awesome.css" rel="stylesheet">
 <link href="../../grouperExternal/public/assets/css/grouperUi2.css?updated=01242022" rel="stylesheet">

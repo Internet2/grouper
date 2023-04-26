@@ -76,7 +76,7 @@ public class GrouperAbac {
       
       variableMap.put("entity", grouperAbacEntity);
       
-      Object result = GrouperUtil.substituteExpressionLanguageScript(script, variableMap, true, false, true);
+      Object result = runScriptStatic(script, variableMap);
       GrouperUtil.booleanValue(result);
       
       Pattern patternGroupWithDoubleQuote = Pattern.compile("entity\\.memberOf\\s*\\(\\s*\"");
@@ -93,6 +93,12 @@ public class GrouperAbac {
       return GrouperUtil.getFullStackTrace(re);
     }
 
+  }
+  
+  public static Object runScriptStatic(String script, Map<String, Object> variableMap) {
+    Object result = GrouperUtil.substituteExpressionLanguageScript(script, variableMap, true, false, true);
+    return result;
+    
   }
   
 }

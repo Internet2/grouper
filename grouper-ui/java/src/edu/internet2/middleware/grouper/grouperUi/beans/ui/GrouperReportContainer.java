@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.app.reports.GrouperReportSettings;
 import edu.internet2.middleware.grouper.app.reports.ReportConfigFormat;
@@ -10,6 +11,8 @@ import edu.internet2.middleware.grouper.app.reports.ReportConfigType;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperReportConfig;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperReportContainer {
@@ -85,6 +88,20 @@ public class GrouperReportContainer {
       reportConfigFormats.add(format.name());
     }
     return reportConfigFormats;
+  }
+  
+  public List<String> getAllSqlConfigs() {
+    
+    List<String> sqlConfigs = new ArrayList<String>();
+    
+    DatabaseGrouperExternalSystem databaseGrouperExternalSystem = new DatabaseGrouperExternalSystem();
+    List<MultiKey> keysAndLabels = databaseGrouperExternalSystem.retrieveKeysAndLabels();
+    
+    for (MultiKey multiKey : keysAndLabels) {
+      sqlConfigs.add(GrouperUtil.stringValue(multiKey.getKey(0)));
+    }
+    
+    return sqlConfigs;
   }
 
   /**

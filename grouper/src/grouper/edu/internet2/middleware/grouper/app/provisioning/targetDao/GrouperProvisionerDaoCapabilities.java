@@ -10,6 +10,51 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperProvisionerDaoCapabilities {
 
+  /**
+   * if doing group attributes, if all memberships can be retrieved with group when the input flag is passed to do so
+   */
+  private boolean canRetrieveMembershipsWithGroup = false;
+
+  /**
+   * if doing entity attributes, if all memberships can be retrieved with entity when the input flag is passed to do so
+   */
+  private boolean canRetrieveMembershipsWithEntity = false;
+
+  /**
+   * if doing entity attributes, if all memberships can be retrieved with entity when the input flag is passed to do so
+   * @return
+   */
+  public boolean isCanRetrieveMembershipsWithEntity() {
+    return canRetrieveMembershipsWithEntity;
+  }
+
+  /**
+   * if doing group attributes, if all memberships can be retrieved with group when the input flag is passed to do so
+   * @return
+   */
+  public boolean isCanRetrieveMembershipsWithGroup() {
+    return canRetrieveMembershipsWithGroup;
+  }
+
+  /**
+   * if doing group attributes, if all memberships can be retrieved with group when the input flag is passed to do so
+   * @param canRetrieveMembershipWithGroup
+   */
+  public void setCanRetrieveMembershipsWithGroup(boolean canRetrieveMembershipWithGroup) {
+    this.canRetrieveMembershipsWithGroup = canRetrieveMembershipWithGroup;
+  }
+
+
+  /**
+   * if doing entity attributes, if all memberships can be retrieved with entity when the input flag is passed to do so
+   * @param canRetrieveMembershipWithEntity
+   */
+  public void setCanRetrieveMembershipsWithEntity(boolean canRetrieveMembershipWithEntity) {
+    this.canRetrieveMembershipsWithEntity = canRetrieveMembershipWithEntity;
+  }
+
+
+
   @Override
   public String toString() {
     
@@ -70,18 +115,11 @@ public class GrouperProvisionerDaoCapabilities {
   private Boolean canRetrieveEntities;
   private Boolean canRetrieveEntity;
   private Boolean canRetrieveGroup;
-  private Boolean canRetrieveGroupWithOrWithoutMembershipAttribute;
-  private Boolean canRetrieveEntityWithOrWithoutMembershipAttribute;
   private Boolean canRetrieveGroups;
   private Boolean canRetrieveIncrementalData;
   private Boolean canRetrieveMembership;
   private Boolean canRetrieveMemberships;
-  private Boolean canRetrieveMembershipsBulk;
-  private Boolean canRetrieveMembershipsByEntities;
-  private Boolean canRetrieveMembershipsByEntity;
-  private Boolean canRetrieveMembershipsByGroup;
-  private Boolean canRetrieveMembershipsByGroups;
-  private Boolean canRetrieveMembershipsByTargetGroupEntityMembership;
+
   private Boolean canSendChangesToTarget;
   private Boolean canSendEntityChangesToTarget;
   private Boolean canSendGroupChangesToTarget;
@@ -128,6 +166,315 @@ public class GrouperProvisionerDaoCapabilities {
     this.canDeleteGroup = canDeleteGroup;
   }
   
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int deleteMembershipsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getDeleteMembershipsBatchSize() {
+    return this.deleteMembershipsBatchSize == -1 ? this.defaultBatchSize : this.deleteMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param deleteMembershipsBatchSize1
+   */
+  public void setDeleteMembershipsBatchSize(int deleteMembershipsBatchSize1) {
+    this.deleteMembershipsBatchSize = deleteMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int updateMembershipsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getUpdateMembershipsBatchSize() {
+    return this.updateMembershipsBatchSize == -1 ? this.defaultBatchSize : this.updateMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param updateMembershipsBatchSize1
+   */
+  public void setUpdateMembershipsBatchSize(int updateMembershipsBatchSize1) {
+    this.updateMembershipsBatchSize = updateMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int insertMembershipsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getInsertMembershipsBatchSize() {
+    return this.insertMembershipsBatchSize == -1 ? this.defaultBatchSize : this.insertMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param insertMembershipsBatchSize1
+   */
+  public void setInsertMembershipsBatchSize(int insertMembershipsBatchSize1) {
+    this.insertMembershipsBatchSize = insertMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int insertGroupsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getInsertGroupsBatchSize() {
+    return this.insertGroupsBatchSize == -1 ? this.defaultBatchSize : this.insertGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param insertGroupsBatchSize1
+   */
+  public void setInsertGroupsBatchSize(int insertGroupsBatchSize1) {
+    this.insertGroupsBatchSize = insertGroupsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int updateGroupsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getUpdateGroupsBatchSize() {
+    return this.updateGroupsBatchSize == -1 ? this.defaultBatchSize : this.updateGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param updateGroupsBatchSize1
+   */
+  public void setUpdateGroupsBatchSize(int updateGroupsBatchSize1) {
+    this.updateGroupsBatchSize = updateGroupsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int updateEntitiesBatchSize = -1;
+  
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return update entities batch size
+   */
+  public int getUpdateEntitiesBatchSize() {
+    return this.updateEntitiesBatchSize == -1 ? this.defaultBatchSize : this.updateEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param updateEntitiesBatchSize1
+   */
+  public void setUpdateEntitiesBatchSize(int updateEntitiesBatchSize1) {
+    this.updateEntitiesBatchSize = updateEntitiesBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int insertEntitiesBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return insert entities batch size
+   */
+  public int getInsertEntitiesBatchSize() {
+    return this.insertEntitiesBatchSize == -1 ? this.defaultBatchSize : this.insertEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param insertEntitiesBatchSize1
+   */
+  public void setInsertEntitiesBatchSize(int insertEntitiesBatchSize1) {
+    this.insertEntitiesBatchSize = insertEntitiesBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int retrieveMembershipsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getRetrieveMembershipsBatchSize() {
+    return this.retrieveMembershipsBatchSize == -1 ? this.defaultBatchSize : this.retrieveMembershipsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param selectMembershipsBatchSize1
+   */
+  public void setRetrieveMembershipsBatchSize(int selectMembershipsBatchSize1) {
+    this.retrieveMembershipsBatchSize = selectMembershipsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int retrieveGroupsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getRetrieveGroupsBatchSize() {
+    return this.retrieveGroupsBatchSize == -1 ? this.defaultBatchSize : this.retrieveGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param selectGroupsBatchSize1
+   */
+  public void setRetrieveGroupsBatchSize(int selectGroupsBatchSize1) {
+    this.retrieveGroupsBatchSize = selectGroupsBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int retrieveEntitiesBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getRetrieveEntitiesBatchSize() {
+    return this.retrieveEntitiesBatchSize == -1 ? this.defaultBatchSize : this.retrieveEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param selectEntitiesBatchSize1
+   */
+  public void setRetrieveEntitiesBatchSize(int selectEntitiesBatchSize1) {
+    this.retrieveEntitiesBatchSize = selectEntitiesBatchSize1;
+  }
+
+  /**
+   * default batch size will be used for all batch sizes unless overridden
+   */
+  private int defaultBatchSize = 20;
+
+  /**
+   * default batch size will be used for all batch sizes unless overridden
+   * @return default batch size
+   */
+  public int getDefaultBatchSize() {
+    return this.defaultBatchSize;
+  }
+
+  /**
+   * default batch size will be used for all batch sizes unless overridden
+   * @param defaultBatchSize1
+   */
+  public void setDefaultBatchSize(int defaultBatchSize1) {
+    this.defaultBatchSize = defaultBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int deleteEntitiesBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return size
+   */
+  public int getDeleteEntitiesBatchSize() {
+    return this.deleteEntitiesBatchSize == -1 ? this.defaultBatchSize : this.deleteEntitiesBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param deleteEntitiesBatchSize1
+   */
+  public void setDeleteEntitiesBatchSize(int deleteEntitiesBatchSize1) {
+    this.deleteEntitiesBatchSize = deleteEntitiesBatchSize1;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   */
+  private int deleteGroupsBatchSize = -1;
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @return delete group batch size
+   */
+  public int getDeleteGroupsBatchSize() {
+    return this.deleteGroupsBatchSize == -1 ? this.defaultBatchSize : this.deleteGroupsBatchSize;
+  }
+
+  /**
+   * batch size in dao should correspond to how many items of work can be handled at once which will be batched for threads
+   * i.e. for databases its a batch size of 1000, for azure its a batch size of 20, for LDAP its a batch size of 1
+   * @param deleteGroupsBatchSize1
+   */
+  public void setDeleteGroupsBatchSize(int deleteGroupsBatchSize1) {
+    this.deleteGroupsBatchSize = deleteGroupsBatchSize1;
+  }
+
   public Boolean getCanDeleteGroups() {
     return canDeleteGroups;
   }
@@ -256,24 +603,6 @@ public class GrouperProvisionerDaoCapabilities {
     this.canRetrieveGroup = canRetrieveGroup;
   }
   
-  public Boolean getCanRetrieveGroupWithOrWithoutMembershipAttribute() {
-    return canRetrieveGroupWithOrWithoutMembershipAttribute;
-  }
-  
-  public void setCanRetrieveGroupWithOrWithoutMembershipAttribute(
-      Boolean canRetrieveGroupWithOrWithoutMembershipAttribute) {
-    this.canRetrieveGroupWithOrWithoutMembershipAttribute = canRetrieveGroupWithOrWithoutMembershipAttribute;
-  }
-  
-  public Boolean getCanRetrieveEntityWithOrWithoutMembershipAttribute() {
-    return canRetrieveEntityWithOrWithoutMembershipAttribute;
-  }
-  
-  public void setCanRetrieveEntityWithOrWithoutMembershipAttribute(
-      Boolean canRetrieveEntityWithOrWithoutMembershipAttribute) {
-    this.canRetrieveEntityWithOrWithoutMembershipAttribute = canRetrieveEntityWithOrWithoutMembershipAttribute;
-  }
-  
   public Boolean getCanRetrieveGroups() {
     return canRetrieveGroups;
   }
@@ -305,57 +634,268 @@ public class GrouperProvisionerDaoCapabilities {
   public void setCanRetrieveMemberships(Boolean canRetrieveMemberships) {
     this.canRetrieveMemberships = canRetrieveMemberships;
   }
+
+  /**
+   * if entity attributes, and retrieve memberships can have multiple entities each with one memberships attribute
+   */
+  private Boolean canRetrieveMembershipOneByEntities;
+
+  /**
+   * if entity attributes, and retrieve memberships can have multiple entities each with one memberships attribute
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipOneByEntities() {
+    return canRetrieveMembershipOneByEntities;
+  }
+
+  /**
+   * if entity attributes, and retrieve memberships can have multiple entities each with one memberships attribute
+   * @param canRetrieveMembershipByEntities
+   */
+  public void setCanRetrieveMembershipOneByEntities(Boolean canRetrieveMembershipOneByEntities) {
+    this.canRetrieveMembershipOneByEntities = canRetrieveMembershipOneByEntities;
+  }
+
+  /**
+   * if entity attributes, and retrieve membership can have one entity with one membership attribute
+   */
+  private Boolean canRetrieveMembershipOneByEntity;
   
-  public Boolean getCanRetrieveMembershipsBulk() {
-    return canRetrieveMembershipsBulk;
+  /**
+   * if entity attributes, and retrieve membership can have one entity with one membership attribute
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipOneByEntity() {
+    return canRetrieveMembershipOneByEntity;
+  }
+
+  /**
+   * if entity attributes, and retrieve membership can have one entity with one membership attribute
+   * @param canRetrieveMembershipByEntity
+   */
+  public void setCanRetrieveMembershipOneByEntity(Boolean canRetrieveMembershipByEntity) {
+    this.canRetrieveMembershipOneByEntity = canRetrieveMembershipByEntity;
+  }
+
+  /**
+   * if group attributes, and retrieve membership can have one group with one membership attribute
+   */
+  private Boolean canRetrieveMembershipOneByGroup;
+
+  /**
+   * if group attributes, and retrieve membership can have one group with one membership attribute
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipOneByGroup() {
+    return canRetrieveMembershipOneByGroup;
+  }
+
+  /**
+   * if group attributes, and retrieve membership can have one group with one membership attribute
+   * @param canRetrieveMembershipByGroup
+   */
+  public void setCanRetrieveMembershipOneByGroup(Boolean canRetrieveMembershipOneByGroup) {
+    this.canRetrieveMembershipOneByGroup = canRetrieveMembershipOneByGroup;
+  }
+
+  /**
+   * if group attributes, and retrieve memberships can have multiple groups each with one membership attribute
+   */
+  private Boolean canRetrieveMembershipOneByGroups;
+  
+  /**
+   * if group attributes, and retrieve memberships can have multiple groups each with one membership attribute
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipOneByGroups() {
+    return canRetrieveMembershipOneByGroups;
+  }
+
+  /**
+   * if group attributes, and retrieve memberships can have multiple groups each with one membership attribute
+   * @param canRetrieveMembershipByGroups
+   */
+  public void setCanRetrieveMembershipOneByGroups(Boolean canRetrieveMembershipOneByGroups) {
+    this.canRetrieveMembershipOneByGroups = canRetrieveMembershipOneByGroups;
+  }
+
+  /**
+   * if can get all memberships for one group by implementing method: retrieveMembershipsByGroup()
+   */
+  private Boolean canRetrieveMembershipsAllByGroup;
+
+  /**
+   * if can get all memberships for one group by implementing method: retrieveMembershipsByGroup()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByGroup() {
+    return canRetrieveMembershipsAllByGroup;
+  }
+
+  /**
+   * if can get all memberships for one group by implementing method: retrieveMembershipsByGroup()
+   * @param canRetrieveMembershipsAllByGroup
+   */
+  public void setCanRetrieveMembershipsAllByGroup(
+      Boolean canRetrieveMembershipsAllByGroup) {
+    this.canRetrieveMembershipsAllByGroup = canRetrieveMembershipsAllByGroup;
+  }
+
+  /**
+   * if can get all memberships for multiple groups by implementing method: retrieveMembershipsByGroups()
+   */
+  private Boolean canRetrieveMembershipsAllByGroups;
+
+  
+  
+  /**
+   * if can get all memberships for multiple groups by implementing method: retrieveMembershipsByGroups()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByGroups() {
+    return canRetrieveMembershipsAllByGroups;
+  }
+
+  /**
+   * if can get all memberships for multiple groups by implementing method: retrieveMembershipsByGroups()
+   * @param canRetrieveMembershipsAllByGroups
+   */
+  public void setCanRetrieveMembershipsAllByGroups(
+      Boolean canRetrieveMembershipsAllByGroups) {
+    this.canRetrieveMembershipsAllByGroups = canRetrieveMembershipsAllByGroups;
+  }
+
+  /**
+   * if can get all memberships for multiple entites by implementing method: retrieveMembershipsByEntities()
+   */
+  private Boolean canRetrieveMembershipsAllByEntities;
+
+  /**
+   * if can get all memberships for multiple entites by implementing method: retrieveMembershipsByEntities()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByEntities() {
+    return canRetrieveMembershipsAllByEntities;
+  }
+
+  /**
+   * if can get all memberships for multiple entites by implementing method: retrieveMembershipsByEntities()
+   * @param canRetrieveMembershipsAllByEntities
+   */
+  public void setCanRetrieveMembershipsAllByEntities(
+      Boolean canRetrieveMembershipsAllByEntities) {
+    this.canRetrieveMembershipsAllByEntities = canRetrieveMembershipsAllByEntities;
+  }
+
+  /**
+   * if can get all memberships for one entity by implementing method: retrieveMembershipsByEntity()
+   */
+  private Boolean canRetrieveMembershipsAllByEntity;
+
+
+  /**
+   * if can get all memberships for one entity by implementing method: retrieveMembershipsByEntity()
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsAllByEntity() {
+    return canRetrieveMembershipsAllByEntity;
+  }
+
+  /**
+   * if can get all memberships for one entity by implementing method: retrieveMembershipsByEntity()
+   * @param canRetrieveMembershipsAllByEntity
+   */
+  public void setCanRetrieveMembershipsAllByEntity(
+      Boolean canRetrieveMembershipsAllByEntity) {
+    this.canRetrieveMembershipsAllByEntity = canRetrieveMembershipsAllByEntity;
+  }
+
+  /**
+   * if entity attributes, if select memberships can take multiple entities and multiple membership attributes
+   */
+  private Boolean canRetrieveMembershipsSomeByEntities;
+
+  /**
+   * if entity attributes, if select memberships can take multiple entities and multiple membership attributes
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsSomeByEntities() {
+    return canRetrieveMembershipsSomeByEntities;
   }
   
-  public void setCanRetrieveMembershipsBulk(Boolean canRetrieveMembershipsBulk) {
-    this.canRetrieveMembershipsBulk = canRetrieveMembershipsBulk;
+  /**
+   * if entity attributes, if select memberships can take multiple entities and multiple membership attributes
+   * @param canRetrieveMembershipsByEntities
+   */
+  public void setCanRetrieveMembershipsSomeByEntities(
+      Boolean canRetrieveMembershipsSomeByEntities) {
+    this.canRetrieveMembershipsSomeByEntities = canRetrieveMembershipsSomeByEntities;
+  }
+
+  /**
+   * if entity attributes, if select membership can take one entity and multiple membership attributes
+   */
+  private Boolean canRetrieveMembershipsSomeByEntity;
+
+  /**
+   * if entity attributes, if select membership can take one entity and multiple membership attributes
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsSomeByEntity() {
+    return canRetrieveMembershipsSomeByEntity;
+  }
+
+  /**
+   * if entity attributes, if select membership can take one entity and multiple membership attributes
+   * @param canRetrieveMembershipsByEntity
+   */
+  public void setCanRetrieveMembershipsSomeByEntity(Boolean canRetrieveMembershipsSomeByEntity) {
+    this.canRetrieveMembershipsSomeByEntity = canRetrieveMembershipsSomeByEntity;
   }
   
-  public Boolean getCanRetrieveMembershipsByEntities() {
-    return canRetrieveMembershipsByEntities;
+  /**
+   * if group attributes, if select membership can take one group and multiple membership attributes
+   */
+  private Boolean canRetrieveMembershipsSomeByGroup;
+
+  /**
+   * if group attributes, if select membership can take one group and multiple membership attributes
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsSomeByGroup() {
+    return canRetrieveMembershipsSomeByGroup;
+  }
+
+  /**
+   * if group attributes, if select membership can take one group and multiple membership attributes
+   * @param canRetrieveMembershipsByGroup
+   */
+  public void setCanRetrieveMembershipsSomeByGroup(Boolean canRetrieveMembershipsSomeByGroup) {
+    this.canRetrieveMembershipsSomeByGroup = canRetrieveMembershipsSomeByGroup;
+  }
+
+  /**
+   * if group attributes, if select memberships can take multiple groups and multiple membership attributes
+   */
+  private Boolean canRetrieveMembershipsSomeByGroups;
+
+  /**
+   * if group attributes, if select memberships can take multiple groups and multiple membership attributes
+   * @return
+   */
+  public Boolean getCanRetrieveMembershipsSomeByGroups() {
+    return canRetrieveMembershipsSomeByGroups;
+  }
+
+  /**
+   * if group attributes, if select memberships can take multiple groups and multiple membership attributes
+   * @param canRetrieveMembershipsByGroups
+   */
+  public void setCanRetrieveMembershipsSomeByGroups(Boolean canRetrieveMembershipsSomeByGroups) {
+    this.canRetrieveMembershipsSomeByGroups = canRetrieveMembershipsSomeByGroups;
   }
   
-  public void setCanRetrieveMembershipsByEntities(
-      Boolean canRetrieveMembershipsByEntities) {
-    this.canRetrieveMembershipsByEntities = canRetrieveMembershipsByEntities;
-  }
-  
-  public Boolean getCanRetrieveMembershipsByEntity() {
-    return canRetrieveMembershipsByEntity;
-  }
-  
-  public void setCanRetrieveMembershipsByEntity(Boolean canRetrieveMembershipsByEntity) {
-    this.canRetrieveMembershipsByEntity = canRetrieveMembershipsByEntity;
-  }
-  
-  public Boolean getCanRetrieveMembershipsByGroup() {
-    return canRetrieveMembershipsByGroup;
-  }
-  
-  public void setCanRetrieveMembershipsByGroup(Boolean canRetrieveMembershipsByGroup) {
-    this.canRetrieveMembershipsByGroup = canRetrieveMembershipsByGroup;
-  }
-  
-  public Boolean getCanRetrieveMembershipsByGroups() {
-    return canRetrieveMembershipsByGroups;
-  }
-  
-  public void setCanRetrieveMembershipsByGroups(Boolean canRetrieveMembershipsByGroups) {
-    this.canRetrieveMembershipsByGroups = canRetrieveMembershipsByGroups;
-  }
-  
-  public Boolean getCanRetrieveMembershipsByTargetGroupEntityMembership() {
-    return canRetrieveMembershipsByTargetGroupEntityMembership;
-  }
-  
-  public void setCanRetrieveMembershipsByTargetGroupEntityMembership(
-      Boolean canRetrieveMembershipsByTargetGroupEntityMembership) {
-    this.canRetrieveMembershipsByTargetGroupEntityMembership = canRetrieveMembershipsByTargetGroupEntityMembership;
-  }
-  
+
   public Boolean getCanSendChangesToTarget() {
     return canSendChangesToTarget;
   }

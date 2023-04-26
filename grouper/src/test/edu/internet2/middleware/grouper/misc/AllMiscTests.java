@@ -36,6 +36,7 @@ public class AllMiscTests {
     suite.addTestSuite(GrouperObjectFinderTest.class);
     suite.addTestSuite(GrouperReportTest.class);
     suite.addTestSuite(GrouperSessionTest.class);
+    suite.addTestSuite(GrouperVersionTest.class);
     //$JUnit-END$
     return suite;
   }

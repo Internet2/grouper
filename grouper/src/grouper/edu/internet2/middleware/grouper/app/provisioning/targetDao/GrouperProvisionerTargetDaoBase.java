@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
  * 
  */
 public abstract class GrouperProvisionerTargetDaoBase {
-  
+
   /**
    * start logging the source low level actions
    * @return true if the logging was started (i.e. can be stopped), or false if already started (in which case 
@@ -188,16 +188,6 @@ public abstract class GrouperProvisionerTargetDaoBase {
     throw new UnsupportedOperationException();
   }
 
-  /**
-   * bulk retrieve target provisioning Memberships, generally use the matching Ids in the targetMemberships
-   * @return the target provisioning Memberships
-   */
-  public TargetDaoRetrieveMembershipsBulkResponse retrieveMembershipsBulk(
-      TargetDaoRetrieveMembershipsBulkRequest targetDaoRetrieveMembershipsBulkRequest) {
-    throw new UnsupportedOperationException();
-
-  }
-  
   /**
    * bulk retrieve all target provisioning Memberships related to these groups, generally use the matching Ids in the targetGroups
    * @return the target provisioning memberships

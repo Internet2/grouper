@@ -143,7 +143,7 @@ public class WsSampleAttributeDefDeleteRest implements WsSampleRest {
    * @param args
    */
   public static void main(String[] args) {
-    attributeDefDelete(WsSampleRestType.xhtml);
+    attributeDefDelete(WsSampleRestType.json);
   }
 
   /**

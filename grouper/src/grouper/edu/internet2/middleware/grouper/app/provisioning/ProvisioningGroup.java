@@ -1,14 +1,9 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.lang.StringUtils;
-
-import com.fasterxml.jackson.databind.node.ArrayNode;
-import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -138,23 +133,45 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     firstField = this.toStringProvisioningUpdatable(result, firstField);
     
     if (this.provisioningGroupWrapper != null) {
-      if (this.provisioningGroupWrapper.isRecalcObject()) {
-        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.isRecalcObject());
-      }
-      if (this.provisioningGroupWrapper.isRecalcGroupMemberships()) {
-        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.isRecalcGroupMemberships());
-      }
-      if (this.provisioningGroupWrapper.isCreate()) {
-        firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.isCreate());
-      }
-      if (this.provisioningGroupWrapper.isDelete()) {
-        firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.isDelete());
-      }
-      if (this.provisioningGroupWrapper.isIncrementalSyncMemberships()) {
-        firstField = toStringAppendField(result, firstField, "incrementalSyncMemberships", this.provisioningGroupWrapper.isIncrementalSyncMemberships());
-      }
-      if (this.provisioningGroupWrapper.getErrorCode() != null) {
-        firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
+      if (this == this.provisioningGroupWrapper.getGrouperProvisioningGroup() || this == this.provisioningGroupWrapper.getGrouperTargetGroup()) {
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction() != null) {
+          firstField = toStringAppendField(result, firstField, "action", this.provisioningGroupWrapper.getProvisioningStateGroup().getGrouperIncrementalDataAction());
+        }
+        firstField = toStringAppendField(result, firstField, "recalcObject", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
+        firstField = toStringAppendField(result, firstField, "recalcMships", this.provisioningGroupWrapper.getProvisioningStateGroup().isRecalcGroupMemberships());
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate()) {
+          firstField = toStringAppendField(result, firstField, "create", this.provisioningGroupWrapper.getProvisioningStateGroup().isCreate());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isInsertResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "createProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isInsertResultProcessed());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete()) {
+          firstField = toStringAppendField(result, firstField, "delete", this.provisioningGroupWrapper.getProvisioningStateGroup().isDelete());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "deleteProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isDeleteResultProcessed());
+        }
+        if (this.provisioningGroupWrapper.getErrorCode() != null) {
+          firstField = toStringAppendField(result, firstField, "errorCode", this.provisioningGroupWrapper.getErrorCode().name());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970() != null) {
+          firstField = toStringAppendField(result, firstField, "millis1970", this.provisioningGroupWrapper.getProvisioningStateGroup().getMillisSince1970());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships()) {
+          firstField = toStringAppendField(result, firstField, "selectSomeMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectSomeMemberships());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships()) {
+          firstField = toStringAppendField(result, firstField, "selectAllMemberships", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectAllMemberships());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "selectProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdate()) {
+          firstField = toStringAppendField(result, firstField, "update", this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdate());
+        }
+        if (this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed()) {
+          firstField = toStringAppendField(result, firstField, "updateProcessed", this.provisioningGroupWrapper.getProvisioningStateGroup().isUpdateResultProcessed());
+        }
       }
     }
     
@@ -169,7 +186,89 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
 
     ProvisioningGroup provisioningGroup = new ProvisioningGroup();
 
-    this.cloneUpdatable(provisioningGroup);
+    this.cloneUpdatable(provisioningGroup, null);
+    provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
+
+    return provisioningGroup;
+  }
+
+  /**
+   * do a deep clone of the data, without memberships
+   * @param provisioningUpdatables
+   * @return the cloned list
+   */
+  public static List<ProvisioningGroup> cloneWithoutMemberships(List<ProvisioningGroup> provisioningGroups) {
+    if (provisioningGroups == null) {
+      return null;
+    }
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroup provisioningGroup : provisioningGroups) {
+      ProvisioningGroup provisioningUpdatableClone = (ProvisioningGroup)provisioningGroup.cloneWithoutMemberships();
+      result.add(provisioningUpdatableClone);
+    }
+    return result;
+  }
+
+  /**
+   * do a deep clone of the data, but add as many objects as there are objects and membership attribute values, one per wrapper
+   * @param provisioningUpdatables
+   * @return the cloned list
+   */
+  public static List<ProvisioningGroup> cloneWithOneMembership(List<ProvisioningGroup> provisioningGroups) {
+    if (provisioningGroups == null) {
+      return null;
+    }
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
+    for (ProvisioningGroup provisioningGroup : provisioningGroups) {
+      
+      String membershipAttribute = null;
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+        membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+      }
+      
+      ProvisioningAttribute provisioningAttribute = provisioningGroup.getAttributes().get(membershipAttribute);
+      if (provisioningAttribute == null) {
+        continue;
+      }
+      
+      for (Object value : GrouperUtil.nonNull(provisioningGroup.retrieveAttributeValueSet(membershipAttribute))) {
+        ProvisioningGroup provisioningUpdatableClone = (ProvisioningGroup)provisioningGroup.cloneWithoutMemberships();
+
+        ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperUtil.nonNull(provisioningAttribute.getValueToProvisioningMembershipWrapper()).get(value);
+
+        if (provisioningMembershipWrapper != null) {
+          try {
+            GrouperProvisioningTranslator.assignThreadLocalProvisioningMembershipWrapper(provisioningMembershipWrapper);
+            provisioningUpdatableClone.addAttributeValueForMembership(membershipAttribute, value);
+          } finally {
+            GrouperProvisioningTranslator.clearThreadLocalProvisioningMembershipWrapper();
+          }
+        } else {
+          provisioningUpdatableClone.addAttributeValue(membershipAttribute, value);
+        }
+        
+        result.add(provisioningUpdatableClone);
+      }
+      
+    }
+    return result;
+  }
+
+
+  /**
+   * deep clone the fields in this object without the membership attribute
+   */
+  public ProvisioningGroup cloneWithoutMemberships() {
+
+    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+    String membershipAttributeToIgnore = null;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      membershipAttributeToIgnore = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    }
+    this.cloneUpdatable(provisioningGroup, membershipAttributeToIgnore);
     provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
 
     return provisioningGroup;

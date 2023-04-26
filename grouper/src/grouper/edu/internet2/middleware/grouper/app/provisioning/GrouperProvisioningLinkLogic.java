@@ -198,6 +198,8 @@ public class GrouperProvisioningLinkLogic {
    */
   public void updateGroupLink(Collection<ProvisioningGroupWrapper> provisioningGroupWrappers, boolean copyFromTargetOrGrouperTarget) {
   
+    GrouperUtil.collectionRemoveNulls(provisioningGroupWrappers);
+
     if (GrouperUtil.length(provisioningGroupWrappers) == 0) {
       return;
     }
@@ -574,7 +576,7 @@ public class GrouperProvisioningLinkLogic {
       
       Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
       
-      try {
+      {
         debugMap.put("state", "translateGrouperMembershipsToTarget");
         {
           List<ProvisioningMembership> grouperProvisioningMemberships = new ArrayList<ProvisioningMembership>(this.getGrouperProvisioner().
@@ -584,8 +586,6 @@ public class GrouperProvisioningLinkLogic {
               grouperProvisioningMemberships, false);
         }    
 
-      } finally {
-        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.translateGrouperMembershipsToTarget);
       }
 
       List<ProvisioningMembership> grouperTargetMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperTargetMemberships(true);
@@ -620,6 +620,8 @@ public class GrouperProvisioningLinkLogic {
    */
   public void updateEntityLink(Collection<ProvisioningEntityWrapper> provisioningEntityWrappers, boolean copyFromTargetOrGrouperTarget) {
   
+    GrouperUtil.collectionRemoveNulls(provisioningEntityWrappers);
+    
     if (GrouperUtil.length(provisioningEntityWrappers) == 0) {
       return;
     }
@@ -801,7 +803,7 @@ public class GrouperProvisioningLinkLogic {
         this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetEntities(grouperTargetEntities);
         this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdEntities(grouperTargetEntities);
         
-        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkDataGroups, grouperTargetEntities);
+        this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.linkDataEntities, grouperTargetEntities);
 
       }
       
@@ -926,7 +928,7 @@ public class GrouperProvisioningLinkLogic {
     
     for (ProvisioningEntityWrapper provisioningEntityWrapper : provisioningEntityWrappers) {
 
-      if (provisioningEntityWrapper.isRecalcObject()) {
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject()) {
         continue;
       }
 
@@ -1012,7 +1014,7 @@ public class GrouperProvisioningLinkLogic {
   
     for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappers) {
   
-      if (provisioningGroupWrapper.isRecalcObject()) {
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject()) {
         continue;
       }
 

@@ -4,48 +4,12 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 
 public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
-  /**
-   * if recalcing the entity memberships 
-   */
-  private boolean recalcEntityMemberships;
-  
-  /**
-   * if recalcing the entity memberships 
-   * @return
-   */
-  public boolean isRecalcEntityMemberships() {
-    return recalcEntityMemberships;
-  }
-  
-  /**
-   * if recalcing the entity memberships 
-   * @param recalcEntityMemberships1
-   */
-  public void setRecalcEntityMemberships(boolean recalcEntityMemberships1) {
-    this.recalcEntityMemberships = recalcEntityMemberships1;
-  }
+  private ProvisioningStateEntity provisioningStateEntity = new ProvisioningStateEntity();
 
-  /**
-   * if this is incremental, and syncing memberships for this group
-   */
-  private boolean incrementalSyncMemberships;
   
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @return
-   */
-  public boolean isIncrementalSyncMemberships() {
-    return incrementalSyncMemberships;
+  public ProvisioningStateEntity getProvisioningStateEntity() {
+    return provisioningStateEntity;
   }
-
-  /**
-   * if this is incremental, and syncing memberships for this group
-   * @param incrementalSyncMemberships1
-   */
-  public void setIncrementalSyncMemberships(boolean incrementalSyncMemberships1) {
-    this.incrementalSyncMemberships = incrementalSyncMemberships1;
-  }
-
 
   /**
    * grouper member id
@@ -99,6 +63,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
 
   public ProvisioningEntityWrapper() {
     super();
+    this.provisioningStateEntity.setProvisioningEntityWrapper(this);
   }
 
   public String toString() {
@@ -115,20 +80,6 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
   
   private GcGrouperSyncMember gcGrouperSyncMember;
 
-  /**
-   * if this is for a create in target
-   */
-  private boolean create;
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   */
-  private boolean delete;
-  
-  
-  
   public ProvisioningEntity getGrouperProvisioningEntity() {
     return grouperProvisioningEntity;
   }
@@ -181,7 +132,17 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     this.targetProvisioningEntity = targetProvisioningEntity;
     
     if (this.targetProvisioningEntity != null) {
+      ProvisioningEntityWrapper newTargetEntityOldWrapper = this.targetProvisioningEntity.getProvisioningEntityWrapper();
+      
       this.targetProvisioningEntity.setProvisioningEntityWrapper(this);
+      
+      if (newTargetEntityOldWrapper != null && newTargetEntityOldWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+        this.getProvisioningStateEntity().setSelectResultProcessed(true);
+      }
+      if (newTargetEntityOldWrapper != null && newTargetEntityOldWrapper.getProvisioningStateEntity().isSelectAllMembershipResultProcessed()) {
+        this.getProvisioningStateEntity().setSelectAllMembershipResultProcessed(true);
+      }
+
     }
 
     if (oldTargetProvisioningEntity != null) {
@@ -244,42 +205,6 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     this.calculateMemberId();
   }
 
-  /**
-   * if this is for a create in target
-   * @return
-   */
-  public boolean isCreate() {
-    return create;
-  }
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public boolean isDelete() {
-    return delete;
-  }
-
-  /**
-   * if this is for a create in target
-   * @param create
-   */
-  public void setCreate(boolean create) {
-    this.create = create;
-  }
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param delete
-   */
-  public void setDelete(boolean delete) {
-    this.delete = delete;
-  }
-
   @Override
   public String objectTypeName() {
     return "entity";
@@ -299,6 +224,10 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
       return "targetProvisioningEntity: " + this.targetProvisioningEntity;
     }
     
+    if (this.provisioningStateEntity != null) {
+      return "provisioningStateEntity: " + this.provisioningStateEntity;
+    }
+
     return this.toString();
   }
 

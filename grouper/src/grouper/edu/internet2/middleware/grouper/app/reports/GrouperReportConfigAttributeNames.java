@@ -59,6 +59,12 @@ public class GrouperReportConfigAttributeNames {
    */
   public static final String GROUPER_REPORT_CONFIG_DESCRIPTION = "reportConfigDescription";
   
+  
+  /**
+   * sql config id
+   */
+  public static final String GROUPER_REPORT_CONFIG_SQL_CONFIG = "reportConfigSqlConfig";
+  
   /**
    * Set to false if should not send report email if no data
    */

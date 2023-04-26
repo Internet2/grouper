@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.S
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.type.TypeReference;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.util.*;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.ContextAttributes;
+import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.cfg.DatatypeFeature;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.jsonFormatVisitors.JsonFormatVisitorWrapper;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.jsontype.TypeSerializer;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ser.*;
@@ -293,7 +294,7 @@ public class ObjectWriter
     
     /**
      * Method for constructing a new instance that is configured
-     * with specified feature enabled.
+     * with specified feature disabled.
      */
     public ObjectWriter without(SerializationFeature feature) {
         return _new(this, _config.without(feature));
@@ -301,7 +302,7 @@ public class ObjectWriter
 
     /**
      * Method for constructing a new instance that is configured
-     * with specified features enabled.
+     * with specified features disabled.
      */
     public ObjectWriter without(SerializationFeature first, SerializationFeature... other) {
         return _new(this, _config.without(first, other));
@@ -309,9 +310,55 @@ public class ObjectWriter
 
     /**
      * Method for constructing a new instance that is configured
-     * with specified features enabled.
+     * with specified features disabled.
      */
     public ObjectWriter withoutFeatures(SerializationFeature... features) {
+        return _new(this, _config.withoutFeatures(features));
+    }
+
+    /*
+    /**********************************************************************
+    /* Life-cycle, fluent factories for DatatypeFeature (2.14+)
+    /**********************************************************************
+     */
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified feature enabled.
+     *
+     * @since 2.14
+     */
+    public ObjectWriter with(DatatypeFeature feature)  {
+        return _new(this,  _config.with(feature));
+    }
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features enabled.
+     *
+     * @since 2.14
+     */
+    public ObjectWriter withFeatures(DatatypeFeature... features) {
+        return _new(this, _config.withFeatures(features));
+    }
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified feature disabled.
+     *
+     * @since 2.14
+     */
+    public ObjectWriter without(DatatypeFeature feature) {
+        return _new(this, _config.without(feature));
+    }
+
+    /**
+     * Method for constructing a new instance that is configured
+     * with specified features disabled.
+     *
+     * @since 2.14
+     */
+    public ObjectWriter withoutFeatures(DatatypeFeature... features) {
         return _new(this, _config.withoutFeatures(features));
     }
 
@@ -910,6 +957,13 @@ public class ObjectWriter
     }
 
     public boolean isEnabled(MapperFeature f) {
+        return _config.isEnabled(f);
+    }
+
+    /**
+     * @since 2.14
+     */
+    public boolean isEnabled(DatatypeFeature f) {
         return _config.isEnabled(f);
     }
 

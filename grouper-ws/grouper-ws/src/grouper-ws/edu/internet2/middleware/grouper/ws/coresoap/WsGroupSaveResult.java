@@ -20,13 +20,13 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.exception.GroupAddAlreadyExistsException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.ResultMetadataHolder;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupSaveLiteResult.WsGroupSaveLiteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
@@ -44,7 +44,7 @@ public class WsGroupSaveResult implements ResultMetadataHolder {
   /**
    * logger 
    */
-  private static final Log LOG = LogFactory.getLog(WsGroupSaveResult.class);
+  private static final Log LOG = GrouperUtil.getLog(WsGroupSaveResult.class);
 
   /** group saved */
   private WsGroup wsGroup;

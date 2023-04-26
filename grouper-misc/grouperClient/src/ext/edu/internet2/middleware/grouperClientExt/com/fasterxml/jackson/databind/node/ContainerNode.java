@@ -4,6 +4,7 @@ import java.math.BigDecimal;
 import java.math.BigInteger;
 
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.*;
+
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.JsonNode;
 import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.util.RawValue;
 
@@ -53,6 +54,11 @@ public abstract class ContainerNode<T extends ContainerNode<T>>
 
     @Override
     public abstract JsonNode get(String fieldName);
+
+    @Override
+    protected abstract ObjectNode _withObject(JsonPointer origPtr,
+            JsonPointer currentPtr,
+            OverwriteMode overwriteMode, boolean preferIndex);
 
     /*
     /**********************************************************

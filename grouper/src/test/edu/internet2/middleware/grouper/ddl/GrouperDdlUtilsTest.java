@@ -1745,6 +1745,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //lets make sure everything is there on install
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_mship_req_change"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "id_index"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "member_id_index_idx"));
   
     GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)
@@ -1770,6 +1772,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     // stuff gone
     assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_mship_req_change"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_members", "id_index"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_members", "member_id_index_idx"));
   
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)
@@ -1787,6 +1791,8 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     //lets make sure everything is there on upgrade
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_mship_req_change"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "id_index"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "member_id_index_idx"));
   
     scriptToGetTo2_6_14.delete();
     

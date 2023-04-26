@@ -1,3 +1,4 @@
+
 /**
  */
 package edu.internet2.middleware.grouper.util;
@@ -246,7 +247,7 @@ public class GrouperHttpClient {
    * Any paremeters to add to the header.
    */
   private Map<String, String> headers;
-  
+
   /**
    * Any body to send.
    */
@@ -722,11 +723,124 @@ public class GrouperHttpClient {
   }
   
   /**
+   * implement this interface to have the grouper http client have the callback to set up the new authorization
+   * if there's a retry or delay
+   */
+  private GrouperHttpClientSetupAuthorization grouperHttpClientSetupAuthorization = null;
+  
+  /**
+   * implement this interface to have the grouper http client have the callback to set up the new authorization
+   * if there's a retry or delay
+   */
+  public void setGrouperHttpClientSetupAuthorization(
+      GrouperHttpClientSetupAuthorization grouperHttpClientSetupAuthorization) {
+    this.grouperHttpClientSetupAuthorization = grouperHttpClientSetupAuthorization;
+  }
+
+  /**
+   * if there's a 429 or a connection timed out exception then delay for sometime and retry these many times.
+   */
+  private int retryForThrottlingOrNetworkIssues = 5;
+  
+  /**
+   * if there's a 429 or a connection timed out exception then delay for sometime and retry these many times.
+   */
+  public void setRetryForThrottlingOrNetworkIssues(int retryForThrottlingOrNetworkIssues) {
+    this.retryForThrottlingOrNetworkIssues = retryForThrottlingOrNetworkIssues;
+  }
+  
+  /**
+   * if there's a 429 or a connection timed out exception then retry and sleep for these many millis
+   */
+  private long retryForThrottlingOrNetworkIssuesSleepMillis = 60*1000; // 1 min default
+  
+  /**
+   * if there's a 429 or a connection timed out exception then retry and sleep for these many millis
+   */
+  public void setRetryForThrottlingOrNetworkIssuesSleepMillis(
+      long retryForThrottlingOrNetworkIssuesSleepMillis) {
+    this.retryForThrottlingOrNetworkIssuesSleepMillis = retryForThrottlingOrNetworkIssuesSleepMillis;
+  }
+  
+  /**
+   * if there's a 429 or a connection timed out exception then after each retry, add to the sleep these many millis
+   */
+  private int retryForThrottlingOrNetworkIssuesBackOffMillis = 60*1000; // 1 min default
+  
+  /**
+   * if there's a 429 or connection timed out exception then after each retry, add to the sleep these many millis
+   */
+  public void setRetryForThrottlingOrNetworkIssuesBackOffMillis(
+      int retryForThrottlingOrNetworkIssuesBackOffMillis) {
+    this.retryForThrottlingOrNetworkIssuesBackOffMillis = retryForThrottlingOrNetworkIssuesBackOffMillis;
+  }
+  
+  /**
+   * if there's a 429 or connection timed out then count how many times we retried for logging
+   */
+  private int retryForThrottlingTimesItWasRetried = 0;
+  
+  /**
+   * if there's a 429 or connection timed out then count how many times we retried for logging
+   */
+  public int getRetryForThrottlingTimesItWasRetried() {
+    return retryForThrottlingTimesItWasRetried;
+  }
+
+  /**
+   * <pre>Execute a post with the given parameters, set teh code and the response into the call.
+   */
+  public GrouperHttpClient executeRequest() {
+    
+    int code = -1;
+    
+    this.retryForThrottlingTimesItWasRetried = 0;
+    this.retryForThrottlingOrNetworkIssues = Math.max(0, retryForThrottlingOrNetworkIssues);
+    this.retryForThrottlingOrNetworkIssuesSleepMillis = Math.max(0, retryForThrottlingOrNetworkIssuesSleepMillis);
+    this.retryForThrottlingOrNetworkIssuesBackOffMillis = Math.max(0, retryForThrottlingOrNetworkIssuesBackOffMillis);
+    
+    for (int i=0; i < retryForThrottlingOrNetworkIssues+1; i++) {
+      RuntimeException runtimeException = null;
+      boolean retry = false;
+      try {
+      
+        this.executeRequestHelper();
+        code = this.getResponseCode();
+      } catch (Exception e) {
+        
+        String fullStackTrace = GrouperUtil.getFullStackTrace(e);
+        if (StringUtils.isNotBlank(fullStackTrace) && StringUtils.contains(fullStackTrace, "timed out")) {
+          retry = true;
+        }
+        runtimeException = new RuntimeException("Error connecting to '" + this.url + "'", e);
+      }
+      if (code == 429) {
+        retry = true;
+      }
+      
+      if (i <= retryForThrottlingOrNetworkIssues && retry) {
+        GrouperUtil.sleep(retryForThrottlingOrNetworkIssuesSleepMillis + (i * retryForThrottlingOrNetworkIssuesBackOffMillis)); // 1 min -> 2 mins -> 3 mins ->>>>
+        retryForThrottlingTimesItWasRetried++;
+        continue;
+      }
+      
+      if (runtimeException != null) {
+        throw runtimeException;
+      }
+      
+      if (!retry) {
+        break;
+      }
+    }
+    return this;
+  }
+  
+  /**
    * <pre>Execute a post with the given parameters, set teh code and the response into the call.
    * @param grouperHttpCall is the configuration object.
    */
   @SuppressWarnings("deprecation")
-  public GrouperHttpClient executeRequest(){
+  private GrouperHttpClient executeRequestHelper(){
 
     long start = System.currentTimeMillis();
     // We default to post.
@@ -809,6 +923,11 @@ public class GrouperHttpClient {
         httpRequestBase.addHeader("Authorization", authenticationString);
       }
 
+      if (grouperHttpClientSetupAuthorization != null) {
+        grouperHttpClientSetupAuthorization.setupAuthorization(this);
+      }
+      
+      
       // Add the params
       if (this.bodyParameters != null && this.bodyParameters.size() > 0){
         if(this.grouperHttpMethod == GrouperHttpMethod.get) {
@@ -1017,7 +1136,16 @@ public class GrouperHttpClient {
           }
           
           for (String key : GrouperUtil.nonNull(this.bodyParameters).keySet()) {
-            theLog.append("HTTP request body param: ").append(key).append(":").append(this.bodyParameters.get(key)).append("\n");
+            theLog.append("HTTP request body param: ").append(key).append(":");
+            if (!key.toLowerCase().contains("pass")
+                && !key.toLowerCase().contains("secret")
+                && !this.getDoNotLogHeaders().contains(key)
+                && !this.getDoNotLogHeaders().contains("*")) {
+              theLog.append(this.bodyParameters.get(key));
+            } else {
+              theLog.append("*******");
+            }
+            theLog.append("\n");
           }
           
           theLog.append("HTTP response code: ").append(this.responseCode).append(", took ms: ").append(System.currentTimeMillis() - start).append("\n");

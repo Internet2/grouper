@@ -2740,18 +2740,22 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_6_16.addGrouperMembershipRequireTable(database, ddlVersionBean);
       GrouperDdl2_6_16.addGrouperMembershipRequireIndex(ddlVersionBean, database);
       GrouperDdl2_6_16.addGrouperMembershipRequireComments(database, ddlVersionBean);
+      GrouperDdl2_6_16.addMemberIdIndexColumn(database, ddlVersionBean);
+      GrouperDdl2_6_16.addMemberIdIndexIndex(database, ddlVersionBean);
+      GrouperDdl2_6_16.addMemberIdIndexComment(database, ddlVersionBean);
     }
   },
   V44 {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "2.6.18";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      GrouperDdl2_6_18.attributeAssignDisallowNotNull(database, ddlVersionBean);
     }
   },
   V45 {
@@ -11546,7 +11550,7 @@ public enum GrouperDdl implements DdlVersionable {
       if (created) {
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable,
-            PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+            PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
 
       }
       
@@ -12354,7 +12358,7 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addAttributeAssignDisallowed(Database database) {
     Table attributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, AttributeAssign.TABLE_GROUPER_ATTRIBUTE_ASSIGN, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable, AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable, AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
   }
   
   /**
@@ -12363,7 +12367,7 @@ public enum GrouperDdl implements DdlVersionable {
    */
   private static void addAttributeAssignPitDisallowed(Database database) {
     Table pitAttributeAssignTable = GrouperDdlUtils.ddlutilsFindTable(database, PITAttributeAssign.TABLE_GROUPER_PIT_ATTRIBUTE_ASSIGN, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(pitAttributeAssignTable, PITAttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
   }
   
   /**
@@ -12381,11 +12385,11 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING2, Types.VARCHAR, "50", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING3, Types.VARCHAR, "50", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SORT_STRING4, Types.VARCHAR, "50", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING0, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING1, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING2, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING3, Types.VARCHAR, "2048", false, false);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING4, Types.VARCHAR, "2048", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING0, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING1, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING2, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING3, Types.VARCHAR, "1500", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_SEARCH_STRING4, Types.VARCHAR, "1500", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_NAME, Types.VARCHAR, "2048", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(membersTable, Member.COLUMN_DESCRIPTION, Types.VARCHAR, "2048", false, false);
 
@@ -13359,6 +13363,9 @@ public enum GrouperDdl implements DdlVersionable {
     }
   }
   
+  public static int defaultMinIdIndex() {
+    return GrouperConfig.retrieveConfig().propertyValueInt("grouperTableIndexDefaultMinIndex", 1000000);
+  }
 
   /** dont do this twice */
   static boolean alreadyAddedTableIndices = false;
@@ -13442,7 +13449,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minGroupIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.group.minIndex", 10000);
+          int minGroupIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.group.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             
@@ -13542,7 +13549,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minStemIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.stem.minIndex", 10000);
+          int minStemIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.stem.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             
@@ -13642,7 +13649,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minAttributeDefIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDef.minIndex", 10000);
+          int minAttributeDefIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDef.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             
@@ -13742,7 +13749,7 @@ public enum GrouperDdl implements DdlVersionable {
           //we need the next available index
           int nextIndex = 0;
           
-          int minAttributeDefNameIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDefName.minIndex", 10000);
+          int minAttributeDefNameIndex = GrouperConfig.retrieveConfig().propertyValueInt("idIndex.attributeDefName.minIndex", defaultMinIdIndex());
 
           if (!tableIndexTableNew) {
             
@@ -14051,7 +14058,7 @@ public enum GrouperDdl implements DdlVersionable {
       if (created) {
 
         GrouperDdlUtils.ddlutilsFindOrCreateColumn(attributeAssignTable,
-            AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, false);
+            AttributeAssign.COLUMN_DISALLOWED, Types.VARCHAR, "1", false, true, "F");
 
       }
       

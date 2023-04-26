@@ -14,7 +14,7 @@
 export CATALINA_BASE="/home/test6/tomcat"
 export TOMCAT_NAME="tomcat_test6"
 export JAVA_HOME="/opt/javas/java_test6"
-export JAVA_OPTS="-server -Xms50M -Xmx240M -XX:MaxPermSize=120M"
+export JAVA_OPTS="-server -Xms50M -Xmx240M"
 
 export TOMCAT_HOME="/opt/tomcat6base"
 export CATALINA_HOME="/opt/tomcat6base"

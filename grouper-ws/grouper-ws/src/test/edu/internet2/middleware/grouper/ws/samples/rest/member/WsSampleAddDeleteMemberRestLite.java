@@ -27,12 +27,12 @@ import org.apache.commons.httpclient.params.DefaultHttpParams;
 import org.apache.commons.httpclient.params.HttpMethodParams;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsAddMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsDeleteMemberLiteResult;
 import edu.internet2.middleware.grouper.ws.samples.types.WsSampleRest;
@@ -46,7 +46,7 @@ import edu.internet2.middleware.subject.Subject;
 public class WsSampleAddDeleteMemberRestLite implements WsSampleRest {
 
   /** logger */
-  private static final Log LOG = LogFactory.getLog(WsSampleAddDeleteMemberRestLite.class);
+  private static final Log LOG = GrouperUtil.getLog(WsSampleAddDeleteMemberRestLite.class);
 
   /**
    * add a member with the api

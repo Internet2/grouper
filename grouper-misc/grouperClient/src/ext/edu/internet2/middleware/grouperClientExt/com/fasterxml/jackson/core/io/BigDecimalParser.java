@@ -22,41 +22,33 @@ import java.util.Arrays;
 public final class BigDecimalParser
 {
     private final static int MAX_CHARS_TO_REPORT = 1000;
-    private final char[] chars;
 
-    BigDecimalParser(char[] chars) {
-        this.chars = chars;
-    }
+    private BigDecimalParser() {}
 
     public static BigDecimal parse(String valueStr) {
         return parse(valueStr.toCharArray());
     }
 
-    public static BigDecimal parse(char[] chars, int off, int len) {
-        if (off > 0 || len != chars.length) {
-            chars = Arrays.copyOfRange(chars, off, off+len);
-        }
-        return parse(chars);
-    }
-
-    public static BigDecimal parse(char[] chars) {
-        final int len = chars.length;
+    public static BigDecimal parse(final char[] chars, final int off, final int len) {
         try {
             if (len < 500) {
-                return new BigDecimal(chars);
+                return new BigDecimal(chars, off, len);
             }
-            return new BigDecimalParser(chars).parseBigDecimal(len / 10);
-        } catch (NumberFormatException e) {
+            return parseBigDecimal(chars, off, len, len / 10);
+
+        // 20-Aug-2022, tatu: Although "new BigDecimal(...)" only throws NumberFormatException
+        //    operations by "parseBigDecimal()" can throw "ArithmeticException", so handle both:
+        } catch (ArithmeticException | NumberFormatException e) {
             String desc = e.getMessage();
             // 05-Feb-2021, tatu: Alas, JDK mostly has null message so:
             if (desc == null) {
                 desc = "Not a valid number representation";
             }
             String stringToReport;
-            if (chars.length <= MAX_CHARS_TO_REPORT) {
-                stringToReport = new String(chars);
+            if (len <= MAX_CHARS_TO_REPORT) {
+                stringToReport = new String(chars, off, len);
             } else {
-                stringToReport = new String(Arrays.copyOfRange(chars, 0, MAX_CHARS_TO_REPORT))
+                stringToReport = new String(Arrays.copyOfRange(chars, off, MAX_CHARS_TO_REPORT))
                     + "(truncated, full length is " + chars.length + " chars)";
             }
             throw new NumberFormatException("Value \"" + stringToReport
@@ -64,17 +56,21 @@ public final class BigDecimalParser
         }
     }
 
-    private BigDecimal parseBigDecimal(final int splitLen) {
+    public static BigDecimal parse(char[] chars) {
+        return parse(chars, 0, chars.length);
+    }
+
+    private static BigDecimal parseBigDecimal(final char[] chars, final int off, final int len, final int splitLen) {
         boolean numHasSign = false;
         boolean expHasSign = false;
         boolean neg = false;
-        int numIdx = 0;
+        int numIdx = off;
         int expIdx = -1;
         int dotIdx = -1;
         int scale = 0;
-        final int len = chars.length;
+        final int endIdx = off + len;
 
-        for (int i = 0; i < len; i++) {
+        for (int i = off; i < endIdx; i++) {
             char c = chars[i];
             switch (c) {
             case '+':
@@ -130,25 +126,25 @@ public final class BigDecimalParser
         int exp = 0;
         if (expIdx >= 0) {
             numEndIdx = expIdx;
-            String expStr = new String(chars, expIdx + 1, len - expIdx - 1);
+            String expStr = new String(chars, expIdx + 1, endIdx - expIdx - 1);
             exp = Integer.parseInt(expStr);
             scale = adjustScale(scale, exp);
         } else {
-            numEndIdx = len;
+            numEndIdx = endIdx;
         }
 
         BigDecimal res;
 
         if (dotIdx >= 0) {
             int leftLen = dotIdx - numIdx;
-            BigDecimal left = toBigDecimalRec(numIdx, leftLen, exp, splitLen);
+            BigDecimal left = toBigDecimalRec(chars, numIdx, leftLen, exp, splitLen);
 
             int rightLen = numEndIdx - dotIdx - 1;
-            BigDecimal right = toBigDecimalRec(dotIdx + 1, rightLen, exp - rightLen, splitLen);
+            BigDecimal right = toBigDecimalRec(chars, dotIdx + 1, rightLen, exp - rightLen, splitLen);
 
             res = left.add(right);
         } else {
-            res = toBigDecimalRec(numIdx, numEndIdx - numIdx, exp, splitLen);
+            res = toBigDecimalRec(chars, numIdx, numEndIdx - numIdx, exp, splitLen);
         }
 
         if (scale != 0) {
@@ -162,7 +158,7 @@ public final class BigDecimalParser
         return res;
     }
 
-    private int adjustScale(int scale, long exp) {
+    private static int adjustScale(int scale, long exp) {
         long adjScale = scale - exp;
         if (adjScale > Integer.MAX_VALUE || adjScale < Integer.MIN_VALUE) {
             throw new NumberFormatException(
@@ -172,11 +168,12 @@ public final class BigDecimalParser
         return (int) adjScale;
     }
 
-    private BigDecimal toBigDecimalRec(int off, int len, int scale, int splitLen) {
+    private static BigDecimal toBigDecimalRec(final char[] chars, final int off, final int len,
+                                              final int scale, final int splitLen) {
         if (len > splitLen) {
             int mid = len / 2;
-            BigDecimal left = toBigDecimalRec(off, mid, scale + len - mid, splitLen);
-            BigDecimal right = toBigDecimalRec(off + mid, len - mid, scale, splitLen);
+            BigDecimal left = toBigDecimalRec(chars, off, mid, scale + len - mid, splitLen);
+            BigDecimal right = toBigDecimalRec(chars, off + mid, len - mid, scale, splitLen);
 
             return left.add(right);
         }

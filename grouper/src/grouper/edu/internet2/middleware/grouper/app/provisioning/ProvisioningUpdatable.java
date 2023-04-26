@@ -152,7 +152,11 @@ public abstract class ProvisioningUpdatable {
    */
   public GrouperProvisioner getGrouperProvisioner() {
     ProvisioningUpdatableWrapper provisioningUpdatableWrapper = this.getProvisioningWrapper();
-    return provisioningUpdatableWrapper == null ? null : provisioningUpdatableWrapper.getGrouperProvisioner();
+    GrouperProvisioner grouperProvisioner = provisioningUpdatableWrapper == null ? null : provisioningUpdatableWrapper.getGrouperProvisioner();
+    if (grouperProvisioner == null) {
+      grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    }
+    return grouperProvisioner;
   }
   
   /**
@@ -514,28 +518,6 @@ public abstract class ProvisioningUpdatable {
     }
     throw new RuntimeException("Not expecting provisioning updatable: " + this.getClass());
   }
-
-  public boolean isRecalcObject() {
-    if (this instanceof ProvisioningGroup) {
-      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalcObject();
-    }
-    if (this instanceof ProvisioningEntity) {
-      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalcObject();
-    }
-    if (this instanceof ProvisioningMembership) {
-      return ((ProvisioningMembership)this).getProvisioningMembershipWrapper().isRecalcObject();
-    }
-    throw new RuntimeException("Not expecting type: " + this.getClass().getName());
-  }
-  public boolean isRecalcObjectMemberships() {
-    if (this instanceof ProvisioningGroup) {
-      return ((ProvisioningGroup)this).getProvisioningGroupWrapper().isRecalcGroupMemberships();
-    }
-    if (this instanceof ProvisioningEntity) {
-      return ((ProvisioningEntity)this).getProvisioningEntityWrapper().isRecalcEntityMemberships();
-    }
-    throw new RuntimeException("Not expecting type: " + this.getClass().getName());
-  }
   
   public abstract boolean canInsertAttribute(String name);
   public abstract boolean canUpdateAttribute(String name);
@@ -602,8 +584,6 @@ public abstract class ProvisioningUpdatable {
     return result;
   }
 
-
-  
   /**
    * 
    * @param action insert or delete
@@ -689,7 +669,7 @@ public abstract class ProvisioningUpdatable {
    */
   public void addAttributeValueForMembership(String name, Object value) {
     
-    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslator.retrieveProvisioningMembershipWrapper();
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = GrouperProvisioningTranslator.retrieveThreadLocalProvisioningMembershipWrapper();
     
     if (provisioningMembershipWrapper == null) {
       throw new NullPointerException("Cant find membership wrapper! " + name + ", " + value + ", " + this);
@@ -719,7 +699,7 @@ public abstract class ProvisioningUpdatable {
     }
 
     // If there are two memberships with the same value, overwrite if the previous one was marked as delete.
-    if (!valueToProvisioningMembershipWrapper.containsKey(value) || valueToProvisioningMembershipWrapper.get(value).isDelete()) {
+    if (!valueToProvisioningMembershipWrapper.containsKey(value) || valueToProvisioningMembershipWrapper.get(value).getProvisioningStateMembership().isDelete()) {
       valueToProvisioningMembershipWrapper.put(value, provisioningMembershipWrapper);
     }
 
@@ -1052,13 +1032,17 @@ public abstract class ProvisioningUpdatable {
   
   /**
    * deep clone the fields in this object
+   * @param ignoreAttribute is the attribute name to ignore, e.g. the membership attribute
    */
-  public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable) {
+  public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable, String ignoreAttribute) {
 
     Map<String, ProvisioningAttribute> newAttributes = null;
     if (this.attributes != null) {
       newAttributes = new TreeMap<String, ProvisioningAttribute>();
       for (String attributeName : this.attributes.keySet()) {
+        if (StringUtils.equals(ignoreAttribute, attributeName)) {
+          continue;
+        }
         ProvisioningAttribute provisioningAttributeToClone = this.attributes.get(attributeName);
         ProvisioningAttribute newProvisioningAttribute = null;
         if (provisioningAttributeToClone != null) {
@@ -1076,6 +1060,7 @@ public abstract class ProvisioningUpdatable {
     provisioningUpdatable.removeFromList = removeFromList;
     provisioningUpdatable.matchingIdAttributeNameToValues = GrouperUtil.cloneValue(matchingIdAttributeNameToValues);
     provisioningUpdatable.searchIdAttributeNameToValues = GrouperUtil.cloneValue(searchIdAttributeNameToValues);
+    provisioningUpdatable.truncatedAttributeNames = GrouperUtil.cloneValue(truncatedAttributeNames);
     
     
     
@@ -1093,7 +1078,9 @@ public abstract class ProvisioningUpdatable {
       
       if (provisioningAttribute != null) {
         Collection collection = (Collection)provisioningAttribute.getValue();
-        collection.clear();
+        if (collection != null) {
+          collection.clear();
+        }
       }
     }
     

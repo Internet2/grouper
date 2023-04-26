@@ -37,12 +37,12 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * <p>Use this class to insert or update or delete a composite</p>
- * <p>Sample call
+ * <p>Sample call (type is complement or intersection)
  * 
  * <blockquote>
  * <pre>
  * Composite composite = new CompositeSave().assignOwnerName(group1.getName()).assignLeftFactorName(group2.getName()).assignRightFactorName(group3.getName())
- *   .assignType("union").save();
+ *   .assignType("complement").save();
  * </pre>
  * </blockquote>
  * 

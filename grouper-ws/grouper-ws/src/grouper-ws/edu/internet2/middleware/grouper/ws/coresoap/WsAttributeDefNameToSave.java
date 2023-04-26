@@ -91,7 +91,7 @@ public class WsAttributeDefNameToSave {
    * logger
    */
   @SuppressWarnings("unused")
-  private static final Log LOG = LogFactory.getLog(WsAttributeDefNameToSave.class);
+  private static final Log LOG = GrouperUtil.getLog(WsAttributeDefNameToSave.class);
 
   /**
    * 

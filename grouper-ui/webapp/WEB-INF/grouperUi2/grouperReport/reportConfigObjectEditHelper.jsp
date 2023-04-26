@@ -46,6 +46,32 @@
                      
                       <c:if test="${!grouper:isBlank(grouperRequestContainer.grouperReportContainer.configBean.reportConfigType)}">
                       
+                      <c:if test="${grouperRequestContainer.grouperReportContainer.configBean.reportConfigType == 'SQL'}">
+                      
+                        <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportSqlConfigId">${textContainer.text['grouperReportSqlConfigLabel']}</label></strong></td>
+                          <td>
+                            <select name="grouperReportSqlConfig" id="grouperReportSqlConfigId" style="width: 30em">
+                             
+                              <option value=""></option>
+                              <c:forEach items="${grouperRequestContainer.grouperReportContainer.allSqlConfigs}" var="sqlConfig">
+                                <option value="${sqlConfig}"
+                                    ${grouperRequestContainer.grouperReportContainer.configBean.sqlConfig == sqlConfig ? 'selected="selected"' : '' }
+                                    >${sqlConfig}</option>
+                              </c:forEach>
+                            </select>
+                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                            data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                            <br />
+                            <span class="description">${textContainer.text['grouperReportSqlConfigHint']}</span>
+                          </td>
+                        </tr>
+                      
+                      </c:if>
+                      
+                      
+                      
+                      
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigHasFormatId">${textContainer.text['grouperReportConfigFormatLabel']}</label></strong></td>
                           <td>
@@ -159,8 +185,8 @@
                             <td>
                               <select name="grouperReportConfigSendEmailToViewers" id="grouperReportConfigSendEmailToViewersId" style="width: 30em"
                                   onchange="ajax('../app/UiV2GrouperReport.reportOn${ObjectType}Edit', {formIds: 'editReportConfigFormId'}); return false;">
-                                <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailToViewers ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotSendEmailLabel']}</option>
-                                <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailToViewers ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesSendEmailLabel']}</option>
+                                <option value="false" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailToViewers ? '' : 'selected="selected"' } >${textContainer.textEscapeXml['grouperReportConfigNoDoNotSendEmailToViewersLabel']}</option>
+                                <option value="true" ${grouperRequestContainer.grouperReportContainer.configBean.reportConfigSendEmailToViewers ? 'selected="selected"' : '' }>${textContainer.textEscapeXml['grouperReportConfigYesSendEmailToViewersLabel']}</option>
                               </select>
                               <br />
                               <span class="description">${textContainer.text['grouperReportConfigSendEmailToViewersHint']}</span>

@@ -7,6 +7,8 @@ public enum GrouperProvisioningConfigurationAttributeTranslationType {
   grouperProvisioningGroupField,
   grouperProvisioningEntityField,
   staticValues,
+  grouperTargetGroupField,
+  grouperTargetEntityField,
   translationScript;
   
   /**

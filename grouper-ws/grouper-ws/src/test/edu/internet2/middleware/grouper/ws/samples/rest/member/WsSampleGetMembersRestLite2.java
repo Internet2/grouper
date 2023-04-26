@@ -130,7 +130,7 @@ public class WsSampleGetMembersRestLite2 implements WsSampleRest {
    */
   @SuppressWarnings("unchecked")
   public static void main(String[] args) {
-    getMembersLite(WsSampleRestType.xhtml);
+    getMembersLite(WsSampleRestType.json);
   }
 
   /**

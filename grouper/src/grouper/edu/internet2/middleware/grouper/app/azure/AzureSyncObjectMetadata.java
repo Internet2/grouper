@@ -60,6 +60,7 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       //grouperProvisioningObjectMetadataItem.setValidateUniqueValue(true);
       
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
@@ -67,7 +68,9 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
       
@@ -89,13 +92,16 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
       
@@ -115,13 +121,16 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
       
@@ -139,13 +148,16 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
       
@@ -158,17 +170,20 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
 
       grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataWelcomeEmailDisabledDescription");
       grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWelcomeEmailDisabledLabel");
-      grouperProvisioningObjectMetadataItem.setName("md_grouper_welcomeEmailEnabled");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_welcomeEmailDisabled");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
       grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
       
       List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
       
-      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel") ));
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
       valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
       valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
       
@@ -185,7 +200,9 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setName("md_grouper_resourceProvisioningOptionsTeam");
       grouperProvisioningObjectMetadataItem.setShowForGroup(true);
       grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      
       grouperProvisioningObjectMetadataItem.setCanChange(false);
+
       grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
       grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);

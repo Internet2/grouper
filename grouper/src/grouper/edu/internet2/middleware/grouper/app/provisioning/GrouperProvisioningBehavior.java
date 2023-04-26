@@ -493,72 +493,276 @@ public class GrouperProvisioningBehavior {
     this.selectEntities = entitiesRetrieve;
   }
 
-  private Boolean selectMemberships;
+  private Boolean selectMembershipsInGeneral;
 
-  public boolean isSelectMemberships() {
-    if (this.selectMemberships != null) {
-      return selectMemberships;
+  private Boolean selectMembershipsForMembership;
+
+  /**
+   * if can select individual or multiple or bulk memberships, and if configured to do so
+   * @return
+   */
+  public boolean isSelectMembershipsForMembership() {
+    if (this.selectMembershipsForMembership != null) {
+      return selectMembershipsForMembership;
     }
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)) {
+      this.selectMembershipsForMembership = false;
+      return this.selectMembershipsForMembership;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()) {
+      selectMembershipsForMembership = false;
+      return selectMembershipsForMembership;
+    }
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
+      selectMembershipsForMembership = true;
+      return selectMembershipsForMembership;
+    }
+    this.selectMembershipsForMembership = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
+    return this.selectMembershipsForMembership;
+  }
+  
+  public boolean isSelectMembershipsInGeneral() {
+    if (this.selectMembershipsInGeneral != null) {
+      return selectMembershipsInGeneral;
+    }
+    // no need to check if "select some" since they also need to indicate retrieveMembership or retrieveMemberships
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
         .getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMemberships(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsBulk(), false)
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembership(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntities(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
-      this.selectMemberships = false;
-      return this.selectMemberships;
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroups(), false)
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)) {
+      this.selectMembershipsInGeneral = false;
+      return this.selectMembershipsInGeneral;
     }
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()) {
-      selectMemberships = false;
-      return selectMemberships;
+      selectMembershipsInGeneral = false;
+      return selectMembershipsInGeneral;
     }
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isCustomizeMembershipCrud()) {
-      selectMemberships = true;
-      return selectMemberships;
+      selectMembershipsInGeneral = true;
+      return selectMembershipsInGeneral;
     }
-    this.selectMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
-    return this.selectMemberships;
+    this.selectMembershipsInGeneral = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships();
+    return this.selectMembershipsInGeneral;
   }
   
-  private Boolean selectMembershipsForGroup;
+  /**
+   * if we are selecting all memberships for groups
+   */
+  private Boolean selectMembershipsAllForGroup;
   
-  public void setSelectMembershipsForGroup(Boolean selectMembershipsForGroup) {
-    this.selectMembershipsForGroup = selectMembershipsForGroup;
+  /**
+   * if we are selecting some memberships for groups
+   */
+  private Boolean selectMembershipsSomeForGroup;
+  
+  /**
+   * if we are selecting some memberships for entity
+   */
+  private Boolean selectMembershipsSomeForEntity;
+  
+  public void setSelectMembershipsAllForGroup(Boolean selectMembershipsForGroup) {
+    this.selectMembershipsAllForGroup = selectMembershipsForGroup;
   }
 
 
-  public boolean isSelectMembershipsForGroup() {
-    if (this.selectMembershipsForGroup != null) {
-      return selectMembershipsForGroup;
+  public boolean isSelectMembershipsAllForGroup() {
+    if (this.selectMembershipsAllForGroup != null) {
+      return selectMembershipsAllForGroup;
+    }
+    if (!this.isSelectGroups()) {
+      this.selectMembershipsAllForGroup = false;
+      return selectMembershipsAllForGroup;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsAllForGroup = false;
+      return selectMembershipsAllForGroup;
+    }
+
+    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroups(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)) {
+      this.selectMembershipsAllForGroup = true;
+      return selectMembershipsAllForGroup;
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()
+        == GrouperProvisioningBehaviorMembershipType.groupAttributes
+        && this.isSelectGroups()
+        && GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithGroup(), false)) {
+      this.selectMembershipsAllForGroup = true;
+      return selectMembershipsAllForGroup;
+    }
+
+    this.selectMembershipsAllForGroup = false;
+    return this.selectMembershipsAllForGroup;
+  }
+  
+  public boolean isSelectMembershipsSomeForGroup() {
+    if (this.selectMembershipsSomeForGroup != null) {
+      return selectMembershipsSomeForGroup;
+    }
+    if (!this.isSelectGroups()) {
+      this.selectMembershipsSomeForGroup = false;
+      return selectMembershipsSomeForGroup;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsSomeForGroup = false;
+      return selectMembershipsSomeForGroup;
+    }
+
+    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsSomeByGroups(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsSomeByGroup(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipOneByGroups(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipOneByGroup(), false)) {
+      
+      this.selectMembershipsSomeForGroup = true;
+      return selectMembershipsSomeForGroup;
+    }
+
+
+    this.selectMembershipsSomeForGroup = false;
+    return this.selectMembershipsSomeForGroup;
+  }
+  
+  private Boolean selectMembershipsWithEntity;
+  
+  public boolean isSelectMembershipsWithEntity() {
+    
+    if (this.selectMembershipsWithEntity != null) {
+      return selectMembershipsWithEntity;
+    }
+    if (!this.isSelectEntities()) {
+      this.selectMembershipsWithEntity = false;
+      return selectMembershipsWithEntity;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsWithEntity = false;
+      return selectMembershipsWithEntity;
+    }
+
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      this.selectMembershipsWithEntity = false;
+      return selectMembershipsWithEntity;
     }
     
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-        .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false) ||
-        GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false);
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithEntity(), false)) {
+      
+      this.selectMembershipsWithEntity = false;
+      return selectMembershipsWithEntity;
+    }
+
+    this.selectMembershipsWithEntity = true;
+    return this.selectMembershipsWithEntity;
   }
   
-  private Boolean selectMembershipsForEntity;
+  private Boolean selectMembershipsWithGroup;
   
-  
-  public void setSelectMembershipsForEntity(Boolean selectMembershipsForEntity) {
-    this.selectMembershipsForEntity = selectMembershipsForEntity;
-  }
+  public boolean isSelectMembershipsWithGroup() {
+    
+    if (this.selectMembershipsWithGroup != null) {
+      return selectMembershipsWithGroup;
+    }
+    if (!this.isSelectEntities()) {
+      this.selectMembershipsWithGroup = false;
+      return selectMembershipsWithGroup;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsWithGroup = false;
+      return selectMembershipsWithGroup;
+    }
 
-
-  public boolean isSelectMembershipsForEntity() {
-    if (this.selectMembershipsForEntity != null) {
-      return selectMembershipsForEntity;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      this.selectMembershipsWithGroup = false;
+      return selectMembershipsWithGroup;
     }
     
-    return GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-        .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false) ||
-        GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false) ;
+    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithGroup(), false)) {
+      
+      this.selectMembershipsWithGroup = false;
+      return selectMembershipsWithGroup;
+    }
+
+    this.selectMembershipsWithGroup = true;
+    return this.selectMembershipsWithGroup;
+  }
+  
+  public boolean isSelectMembershipsSomeForEntity() {
+    if (this.selectMembershipsSomeForEntity != null) {
+      return selectMembershipsSomeForEntity;
+    }
+    if (!this.isSelectEntities()) {
+      this.selectMembershipsSomeForEntity = false;
+      return selectMembershipsSomeForEntity;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsSomeForEntity = false;
+      return selectMembershipsSomeForEntity;
+    }
+
+    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsSomeByEntities(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsSomeByEntity(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipOneByEntities(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipOneByEntity(), false)) {
+      
+      this.selectMembershipsSomeForEntity = true;
+      return selectMembershipsSomeForEntity;
+    }
+
+
+    this.selectMembershipsSomeForEntity = false;
+    return this.selectMembershipsSomeForEntity;
+  }
+  
+  private Boolean selectMembershipsAllForEntity;
+  
+  
+  public void setSelectMembershipsAllForEntity(Boolean selectMembershipsForEntity) {
+    this.selectMembershipsAllForEntity = selectMembershipsForEntity;
+  }
+
+
+  public boolean isSelectMembershipsAllForEntity() {
+    if (this.selectMembershipsAllForEntity != null) {
+      return selectMembershipsAllForEntity;
+    }
+    if (!this.isSelectEntities()) {
+      this.selectMembershipsAllForEntity = false;
+      return selectMembershipsAllForEntity;
+    }
+    if (!this.isSelectMembershipsInGeneral()) {
+      this.selectMembershipsAllForEntity = false;
+      return selectMembershipsAllForEntity;
+    }
+    
+    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntities(), false)
+        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)) {
+      this.selectMembershipsAllForEntity = true;
+      return selectMembershipsAllForEntity;
+    }
+    
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType()
+        == GrouperProvisioningBehaviorMembershipType.entityAttributes
+        && this.isSelectEntities()
+        && GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithEntity(), false)) {
+      this.selectMembershipsAllForEntity = true;
+      return selectMembershipsAllForEntity;
+    }
+
+    this.selectMembershipsAllForEntity = false;
+    return this.selectMembershipsAllForEntity;
+    
   }
   
   private Boolean replaceMemberships;
@@ -568,6 +772,12 @@ public class GrouperProvisioningBehavior {
     if (replaceMemberships != null) {
       return replaceMemberships;
     }
+    
+    this.replaceMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReplaceMemberships();
+    if (this.replaceMemberships.booleanValue() == false) {
+      return replaceMemberships;
+    }
+    
     if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
       //can the provisioner even do this?
       if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanReplaceGroupMemberships(), false)) {
@@ -589,7 +799,7 @@ public class GrouperProvisioningBehavior {
 
 
   public void setSelectMemberships(Boolean membershipsRetrieve) {
-    this.selectMemberships = membershipsRetrieve;
+    this.selectMembershipsInGeneral = membershipsRetrieve;
   }
 
   private Boolean selectGroups;
@@ -716,7 +926,7 @@ public class GrouperProvisioningBehavior {
     //can the provisioner even do this?
     if (!this.isDeleteMemberships()) {
       this.deleteMembershipsIfGrouperCreated = false;
-      return this.deleteEntitiesIfGrouperCreated;
+      return this.deleteMembershipsIfGrouperCreated;
     }
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships()) {
       deleteMembershipsIfGrouperCreated = false;
@@ -847,6 +1057,36 @@ public class GrouperProvisioningBehavior {
   public boolean isDeleteMembership(GcGrouperSyncMembership gcGrouperSyncMembership) {
     
     if (this.isDeleteMembershipsIfNotExistInGrouper()) {
+      
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsOnlyInTrackedGroups()) {
+        
+        /**
+         * If this is true, then only delete memberships if:
+
+          the group is being deleted
+          (or) if the group is or was provisionable (has a grouper sync group record and provisionable is true or provisionable_end is not null)
+         */
+        
+        if (gcGrouperSyncMembership == null) {
+          return false;
+        } 
+          
+        GcGrouperSyncGroup grouperSyncGroup = gcGrouperSyncMembership.getGrouperSyncGroup();
+        if (grouperSyncGroup == null) {
+          // maybe the grouperSyncGroup needs to be put in the membership somewhere
+          return false;
+        }
+        
+        if (grouperSyncGroup.isProvisionable()) {
+          return true;
+        }
+        
+        if (grouperSyncGroup.getProvisionableEnd() != null) {
+          return true;
+        }
+        
+        return false;
+      }
       return true;
     }
     
@@ -957,6 +1197,8 @@ public class GrouperProvisioningBehavior {
   private Set<String> insertMembershipsAttributes;
 
   private Boolean deleteMembershipsIfNotExistInGrouper;
+
+  private Boolean deleteMembershipsOnlyInTrackedGroups;
   
   private Boolean deleteMembershipsIfGrouperDeleted;
   
@@ -964,19 +1206,25 @@ public class GrouperProvisioningBehavior {
     if (this.selectGroupsAll != null) {
       return selectGroupsAll;
     }
-    //can the provisioner even do this?
+   
     if (!this.isSelectGroups()) {
       selectGroupsAll = false;
-      return false;
+      return selectGroupsAll;
     }
   
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllGroups(), false)) {
       selectGroupsAll = false;
       return selectGroupsAll;
     }
-    selectGroupsAll = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups();
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups()) {
+      selectGroupsAll = false;
+      return selectGroupsAll;
+    }
+    
+    selectGroupsAll = true;
+    
     return selectGroupsAll;
-
   
   }
   
@@ -1122,17 +1370,24 @@ public class GrouperProvisioningBehavior {
       return selectEntitiesAll;
     }
 
-    //can the provisioner even do this?
     if (!this.isSelectEntities()) {
       selectEntitiesAll = false;
       return selectEntitiesAll;
     }
+
     if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllEntities(), false)) {
       selectEntitiesAll = false;
       return selectEntitiesAll;
     }
-    selectEntitiesAll = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities();
-    return selectEntitiesAll;
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities()) {
+      selectEntitiesAll = false;
+      return selectEntitiesAll;
+    }
+    
+    selectEntitiesAll = true;
+    
+    return selectEntitiesAll;    
+    
   }
 
   
@@ -1306,28 +1561,42 @@ public class GrouperProvisioningBehavior {
     if (this.selectMembershipsAll != null) {
       return this.selectMembershipsAll;
     }
-    if (!this.isSelectMemberships()) {
-      return false;
-    }
-    if (!GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false)) {
-      return false;
-    }
-    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      if (!this.isSelectEntitiesAll()) {
-        return false;
-      }
-    }
-    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      if (!this.isSelectGroupsAll()) {
-        return false;
-      }
-    }
     
-    if (this.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
-      return true;
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectMemberships()) {
+      selectMembershipsAll = false;
+      return selectMembershipsAll;
     }
-    
-    return false;
+
+    if (GrouperUtil.booleanValue(this.getGrouperProvisioner()
+        .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllMemberships(), false) || 
+        GrouperUtil.booleanValue(this.getGrouperProvisioner()
+            .retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+        
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsWithEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+      
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsWithGroup()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsAllForEntity()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+      
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsAllForGroup()) {
+      this.selectMembershipsAll = true;
+      return this.selectMembershipsAll;
+    }
+
+    this.selectMembershipsAll = false;
+    return this.selectMembershipsAll;
   }
 
   public void setSelectMembershipsAll(Boolean membershipsRetrieveAll) {
@@ -1453,6 +1722,16 @@ public class GrouperProvisioningBehavior {
     this.deleteMembershipsIfNotExistInGrouper = membershipsDeleteIfNotInGrouper;
   }
   
+  
+  public Boolean getDeleteMembershipsOnlyInTrackedGroups() {
+    return deleteMembershipsOnlyInTrackedGroups;
+  }
+  
+  public void setDeleteMembershipsOnlyInTrackedGroups(Boolean deleteMembershipsOnlyInTrackedGroups) {
+    this.deleteMembershipsOnlyInTrackedGroups = deleteMembershipsOnlyInTrackedGroups;
+  }
+
+
   public boolean isDeleteMembershipsIfGrouperDeleted() {
     if (deleteMembershipsIfGrouperDeleted != null) {
       return deleteMembershipsIfGrouperDeleted;
@@ -1592,7 +1871,8 @@ public class GrouperProvisioningBehavior {
       
     }
     
-    if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable)) {
+    if (StringUtils.isBlank(currSubjectIdentifierForMemberSyncTable) || 
+        StringUtils.equals("subjectIdentifier", currSubjectIdentifierForMemberSyncTable)) {
       // default
       currSubjectIdentifierForMemberSyncTable = "subjectIdentifier0";
     }
@@ -1609,42 +1889,6 @@ public class GrouperProvisioningBehavior {
   }
 
 
-  public boolean canSelectMembershipsForEntity() {
-    
-    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntities(), false)) {
-      return true;
-    }
-    
-    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByEntity(), false)) { 
-      return true;
-    }
-    
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-  
-  public boolean canSelectMembershipsForGroup() {
-    
-    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroups(), false)) {
-      return true;
-    }
-    
-    if (GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsByGroup(), false)) { 
-      return true;
-    }
-    
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
-      return true;
-    }
-    
-    return false;
-    
-  }
-  
   public boolean isLoadEntitiesToGrouperTable() {
     return this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isLoadEntitiesToGrouperTable();
   }

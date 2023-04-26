@@ -183,10 +183,22 @@ public abstract class JsonParser
         ALLOW_NUMERIC_LEADING_ZEROS(false),
 
         /**
+         * @deprecated Use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS} instead
+         */
+        @Deprecated
+        ALLOW_LEADING_PLUS_SIGN_FOR_NUMBERS(false),
+
+        /**
          * @deprecated Use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS} instead
          */
         @Deprecated
         ALLOW_LEADING_DECIMAL_POINT_FOR_NUMBERS(false),
+
+        /**
+         * @deprecated Use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.json.JsonReadFeature#ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS} instead
+         */
+        @Deprecated
+        ALLOW_TRAILING_DECIMAL_POINT_FOR_NUMBERS(false),
 
         /**
          * Feature that allows parser to recognize set of
@@ -325,6 +337,17 @@ public abstract class JsonParser
           */
          INCLUDE_SOURCE_IN_LOCATION(true),
 
+         /**
+          * Feature that determines whether we use the built-in {@link Double#parseDouble(String)} code to parse
+          * doubles or if we use {@link edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.core.io.doubleparser}
+          * instead.
+          *<p>
+          * This setting is disabled by default for backwards compatibility.
+          *
+          * @since 2.14
+          */
+         USE_FAST_DOUBLE_PARSER(false),
+
          ;
 
         /**
@@ -389,7 +412,11 @@ public abstract class JsonParser
     /**********************************************************
      */
 
-    protected JsonParser() { }
+    protected JsonParser() {
+        // @since 2.14 do use sane defaults
+        _features = JsonFactory.DEFAULT_PARSER_FEATURE_FLAGS;
+    }
+
     protected JsonParser(int features) { _features = features; }
 
     /**

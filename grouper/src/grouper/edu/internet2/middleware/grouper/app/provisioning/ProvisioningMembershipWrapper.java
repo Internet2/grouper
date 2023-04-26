@@ -7,27 +7,80 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper {
+
+  private ProvisioningStateMembership provisioningStateMembership = new ProvisioningStateMembership();
   
-  /**
-   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
-   */
-  private GrouperIncrementalDataAction grouperIncrementalDataAction;
-  
-  /**
-   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
-   * @return
-   */
-  public GrouperIncrementalDataAction getGrouperIncrementalDataAction() {
-    return grouperIncrementalDataAction;
+  public ProvisioningStateMembership getProvisioningStateMembership() {
+    return provisioningStateMembership;
   }
 
-  /**
-   * if this is an incremental action without recalc, then this is the action that occurred in Grouper
-   * @param grouperIncrementalDataAction
-   */
-  public void setGrouperIncrementalDataAction(
-      GrouperIncrementalDataAction grouperIncrementalDataAction) {
-    this.grouperIncrementalDataAction = grouperIncrementalDataAction;
+  public ProvisioningGroupWrapper getProvisioningGroupWrapper() {
+    
+    if (this.grouperProvisioningMembership != null) {
+      if (this.grouperProvisioningMembership.getProvisioningGroup() != null) {
+        if (this.grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+
+    if (this.grouperTargetMembership != null) {
+      if (this.grouperTargetMembership.getProvisioningGroup() != null) {
+        if (this.grouperTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.grouperTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+
+    if (this.targetProvisioningMembership != null) {
+      if (this.targetProvisioningMembership.getProvisioningGroup() != null) {
+        if (this.targetProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.targetProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+    if (this.commonProvisionToTargetMembership != null) {
+      if (this.commonProvisionToTargetMembership.getProvisioningGroup() != null) {
+        if (this.commonProvisionToTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+          return this.commonProvisionToTargetMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+        }
+      }
+    }
+    return null;
+  }
+
+  public ProvisioningEntityWrapper getProvisioningEntityWrapper() {
+    if (this.grouperProvisioningMembership != null) {
+      if (this.grouperProvisioningMembership.getProvisioningEntity() != null) {
+        if (this.grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+    if (this.grouperTargetMembership != null) {
+      if (this.grouperTargetMembership.getProvisioningEntity() != null) {
+        if (this.grouperTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.grouperTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+    if (this.targetProvisioningMembership != null) {
+      if (this.targetProvisioningMembership.getProvisioningEntity() != null) {
+        if (this.targetProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.targetProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+    if (this.commonProvisionToTargetMembership != null) {
+      if (this.commonProvisionToTargetMembership.getProvisioningEntity() != null) {
+        if (this.commonProvisionToTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+          return this.commonProvisionToTargetMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+        }
+      }
+    }
+
+    return null;
+    
   }
 
   private MultiKey groupIdMemberId = null;
@@ -60,6 +113,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   public ProvisioningMembershipWrapper() {
     super();
+    this.provisioningStateMembership.setProvisioningMembershipWrapper(this);
   }
 
   /**
@@ -112,19 +166,6 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
   
   private GcGrouperSyncMembership gcGrouperSyncMembership;
 
-  /**
-   * if this is for a create in target
-   */
-  private boolean create;
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   */
-  private boolean delete;
-
-  
   public ProvisioningMembership getGrouperProvisioningMembership() {
     return grouperProvisioningMembership;
   }
@@ -155,18 +196,21 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   
   private void calculateGroupIdMemberId() {
-    this.groupIdMemberId = null;
+    MultiKey newGroupIdMemberId = null;
     if (this.grouperProvisioningMembership != null) {
-      this.groupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
+      newGroupIdMemberId = new MultiKey(this.grouperProvisioningMembership.getProvisioningGroupId(), this.grouperProvisioningMembership.getProvisioningEntityId());
 
     } else if (this.gcGrouperSyncMembership != null) {
       GcGrouperSyncGroup gcGrouperSyncGroup = this.gcGrouperSyncMembership.getGrouperSyncGroup();
       GcGrouperSyncMember gcGrouperSyncMember = this.gcGrouperSyncMembership.getGrouperSyncMember();
       if (gcGrouperSyncGroup != null && gcGrouperSyncMember != null) {
-        this.groupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getId());
+        newGroupIdMemberId = new MultiKey(gcGrouperSyncGroup.getGroupId(), gcGrouperSyncMember.getMemberId());
       }
     }
-    
+    // in incremental this might already be there and shouldnt be removed
+    if (newGroupIdMemberId != null) {
+      this.groupIdMemberId = newGroupIdMemberId;
+    }
   }
 
   public ProvisioningMembership getTargetProvisioningMembership() {
@@ -187,7 +231,14 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     this.targetProvisioningMembership = targetProvisioningMembership;
     
     if (this.targetProvisioningMembership != null) {
+      ProvisioningMembershipWrapper newTargetMembershipOldWrapper = this.targetProvisioningMembership.getProvisioningMembershipWrapper();
+      
       this.targetProvisioningMembership.setProvisioningMembershipWrapper(this);
+      
+      if (newTargetMembershipOldWrapper != null && newTargetMembershipOldWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
+        this.getProvisioningStateMembership().setSelectResultProcessed(true);
+      }
+
     }
 
     if (oldTargetProvisioningMembership != null) {
@@ -252,45 +303,6 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
   }
 
-
-  /**
-   * if this is for a create in target
-   * @return
-   */
-  public boolean isCreate() {
-    return create;
-  }
-
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @return
-   */
-  public boolean isDelete() {
-    return delete;
-  }
-
-
-  /**
-   * if this is for a create in target
-   * @param create
-   */
-  public void setCreate(boolean create) {
-    this.create = create;
-  }
-
-
-  /**
-   * if the grrouperProvisioningGroup side is for a delete.  includes things that are known 
-   * to be needed to be deleted.  This is used to retrieve the correct
-   * incremental state from the target
-   * @param delete
-   */
-  public void setDelete(boolean delete) {
-    this.delete = delete;
-  }
 
   @Override
   public String objectTypeName() {

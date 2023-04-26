@@ -2,6 +2,8 @@ ALTER TABLE GROUPER_PROV_ZOOM_USER MODIFY STATUS VARCHAR2(40);
 
 alter table grouper_members add ( subject_resolution_eligible  VARCHAR2(1) default 'T' not null);
 
+CREATE INDEX member_eligible_idx ON grouper_members (subject_resolution_eligible);
+
 CREATE TABLE grouper_failsafe
 (
     id VARCHAR2(40) NOT NULL,

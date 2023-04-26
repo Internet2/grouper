@@ -21,8 +21,10 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcResultSetCallback;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata.ColumnType;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
 
 
@@ -269,6 +271,11 @@ public class GcTableSyncTableMetadata {
     if (GrouperClientUtils.isBlank(theConnectionName)) {
       throw new RuntimeException("connectionName cannot be blank");
     }
+    
+    if (StringUtils.endsWith(query, ";")) {
+      query = query.substring(0, query.length() - 1);
+    }
+    
     //  + " where 1 != 1"
     // does it already have no records?
     // this isnt going to be perfect and is meant for simple queries without weird whitespace etc
@@ -407,9 +414,9 @@ public class GcTableSyncTableMetadata {
         }
         
       });
-    } catch (RuntimeException e) {
-      GrouperClientUtils.injectInException(e, "Error finding metadata for '" + query + "' in database: '" + theConnectionName + "'");
-      throw e;
+    } catch (RuntimeException e) {      
+      RuntimeException e2 = GrouperClientCommonUtils.createRuntimeExceptionWithMessage(e, "Error finding metadata for '" + query + "' in database: '" + theConnectionName + "'");
+      throw e2;
     }
 
     if (gcTableSyncColumnMetadatas.size() == 0) {

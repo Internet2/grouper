@@ -266,10 +266,10 @@ public class FullSyncProvisioner  {
       finally {
           ThreadContext.remove("why");
       }
-      if ( provisioner.getConfig().needsTargetSystemUsers() || provisioner.getConfig().needsTargetSystemGroups()) {
-        LOG.debug("Caching Stats: TSSubject: {} || TSGroup: {}",
-                provisioner.targetSystemUserCache.getStats(), provisioner.targetSystemGroupCache.getStats());
-      }
+//      if ( provisioner.getConfig().needsTargetSystemUsers() || provisioner.getConfig().needsTargetSystemGroups()) {
+//        LOG.debug("Caching Stats: TSSubject: {} || TSGroup: {}",
+//                provisioner.targetSystemUserCache.getStats(), provisioner.targetSystemGroupCache.getStats());
+//      }
 
     }
   }

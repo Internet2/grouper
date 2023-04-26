@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.tableIndex;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -34,6 +35,20 @@ public enum TableIndexType {
     @Override
     public String tableName() {
       return Group.TABLE_GROUPER_GROUPS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id_index";
+    }
+  },
+  
+  /** index assigned to a member */
+  member {
+
+    @Override
+    public String tableName() {
+      return Member.TABLE_GROUPER_MEMBERS;
     }
 
     @Override

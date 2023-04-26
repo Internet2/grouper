@@ -42,6 +42,10 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class IndexContainer {
 
+  public String getContainerFluidMaxWidth() {
+    return StringUtils.defaultIfBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.containerFluidMaxWidth"), "95%");
+  }
+  
   /**
    * show miscellaneous list
    * @return true if show

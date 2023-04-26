@@ -155,7 +155,7 @@ public class WsSampleAssignAttributeDefNameInheritanceRest implements WsSampleRe
    * @param args
    */
   public static void main(String[] args) {
-    assignAttributeDefNameInheritance(WsSampleRestType.xhtml);
+    assignAttributeDefNameInheritance(WsSampleRestType.json);
   }
 
   /**

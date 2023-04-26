@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -18,6 +20,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.azure.AzureProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.boxProvisioner.BoxProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
@@ -25,13 +28,18 @@ import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonOtherJobProvisio
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonProvisioningIncrementalSyncConfiguration;
 import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.genericProvisioner.GenericProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.google.GoogleProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.midpointProvisioning.MidPointProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.remedyV2.RemedyProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -75,15 +83,43 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
   public final static Set<String> provisionerConfigClassNames = new LinkedHashSet<String>();
   
   static {
-    provisionerConfigClassNames.add(AzureProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add(DuoProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add(DuoRoleProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add(GoogleProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add(LdapProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add(MessagingProvisionerConfiguration.class.getName());
-    provisionerConfigClassNames.add(GrouperScim2Configuration.class.getName());
-    provisionerConfigClassNames.add(SqlProvisionerConfiguration.class.getName());
+    
+    List<String> configClassNamesList = new ArrayList<>();
+    
+    configClassNamesList.add(AzureProvisionerConfiguration.class.getName());
+    configClassNamesList.add(DigitalMarketplaceProvisionerConfiguration.class.getName());
+    configClassNamesList.add(DuoProvisionerConfiguration.class.getName());
+    configClassNamesList.add(DuoRoleProvisionerConfiguration.class.getName());
+    configClassNamesList.add(GenericProvisionerConfiguration.class.getName());
+    configClassNamesList.add(GoogleProvisionerConfiguration.class.getName());
+    configClassNamesList.add(LdapProvisionerConfiguration.class.getName());
+    configClassNamesList.add(MessagingProvisionerConfiguration.class.getName());
+    configClassNamesList.add(MidPointProvisionerConfiguration.class.getName());
+    configClassNamesList.add(GrouperScim2Configuration.class.getName());
+    configClassNamesList.add(RemedyProvisionerConfiguration.class.getName());
+    configClassNamesList.add(SqlProvisionerConfiguration.class.getName());
+    configClassNamesList.add(BoxProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
+    
+    String extraProvisionerConfigRegex = "^grouperExtraProvisionerConfiguration\\.([^.]+)\\.class$";
+    Pattern extraExternalSystemPattern = Pattern.compile(extraProvisionerConfigRegex);
+    Map<String, String> extraExternalSystemClasses = GrouperConfig.retrieveConfig().propertiesMap(extraExternalSystemPattern);
+    if (GrouperUtil.length(extraExternalSystemClasses) > 0) {
+      for (String className : extraExternalSystemClasses.values()) {
+        configClassNamesList.add(className);
+      }
+    }
+    
+    Collections.sort(configClassNamesList, new Comparator<String>() {
+
+      @Override
+      public int compare(String arg0, String arg1) {
+        return GrouperUtil.suffixAfterChar(arg0, '.').compareTo(GrouperUtil.suffixAfterChar(arg1, '.'));
+      }
+    });
+    
+    provisionerConfigClassNames.addAll(configClassNamesList);
+    
   }
   
   /**

@@ -407,6 +407,46 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * Return a new runtime exception of the same type as the given exception but with the new message.
+   * The cause of the new runtime exception will be the given exception.
+   * If a usable constructor cannot be found, the original exception will be returned.
+   * Caller can check if the same exception is returned to log the message if it wants.
+   * @param r1
+   * @param message
+   */
+  public static RuntimeException createRuntimeExceptionWithMessage(RuntimeException r1, String message) {
+    RuntimeException r2 = null;
+    
+    try {
+      for (Constructor<?> constructor : r1.getClass().getConstructors()) {
+        try {
+          if (constructor.getParameterCount() == 1 && constructor.getParameterTypes()[0] == String.class) {
+            r2 = (RuntimeException) constructor.newInstance(message);
+            r2.initCause(r1);
+            break;
+          }
+          
+          if (constructor.getParameterCount() == 2 && constructor.getParameterTypes()[0] == String.class && constructor.getParameterTypes()[1] == Throwable.class) {
+            r2 = (RuntimeException) constructor.newInstance(message, r1);
+            break;
+          }
+        } catch (Throwable ignore) {
+          r2 = null;
+          // ignore
+        }
+      }
+    } catch (Throwable ignore) {
+      return r1;
+    }
+    
+    if (r2 != null) {
+      return r2;
+    }
+    
+    return r1;
+  }
+  
+  /**
    * get a unique string identifier based on the current time,
    * this is not globally unique, just unique for as long as this
    * server is running...
@@ -3631,7 +3671,18 @@ public class GrouperClientCommonUtils  {
   public static Method getter(Class theClass, String fieldName, boolean callOnSupers, 
       boolean throwExceptionIfNotFound) {
     String getterName = getterNameFromPropertyName(fieldName);
-    return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
+    RuntimeException re = null;
+    try {
+      return getterHelper(theClass, fieldName, getterName, callOnSupers, throwExceptionIfNotFound);
+    } catch (RuntimeException runtimeException) {
+      re = runtimeException;
+    }
+    String iserName = iserNameFromPropertyName(fieldName);
+    try {
+      return getterHelper(theClass, fieldName, iserName, callOnSupers, throwExceptionIfNotFound);
+    } catch (RuntimeException runtimeException) {
+    }
+    throw re;
   }
 
   /**
@@ -3675,6 +3726,15 @@ public class GrouperClientCommonUtils  {
    */
   public static String getterNameFromPropertyName(String propertyName) {
     return "get" + capitalize(propertyName);
+  }
+
+  /**
+   * generate getBb from bb
+   * @param propertyName
+   * @return the getter 
+   */
+  public static String iserNameFromPropertyName(String propertyName) {
+    return "is" + capitalize(propertyName);
   }
 
   /**
@@ -4717,6 +4777,19 @@ public class GrouperClientCommonUtils  {
     }
     
     return Double.valueOf(doubleValue(input));
+  }
+
+  /**
+   * get the Double value of an object
+   * 
+   * @param input
+   *          is a number or String
+   * @param allowNullBlank used to default to false, if true, return null if nul inputted 
+   * 
+   * @return the Double equivalent
+   */
+  public static Double doubleObjectValue(Object input) {
+    return doubleObjectValue(input, true);
   }
 
   /**
@@ -9821,7 +9894,7 @@ public class GrouperClientCommonUtils  {
    * ^(\\d+)\\.(\\d+)\\.(\\d+)$
    * </pre>
    */
-  private static Pattern versionPattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)$");
+  private static Pattern versionPattern = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)[\\._]?\\d*$");
 
   /**
    * 

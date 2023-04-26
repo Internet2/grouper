@@ -152,7 +152,7 @@ public class GrouperStatusServlet extends HttpServlet {
       // Start of the text to return.
       result.append("Server: ");
       result.append(GrouperUtil.hostname());
-      result.append(", grouperVersion: ").append(GrouperVersion.currentVersion());
+      result.append(", grouperVersion: ").append(GrouperUtil.defaultString(System.getenv("GROUPER_CONTAINER_VERSION"), GrouperVersion.grouperVersion()));
       result.append(", up since: ");
       result.append(startupString).append(", ");
       result.append(numberOfRequests);

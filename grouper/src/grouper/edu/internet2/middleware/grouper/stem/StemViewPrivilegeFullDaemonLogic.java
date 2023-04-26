@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -144,7 +145,15 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + "where gmlv.member_id = gll.member_uuid and gmlv.group_name = ? and gmlv.list_name = 'members' "
         + "and gmlv.subject_source != 'g:gsa' and (gll.last_stem_view_need is null or gll.last_stem_view_need < ?)")
       .addBindVar(groupName).addBindVar(recalcChangeLogIfNeededInLastMillis).selectList(String.class);
-    
+
+    // grouperAll to update
+    Member everyEntityMember = MemberFinder.internal_findAllMember();
+
+    memberIds.addAll(new GcDbAccess().sql("select member_uuid from grouper_last_login gll "
+        + "where gll.member_uuid = ? "
+        + "and (gll.last_stem_view_need is null or gll.last_stem_view_need < ?)")
+      .addBindVar(everyEntityMember.getId()).addBindVar(recalcChangeLogIfNeededInLastMillis).selectList(String.class));
+
     StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedUpdate(this.debugMap, memberIds, "preCompute_");
     
     // get people to insert
@@ -152,9 +161,16 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + " and gmlv.list_name = 'members' and gmlv.subject_source != 'g:gsa' "
         + " and not exists (select 1 from grouper_last_login gll where gmlv.member_id = gll.member_uuid)")
       .addBindVar(groupName).selectList(String.class);
-    
+
+    // grouperAll to insert
+    memberIds.addAll(new GcDbAccess().sql("select gm.id from grouper_members gm where "
+        + " gm.id = ? "
+        + " and not exists (select 1 from grouper_last_login gll where gm.id = gll.member_uuid)")
+      .addBindVar(everyEntityMember.getId()).selectList(String.class));
+
     StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedInsert(this.debugMap, memberIds, "preCompute_");
-    
+
+       
   }
 
   private void recalcStemPrivileges() {

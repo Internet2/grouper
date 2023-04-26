@@ -122,17 +122,18 @@ CREATE TABLE grouper_members
     subject_identifier0 VARCHAR(255) NULL,
     subject_identifier1 VARCHAR(255) NULL,
     subject_identifier2 VARCHAR(255) NULL,
+    id_index BIGINT NOT NULL,
     email0 VARCHAR(255) NULL,
     sort_string0 VARCHAR(50) NULL,
     sort_string1 VARCHAR(50) NULL,
     sort_string2 VARCHAR(50) NULL,
     sort_string3 VARCHAR(50) NULL,
     sort_string4 VARCHAR(50) NULL,
-    search_string0 VARCHAR(2048) NULL,
-    search_string1 VARCHAR(2048) NULL,
-    search_string2 VARCHAR(2048) NULL,
-    search_string3 VARCHAR(2048) NULL,
-    search_string4 VARCHAR(2048) NULL,
+    search_string0 VARCHAR(1500) NULL,
+    search_string1 VARCHAR(1500) NULL,
+    search_string2 VARCHAR(1500) NULL,
+    search_string3 VARCHAR(1500) NULL,
+    search_string4 VARCHAR(1500) NULL,
     name VARCHAR(2048) NULL,
     description VARCHAR(2048) NULL,
     context_id VARCHAR(40) NULL,
@@ -167,6 +168,8 @@ CREATE INDEX member_subjidentifier0_idx ON grouper_members (subject_identifier0)
 CREATE INDEX member_subjidentifier1_idx ON grouper_members (subject_identifier1);
 
 CREATE INDEX member_subjidentifier2_idx ON grouper_members (subject_identifier2);
+
+CREATE UNIQUE INDEX member_id_index_idx ON grouper_members (id_index);
 
 CREATE INDEX member_email0_idx ON grouper_members (email0);
 
@@ -582,7 +585,7 @@ CREATE TABLE grouper_attribute_assign
     owner_member_id VARCHAR(40) NULL,
     owner_membership_id VARCHAR(40) NULL,
     owner_stem_id VARCHAR(40) NULL,
-    disallowed VARCHAR(1) NULL,
+    disallowed VARCHAR(1) DEFAULT 'F' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -961,7 +964,7 @@ CREATE TABLE grouper_pit_attribute_assign
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
-    disallowed VARCHAR(1) NULL,
+    disallowed VARCHAR(1) DEFAULT 'F' NOT NULL,
     PRIMARY KEY (id)
 );
 
@@ -2240,12 +2243,6 @@ ALTER TABLE grouper_sync_log
 ALTER TABLE grouper_last_login
     ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
 
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
-
-ALTER TABLE grouper_stem_view_privilege
-    ADD CONSTRAINT fk_grouper_st_v_pr_st FOREIGN KEY (stem_uuid) REFERENCES grouper_stems (id) on delete cascade;
-
 CREATE INDEX group_alternate_name_idx ON grouper_groups (alternate_name(255));
 
 CREATE INDEX member_name_idx ON grouper_members (name(255));
@@ -2499,6 +2496,6 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 43, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V43, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 44, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V44, '));
 commit;

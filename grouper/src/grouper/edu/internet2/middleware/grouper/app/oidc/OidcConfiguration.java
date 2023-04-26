@@ -1,19 +1,13 @@
 package edu.internet2.middleware.grouper.app.oidc;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileMetadata;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
-import edu.internet2.middleware.grouper.cfg.dbConfig.DbConfigEngine;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 
 public class OidcConfiguration extends GrouperConfigurationModuleBase {

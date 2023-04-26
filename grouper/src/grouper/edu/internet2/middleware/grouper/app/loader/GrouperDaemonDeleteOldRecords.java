@@ -17,10 +17,12 @@
 package edu.internet2.middleware.grouper.app.loader;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -41,7 +43,10 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 
 /**
@@ -175,6 +180,15 @@ public class GrouperDaemonDeleteOldRecords {
         LOG.error("Error in deleteOldDeletedPointInTime", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeletedPointInTimeDelete", ExceptionUtils.getFullStackTrace(e));
         jobMessage.append("\nError in deleteOldDeletedPointInTime: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        error = true;
+      }
+      
+      try {
+        verifyTableIdIndexes(jobMessage);
+      } catch (Exception e) {
+        LOG.error("Error in verifyTableIdIndexes", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInVerifyTableIdIndexes", ExceptionUtils.getFullStackTrace(e));
+        jobMessage.append("\nError in verifyTableIdIndexes: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
       }
   
@@ -844,5 +858,45 @@ public class GrouperDaemonDeleteOldRecords {
     return foldersDeleted;
   }
 
+  /**
+   * verify that table id indexes
+   */
+  public static void verifyTableIdIndexes(StringBuilder jobMessage) {
 
+    //lets see if there are any nulls
+    for (TableIndexType tableIndexType : TableIndexType.values()) {
+      
+      if (tableIndexType == TableIndexType.membershipRequire) {
+        continue;
+      }
+      List<String> ids = HibernateSession.bySqlStatic().listSelect(
+          String.class, "select id from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by id" , null, null);
+
+      if (GrouperUtil.length(ids) > 0) {
+        String message = "Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting...";
+        LOG.error(message);
+        if (jobMessage != null) {
+          jobMessage.append("\n" + message + "\n");
+        }
+        
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(ids, 1000, false);
+        List<Long> idIndexes = TableIndex.reserveIds(tableIndexType, ids.size());
+        int idIndexIndex = 0;
+        for (int i=0;i<numberOfBatches; i++) {
+          List<String> idBatch = GrouperUtil.batchList(ids, 1000, i);
+          String sql = "update " + tableIndexType.tableName() 
+              + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?";
+          List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+          for (String id : idBatch) {
+            batchBindVars.add(GrouperUtil.toListObject(idIndexes.get(idIndexIndex++), id));
+          }
+          new GcDbAccess().sql(sql).batchBindVars(batchBindVars).executeBatchSql();
+          if (i+1 % 100 == 0) {
+            LOG.warn("Updated " + ((i+1)*1000) + "/" + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
+          }
+        }
+        LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
+      }
+    }
+  }
 }

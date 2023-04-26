@@ -7,15 +7,19 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouper.app.azure.AzureGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.boxProvisioner.BoxGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.messaging.GrouperInternalMessagingExternalSystem;
 import edu.internet2.middleware.grouper.app.oidc.OidcGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBase implements OptionValueDriver {
@@ -71,23 +75,47 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
   
   public final static Set<String> externalTypeClassNames = new LinkedHashSet<String>();
   static {
-    externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingActiveMQ.ActiveMqGrouperExternalSystem");
-    externalTypeClassNames.add(AzureGrouperExternalSystem.class.getName());
-    externalTypeClassNames.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem");
-    externalTypeClassNames.add(GoogleGrouperExternalSystem.class.getName());
-    externalTypeClassNames.add(GrouperInternalMessagingExternalSystem.class.getName());
-    externalTypeClassNames.add(LdapGrouperExternalSystem.class.getName());
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
-    externalTypeClassNames.add(OidcGrouperExternalSystem.class.getName());
-    externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingRabbitmq.RabbitMqGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem");
-    externalTypeClassNames.add("edu.internet2.middleware.grouper.app.file.SftpGrouperExternalSystem");
-    externalTypeClassNames.add(SmtpGrouperExternalSystem.class.getName());
-    externalTypeClassNames.add("edu.internet2.middleware.grouperMessagingAWS.SqsGrouperExternalSystem");
-    externalTypeClassNames.add(WsBearerTokenExternalSystem.class.getName());
+    
+    List<String> externalTypeClassNamesList = new ArrayList<>();
+    
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouperMessagingActiveMQ.ActiveMqGrouperExternalSystem");
+    externalTypeClassNamesList.add(AzureGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouperBox.BoxGrouperExternalSystem");
+    externalTypeClassNamesList.add(BoxGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem");
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouperDuo.DuoGrouperExternalSystem");
+    externalTypeClassNamesList.add(GoogleGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add(GrouperInternalMessagingExternalSystem.class.getName());
+    externalTypeClassNamesList.add(LdapGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
+    externalTypeClassNamesList.add(OidcGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouperMessagingRabbitmq.RabbitMqGrouperExternalSystem");
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem");
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem");
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouper.app.file.SftpGrouperExternalSystem");
+    externalTypeClassNamesList.add(SmtpGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add("edu.internet2.middleware.grouperMessagingAWS.SqsGrouperExternalSystem");
+    externalTypeClassNamesList.add(WsBearerTokenExternalSystem.class.getName());
+    
+    String extraExternalSystemRegex = "^grouperExtraExternalSystem\\.([^.]+)\\.class$";
+    Pattern extraExternalSystemPattern = Pattern.compile(extraExternalSystemRegex);
+    Map<String, String> extraExternalSystemClasses = GrouperConfig.retrieveConfig().propertiesMap(extraExternalSystemPattern);
+    if (GrouperUtil.length(extraExternalSystemClasses) > 0) {
+      for (String className : extraExternalSystemClasses.values()) {
+        externalTypeClassNamesList.add(className);
+      }
+    }
+    
+    Collections.sort(externalTypeClassNamesList, new Comparator<String>() {
+
+      @Override
+      public int compare(String arg0, String arg1) {
+        return GrouperUtil.suffixAfterChar(arg0, '.').compareTo(GrouperUtil.suffixAfterChar(arg1, '.'));
+      }
+    });
+    
+    externalTypeClassNames.addAll(externalTypeClassNamesList);
+    
   }
   
   /**

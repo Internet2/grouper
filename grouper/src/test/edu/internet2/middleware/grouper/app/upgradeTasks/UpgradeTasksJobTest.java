@@ -59,6 +59,10 @@ public class UpgradeTasksJobTest extends GrouperTest {
     gs4.delete(false);
     
     ChangeLogTempToEntity.convertRecords();
+    GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs1.getId(), false).iterator().next().delete();
+    GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs2.getId(), false).iterator().next().delete();
+    GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs3.getId(), false).iterator().next().delete();
+    GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs4.getId(), false).iterator().next().delete();
     
     try {
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(testEntity1.getId(), FieldFinder.find("groupAttrReaders", true).getId());
@@ -94,6 +98,7 @@ public class UpgradeTasksJobTest extends GrouperTest {
     assertEquals(GrouperDAOFactory.getFactory().getPITGroupSet().findBySourceId(gs4.getId(), false).size(), 0);
 
     UpgradeTasksJob.runDaemonStandalone();
+    ChangeLogTempToEntity.convertRecords();
     
     gs1 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(testEntity1.getId(), FieldFinder.find("groupAttrReaders", true).getId());
     gs2 = GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(testEntity1.getId(), FieldFinder.find("groupAttrUpdaters", true).getId());

@@ -1,0 +1,5 @@
+#!/bin/bash
+
+#docker run  --name ldap my-ldap:latest
+
+run -d -p 389:389 --name ldap --mount type=bind,source=/Users/mchyzer/git/grouper_v2_6/grouper-misc/openldap-dinkel-grouper/ldap-seed-data,target=/etc/ldap/prepopulate -e SLAPD_PASSWORD=secret -e SLAPD_CONFIG_PASSWORD=secret -e SLAPD_DOMAIN=example.edu my-ldap:latest

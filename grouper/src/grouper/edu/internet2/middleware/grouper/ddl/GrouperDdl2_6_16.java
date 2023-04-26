@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.ddl;
 
 import java.sql.Types;
 
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
@@ -104,7 +105,7 @@ public class GrouperDdl2_6_16 {
       return;
     }
     
-    if (ddlVersionBean.didWeDoThis("v2_6_8_addGrouperMembershipRequireIndex", true)) {
+    if (ddlVersionBean.didWeDoThis("v2_6_16_addGrouperMembershipRequireIndex", true)) {
       return;
     }
   
@@ -154,6 +155,54 @@ public class GrouperDdl2_6_16 {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperMembershipRequireTable, COLUMN_GROUPER_MSHIP_REQ_CHANGE_ENGINE,
         Types.VARCHAR, "1", false, true);
     
+  }
+
+  public static void addMemberIdIndexColumn(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v2_6_16_addMemberIdIndexColumn", true)) {
+      return;
+    }
+
+    Table memberTable = GrouperDdlUtils.ddlutilsFindTable(database, Member.TABLE_GROUPER_MEMBERS, true);
+
+    //this is required if the group table is new
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(memberTable, Member.COLUMN_ID_INDEX, 
+        Types.BIGINT, "20", false, false); 
+
+  }
+
+  public static void addMemberIdIndexIndex(Database database, DdlVersionBean ddlVersionBean) {
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v2_6_16_addMemberIdIndexIndex", true)) {
+      return;
+    }
+
+    //unique index on the new col... note, is this allowed in all ds if there is null data there?  hmm...
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Member.TABLE_GROUPER_MEMBERS, 
+        "member_id_index_idx", true, Member.COLUMN_ID_INDEX);
+
+  }
+
+  public static void addMemberIdIndexComment(Database database, DdlVersionBean ddlVersionBean) {
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v2_6_16_addMemberIdIndexComment", true)) {
+      return;
+    }
+    
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        Member.TABLE_GROUPER_MEMBERS, Member.COLUMN_ID_INDEX, 
+        "Sequential id index integer that can we used outside of Grouper");
+
   }
 
 }
