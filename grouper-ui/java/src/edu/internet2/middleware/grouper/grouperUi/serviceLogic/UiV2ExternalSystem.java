@@ -182,6 +182,22 @@ public class UiV2ExternalSystem {
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
       List<String> actionsPerformed = new ArrayList<String>();
+      
+      grouperExternalSystem.validatePreSave(false, true, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
 
       grouperExternalSystem.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
       
@@ -330,6 +346,22 @@ public class UiV2ExternalSystem {
       StringBuilder message = new StringBuilder();
       List<String> errorsToDisplay = new ArrayList<String>();
       Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      grouperExternalSystem.validatePreSave(true, true, errorsToDisplay, validationErrorsToDisplay);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
       
       grouperExternalSystem.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
 
