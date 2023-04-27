@@ -48,6 +48,7 @@ import org.ldaptive.DeleteRequest;
 import org.ldaptive.LdapAttribute;
 import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapException;
+import org.ldaptive.LdapURL;
 import org.ldaptive.ModifyDnOperation;
 import org.ldaptive.ModifyDnRequest;
 import org.ldaptive.ModifyOperation;
@@ -186,6 +187,16 @@ public class LdaptiveSessionImpl implements LdapSession {
           BlockingConnectionPool result;
           
           Properties ldaptiveProperties = getLdaptiveProperties(ldapServerId);
+          
+          // we don't allow the base dn in the URL anymore
+          String urlString = (String)ldaptiveProperties.get("org.ldaptive.ldapUrl");
+          if (!StringUtils.isBlank(urlString)) {
+            LdapURL url = new LdapURL(urlString);
+            if (!url.getEntry().isDefaultBaseDn()) {
+              throw new RuntimeException("Base DN not allowed to be configured in the ldap URL: " + urlString);
+            }
+          }
+          
           propertiesMap.put(ldapServerId, ldaptiveProperties);
           
           boolean isActiveDirectory = LdapConfiguration.getConfig(ldapServerId).isActiveDirectory();

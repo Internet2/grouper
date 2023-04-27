@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
+import org.ldaptive.LdapURL;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
@@ -102,6 +103,14 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
   public void validatePreSave(boolean isInsert, boolean fromUi, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
     
     super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    
+    String urlString = this.retrieveAttributes().get("url").getValue();
+    if (!StringUtils.isBlank(urlString)) {
+      LdapURL url = new LdapURL(urlString);
+      if (!url.getEntry().isDefaultBaseDn()) {
+        validationErrorsToDisplay.put(this.retrieveAttributes().get("url").getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationLdapUrlContainsBaseDN"));
+      }
+    }
 
     String uiTestSearchDn = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchDn");
     String uiTestSearchScope = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchScope");
