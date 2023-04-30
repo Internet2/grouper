@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.google;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 
@@ -9,6 +10,7 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
@@ -50,6 +52,23 @@ public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
     }
     
   }
+
+  @Override
+  public List<String> test() throws UnsupportedOperationException {
+    
+    List<String> errors = new ArrayList<>();
+    String testFakeGroupId = "testFakeGroupId";
+    // try to retrieve a fake group and if it's 200 or 404, it's all good
+    try {
+      GrouperGoogleGroup googleGroup = GrouperGoogleApiCommands.retrieveGoogleGroup(this.getConfigId(), testFakeGroupId);
+    } catch (Exception e) {
+      errors.add("Could not connect with google external system successfully "+GrouperUtil.escapeHtml(e.getMessage(), true));
+    }
+    
+    return errors;
+  }
+  
+  
   
   
 

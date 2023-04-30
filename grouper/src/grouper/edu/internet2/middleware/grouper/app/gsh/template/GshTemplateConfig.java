@@ -366,10 +366,13 @@ public class GshTemplateConfig {
           if (gshTemplateGroupShowType == GshTemplateGroupShowType.certainGroups) {
             String groupUuidsToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupUuidsToShow");
             
-            String[] groupUuids = GrouperUtil.splitTrim(groupUuidsToShow, ",");
-            for (String groupUuid: groupUuids) {
-              Group groupToShow = GroupFinder.findByUuid(grouperSession, groupUuidsToShow, false);
-              GrouperUtil.assertion(groupToShow != null, "could not find group for groupUuidsToShow: "+groupUuid);
+            String[] groupUuidsOrNames = GrouperUtil.splitTrim(groupUuidsToShow, ",");
+            for (String groupUuidOrName: groupUuidsOrNames) {
+              Group groupToShow = GroupFinder.findByUuid(grouperSession, groupUuidOrName, false);
+              if (groupToShow == null) {
+                groupToShow = GroupFinder.findByName(grouperSession, groupUuidOrName, false);
+              }
+              GrouperUtil.assertion(groupToShow != null, "could not find group for groupUuidOrName: "+groupUuidOrName);
               groupsToShow.add(groupToShow);
             }
             
@@ -377,6 +380,9 @@ public class GshTemplateConfig {
             
             String folderUuidForGroupsInFolder = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidForGroupsInFolder");
             folderForGroupsInFolder = StemFinder.findByUuid(grouperSession, folderUuidForGroupsInFolder, false);
+            if (folderForGroupsInFolder == null) {
+              folderForGroupsInFolder = StemFinder.findByName(grouperSession, folderUuidForGroupsInFolder, false);
+            }
             GrouperUtil.assertion(folderForGroupsInFolder != null, "could not find folder for folderUuidForGroupsInFolder: "+folderUuidForGroupsInFolder);
             gshTemplateGroupShowOnDescendants = GshTemplateGroupShowOnDescendants.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupShowOnDescendants"), true);
           }
@@ -389,12 +395,15 @@ public class GshTemplateConfig {
           gshTemplateFolderShowType = GshTemplateFolderShowType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderShowType"), true);
           
           if(gshTemplateFolderShowType == GshTemplateFolderShowType.certainFolders) {
-            String folderUuidsToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidToShow");
+            String folderUuidsOrNamesToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidToShow");
             
-            String[] folderUuids = GrouperUtil.splitTrim(folderUuidsToShow, ",");
-            for (String folderUuid: folderUuids) {
-              Stem folderToShow = StemFinder.findByUuid(grouperSession, folderUuid, false);
-              GrouperUtil.assertion(folderToShow != null, "could not find folder for folderUuidToShow: "+folderUuid);
+            String[] folderUuidsOrNames = GrouperUtil.splitTrim(folderUuidsOrNamesToShow, ",");
+            for (String folderUuidOrName: folderUuidsOrNames) {
+              Stem folderToShow = StemFinder.findByUuid(grouperSession, folderUuidOrName, false);
+              if (folderToShow == null) {
+                folderToShow = StemFinder.findByName(grouperSession, folderUuidOrName, false);
+              }
+              GrouperUtil.assertion(folderToShow != null, "could not find folder for folderUuidToShow: "+folderUuidOrName);
               foldersToShow.add(folderToShow);
             }
             
@@ -406,9 +415,12 @@ public class GshTemplateConfig {
         gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"securityRunType"), true);
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.specifiedGroup) {
-          String groupUuidCanRun = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupUuidCanRun");
-          groupThatCanRun = GroupFinder.findByUuid(grouperSession, groupUuidCanRun, false);
-          GrouperUtil.assertion(groupThatCanRun != null, "could not find group for groupUuidCanRun: "+groupUuidCanRun);
+          String groupUuidOrNameCanRun = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupUuidCanRun");
+          groupThatCanRun = GroupFinder.findByUuid(grouperSession, groupUuidOrNameCanRun, false);
+          if (groupThatCanRun == null) {
+            groupThatCanRun = GroupFinder.findByName(grouperSession, groupUuidOrNameCanRun, false);
+          }
+          GrouperUtil.assertion(groupThatCanRun != null, "could not find group for groupUuidOrNameCanRun: "+groupUuidOrNameCanRun);
         }
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.privilegeOnObject && showOnGroups) {
