@@ -309,7 +309,10 @@ public class GshTemplateExec {
           if (actAsGroupUUID == null) {
             throw new RuntimeException("actAsGroupUUID has not been configured in the template");
           }
-          Group actAsGroup = GroupFinder.findByUuid(grouperSession, actAsGroupUUID, true);
+          Group actAsGroup = GroupFinder.findByUuid(grouperSession, actAsGroupUUID, false);
+          if (actAsGroup == null) {
+            actAsGroup = GroupFinder.findByName(grouperSession, actAsGroupUUID, true);
+          }
           
           if (!actAsGroup.hasMember(currentUser)) {
             throw new RuntimeException(currentUser.getId()+ " is not a member of "+actAsGroup.getName());
