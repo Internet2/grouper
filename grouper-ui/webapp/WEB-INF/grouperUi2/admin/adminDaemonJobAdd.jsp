@@ -16,6 +16,7 @@
                 </div>
                 <div class="span10 pull-left">
                   <h1>${textContainer.text['daemonJobsAddDaemon'] }</h1>
+                  ${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration.jobDescription}
                 </div>
               </div>
               
