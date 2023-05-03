@@ -604,13 +604,13 @@ public class UsduJob extends OtherJobBase {
       if (unresolvableMembersForASource.size() > maxUnresolvableSubjectsAllowed) {
         
         if (!removeUpToFailsafe) {
-          String error = "For source id "+sourceId+" found "+unresolvableMembersForASource.size()+"unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
+          String error = "For source id "+sourceId+" found "+unresolvableMembersForASource.size()+" unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
               + "removeUpToFailsafe is set to false hence not going to delete any members.  ";
           LOG.error(error);
           hib3GrouperLoaderLog.appendJobMessage(error);
           hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
         } else {
-          String error = "For source id "+sourceId+" found "+unresolvableMembersForASource.size()+"unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
+          String error = "For source id "+sourceId+" found "+unresolvableMembersForASource.size()+" unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
               + "removeUpToFailsafe is set to true hence going to delete "+maxUnresolvableSubjectsAllowed+" members.  ";
           LOG.error(error);
           hib3GrouperLoaderLog.appendJobMessage(error);
@@ -630,13 +630,13 @@ public class UsduJob extends OtherJobBase {
     if (membersWithoutExplicitSourceConfiguration.size() > globalMaxAllowed) {
       
       if (!globalRemoveUpToFailSafe) {
-        String error = "For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
+        String error = "For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+" unresolvable members. max limit is "+globalMaxAllowed+". "
             + "usdu.failsafe.removeUpToFailsafe is set to false hence not going to delete any members.  ";
         LOG.error(error);
         hib3GrouperLoaderLog.appendJobMessage(error);
         hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       } else {
-        String error = "For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
+        String error = "For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+" unresolvable members. max limit is "+globalMaxAllowed+". "
             + "usdu.failsafe.removeUpToFailsafe is set to true hence going to delete "+globalMaxAllowed+" members.  ";
         LOG.error(error);
         hib3GrouperLoaderLog.appendJobMessage(error);
