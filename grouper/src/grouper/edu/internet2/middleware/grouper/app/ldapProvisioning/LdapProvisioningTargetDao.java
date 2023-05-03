@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -1466,7 +1467,16 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     StringBuilder filterBuilder = new StringBuilder();
 
     // get the search attribute
-    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = ldapSyncConfiguration.getEntitySearchAttributes();
+    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>(ldapSyncConfiguration.getEntitySearchAttributes());
+    
+    // exclude ldap_dn as a search attribute
+    Iterator<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributesIter = grouperProvisioningConfigurationAttributes.iterator();
+    while (grouperProvisioningConfigurationAttributesIter.hasNext()) {
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributesIter.next();
+      if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
+        grouperProvisioningConfigurationAttributesIter.remove();
+      }
+    }
     
     Collection<String> objectClasses = null;
     // see if there are object classes
@@ -1499,11 +1509,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       filterBuilder.append("(|");
     }
     for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
-      if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
-        filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(ldapSyncConfiguration.getUserRdnAttribute()) + "=*)");
-      } else {
-        filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
-      }
+      filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
     }
     if (grouperProvisioningConfigurationAttributes.size() > 1) {
       filterBuilder.append(")");

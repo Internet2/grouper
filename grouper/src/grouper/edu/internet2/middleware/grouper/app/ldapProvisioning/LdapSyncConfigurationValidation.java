@@ -1,5 +1,9 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
+import java.util.ArrayList;
+import java.util.Iterator;
+import java.util.List;
+
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
@@ -38,7 +42,50 @@ public class LdapSyncConfigurationValidation
     super.validateFromObjectModel();
     validateDnSelect();
     validateDnInsertIfInsertObject();
+    validateEntitySearchAll();
+  }
+  
+  /**
+   * make sure if userSearchAllFilter isn't specified then there's at least one search attribute that's not ldap_dn
+   */
+  public void validateEntitySearchAll() {
+    GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+    LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    GrouperProvisioningBehavior grouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
 
+    if (grouperProvisioningBehavior.isSelectEntitiesAll()) {
+      String userSearchAllFilter = ldapSyncConfiguration.getEntitySearchAllFilter();
+      
+      if (StringUtils.isEmpty(userSearchAllFilter)) {
+        // get the search attribute
+        List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>(ldapSyncConfiguration.getEntitySearchAttributes());
+        
+        // exclude ldap_dn as a search attribute
+        Iterator<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributesIter = grouperProvisioningConfigurationAttributes.iterator();
+        while (grouperProvisioningConfigurationAttributesIter.hasNext()) {
+          GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributesIter.next();
+          if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), LdapProvisioningTargetDao.ldap_dn)) {
+            grouperProvisioningConfigurationAttributesIter.remove();
+          }
+        }
+        
+        if (grouperProvisioningConfigurationAttributes.size() == 0) {
+          int entityMatchingAttributeCount = GrouperUtil.intValue(this.getSuffixToConfigValue().get("entityMatchingAttributeCount"), 0);
+          int entitySearchAttributeCount = GrouperUtil.intValue(this.getSuffixToConfigValue().get("entitySearchAttributeCount"), 0);
+
+          String jqueryHandle = "entityMatchingAttributeSameAsSearchAttribute";
+          if (entitySearchAttributeCount > 0) {
+            jqueryHandle = "entitySearchAttributeCount";
+          } else if (entityMatchingAttributeCount > 0) {
+            jqueryHandle = "entityMatchingAttributeCount";
+          }
+          
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(GrouperTextContainer.textOrNull("provisioning.configuration.validation.mustHaveEntitySearchAttributeOtherThanDN"))
+              .assignJqueryHandle(jqueryHandle));
+        }
+      }
+    }
   }
 
   /**
