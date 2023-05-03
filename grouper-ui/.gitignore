@@ -14,3 +14,4 @@ webapp/WEB-INF/lib/*.jar
 conf/penn*
 conf/grouperText/grouper.text.en.us.properties
 webapp/grouperExternal/public/penn
+java/src/Test*
