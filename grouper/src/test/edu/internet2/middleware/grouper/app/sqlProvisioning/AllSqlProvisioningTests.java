@@ -13,7 +13,7 @@ public class AllSqlProvisioningTests extends TestCase {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.sqlProvisioning", false)) {
     //$JUnit-BEGIN$
     suite.addTestSuite(SqlProvisionerTest.class);
-    suite.addTestSuite(SqlProvisioningGroupTableStartWithTest.class);
+    suite.addTestSuite(SqlProvisioningStartWithTest.class);
     //$JUnit-END$
     }
     return suite;
