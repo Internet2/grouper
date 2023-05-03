@@ -45,7 +45,7 @@ public class SqlProvisioningStartWithTest extends GrouperProvisioningBaseTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new SqlProvisioningStartWithTest("testFullProvisionerGroupTableEntityTableMembershipTable"));
+    TestRunner.run(new SqlProvisioningStartWithTest("testFullProvisionerGroupTableWithAttributesAndMembershipTable"));
   }
   
   public void testFullProvisionerGroupTableEntityTableMembershipTable() {
@@ -163,6 +163,109 @@ public class SqlProvisioningStartWithTest extends GrouperProvisioningBaseTest {
     grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipInsert(true);
     grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(true);
     grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityInsert(true);
+    grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(true);
+    grouperProvisioningOutput = provisioner.provision(GrouperProvisioningType.diagnostics);
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    validateNoErrors(grouperProvisioningDiagnosticsContainer);
+  }
+  
+  public void testFullProvisionerGroupTableWithAttributesAndMembershipTable() {
+    
+    new GcDbAccess().connectionName("grouper").sql("delete from testgrouper_prov_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from testgrouper_pro_ldap_group_attr").executeSql();
+    
+    SqlProvisioningStartWith startWith = new SqlProvisioningStartWith();
+    
+    Map<String, String> startWithSuffixToValue = new HashMap<>();
+    
+    startWithSuffixToValue.put("dbExternalSystemConfigId", "grouper");
+    startWithSuffixToValue.put("sqlPattern", "groupTableWithAttributeTableAndMemberships");
+    
+    startWithSuffixToValue.put("userAttributesType", "core");
+    startWithSuffixToValue.put("membershipStructure", "groupAttributes");
+    
+    startWithSuffixToValue.put("hasGroupTable", "true");
+    startWithSuffixToValue.put("groupTableName", "testgrouper_prov_group");
+    startWithSuffixToValue.put("groupTableIdColumn", "uuid");
+    startWithSuffixToValue.put("groupTablePrimaryKeyValue", "uuid");
+    startWithSuffixToValue.put("groupTableColumnNames", "name,display_name,description");
+
+    startWithSuffixToValue.put("hasGroupAttributeTable", "true");
+    startWithSuffixToValue.put("groupAttributesTableName", "testgrouper_pro_ldap_group_attr");
+    startWithSuffixToValue.put("groupAttributesGroupForeignKeyColumn", "group_uuid");
+    startWithSuffixToValue.put("groupAttributesAttributeNameColumn", "attribute_name");
+    startWithSuffixToValue.put("groupAttributesAttributeValueColumn", "attribute_value");
+    startWithSuffixToValue.put("groupMembershipAttributeName", "hasMember");
+    startWithSuffixToValue.put("groupMembershipAttributeValue", "subjectId");
+    startWithSuffixToValue.put("entityAttributeNameForMemberships", "subjectId");
+    
+    Map<String, Object> provisionerSuffixToValue = new HashMap<>();
+    
+    startWith.populateProvisionerConfigurationValuesFromStartWith(startWithSuffixToValue, provisionerSuffixToValue);
+    
+    startWith.manipulateProvisionerConfigurationValue("sqlProvTest", startWithSuffixToValue, provisionerSuffixToValue);
+    
+    for (String key: provisionerSuffixToValue.keySet()) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties")
+        .propertyName("provisioner.sqlProvTest."+key)
+        .value(GrouperUtil.stringValue(provisionerSuffixToValue.get(key))).store();
+    }
+    
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.debugLog").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.logAllObjectsVerbose").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.logCommandsAlways").value("true").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.subjectSourcesToProvision").value("jdbc").store();
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_sqlProvTest.class").value(GrouperProvisioningFullSyncJob.class.getName()).store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_sqlProvTest.quartzCron").value("9 59 23 31 12 ? 2099").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.provisioner_full_sqlProvTest.provisionerConfigId").value("sqlProvTest").store();
+          
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+    
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertTrue(1 <= grouperProvisioningOutput.getInsert());
+    
+    assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class));
+    assertEquals(new Integer(2), new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_pro_ldap_group_attr").select(int.class));
+    
+    assertTrue(GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) > 0);
+    
+    for (ProvisioningGroupWrapper provisioningGroupWrapper: grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
+      assertTrue(provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject());
+    }
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
+    assertEquals(1, gcGrouperSync.getGroupCount().intValue());
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+    assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+    
+    GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("sqlProvTest");
+    provisioner.initialize(GrouperProvisioningType.diagnostics);
+    GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
+    grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName("test:testGroup2");
+    grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier("test.subject.4");
+    grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipInsert(true);
+    grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(true);
+    grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityInsert(false);
     grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(true);
     grouperProvisioningOutput = provisioner.provision(GrouperProvisioningType.diagnostics);
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
