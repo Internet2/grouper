@@ -3,7 +3,10 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 
 public class GuiGrouperDaemonConfiguration {
   
@@ -47,6 +50,14 @@ public class GuiGrouperDaemonConfiguration {
   
   public String getJobName() {
     return jobName;
+  }
+
+  public String getJobDescription() {
+    String description = GrouperUiApiTextConfig.retrieveTextConfig().propertyValueString("config." + this.getGrouperDaemonConfiguration().getClass().getSimpleName() + ".description");
+    if (StringUtils.isBlank(description)) {
+      return "";
+    }
+    return description;
   }
 
   

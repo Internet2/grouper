@@ -542,6 +542,23 @@ public class GrouperUtil {
     return output;
   }
 
+  /**
+   * run a GSH script
+   * @param script
+   * @param lightWeight will use an abbreviated groovysh.profile for faster speed.  built in commands
+   * arent there and imports largely arent there
+   * @param inputMap puts variables in a context to be retrieved with GrouperUtil.gshRetrieveInputValueObject(),
+   * GrouperUtil.gshRetrieveInputValueString(), GrouperUtil.gshRetrieveInputValueInteger(), GrouperUtil.gshRetrieveInputValueBoolean()
+   * @return the full output
+   */
+  public static GrouperGroovysh.GrouperGroovyResult gshRunScriptReturnResult(String script, boolean lightWeight) {
+    GrouperGroovysh.GrouperGroovyResult grouperGroovyResult = GrouperGroovysh.runScript(script, lightWeight);
+    if (grouperGroovyResult.getException() != null) {
+      throw grouperGroovyResult.getException();
+    }
+    return grouperGroovyResult;
+  }
+
   public static void setClear(Set<?> set) {
     if (set != null) {
       set.clear();
