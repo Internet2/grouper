@@ -152,7 +152,7 @@ public class SubjectChangeDaemon extends OtherJobBase {
     } finally {
       debugMap.put("tookMillis", ((System.nanoTime()-now)/1000000));
       String debugMessage = GrouperUtil.mapToString(debugMap);
-      hib3GrouperLoaderLog.setJobMessage(debugMessage);
+      hib3GrouperLoaderLog.appendJobMessage(debugMessage);
       if (LOG.isDebugEnabled()) {
         LOG.debug(debugMessage);
       }
@@ -222,7 +222,7 @@ public class SubjectChangeDaemon extends OtherJobBase {
     }
     
     if (unresolvableMembers.size() > 0) {
-      Long deleted = UsduJob.deleteUnresolvableMembers(GrouperSession.staticGrouperSession(), unresolvableMembers);
+      Long deleted = UsduJob.deleteUnresolvableMembers(GrouperSession.staticGrouperSession(), unresolvableMembers, hib3GrouperLoaderLog);
       hib3GrouperLoaderLog.addDeleteCount(deleted.intValue());
     }
     

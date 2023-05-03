@@ -209,7 +209,7 @@ public class UsduJob extends OtherJobBase {
         totalProvisioningObjectsUpdated += syncProvisioningData(currentBatch, memberIdToSubjectMap);
       }
   
-      long deletedMembers = deleteUnresolvableMembers(grouperSession, unresolvableMembers);
+      long deletedMembers = deleteUnresolvableMembers(grouperSession, unresolvableMembers, otherJobInput.getHib3GrouperLoaderLog());
       otherJobInput.getHib3GrouperLoaderLog().store();
       
       long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
@@ -237,7 +237,7 @@ public class UsduJob extends OtherJobBase {
         }
       }
           
-      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.");
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.  ");
       
       int duplicateSubjectIdentifierIssuesCount = checkDuplicateSubjectIdentifiers(otherJobInput.getHib3GrouperLoaderLog());
       
@@ -539,7 +539,7 @@ public class UsduJob extends OtherJobBase {
    * @param unresolvableMembres
    * @return number of members marked as deleted
    */
-  public static long deleteUnresolvableMembers(GrouperSession grouperSession, Set<Member> unresolvableMembers) {
+  public static long deleteUnresolvableMembers(GrouperSession grouperSession, Set<Member> unresolvableMembers, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
         
     // map to store source id to set of members to be deleted
     Map<String, Set<Member>> sourceIdToMembers = new HashMap<String, Set<Member>>();
@@ -549,7 +549,7 @@ public class UsduJob extends OtherJobBase {
     
     populateUnresolvableMembersConfig(unresolvableMembers, sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
     
-    return deleteUnresolvableMembers(sourceIdToMembers, membersWithoutExplicitSourceConfiguration);
+    return deleteUnresolvableMembers(sourceIdToMembers, membersWithoutExplicitSourceConfiguration, hib3GrouperLoaderLog);
     
   }
   
@@ -584,7 +584,7 @@ public class UsduJob extends OtherJobBase {
     
   }
   
-  private static long deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration) {
+  private static long deleteUnresolvableMembers(Map<String, Set<Member>> sourceIdToMembers, Set<Member> membersWithoutExplicitSourceConfiguration, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     int globalMaxAllowed = GrouperConfig.retrieveConfig().propertyValueInt("usdu.failsafe.maxUnresolvableSubjects", 500);
     
@@ -604,12 +604,18 @@ public class UsduJob extends OtherJobBase {
       if (unresolvableMembersForASource.size() > maxUnresolvableSubjectsAllowed) {
         
         if (!removeUpToFailsafe) {
-          LOG.info("For source id "+sourceId+" found "+unresolvableMembersForASource.size()+"unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
-              + "removeUpToFailsafe is set to false hence not going to delete any members.");
+          String error = "For source id "+sourceId+" found "+unresolvableMembersForASource.size()+"unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
+              + "removeUpToFailsafe is set to false hence not going to delete any members.  ";
+          LOG.error(error);
+          hib3GrouperLoaderLog.appendJobMessage(error);
+          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
         } else {
-          LOG.info("For source id "+sourceId+" found "+unresolvableMembersForASource.size()+"unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
-              + "removeUpToFailsafe is set to true hence going to delete "+maxUnresolvableSubjectsAllowed+" members.");
-          
+          String error = "For source id "+sourceId+" found "+unresolvableMembersForASource.size()+"unresolvable members. max limit is "+maxUnresolvableSubjectsAllowed+". "
+              + "removeUpToFailsafe is set to true hence going to delete "+maxUnresolvableSubjectsAllowed+" members.  ";
+          LOG.error(error);
+          hib3GrouperLoaderLog.appendJobMessage(error);
+          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+
           deletedCount += deleteUnresolvableMembers(unresolvableMembersForASource, maxUnresolvableSubjectsAllowed);
           
         }
@@ -624,12 +630,18 @@ public class UsduJob extends OtherJobBase {
     if (membersWithoutExplicitSourceConfiguration.size() > globalMaxAllowed) {
       
       if (!globalRemoveUpToFailSafe) {
-        LOG.info("For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
-            + "usdu.failsafe.removeUpToFailsafe is set to false hence not going to delete any members.");
+        String error = "For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
+            + "usdu.failsafe.removeUpToFailsafe is set to false hence not going to delete any members.  ";
+        LOG.error(error);
+        hib3GrouperLoaderLog.appendJobMessage(error);
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
       } else {
-        LOG.info("For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
-            + "usdu.failsafe.removeUpToFailsafe is set to true hence going to delete "+globalMaxAllowed+" members.");
-        
+        String error = "For global (not explicitly defined sources) found "+membersWithoutExplicitSourceConfiguration.size()+"unresolvable members. max limit is "+globalMaxAllowed+". "
+            + "usdu.failsafe.removeUpToFailsafe is set to true hence going to delete "+globalMaxAllowed+" members.  ";
+        LOG.error(error);
+        hib3GrouperLoaderLog.appendJobMessage(error);
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+
         deletedCount += deleteUnresolvableMembers(membersWithoutExplicitSourceConfiguration, globalMaxAllowed);
         
       }
