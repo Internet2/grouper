@@ -492,7 +492,7 @@ public class GrouperProvisioningTranslator {
       String translationContinueCondition = grouperProvisioningConfigurationAttribute.getTranslationContinueCondition();
       if (StringUtils.isNotBlank(translationContinueCondition)) {
         try {
-          Object result = GrouperUtil.substituteExpressionLanguageScript(translationContinueCondition, elVariableMap, true, false, true);
+          Object result = GrouperUtil.substituteExpressionLanguageScript(translationContinueCondition, elVariableMap, true, true, true);
           boolean resultBoolean = GrouperUtil.booleanValue(result, false);
           return resultBoolean;
         } catch (RuntimeException re) {
