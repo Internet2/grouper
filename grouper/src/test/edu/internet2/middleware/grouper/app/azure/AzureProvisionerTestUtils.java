@@ -111,8 +111,12 @@ public class AzureProvisionerTestUtils {
     
 //    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.subjectIdentifier0 + '@"+domain+"'}");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.subjectId ? (grouperProvisioningEntity.subjectId + '@" + domain + "') : null}");
-
+//    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.subjectId ? (grouperProvisioningEntity.subjectId + '@" + domain + "') : null}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpression", "${grouperProvisioningEntity.subjectId + '@" + domain + "'}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.nullChecksInScript", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translationContinueCondition", "${!grouperProvisioningEntity.subjectId.startsWith('test')}");
+    
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "translationScript");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.insert", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
@@ -441,7 +445,7 @@ public class AzureProvisionerTestUtils {
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".provisionerJobSyncType").value(GrouperProvisioningType.incrementalProvisionChangeLog.name()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".publisher.class").value(ProvisioningConsumer.class.getName()).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".publisher.debug").value("true").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".quartzCron").value("0 0 0 1 1 ? 2200").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.provisioner_incremental_" + provisioningTestConfigInput.getConfigId() + ".quartzCron").value("9 59 23 31 12 ? 2099").store();
   
     ConfigPropertiesCascadeBase.clearCache();
   

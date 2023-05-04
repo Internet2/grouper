@@ -72,7 +72,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testUdelIncremental"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testAddEntityFailsTranslationCheckIncremental"));
     //realAzureAddUsers();
   }
 
@@ -2229,5 +2229,139 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(userIds.contains(grouperAzureUsers.get(0).getId()));
 
     }
+
+  public void addEntityFailsTranslationCheckHelper(boolean isFull) {
+      
+      GrouperStartup.startup();
+      
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      String domain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector.myAzure.domain");
+      
+      AzureProvisionerTestUtils.configureAzureProvisioner(
+          new AzureProvisionerTestConfigInput().assignGroupAttributeCount(3).assignEntityAttributeCount(2)
+            .assignRealAzure(false)
+            .assignProvisioningStrategy("michiganAzure")
+            .addExtraConfig("errorHandlingShow", "true")
+            .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
+          );
+      
+      RegistrySubject.add(grouperSession, "Fred400", "person", "Fred400");
+      Subject fred = SubjectFinder.findById("Fred400", true);
+      
+      boolean sleep = false;
+      List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test:test0"), "displayName");
+      if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
+        GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
+        sleep = true;
+      }
+  
+      List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+      if (GrouperUtil.length(grouperAzureUsers) == 0) {
+        GrouperAzureUser grouperAzureUser = new GrouperAzureUser();
+        grouperAzureUser.setUserPrincipalName(fred.getId() + "@" + domain);
+        grouperAzureUser.setDisplayName("Fred400");
+        grouperAzureUser.setMailNickname("Fred400");
+        
+        GrouperAzureApiCommands.createAzureUsers("myAzure", GrouperUtil.toList(grouperAzureUser), null);
+        sleep = true;
+      }
+      if (sleep) {
+        GrouperUtil.sleep(10000);
+      }
+      
+      if (!isFull) {
+        fullProvision();
+        incrementalProvision();
+      }
+      if (sleep) {
+        GrouperUtil.sleep(10000);
+      }
+  
+      // this will create tables
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+  
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:test0").save();
+      
+      testGroup.addMember(fred, false);
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("myAzureProvisioner");
+      attributeValue.setTargetName("myAzureProvisioner");
+      attributeValue.setStemScopeString("sub");
+      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      metadataNameValues.put("md_grouper_azureGroupType", "security");
+  //    metadataNameValues.put("md_grouper_welcomeEmailDisabled", true);
+  
+      attributeValue.setMetadataNameValues(metadataNameValues);
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over
+      
+      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+      if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
+        GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
+        GrouperUtil.sleep(10000);
+      }
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = null;
+      GrouperProvisioner grouperProvisioner = null;
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+      GrouperUtil.sleep(10000);
+  
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+      
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+      assertEquals(1, grouperAzureGroups1.size());
+  
+      grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+      assertEquals(1, grouperAzureUsers.size());
+  
+      Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", grouperAzureGroups1.get(0).getId());
+      assertEquals(1, GrouperUtil.length(userIds));
+      assertTrue(userIds.contains(grouperAzureUsers.get(0).getId()));
+      
+      // add something else
+      testGroup.addMember(SubjectTestHelper.SUBJ0);
+            
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+      GrouperUtil.sleep(10000);
+  
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+  
+      grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+      assertEquals(1, grouperAzureGroups1.size());
+
+      grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+      assertEquals(1, grouperAzureUsers.size());
+  
+      userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", grouperAzureGroups1.get(0).getId());
+      assertEquals(1, GrouperUtil.length(userIds));
+      assertTrue(userIds.contains(grouperAzureUsers.get(0).getId()));
+
+    }
+
+  public void testAddEntityFailsTranslationCheckFull() {
+    addEntityFailsTranslationCheckHelper(true);
+  }
+
+  public void testAddEntityFailsTranslationCheckIncremental() {
+    addEntityFailsTranslationCheckHelper(false);
+  }
   
 }
