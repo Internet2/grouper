@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -24,6 +26,11 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
   public String getDaemonJobPrefix() {
     return null;
   }
+  
+  public boolean isEditableOnUiFromWizard() {
+    return true;
+  }
+  
   
   public final static Set<String> grouperDaemonConfigClassNames = new LinkedHashSet<String>();
   
@@ -69,9 +76,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobWsMessagingBridgeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonPspngFullSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonReportConfiguration.class.getName());
-    if (false) {
-      grouperDaemonConfigClassNames.add(GrouperDaemonReportForGroupStemConfiguration.class.getName());
-    }
+    grouperDaemonConfigClassNames.add(GrouperDaemonReportForGroupStemConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonRulesConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobObjectTypesFullSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSubjectChangeConfiguration.class.getName());
@@ -84,7 +89,15 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
    * @return
    */
   public static List<GrouperDaemonConfiguration> retrieveAllModuleConfigurationTypes() {
-    return (List<GrouperDaemonConfiguration>) (Object) retrieveAllConfigurationTypesHelper(grouperDaemonConfigClassNames);
+    List<GrouperDaemonConfiguration> result = new ArrayList<>( (List<GrouperDaemonConfiguration>) (Object) retrieveAllConfigurationTypesHelper(grouperDaemonConfigClassNames));
+    Iterator<GrouperDaemonConfiguration> iterator = result.iterator();
+    while (iterator.hasNext()) {
+      GrouperDaemonConfiguration grouperDaemonConfiguration = iterator.next();
+      if (!grouperDaemonConfiguration.isEditableOnUiFromWizard()) {
+        iterator.remove();
+      }
+    }
+    return result;
   }
   
   public Collection<GrouperConfigurationModuleAttribute> getConfigAttributes() {

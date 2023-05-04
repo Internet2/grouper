@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouper.app.reports;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
@@ -111,7 +113,7 @@ public enum ReportConfigType {
      */
     public GrouperReportData retrieveReportDataByConfig(GrouperReportConfigurationBean grouperReportConfigurationBean, GrouperReportInstance grouperReportInstance) {
 
-      String dbExternalSystemConfigId = grouperReportConfigurationBean.getSqlConfig();
+      String dbExternalSystemConfigId = StringUtils.defaultIfBlank(grouperReportConfigurationBean.getSqlConfig(), "grouper");
       GrouperReportData grouperReportData = new GrouperReportData();
       String sql = grouperReportConfigurationBean.getReportConfigQuery();
       
@@ -126,7 +128,7 @@ public enum ReportConfigType {
         int columnCount = metadataFromDatabase.getColumnMetadata().size();
         ArrayList<String> cols = new ArrayList<>();
         for (int index = 1; index <= columnCount; index++) {
-          cols.add(metadataFromDatabase.getColumnMetadata().get(0).getColumnName());
+          cols.add(metadataFromDatabase.getColumnMetadata().get(index-1).getColumnName());
         }
         grouperReportData.setHeaders(cols);
 
