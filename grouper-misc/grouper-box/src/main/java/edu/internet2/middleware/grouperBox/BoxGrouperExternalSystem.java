@@ -3,6 +3,9 @@ package edu.internet2.middleware.grouperBox;
 import java.io.File;
 import java.net.InetSocketAddress;
 import java.net.Proxy;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -16,6 +19,7 @@ import com.box.sdk.JWTEncryptionPreferences;
 
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -127,4 +131,20 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     
     return boxAPIConnection;
   }
+
+  @Override
+  public List<String> test() throws UnsupportedOperationException {
+    
+    List<String> ret = new ArrayList<>();
+    
+    try {
+      retrieveBoxApiConnection(this.getConfigId());
+    } catch (Exception e) {
+      ret.add("Unable to make box connection: " + GrouperUtil.escapeHtml(e.getMessage(), true));
+    }
+
+    return ret;
+  }
+  
+  
 }

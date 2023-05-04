@@ -10,8 +10,10 @@ import java.security.interfaces.RSAPrivateKey;
 import java.security.interfaces.RSAPublicKey;
 import java.security.spec.InvalidKeySpecException;
 import java.security.spec.PKCS8EncodedKeySpec;
+import java.util.ArrayList;
 import java.util.Base64;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
@@ -287,6 +289,19 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     
   }
   
+  @Override
+  public List<String> test() throws UnsupportedOperationException {
+    
+    List<String> ret = new ArrayList<>();
+    
+    try {
+      retrieveAccessTokenForBoxConfigId(new HashMap<String, Object>(), this.getConfigId());
+    } catch (Exception e) {
+      ret.add("Unable to make box connection: " + GrouperUtil.escapeHtml(e.getMessage(), true));
+    }
+
+    return ret;
+  }
   
   
 }
