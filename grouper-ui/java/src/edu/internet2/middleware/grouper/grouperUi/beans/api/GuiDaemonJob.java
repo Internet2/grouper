@@ -710,6 +710,15 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
     return isMultiple;
   }
 
+  public boolean isEditable() {
+    try {
+      GrouperDaemonConfiguration grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
+      return grouperDaemonConfig != null && grouperDaemonConfig.isEditableOnUiFromWizard();
+    } catch (Exception e) {
+      LOG.error("Error: cant find daemon config from job name '" + jobName + "'", e);
+    }
+    return false;
+  }
   
   public boolean isLoader() {
     return isLoader;
