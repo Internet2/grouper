@@ -265,7 +265,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
 
     }
 
-    if (oldTargetProvisioningMembership != null) {
+    if (oldTargetProvisioningMembership != null && oldTargetProvisioningMembership != this.targetProvisioningMembership) {
       oldTargetProvisioningMembership.setProvisioningMembershipWrapper(null);
     }
     if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
@@ -294,7 +294,7 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
       this.grouperTargetMembership.setProvisioningMembershipWrapper(this);
     }
 
-    if (oldGrouperTargetMembership != null) {
+    if (oldGrouperTargetMembership != null && oldGrouperTargetMembership != this.targetProvisioningMembership) {
       oldGrouperTargetMembership.setProvisioningMembershipWrapper(null);
     }
     if (oldProvisioningMembershipWrapper != null && oldProvisioningMembershipWrapper != this) {
