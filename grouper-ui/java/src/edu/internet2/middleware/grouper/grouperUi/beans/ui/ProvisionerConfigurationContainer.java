@@ -9,6 +9,8 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningErro
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningErrorSummary;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -40,6 +42,16 @@ public class ProvisionerConfigurationContainer {
    * logs for a provisioner
    */
   private List<GuiProvisionerLog> guiProvisionerLogs = new ArrayList<GuiProvisionerLog>();
+
+  /**
+   * groups that are provisionable for a provisioner
+   */
+  private List<GuiGroup> guiGroupsProvisionable = new ArrayList<GuiGroup>();
+  
+  private int totalProvisionableGroups;
+  
+  private List<GuiProvisioningAssignment> guiProvisioningAssignments = new ArrayList<>();
+  private int totalProvisioningAssignments;
   
   /**
    * jobs for a provisioner
@@ -123,6 +135,37 @@ public class ProvisionerConfigurationContainer {
     this.guiProvisionerLogs = guiProvisionerLogs;
   }
   
+  
+  public List<GuiGroup> getGuiGroupsProvisionable() {
+    return guiGroupsProvisionable;
+  }
+
+  
+  public void setGuiGroupsProvisionable(List<GuiGroup> guiGroupsProvisionable) {
+    this.guiGroupsProvisionable = guiGroupsProvisionable;
+  }
+
+  
+  public List<GuiProvisioningAssignment> getGuiProvisioningAssignments() {
+    return guiProvisioningAssignments;
+  }
+
+  
+  public void setGuiProvisioningAssignments(
+      List<GuiProvisioningAssignment> guiProvisioningAssignments) {
+    this.guiProvisioningAssignments = guiProvisioningAssignments;
+  }
+
+  
+  public int getTotalProvisioningAssignments() {
+    return totalProvisioningAssignments;
+  }
+
+  
+  public void setTotalProvisioningAssignments(int totalProvisioningAssignments) {
+    this.totalProvisioningAssignments = totalProvisioningAssignments;
+  }
+
   /**
    * @return jobs for a provisioner
    */
@@ -452,12 +495,16 @@ public class ProvisionerConfigurationContainer {
   public void setBlankStartWithSelected(boolean blankStartWithSelected) {
     this.blankStartWithSelected = blankStartWithSelected;
   }
+
   
+  public int getTotalProvisionableGroups() {
+    return totalProvisionableGroups;
+  }
+
   
-  
-  
-  
-  
+  public void setTotalProvisionableGroups(int totalProvisionableGroups) {
+    this.totalProvisionableGroups = totalProvisionableGroups;
+  }
   
   
   

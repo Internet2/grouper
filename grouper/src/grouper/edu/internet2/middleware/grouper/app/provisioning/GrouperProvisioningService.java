@@ -48,7 +48,6 @@ import edu.internet2.middleware.grouper.internal.dao.QuerySort;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -1013,6 +1012,71 @@ public class GrouperProvisioningService {
     }
     
     return provisioningErrors;
+  }
+  
+  
+  public static Map<String, List<String>> retrieveAssignments(String provisionerName) {
+    
+    Map<String, List<String>> groupFolderToLists = new HashMap<>();
+    
+    StringBuilder query = new StringBuilder("select gaaagv.group_name, 'group' as owner_type from grouper_aval_asn_asn_group_v gaaagv where gaaagv.attribute_def_name_name2 like '%etc:provisioning:provisioningTarget' and gaaagv.value_string = ?  union all select gaaasv.stem_name, 'stem' as owner_type from grouper_aval_asn_asn_stem_v gaaasv where gaaasv.attribute_def_name_name2 like '%etc:provisioning:provisioningTarget' and gaaasv.value_string = ? ");
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    gcDbAccess.addBindVar(provisionerName);
+    gcDbAccess.addBindVar(provisionerName);
+    
+    List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+    
+    List<String> groupNames = new ArrayList<>();
+    List<String> folderNames = new ArrayList<>();
+    
+    for (Object[] row: rows) {
+      
+      String groupOrFolder = (String)row[1];
+      String groupNameOrFolderName = (String)row[0];
+      if (StringUtils.equals("group", groupOrFolder)) {
+        groupNames.add(groupNameOrFolderName);
+      } else if (StringUtils.equals("stem", groupOrFolder)) {
+        folderNames.add(groupNameOrFolderName);
+      }
+    }
+    
+    groupFolderToLists.put("group", groupNames);
+    groupFolderToLists.put("stem", folderNames);
+    
+    return groupFolderToLists;
+  
+    
+  }
+  
+  
+  /**
+   * retrieve groups that are provisionable for <pre>provisionerName</pre>
+   * @param provisionerName
+   * @return
+   */
+  public static MultiKey retrieveGroupsProvisionable(String provisionerName) {
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, provisionerName);
+    
+    if (gcGrouperSync == null) {
+      return null;
+    }
+    
+    QueryOptions queryOptions = new QueryOptions();
+    queryOptions.paging(QueryPaging.page(1000, 1, true));
+    
+    List<GcGrouperSyncGroup> gcGrouperSyncGroupsInTargetStart = HibernateSession.byHqlStatic().options(queryOptions)
+      .createQuery("from GcGrouperSyncGroup where grouperSyncId = :theGrouperSyncId and provisionableDb = 'T' ")
+      .setString("theGrouperSyncId", gcGrouperSync.getId())
+      .list(GcGrouperSyncGroup.class);
+    
+    gcGrouperSyncGroups.addAll(gcGrouperSyncGroupsInTargetStart);
+    
+    int totalCount = queryOptions.getQueryPaging().getTotalRecordCount();
+    
+    return new MultiKey(totalCount, gcGrouperSyncGroups);
   }
   
   /**

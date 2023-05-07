@@ -15,7 +15,11 @@ import org.apache.commons.lang3.BooleanUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningDiagnosticsContainer;
@@ -31,6 +35,8 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -38,6 +44,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisionerConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisionerLog;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisioningAssignment;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ProvisionerConfigurationContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
@@ -836,6 +843,152 @@ public class UiV2ProvisionerConfiguration {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+  
+  
+  /**
+   * view provisionable groups
+   * @param request
+   * @param response
+   */
+  public void groupsProvisionable(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration(provisionerConfigId)) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      MultiKey totalCountAndListOfGroups = GrouperProvisioningService.retrieveGroupsProvisionable(provisionerConfigId);
+      
+      int totalGroups = (Integer)totalCountAndListOfGroups.getKey(0);
+      List<GcGrouperSyncGroup> grouperSyncGroups = (List<GcGrouperSyncGroup>)totalCountAndListOfGroups.getKey(1);
+      
+      List<GuiGroup> guiGroups = new ArrayList<>();
+      
+      for (GcGrouperSyncGroup gcGrouperSyncGroup: grouperSyncGroups) {
+        
+        String groupId = gcGrouperSyncGroup.getGroupId();
+        if (StringUtils.isNotBlank(groupId)) {
+          Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
+          if (group != null) {
+            GuiGroup guiGroup = new GuiGroup(group);
+            guiGroups.add(guiGroup);
+          }
+        }
+        
+      }
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+
+      provisionerConfigurationContainer.setGuiGroupsProvisionable(guiGroups);
+      provisionerConfigurationContainer.setTotalProvisionableGroups(totalGroups);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/groupsProvisionable.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  
+  
+  /**
+   * view provisionable groups
+   * @param request
+   * @param response
+   */
+  public void viewAssignments(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      ProvisionerConfigurationContainer provisionerConfigurationContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisionerConfigurationContainer();
+      
+      String provisionerConfigId = request.getParameter("provisionerConfigId");
+      
+      if (StringUtils.isBlank(provisionerConfigId)) {
+        throw new RuntimeException("provisionerConfigId cannot be blank");
+      }
+      
+      if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration(provisionerConfigId)) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      Map<String, List<String>> assignments = GrouperProvisioningService.retrieveAssignments(provisionerConfigId);
+      
+      List<String> groupNames = assignments.get("group");
+      List<String> folderNames = assignments.get("stem");
+      
+      List<GuiProvisioningAssignment> guiProvisioningAssignments = new ArrayList<>();
+      
+      for (String groupName: groupNames) {
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group != null) {
+          GuiGroup guiGroup = new GuiGroup(group);
+          guiProvisioningAssignments.add(new GuiProvisioningAssignment("group", guiGroup));
+        }
+      }
+
+      for (String folderName: folderNames) {
+        Stem stem = StemFinder.findByName(grouperSession, folderName, false);
+        if (stem != null) {
+          GuiStem guiStem = new GuiStem(stem);
+          guiProvisioningAssignments.add(new GuiProvisioningAssignment("folder", guiStem));
+        }
+      }
+      
+      int totalAssignments = guiProvisioningAssignments.size();
+
+      // show up to 1000
+      if (totalAssignments > 1000) {
+        guiProvisioningAssignments = guiProvisioningAssignments.subList(0, 1000);
+      }
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
+      GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
+      provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
+
+      provisionerConfigurationContainer.setGuiProvisioningAssignments(guiProvisioningAssignments);
+      provisionerConfigurationContainer.setTotalProvisioningAssignments(totalAssignments);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/provisionerConfigs/assignments.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  
+  
   
   /**
    * show screen to add a new provisioner configuration
