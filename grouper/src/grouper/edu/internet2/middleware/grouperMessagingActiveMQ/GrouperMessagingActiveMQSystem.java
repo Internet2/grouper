@@ -24,6 +24,7 @@ import javax.jms.TextMessage;
 
 import org.apache.qpid.jms.JmsConnectionFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
@@ -61,11 +62,22 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
     
     String queueOrTopicName = queueParam.getQueueOrTopicName();
     
+    GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(systemParam.getMessageSystemName());
+
+    //Create a single ActiveMQ session per connection, to prevent OOM errors
+    boolean createSingleSessionPerConnection = GrouperUtil.booleanValue(grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "createSingleSessionPerConnection"), false);
     try {
       Connection connection = ActiveMQClientConnectionFactory.INSTANCE.getActiveMQConnection(systemParam.getMessageSystemName());
       
       // Create a non-transactional session with automatic acknowledgement
-      Session session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      Session session = null;
+      
+      if (createSingleSessionPerConnection) {
+        session = ActiveMQClientConnectionFactory.INSTANCE.getActiveMQSendSession(systemParam.getMessageSystemName());
+      } else {
+        session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+      }
+      
       
       Destination destination = null;
       if (queueParam.getQueueType() == GrouperMessageQueueType.queue) {
@@ -237,6 +249,37 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
     
     private Map<String, Connection> messagingSystemNameConnection = new HashMap<String, Connection>();
            
+    private Map<String,Session> messagingSystemNameSession = new HashMap<>();
+
+    private Session getActiveMQSendSession(String messagingSystemName) throws JMSException {
+      if (StringUtils.isBlank(messagingSystemName)) {
+        throw new IllegalArgumentException("messagingSystemName is required.");
+      }
+
+      Connection connection =  messagingSystemNameConnection.get(messagingSystemName);
+
+      if (connection == null) {
+        throw new JMSException("Connection does not exist. Create a connection first");
+      }
+
+      Session session =  messagingSystemNameSession.get(messagingSystemName);
+
+      if (session == null) {
+        synchronized(ActiveMQClientConnectionFactory.class) {
+          
+          session =  messagingSystemNameSession.get(messagingSystemName);
+          
+          if (session == null) {
+
+            session = connection.createSession(false, Session.AUTO_ACKNOWLEDGE);
+            messagingSystemNameSession.put(messagingSystemName,session);
+          }
+        }
+      }
+
+      return session;
+    }
+
     private Connection getActiveMQConnection(String messagingSystemName) throws JMSException {
       
       if (StringUtils.isBlank(messagingSystemName)) {
@@ -245,41 +288,45 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
       
       Connection connection =  messagingSystemNameConnection.get(messagingSystemName);
       
-      synchronized(ActiveMQClientConnectionFactory.class) {
-        
-        if (connection == null) {
+      if (connection == null) {
+        synchronized(ActiveMQClientConnectionFactory.class) {
           
-          GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
-
-          String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");
-          String uri =  grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "uri");
-          String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
-          String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
+          connection =  messagingSystemNameConnection.get(messagingSystemName);
           
-          if (StringUtils.isNotBlank(password)) {
-            password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
-          }
-          Integer port = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "port", -1);
-
-          String connectionUrl;
-          if (StringUtils.isNotBlank(uri)) {
-            connectionUrl = uri;
-          } else {
-            connectionUrl = "amqp://"+host+":"+port;
-          }
-
-          JmsConnectionFactory factory = new JmsConnectionFactory(connectionUrl);
-          if (StringUtils.isNotBlank(username)) {
-            factory.setUsername(username);
-          }
-          if (StringUtils.isNotBlank(password)) {
-            factory.setPassword(password);
-          }
-          
-          connection = factory.createConnection();
-          connection.start();
-          messagingSystemNameConnection.put(messagingSystemName, connection);
+          if (connection == null) {
             
+            GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
+  
+            String host = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "host");
+            String uri =  grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "uri");
+            String username = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "username");
+            String password = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "password");
+            
+            if (StringUtils.isNotBlank(password)) {
+              password = GrouperClientUtils.decryptFromFileIfFileExists(password, null);
+            }
+            Integer port = grouperMessagingConfig.propertyValueInt(GrouperClientConfig.retrieveConfig(), "port", -1);
+  
+            String connectionUrl;
+            if (StringUtils.isNotBlank(uri)) {
+              connectionUrl = uri;
+            } else {
+              connectionUrl = "amqp://"+host+":"+port;
+            }
+  
+            JmsConnectionFactory factory = new JmsConnectionFactory(connectionUrl);
+            if (StringUtils.isNotBlank(username)) {
+              factory.setUsername(username);
+            }
+            if (StringUtils.isNotBlank(password)) {
+              factory.setPassword(password);
+            }
+            
+            connection = factory.createConnection();
+            connection.start();
+            messagingSystemNameConnection.put(messagingSystemName, connection);
+              
+          }
         }
       }
       return connection;
@@ -298,6 +345,7 @@ public class GrouperMessagingActiveMQSystem implements GrouperMessagingSystem {
             throw new RuntimeException("Error occurred while closing ActiveMQ connection for "+messagingSystemName, e);
           } finally {
             messagingSystemNameConnection.remove(messagingSystemName);
+            messagingSystemNameSession.remove(messagingSystemName);
           }
         }
       }

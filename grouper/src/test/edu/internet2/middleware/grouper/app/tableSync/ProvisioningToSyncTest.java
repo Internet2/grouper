@@ -835,7 +835,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
 //      
 //      //something that will never fire
 //      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-//          "0 0 0 1 1 ? 2200");
+//          "9 59 23 31 12 ? 2099");
 //      
 //      GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".elfilter", 
 //          "(event.eventType == 'MEMBERSHIP_DELETE' || event.eventType == 'MEMBERSHIP_ADD' || event.eventType == 'MEMBERSHIP_UPDATE')  && event.sourceId == 'jdbc' ");
@@ -1748,7 +1748,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
 //    
 //    //something that will never fire
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-//        "0 0 0 1 1 ? 2200");
+//        "9 59 23 31 12 ? 2099");
 //    
 //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".provisionerConfigId", "testTarget");
 //  
@@ -1783,7 +1783,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     
     //something that will never fire
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer." + JOB_NAME + ".quartzCron", 
-        "0 0 0 1 1 ? 2200");
+        "9 59 23 31 12 ? 2099");
     
   
     // run the loader, initial run tries that event

@@ -32,21 +32,6 @@
     </dependency>
     <dependency>
       <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-messaging-activemq</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-messaging-aws</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
-      <artifactId>grouper-messaging-rabbitmq</artifactId>
-      <version>${grouper.version}</version>
-    </dependency>
-    <dependency>
-      <groupId>${project.groupId}</groupId>
       <artifactId>grouper-pspng</artifactId>
       <version>${grouper.version}</version>
     </dependency>

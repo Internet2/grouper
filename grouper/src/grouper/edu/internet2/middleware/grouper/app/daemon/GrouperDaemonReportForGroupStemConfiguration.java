@@ -5,6 +5,11 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 public class GrouperDaemonReportForGroupStemConfiguration extends GrouperDaemonConfiguration {
 
   @Override
+  public boolean isEditableOnUiFromWizard() {
+    return false;
+  }
+
+  @Override
   public ConfigFileName getConfigFileName() {
     return null;
   }

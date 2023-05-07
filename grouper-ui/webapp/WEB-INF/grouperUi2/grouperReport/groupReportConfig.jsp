@@ -119,6 +119,8 @@
                                
                              </c:if>
                              
+                             <li><a href="#" onclick="ajax('../app/UiV2Admin.daemonJobsSubmit?action=runNow&source=reports&jobName=grouper_report_${grouperRequestContainer.groupContainer.guiGroup.group.id}_${guiReportConfig.reportConfigBean.attributeAssignmentMarkerId}'); return false;" >${textContainer.text['adminDaemonJobsMoreActionsRunNow'] }</a></li>
+                             
                              <c:if test="${grouperRequestContainer.grouperReportContainer.canWriteGrouperReports }">
                                <c:choose>
                                  <c:when test="${guiReportConfig.reportConfigBean.reportConfigEnabled}">

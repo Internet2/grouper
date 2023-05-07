@@ -87,7 +87,7 @@ public class EsbPublisherChangeLogScriptTest extends GrouperTest {
     //  # changeLog.consumer.changeLogScriptDaemonConfigKey.changeLogFileName = 
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.myChangeLogScript.class").value("edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.myChangeLogScript.quartzCron").value("0 0 0 1 1 ? 2200").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.myChangeLogScript.quartzCron").value("9 59 23 31 12 ? 2099").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.myChangeLogScript.elfilter").value("(event.eventType eq 'MEMBERSHIP_DELETE' || event.eventType eq 'MEMBERSHIP_ADD') &&  (event.groupName =~ '^test\\:.*$')").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.myChangeLogScript.publisher.class").value("edu.internet2.middleware.grouper.app.loader.EsbPublisherChangeLogScript").store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("changeLog.consumer.myChangeLogScript.changeLogFileType").value("script").store();

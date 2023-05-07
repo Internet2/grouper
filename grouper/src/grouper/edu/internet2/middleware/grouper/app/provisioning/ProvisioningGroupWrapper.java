@@ -179,7 +179,7 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
       
     }
 
-    if (oldTargetProvisioningGroup != null) {
+    if (oldTargetProvisioningGroup != null && oldTargetProvisioningGroup != this.targetProvisioningGroup) {
       oldTargetProvisioningGroup.setProvisioningGroupWrapper(null);
     }
     if (oldProvisioningGroupWrapper != null && oldProvisioningGroupWrapper != this) {

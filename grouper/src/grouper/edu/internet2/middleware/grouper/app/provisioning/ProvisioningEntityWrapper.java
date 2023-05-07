@@ -178,7 +178,7 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
       this.grouperTargetEntity.setProvisioningEntityWrapper(this);
     }
 
-    if (oldGrouperTargetEntity != null) {
+    if (oldGrouperTargetEntity != null && oldGrouperTargetEntity != this.targetProvisioningEntity) {
       oldGrouperTargetEntity.setProvisioningEntityWrapper(null);
     }
     if (oldProvisioningEntityWrapper != null && oldProvisioningEntityWrapper != this) {
