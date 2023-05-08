@@ -98,6 +98,7 @@ public class GrouperDdl5_0_4 {
         "grouper_fie_internal_id_idx", true, 
         "internal_id");
     
+    
   }
   
   
@@ -353,87 +354,87 @@ public class GrouperDdl5_0_4 {
   }
   
   
-  static void addGrouperSqlCacheMshipPitTable(Database database, DdlVersionBean ddlVersionBean) {
+  static void addGrouperSqlCacheMshipHstTable(Database database, DdlVersionBean ddlVersionBean) {
     
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipPitTable", true)) {
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipHstTable", true)) {
       return;
     }
     
     final String tableName = SqlCacheMembershipHst.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP_HST;
     
-    Table grouperSqlCacheMshipPitTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+    Table grouperSqlCacheMshipHstTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
   
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipPitTable, SqlCacheMembershipHst.COLUMN_INTERNAL_ID,
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipHstTable, SqlCacheMembershipHst.COLUMN_INTERNAL_ID,
         Types.BIGINT, "20", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipPitTable, SqlCacheMembershipHst.COLUMN_END_TIME,
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipHstTable, SqlCacheMembershipHst.COLUMN_END_TIME,
         Types.TIMESTAMP, null, false, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipPitTable, SqlCacheMembershipHst.COLUMN_START_TIME,
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipHstTable, SqlCacheMembershipHst.COLUMN_START_TIME,
         Types.TIMESTAMP, null, false, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipPitTable, SqlCacheMembershipHst.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID,
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipHstTable, SqlCacheMembershipHst.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID,
         Types.BIGINT, "20", true, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipPitTable, SqlCacheMembershipHst.COLUMN_MEMBER_INTERNAL_ID,
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMshipHstTable, SqlCacheMembershipHst.COLUMN_MEMBER_INTERNAL_ID,
         Types.BIGINT, "20", true, true);
         
   }
   
-  static void addGrouperSqlCacheMshipPitTableIndexes(Database database, DdlVersionBean ddlVersionBean) {
+  static void addGrouperSqlCacheMshipHstTableIndexes(Database database, DdlVersionBean ddlVersionBean) {
     
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipPitTableIndexes", true)) {
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipHstTableIndexes", true)) {
       return;
     }
 
-    //  CREATE INDEX grouper_sql_cache_mshpit1_idx ON grouper_sql_cache_mship_pit (sql_cache_group_internal_id, end_time);
+    //  CREATE INDEX grouper_sql_cache_mshhst1_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, end_time);
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, SqlCacheMembershipHst.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP_HST, 
-        "grouper_sql_cache_msh_pit1_idx", true, 
+        "grouper_sql_cache_msh_hst1_idx", true, 
         SqlCacheMembershipHst.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID, SqlCacheMembershipHst.COLUMN_END_TIME);
 
-    //  CREATE INDEX grouper_sql_cache_mshpit2_idx ON grouper_sql_cache_mship_pit (sql_cache_group_internal_id, start_time);
+    //  CREATE INDEX grouper_sql_cache_mshhst2_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, start_time);
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, SqlCacheMembershipHst.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP_HST, 
-        "grouper_sql_cache_msh_pit2_idx", true, 
+        "grouper_sql_cache_msh_hst2_idx", true, 
         SqlCacheMembershipHst.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID, SqlCacheMembershipHst.COLUMN_START_TIME);
 
-    //  CREATE INDEX grouper_sql_cache_mshpit3_idx ON grouper_sql_cache_mship_pit (member_internal_id, sql_cache_group_internal_id, end_time);
+    //  CREATE INDEX grouper_sql_cache_mshhst3_idx ON grouper_sql_cache_mship_hst (member_internal_id, sql_cache_group_internal_id, end_time);
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, SqlCacheMembershipHst.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP_HST, 
-        "grouper_sql_cache_msh_pit3_idx", true, SqlCacheMembershipHst.COLUMN_INTERNAL_ID,
+        "grouper_sql_cache_msh_hst3_idx", true, SqlCacheMembershipHst.COLUMN_INTERNAL_ID,
         SqlCacheMembershipHst.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID, SqlCacheMembershipHst.COLUMN_END_TIME);
         
   }
 
-  static void addGrouperSqlCacheMshipPitTableForeignKeys(Database database, DdlVersionBean ddlVersionBean) {
+  static void addGrouperSqlCacheMshipHstTableForeignKeys(Database database, DdlVersionBean ddlVersionBean) {
     
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipPitTableForeignKeys", true)) {
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipHstTableForeignKeys", true)) {
       return;
     }
 
-    //ALTER TABLE grouper_sql_cache_mship_pit ADD CONSTRAINT grouper_sql_cache_mshpit1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group(internal_id);
+    //ALTER TABLE grouper_sql_cache_mship_hst ADD CONSTRAINT grouper_sql_cache_mshhst1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group(internal_id);
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, SqlCacheMembershipHst.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP_HST,
-        "grouper_sql_cache_msh_pit1_fk", SqlCacheGroup.TABLE_GROUPER_SQL_CACHE_GROUP, SqlCacheMembershipHst.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID, SqlCacheGroup.COLUMN_INTERNAL_ID);
-        
+        "grouper_sql_cache_msh_hst1_fk", SqlCacheGroup.TABLE_GROUPER_SQL_CACHE_GROUP, SqlCacheMembershipHst.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID, SqlCacheGroup.COLUMN_INTERNAL_ID);
+
   }
 
-  static void addGrouperSqlCacheMshipPitTableComments(Database database, DdlVersionBean ddlVersionBean) {
+  static void addGrouperSqlCacheMshipHstTableComments(Database database, DdlVersionBean ddlVersionBean) {
     
     if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
       return;
     }
   
-    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipPitTableComments", true)) {
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperSqlCacheMshipHstTableComments", true)) {
       return;
     }
 
@@ -507,7 +508,7 @@ public class GrouperDdl5_0_4 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("v5_0_0_createViewGrouperSqlCacheGroupV", true)) {
+    if (ddlVersionBean.didWeDoThis("v5_0_0_createViewGrouperSqlCacheMshipV", true)) {
       return;
     }
 

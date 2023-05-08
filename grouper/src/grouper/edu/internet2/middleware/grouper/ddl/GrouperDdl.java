@@ -2832,10 +2832,10 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl5_0_4.addGrouperSqlCacheMshipTableComments(database, ddlVersionBean);
       GrouperDdl5_0_4.addGrouperSqlCacheMshipTableForeignKeys(database, ddlVersionBean);
       GrouperDdl5_0_4.addGrouperSqlCacheMshipTableIndexes(database, ddlVersionBean);
-      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTable(database, ddlVersionBean);
-      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTableComments(database, ddlVersionBean);
-      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTableForeignKeys(database, ddlVersionBean);
-      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipHstTable(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipHstTableComments(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipHstTableForeignKeys(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipHstTableIndexes(database, ddlVersionBean);
       GrouperDdl5_0_4.createViewGrouperSqlCacheGroupV(ddlVersionBean);
       GrouperDdl5_0_4.createViewGrouperSqlCacheMshipV(ddlVersionBean);
       GrouperDdl5_0_4.createViewGrouperSqlCacheMshipHstV(ddlVersionBean);
