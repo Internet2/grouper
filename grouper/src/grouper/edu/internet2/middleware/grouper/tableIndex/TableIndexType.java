@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.tableIndex;
 
+import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
@@ -46,6 +47,27 @@ public enum TableIndexType {
     public boolean isHasIdColumn() {
       return true;
     }
+  },
+  
+  /** index assigned to a field */
+  field {
+
+    @Override
+    public String tableName() {
+      return Field.TABLE_GROUPER_FIELDS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
+
+    
   },
   
   /** index assigned to a dictionary item */
@@ -313,6 +335,25 @@ public enum TableIndexType {
     public boolean isHasIdColumn() {
       return false;
     }
+  }, 
+  
+  /** index assigned to a sql group cache entry */
+  sqlGroupCache{
+  
+    @Override
+    public String tableName() {
+      return "grouper_sql_group_cache";
+    }
+  
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
   };
 
   /**
@@ -345,5 +386,13 @@ public enum TableIndexType {
    * @return column name
    */
   public abstract boolean isHasIdColumn();
+
+  /**
+   * does this index type table has the id column
+   * @return column name
+   */
+  public String getIdColumnName() {
+    return "id";
+  };
 
 }

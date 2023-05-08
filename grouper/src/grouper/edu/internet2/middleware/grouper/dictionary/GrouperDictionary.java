@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builde
 
 
 /**
- * Status of all jobs for the sync.  one record for full, one for incremental, etc
+ * Dictionary holds strings in one place for other tables to refer to
  */
 @GcPersistableClass(tableName="grouper_dictionary", defaultFieldPersist=GcPersist.doPersist)
 public class GrouperDictionary implements GcSqlAssignPrimaryKey, GcDbVersionable {

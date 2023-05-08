@@ -74,6 +74,8 @@ import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.AddFieldToGroupTypeValidator;
 import edu.internet2.middleware.grouper.xml.export.XmlExportField;
@@ -218,6 +220,9 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   public static final String COLUMN_ID = "id";
   
   /** col */
+  public static final String COLUMN_INTERNAL_ID = "internal_id";
+  
+  /** col */
   public static final String COLUMN_NAME = "name";
   
   /** col */
@@ -305,6 +310,9 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   /** constant for property name for: uuid */
   public static final String PROPERTY_UUID = "uuid";
 
+  /** constant for property name for: internalId */
+  public static final String PROPERTY_INTERNAL_ID = "internalId";
+
 
   /** context id of the transaction */
   private String contextId;
@@ -332,12 +340,30 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   /** */
   private String    type;
   /** */
+  private Long    internalId;
+  /** */
   private String    uuid;
   /** */
   private String    writePrivilege;
   /** */
   public  static final  long      serialVersionUID  = 2072790175332537149L;
 
+
+  /**
+   * 
+   * @return
+   */
+  public Long getInternalId() {
+    return internalId;
+  }
+
+  /**
+   * 
+   * @param internalId
+   */
+  public void setInternalId(Long internalId) {
+    this.internalId = internalId;
+  }
 
   /**
    * see if this is a list of members field for stems
@@ -565,6 +591,7 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   @Override
   public String toString() {
     return new ToStringBuilder(this)
+      .append( "internalId",           this.getInternalId()           )
       .append( "name",           this.getName()           )
       .append( "readPrivilege",  this.getReadPrivilege()  )
       .append( "type",           this.getType()           )
@@ -681,6 +708,10 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
   public void onPreSave(HibernateSession hibernateSession) {
     super.onPreSave(hibernateSession);
         
+    if (this.internalId == null) {
+      this.internalId = TableIndex.reserveId(TableIndexType.field);
+    }
+    
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.FIELD, 
         FieldHooks.METHOD_FIELD_PRE_INSERT, HooksFieldBean.class, 
         this, Field.class, VetoTypeGrouper.FIELD_PRE_INSERT, false, false);

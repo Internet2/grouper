@@ -70,7 +70,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_16To5_0_0ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom5_0_0To5_0_4ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -1971,6 +1971,77 @@ public class GrouperDdlUtilsTest extends GrouperTest {
 //    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_data_global_assign", "grouper_data_global4_idx"));
   
     scriptToGetTo2_6_16.delete();
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  }
+
+  /**
+   * 
+   */
+  public void testUpgradeFrom5_0_0To5_0_4ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sql_cache_mship_v"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_fields", "internal_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_fields", "fields_internal_id_unique"));
+  
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    // get to 5.0.0
+    File scriptToGetTo5_0_0 = retrieveScriptFile("GrouperDdl_5_0_0_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo5_0_0, true, true);
+  
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_sql_cache_mship_v"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_fields", "internal_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_fields", "fields_internal_id_unique"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sql_cache_mship_v"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_fields", "internal_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_fields", "fields_internal_id_unique"));
+  
+    scriptToGetTo5_0_0.delete();
     
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)

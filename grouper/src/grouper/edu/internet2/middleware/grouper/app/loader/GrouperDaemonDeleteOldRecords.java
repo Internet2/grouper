@@ -872,7 +872,7 @@ public class GrouperDaemonDeleteOldRecords {
       
       try {
         List<String> ids = HibernateSession.bySqlStatic().listSelect(
-            String.class, "select id from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by id" , null, null);
+            String.class, "select " + tableIndexType.getIdColumnName() + " from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by " + tableIndexType.getIdColumnName(), null, null);
 
         if (GrouperUtil.length(ids) > 0) {
           String message = "Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting...";
@@ -887,7 +887,7 @@ public class GrouperDaemonDeleteOldRecords {
           for (int i=0;i<numberOfBatches; i++) {
             List<String> idBatch = GrouperUtil.batchList(ids, 1000, i);
             String sql = "update " + tableIndexType.tableName() 
-                + " set " + tableIndexType.getIncrementingColumn() + " = ? where id = ?";
+                + " set " + tableIndexType.getIncrementingColumn() + " = ? where " + tableIndexType.getIdColumnName() + " = ?";
             List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
             for (String id : idBatch) {
               batchBindVars.add(GrouperUtil.toListObject(idIndexes.get(idIndexIndex++), id));

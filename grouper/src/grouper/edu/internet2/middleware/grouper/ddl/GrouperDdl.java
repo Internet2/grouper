@@ -2815,12 +2815,31 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "5.0.4";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      GrouperDdl5_0_4.addGrouperFieldsInternalIdColumn(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperFieldsInternalIdIndex(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperFieldsInternalIdComments(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheGroupTable(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheGroupTableComments(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheGroupTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheGroupTableForeignKeys(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipTable(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipTableComments(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipTableForeignKeys(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTable(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTableComments(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTableForeignKeys(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperSqlCacheMshipPitTableIndexes(database, ddlVersionBean);
+      GrouperDdl5_0_4.createViewGrouperSqlCacheGroupV(ddlVersionBean);
+      GrouperDdl5_0_4.createViewGrouperSqlCacheMshipV(ddlVersionBean);
+      GrouperDdl5_0_4.createViewGrouperSqlCacheMshipHstV(ddlVersionBean);
+      
     }
   },
   V47 {
