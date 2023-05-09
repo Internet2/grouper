@@ -49,6 +49,7 @@ CREATE TABLE grouper_fields
     write_privilege VARCHAR(32) NOT NULL,
     hibernate_version_number BIGINT,
     context_id VARCHAR(40) NULL,
+    internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
 
@@ -57,6 +58,8 @@ CREATE UNIQUE INDEX name_and_type ON grouper_fields (name, type);
 CREATE INDEX fields_context_idx ON grouper_fields (context_id);
 
 CREATE INDEX grouper_fields_type_idx ON grouper_fields (type);
+
+CREATE UNIQUE INDEX grouper_fie_internal_id_idx ON grouper_fields (internal_id);
 
 CREATE TABLE grouper_groups
 (
@@ -81,6 +84,7 @@ CREATE TABLE grouper_groups
     context_id VARCHAR(40) NULL,
     type_of_group VARCHAR(10) DEFAULT 'group' NOT NULL,
     id_index BIGINT NOT NULL,
+    internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
 
@@ -111,6 +115,8 @@ CREATE UNIQUE INDEX group_id_index_idx ON grouper_groups (id_index);
 CREATE UNIQUE INDEX group_parent_idx ON grouper_groups (parent_stem, extension);
 
 CREATE INDEX group_parent_display_idx ON grouper_groups (parent_stem, display_extension);
+
+CREATE UNIQUE INDEX grouper_grp_internal_id_idx ON grouper_groups (internal_id);
 
 CREATE TABLE grouper_members
 (
@@ -2042,6 +2048,51 @@ CREATE INDEX grouper_data_global2_idx ON grouper_data_global_assign (data_field_
 CREATE INDEX grouper_data_global3_idx ON grouper_data_global_assign (data_field_internal_id, value_integer);
 CREATE INDEX grouper_data_global4_idx ON grouper_data_global_assign (data_field_internal_id, value_dictionary_internal_id);
 
+CREATE TABLE grouper_sql_cache_group
+(
+    internal_id BIGINT NOT NULL,
+    group_internal_id BIGINT NOT NULL,
+    field_internal_id BIGINT NOT NULL,
+    membership_size BIGINT NOT NULL,
+    membership_size_hst BIGINT NOT NULL,
+    created_on DATETIME NOT NULL,
+    enabled_on DATETIME NOT NULL,
+    disabled_on DATETIME NOT NULL,
+    PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_sql_cache_group1_idx ON grouper_sql_cache_group (group_internal_id, field_internal_id);
+
+CREATE TABLE grouper_sql_cache_mship
+(
+    created_on DATETIME NOT NULL,
+    flattened_add_timestamp DATETIME NOT NULL,
+    internal_id BIGINT NOT NULL,
+    member_internal_id BIGINT NOT NULL,
+    sql_cache_group_internal_id BIGINT NOT NULL
+);
+
+CREATE INDEX grouper_sql_cache_mship1_idx ON grouper_sql_cache_mship (sql_cache_group_internal_id, flattened_add_timestamp);
+
+CREATE INDEX grouper_sql_cache_mship2_idx ON grouper_sql_cache_mship (member_internal_id, sql_cache_group_internal_id);
+
+CREATE TABLE grouper_sql_cache_mship_hst
+(
+    internal_id BIGINT NOT NULL,
+    end_time DATETIME NOT NULL,
+    start_time DATETIME NOT NULL,
+    sql_cache_group_internal_id BIGINT NOT NULL,
+    member_internal_id BIGINT NOT NULL,
+    PRIMARY KEY (internal_id, sql_cache_group_internal_id, member_internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_sql_cache_msh_hst1_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, end_time);
+
+CREATE UNIQUE INDEX grouper_sql_cache_msh_hst2_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, start_time);
+
+CREATE UNIQUE INDEX grouper_sql_cache_msh_hst3_idx ON grouper_sql_cache_mship_hst (internal_id, sql_cache_group_internal_id, end_time);
+
+
 
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_assign_fk FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
 ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_diction_fk FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
@@ -2405,6 +2456,15 @@ ALTER TABLE grouper_sync_log
 ALTER TABLE grouper_last_login
     ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
 
+ALTER TABLE grouper_sql_cache_group
+    ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields (internal_id);
+
+ALTER TABLE grouper_sql_cache_mship
+    ADD CONSTRAINT grouper_sql_cache_mship1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group (internal_id);
+
+ALTER TABLE grouper_sql_cache_mship_hst
+    ADD CONSTRAINT grouper_sql_cache_msh_hst1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group (internal_id);
+
 CREATE INDEX group_alternate_name_idx ON grouper_groups (alternate_name(255));
 
 CREATE INDEX member_name_idx ON grouper_members (name(255));
@@ -2657,7 +2717,13 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
+CREATE VIEW grouper_sql_cache_group_v (group_name, list_name, membership_size, group_id, field_id, group_internal_id, field_internal_id) AS select gg.name group_name, gf.name list_name, membership_size,  gg.id group_id, gf.id field_id, gg.internal_id group_internal_id, gf.internal_id field_internal_id  from grouper_sql_cache_group gscg, grouper_fields gf, grouper_groups gg  where gscg.group_internal_id = gg.internal_id and gscg.field_internal_id = gf.internal_id ;
+
+CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, flattened_add_timestamp, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0,  gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp,  gg.id AS group_id, gf.id AS field_id, gscm.internal_id AS mship_internal_id, gm.internal_id AS member_internal_id,  gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id  FROM grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf,  grouper_groups gg, grouper_members gm  WHERE gscg.group_internal_id = gg.internal_id AND gscg.field_internal_id = gf.internal_id  AND gscm.sql_cache_group_internal_id = gscg.internal_id AND gscm.member_internal_id = gm.internal_id ;
+
+CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS  select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ;
+
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 45, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V45, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 46, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V46, '));
 commit;

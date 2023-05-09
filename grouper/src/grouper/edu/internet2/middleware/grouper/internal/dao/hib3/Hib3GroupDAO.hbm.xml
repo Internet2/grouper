@@ -137,6 +137,7 @@
     <property name="alternateNameDb" column="alternate_name"/>
     <property name="typeOfGroupDb" column="type_of_group"/>
     <property name="idIndex" column="id_index"/>
+    <property name="internalId" column="internal_id"/>
 
     <property name="enabledDb" type="string" column="enabled" />
     <property name="enabledTimeDb" type="long" column="enabled_timestamp" />

@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.audit.AuditTypeFinder;
 import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -844,6 +845,10 @@ public class GrouperDdlEngine {
         return true;
       }
       GrouperDdlUtils.runScriptIfShouldAndPrintOutput(script.toString(), runScript);
+      
+      // see if there are upgrade tasks to run
+      UpgradeTasksJob.runDaemonStandalone();
+      
       return runScript;
     } finally {
       GrouperDdlUtils.insideBootstrap = false;

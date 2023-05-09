@@ -1993,7 +1993,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //lets make sure everything is there on install
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sql_cache_mship_v"));
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_fields", "internal_id"));
-    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_fields", "fields_internal_id_unique"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_fields", "grouper_fie_internal_id_idx"));
   
     GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)
@@ -2004,7 +2004,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
         grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
     assertEquals(
-        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings" , 0,
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   
     // drop everything
@@ -2020,7 +2020,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     // stuff gone
     assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_sql_cache_mship_v"));
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_fields", "internal_id"));
-    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_fields", "fields_internal_id_unique"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_fields", "grouper_fie_internal_id_idx"));
   
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)
@@ -2039,7 +2039,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //lets make sure everything is there on upgrade
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sql_cache_mship_v"));
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_fields", "internal_id"));
-    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_fields", "fields_internal_id_unique"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_fields", "grouper_fie_internal_id_idx"));
   
     scriptToGetTo5_0_0.delete();
     

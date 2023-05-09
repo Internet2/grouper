@@ -302,6 +302,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** unique number for this group */
   public static final String COLUMN_ID_INDEX = "id_index";
   
+  /** inernal unique number for this group */
+  public static final String COLUMN_INTERNAL_ID = "internal_id";
+  
   /** epoch time of when to disable membership */
   public static final String COLUMN_DISABLED_TIMESTAMP = "disabled_timestamp";
   
@@ -468,6 +471,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** id of the group as a unique integer */
   private Long idIndex;
   
+  /** internalId of the group as a unique integer */
+  private Long internalId;
+  
   /** displayExtension of group, e.g. All Students */
   private String displayExtension;
   
@@ -539,6 +545,9 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /** constant for field name for: idIndex */
   public static final String FIELD_ID_INDEX = "idIndex";
   
+  /** constant for field name for: internalId */
+  public static final String FIELD_INTERNAL_ID = "internalId";
+  
   /** constant for field name for: lastMembershipChangeDb */
   public static final String FIELD_LAST_MEMBERSHIP_CHANGE_DB = "lastMembershipChangeDb";
 
@@ -577,7 +586,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    */
   private static final Set<String> DB_VERSION_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DESCRIPTION, 
-      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_MODIFIER_UUID, 
+      FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, FIELD_INTERNAL_ID, FIELD_MODIFIER_UUID, 
       FIELD_MODIFY_TIME, FIELD_NAME, FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, 
       FIELD_ID_INDEX, FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB,
       FIELD_ALTERNATE_NAME_DB, FIELD_LAST_MEMBERSHIP_CHANGE_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB);
@@ -588,7 +597,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CREATE_TIME, FIELD_CREATOR_UUID, FIELD_DB_VERSION, 
       FIELD_DESCRIPTION, FIELD_DISPLAY_EXTENSION, FIELD_DISPLAY_NAME, FIELD_EXTENSION, 
-      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID_INDEX, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
+      FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID_INDEX, FIELD_INTERNAL_ID, FIELD_MODIFIER_UUID, FIELD_MODIFY_TIME, FIELD_NAME, 
       FIELD_PARENT_UUID, FIELD_TYPE_OF_GROUP, FIELD_UUID, FIELD_LAST_MEMBERSHIP_CHANGE_DB, 
       FIELD_ALTERNATE_NAME_DB, FIELD_LAST_IMMEDIATE_MEMBERSHIP_CHANGE_DB,
       FIELD_DISABLED_TIME_DB, FIELD_ENABLED, FIELD_ENABLED_TIME_DB);
@@ -732,6 +741,16 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     setEnabled(this.internal_isEnabledUsingTimestamps());
   }
   
+  
+  public Long getInternalId() {
+    return internalId;
+  }
+
+  
+  public void setInternalId(Long internalId) {
+    this.internalId = internalId;
+  }
+
   /** */
   @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
   private AttributeAssignGroupDelegate attributeAssignGroupDelegate;
@@ -6689,6 +6708,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     
     if (this.idIndex == null) {
       this.idIndex = TableIndex.reserveId(TableIndexType.group);
+    }
+    
+    if (this.internalId == null) {
+      this.internalId = TableIndex.reserveId(TableIndexType.groupInternalId);
     }
     
     if (!this.isEnabled()) {

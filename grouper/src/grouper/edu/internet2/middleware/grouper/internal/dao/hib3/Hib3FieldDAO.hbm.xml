@@ -111,6 +111,7 @@
     <!-- writePrivilege -->
 
     <property name="contextId" column="context_id" />
+    <property name="internalId" column="internal_id"/>
 
   </class>
 </hibernate-mapping>

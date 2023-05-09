@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.ddl;
 import java.sql.Types;
 
 import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
@@ -495,7 +496,7 @@ public class GrouperDdl5_0_4 {
             "field_id: uuid of the field", 
             "group_internal_id: group internal id", 
             "field_internal_id: field internal id"),
-        "create view grouper_sql_cache_group_v as select gg.name group_name, gf.name list_name, membership_size, "
+        "select gg.name group_name, gf.name list_name, membership_size, "
         + " gg.id group_id, gf.id field_id, gg.internal_id group_internal_id, gf.internal_id field_internal_id "
         + " from grouper_sql_cache_group gscg, grouper_fields gf, grouper_groups gg "
         + " where gscg.group_internal_id = gg.internal_id and gscg.field_internal_id = gf.internal_id "
@@ -542,8 +543,7 @@ public class GrouperDdl5_0_4 {
             "member_internal_id: member internal id",
             "group_internal_id: group internal id", 
             "field_internal_id: field internal id"),
-        " CREATE OR REPLACE VIEW public.grouper_sql_cache_mship_v "
-        + " AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0, "
+        " SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0, "
         + " gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp, "
         + " gg.id AS group_id, gf.id AS field_id, gscm.internal_id AS mship_internal_id, gm.internal_id AS member_internal_id, "
         + " gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id "
@@ -594,7 +594,7 @@ public class GrouperDdl5_0_4 {
             "member_internal_id: member internal id",
             "group_internal_id: group internal id", 
             "field_internal_id: field internal id"),
-        " create or replace view public.grouper_sql_cache_mship_hst_v as select "
+        " select "
         + " gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1, "
         + " gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id, "
         + " gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id, "
@@ -602,7 +602,62 @@ public class GrouperDdl5_0_4 {
         + " grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf, "
         + " grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id "
         + " and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id "
-        + " and gscmh.member_internal_id = gm.internal_id ) ");
+        + " and gscmh.member_internal_id = gm.internal_id ");
+  }
+
+  static void addGrouperGroupsInternalIdColumn(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperGroupsInternalIdColumn", true)) {
+      return;
+    }
+  
+    Table grouperTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,Group.TABLE_GROUPER_GROUPS);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperTable, "internal_id", Types.BIGINT, "12", false, false);
+  
+  }
+
+  //TODO add group internal id
+  
+  static void addGrouperGroupsInternalIdComments(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperGroupsInternalIdComments", true)) {
+      return;
+    }
+  
+    final String tableName = Group.TABLE_GROUPER_GROUPS;
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName, 
+        "internal_id", 
+        "internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)");
+  
+  
+  }
+
+  static void addGrouperGroupsInternalIdIndex(Database database, DdlVersionBean ddlVersionBean) {
+  
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperGroupsRequireIndex", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, Group.TABLE_GROUPER_GROUPS, 
+        "grouper_grp_internal_id_idx", true, 
+        "internal_id");
+    
+    
   }
 
 

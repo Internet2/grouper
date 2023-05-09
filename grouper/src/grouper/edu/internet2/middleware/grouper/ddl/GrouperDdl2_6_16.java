@@ -117,7 +117,7 @@ public class GrouperDdl2_6_16 {
         COLUMN_GROUPER_MSHIP_REQ_CHANGE_GROUP_ID, COLUMN_GROUPER_MSHIP_REQ_CHANGE_MEMBER_ID);
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 
-        "grouper_mship_req_mem_idx", true, 
+        "grouper_mship_req_mem_idx", false, 
         COLUMN_GROUPER_MSHIP_REQ_CHANGE_MEMBER_ID);
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperDuoTable.getName(), 

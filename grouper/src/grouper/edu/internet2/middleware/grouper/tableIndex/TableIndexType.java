@@ -49,6 +49,25 @@ public enum TableIndexType {
     }
   },
   
+  /** groupInternalId assigned to a group */
+  groupInternalId {
+
+    @Override
+    public String tableName() {
+      return Group.TABLE_GROUPER_GROUPS;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+
+    @Override
+    public boolean isHasIdColumn() {
+      return true;
+    }
+  },
+  
   /** index assigned to a field */
   field {
 

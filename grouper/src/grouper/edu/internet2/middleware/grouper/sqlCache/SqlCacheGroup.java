@@ -21,6 +21,21 @@ public class SqlCacheGroup implements GcSqlAssignPrimaryKey, GcDbVersionable {
   }
 
   /**
+   * extension of folder
+   */
+  public static String attributeDefFolderExtension = "sqlCacheable";
+  
+  /**
+   * extension of attribute def
+   */
+  public static String attributeDefExtension = "sqlCacheableGroupDef";
+  
+  /**
+   * extension of attribute
+   */
+  public static String attributeDefNameExtension = "sqlCacheableGroup";
+  
+  /**
    * version from db
    */
   @GcPersistableField(persist = GcPersist.dontPersist)

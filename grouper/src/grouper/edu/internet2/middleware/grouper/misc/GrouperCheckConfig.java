@@ -148,6 +148,7 @@ import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
@@ -1235,6 +1236,33 @@ public class GrouperCheckConfig {
         
         MembershipCannotAddSelfToGroupHook.registerHookIfNecessary();
       }
+      
+//      // sql cacheable group
+//      {
+//        String sqlCacheableGroupFolderName = 
+//            GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":" + SqlCacheGroup.attributeDefFolderExtension;
+//        Stem sqlCacheableGroupFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(), 
+//            sqlCacheableGroupFolderName, startedGrouperSession, new QueryOptions().secondLevelCache(false));
+//
+//        //see if attributeDef is there
+//        String sqlCacheableTypeDefName = sqlCacheableGroupFolderName + ":" + SqlCacheGroup.attributeDefExtension;
+//        AttributeDef deprovisioningType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+//            sqlCacheableTypeDefName, false, new QueryOptions().secondLevelCache(false));
+//        if (deprovisioningType == null) {
+//          deprovisioningType = sqlCacheableGroupFolder.addChildAttributeDef(
+//              SqlCacheGroup.attributeDefNameExtension, AttributeDefType.type);
+//          //assign once for each affiliation
+//          deprovisioningType.setMultiAssignable(true);
+//          deprovisioningType.setAssignToGroup(true);
+//          deprovisioningType.setAssignToAttributeDef(false);
+//          deprovisioningType.setAssignToStem(false);
+//          deprovisioningType.store();
+//        }
+//        
+//        //add a name
+//        AttributeDefName attribute = checkAttribute(deprovisioningStem, deprovisioningType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_BASE, "has deprovisioning attributes", wasInCheckConfig);
+//
+//      }
       
       //if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       // always add these objects

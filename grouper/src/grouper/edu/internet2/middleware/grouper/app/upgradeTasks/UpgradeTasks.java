@@ -280,7 +280,61 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         }
       });
     }
-  };
+  },
+  /**
+   * make sure internal_id is populated in grouper_members and make column not null
+   */
+  V10 {
+    
+    @Override
+    public void updateVersionFromPrevious() {
+      
+      // ok nulls are allowed so make the change
+      GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
+      String sql = null;
+      
+      if (GrouperDdlUtils.isOracle()) {
+        sql = "ALTER TABLE grouper_groups MODIFY (internal_id NOT NULL)";
+      } else if (GrouperDdlUtils.isMysql()) {
+        sql = "ALTER TABLE grouper_groups MODIFY internal_id BIGINT NOT NULL";
+      } else if (GrouperDdlUtils.isPostgres()) {
+        sql = "ALTER TABLE grouper_groups ALTER COLUMN internal_id SET NOT NULL";
+      } else {
+        throw new RuntimeException("Which database are we????");
+      }
+      
+      new GcDbAccess().sql(sql).executeSql();
+      
+      if (GrouperDdlUtils.isOracle()) {
+        sql = "ALTER TABLE grouper_fields MODIFY (internal_id NOT NULL)";
+      } else if (GrouperDdlUtils.isMysql()) {
+        sql = "ALTER TABLE grouper_fields MODIFY internal_id BIGINT NOT NULL";
+      } else if (GrouperDdlUtils.isPostgres()) {
+        sql = "ALTER TABLE grouper_fields ALTER COLUMN internal_id SET NOT NULL";
+      } else {
+        throw new RuntimeException("Which database are we????");
+      }
+      
+      new GcDbAccess().sql(sql).executeSql();
+
+      // cant add foreign key until this is there
+      if (GrouperDdlUtils.isOracle()) {
+        
+        sql = "ALTER TABLE grouper_fields ADD CONSTRAINT grouper_fie_internal_id_unq unique (internal_id)";
+        new GcDbAccess().sql(sql).executeSql();
+        
+        sql = "ALTER TABLE grouper_groups ADD CONSTRAINT grouper_grp_internal_id_unq unique (internal_id)";
+        new GcDbAccess().sql(sql).executeSql();
+
+        sql = "ALTER TABLE grouper_sql_cache_group ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields(internal_id)";
+        new GcDbAccess().sql(sql).executeSql();
+      }
+
+    }
+  }
+  , 
+
+  ;
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(UpgradeTasks.class);

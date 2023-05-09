@@ -2,24 +2,26 @@ ALTER TABLE grouper_fields ADD COLUMN internal_id BIGINT;
 
 CREATE UNIQUE INDEX grouper_fie_internal_id_idx ON grouper_fields (internal_id);
 
-ALTER TABLE grouper_fields ADD CONSTRAINT fields_internal_id_unique UNIQUE USING INDEX grouper_fie_internal_id_idx;
-
 COMMENT ON COLUMN grouper_fields.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
+
+ALTER TABLE grouper_groups ADD COLUMN internal_id BIGINT;
+
+CREATE UNIQUE INDEX grouper_grp_internal_id_idx ON grouper_groups (internal_id);
+
+COMMENT ON COLUMN grouper_groups.internal_id IS 'internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
 
 CREATE TABLE grouper_sql_cache_group (
   internal_id bigint NOT NULL,
   group_internal_id bigint NOT NULL,
   field_internal_id bigint not NULL,
   membership_size bigint not null,
-  membership_hst_size bigint NOT NULL,
+  membership_size_hst bigint NOT NULL,
   created_on timestamp NOT NULL,
   enabled_on timestamp NOT NULL,
   disabled_on timestamp NULL,
   PRIMARY KEY (internal_id)
 );
 CREATE unique INDEX grouper_sql_cache_group1_idx ON grouper_sql_cache_group (group_internal_id, field_internal_id);
-
-ALTER TABLE grouper_sql_cache_group ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields(internal_id);
 
 COMMENT ON TABLE grouper_sql_cache_group IS 'Holds groups that are cacheable in SQL';
 
@@ -48,12 +50,8 @@ CREATE TABLE grouper_sql_cache_mship (
   PRIMARY KEY (internal_id)
 );
 
-ALTER TABLE grouper_sql_cache_mship ADD CONSTRAINT grouper_sql_cache_mship1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group(internal_id);
-
 CREATE INDEX grouper_sql_cache_mship1_idx ON grouper_sql_cache_mship (sql_cache_group_internal_id, flattened_add_timestamp);
 CREATE INDEX grouper_sql_cache_mship2_idx ON grouper_sql_cache_mship (member_internal_id, sql_cache_group_internal_id);
-
-ALTER TABLE grouper_sql_cache_mship ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group(internal_id);
 
 COMMENT ON TABLE grouper_sql_cache_mship IS 'Cached memberships based on group and list';
 
@@ -76,11 +74,15 @@ CREATE TABLE grouper_sql_cache_mship_hst (
   PRIMARY KEY (internal_id)
 );
 
-ALTER TABLE grouper_sql_cache_mship_hst ADD CONSTRAINT grouper_sql_cache_msh_hst1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group (internal_id);
-
 CREATE UNIQUE INDEX grouper_sql_cache_mshhst1_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, end_time);
 CREATE UNIQUE INDEX grouper_sql_cache_mshhst2_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, start_time);
 CREATE UNIQUE INDEX grouper_sql_cache_mshhst3_idx ON grouper_sql_cache_mship_hst (internal_id, sql_cache_group_internal_id, end_time);
+
+ALTER TABLE grouper_sql_cache_group ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields(internal_id);
+
+ALTER TABLE grouper_sql_cache_mship ADD CONSTRAINT grouper_sql_cache_mship1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group(internal_id);
+
+ALTER TABLE grouper_sql_cache_mship_hst ADD CONSTRAINT grouper_sql_cache_msh_hst1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group (internal_id);
 
 COMMENT ON TABLE grouper_sql_cache_mship_hst IS 'Flattened point in time cache table for memberships or privileges';
 
@@ -94,7 +96,7 @@ COMMENT ON COLUMN grouper_sql_cache_mship_hst.member_internal_id IS 'member inte
 
 COMMENT ON COLUMN grouper_sql_cache_mship_hst.internal_id IS 'internal id of which group/field this membership refers to';
 
-CREATE VIEW grouper_sql_cache_group_v (group_name, list_name, membership_size, group_id, field_id, group_internal_id, field_internal_id) AS create view grouper_sql_cache_group_v as select gg.name group_name, gf.name list_name, membership_size,  gg.id group_id, gf.id field_id, gg.internal_id group_internal_id, gf.internal_id field_internal_id  from grouper_sql_cache_group gscg, grouper_fields gf, grouper_groups gg  where gscg.group_internal_id = gg.internal_id and gscg.field_internal_id = gf.internal_id ;
+CREATE VIEW grouper_sql_cache_group_v (group_name, list_name, membership_size, group_id, field_id, group_internal_id, field_internal_id) AS select gg.name group_name, gf.name list_name, membership_size,  gg.id group_id, gf.id field_id, gg.internal_id group_internal_id, gf.internal_id field_internal_id  from grouper_sql_cache_group gscg, grouper_fields gf, grouper_groups gg  where gscg.group_internal_id = gg.internal_id and gscg.field_internal_id = gf.internal_id ;
 
 COMMENT ON VIEW grouper_sql_cache_group_v IS 'SQL cache group view';
 
@@ -112,7 +114,7 @@ COMMENT ON COLUMN grouper_sql_cache_group_v.group_internal_id IS 'group_internal
 
 COMMENT ON COLUMN grouper_sql_cache_group_v.field_internal_id IS 'field_internal_id: field internal id';
 
-CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, flattened_add_timestamp, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS  CREATE OR REPLACE VIEW public.grouper_sql_cache_mship_v  AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0,  gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp,  gg.id AS group_id, gf.id AS field_id, gscm.internal_id AS mship_internal_id, gm.internal_id AS member_internal_id,  gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id  FROM grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf,  grouper_groups gg, grouper_members gm  WHERE gscg.group_internal_id = gg.internal_id AND gscg.field_internal_id = gf.internal_id  AND gscm.sql_cache_group_internal_id = gscg.internal_id AND gscm.member_internal_id = gm.internal_id ;
+CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, flattened_add_timestamp, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0,  gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp,  gg.id AS group_id, gf.id AS field_id, gscm.internal_id AS mship_internal_id, gm.internal_id AS member_internal_id,  gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id  FROM grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf,  grouper_groups gg, grouper_members gm  WHERE gscg.group_internal_id = gg.internal_id AND gscg.field_internal_id = gf.internal_id  AND gscm.sql_cache_group_internal_id = gscg.internal_id AND gscm.member_internal_id = gm.internal_id ;
 
 COMMENT ON VIEW grouper_sql_cache_mship_v IS 'SQL cache mship view';
 
@@ -144,7 +146,7 @@ COMMENT ON COLUMN grouper_sql_cache_mship_v.group_internal_id IS 'group_internal
 
 COMMENT ON COLUMN grouper_sql_cache_mship_v.field_internal_id IS 'field_internal_id: field internal id';
 
-CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS  create or replace view public.grouper_sql_cache_mship_hst_v as select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ) ;
+CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ;
 
 COMMENT ON VIEW grouper_sql_cache_mship_hst_v IS 'SQL cache mship history view';
 
@@ -177,6 +179,64 @@ COMMENT ON COLUMN grouper_sql_cache_mship_hst_v.member_internal_id IS 'member_in
 COMMENT ON COLUMN grouper_sql_cache_mship_hst_v.group_internal_id IS 'group_internal_id: group internal id';
 
 COMMENT ON COLUMN grouper_sql_cache_mship_hst_v.field_internal_id IS 'field_internal_id: field internal id';
+
+COMMENT ON VIEW grouper_data_field_assign_v IS 'Data field assign view';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.subject_source_id IS 'subject_source_id: subject source id';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.member_id IS 'member_id: member id';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.data_field_config_id IS 'data_field_config_id: data field config id';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.subject_id IS 'subject_id: subject id of subject';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.value_text IS 'value_text: value text';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.value_integer IS 'value_integer: value integer';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.data_field_internal_id IS 'data_field_internal_id: data field internal id';
+
+COMMENT ON COLUMN grouper_data_field_assign_v.data_field_assign_internal_id IS 'data_field_assign_internal_id: data field assign internal id';
+
+COMMENT ON VIEW grouper_data_row_assign_v IS 'Data row assign view';
+
+COMMENT ON COLUMN grouper_data_row_assign_v.data_row_config_id IS 'data_row_config_id: data row config id';
+
+COMMENT ON COLUMN grouper_data_row_assign_v.subject_id IS 'subject_id: subject id of subject';
+
+COMMENT ON COLUMN grouper_data_row_assign_v.data_row_internal_id IS 'data_row_internal_id: data row internal id';
+
+COMMENT ON COLUMN grouper_data_row_assign_v.data_row_assign_internal_id IS 'data_row_assign_internal_id: data row assign internal id';
+
+COMMENT ON COLUMN grouper_data_row_assign_v.subject_source_id IS 'subject_source_id: subject source id';
+
+COMMENT ON COLUMN grouper_data_row_assign_v.member_id IS 'member_id: member id';
+
+
+COMMENT ON VIEW grouper_data_row_field_asgn_v IS 'Data row field assign view';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_row_config_id IS 'data_row_config_id: data row config id';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_field_config_id IS 'data_field_config_id: data field config id';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.subject_id IS 'subject_id: subject id of subject';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.value_text IS 'value_text: value text';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.value_integer IS 'value_integer: value integer';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.subject_source_id IS 'subject_source_id: subject source id';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.member_id IS 'member_id: member id';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_field_internal_id IS 'data_field_internal_id: data field internal id';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_field_assign_internal_id IS 'data_field_assign_internal_id: data field assign internal id';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_row_internal_id IS 'data_row_internal_id: data row internal id';
+
+COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_row_assign_internal_id IS 'data_row_assign_internal_id: data row assign internal id';
+
 
 
 update grouper_ddl set last_updated = to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substring((to_char(current_timestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V46, ' || history) from 1 for 3500), db_version = 46 where object_name = 'Grouper';

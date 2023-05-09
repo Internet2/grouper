@@ -748,7 +748,7 @@ public class GrouperDdl5_0_0 {
       return;
     }
 
-    if (ddlVersionBean.didWeDoThis("v5_0_0_createViewGrouperDataRowAssignV", true)) {
+    if (ddlVersionBean.didWeDoThis("v5_0_0_createViewGrouperDataRowFieldAssignV", true)) {
       return;
     }
 

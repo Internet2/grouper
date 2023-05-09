@@ -2824,6 +2824,9 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl5_0_4.addGrouperFieldsInternalIdColumn(database, ddlVersionBean);
       GrouperDdl5_0_4.addGrouperFieldsInternalIdIndex(database, ddlVersionBean);
       GrouperDdl5_0_4.addGrouperFieldsInternalIdComments(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperGroupsInternalIdColumn(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperGroupsInternalIdIndex(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperGroupsInternalIdComments(database, ddlVersionBean);
       GrouperDdl5_0_4.addGrouperSqlCacheGroupTable(database, ddlVersionBean);
       GrouperDdl5_0_4.addGrouperSqlCacheGroupTableComments(database, ddlVersionBean);
       GrouperDdl5_0_4.addGrouperSqlCacheGroupTableIndexes(database, ddlVersionBean);
@@ -3634,6 +3637,11 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_data_field_assign_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_data_row_assign_v", false);
     GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_data_row_field_asgn_v", false);
+    
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_cache_group_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_cache_mship_v", false);
+    GrouperDdlUtils.ddlutilsDropViewIfExists(ddlVersionBean, "grouper_sql_cache_mship_hst_v", false);
+
   }
 
   /**
