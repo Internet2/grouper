@@ -845,9 +845,12 @@ public class GrouperDdlEngine {
         return true;
       }
       GrouperDdlUtils.runScriptIfShouldAndPrintOutput(script.toString(), runScript);
-      
-      // see if there are upgrade tasks to run
-      UpgradeTasksJob.runDaemonStandalone();
+      try {
+        // see if there are upgrade tasks to run
+        UpgradeTasksJob.runDaemonStandalone();
+      } catch (Exception e) {
+        LOG.debug("Could not run upgrade tasks, maybe this is expected if the tables arent there", e);
+      }
       
       return runScript;
     } finally {

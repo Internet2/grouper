@@ -27,12 +27,16 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
-
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksInterface;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -2017,6 +2021,12 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     GrouperDdlUtils.sqlRun(scriptToGetTo5_0_0, true, true);
   
+    // roll back the version
+    String groupName = UpgradeTasksJob.grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
+    Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupName, true);
+    String upgradeTasksVersionName = UpgradeTasksJob.grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
+    group.getAttributeValueDelegate().assignValue(upgradeTasksVersionName, "9");
+
     // stuff gone
     assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_sql_cache_mship_v"));
     assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_fields", "internal_id"));

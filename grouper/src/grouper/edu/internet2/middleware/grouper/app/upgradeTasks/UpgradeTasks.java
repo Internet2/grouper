@@ -239,7 +239,13 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         throw new RuntimeException("Which database are we????");
       }
       
-      new GcDbAccess().sql(sql).executeSql();
+      // TODO check to see if non null
+      try {
+        new GcDbAccess().sql(sql).executeSql();
+      } catch (Exception e) {
+        LOG.error("Cannot run upgrade task V8!", e);
+      }
+
     }
   }
   , 
@@ -303,7 +309,12 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         throw new RuntimeException("Which database are we????");
       }
       
-      new GcDbAccess().sql(sql).executeSql();
+      // TODO check to see if non null
+      try {
+        new GcDbAccess().sql(sql).executeSql();
+      } catch (Exception e) {
+        LOG.error("Cannot run upgrade task V10!", e);
+      }
       
       if (GrouperDdlUtils.isOracle()) {
         sql = "ALTER TABLE grouper_fields MODIFY (internal_id NOT NULL)";
@@ -315,19 +326,41 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         throw new RuntimeException("Which database are we????");
       }
       
-      new GcDbAccess().sql(sql).executeSql();
+      // TODO check to see if non null
+      try {
+        new GcDbAccess().sql(sql).executeSql();
+      } catch (Exception e) {
+        LOG.error("Cannot run upgrade task V10!", e);
+      }
 
       // cant add foreign key until this is there
       if (GrouperDdlUtils.isOracle()) {
         
+        // TODO check to see if constraint is there
         sql = "ALTER TABLE grouper_fields ADD CONSTRAINT grouper_fie_internal_id_unq unique (internal_id)";
-        new GcDbAccess().sql(sql).executeSql();
+        
+        try {
+          new GcDbAccess().sql(sql).executeSql();
+        } catch (Exception e) {
+          LOG.error("Cannot run upgrade task V10!", e);
+        }
         
         sql = "ALTER TABLE grouper_groups ADD CONSTRAINT grouper_grp_internal_id_unq unique (internal_id)";
-        new GcDbAccess().sql(sql).executeSql();
+        
+        try {
+          new GcDbAccess().sql(sql).executeSql();
+        } catch (Exception e) {
+          LOG.error("Cannot run upgrade task V10!", e);
+        }
 
         sql = "ALTER TABLE grouper_sql_cache_group ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields(internal_id)";
-        new GcDbAccess().sql(sql).executeSql();
+        
+        // TODO check to see if constraint is there
+        try {
+          new GcDbAccess().sql(sql).executeSql();
+        } catch (Exception e) {
+          LOG.error("Cannot run upgrade task V10!", e);
+        }
       }
 
     }
