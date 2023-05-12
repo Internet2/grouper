@@ -514,6 +514,25 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       }
 
       Set<PITGroupSet> pitGroupSets = GrouperDAOFactory.getFactory().getPITMembershipView().findPITGroupSetsJoinedWithNewPITMembership(this);
+      
+      // retrieve and cache owners in batch
+      Set<String> pitGroupIds = new LinkedHashSet<String>();
+      Set<String> pitStemIds = new LinkedHashSet<String>();
+      Set<String> pitAttributeDefIds = new LinkedHashSet<String>();
+      for (PITGroupSet pitGroupSet : pitGroupSets) {
+        if (pitGroupSet.getOwnerGroupId() != null) {
+          pitGroupIds.add(pitGroupSet.getOwnerGroupId());
+        } else if (pitGroupSet.getOwnerStemId() != null) {
+          pitStemIds.add(pitGroupSet.getOwnerStemId());
+        } else if (pitGroupSet.getOwnerAttrDefId() != null) {
+          pitAttributeDefIds.add(pitGroupSet.getOwnerAttrDefId());
+        }
+      }
+      
+      Map<String, PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findByIds(pitGroupIds);
+      Map<String, PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findByIds(pitStemIds);
+      Map<String, PITAttributeDef> pitAttributeDefs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByIds(pitAttributeDefIds);
+      
       Iterator<PITGroupSet> iter = pitGroupSets.iterator();
       while (iter.hasNext()) {
         PITGroupSet pitGroupSet = iter.next();
@@ -531,7 +550,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         boolean isMembership = false;
         
         if (pitGroupSet.getOwnerGroupId() != null) {
-          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getOwnerId(), true);
+          PITGroup pitGroup = pitGroups.get(pitGroupSet.getOwnerId());
           ownerId = pitGroup.getSourceId();
           ownerName = pitGroup.getName();
           if (pitField.getType().equals(FieldType.LIST.getType())) {
@@ -542,14 +561,14 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
             ownerType = Membership.OWNER_TYPE_GROUP;
           }
         } else if (pitGroupSet.getOwnerStemId() != null) {
-          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(pitGroupSet.getOwnerId(), true);
+          PITStem pitStem = pitStems.get(pitGroupSet.getOwnerId());
           ownerId = pitStem.getSourceId();
           ownerName = pitStem.getName();
           privilegeType = FieldType.NAMING.getType();
           privilegeName = NamingPrivilege.listToPriv(pitField.getName()).getName();
           ownerType = Membership.OWNER_TYPE_STEM;
         } else if (pitGroupSet.getOwnerAttrDefId() != null) {
-          PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(pitGroupSet.getOwnerId(), true);
+          PITAttributeDef pitAttributeDef = pitAttributeDefs.get(pitGroupSet.getOwnerId());
           ownerId = pitAttributeDef.getSourceId();
           ownerName = pitAttributeDef.getName();
           privilegeType = FieldType.ATTRIBUTE_DEF.getType();
@@ -719,6 +738,25 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
       }        
 
       Set<PITGroupSet> pitGroupSets = GrouperDAOFactory.getFactory().getPITMembershipView().findPITGroupSetsJoinedWithOldPITMembership(this);
+      
+      // retrieve and cache owners in batch
+      Set<String> pitGroupIds = new LinkedHashSet<String>();
+      Set<String> pitStemIds = new LinkedHashSet<String>();
+      Set<String> pitAttributeDefIds = new LinkedHashSet<String>();
+      for (PITGroupSet pitGroupSet : pitGroupSets) {
+        if (pitGroupSet.getOwnerGroupId() != null) {
+          pitGroupIds.add(pitGroupSet.getOwnerGroupId());
+        } else if (pitGroupSet.getOwnerStemId() != null) {
+          pitStemIds.add(pitGroupSet.getOwnerStemId());
+        } else if (pitGroupSet.getOwnerAttrDefId() != null) {
+          pitAttributeDefIds.add(pitGroupSet.getOwnerAttrDefId());
+        }
+      }
+      
+      Map<String, PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findByIds(pitGroupIds);
+      Map<String, PITStem> pitStems = GrouperDAOFactory.getFactory().getPITStem().findByIds(pitStemIds);
+      Map<String, PITAttributeDef> pitAttributeDefs = GrouperDAOFactory.getFactory().getPITAttributeDef().findByIds(pitAttributeDefIds);
+      
       Iterator<PITGroupSet> iter = pitGroupSets.iterator();
       while (iter.hasNext()) {
         PITGroupSet pitGroupSet = iter.next();
@@ -736,7 +774,7 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
         boolean isMembership = false;
         
         if (pitGroupSet.getOwnerGroupId() != null) {
-          PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findById(pitGroupSet.getOwnerId(), true);
+          PITGroup pitGroup = pitGroups.get(pitGroupSet.getOwnerId());
           ownerId = pitGroup.getSourceId();
           ownerName = pitGroup.getName();
           if (pitField.getType().equals(FieldType.LIST.getType())) {
@@ -747,14 +785,14 @@ public class PITMembership extends GrouperPIT implements Hib3GrouperVersioned {
             ownerType = Membership.OWNER_TYPE_GROUP;
           }
         } else if (pitGroupSet.getOwnerStemId() != null) {
-          PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findById(pitGroupSet.getOwnerId(), true);
+          PITStem pitStem = pitStems.get(pitGroupSet.getOwnerId());
           ownerId = pitStem.getSourceId();
           ownerName = pitStem.getName();
           privilegeType = FieldType.NAMING.getType();
           privilegeName = NamingPrivilege.listToPriv(pitField.getName()).getName();
           ownerType = Membership.OWNER_TYPE_STEM;
         } else if (pitGroupSet.getOwnerAttrDefId() != null) {
-          PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findById(pitGroupSet.getOwnerId(), true);
+          PITAttributeDef pitAttributeDef = pitAttributeDefs.get(pitGroupSet.getOwnerId());
           ownerId = pitAttributeDef.getSourceId();
           ownerName = pitAttributeDef.getName();
           privilegeType = FieldType.ATTRIBUTE_DEF.getType();

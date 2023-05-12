@@ -16,12 +16,21 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -133,6 +142,43 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
     }
     
     return pit;
+  }
+  
+  public Map<String, PITAttributeDef> findByIds(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Map<String, PITAttributeDef> results = new LinkedHashMap<String, PITAttributeDef>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, batchSize);
+
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindByIds");
+
+      StringBuilder sql = new StringBuilder("select pitAttributeDef from PITAttributeDef as pitAttributeDef where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, batchSize, i);
+
+      sql.append(" pitAttributeDef.id in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(")");
+
+      Set<PITAttributeDef> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITAttributeDef.class);
+      for (PITAttributeDef pitAttributeDef : localResult) {
+        results.put(pitAttributeDef.getId(), pitAttributeDef);
+      }
+    }
+
+    return results;
   }
   
   /**
