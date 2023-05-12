@@ -112,11 +112,11 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
       }
     }
 
-    String uiTestSearchDn = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchDn");
-    String uiTestSearchScope = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestSearchScope");
-    String uiTestFilter = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestFilter");
-    String uiTestAttributeName = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestAttributeName");
-    String uiTestExpectedValue = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + this.getConfigId() + ".uiTestExpectedValue");
+    String uiTestSearchDn = this.retrieveAttributes().get("uiTestSearchDn").getValue();
+    String uiTestSearchScope = this.retrieveAttributes().get("uiTestSearchScope").getValue();
+    String uiTestFilter = this.retrieveAttributes().get("uiTestFilter").getValue();
+    String uiTestAttributeName = this.retrieveAttributes().get("uiTestAttributeName").getValue();
+    String uiTestExpectedValue = this.retrieveAttributes().get("uiTestExpectedValue").getValue();
   
     if (StringUtils.isNotBlank(uiTestSearchDn) || StringUtils.isNotBlank(uiTestSearchScope) ||
         StringUtils.isNotBlank(uiTestAttributeName) || StringUtils.isNotBlank(uiTestFilter) ||
