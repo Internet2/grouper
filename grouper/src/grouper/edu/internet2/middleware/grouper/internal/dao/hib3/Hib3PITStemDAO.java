@@ -16,12 +16,19 @@
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.LinkedHashMap;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -255,6 +262,43 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     }
     
     return pit;
+  }
+  
+  public Map<String, PITStem> findByIds(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Map<String, PITStem> results = new LinkedHashMap<String, PITStem>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, batchSize);
+   
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindByIds");
+
+      StringBuilder sql = new StringBuilder("select pitStem from PITStem as pitStem where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, batchSize, i);
+
+      sql.append(" pitStem.id in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(")");
+   
+      Set<PITStem> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITStem.class);
+      for (PITStem pitStem : localResult) {
+        results.put(pitStem.getId(), pitStem);
+      }
+    }
+
+    return results;
   }
   
   /**
