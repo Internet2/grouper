@@ -590,6 +590,21 @@ public class GcTableSyncTableMetadata {
     return this.columnMetadata;
   }
 
+  /**
+   * columns in table
+   * @return the columnMetadata
+   */
+  public List<GcTableSyncColumnMetadata> retrieveColumnMetadataOrdered() {
+    if (this.columnMetadata == null) {
+      return null;
+    }
+    List<GcTableSyncColumnMetadata> result = new ArrayList<>(this.columnMetadata);
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : this.columnMetadata) {
+      result.set(gcTableSyncColumnMetadata.getColumnIndexZeroIndexed(), gcTableSyncColumnMetadata);
+    }
+    return result;
+  }
+
   
   /**
    * columns in table

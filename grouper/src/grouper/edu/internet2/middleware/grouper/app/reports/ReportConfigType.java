@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 
 
@@ -125,10 +126,12 @@ public enum ReportConfigType {
         GcTableSyncTableMetadata metadataFromDatabase = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(dbExternalSystemConfigId, sql);
         
         // set headers from metadata
-        int columnCount = metadataFromDatabase.getColumnMetadata().size();
+        List<GcTableSyncColumnMetadata> retrieveColumnMetadataOrdered = metadataFromDatabase.retrieveColumnMetadataOrdered();
+        
+        int columnCount = retrieveColumnMetadataOrdered.size();
         ArrayList<String> cols = new ArrayList<>();
         for (int index = 1; index <= columnCount; index++) {
-          cols.add(metadataFromDatabase.getColumnMetadata().get(index-1).getColumnName());
+          cols.add(retrieveColumnMetadataOrdered.get(index-1).getColumnName());
         }
         grouperReportData.setHeaders(cols);
 
