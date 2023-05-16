@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipW
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -849,18 +850,45 @@ public class GrouperProvisioningSyncIntegration {
       Map<MultiKey, GcGrouperSyncMembership> mapGroupIdMemberIdToSyncMembershipInsert = gcGrouperSync.getGcGrouperSyncMembershipDao()
           .membershipRetrieveOrCreateByGroupIdsAndMemberIds(gcGrouperSync.getId(), groupIdMemberIdsToInsert);
       
-      for (MultiKey groupIdMemberIdToInsert : mapGroupIdMemberIdToSyncMembershipInsert.keySet()) {
+      for (MultiKey groupIdMemberIdToInsert : groupIdMemberIdsToInsert) {
+        //mapGroupIdMemberIdToSyncMembershipInsert.keySet()) {
         
         GcGrouperSyncMembership gcGrouperSyncMembership = mapGroupIdMemberIdToSyncMembershipInsert.get(groupIdMemberIdToInsert);
         ProvisioningMembershipWrapper provisioningMembershipWrapper = groupIdMemberIdToProvisioningMembershipWrapper.get(groupIdMemberIdToInsert);
+        
+        // this happens if the member is not retrieved but the membership is for some reason...
+        if (gcGrouperSyncMembership == null) {
+          String errorMessage = "Could not find gcGrouperSyncMembership: " + GrouperUtil.toStringForLog(groupIdMemberIdToInsert);
+          String errorDebug = "error_gcGrouperSyncMembership_" + groupIdMemberIdToInsert.getKey(0) + "_" + groupIdMemberIdToInsert.getKey(1);
+          // couldnt find by member id or group id
+          if (null == this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveByGroupId((String)groupIdMemberIdToInsert.getKey(0))) {
+            errorMessage = "Could not find gcGrouperSyncGroup by group uuid: " + groupIdMemberIdToInsert.getKey(0);
+            errorDebug = "error_gcGrouperSyncMembershipG_" + groupIdMemberIdToInsert.getKey(0) + "_" + groupIdMemberIdToInsert.getKey(1);
+          } else if (null == this.grouperProvisioner.getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveByMemberId((String)groupIdMemberIdToInsert.getKey(1))) {
+            errorMessage = "Could not find gcGrouperSyncMember by member uuid: " + groupIdMemberIdToInsert.getKey(1);
+            errorDebug = "error_gcGrouperSyncMembershipM_" + groupIdMemberIdToInsert.getKey(0) + "_" + groupIdMemberIdToInsert.getKey(1);
+          }
+          provisioningMembershipWrapper.setErrorCode(GcGrouperSyncErrorCode.ERR);
+          // make one anyways to reduce NPE
+          gcGrouperSyncMembership = new GcGrouperSyncMembership();
+          provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
+          gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
+          gcGrouperSyncMembership.setErrorMessage(errorMessage);
+          gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+          this.getGrouperProvisioner().retrieveGrouperProvisioningData().removeAndUnindexMembershipWrapper(provisioningMembershipWrapper);
+          this.getGrouperProvisioner().getDebugMap().put(errorDebug, true);
+          continue;
+        }
+        
         ProvisioningMembership grouperProvisioningMembership = provisioningMembershipWrapper == null ? null : provisioningMembershipWrapper.getGrouperProvisioningMembership();
         
         if (grouperProvisioningMembership == null) {
           continue;
         }
         if (gcGrouperSyncMembership == null) {
-          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipCreateBySyncGroupIdAndSyncMemberId((String)groupIdMemberIdToInsert.getKey(0),
-              (String)groupIdMemberIdToInsert.getKey(1));
+          // this doesnt make sense since it not the sync ids, its the object uuids...
+//          gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipCreateBySyncGroupIdAndSyncMemberId((String)groupIdMemberIdToInsert.getKey(0),
+//              (String)groupIdMemberIdToInsert.getKey(1));
         }
         groupIdMemberIdToSyncMembership.put(groupIdMemberIdToInsert, gcGrouperSyncMembership);
         provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
