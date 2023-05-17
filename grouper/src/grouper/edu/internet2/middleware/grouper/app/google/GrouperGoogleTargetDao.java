@@ -1,10 +1,8 @@
 package edu.internet2.middleware.grouper.app.google;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -51,7 +49,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
   
@@ -126,7 +123,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
 
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId());
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(), null, null);
 
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
@@ -155,7 +152,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperGoogleConfiguration googleConfiguration = (GrouperGoogleConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId());
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(), null, null);
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
         targetGroups.add(targetGroup);
@@ -218,9 +215,6 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
-  private static ExpirableCache<Boolean, Map<String, GrouperGoogleGroup>> cacheGroupNameToGroup = new ExpirableCache<Boolean, Map<String, GrouperGoogleGroup>>(5);
-  private static ExpirableCache<Boolean, Map<String, GrouperGoogleUser>> cacheUserEmailToUser = new ExpirableCache<Boolean, Map<String, GrouperGoogleUser>>(5);
-
   @Override
   public TargetDaoRetrieveGroupResponse retrieveGroup(TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest) {
 
@@ -232,36 +226,22 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperGoogleGroup grouperGoogleGroup = null;
 
       String attributeValue = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
-      if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+      
+      if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute()) || StringUtils.equals("email", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         grouperGoogleGroup = GrouperGoogleApiCommands.retrieveGoogleGroup(googleConfiguration.getGoogleExternalSystemConfigId(), 
             attributeValue);
       } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
-        
+      
         if (StringUtils.isNotBlank(attributeValue)) {
-          
-          Map<String, GrouperGoogleGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
-          
-          grouperGoogleGroup = groupNameToGroup == null ? null : groupNameToGroup.get(attributeValue);
-          
-          if (grouperGoogleGroup == null) {
-            List<GrouperGoogleGroup> allGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId());
-            
-            groupNameToGroup = new HashMap<String, GrouperGoogleGroup>();
-            for (GrouperGoogleGroup currentGoogleGroup: GrouperUtil.nonNull(allGoogleGroups)) {
-              groupNameToGroup.put(currentGoogleGroup.getName(), currentGoogleGroup);
-            }
-            cacheGroupNameToGroup.put(Boolean.TRUE, groupNameToGroup);
-            
-            grouperGoogleGroup = groupNameToGroup.get(attributeValue);
-            
+          List<GrouperGoogleGroup> googleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(), "name", attributeValue);
+          if (googleGroups.size() == 1) {
+            grouperGoogleGroup = googleGroups.get(0);
+          } else if (googleGroups.size() > 1) {
+            throw new RuntimeException("There are "+googleGroups.size()+ " groups found for name: "+attributeValue);
           }
-          
+        
         }
-
-      } else {
-        throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveGroupRequest.getSearchAttribute() + "'");
       }
-
       
       ProvisioningGroup targetGroup = grouperGoogleGroup == null ? null : grouperGoogleGroup.toProvisioningGroup();
 
@@ -285,34 +265,9 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperGoogleUser grouperGoogleUser = null;
 
       String attributeValue = GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue());
-      if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
+      if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute()) || StringUtils.equals("email", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperGoogleUser = GrouperGoogleApiCommands.retrieveGoogleUser(googleConfiguration.getGoogleExternalSystemConfigId(), 
             attributeValue);
-      } else if (StringUtils.equals("email", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
-        
-        if (StringUtils.isNotBlank(attributeValue)) {
-          
-          Map<String, GrouperGoogleUser> userEmailToUser = cacheUserEmailToUser.get(Boolean.TRUE);
-          
-          grouperGoogleUser = userEmailToUser == null ? null : userEmailToUser.get(attributeValue);
-          
-          if (grouperGoogleUser == null) {
-            List<GrouperGoogleUser> allGoogleUsers = GrouperGoogleApiCommands.retrieveGoogleUsers(googleConfiguration.getGoogleExternalSystemConfigId());
-            
-            userEmailToUser = new HashMap<String, GrouperGoogleUser>();
-            for (GrouperGoogleUser currentGoogleUser: GrouperUtil.nonNull(allGoogleUsers)) {
-              userEmailToUser.put(currentGoogleUser.getPrimaryEmail(), currentGoogleUser);
-            }
-            cacheUserEmailToUser.put(Boolean.TRUE, userEmailToUser);
-            
-            grouperGoogleUser = userEmailToUser.get(attributeValue);
-            
-          }
-          
-        }
-
-      } else {
-        throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveEntityRequest.getSearchAttribute() + "'");
       }
 
       if (StringUtils.isNotBlank(grouperTargetEntity.getId())) {
@@ -408,12 +363,6 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
         provisioningObjectChange.setProvisioned(true);
       }
       
-      Map<String, GrouperGoogleUser> userEmailToUser = cacheUserEmailToUser.get(Boolean.TRUE);
-      if (userEmailToUser != null) {
-        userEmailToUser.remove(grouperGoogleUser.getPrimaryEmail());
-      } 
-      
-      
       return new TargetDaoDeleteEntityResponse();
     } catch (Exception e) {
       targetEntity.setProvisioned(false);
@@ -443,11 +392,6 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
       }
-      
-      Map<String, GrouperGoogleGroup> groupNameToGroup = cacheGroupNameToGroup.get(Boolean.TRUE);
-      if (groupNameToGroup != null) {
-        groupNameToGroup.remove(grouperGoogleGroup.getName());
-      } 
       
       return new TargetDaoDeleteGroupResponse();
     } catch (Exception e) {
