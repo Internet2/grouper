@@ -49,7 +49,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperGoogleProvisionerTest("testFullSyncGoogleStartWithAndDiagnostics"));
+    TestRunner.run(new GrouperGoogleProvisionerTest("testFullSyncGoogle"));
     
   }
   
@@ -133,7 +133,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
       
-      GoogleProvisionerTestUtils.setupGoogleExternalSystem();
+      GoogleProvisionerTestUtils.setupRealGoogleExternalSystem();
       
       GoogleProvisioningStartWith startWith = new GoogleProvisioningStartWith();
       
@@ -289,7 +289,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle");
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
@@ -428,7 +428,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     }
     
     // this will create tables
-    List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle");
+    List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null);
 
     new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
     new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
@@ -493,7 +493,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle");
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();

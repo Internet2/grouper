@@ -628,7 +628,7 @@ public class GrouperGoogleApiCommands {
   }
 
 
-  public static List<GrouperGoogleGroup> retrieveGoogleGroups(String configId) {
+  public static List<GrouperGoogleGroup> retrieveGoogleGroups(String configId, String fieldToSearchFor, String fieldValue) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -644,9 +644,13 @@ public class GrouperGoogleApiCommands {
 
       String nextPageToken = null;
       boolean firstRequest = true;
+      
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups?domain="+domain+"&maxResults=200&fields=nextPageToken,groups(id,email,name,description)";
       String urlSuffixConstant = "/groups?domain="+domain+"&maxResults=200&fields=nextPageToken,groups(id,email,name,description)";
+      if (StringUtils.isNotBlank(fieldToSearchFor) && StringUtils.isNotBlank(fieldValue)) {
+        urlSuffixConstant = urlSuffixConstant +  "&query="+fieldToSearchFor+"='"+fieldValue+"'";
+      }
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
         
         firstRequest = false;
@@ -711,7 +715,7 @@ public class GrouperGoogleApiCommands {
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name)";
       
-      String urlSuffixConstant = "/users?domain="+domain+"&maxResults=1&fields=nextPageToken,users(id,primaryEmail,name)";
+      String urlSuffixConstant = "/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name)";
       
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
 
