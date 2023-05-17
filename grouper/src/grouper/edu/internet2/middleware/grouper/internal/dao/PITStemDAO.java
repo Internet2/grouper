@@ -20,6 +20,8 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Stem;
@@ -69,6 +71,12 @@ public interface PITStemDAO extends GrouperDAO {
    * @return PITStem
    */
   public PITStem findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param ids
+   * @return map of pit stems keyed by id
+   */
+  public Map<String, PITStem> findByIds(Collection<String> ids);
   
   /**
    * @param id

@@ -943,9 +943,9 @@ public abstract class GrouperProvisioner {
     // this isnt good
     if (debugMap.containsKey("exception") || debugMap.containsKey("exception2") || debugMap.containsKey("exception3")) {
       if (gcGrouperSyncLog != null && gcGrouperSyncLog.getStatus() == GcGrouperSyncLogState.ERROR_FAILSAFE) {
-        throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, debugString);
+        throw new OtherJobException(GrouperLoaderStatus.ERROR_FAILSAFE, theMessage);
       }
-      throw new RuntimeException(debugString);
+      throw new RuntimeException(theMessage);
     }
         
   }

@@ -20,6 +20,8 @@
 package edu.internet2.middleware.grouper.internal.dao;
 
 import java.sql.Timestamp;
+import java.util.Collection;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -61,6 +63,12 @@ public interface PITAttributeDefDAO extends GrouperDAO {
    * @return PITAttributeDef
    */
   public PITAttributeDef findById(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param ids
+   * @return map of pit attribute defs keyed by id
+   */
+  public Map<String, PITAttributeDef> findByIds(Collection<String> ids);
   
   /**
    * @param id

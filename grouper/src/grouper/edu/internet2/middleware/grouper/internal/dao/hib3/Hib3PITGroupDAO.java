@@ -19,8 +19,10 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -32,6 +34,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -174,6 +177,43 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
    
       Set<PITGroup> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITGroup.class);
       results.addAll(localResult);
+    }
+
+    return results;
+  }
+  
+  public Map<String, PITGroup> findByIds(Collection<String> ids) {
+    int idsSize = GrouperUtil.length(ids);
+
+    Map<String, PITGroup> results = new LinkedHashMap<String, PITGroup>();
+
+    if (idsSize == 0) {
+      return results;
+    }
+
+    List<String> idsList = new ArrayList<String>(ids);
+
+    int batchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(idsSize, batchSize);
+   
+    for (int i=0;i<numberOfBatches; i++) {
+
+      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      byHqlStatic.setCacheable(true).setCacheRegion(KLASS + ".FindByIds");
+
+      StringBuilder sql = new StringBuilder("select pitGroup from PITGroup as pitGroup where ");
+
+      List<String> currentBatch = GrouperUtil.batchList(idsList, batchSize, i);
+
+      sql.append(" pitGroup.id in (");
+      sql.append(HibUtils.convertToInClause(currentBatch, byHqlStatic));
+      sql.append(")");
+   
+      Set<PITGroup> localResult = byHqlStatic.createQuery(sql.toString()).listSet(PITGroup.class);
+      for (PITGroup pitGroup : localResult) {
+        results.put(pitGroup.getId(), pitGroup);
+      }
     }
 
     return results;
