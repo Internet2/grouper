@@ -2,13 +2,16 @@ package edu.internet2.middleware.grouper.app.externalSystem;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -145,6 +148,27 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     return ret;
   }
 
+  @Override
+  public void validatePreSave(boolean isInsert, boolean fromUi,
+      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    super.validatePreSave(isInsert, fromUi, errorsToDisplay, validationErrorsToDisplay);
+    
+    GrouperConfigurationModuleAttribute endpointAttribute = this.retrieveAttributes().get("endpoint");
 
+    if (endpointAttribute != null && StringUtils.startsWithIgnoreCase(endpointAttribute.getValueOrExpressionEvaluation(), "https://api.github.com/scim/")) {
+     
+      String endpoint = endpointAttribute.getValueOrExpressionEvaluation();
+      
+      // https://api.github.com/scim/v2/organizations/ORG
+      endpoint = GrouperUtil.stripLastSlashIfExists(endpoint);
+      if (!StringUtils.startsWithIgnoreCase(endpoint, "https://api.github.com/scim/v2/organizations/")) {
+        validationErrorsToDisplay.put(endpointAttribute.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationGithubEndpointMustContainOrganization"));
+      }
+      
+    }
+    
+  }
+  
 
 }

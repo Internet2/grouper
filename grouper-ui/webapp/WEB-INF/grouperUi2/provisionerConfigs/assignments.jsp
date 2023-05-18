@@ -51,7 +51,7 @@
                             ${guiProvisioningAssignment.type}
                          </td>
 			                   <td style="white-space: nowrap;">
-                    			${guiProvisioningAssignment.guiGroupOrFolder.shortLink}
+                    			${guiProvisioningAssignment.guiGroupOrFolder.linkWithIcon}
 			                   </td>
 			                </tr>
 			              </c:forEach>

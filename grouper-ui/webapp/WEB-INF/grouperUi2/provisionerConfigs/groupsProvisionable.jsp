@@ -47,7 +47,7 @@
 			              
 			                <tr>
 			                   <td style="white-space: nowrap;">
-                    			${guiGroup.shortLink}
+                    			${guiGroup.linkWithIcon}
 			                   </td>
 			                   </tr>
 			              </c:forEach>

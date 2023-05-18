@@ -21,6 +21,18 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMet
  */
 public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
   
+  public final static Set<String> allKeys = new HashSet<>();
+  static {
+    allKeys.add("membershipStructure");
+    allKeys.add("hasEntityTable");
+    allKeys.add("hasEntityAttributeTable");
+    allKeys.add("hasMembershipTable");
+    allKeys.add("hasGroupTable");
+    allKeys.add("hasGroupAttributeTable");
+    allKeys.add("membershipTableEntityValue");
+    allKeys.add("membershipTableEntityValue");
+  }
+  
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
@@ -39,6 +51,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
     for (String suffixUserJustChanged: suffixesUserJustChanged) {
       
       if (StringUtils.equals(suffixUserJustChanged, "sqlPattern")) {
+        
         String valueUserEnteredOnScreen = suffixToValue.get(suffixUserJustChanged);
         
         if (StringUtils.isNotBlank(valueUserEnteredOnScreen)) {
@@ -48,135 +61,75 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
         if (StringUtils.equals(valueUserEnteredOnScreen, "entityTable")) {
           result.put("membershipStructure", "notApplicable");
           result.put("hasEntityTable", "true");
-          result.put("entityTableName", "from_grouper_entity");
-          result.put("entityTableIdColumn", "entity_uuid");
-          result.put("entityTablePrimaryKeyValue", "entityUuid");
-          result.put("entityTableColumnNames", "subject_id");
-          result.put("needEntityLink", "false");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasEntityTable"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "entityTableWithAttributeTable")) {
           result.put("membershipStructure", "notApplicable");
           result.put("hasEntityTable", "true");
-          result.put("entityTableName", "from_grouper_entity");
-          result.put("entityTableIdColumn", "entity_uuid");
-          result.put("entityTablePrimaryKeyValue", "entityUuid");
-          result.put("entityTableColumnNames", "subject_id");
-          result.put("needEntityLink", "false");
           result.put("hasEntityAttributeTable", "true");
-          result.put("entityAttributeTableName", "from_grouper_entity_attr");
-          result.put("columnNameForeignKeyToEntityTable", "entity_uuid");
-          result.put("entityAttributeNameColumnName", "attribute_name");
-          result.put("entityAttributeNameColumnValue", "attribute_value");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasEntityTable", "hasEntityAttributeTable"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "entityTableWithAttributeTableAndMemberships")) {
           result.put("membershipStructure", "entityAttributes");
           result.put("hasEntityTable", "true");
-          result.put("entityTableName", "from_grouper_entity");
-          result.put("entityTableIdColumn", "entity_uuid");
-          result.put("entityTablePrimaryKeyValue", "entityUuid");
-          result.put("entityTableColumnNames", "subject_id");
           result.put("hasEntityAttributeTable", "true");
-          result.put("entityAttributeTableName", "from_grouper_entity_attr");
-          result.put("columnNameForeignKeyToEntityTable", "entity_uuid");
-          result.put("entityAttributeNameColumnName", "attribute_name");
-          result.put("entityAttributeNameColumnValue", "attribute_value");
-          result.put("entityMembershipAttributeName", "memberOf");
-          result.put("needEntityLink", "true");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasEntityTable", "hasEntityAttributeTable"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "entityTableMembershipTable")) {
           result.put("hasEntityTable", "true");
-          result.put("entityTableName", "from_grouper_entity");
-          result.put("entityTableIdColumn", "entity_uuid");
-          result.put("entityTablePrimaryKeyValue", "entityUuid");
-          result.put("entityTableColumnNames", "subject_id");
           result.put("membershipStructure", "membershipObjects");
           result.put("hasMembershipTable", "true");
-          result.put("membershipTableName", "from_grouper_mship");
-          result.put("membershipTableGroupColumn", "group_name");
-          result.put("membershipTableGroupValue", "groupName");
-          result.put("membershipTableEntityColumn", "entity_uuid");
-          result.put("membershipTableEntityValue", "entityUuid");
-          result.put("needGroupLink", "false");
-          result.put("needEntityLink", "true");
+          result.put("membershipTableEntityValue", "entityPrimaryKey");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasEntityTable", "hasMembershipTable", "membershipTableEntityValue"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "groupTable")) {
           result.put("membershipStructure", "notApplicable");
           result.put("hasGroupTable", "true");
-          result.put("groupTableName", "from_grouper_group");
-          result.put("groupTableIdColumn", "group_id_index");
-          result.put("groupTablePrimaryKeyValue", "groupIdIndex");
-          result.put("groupTableColumnNames", "groupIdIndex");
-          result.put("needGroupLink", "false");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasGroupTable"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "groupTableWithAttributeTable")) {
           result.put("membershipStructure", "notApplicable");
           result.put("hasGroupTable", "true");
-          result.put("groupTableName", "from_grouper_group");
-          result.put("groupTableIdColumn", "group_id_index");
-          result.put("groupTablePrimaryKeyValue", "groupIdIndex");
-          result.put("groupTableColumnNames", "groupIdIndex");
-          result.put("needGroupLink", "false");
           result.put("hasGroupAttributeTable", "true");
-          result.put("groupAttributeTableName", "from_grouper_group_attr");
-          result.put("columnNameForeignKeyToGroupTable", "group_id_index");
-          result.put("groupAttributeNameColumnName", "attribute_name");
-          result.put("groupAttributeNameColumnValue", "attribute_value");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasGroupTable", "hasGroupAttributeTable"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "groupTableWithAttributeTableAndMemberships")) {
           result.put("membershipStructure", "groupAttributes");
           result.put("hasGroupTable", "true");
-          result.put("groupTableName", "from_grouper_group");
-          result.put("groupTableIdColumn", "group_id_index");
-          result.put("groupTablePrimaryKeyValue", "groupIdIndex");
-          result.put("groupTableColumnNames", "groupIdIndex");
           result.put("hasGroupAttributeTable", "true");
-          result.put("groupAttributeTableName", "from_grouper_group_attr");
-          result.put("columnNameForeignKeyToGroupTable", "group_id_index");
-          result.put("groupAttributeNameColumnName", "attribute_name");
-          result.put("groupAttributeNameColumnValue", "attribute_value");
-          result.put("groupMembershipAttributeName", "hasMember");
-          result.put("needGroupLink", "true");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasGroupTable", "hasGroupAttributeTable"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "groupTableMembershipTable")) {
           result.put("hasGroupTable", "true");
-          result.put("groupTableName", "from_grouper_group");
-          result.put("groupTableIdColumn", "group_id_index");
-          result.put("groupTablePrimaryKeyValue", "groupIdIndex");
-          result.put("groupTableColumnNames", "groupIdIndex");
-          result.put("needGroupLink", "true");
           result.put("membershipStructure", "membershipObjects");
           result.put("hasMembershipTable", "true");
-          result.put("membershipTableName", "from_grouper_mship");
-          result.put("membershipTableGroupColumn", "group_id_index");
-          result.put("membershipTableGroupValue", "groupIdIndex");
-          result.put("membershipTableEntityColumn", "subject_id");
-          result.put("membershipTableEntityValue", "subjectId");
-          result.put("needEntityLink", "false");
+          result.put("membershipTableGroupValue", "groupPrimaryKey");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasGroupTable", "hasMembershipTable", "membershipTableGroupValue"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "groupTableEntityTableMembershipTable")) {
-          result.put("membershipStructure", "notApplicable");
           result.put("hasEntityTable", "true");
-          result.put("entityTableName", "from_grouper_entity");
-          result.put("entityTableIdColumn", "entity_uuid");
-          result.put("entityTablePrimaryKeyValue", "entityUuid");
-          result.put("entityTableColumnNames", "subject_id");
-          result.put("needEntityLink", "true");
-          result.put("membershipStructure", "notApplicable");
           result.put("hasGroupTable", "true");
-          result.put("groupTableName", "from_grouper_group");
-          result.put("groupTableIdColumn", "group_id_index");
-          result.put("groupTablePrimaryKeyValue", "groupIdIndex");
-          result.put("groupTableColumnNames", "groupIdIndex");
-          result.put("needGroupLink", "true");
+          result.put("membershipTableGroupValue", "groupPrimaryKey");
+          result.put("membershipTableEntityValue", "entityPrimaryKey");
           result.put("membershipStructure", "membershipObjects");
           result.put("hasMembershipTable", "true");
-          result.put("membershipTableName", "from_grouper_mship");
-          result.put("membershipTableGroupColumn", "group_id_index");
-          result.put("membershipTableGroupValue", "groupIdIndex");
-          result.put("membershipTableEntityColumn", "entity_uuid");
-          result.put("membershipTableEntityValue", "entityUuid");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasEntityTable", "hasGroupTable", "hasMembershipTable", "membershipTableEntityValue", "membershipTableGroupValue"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "membershipTable")) {
           result.put("membershipStructure", "membershipObjects");
           result.put("hasMembershipTable", "true");
-          result.put("membershipTableName", "from_grouper_mship");
-          result.put("membershipTableGroupColumn", "group_name");
-          result.put("membershipTableGroupValue", "groupName");
-          result.put("membershipTableEntityColumn", "subject_id");
-          result.put("membershipTableEntityValue", "subjectId");
-          result.put("needGroupLink", "false");
-          result.put("needEntityLink", "false");
+          
+          setValuesToNull(result, GrouperUtil.toSet("membershipStructure", "hasMembershipTable"), allKeys);
+          
         } else if (StringUtils.equals(valueUserEnteredOnScreen, "other")) {
           result.clear();
         }
@@ -193,6 +146,19 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
     
     GrouperConfigurationModuleAttribute hasGroupTableAttribute = this.retrieveAttributes().get("hasGroupTable");
     
+    //if has entity table is false, you cannot pick entityPrimaryKey as group membership attribute value
+    GrouperConfigurationModuleAttribute hasEntityTableAttribute = this.retrieveAttributes().get("hasEntityTable");
+    if (!GrouperUtil.booleanValue(hasEntityTableAttribute.getValueOrExpressionEvaluation(), false)) {
+      GrouperConfigurationModuleAttribute groupMembershipAttributeValueAttribute = this.retrieveAttributes().get("groupMembershipAttributeValue");
+      if (groupMembershipAttributeValueAttribute != null) {
+        String value = groupMembershipAttributeValueAttribute.getValueOrExpressionEvaluation();
+        if (StringUtils.equals(value, "entityPrimaryKey")) {
+          String errorMessage = GrouperTextContainer.textOrNull("groupMembershipAttributeValueCannotBeEntityPrimaryKey");
+          validationErrorsToDisplay.put(groupMembershipAttributeValueAttribute.getHtmlForElementIdHandle(), errorMessage);
+        }
+      }
+    }
+    
     if (hasGroupTableAttribute != null && GrouperUtil.booleanValue(hasGroupTableAttribute.getValue(), false)) {
       GrouperConfigurationModuleAttribute sqlExternalSystemConnectionName = this.retrieveAttributes().get("dbExternalSystemConfigId");
       GrouperConfigurationModuleAttribute groupTableName = this.retrieveAttributes().get("groupTableName");
@@ -204,8 +170,8 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       GrouperConfigurationModuleAttribute hasGroupAttributeTableAttribute = this.retrieveAttributes().get("hasGroupAttributeTable");
       if (GrouperUtil.booleanValue(hasGroupAttributeTableAttribute.getValueOrExpressionEvaluation(), false)) {
         
-        GrouperConfigurationModuleAttribute attributeTableName = this.retrieveAttributes().get("groupAttributeTableName");
-        GrouperConfigurationModuleAttribute attributeTableIdColumn = this.retrieveAttributes().get("columnNameForeignKeyToGroupTable");
+        GrouperConfigurationModuleAttribute attributeTableName = this.retrieveAttributes().get("groupAttributesTableName");
+        GrouperConfigurationModuleAttribute attributeTableIdColumn = this.retrieveAttributes().get("groupAttributesGroupForeignKeyColumn");
         GrouperConfigurationModuleAttribute attributeTableColumnName = this.retrieveAttributes().get("groupAttributeNameColumnName");
         GrouperConfigurationModuleAttribute attributeTableValueColumn = this.retrieveAttributes().get("groupAttributeValueColumnName");
         
@@ -215,9 +181,8 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       }
     }
       
-    GrouperConfigurationModuleAttribute hasEntityTableAttribute = this.retrieveAttributes().get("hasEntityTable");
     
-    if (hasGroupTableAttribute != null && GrouperUtil.booleanValue(hasEntityTableAttribute.getValue(), false)) {
+    if (hasEntityTableAttribute != null && GrouperUtil.booleanValue(hasEntityTableAttribute.getValue(), false)) {
       
       GrouperConfigurationModuleAttribute sqlExternalSystemConnectionName = this.retrieveAttributes().get("dbExternalSystemConfigId");
       
@@ -230,10 +195,10 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       GrouperConfigurationModuleAttribute hasEntityAttributeTableAttribute = this.retrieveAttributes().get("hasEntityAttributeTable");
       if (GrouperUtil.booleanValue(hasEntityAttributeTableAttribute.getValueOrExpressionEvaluation(), false)) {
         
-        GrouperConfigurationModuleAttribute attributeTableName = this.retrieveAttributes().get("entityAttributeTableName");
-        GrouperConfigurationModuleAttribute attributeTableIdColumn = this.retrieveAttributes().get("columnNameForeignKeyToEntityTable");
-        GrouperConfigurationModuleAttribute attributeTableColumnName = this.retrieveAttributes().get("entityAttributeNameColumnName");
-        GrouperConfigurationModuleAttribute attributeTableValueColumn = this.retrieveAttributes().get("entityAttributeValueColumnName");
+        GrouperConfigurationModuleAttribute attributeTableName = this.retrieveAttributes().get("entityAttributesTableName");
+        GrouperConfigurationModuleAttribute attributeTableIdColumn = this.retrieveAttributes().get("entityAttributesEntityForeignKeyColumn");
+        GrouperConfigurationModuleAttribute attributeTableColumnName = this.retrieveAttributes().get("entityAttributesAttributeNameColumn");
+        GrouperConfigurationModuleAttribute attributeTableValueColumn = this.retrieveAttributes().get("entityAttributesAttributeValueColumn");
         
         validateTableAndColumns(validationErrorsToDisplay, sqlExternalSystemConnectionName, attributeTableName, attributeTableColumnName, attributeTableValueColumn);
         validateTableAndColumns(validationErrorsToDisplay, sqlExternalSystemConnectionName, attributeTableName, attributeTableIdColumn, null);
@@ -329,7 +294,6 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       }
       
     }
-   
     
   }
 
@@ -343,24 +307,14 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
   public void populateProvisionerConfigurationValuesFromStartWith(Map<String, String> startWithSuffixToValue, 
       Map<String, Object> provisionerSuffixToValue) {
     
+    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisioner");
+    
     if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "entityResolver") || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
       provisionerSuffixToValue.put("entityResolver.entityAttributesNotInSubjectSource", "true");
     }
     
-    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasTargetEntityLink"), false)) {
-      provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
-      
-      provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
-      provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
-      provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
-      provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
-      
-      //TODO debug why this is not getting populated
-      provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", startWithSuffixToValue.get("entityTableIdColumn"));
-      
-    }
-    
-    if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSource") || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
+    if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSource") 
+        || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
       provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
       
       String attributesCommaSeparated = startWithSuffixToValue.get("subjectSourceEntityResolverAttributes");
@@ -373,7 +327,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"has", "true");
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"source", "grouper");
           provisionerSuffixToValue.put("entityAttributeValueCache"+j+"type", "subjectTranslationScript");
-          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"translationScript", "${subject.getAttributeValue("+attributes[i]+")}");
+          provisionerSuffixToValue.put("entityAttributeValueCache"+j+"translationScript", "${subject.getAttributeValue('"+attributes[i]+"')}");
         }
         
       }
@@ -381,9 +335,49 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
     }
     
     if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityTable"), false)) {
+      provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
+      
+      provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache0has", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache0source", "target");
+      provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
+      
+      provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", startWithSuffixToValue.get("entityTableIdColumn"));
+      
+      provisionerSuffixToValue.put("entityMatchingAttributeCount", "1");
+      provisionerSuffixToValue.put("entityMatchingAttribute0name", startWithSuffixToValue.get("entityTableIdColumn"));
+      
+    }
+    
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupTable"), false)) {
+      provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
+      
+      provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
+      provisionerSuffixToValue.put("groupAttributeValueCache0has", "true");
+      provisionerSuffixToValue.put("groupAttributeValueCache0source", "target");
+      provisionerSuffixToValue.put("groupAttributeValueCache0type", "groupAttribute");
+      
+      provisionerSuffixToValue.put("groupAttributeValueCache0groupAttribute", startWithSuffixToValue.get("groupTableIdColumn"));
+      
+      provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
+      provisionerSuffixToValue.put("groupMatchingAttribute0name", startWithSuffixToValue.get("groupTableIdColumn"));
+      
+    }
+    
+    int entityAttributeConfigIndex = 0;
+    
+    //TODO move it in the above if condition
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityTable"), false)) {
       
       provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
       provisionerSuffixToValue.put("userTableName", startWithSuffixToValue.get("entityTableName"));
+      
+      provisionerSuffixToValue.put("selectAllEntities", "true");
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("manageEntities"))) {
+        provisionerSuffixToValue.put("makeChangesToEntities", "true");
+      }
+      
       
       Set<String> otherAttributeNamesSet = new HashSet<>();
       
@@ -419,79 +413,72 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("targetEntityAttribute.0.storageType", "entityTableColumn");
       
       String startWithEntityTablePrimaryKeyValue = startWithSuffixToValue.get("entityTablePrimaryKeyValue");
-      String grouperProvisioningEntityFieldValue = null;
-
+      
       if (StringUtils.equals("email", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "email";
-      } else if (StringUtils.equals("entityUuid", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "id";
-      } else if (StringUtils.equals("entityDescription", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "description";
-      } else if (StringUtils.equals("entityName", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "name";
+        provisionerSuffixToValue.put("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "email");
+      } else if (StringUtils.equals("uuid", startWithEntityTablePrimaryKeyValue)) {
+        provisionerSuffixToValue.put("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "id");
       } else if (StringUtils.equals("subjectId", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "subjectId";
+        provisionerSuffixToValue.put("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
       } else if (StringUtils.equals("subjectIdentifier0", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "subjectIdentifier0";
+        provisionerSuffixToValue.put("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectIdentifier0");
       } else if (StringUtils.equals("subjectIdentifier1", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "subjectIdentifier1";
+        provisionerSuffixToValue.put("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectIdentifier1");
       } else if (StringUtils.equals("subjectIdentifier2", startWithEntityTablePrimaryKeyValue)) {
-        grouperProvisioningEntityFieldValue = "subjectIdentifier2";
-      } else if (StringUtils.equals("other", startWithEntityTablePrimaryKeyValue) || StringUtils.equals("script", startWithEntityTablePrimaryKeyValue)) {
+        provisionerSuffixToValue.put("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectIdentifier2");
+      } else if (StringUtils.equals("script", startWithEntityTablePrimaryKeyValue)) {
         provisionerSuffixToValue.put("targetEntityAttribute.0.translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetEntityAttribute.0.translateExpression", startWithSuffixToValue.get("entityTablePrimaryKeyValueTranslationScript"));
       }
       
-      if (grouperProvisioningEntityFieldValue != null) {
-        provisionerSuffixToValue.put("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", grouperProvisioningEntityFieldValue);
-      }
       
-      int i = 1;
+      entityAttributeConfigIndex = 1;
       for (String entityTableCol: entityTableCols) {
-        provisionerSuffixToValue.put("targetEntityAttribute."+i+".name", entityTableCol);
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".name", entityTableCol);
         
         if (StringUtils.equalsIgnoreCase(entityTableCol, "entity_uuid") || StringUtils.equalsIgnoreCase(entityTableCol, "uuid") || StringUtils.equalsIgnoreCase(entityTableCol, "id")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "id");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "id");
         } else if (StringUtils.equalsIgnoreCase(entityTableCol, "entity_name") || StringUtils.equalsIgnoreCase(entityTableCol, "name")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "name");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "name");
         } else if (StringUtils.equalsIgnoreCase(entityTableCol, "email")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "email");
-        } else if (StringUtils.equalsIgnoreCase(entityTableCol, "entity_description")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "description");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "email");
+        } else if (StringUtils.equalsIgnoreCase(entityTableCol, "entity_description") || StringUtils.equalsIgnoreCase(entityTableCol, "description") ) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "description");
         } else if (StringUtils.equalsIgnoreCase(entityTableCol, "subject_id")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "subjectId");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "subjectId");
         } else if (StringUtils.equalsIgnoreCase(entityTableCol, "subject_identifier0")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "subjectIdentifier0");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "subjectIdentifier0");
         } else if (StringUtils.equalsIgnoreCase(entityTableCol, "subject_identifier1")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "subjectIdentifier1");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "subjectIdentifier1");
         } else if (StringUtils.equalsIgnoreCase(entityTableCol, "subject_identifier2")) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateExpressionType", "grouperProvisioningEntityField");
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".translateFromGrouperProvisioningEntityField", "subjectIdentifier2");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", "subjectIdentifier2");
         } 
         
         if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityAttributeTable"), false)) {
-          provisionerSuffixToValue.put("targetEntityAttribute."+i+".storageType", "entityTableColumn"); // storageType is visible only when hasEntityAttributeTable is true
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".storageType", "entityTableColumn"); // storageType is visible only when hasEntityAttributeTable is true
         }
         
-        i++;
+        entityAttributeConfigIndex++;
       }
       
       for (String otherAttributeCol: otherAttributeNamesSet) {
-        provisionerSuffixToValue.put("targetEntityAttribute."+i+".name", otherAttributeCol);
-        provisionerSuffixToValue.put("targetEntityAttribute."+i+".storageType", "separateAttributesTable");
-        i++;
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".name", otherAttributeCol);
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".storageType", "separateAttributesTable");
+        entityAttributeConfigIndex++;
       }
       
-      if (i <= numberOfEntityAttributes - 1) {
-        provisionerSuffixToValue.put("targetEntityAttribute."+i+".name", entityMembershipAttributeName);
-        provisionerSuffixToValue.put("targetEntityAttribute."+i+".storageType", "separateAttributesTable");
-        i++;
+      if (entityAttributeConfigIndex <= numberOfEntityAttributes - 1) {
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".name", entityMembershipAttributeName);
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".storageType", "separateAttributesTable");
+        entityAttributeConfigIndex++;
       }
       
       //TODO debug why this is not getting populated
@@ -499,6 +486,72 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       
     }
     
+    if (StringUtils.equals(startWithSuffixToValue.get("membershipStructure"), "groupAttributes")) {
+      
+      if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityTable"), false)) {
+        provisionerSuffixToValue.put("customizeEntityCrud", "true");
+        provisionerSuffixToValue.put("selectEntities", "false");
+      }
+      
+      String groupMembershipAttributeValue = startWithSuffixToValue.get("groupMembershipAttributeValue");
+      
+      if (StringUtils.equals(groupMembershipAttributeValue, "entityPrimaryKey")) {
+        groupMembershipAttributeValue = startWithSuffixToValue.get("entityTableIdColumn");
+      }
+      
+      if (!StringUtils.equals((String)provisionerSuffixToValue.get("entityAttributeValueCache0entityAttribute"), groupMembershipAttributeValue)) {
+        
+        provisionerSuffixToValue.put("operateOnGrouperEntities", "true");
+        
+        provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+        provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
+        provisionerSuffixToValue.put("entityAttributeValueCache1source", "grouper");
+        provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
+        
+        if (!StringUtils.equals("script", groupMembershipAttributeValue) && !StringUtils.equals("other", groupMembershipAttributeValue)) {
+          provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", groupMembershipAttributeValue);
+        }
+   
+        provisionerSuffixToValue.put("groupMembershipAttributeValue", "entityAttributeValueCache1");
+        
+        String entityAttributeNameForMemberships = startWithSuffixToValue.get("entityAttributeNameForMemberships");
+        
+        provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", entityAttributeNameForMemberships);
+        
+        if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityTable"), false)) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".showAdvancedAttribute", "true");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".showAttributeCrud", "true");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".insert", "false");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".update", "false");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".select", "false");
+        }
+        
+        if (StringUtils.equals("script", groupMembershipAttributeValue)) {
+          String groupMembershipAttributeValueTranslationScript = startWithSuffixToValue.get("groupMembershipAttributeValueTranslationScript");
+          
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpression", groupMembershipAttributeValueTranslationScript);
+        } else if (!StringUtils.equals("other", groupMembershipAttributeValue)) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateFromGrouperProvisioningEntityField", groupMembershipAttributeValue);
+        }
+        
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".name", entityAttributeNameForMemberships);
+        
+        if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityAttributeTable"), false)) {
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".storageType", "separateAttributesTable");
+        }
+        
+        entityAttributeConfigIndex++;
+        
+      } else {
+        provisionerSuffixToValue.put("groupMembershipAttributeValue", "entityAttributeValueCache0");
+      }
+      
+      
+    }
+    
+    int groupAttributeConfigIndex = 0;
     if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupTable"), false)) {
       
       provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
@@ -512,6 +565,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupAttributeTable"), false)) {
         provisionerSuffixToValue.put("useSeparateTableForGroupAttributes", "true");
+        
         groupMembershipAttributeName = startWithSuffixToValue.get("groupMembershipAttributeName");
         groupMembershipAttributeValue = startWithSuffixToValue.get("groupMembershipAttributeValue");
         
@@ -539,71 +593,73 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
       
       String startWithGroupTablePrimaryKeyValue = startWithSuffixToValue.get("groupTablePrimaryKeyValue");
-      String grouperProvisioningGroupFieldValue = null;
-     
-      if (StringUtils.equals("groupExtension", startWithGroupTablePrimaryKeyValue)) {
-        grouperProvisioningGroupFieldValue = "extension";
-      } else if (StringUtils.equals("groupIdIndex", startWithGroupTablePrimaryKeyValue)) {
-        grouperProvisioningGroupFieldValue = "idIndex";
-      } else if (StringUtils.equals("groupName", startWithGroupTablePrimaryKeyValue)) {
-        grouperProvisioningGroupFieldValue = "name";
-      } else if (StringUtils.equals("groupUuid", startWithGroupTablePrimaryKeyValue)) {
-        grouperProvisioningGroupFieldValue = "id";
-      } else if (StringUtils.equals("other", startWithGroupTablePrimaryKeyValue) || StringUtils.equals("script", startWithGroupTablePrimaryKeyValue)) {
+      if (StringUtils.equals("extension", startWithGroupTablePrimaryKeyValue)) {
+        provisionerSuffixToValue.put("targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "extension");
+      } else if (StringUtils.equals("idIndex", startWithGroupTablePrimaryKeyValue)) {
+        provisionerSuffixToValue.put("targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "idIndex");
+      } else if (StringUtils.equals("name", startWithGroupTablePrimaryKeyValue)) {
+        provisionerSuffixToValue.put("targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
+      } else if (StringUtils.equals("uuid", startWithGroupTablePrimaryKeyValue)) {
+        provisionerSuffixToValue.put("targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "id");
+      } else if (StringUtils.equals("script", startWithGroupTablePrimaryKeyValue)) {
         provisionerSuffixToValue.put("targetGroupAttribute.0.translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetGroupAttribute.0.translateExpression", startWithSuffixToValue.get("groupTablePrimaryKeyValueTranslationScript"));
       }
       
-      if (grouperProvisioningGroupFieldValue != null) {
-        provisionerSuffixToValue.put("targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", grouperProvisioningGroupFieldValue);
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupAttributeTable"), false)) {
+        provisionerSuffixToValue.put("targetGroupAttribute.0.storageType", "groupTableColumn");
       }
       
       provisionerSuffixToValue.put("groupTableIdColumn", startWithSuffixToValue.get("groupTableIdColumn"));
       
-      int i = 1;
+      groupAttributeConfigIndex = 1;
       for (String groupTableCol: groupTableCols) {
-        provisionerSuffixToValue.put("targetGroupAttribute."+i+".name", groupTableCol);
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".name", groupTableCol);
         
         if (StringUtils.equalsIgnoreCase(groupTableCol, "group_uuid") || StringUtils.equalsIgnoreCase(groupTableCol, "uuid") || StringUtils.equalsIgnoreCase(groupTableCol, "id")) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateExpressionType", "grouperProvisioningGroupField");
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateFromGrouperProvisioningGroupField", "id");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", "id");
         } else if (StringUtils.equalsIgnoreCase(groupTableCol, "group_name") || StringUtils.equalsIgnoreCase(groupTableCol, "name")) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateExpressionType", "grouperProvisioningGroupField");
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateFromGrouperProvisioningGroupField", "name");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", "name");
         } else if (StringUtils.equalsIgnoreCase(groupTableCol, "group_id_index") || StringUtils.equalsIgnoreCase(groupTableCol, "id_index")) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateExpressionType", "grouperProvisioningGroupField");
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateFromGrouperProvisioningGroupField", "idIndex");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", "idIndex");
         } else if (StringUtils.equalsIgnoreCase(groupTableCol, "group_extension") || StringUtils.equalsIgnoreCase(groupTableCol, "extension")) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateExpressionType", "grouperProvisioningGroupField");
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateFromGrouperProvisioningGroupField", "extension");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", "extension");
         } else if (StringUtils.equalsIgnoreCase(groupTableCol, "group_display_name") || StringUtils.equalsIgnoreCase(groupTableCol, "display_name")) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateExpressionType", "grouperProvisioningGroupField");
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateFromGrouperProvisioningGroupField", "displayName");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", "displayName");
         } else if (StringUtils.equalsIgnoreCase(groupTableCol, "group_display_extension") || StringUtils.equalsIgnoreCase(groupTableCol, "display_extension")) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateExpressionType", "grouperProvisioningGroupField");
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateFromGrouperProvisioningGroupField", "displayExtension");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", "displayExtension");
         } else if (StringUtils.equalsIgnoreCase(groupTableCol, "group_description") || StringUtils.equalsIgnoreCase(groupTableCol, "description")) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateExpressionType", "grouperProvisioningGroupField");
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".translateFromGrouperProvisioningGroupField", "description");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", "description");
         }
         
         if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupAttributeTable"), false)) {
-          provisionerSuffixToValue.put("targetGroupAttribute."+i+".storageType", "groupTableColumn"); // storageType is visible only when hasGroupAttributeTable is true
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".storageType", "groupTableColumn"); // storageType is visible only when hasGroupAttributeTable is true
         }
         
-        i++;
+        groupAttributeConfigIndex++;
       }
       
       for (String otherAttributeCol: otherAttributeNamesSet) {
-        provisionerSuffixToValue.put("targetGroupAttribute."+i+".name", otherAttributeCol);
-        provisionerSuffixToValue.put("targetGroupAttribute."+i+".storageType", "separateAttributesTable");
-        i++;
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".name", otherAttributeCol);
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".storageType", "separateAttributesTable");
+        groupAttributeConfigIndex++;
       }
       
-      if ( i <= numberOfGroupAttributes - 1) {
-        provisionerSuffixToValue.put("targetGroupAttribute."+i+".name", groupMembershipAttributeName);
-        provisionerSuffixToValue.put("targetGroupAttribute."+i+".storageType", "separateAttributesTable");
-        i++;
+      if ( groupAttributeConfigIndex <= numberOfGroupAttributes - 1) {
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".name", groupMembershipAttributeName);
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".storageType", "separateAttributesTable");
+        groupAttributeConfigIndex++;
       }
+      
+      provisionerSuffixToValue.put("groupMatchingAttributeCount", "1");
+      provisionerSuffixToValue.put("groupMatchingAttribute0name", startWithSuffixToValue.get("groupTableIdColumn"));
       
     }
     
@@ -617,6 +673,15 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
     }
     
     if (StringUtils.equals(startWithSuffixToValue.get("membershipStructure"), "membershipObjects")) {
+      
+        if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupTable"), false)) {
+          provisionerSuffixToValue.put("customizeGroupCrud", "true");
+          provisionerSuffixToValue.put("selectGroups", "false");
+        }
+        if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityTable"), false)) {
+          provisionerSuffixToValue.put("customizeEntityCrud", "true");
+          provisionerSuffixToValue.put("selectEntities", "false");
+        }
         
         provisionerSuffixToValue.put("membershipTableName", startWithSuffixToValue.get("membershipTableName"));
         
@@ -627,22 +692,55 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
         provisionerSuffixToValue.put("targetMembershipAttribute.0.name", membershipTableGroupColumn);
 
         String membershipTableGroupValue = startWithSuffixToValue.get("membershipTableGroupValue");
-        
-        if (StringUtils.equalsAny(membershipTableGroupValue, "groupName", "groupExtension", "groupIdIndex", "groupUUID")) {
+        // "extension", "groupPrimaryKey", "idIndex", "name", "other", "script", "uuid"
+        if (StringUtils.equalsAny(membershipTableGroupValue, "name", "extension", "idIndex", "uuid", "groupPrimaryKey")) {
           
           provisionerSuffixToValue.put("targetMembershipAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
-          if (StringUtils.equals("groupName", membershipTableGroupValue)) {
+          if (StringUtils.equals("name", membershipTableGroupValue)) {
             provisionerSuffixToValue.put("targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField",  "name");
           }
-          if (StringUtils.equals("groupExtension", membershipTableGroupValue)) {
+          if (StringUtils.equals("extension", membershipTableGroupValue)) {
             provisionerSuffixToValue.put("targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField",  "extension");
           }
-          if (StringUtils.equals("groupIdIndex", membershipTableGroupValue)) {
+          if (StringUtils.equals("idIndex", membershipTableGroupValue)) {
             provisionerSuffixToValue.put("targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField",  "idIndex");
           }
-          if (StringUtils.equals("groupUUID", membershipTableGroupValue)) {
+          if (StringUtils.equals("uuid", membershipTableGroupValue)) {
             provisionerSuffixToValue.put("targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField",  "id");
           }
+          if (StringUtils.equals("groupPrimaryKey", membershipTableGroupValue)) {
+            provisionerSuffixToValue.put("targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField", "groupAttributeValueCache0") ;
+          }
+          
+        } else if (StringUtils.equalsAny(membershipTableGroupValue, "script", "other")) {
+          String membershipGroupMembershipAttributeName = startWithSuffixToValue.get("membershipGroupMembershipAttributeName");
+          
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".name", membershipGroupMembershipAttributeName);
+          
+          if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupTable"), false)) {
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".showAdvancedAttribute", "true");
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".showAttributeCrud", "true");
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".insert", "false");
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".update", "false");
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".select", "false");
+          }
+          
+          if (StringUtils.equals("script", membershipTableGroupValue)) {
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "translationScript");
+            String membershipTableGroupValueTranslationScript = startWithSuffixToValue.get("membershipTableGroupValueTranslationScript");
+            provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpression", membershipTableGroupValueTranslationScript);
+          }
+          
+          provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
+          provisionerSuffixToValue.put("groupAttributeValueCache1has", "true");
+          provisionerSuffixToValue.put("groupAttributeValueCache1source", "grouper");
+          provisionerSuffixToValue.put("groupAttributeValueCache1type", "groupAttribute");
+          
+          provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", membershipGroupMembershipAttributeName);
+          
+          provisionerSuffixToValue.put("targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField", "groupAttributeValueCache1") ;
+          
+          groupAttributeConfigIndex++;
           
         }
         
@@ -652,13 +750,16 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
         
         String membershipTableEntityValue = startWithSuffixToValue.get("membershipTableEntityValue");
 
-        if (StringUtils.equalsAny(membershipTableEntityValue, "email", "entityUuid", "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
+        if (StringUtils.equalsAny(membershipTableEntityValue, "email", "entityPrimaryKey", "idIndex", "uuid", "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2")) {
           
           provisionerSuffixToValue.put("targetMembershipAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
           if (StringUtils.equals("email", membershipTableEntityValue)) {
             provisionerSuffixToValue.put("targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField",  "email");
           }
-          if (StringUtils.equals("entityUuid", membershipTableEntityValue)) {
+          if (StringUtils.equals("idIndex", membershipTableEntityValue)) {
+            provisionerSuffixToValue.put("targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField",  "idIndex");
+          }
+          if (StringUtils.equals("uuid", membershipTableEntityValue)) {
             provisionerSuffixToValue.put("targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField",  "id");
           }
           if (StringUtils.equals("subjectId", membershipTableEntityValue)) {
@@ -673,11 +774,172 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
           if (StringUtils.equals("subjectIdentifier2", membershipTableEntityValue)) {
             provisionerSuffixToValue.put("targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField",  "subjectIdentifier2");
           }
+          if (StringUtils.equals("entityPrimaryKey", membershipTableEntityValue)) {
+            provisionerSuffixToValue.put("targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField",  "entityAttributeValueCache0");
+          }
+        } else if (StringUtils.equalsAny(membershipTableEntityValue, "script", "other")) {
+          String membershipEntityMembershipAttributeName = startWithSuffixToValue.get("membershipEntityMembershipAttributeName");
+          
+          provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".name", membershipEntityMembershipAttributeName);
+          if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasEntityTable"), false)) {
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".showAdvancedAttribute", "true");
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".showAttributeCrud", "true");
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".insert", "false");
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".update", "false");
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".select", "false");
+          }
+          
+          if (StringUtils.equals("script", membershipTableEntityValue)) {
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpressionType", "translationScript");
+            String membershipTableEntityValueTranslationScript = startWithSuffixToValue.get("membershipTableEntityValueTranslationScript");
+            provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributeConfigIndex+".translateExpression", membershipTableEntityValueTranslationScript);
+          }
+          
+          provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
+          provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
+          provisionerSuffixToValue.put("entityAttributeValueCache1source", "grouper");
+          provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
+          
+          provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", membershipEntityMembershipAttributeName);
+          
+          provisionerSuffixToValue.put("targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache1") ;
+          
+          entityAttributeConfigIndex++;
           
         }
-                
+        
         provisionerSuffixToValue.put("membershipGroupForeignKeyColumn", membershipTableGroupColumn);
         provisionerSuffixToValue.put("membershipEntityForeignKeyColumn", membershipTableEntityColumn);
+    }
+    
+    
+    if (StringUtils.equals(startWithSuffixToValue.get("membershipStructure"), "entityAttributes")) {
+      
+      if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupTable"), false)) {
+        provisionerSuffixToValue.put("customizeGroupCrud", "true");
+        provisionerSuffixToValue.put("selectGroups", "false");
+        provisionerSuffixToValue.put("insertGroups", "false");
+        provisionerSuffixToValue.put("deleteGroups", "false");
+        provisionerSuffixToValue.put("updateGroups", "false");
+      }
+      
+      String entityMembershipAttributeValue = startWithSuffixToValue.get("entityMembershipAttributeValue");
+      
+      if (StringUtils.equals(entityMembershipAttributeValue, "groupPrimaryKey")) {
+        entityMembershipAttributeValue = startWithSuffixToValue.get("groupTableIdColumn");
+      }
+      
+      if (!StringUtils.equals((String)provisionerSuffixToValue.get("groupAttributeValueCache0groupAttribute"), entityMembershipAttributeValue)) {
+        
+        provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
+        
+        provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
+        provisionerSuffixToValue.put("groupAttributeValueCache1has", "true");
+        provisionerSuffixToValue.put("groupAttributeValueCache1source", "grouper");
+        provisionerSuffixToValue.put("groupAttributeValueCache1type", "groupAttribute");
+        
+        if (!StringUtils.equals("script", entityMembershipAttributeValue) && !StringUtils.equals("other", entityMembershipAttributeValue)) {
+          provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", entityMembershipAttributeValue);
+        }
+   
+        provisionerSuffixToValue.put("entityMembershipAttributeValue", "groupAttributeValueCache1");
+        
+        String groupAttributeNameForMemberships = startWithSuffixToValue.get("groupAttributeNameForMemberships");
+        
+        provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", groupAttributeNameForMemberships);
+        
+        if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupTable"), false)) {
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".showAdvancedAttribute", "true");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".showAttributeCrud", "true");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".insert", "false");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".update", "false");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".select", "false");
+        }
+        
+        if (StringUtils.equals("script", entityMembershipAttributeValue)) {
+          String entityMembershipAttributeValueTranslationScript = startWithSuffixToValue.get("entityMembershipAttributeValueTranslationScript");
+          
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "translationScript");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpression", entityMembershipAttributeValueTranslationScript);
+        } else if (!StringUtils.equals("other", entityMembershipAttributeValue)) {
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", entityMembershipAttributeValue);
+        }
+        
+        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".name", groupAttributeNameForMemberships);
+        
+        if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupAttributeTable"), false)) {
+          provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".storageType", "separateAttributesTable");
+        }
+        
+        groupAttributeConfigIndex++;
+        
+      } else {
+        provisionerSuffixToValue.put("entityMembershipAttributeValue", "groupAttributeValueCache0");
+      }
+      
+    }
+    
+//    if (StringUtils.equals(startWithSuffixToValue.get("membershipStructure"), "entityAttributes")) {
+//      
+//      if (!GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupTable"), false)) {
+//        provisionerSuffixToValue.put("customizeGroupCrud", "true");
+//        provisionerSuffixToValue.put("selectGroups", "false");
+//      }
+//      
+//      String entityMembershipAttributeValue = startWithSuffixToValue.get("entityMembershipAttributeValue");
+//      
+//      if (StringUtils.equals(entityMembershipAttributeValue, "groupPrimaryKey")) {
+//        entityMembershipAttributeValue = startWithSuffixToValue.get("groupTableIdColumn");
+//      }
+//      
+//      if (!StringUtils.equals((String)provisionerSuffixToValue.get("groupAttributeValueCache0groupAttribute"), entityMembershipAttributeValue)) {
+//        
+//        provisionerSuffixToValue.put("operateOnGrouperGroups", "true");
+//        
+//        provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
+//        provisionerSuffixToValue.put("groupAttributeValueCache1has", "true");
+//        provisionerSuffixToValue.put("groupAttributeValueCache1source", "grouper");
+//        provisionerSuffixToValue.put("groupAttributeValueCache1type", "groupAttribute");
+//        
+//        if (!StringUtils.equals("script", entityMembershipAttributeValue) && !StringUtils.equals("other", entityMembershipAttributeValue)) {
+//          provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", entityMembershipAttributeValue);
+//        }
+//      }
+//      
+//      String groupAttributeNameForMemberships = startWithSuffixToValue.get("groupAttributeNameForMemberships");
+//      
+//      provisionerSuffixToValue.put("groupAttributeValueCache1groupAttribute", groupAttributeNameForMemberships);
+//      
+//      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".showAdvancedAttribute", "true");
+//      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".showAttributeCrud", "true");
+//      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".insert", "false");
+//      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".update", "false");
+//      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".select", "false");
+//      
+//      if (StringUtils.equals("script", entityMembershipAttributeValue)) {
+//        String entityMembershipAttributeValueTranslationScript = startWithSuffixToValue.get("entityMembershipAttributeValueTranslationScript");
+//        
+//        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "translationScript");
+//        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpression", entityMembershipAttributeValueTranslationScript);
+//      } else if (!StringUtils.equals("other", entityMembershipAttributeValue)) {
+//        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateExpressionType", "grouperProvisioningGroupField");
+//        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".translateFromGrouperProvisioningGroupField", entityMembershipAttributeValue);
+//      }
+//      
+//      provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".name", groupAttributeNameForMemberships);
+//      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasGroupAttributeTable"), false)) {
+//        provisionerSuffixToValue.put("targetGroupAttribute."+groupAttributeConfigIndex+".storageType", "separateAttributesTable");
+//      }
+//      
+//      groupAttributeConfigIndex++;
+//      
+//    }
+    if (entityAttributeConfigIndex > 0) {
+      provisionerSuffixToValue.put("numberOfEntityAttributes", entityAttributeConfigIndex);
+    }
+    if (groupAttributeConfigIndex > 0) {
+      provisionerSuffixToValue.put("numberOfGroupAttributes", groupAttributeConfigIndex);
     }
 
     if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {

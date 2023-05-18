@@ -881,15 +881,32 @@ public class UiV2ProvisionerConfiguration {
       
       List<GuiGroup> guiGroups = new ArrayList<>();
       
+      GroupFinder groupFinder = new GroupFinder();
+      
+      Map<String, Group> groupIdToGroup = new HashMap<>();
+      
       for (GcGrouperSyncGroup gcGrouperSyncGroup: grouperSyncGroups) {
+        String groupId = gcGrouperSyncGroup.getGroupId();
+        if (StringUtils.isNotBlank(groupId)) {
+          groupFinder.addGroupId(groupId);
+        }
+      }
+      
+      Set<Group> groups = groupFinder.findGroups();
+      for (Group group: GrouperUtil.nonNull(groups)) {
+        
+        groupIdToGroup.put(group.getId(), group);
+        
+       
+      }
+      
+      for (GcGrouperSyncGroup gcGrouperSyncGroup: grouperSyncGroups) { 
         
         String groupId = gcGrouperSyncGroup.getGroupId();
         if (StringUtils.isNotBlank(groupId)) {
-          Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
-          if (group != null) {
-            GuiGroup guiGroup = new GuiGroup(group);
-            guiGroups.add(guiGroup);
-          }
+          Group group = groupIdToGroup.get(groupId);
+          GuiGroup guiGroup = new GuiGroup(group);
+          guiGroups.add(guiGroup);
         }
         
       }
@@ -941,35 +958,62 @@ public class UiV2ProvisionerConfiguration {
         throw new RuntimeException("Not allowed!!!!!");
       }
       
-      Map<String, List<String>> assignments = GrouperProvisioningService.retrieveAssignments(provisionerConfigId);
+      List<Object[]> assignments = GrouperProvisioningService.retrieveAssignments(provisionerConfigId);
       
-      List<String> groupNames = assignments.get("group");
-      List<String> folderNames = assignments.get("stem");
+      int totalAssignments = assignments.size();
+      
+      // show up to 1000
+      if (assignments.size() > 1000) {
+        assignments = assignments.subList(0, 1000);
+      }
       
       List<GuiProvisioningAssignment> guiProvisioningAssignments = new ArrayList<>();
       
-      for (String groupName: groupNames) {
-        Group group = GroupFinder.findByName(grouperSession, groupName, false);
-        if (group != null) {
-          GuiGroup guiGroup = new GuiGroup(group);
-          guiProvisioningAssignments.add(new GuiProvisioningAssignment("group", guiGroup));
-        }
-      }
-
-      for (String folderName: folderNames) {
-        Stem stem = StemFinder.findByName(grouperSession, folderName, false);
-        if (stem != null) {
-          GuiStem guiStem = new GuiStem(stem);
-          guiProvisioningAssignments.add(new GuiProvisioningAssignment("folder", guiStem));
+      GroupFinder groupFinder = new GroupFinder();
+      StemFinder stemFinder = new StemFinder();
+      
+      for (Object[] row: assignments) {
+        
+        String groupOrFolder = (String)row[1];
+        String groupNameOrFolderName = (String)row[0];
+        if (StringUtils.equals("group", groupOrFolder)) {
+          groupFinder.addGroupName(groupNameOrFolderName);
+        } else if (StringUtils.equals("stem", groupOrFolder)) {
+          stemFinder.addStemName(groupNameOrFolderName);
         }
       }
       
-      int totalAssignments = guiProvisioningAssignments.size();
-
-      // show up to 1000
-      if (totalAssignments > 1000) {
-        guiProvisioningAssignments = guiProvisioningAssignments.subList(0, 1000);
+      Set<Group> groups = groupFinder.findGroups();
+      Set<Stem> stems = stemFinder.findStems();
+      
+      Map<String, Group> nameToGroup = new HashMap<>();
+      Map<String, Stem> nameToStem = new HashMap<>();
+      
+      for (Group group: GrouperUtil.nonNull(groups)) {
+        nameToGroup.put(group.getName(), group);
       }
+      
+      for (Stem stem: GrouperUtil.nonNull(stems)) {
+        nameToStem.put(stem.getName(), stem);
+      }
+      
+      String groupLabel = TextContainer.textOrNull("provisionerConfigurationsAssignmentsTypeGroup");
+      String folderLabel = TextContainer.textOrNull("provisionerConfigurationsAssignmentsTypeFolder");
+      
+      for (Object[] row: assignments) {
+        String groupOrFolder = (String)row[1];
+        String groupNameOrFolderName = (String)row[0];
+        if (StringUtils.equals("group", groupOrFolder)) {
+          Group group = nameToGroup.get(groupNameOrFolderName);
+          GuiGroup guiGroup = new GuiGroup(group);
+          guiProvisioningAssignments.add(new GuiProvisioningAssignment(groupLabel, guiGroup));
+        } else if (StringUtils.equals("stem", groupOrFolder)) {
+          Stem stem = nameToStem.get(groupNameOrFolderName);
+          GuiStem guiStem = new GuiStem(stem);
+          guiProvisioningAssignments.add(new GuiProvisioningAssignment(folderLabel, guiStem));
+        }
+      }
+      
       
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
       ProvisioningConfiguration provisionerConfiguration = grouperProvisioner.getControllerForProvisioningConfiguration();
