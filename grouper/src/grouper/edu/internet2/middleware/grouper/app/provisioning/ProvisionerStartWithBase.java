@@ -81,7 +81,7 @@ public abstract class ProvisionerStartWithBase extends GrouperConfigurationModul
     
     for (String key: startWithSuffixToValue.keySet()) {
     
-      if (attributes.containsKey(key)) {
+      if (attributes.containsKey(key) && !provisionerSuffixToValue.containsKey(key)) {
         provisionerSuffixToValue.put(key, startWithSuffixToValue.get(key));
       }
     }

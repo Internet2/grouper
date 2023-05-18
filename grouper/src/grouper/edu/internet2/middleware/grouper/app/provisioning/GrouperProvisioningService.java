@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -1015,37 +1016,26 @@ public class GrouperProvisioningService {
   }
   
   
-  public static Map<String, List<String>> retrieveAssignments(String provisionerName) {
+  public static List<Object[]> retrieveAssignments(String provisionerName) {
     
-    Map<String, List<String>> groupFolderToLists = new HashMap<>();
+    String etcStemName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects");
     
-    StringBuilder query = new StringBuilder("select gaaagv.group_name, 'group' as owner_type from grouper_aval_asn_asn_group_v gaaagv where gaaagv.attribute_def_name_name2 like '%etc:provisioning:provisioningTarget' and gaaagv.value_string = ?  union all select gaaasv.stem_name, 'stem' as owner_type from grouper_aval_asn_asn_stem_v gaaasv where gaaasv.attribute_def_name_name2 like '%etc:provisioning:provisioningTarget' and gaaasv.value_string = ? ");
+    StringBuilder query = new StringBuilder("select gaaagv.group_name, 'group' as owner_type from grouper_aval_asn_asn_group_v gaaagv where gaaagv.attribute_def_name_name2 like '"+etcStemName+":provisioning:provisioningTarget' and gaaagv.value_string = ?  union all select gaaasv.stem_name, 'stem' as owner_type from grouper_aval_asn_asn_stem_v gaaasv where gaaasv.attribute_def_name_name2 like '"+etcStemName+":provisioning:provisioningTarget' and gaaasv.value_string = ? ");
     GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
     gcDbAccess.addBindVar(provisionerName);
     gcDbAccess.addBindVar(provisionerName);
     
     List<Object[]> rows = gcDbAccess.selectList(Object[].class);
     
-    List<String> groupNames = new ArrayList<>();
-    List<String> folderNames = new ArrayList<>();
-    
-    for (Object[] row: rows) {
-      
-      String groupOrFolder = (String)row[1];
-      String groupNameOrFolderName = (String)row[0];
-      if (StringUtils.equals("group", groupOrFolder)) {
-        groupNames.add(groupNameOrFolderName);
-      } else if (StringUtils.equals("stem", groupOrFolder)) {
-        folderNames.add(groupNameOrFolderName);
+    Collections.sort(rows, new Comparator<Object[]>() {
+
+      @Override
+      public int compare(Object[] o1, Object[] o2) {
+        return ((String)o1[0]).compareTo((String)o2[0]);
       }
-    }
+    });
     
-    groupFolderToLists.put("group", groupNames);
-    groupFolderToLists.put("stem", folderNames);
-    
-    return groupFolderToLists;
-  
-    
+    return rows;
   }
   
   
@@ -1066,6 +1056,7 @@ public class GrouperProvisioningService {
     
     QueryOptions queryOptions = new QueryOptions();
     queryOptions.paging(QueryPaging.page(1000, 1, true));
+    queryOptions.sortAsc("groupName");
     
     List<GcGrouperSyncGroup> gcGrouperSyncGroupsInTargetStart = HibernateSession.byHqlStatic().options(queryOptions)
       .createQuery("from GcGrouperSyncGroup where grouperSyncId = :theGrouperSyncId and provisionableDb = 'T' ")

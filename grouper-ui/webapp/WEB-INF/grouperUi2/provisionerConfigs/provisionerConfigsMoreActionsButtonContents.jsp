@@ -8,8 +8,6 @@
 
                       <ul class="dropdown-menu dropdown-menu-right" id="provisioner-configs-more-options">
                         
-                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewAssignments&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableAssignmentsActionOption'] }</a></li>
-                      
                         <c:if test="${not empty guiProvisionerConfiguration.fullSyncJobName}">
                            <li><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${guiProvisionerConfiguration.fullSyncJobName}'); return false;">${textContainer.text['provisionerConfigsTableViewFullSyncDaemonLogsActionOption'] }</a></li>
                         </c:if>
@@ -25,6 +23,7 @@
                          <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.editProvisionerConfiguration&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableEditDetailsActionOption'] }</a></li>
                        </c:if>
                        
+                       <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewAssignments&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableAssignmentsActionOption'] }</a></li>
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.groupsProvisionable&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableGroupsProvisionableActionOption'] }</a></li>
                        
                        <li><a href="#" onclick="return guiV2link('operation=UiV2ProvisionerConfiguration.viewProvisionerActivity&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}');">${textContainer.text['provisionerConfigsTableViewActivityActionOption'] }</a></li>
