@@ -217,38 +217,75 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
 
   },
-  /**
-   * make sure internal_id is populated in grouper_members and make column not null
-   */
-  V8 {
+ V8 {
     
     @Override
     public void updateVersionFromPrevious() {
+      // make sure id_index is populated in grouper_members and make column not null
+
+      // check if grouper_members.id_index is already not null - better to use ddlutils here or check the resultset?
+      /*
+      Platform platform = GrouperDdlUtils.retrievePlatform(false);
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      Connection connection = null;
+      try {
+        connection = grouperDb.connection();
+        int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+        DdlVersionable ddlVersionable = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+        DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionable);
+        platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+        platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+        
+        Database database = platform.readModelFromDatabase(connection, "grouper", null, null, null);
+        Table membersTable = database.findTable(Member.TABLE_GROUPER_MEMBERS);
+        Column idIndexColumn = membersTable.findColumn(Member.COLUMN_ID_INDEX);
+        
+        if (idIndexColumn.isRequired()) {
+          return;
+        }
+      } finally {
+        GrouperUtil.closeQuietly(connection);
+      }
+      */
+      
+      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+      Connection connection = null;
+      PreparedStatement preparedStatement = null;
+      ResultSet resultSet = null;
+      try {
+        connection = grouperDb.connection();
+        preparedStatement = connection.prepareStatement("select id_index from grouper_members where subject_id='GrouperSystem'");
+        resultSet = preparedStatement.executeQuery();
+        ResultSetMetaData metadata = resultSet.getMetaData();
+        if (metadata.isNullable(1) == ResultSetMetaData.columnNoNulls) {
+          return;
+        }
+      } catch (SQLException e) {
+        throw new RuntimeException(e);
+      } finally {
+        GrouperUtil.closeQuietly(resultSet);
+        GrouperUtil.closeQuietly(preparedStatement);
+        GrouperUtil.closeQuietly(connection);
+      }
       
       // ok nulls are allowed so make the change
       GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
-      String sql = null;
+      
+      String sql;
       
       if (GrouperDdlUtils.isOracle()) {
-        sql = "ALTER TABLE grouper_members MODIFY (internal_id NOT NULL)";
+        sql = "ALTER TABLE grouper_members MODIFY (id_index NOT NULL)";
       } else if (GrouperDdlUtils.isMysql()) {
-        sql = "ALTER TABLE grouper_members MODIFY internal_id BIGINT NOT NULL";
-      } else if (GrouperDdlUtils.isPostgres()) {
-        sql = "ALTER TABLE grouper_members ALTER COLUMN internal_id SET NOT NULL";
+        sql = "ALTER TABLE grouper_members MODIFY id_index BIGINT NOT NULL";
       } else {
-        throw new RuntimeException("Which database are we????");
+        // assume postgres
+        sql = "ALTER TABLE grouper_members ALTER COLUMN id_index SET NOT NULL";
       }
       
-      // TODO check to see if non null
-      try {
-        new GcDbAccess().sql(sql).executeSql();
-      } catch (Exception e) {
-        LOG.error("Cannot run upgrade task V8!", e);
-      }
-
+      HibernateSession.bySqlStatic().executeSql(sql);
     }
   }
-  , 
+  ,
   V9{
     
     @Override
@@ -286,7 +323,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         }
       });
     }
-  },
+  }
+  ,
   /**
    * make sure internal_id is populated in grouper_members and make column not null
    */
@@ -366,7 +404,38 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
   }
   , 
+  /**
+   * make sure internal_id is populated in grouper_members and make column not null
+   */
+  V11 {
+    
+    @Override
+    public void updateVersionFromPrevious() {
+      
+      // ok nulls are allowed so make the change
+      GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
+      String sql = null;
+      
+      if (GrouperDdlUtils.isOracle()) {
+        sql = "ALTER TABLE grouper_members MODIFY (internal_id NOT NULL)";
+      } else if (GrouperDdlUtils.isMysql()) {
+        sql = "ALTER TABLE grouper_members MODIFY internal_id BIGINT NOT NULL";
+      } else if (GrouperDdlUtils.isPostgres()) {
+        sql = "ALTER TABLE grouper_members ALTER COLUMN internal_id SET NOT NULL";
+      } else {
+        throw new RuntimeException("Which database are we????");
+      }
+      
+      // TODO check to see if non null
+      try {
+        new GcDbAccess().sql(sql).executeSql();
+      } catch (Exception e) {
+        LOG.error("Cannot run upgrade task V8!", e);
+      }
 
+    }
+  }
+  ,
   ;
   
   /** logger */
