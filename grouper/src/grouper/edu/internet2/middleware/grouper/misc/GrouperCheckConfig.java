@@ -1237,32 +1237,55 @@ public class GrouperCheckConfig {
         MembershipCannotAddSelfToGroupHook.registerHookIfNecessary();
       }
       
-//      // sql cacheable group
-//      {
-//        String sqlCacheableGroupFolderName = 
-//            GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":" + SqlCacheGroup.attributeDefFolderExtension;
-//        Stem sqlCacheableGroupFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(), 
-//            sqlCacheableGroupFolderName, startedGrouperSession, new QueryOptions().secondLevelCache(false));
-//
-//        //see if attributeDef is there
-//        String sqlCacheableTypeDefName = sqlCacheableGroupFolderName + ":" + SqlCacheGroup.attributeDefExtension;
-//        AttributeDef deprovisioningType = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-//            sqlCacheableTypeDefName, false, new QueryOptions().secondLevelCache(false));
-//        if (deprovisioningType == null) {
-//          deprovisioningType = sqlCacheableGroupFolder.addChildAttributeDef(
-//              SqlCacheGroup.attributeDefNameExtension, AttributeDefType.type);
-//          //assign once for each affiliation
-//          deprovisioningType.setMultiAssignable(true);
-//          deprovisioningType.setAssignToGroup(true);
-//          deprovisioningType.setAssignToAttributeDef(false);
-//          deprovisioningType.setAssignToStem(false);
-//          deprovisioningType.store();
-//        }
-//        
-//        //add a name
-//        AttributeDefName attribute = checkAttribute(deprovisioningStem, deprovisioningType, GrouperDeprovisioningAttributeNames.DEPROVISIONING_BASE, "has deprovisioning attributes", wasInCheckConfig);
-//
-//      }
+      // sql cacheable group
+      {
+        String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
+        Stem sqlCacheableGroupFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(), 
+            sqlCacheableGroupFolderName, startedGrouperSession, new QueryOptions().secondLevelCache(false));
+
+        if (sqlCacheableGroupFolder == null) {
+          sqlCacheableGroupFolder = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignDescription("folder for built in sql cache objects").assignName(sqlCacheableGroupFolderName)
+            .save();
+        }
+
+        {
+          //see if marker attributeDef is there
+          AttributeDef sqlCacheableMarkerAttribute = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              SqlCacheGroup.attributeDefMarkerName(), false, new QueryOptions().secondLevelCache(false));
+          if (sqlCacheableMarkerAttribute == null) {
+            sqlCacheableMarkerAttribute = sqlCacheableGroupFolder.addChildAttributeDef(
+                SqlCacheGroup.attributeDefMarkerExtension, AttributeDefType.attr);
+            //assign once for each affiliation
+            sqlCacheableMarkerAttribute.setMultiAssignable(true);
+            sqlCacheableMarkerAttribute.setAssignToGroup(true);
+            sqlCacheableMarkerAttribute.store();
+          }
+  
+          //add a name
+          checkAttribute(sqlCacheableGroupFolder, sqlCacheableMarkerAttribute, SqlCacheGroup.attributeDefNameMarkerExtension, 
+              SqlCacheGroup.attributeDefNameMarkerExtension, "The specified list of this group is sql cacheable", wasInCheckConfig);
+        }
+        
+        {
+          //see if marker attributeDef is there
+          AttributeDef sqlCacheableAttribute = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
+              SqlCacheGroup.attributeDefName(), false, new QueryOptions().secondLevelCache(false));
+          if (sqlCacheableAttribute == null) {
+            sqlCacheableAttribute = sqlCacheableGroupFolder.addChildAttributeDef(
+                SqlCacheGroup.attributeDefExtension, AttributeDefType.attr);
+            //assign once for each affiliation
+            sqlCacheableAttribute.setMultiAssignable(false);
+            sqlCacheableAttribute.setAssignToGroupAssn(true);
+            sqlCacheableAttribute.setValueType(AttributeDefValueType.string);
+            sqlCacheableAttribute.store();
+          }
+
+          //add a name
+          checkAttribute(sqlCacheableGroupFolder, sqlCacheableAttribute, SqlCacheGroup.attributeDefNameExtensionListName, 
+              SqlCacheGroup.attributeDefNameExtensionListName, "This value is the cacheable list, e.g. members, admins, etc", wasInCheckConfig);
+        }
+      }
       
       //if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
       // always add these objects

@@ -69,6 +69,7 @@ import edu.internet2.middleware.grouper.plugins.AllPluginsTests;
 import edu.internet2.middleware.grouper.privs.AllPrivsTests;
 import edu.internet2.middleware.grouper.rules.AllRulesTests;
 import edu.internet2.middleware.grouper.service.AllServiceTests;
+import edu.internet2.middleware.grouper.sqlCache.AllSqlCacheTests;
 import edu.internet2.middleware.grouper.stem.AllStemTests;
 import edu.internet2.middleware.grouper.stress.AllStressTests;
 import edu.internet2.middleware.grouper.subj.AllSubjectTests;
@@ -263,6 +264,7 @@ public class AllTests extends GrouperTest {
     suite.addTest(AllRulesTests.suite());
 
     suite.addTest(AllServiceTests.suite());
+    suite.addTest(AllSqlCacheTests.suite());
     suite.addTest(AllStemTests.suite());
 
     if (GrouperConfig.getPropertyBoolean("junit.test.ldappc", false)) {

@@ -2,6 +2,9 @@ package edu.internet2.middleware.grouper.sqlCache;
 
 import java.sql.Timestamp;
 
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionary;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -10,6 +13,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
 
@@ -24,17 +28,84 @@ public class SqlCacheGroup implements GcSqlAssignPrimaryKey, GcDbVersionable {
    * extension of folder
    */
   public static String attributeDefFolderExtension = "sqlCacheable";
+ 
+  private static String attributeDefFolderName = null;
   
+  public static String attributeDefFolderName() {
+    
+    if (attributeDefFolderName == null) {
+      attributeDefFolderName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects") + ":" + SqlCacheGroup.attributeDefFolderExtension;
+    }
+    
+    return attributeDefFolderName;
+  }
+  
+  
+  
+  /**
+   * extension of folder
+   */
+  public static String attributeDefNameExtensionListName = "sqlCacheableListName";
+
+  private static String attributeDefNameNameListName = null;
+
+  public static String attributeDefNameNameListName() {
+    
+    if (attributeDefNameNameListName == null) {
+      attributeDefNameNameListName = attributeDefFolderName() + ":" + SqlCacheGroup.attributeDefNameExtensionListName;
+    }
+    
+    return attributeDefNameNameListName;
+  }
+
+  /**
+   * marker extension of attribute def
+   */
+  public static String attributeDefMarkerExtension = "sqlCacheableGroupMarkerDef";
+
+  private static String attributeDefMarkerName = null;
+
+  public static String attributeDefMarkerName() {
+    
+    if (attributeDefMarkerName == null) {
+      attributeDefMarkerName = attributeDefFolderName() + ":" + SqlCacheGroup.attributeDefMarkerExtension;
+    }
+    
+    return attributeDefMarkerName;
+  }
+
   /**
    * extension of attribute def
    */
   public static String attributeDefExtension = "sqlCacheableGroupDef";
-  
+
+  private static String attributeDefName = null;
+
+  public static String attributeDefName() {
+    
+    if (attributeDefName == null) {
+      attributeDefName = attributeDefFolderName() + ":" + SqlCacheGroup.attributeDefExtension;
+    }
+    
+    return attributeDefName;
+  }
+
   /**
-   * extension of attribute
+   * extension of marker attribute
    */
-  public static String attributeDefNameExtension = "sqlCacheableGroup";
-  
+  public static String attributeDefNameMarkerExtension = "sqlCacheableGroup";
+
+  private static String attributeDefNameMarkerName = null;
+
+  public static String attributeDefNameMarkerName() {
+    
+    if (attributeDefNameMarkerName == null) {
+      attributeDefNameMarkerName = attributeDefFolderName() + ":" + SqlCacheGroup.attributeDefNameMarkerExtension;
+    }
+    
+    return attributeDefNameMarkerName;
+  }
+
   /**
    * version from db
    */
