@@ -112,12 +112,10 @@ public class ScimProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("hasTargetEntityLink", "true");
     
     provisionerSuffixToValue.put("targetEntityAttribute.0.name", "id");
-    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("manageEntities"), false)) {
-      provisionerSuffixToValue.put("targetEntityAttribute.0.showAdvancedAttribute", "true");
-      provisionerSuffixToValue.put("targetEntityAttribute.0.showAttributeCrud", "true");
-      provisionerSuffixToValue.put("targetEntityAttribute.0.insert", "false");
-      provisionerSuffixToValue.put("targetEntityAttribute.0.update", "false");
-    }
+    provisionerSuffixToValue.put("targetEntityAttribute.0.showAdvancedAttribute", "true");
+    provisionerSuffixToValue.put("targetEntityAttribute.0.showAttributeCrud", "true");
+    provisionerSuffixToValue.put("targetEntityAttribute.0.insert", "false");
+    provisionerSuffixToValue.put("targetEntityAttribute.0.update", "false");
     
     String entityEmailSubjectAttributeType = startWithSuffixToValue.get("entityEmailSubjectAttribute");
     if (StringUtils.equals("script", entityEmailSubjectAttributeType)) {
