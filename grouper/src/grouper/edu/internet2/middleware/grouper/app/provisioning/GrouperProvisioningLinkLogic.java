@@ -293,9 +293,9 @@ public class GrouperProvisioningLinkLogic {
               && StringUtils.equals(attribute.getName(), this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName())) {
             continue;
           }
-          if (!attribute.isUpdate()) {
-            continue;
-          }
+//          if (!attribute.isUpdate()) {
+//            continue;
+//          }
           // copy the new value to the clone
           targetGroup.assignAttributeValue(attribute.getName(), provisioningGroupWrapper.getGrouperTargetGroup().retrieveAttributeValue(attribute));
         }
@@ -714,9 +714,9 @@ public class GrouperProvisioningLinkLogic {
               && StringUtils.equals(attribute.getName(), this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName())) {
             continue;
           }
-          if (!attribute.isUpdate()) {
-            continue;
-          }
+//          if (!attribute.isUpdate()) {
+//            continue;
+//          }
           // copy the new value to the clone
           targetEntity.assignAttributeValue(attribute.getName(), provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValue(attribute));
         }
