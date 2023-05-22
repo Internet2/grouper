@@ -37,19 +37,25 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.cache.SubjectSourceCache;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.SubjectType;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import edu.internet2.middleware.subject.provider.SubjectImpl;
 
 /** 
@@ -111,6 +117,58 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     return add(s, id, type, name, null, null, null, null);
   } // public static RegistrySubject add(s, id, type, name)
 
+  public static void addFirstLastNameSubjectAttributes() {
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.jdbc.search.searchSubject.param.sql.value")
+        .value("select    s.subjectid as id, s.name as name,    "
+            + "(select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,    "
+            + "(select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,    "
+            + "(select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,    "
+            + "(select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email, "
+            + "(select sa6.value from subjectattribute sa6 where name='firstname' and sa6.SUBJECTID = s.subjectid) as firstname, "
+            + "(select sa7.value from subjectattribute sa7 where name='lastname' and sa7.SUBJECTID = s.subjectid) as lastname "
+            + "from    subject s where    {inclause}").store();
+
+      new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.jdbc.search.searchSubjectByIdentifier.param.sql.value")
+        .value("select    s.subjectid as id, s.name as name,    "
+            + "(select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,    "
+            + "(select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,    "
+            + "(select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,    "
+            + "(select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email,  "
+            + "(select sa6.value from subjectattribute sa6 where name='firstname' and sa6.SUBJECTID = s.subjectid) as firstname, "
+            + "(select sa7.value from subjectattribute sa7 where name='lastname' and sa7.SUBJECTID = s.subjectid) as lastname "
+            + "from subject s, subjectattribute a where    a.name='loginid' and s.subjectid = a.subjectid and {inclause}").store();
+
+      new GrouperDbConfig().configFileName("subject.properties").propertyName("subjectApi.source.jdbc.search.search.param.sql.value")
+      .value("select    s.subjectid as id, s.name as name,    "
+          + "(select sa2.value from subjectattribute sa2 where name='name' and sa2.SUBJECTID = s.subjectid) as lfname,    "
+          + "(select sa3.value from subjectattribute sa3 where name='loginid' and sa3.SUBJECTID = s.subjectid) as loginid,    "
+          + "(select sa4.value from subjectattribute sa4 where name='description' and sa4.SUBJECTID = s.subjectid) as description,    "
+          + "(select sa5.value from subjectattribute sa5 where name='email' and sa5.SUBJECTID = s.subjectid) as email,   "
+          + "(select sa6.value from subjectattribute sa6 where name='firstname' and sa6.SUBJECTID = s.subjectid) as firstname, "
+          + "(select sa7.value from subjectattribute sa7 where name='lastname' and sa7.SUBJECTID = s.subjectid) as lastname "
+          + "from subject s where    s.subjectid in (       "
+          + "select subjectid from subject where lower(name) like concat('%',concat(?,'%')) union       "
+          + "select subjectid from subjectattribute where searchvalue like concat('%',concat(?,'%'))    )").store();
+
+      
+      SourceManager.clearAllSources();
+
+        return null;
+      }
+    });
+  }
+  
+  private static ExpirableCache<Boolean, Boolean> createOtherAttributes = new ExpirableCache<>();
+  
+  public static void assignCreateOtherAttributes(boolean shouldCreateOtherAttributes) {
+    createOtherAttributes.put(true, shouldCreateOtherAttributes);
+  }
+  
   /**
    * Add a {@link Subject} to a {@link Source} within the Groups Registry.
    * <p>Subjects may only be added within a root-like session.</p>
@@ -170,6 +228,10 @@ public class RegistrySubject extends GrouperAPI implements Subject {
         subj.getAttributes(false).put("email", GrouperUtil.toSet(email));
       }
       
+      if (GrouperUtil.booleanValue(createOtherAttributes.get(true), false)) {
+        subj.getAttributes(false).put("firstname", GrouperUtil.toSet(id + "_first"));
+        subj.getAttributes(false).put("lastname", GrouperUtil.toSet(id + "_last"));
+      }
       GrouperDAOFactory.getFactory().getRegistrySubject().create(subj);
       
       try {

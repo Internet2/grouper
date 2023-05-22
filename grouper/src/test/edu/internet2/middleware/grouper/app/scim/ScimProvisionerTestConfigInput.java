@@ -338,5 +338,17 @@ public class ScimProvisionerTestConfigInput {
     this.entityAttribute4name = entityAttribute5name1;
     return this;
   }
+
+  
+  public boolean isUseFirstLastName() {
+    return useFirstLastName;
+  }
+
+  private boolean useFirstLastName = false;
+
+  public ScimProvisionerTestConfigInput assignUseFirstLastName(boolean useFirstLastName) {
+    this.useFirstLastName = useFirstLastName;
+    return this;
+  }
   
 }

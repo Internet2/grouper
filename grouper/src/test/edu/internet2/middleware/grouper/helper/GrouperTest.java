@@ -1254,14 +1254,23 @@ public class GrouperTest extends TestCase {
     GrouperHooksUtils.reloadHooks();
     
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
-    
+
     // clear config cache
     GrouperCacheUtils.clearAllCaches();
-    
+
+    setupConfigsPostClearCache();
+
+
     GrouperTest.initGroupsAndAttributes();
     
   }
   
+  protected void setupConfigsPostClearCache() {
+    
+    
+  }
+
+
   /**
    * if printed warning
    */

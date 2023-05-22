@@ -144,6 +144,7 @@ public class GcElUtilsSafe {
          
       }
     }
+    // TODO add this in for VT System.getProperty(key, def)
     // this could be empty
     return trim(System.getenv().get(envVarOrFileBase));
   }
