@@ -78,6 +78,24 @@ public class ScimProvisionerTestUtils {
            provisioningTestConfigInput.getBearerTokenExternalSystemConfigId());
     }
 
+    if (provisioningTestConfigInput.isUseFirstLastName()) {
+      if (StringUtils.isNotBlank(provisioningTestConfigInput.getSubjectLinkCache0())) {
+        throw new RuntimeException("Cannot use first/last name and subject link cache 0");
+      }
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "subjectTranslationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0translationScript", "${subject.getAttributeValue('firstname')}");
+
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1type", "subjectTranslationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache1translationScript", "${subject.getAttributeValue('lastname')}");
+
+    }
+    
     if (StringUtils.isNotBlank(provisioningTestConfigInput.getSubjectLinkCache0())) {
       
       configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
@@ -101,6 +119,7 @@ public class ScimProvisionerTestUtils {
     
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
@@ -120,7 +139,7 @@ public class ScimProvisionerTestUtils {
     if (provisioningTestConfigInput.getGroupOfUsersToProvision() != null) {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupIdOfUsersToProvision", provisioningTestConfigInput.getGroupOfUsersToProvision().getUuid());
     }
-    //configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
@@ -192,10 +211,20 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "givenName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "name");
+    if (provisioningTestConfigInput.isUseFirstLastName()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache0");
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "name");
+    }
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "familyName");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "name");
+    if (provisioningTestConfigInput.isUseFirstLastName()) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache1");
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "name");
+    }
+
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", provisioningTestConfigInput.getEntityAttribute4name());
     if (StringUtils.equals(provisioningTestConfigInput.getEntityAttribute4name(), "displayName")) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "grouperProvisioningEntityField");
