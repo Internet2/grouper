@@ -1026,6 +1026,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.jsonJacksonAssignString(result, "id", grouperGoogleUser.getId());
     GrouperUtil.jsonJacksonAssignString(result, "primaryEmail", grouperGoogleUser.getPrimaryEmail());
+    GrouperUtil.jsonJacksonAssignString(result, "orgUnitPath", grouperGoogleUser.getOrgUnitPath());
     
     ObjectNode nameNode = GrouperUtil.jsonJacksonNode();
     GrouperUtil.jsonJacksonAssignString(nameNode, "givenName", grouperGoogleUser.getGivenName());

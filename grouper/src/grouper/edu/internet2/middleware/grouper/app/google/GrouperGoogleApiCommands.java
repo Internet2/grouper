@@ -715,7 +715,7 @@ public class GrouperGoogleApiCommands {
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name)";
       
-      String urlSuffixConstant = "/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name)";
+      String urlSuffixConstant = "/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name,orgUnitPath)";
       
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
 
@@ -766,14 +766,14 @@ public class GrouperGoogleApiCommands {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "retrieveGoogleGroup");
+    debugMap.put("method", "retrieveGoogleUser");
 
     long startTime = System.nanoTime();
 
     try {
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users/"+id+"?fields=id,primaryEmail,name";
-      String urlSuffix = "/users/"+id+"?fields=id,primaryEmail,name";
+      String urlSuffix = "/users/"+id+"?fields=id,primaryEmail,name,orgUnitPath";
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
       
       /**

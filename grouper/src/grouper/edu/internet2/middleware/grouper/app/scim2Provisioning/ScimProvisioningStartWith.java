@@ -129,31 +129,11 @@ public class ScimProvisioningStartWith extends ProvisionerStartWithBase {
     }
     provisionerSuffixToValue.put("targetEntityAttribute.1.name", "emailValue");
     
-//    String entityFamilyNameType = startWithSuffixToValue.get("entityFamilyName");
-//    if (StringUtils.equals("script", entityFamilyNameType)) {
-//      provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "translationScript");
-//      provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpression", startWithSuffixToValue.get("entityFamilyNameTranslationScript"));
-//    } else if (StringUtils.equals("other", entityFamilyNameType)) {
-//      //do nothing
-//    } else { 
-//      provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
-//      provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
-//    }
     
     provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
     provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
     provisionerSuffixToValue.put("targetEntityAttribute.2.name", "familyName");
-//    
-//    String entityGivenNameType = startWithSuffixToValue.get("entityGivenName");
-//    if (StringUtils.equals("script", entityGivenNameType)) {
-//      provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "translationScript");
-//      provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpression", startWithSuffixToValue.get("entityGivenNameTranslationScript"));
-//    } else if (StringUtils.equals("other", entityGivenNameType)) {
-//      //do nothing
-//    } else { 
-//      provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
-//      provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", entityGivenNameType);
-//    }
+
     
     provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
     provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache3");
@@ -215,11 +195,13 @@ public class ScimProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("entityMatchingAttribute0name", "userName");
     provisionerSuffixToValue.put("entityMatchingAttribute1name", "id");
     
-    provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
-    provisionerSuffixToValue.put("provisioningType", "membershipObjects");
-    provisionerSuffixToValue.put("customizeMembershipCrud", "true");
-    provisionerSuffixToValue.put("selectMemberships", "false");
-    provisionerSuffixToValue.put("replaceMemberships", "true");
+    if (!StringUtils.equals(scimType, "Github")) {
+      provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
+      provisionerSuffixToValue.put("provisioningType", "membershipObjects");
+      provisionerSuffixToValue.put("customizeMembershipCrud", "true");
+      provisionerSuffixToValue.put("selectMemberships", "false");
+      provisionerSuffixToValue.put("replaceMemberships", "true");
+    }
     
     provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner");
   }
