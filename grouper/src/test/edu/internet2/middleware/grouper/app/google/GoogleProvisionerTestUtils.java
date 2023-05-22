@@ -237,7 +237,7 @@ public class GoogleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "4");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "5");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "6");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
@@ -279,6 +279,10 @@ public class GoogleProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "email");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpression", "${grouperProvisioningEntity.getId() + '@viveksachdeva.com'}");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "translationScript"); 
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "orgUnitPath");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", "name");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "email");

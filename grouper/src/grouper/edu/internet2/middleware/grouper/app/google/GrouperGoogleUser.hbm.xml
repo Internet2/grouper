@@ -33,6 +33,7 @@
     <property name="primaryEmail" column="primary_email" />
     <property name="givenName" column="given_name" />
     <property name="familyName" column="family_name" />
+    <property name="orgUnitPath" column="org_unit_path" />
     
   </class>
 </hibernate-mapping>

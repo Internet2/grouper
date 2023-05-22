@@ -19,17 +19,30 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperGoogleUser {
   
- private String primaryEmail;
+   private String primaryEmail;
+   
+   private String givenName;
+   
+   private String familyName;
+   
+   private String id;
+   
+   private String password;
+   
+   private String orgUnitPath;
  
- private String givenName;
- 
- private String familyName;
- 
- private String id;
- 
- private String password;
- 
- 
+  
+  public String getOrgUnitPath() {
+    return orgUnitPath;
+  }
+  
+  
+  
+  public void setOrgUnitPath(String orgUnitPath) {
+    this.orgUnitPath = orgUnitPath;
+  }
+
+
   public String getPrimaryEmail() {
     return primaryEmail;
   }
@@ -90,6 +103,9 @@ public void setPassword(String password) {
    if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {      
      grouperGoogleUser.setPrimaryEmail(targetEntity.getEmail());
    }
+   if (fieldNamesToSet == null || fieldNamesToSet.contains("orgUnitPath")) {      
+     grouperGoogleUser.setOrgUnitPath(targetEntity.retrieveAttributeValueString("orgUnitPath"));
+   }
    
    return grouperGoogleUser;
 
@@ -101,6 +117,7 @@ public void setPassword(String password) {
    
    targetEntity.assignAttributeValue("givenName", this.givenName);
    targetEntity.assignAttributeValue("familyName", this.familyName);
+   targetEntity.assignAttributeValue("orgUnitPath", this.orgUnitPath);
    targetEntity.setId(this.id);
    targetEntity.setEmail(this.primaryEmail);
    return targetEntity;
@@ -123,6 +140,7 @@ public void setPassword(String password) {
    GrouperGoogleUser grouperGoogleUser = new GrouperGoogleUser();
    
    grouperGoogleUser.primaryEmail = GrouperUtil.jsonJacksonGetString(entityNode, "primaryEmail");
+   grouperGoogleUser.orgUnitPath = GrouperUtil.jsonJacksonGetString(entityNode, "orgUnitPath");
    grouperGoogleUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "id");
    
    JsonNode nameNode = GrouperUtil.jsonJacksonGetNode(entityNode, "name");
@@ -144,6 +162,10 @@ public void setPassword(String password) {
  
    if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {      
      GrouperUtil.jsonJacksonAssignString(result, "primaryEmail", this.primaryEmail);
+   }
+   
+   if (fieldNamesToSet == null || fieldNamesToSet.contains("orgUnitPath")) {      
+     GrouperUtil.jsonJacksonAssignString(result, "orgUnitPath", this.orgUnitPath);
    }
    
    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {  
@@ -196,6 +218,7 @@ public void setPassword(String password) {
      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "given_name", Types.VARCHAR, "256", false, false);
      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "family_name", Types.VARCHAR, "256", false, false);
      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
+     GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "org_unit_path", Types.VARCHAR, "40", false, false);
      
      GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_google_user_unique_user_name", true, "primary_email");
      
