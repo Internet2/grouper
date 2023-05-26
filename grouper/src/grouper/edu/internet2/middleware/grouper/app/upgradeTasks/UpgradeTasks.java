@@ -16,11 +16,6 @@
 
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.ResultSetMetaData;
-import java.sql.SQLException;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -34,8 +29,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -52,6 +45,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.AddMissingGroupSets;
+import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
@@ -248,24 +242,8 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       }
       */
       
-      GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
-      Connection connection = null;
-      PreparedStatement preparedStatement = null;
-      ResultSet resultSet = null;
-      try {
-        connection = grouperDb.connection();
-        preparedStatement = connection.prepareStatement("select id_index from grouper_members where subject_id='GrouperSystem'");
-        resultSet = preparedStatement.executeQuery();
-        ResultSetMetaData metadata = resultSet.getMetaData();
-        if (metadata.isNullable(1) == ResultSetMetaData.columnNoNulls) {
-          return;
-        }
-      } catch (SQLException e) {
-        throw new RuntimeException(e);
-      } finally {
-        GrouperUtil.closeQuietly(resultSet);
-        GrouperUtil.closeQuietly(preparedStatement);
-        GrouperUtil.closeQuietly(connection);
+      if (!GrouperDdlUtils.isColumnNullable("grouper_members", "id_index", "subject_id", "GrouperSystem")) {
+        return;
       }
       
       // ok nulls are allowed so make the change
@@ -333,71 +311,86 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     @Override
     public void updateVersionFromPrevious() {
       
-      // ok nulls are allowed so make the change
-      GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
-      String sql = null;
+      boolean groupsNullable = GrouperDdlUtils.isColumnNullable("grouper_groups", "internal_id", "name", GrouperCheckConfig.attributeRootStemName() + ":upgradeTasks:upgradeTasksMetadataGroup");
+      boolean fieldsNullable = GrouperDdlUtils.isColumnNullable("grouper_fields", "internal_id", "name", "admins");
       
-      if (GrouperDdlUtils.isOracle()) {
-        sql = "ALTER TABLE grouper_groups MODIFY (internal_id NOT NULL)";
-      } else if (GrouperDdlUtils.isMysql()) {
-        sql = "ALTER TABLE grouper_groups MODIFY internal_id BIGINT NOT NULL";
-      } else if (GrouperDdlUtils.isPostgres()) {
-        sql = "ALTER TABLE grouper_groups ALTER COLUMN internal_id SET NOT NULL";
-      } else {
-        throw new RuntimeException("Which database are we????");
+      if (groupsNullable || fieldsNullable) {
+        // ok nulls are allowed so make the change
+        GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
       }
       
-      // TODO check to see if non null
-      try {
+      if (groupsNullable) {
+        String sql = null;
+        
+        if (GrouperDdlUtils.isOracle()) {
+          sql = "ALTER TABLE grouper_groups MODIFY (internal_id NOT NULL)";
+        } else if (GrouperDdlUtils.isMysql()) {
+          sql = "ALTER TABLE grouper_groups MODIFY internal_id BIGINT NOT NULL";
+        } else if (GrouperDdlUtils.isPostgres()) {
+          sql = "ALTER TABLE grouper_groups ALTER COLUMN internal_id SET NOT NULL";
+        } else {
+          throw new RuntimeException("Which database are we????");
+        }
+        
         new GcDbAccess().sql(sql).executeSql();
-      } catch (Exception e) {
-        LOG.error("Cannot run upgrade task V10!", e);
       }
       
-      if (GrouperDdlUtils.isOracle()) {
-        sql = "ALTER TABLE grouper_fields MODIFY (internal_id NOT NULL)";
-      } else if (GrouperDdlUtils.isMysql()) {
-        sql = "ALTER TABLE grouper_fields MODIFY internal_id BIGINT NOT NULL";
-      } else if (GrouperDdlUtils.isPostgres()) {
-        sql = "ALTER TABLE grouper_fields ALTER COLUMN internal_id SET NOT NULL";
-      } else {
-        throw new RuntimeException("Which database are we????");
-      }
-      
-      // TODO check to see if non null
-      try {
+      if (fieldsNullable) {
+        String sql = null;
+
+        if (GrouperDdlUtils.isOracle()) {
+          sql = "ALTER TABLE grouper_fields MODIFY (internal_id NOT NULL)";
+        } else if (GrouperDdlUtils.isMysql()) {
+          sql = "ALTER TABLE grouper_fields MODIFY internal_id BIGINT NOT NULL";
+        } else if (GrouperDdlUtils.isPostgres()) {
+          sql = "ALTER TABLE grouper_fields ALTER COLUMN internal_id SET NOT NULL";
+        } else {
+          throw new RuntimeException("Which database are we????");
+        }
+        
         new GcDbAccess().sql(sql).executeSql();
-      } catch (Exception e) {
-        LOG.error("Cannot run upgrade task V10!", e);
       }
 
       // cant add foreign key until this is there
       if (GrouperDdlUtils.isOracle()) {
         
-        // TODO check to see if constraint is there
-        sql = "ALTER TABLE grouper_fields ADD CONSTRAINT grouper_fie_internal_id_unq unique (internal_id)";
+        String sql = "ALTER TABLE grouper_fields ADD CONSTRAINT grouper_fie_internal_id_unq unique (internal_id)";
         
-        try {
-          new GcDbAccess().sql(sql).executeSql();
-        } catch (Exception e) {
-          LOG.error("Cannot run upgrade task V10!", e);
+        if (!GrouperDdlUtils.doesConstraintExistOracle("grouper_fie_internal_id_unq")) {
+          try {
+            new GcDbAccess().sql(sql).executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02261")) {
+              // throw if the exception is anything other than the constraint already exists
+              throw e;
+            }
+          }
         }
         
         sql = "ALTER TABLE grouper_groups ADD CONSTRAINT grouper_grp_internal_id_unq unique (internal_id)";
         
-        try {
-          new GcDbAccess().sql(sql).executeSql();
-        } catch (Exception e) {
-          LOG.error("Cannot run upgrade task V10!", e);
+        if (!GrouperDdlUtils.doesConstraintExistOracle("grouper_grp_internal_id_unq")) {
+          try {
+            new GcDbAccess().sql(sql).executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02261")) {
+              // throw if the exception is anything other than the constraint already exists
+              throw e;
+            }
+          }
         }
 
         sql = "ALTER TABLE grouper_sql_cache_group ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields(internal_id)";
         
-        // TODO check to see if constraint is there
-        try {
-          new GcDbAccess().sql(sql).executeSql();
-        } catch (Exception e) {
-          LOG.error("Cannot run upgrade task V10!", e);
+        if (!GrouperDdlUtils.doesConstraintExistOracle("grouper_sql_cache_group1_fk")) {
+          try {
+            new GcDbAccess().sql(sql).executeSql();
+          } catch (Exception e) {
+            if (!GrouperUtil.getFullStackTrace(e).contains("ORA-02275")) {
+              // throw if the exception is anything other than the constraint already exists
+              throw e;
+            }
+          }
         }
       }
 
@@ -411,6 +404,10 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     
     @Override
     public void updateVersionFromPrevious() {
+      
+      if (!GrouperDdlUtils.isColumnNullable("grouper_members", "internal_id", "subject_id", "GrouperSystem")) {
+        return;
+      }
       
       // ok nulls are allowed so make the change
       GrouperDaemonDeleteOldRecords.verifyTableIdIndexes(null);
@@ -426,13 +423,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         throw new RuntimeException("Which database are we????");
       }
       
-      // TODO check to see if non null
-      try {
-        new GcDbAccess().sql(sql).executeSql();
-      } catch (Exception e) {
-        LOG.error("Cannot run upgrade task V8!", e);
-      }
-
+      new GcDbAccess().sql(sql).executeSql();
     }
   }
   ,

@@ -2827,4 +2827,67 @@ public class GrouperDdlUtils {
     }
   }
 
+  /**
+   * Checks if the columnName in the given tableName is allowed to be null.
+   * @param tableName
+   * @param columnName
+   * @param queryColumnName
+   * @param queryColumnValue
+   * @return
+   */
+  public static boolean isColumnNullable(String tableName, String columnName, String queryColumnName, String queryColumnValue) {
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = grouperDb.connection();
+      preparedStatement = connection.prepareStatement("select " + columnName + " from " + tableName + " where " + queryColumnName + "= ?");
+      preparedStatement.setString(1, queryColumnValue);
+      resultSet = preparedStatement.executeQuery();
+      ResultSetMetaData metadata = resultSet.getMetaData();
+      if (metadata.isNullable(1) == ResultSetMetaData.columnNoNulls) {
+        return false;
+      }
+      
+      return true;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperUtil.closeQuietly(resultSet);
+      GrouperUtil.closeQuietly(preparedStatement);
+      GrouperUtil.closeQuietly(connection);
+    }
+  }
+  
+  public static boolean doesConstraintExistOracle(String constraintName) {
+    if (!GrouperDdlUtils.isOracle()) {
+      throw new RuntimeException("Database not oracle!");
+    }
+    
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = grouperDb.connection();
+      preparedStatement = connection.prepareStatement("select count(*) as count from user_constraints where upper(constraint_name) = ?");
+      preparedStatement.setString(1, constraintName.toUpperCase());
+      resultSet = preparedStatement.executeQuery();
+      resultSet.next();
+      int count = resultSet.getInt(1);
+      
+      if (count == 0) {
+        return false;
+      }
+      
+      return true;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperUtil.closeQuietly(resultSet);
+      GrouperUtil.closeQuietly(preparedStatement);
+      GrouperUtil.closeQuietly(connection);
+    }
+  }
 }
