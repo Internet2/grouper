@@ -1595,7 +1595,7 @@ public class GrouperProvisioningGrouperSyncDao {
         continue;
       }
 
-      if (exists != (gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget())) {
+      if (gcGrouperSyncGroup.getInTarget() == null || exists !=  gcGrouperSyncGroup.getInTarget()) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
         gcGrouperSyncGroup.setInTarget(exists);
@@ -1637,7 +1637,7 @@ public class GrouperProvisioningGrouperSyncDao {
         continue;
       }
 
-      if (exists != (gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget())) {
+      if (gcGrouperSyncMember.getInTarget() == null || exists !=  gcGrouperSyncMember.getInTarget()) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
         gcGrouperSyncMember.setInTarget(exists);
@@ -1688,6 +1688,24 @@ public class GrouperProvisioningGrouperSyncDao {
             : grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField();
 
         if (StringUtils.isBlank(translateFromMemberAttribute)) {
+          String groupMembershipAttributeValue = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeValue();
+          
+          if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isEntityAttributeValueCacheHas()) {
+            for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache: this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityAttributeDbCaches()) {
+              
+              if (grouperProvisioningConfigurationAttributeDbCache != null && StringUtils.equals(groupMembershipAttributeValue, grouperProvisioningConfigurationAttributeDbCache.getCacheName()) 
+                  && grouperProvisioningConfigurationAttributeDbCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+                
+                translateFromMemberAttribute = grouperProvisioningConfigurationAttributeDbCache.getAttributeName();
+                break;
+              }
+              
+            }
+          }
+          
+        }
+        
+        if (StringUtils.isBlank(translateFromMemberAttribute)) {
           this.grouperProvisioner.getDebugMap()
               .put("processResultsSelectMembershipsFullCantUnresolveMemberships", true);
 
@@ -1703,13 +1721,14 @@ public class GrouperProvisioningGrouperSyncDao {
             GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper
                 .getGcGrouperSyncMember();
             if (gcGrouperSyncMember != null) {
-              Object provisioningAttribute = this.getGrouperProvisioner()
-                  .retrieveGrouperProvisioningTranslator().translateFromGrouperProvisioningEntityField(
-                      provisioningEntityWrapper, translateFromMemberAttribute);
-              String provisioningAttributeString = GrouperUtil
-                  .stringValue(provisioningAttribute);
-              provisioningAttributeToMember.put(provisioningAttributeString,
-                  gcGrouperSyncMember);
+              
+              String provisioningAttributeString = null;
+              if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
+                Object provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValue(translateFromMemberAttribute);
+                provisioningAttributeString = GrouperUtil.stringValue(provisioningAttribute);
+                provisioningAttributeToMember.put(provisioningAttributeString, gcGrouperSyncMember);
+              } 
+              
             }
           }
 
@@ -1759,14 +1778,15 @@ public class GrouperProvisioningGrouperSyncDao {
               if (gcGrouperSyncMembership == null) {
                 continue;
               }
-
+              
               // ok, this is in the target :)
-              if (!gcGrouperSyncMembership.isInTarget()) {
+              if (gcGrouperSyncMembership.getInTargetDb() == null || !gcGrouperSyncMembership.isInTarget()) {
                 gcGrouperSyncMembership.setInTarget(true);
                 gcGrouperSyncMembership.setInTargetStart(now);
                 // its not an insert
                 gcGrouperSyncMembership.setInTargetInsertOrExists(false);
               }
+
             }
 
           }
@@ -1944,7 +1964,7 @@ public class GrouperProvisioningGrouperSyncDao {
             continue;
           }
 
-          if (exists != gcGrouperSyncMembership.isInTarget()) {
+          if (gcGrouperSyncMembership.getInTargetDb() == null || exists != gcGrouperSyncMembership.isInTarget()) {
 
             Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
             gcGrouperSyncMembership.setInTarget(exists);
