@@ -1068,9 +1068,7 @@ public class LdapProvisionerTestUtils {
   
   private static void configureKorandaGroupOfNames(LdapProvisionerTestConfigInput provisioningTestConfigInput) {
     configureProvisionerSuffix(provisioningTestConfigInput, "class", LdapSync.class.getName());
-    configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroupsIfNotExistInGrouper", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "ldap_dn");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
@@ -1168,7 +1166,7 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeValueSettings", "true");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "staticValues");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateFromStaticValues", "top,groupOfNames,eduMember");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateFromStaticValues", "top,groupOfNames");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.defaultValue", "<emptyString>");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "member");
