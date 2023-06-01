@@ -1831,6 +1831,24 @@ public class GrouperProvisioningGrouperSyncDao {
         String translateFromGroupAttribute = grouperProvisioningConfigurationAttribute == null
             ? null
             : grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField();
+        
+        if (StringUtils.isBlank(translateFromGroupAttribute)) {
+          String entityMembershipAttributeValue = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeValue();
+          
+          if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isGroupAttributeValueCacheHas()) {
+            for (GrouperProvisioningConfigurationAttributeDbCache grouperProvisioningConfigurationAttributeDbCache: this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupAttributeDbCaches()) {
+              
+              if (grouperProvisioningConfigurationAttributeDbCache != null && StringUtils.equals(entityMembershipAttributeValue, grouperProvisioningConfigurationAttributeDbCache.getCacheName()) 
+                  && grouperProvisioningConfigurationAttributeDbCache.getType() == GrouperProvisioningConfigurationAttributeDbCacheType.attribute) {
+                
+                translateFromGroupAttribute = grouperProvisioningConfigurationAttributeDbCache.getAttributeName();
+                break;
+              }
+              
+            }
+          }
+          
+        }
 
         if (StringUtils.isBlank(translateFromGroupAttribute)) {
           this.grouperProvisioner.getDebugMap()
@@ -1849,13 +1867,13 @@ public class GrouperProvisioningGrouperSyncDao {
                 .getGcGrouperSyncGroup();
             if (gcGrouperSyncGroup != null) {
 
-              Object provisioningAttribute = this.getGrouperProvisioner()
-                  .retrieveGrouperProvisioningTranslator()
-                  .translateFromGrouperProvisioningGroupField(provisioningGroupWrapper, translateFromGroupAttribute);
-              String provisioningAttributeString = GrouperUtil.stringValue(provisioningAttribute);
-
-              provisioningAttributeToGroup.put(provisioningAttributeString,
-                  gcGrouperSyncGroup);
+              String provisioningAttributeString = null;
+              if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+                Object provisioningAttribute = provisioningGroupWrapper.getGrouperTargetGroup().retrieveAttributeValue(translateFromGroupAttribute);
+                provisioningAttributeString = GrouperUtil.stringValue(provisioningAttribute);
+                provisioningAttributeToGroup.put(provisioningAttributeString, gcGrouperSyncGroup);
+              } 
+              
             }
           }
 
@@ -1905,14 +1923,15 @@ public class GrouperProvisioningGrouperSyncDao {
               if (gcGrouperSyncMembership == null) {
                 continue;
               }
-
+              
               // ok, this is in the target :)
-              if (!gcGrouperSyncMembership.isInTarget()) {
+              if (gcGrouperSyncMembership.getInTargetDb() == null || !gcGrouperSyncMembership.isInTarget()) {
                 gcGrouperSyncMembership.setInTarget(true);
                 gcGrouperSyncMembership.setInTargetStart(now);
                 // its not an insert
                 gcGrouperSyncMembership.setInTargetInsertOrExists(false);
               }
+
             }
 
           }
