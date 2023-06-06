@@ -519,7 +519,7 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           
           this.setupGroup();
-          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
               AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
             this.setupAction();
             return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_ADD_ROLE");
@@ -539,7 +539,7 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           
           this.setupGroup();
-          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
               AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
             this.setupAction();
             return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_DELETE_ROLE");
@@ -553,7 +553,7 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           
           this.setupGroup();
-          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role &&
               AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
             this.setupAction();
             return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ANYMSHIP_UPDATE_ROLE");
@@ -617,7 +617,7 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           this.setupGroup();
           
-          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
               AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
             this.setupAction();
             return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_ADD");
@@ -630,7 +630,7 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           this.setupGroup();
           
-          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
               AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
             this.setupAction();
             return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_DELETE");
@@ -643,7 +643,7 @@ public class GuiAuditEntry {
           this.setupAttributeDefName();
           this.setupGroup();
           
-          if (this.getGuiAttributeDefName() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
+          if (this.getGuiAttributeDefName() != null && this.getGuiGroup() != null && this.getGuiGroup().getGroup() != null && this.getGuiGroup().getGroup().getTypeOfGroup() == TypeOfGroup.role && 
               AttributeDefType.perm == this.getGuiAttributeDefName().getAttributeDefName().getAttributeDef().getAttributeDefType()) {
             this.setupAction();
             return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_ROLE_UPDATE");
