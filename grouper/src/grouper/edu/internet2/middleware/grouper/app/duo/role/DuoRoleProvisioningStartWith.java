@@ -157,6 +157,10 @@ public class DuoRoleProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("provisioningType", "entityAttributes");
     provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.duo.role.GrouperDuoRoleProvisioner");
     
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
+      provisionerSuffixToValue.put("showAdvanced", "true");
+    }
+
   }
 
   @Override

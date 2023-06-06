@@ -134,7 +134,8 @@
                     <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsMembershipInsertLabel'] }</label>
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsMembershipInsertName" id="diagnosticsMembershipInsertId" value="true" />
+                        <input type="checkbox" name="diagnosticsMembershipInsertName" id="diagnosticsMembershipInsertId" 
+                             ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().createMembershipDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
                              ${textContainer.text['grouperProvisioningDiagnosticsMembershipInsertLabelTrue']}
                       </label>
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsMembershipInsertDescription'] }</span>
@@ -144,7 +145,8 @@
                     <label class="control-label">${textContainer.text['grouperProvisioningDiagnosticsMembershipDeleteLabel'] }</label>
                     <div class="controls">
                       <label class="checkbox">
-                        <input type="checkbox" name="diagnosticsMembershipDeleteName" id="diagnosticsMembershipDeleteId" value="true" />
+                        <input type="checkbox" name="diagnosticsMembershipDeleteName" id="diagnosticsMembershipDeleteId" 
+                        ${grouperRequestContainer.grouperProvisioningDiagnosticsContainer.grouperProvisioner.retrieveGrouperProvisioningConfiguration().deleteMembershipDuringDiagnostics ? 'checked="checked"' : '' } value="true" />
                              ${textContainer.text['grouperProvisioningDiagnosticsMembershipDeleteLabelTrue']}
                       </label>
                       <span class="help-block">${textContainer.text['grouperProvisioningDiagnosticsMembershipDeleteDescription'] }</span>

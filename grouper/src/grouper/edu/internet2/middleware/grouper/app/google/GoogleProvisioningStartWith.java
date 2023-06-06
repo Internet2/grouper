@@ -146,6 +146,18 @@ public class GoogleProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpression", startWithSuffixToValue.get("entityFamilyNameTranslationScript"));
     } else if (StringUtils.equals("other", entityFamilyNameType)) {
       //do nothing
+    } else if (StringUtils.equals("subjectAttribute", entityFamilyNameType)) {
+
+      provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
+      provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
+
+      provisionerSuffixToValue.put("entityAttributeValueCache2has", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache2source", "grouper");
+      provisionerSuffixToValue.put("entityAttributeValueCache2type", "subjectTranslationScript");
+      String subjectLastNameAttribute = startWithSuffixToValue.get("subjectLastNameAttribute");
+      provisionerSuffixToValue.put("entityAttributeValueCache2translationScript", "${subject.getAttributeValue('"+subjectLastNameAttribute+"')}");
+
+      
     } else { 
       provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
       provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", entityFamilyNameType);
@@ -158,6 +170,17 @@ public class GoogleProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpression", startWithSuffixToValue.get("entityGivenNameTranslationScript"));
     } else if (StringUtils.equals("other", entityGivenNameType)) {
       //do nothing
+    } else if (StringUtils.equals("subjectAttribute", entityGivenNameType)) {
+
+      provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
+      provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache3");
+
+      provisionerSuffixToValue.put("entityAttributeValueCache3has", "true");
+      provisionerSuffixToValue.put("entityAttributeValueCache3source", "grouper");
+      provisionerSuffixToValue.put("entityAttributeValueCache3type", "subjectTranslationScript");
+      String subjectFirstNameAttribute = startWithSuffixToValue.get("subjectFirstNameAttribute");
+      provisionerSuffixToValue.put("entityAttributeValueCache3translationScript", "${subject.getAttributeValue('"+subjectFirstNameAttribute+"')}");
+
     } else { 
       provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
       provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", entityGivenNameType);
@@ -185,6 +208,11 @@ public class GoogleProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
     provisionerSuffixToValue.put("provisioningType", "membershipObjects");
     provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.google.GrouperGoogleProvisioner");
+    
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
+      provisionerSuffixToValue.put("showAdvanced", "true");
+    }
+
   }
 
   @Override

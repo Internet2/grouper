@@ -117,6 +117,13 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     return add(s, id, type, name, null, null, null, null);
   } // public static RegistrySubject add(s, id, type, name)
 
+  public static void main(String[] args) {
+    RegistrySubject.addFirstLastNameSubjectAttributes();
+    
+    RegistrySubject.assignCreateOtherAttributes(true);
+    
+  }
+  
   public static void addFirstLastNameSubjectAttributes() {
     
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {

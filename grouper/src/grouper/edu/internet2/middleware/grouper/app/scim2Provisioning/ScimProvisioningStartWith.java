@@ -204,6 +204,11 @@ public class ScimProvisioningStartWith extends ProvisionerStartWithBase {
     }
     
     provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner");
+    
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
+      provisionerSuffixToValue.put("showAdvanced", "true");
+    }
+
   }
 
   @Override

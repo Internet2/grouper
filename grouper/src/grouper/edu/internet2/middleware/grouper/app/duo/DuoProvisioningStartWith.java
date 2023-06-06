@@ -190,6 +190,10 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("provisioningType", "membershipObjects");
     provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.duo.GrouperDuoProvisioner");
     
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
+      provisionerSuffixToValue.put("showAdvanced", "true");
+    }
+
   }
 
   @Override

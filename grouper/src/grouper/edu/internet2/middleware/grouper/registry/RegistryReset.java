@@ -74,7 +74,18 @@ public class RegistryReset {
    */
   public static void main(String[] args) {
     
-    if (args != null && args.length == 1 && StringUtils.equals("justAddSubjects", args[0])) {
+    if (args != null && args.length == 1 && StringUtils.equals("justAddSubjectsFirstLast", args[0])) {
+    
+      RegistrySubject.addFirstLastNameSubjectAttributes();
+      
+      RegistrySubject.assignCreateOtherAttributes(true);
+      
+      RegistryReset rr = new RegistryReset();
+
+      rr._addSubjects();
+      
+
+    } else if (args != null && args.length == 1 && StringUtils.equals("justAddSubjects", args[0])) {
     
       RegistryReset rr = new RegistryReset();
 
