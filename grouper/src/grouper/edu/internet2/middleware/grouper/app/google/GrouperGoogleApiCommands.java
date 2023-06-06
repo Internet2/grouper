@@ -91,6 +91,8 @@ public class GrouperGoogleApiCommands {
       final String url = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".tokenUrl", "https://oauth2.googleapis.com/token");
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
       grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignDoNotLogResponseBody(true);
+      grouperHttpClient.assignDoNotLogRequestBody(true);
       
       String signedJwt = null;
 
@@ -148,7 +150,9 @@ public class GrouperGoogleApiCommands {
       
       grouperHttpClient.addBodyParameter("assertion", signedJwt);
       grouperHttpClient.addBodyParameter("grant_type", "urn:ietf:params:oauth:grant-type:jwt-bearer");
-  
+
+      grouperHttpClient.assignDoNotLogParameters("assertion");
+      
       int code = -1;
       String json = null;
   
