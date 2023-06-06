@@ -423,4 +423,5 @@ public class SqlCacheGroup implements GcSqlAssignPrimaryKey, GcDbVersionable {
   /** membership size on col in db */
   public static final String COLUMN_MEMBERSHIP_SIZE_HST = "membership_size_hst";
 
+  
 }

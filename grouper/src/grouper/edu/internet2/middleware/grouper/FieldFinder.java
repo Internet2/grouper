@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -106,7 +107,7 @@ public class FieldFinder {
   }
   
   /**
-   * init and return the cache
+   * init and return the cache name to field
    * @return the cache
    */
   private static Map<String,Field> fieldCache() {
@@ -433,6 +434,23 @@ public class FieldFinder {
    */
   public static void main(String[] args) throws Exception {
     System.out.println(FieldFinder.find("update"));
+  }
+
+  /**
+   * find field internal ids by name (exception if not found)
+   * @param fieldNames
+   * @return the map
+   */
+  public static Map<String, Long> findInternalIdsByNames(Set<String> fieldNames) {
+    Map<String, Long> result = new HashMap<String, Long>();
+    Map<String, Field> fieldCache = fieldCache();
+    for (String fieldName : GrouperUtil.nonNull(fieldNames)) {
+      Field field = fieldCache.get(fieldName);
+      if (field != null) {
+        result.put(fieldName, field.getInternalId());
+      }
+    }
+    return result;
   }
   
 }

@@ -31,8 +31,12 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -56,6 +60,11 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -107,6 +116,7 @@ public class GroupFinder {
       groupCacheAsRootIdsNamesAndIndexes.add(group.getName());
       groupCacheAsRootIdsNamesAndIndexes.add(group.getIdIndex());
       groupCacheAsRootAddIfSupposedTo(group);
+      groupNameToInternalIdCache.put(group.getName(), group.getInternalId());
     }
   }
 
@@ -350,6 +360,11 @@ public class GroupFinder {
    */
   private static GrouperCache<MultiKey, Group> groupFlashCache = new GrouperCache(
       "edu.internet2.middleware.grouper.GroupFinder.groupFlashCache", 10000, false, 5, 5, false);
+
+  /**
+   * cache stuff in groups by subjectSourceId, subjectId, name, uuid, idIndex
+   */
+  private static ExpirableCache<String, Long> groupNameToInternalIdCache = new ExpirableCache<>(60);
 
   /**
    * if we are filtering for groups which are composite owners or not
@@ -1522,6 +1537,63 @@ public class GroupFinder {
   public GroupFinder assignExcludeAlternateNames(boolean excludeAlternateNames) {
     this.excludeAlternateNames = excludeAlternateNames;
     return this;
+  }
+
+  /**
+   * this will cache for a minute, find internal ids by name
+   * @param groupNames2
+   * @return the internal ids
+   */
+  public static Map<String, Long> findInternalIdsByNames(final Set<String> groupNames2) {
+    final Map<String, Long> result = new HashMap<String, Long>();
+    final Set<String> groupNamesToFind = new HashSet<>(groupNames2);
+    
+    // try the internal id cache
+    for (String groupName : GrouperUtil.nonNull(groupNames2)) {
+      Long internalId = groupNameToInternalIdCache.get(groupName);
+      if (internalId != null) {
+        result.put(groupName, internalId);
+        groupNamesToFind.remove(groupName);
+      }
+    }
+
+    if (groupNamesToFind.size() == 0) {
+      return result;
+    }
+    
+    List<String> groupNamesToFindList = new ArrayList<String>(groupNamesToFind);
+
+    // one bind var in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(groupNamesToFindList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfGroupNames = GrouperClientUtils.batchList(groupNamesToFindList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select name, internal_id from grouper_sql_cache_group where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      for (int i=0;i<batchOfGroupNames.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" name = ? ");
+        gcDbAccess.addBindVar(groupNamesToFindList.get(i));
+      }
+      
+      List<Object[]> nameAndInternalIds = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] nameAndInternalId : GrouperUtil.nonNull(nameAndInternalIds)) {
+        String groupName = (String)nameAndInternalId[0];
+        Long internalId = GrouperUtil.longObjectValue(nameAndInternalId[1], false);
+        result.put(groupName, internalId);
+      }
+      
+    }
+    
+    return result;
   }
 
 }

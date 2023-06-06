@@ -49,5 +49,6 @@ public class SqlCacheGroupTest extends GrouperTest {
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = Hib3GrouperLoaderLog.retrieveMostRecentLog("CHANGE_LOG_consumer_sqlCacheGroup");
 
     
+    
   }
 }
