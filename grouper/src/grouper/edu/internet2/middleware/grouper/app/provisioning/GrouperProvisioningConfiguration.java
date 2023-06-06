@@ -775,7 +775,38 @@ public abstract class GrouperProvisioningConfiguration {
   public boolean isDeleteGroupDuringDiagnostics() {
     return GrouperUtil.booleanValue(deleteGroupDuringDiagnostics, false);
   }
+
+  /**
+   * if create membership in target during diagnostics
+   */
+  private Boolean createMembershipDuringDiagnostics;
+
+  /**
+   * if delete membership in target during diagnostics
+   */
+  private Boolean deleteMembershipDuringDiagnostics;
+
+  public boolean isCreateMembershipDuringDiagnostics() {
+    return GrouperUtil.booleanValue(createMembershipDuringDiagnostics, false);
+  }
+
+  public boolean isDeleteMembershipDuringDiagnostics() {
+    return GrouperUtil.booleanValue(deleteMembershipDuringDiagnostics, false);
+  }
+
   
+  public void setCreateMembershipDuringDiagnostics(
+      Boolean createMembershipDuringDiagnostics) {
+    this.createMembershipDuringDiagnostics = createMembershipDuringDiagnostics;
+  }
+
+
+  
+  public void setDeleteMembershipDuringDiagnostics(
+      Boolean deleteMembershipDuringDiagnostics) {
+    this.deleteMembershipDuringDiagnostics = deleteMembershipDuringDiagnostics;
+  }
+
   /**
    * if create entity in target during diagnostics
    */
@@ -3076,6 +3107,8 @@ public abstract class GrouperProvisioningConfiguration {
     this.deleteGroupDuringDiagnostics = this.retrieveConfigBoolean("deleteGroupDuringDiagnostics", false);
     this.createEntityDuringDiagnostics = this.retrieveConfigBoolean("createEntityDuringDiagnostics", false);
     this.deleteEntityDuringDiagnostics = this.retrieveConfigBoolean("deleteEntityDuringDiagnostics", false);
+    this.createMembershipDuringDiagnostics = this.retrieveConfigBoolean("createMembershipDuringDiagnostics", false);
+    this.deleteMembershipDuringDiagnostics = this.retrieveConfigBoolean("deleteMembershipDuringDiagnostics", false);
     
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
