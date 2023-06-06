@@ -20,7 +20,9 @@ import org.apache.commons.logging.Log;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -63,16 +65,16 @@ public class GrouperZoomCommands {
     
 //    test_printUsersPerSubaccount(configId);
     
-//    Map<String, Map<String, Object>> groups = retrieveGroups(configId);
-//    for (Map<String, Object> group: groups.values()) {
-//      System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
-//      
+    Map<String, Map<String, Object>> groups = retrieveGroups(configId);
+    for (Map<String, Object> group: groups.values()) {
+      System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
+      
 //      List<Map<String, Object>> members = retrieveGroupMemberships(configId, (String)group.get("id"));
 //      for (Map<String, Object> member: members) {
 //        System.out.println("Member: " + member.get("id") + ", " + member.get("email") + ", " + member.get("first_name")
 //            + ", " + member.get("last_name") + ", " + member.get("type") + ", " + member.get("primary_group"));
 //      }
-//    }
+    }
 
 //    Map<String, Map<String, Object>> roles = retrieveRoles(configId);
 //    for (Map<String, Object> group: roles.values()) {
@@ -224,6 +226,59 @@ public class GrouperZoomCommands {
    * @return the bearer token
    */
   public static String retrieveBearerTokenFresh(String configId) {
+
+    String zoomAuthenticationType = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".zoomAuthenticationType");
+
+    if (StringUtils.equals(zoomAuthenticationType, "oauth2")) {
+      
+      String zoomOauth2AccountId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("zoom." + configId + ".zoomOauth2AccountId");
+      String zoomOauth2ClientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("zoom." + configId + ".zoomOauth2ClientId");
+      String zoomOauth2ClientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("zoom." + configId + ".zoomOauth2ClientSecret");
+
+      // we need to get another one
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignDoNotLogHeaders(AzureMockServiceHandler.doNotLogHeaders);
+      grouperHttpClient.assignDoNotLogResponseBody(true);
+      
+      String endpoint = endpointOauth2(configId);
+      String url = endpoint + "oauth/token?grant_type=account_credentials&account_id=" + zoomOauth2AccountId;
+    
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
+  
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      
+      grouperHttpClient.assignUser(zoomOauth2ClientId);
+      grouperHttpClient.assignPassword(zoomOauth2ClientSecret);
+      
+      int code = -1;
+      String json = null;
+  
+      try {
+        grouperHttpClient.executeRequest();
+        code = grouperHttpClient.getResponseCode();
+
+        json = grouperHttpClient.getResponseBody();
+
+      } catch (Exception e) {
+        throw new RuntimeException("Error connecting to '" + url + "'", e);
+      }
+
+      if (code != 200) {
+        throw new RuntimeException("Expecting 200 but received: " + code + ", from: " + url + ", " + json );
+      }
+      
+      json = grouperHttpClient.getResponseBody();
+      
+      //  {"access_token":"eyJzdiI6IjAwMDAwMSIsImFsZyI6Ik",
+      //    "token_type":"bearer",
+      //    "expires_in":3599,"scope":"user:write:admin user:read:admin role:master user:master"}
+      JsonNode jsonJacksonNode = GrouperUtil.jsonJacksonNode(json);
+      String accessToken = GrouperUtil.jsonJacksonGetString(jsonJacksonNode, "access_token");
+      
+      return accessToken;
+
+    }
     // lets get a new bearer token
     String apiSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("zoom." + configId + ".jwtApiSecretPassword");
     apiSecret = Morph.decryptIfFile(apiSecret);
@@ -247,11 +302,12 @@ public class GrouperZoomCommands {
   }
   
   /**
-   * get the cache based on how long to cache
+   * get the cache based on how long to cache.  Note this is used for oauth which expires in an hour... we can adjust this in future
    * @return the cache
    */
   public static ExpirableCache<Boolean, String> bearerTokenCache() {
     int cacheJwtForMinutes = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.zoom.cacheJwtForMinutes", 30);
+    
     if (cacheJwtForMinutes == 1) {
       cacheJwtForMinutes = 2;
     }
@@ -261,6 +317,14 @@ public class GrouperZoomCommands {
     // cache for the number of minutes minus 1 so it doesnt expire
     bearerTokenCache = new ExpirableCache<Boolean, String>(cacheJwtForMinutes-1);
     return bearerTokenCache;
+  }
+  
+  private static String endpointOauth2(String configId) {
+    String endpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".zoomOauth2endpoint", "https://zoom.us");
+    if (!endpoint.endsWith("/")) {
+      endpoint+= "/";
+    }
+    return endpoint;
   }
   
   private static String endpoint(String configId) {
