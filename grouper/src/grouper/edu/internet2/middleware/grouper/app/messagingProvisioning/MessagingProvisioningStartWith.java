@@ -86,6 +86,11 @@ public class MessagingProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
     provisionerSuffixToValue.put("provisioningType", "membershipObjects");
     provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.messagingProvisioning.GrouperMessagingProvisioner");
+    
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
+      provisionerSuffixToValue.put("showAdvanced", "true");
+    }
+
   }
 
   @Override
