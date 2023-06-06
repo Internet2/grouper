@@ -167,6 +167,10 @@ public class RemedyProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("membership2AdvancedOptions", "true");
     provisionerSuffixToValue.put("membershipMatchingIdExpression", "${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('permissionGroupId'), targetMembership.retrieveAttributeValueString('remedyLoginId'))}");
     
+    if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
+      provisionerSuffixToValue.put("showAdvanced", "true");
+    }
+
   }
 
   @Override
