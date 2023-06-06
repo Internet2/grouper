@@ -117,6 +117,21 @@ public class GrouperHttpClient {
     return this;
   }
   
+  /**
+   * if request body contains sensitive info and shouldnt be logged
+   */
+  private boolean doNotLogRequestBody = false;
+
+  /**
+   * if request body contains sensitive info and shouldnt be logged
+   * @param theDoNotLogRequestBody
+   * @return this for chaining
+   */
+  public GrouperHttpClient assignDoNotLogRequestBody(boolean theDoNotLogRequestBody) {
+    this.doNotLogRequestBody = theDoNotLogRequestBody;
+    return this;
+  }
+  
   public GrouperHttpClient assignDoNotLogParameters(String paramsCommaSeparated) {
     this.doNotLogParameters = GrouperUtil.nonNull(GrouperUtil.toSet(GrouperUtil.splitTrim(paramsCommaSeparated, ",")));
     return this;
@@ -1130,17 +1145,22 @@ public class GrouperHttpClient {
             }
             theLog.append("\n");
           }
-          
           if (StringUtils.isNotBlank(this.body)) {
-            theLog.append("HTTP request body: ").append(StringUtils.abbreviate(this.body, 20000)).append("\n");
+            theLog.append("HTTP request body: ");
+            if (this.doNotLogRequestBody) {
+              theLog.append("*******");
+            } else {
+              theLog.append(StringUtils.abbreviate(this.body, 20000));
+            }
+            theLog.append("\n");
           }
           
           for (String key : GrouperUtil.nonNull(this.bodyParameters).keySet()) {
             theLog.append("HTTP request body param: ").append(key).append(":");
             if (!key.toLowerCase().contains("pass")
                 && !key.toLowerCase().contains("secret")
-                && !this.getDoNotLogHeaders().contains(key)
-                && !this.getDoNotLogHeaders().contains("*")) {
+                && !this.getDoNotLogParameters().contains(key)
+                && !this.getDoNotLogParameters().contains("*")) {
               theLog.append(this.bodyParameters.get(key));
             } else {
               theLog.append("*******");
