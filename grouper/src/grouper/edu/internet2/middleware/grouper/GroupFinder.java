@@ -1571,7 +1571,7 @@ public class GroupFinder {
       
       List<String> batchOfGroupNames = GrouperClientUtils.batchList(groupNamesToFindList, batchSize, batchIndex);
       
-      StringBuilder sql = new StringBuilder("select name, internal_id from grouper_sql_cache_group where ");
+      StringBuilder sql = new StringBuilder("select name, internal_id from grouper_groups where ");
       
       GcDbAccess gcDbAccess = new GcDbAccess();
       

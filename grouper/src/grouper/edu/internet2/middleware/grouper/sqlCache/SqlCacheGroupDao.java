@@ -19,7 +19,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
- * dao for jobs
+ * dao for sql cache groups
  * @author mchyzer
  *
  */
@@ -34,7 +34,7 @@ public class SqlCacheGroupDao {
    * @param connectionName
    * @return true if changed
    */
-  public boolean store(SqlCacheGroup sqlCacheGroup) {
+  public static boolean store(SqlCacheGroup sqlCacheGroup) {
     sqlCacheGroup.storePrepare();
     boolean changed = new GcDbAccess().storeToDatabase(sqlCacheGroup);
     return changed;
@@ -46,18 +46,18 @@ public class SqlCacheGroupDao {
    * @param id
    * @return the sync
    */
-  public static SqlCacheGroup retrieveByInternalId(String id) {
+  public static SqlCacheGroup retrieveByInternalId(Long id) {
     SqlCacheGroup sqlCacheGroup = new GcDbAccess()
-        .sql("select * from grouper_sql_cache_group where id = ?").addBindVar(id).select(SqlCacheGroup.class);
+        .sql("select * from grouper_sql_cache_group where internal_id = ?").addBindVar(id).select(SqlCacheGroup.class);
     return sqlCacheGroup;
   }
   
 
   /**
    * 
-   * @param connectionName
+   * @param sqlCacheMembership
    */
-  public void delete(SqlCacheGroup sqlCacheGroup) {
+  public static void delete(SqlCacheGroup sqlCacheGroup) {
     new GcDbAccess().deleteFromDatabase(sqlCacheGroup);
   }
 
@@ -114,6 +114,28 @@ public class SqlCacheGroupDao {
       result.put(groupNameFieldName, sqlCacheGroup);
     }
 
+    return result;
+  }
+
+  /**
+   * select caches by group names and field names
+   * @param groupNamesFieldNames
+   * @return the caches if they exist by groupName and fieldName
+   */
+  public static Map<MultiKey, Long> retrieveByGroupNamesFieldNamesToInternalId(Collection<MultiKey> groupNamesFieldNames) {
+    
+    Map<MultiKey, Long> result = new HashMap<>();
+
+    if (GrouperUtil.length(groupNamesFieldNames) == 0) {
+      return result;
+    }
+
+    Map<MultiKey, SqlCacheGroup> groupNameFieldNameToSqlCacheGroup = retrieveByGroupNamesFieldNames(groupNamesFieldNames);
+    
+    for (MultiKey groupNameFieldName : groupNameFieldNameToSqlCacheGroup.keySet()) {
+      SqlCacheGroup sqlCacheGroup = groupNameFieldNameToSqlCacheGroup.get(groupNameFieldName);
+      result.put(groupNameFieldName, sqlCacheGroup.getInternalId());
+    }
     return result;
   }
 
@@ -199,7 +221,9 @@ public class SqlCacheGroupDao {
 
     for (int i=0; i < sqlCacheGroupsToCreate.size(); i++) {
       SqlCacheGroup sqlCacheGroup = sqlCacheGroupsToCreate.get(i);
-      sqlCacheGroup.setInternalId(ids.get(i));
+      sqlCacheGroup.setTempInternalIdOnDeck(ids.get(i));
+      sqlCacheGroup.storePrepare();
+
     }
 
     //    internal_id int8 NOT NULL, -- internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)

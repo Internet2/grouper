@@ -87,6 +87,10 @@ class Hib3RegistryDAO implements RegistryDAO {
               throws GrouperDAOException {
             HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
 
+            new GcDbAccess().sql("delete from grouper_sql_cache_mship_hst").executeSql();
+            new GcDbAccess().sql("delete from grouper_sql_cache_mship").executeSql();
+            new GcDbAccess().sql("delete from grouper_sql_cache_group").executeSql();
+
             new GcDbAccess().sql("delete from grouper_failsafe").executeSql();
             new GcDbAccess().sql("delete from grouper_last_login").executeSql();
             new GcDbAccess().sql("delete from grouper_stem_view_privilege").executeSql();

@@ -206,6 +206,12 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
    * when this row was created
    */
   private Timestamp createdOn;
+
+  /**
+   * store the internal id to use when the db access stores the object
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private Long tempInternalIdOnDeck = null;
   
   /**
    * when this row was created
@@ -223,6 +229,9 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
     this.createdOn = createdOn;
   }
 
+  public SqlCacheMembership getDbVersion() {
+    return this.dbVersion;
+  }
   
   /**
    * 
@@ -230,6 +239,22 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
   @Override
   public String toString() {
     return GrouperClientUtils.toStringReflection(this, null);
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @return
+   */
+  public Long getTempInternalIdOnDeck() {
+    return tempInternalIdOnDeck;
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @param tempInternalIdOnDeck
+   */
+  public void setTempInternalIdOnDeck(Long tempInternalIdOnDeck) {
+    this.tempInternalIdOnDeck = tempInternalIdOnDeck;
   }
 
   /** table name for sql cache */

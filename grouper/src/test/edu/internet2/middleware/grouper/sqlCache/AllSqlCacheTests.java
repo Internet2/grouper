@@ -20,6 +20,7 @@ public class AllSqlCacheTests extends TestCase {
     TestSuite suite = new TestSuite(AllSqlCacheTests.class.getName());
     //$JUnit-BEGIN$
     suite.addTestSuite(SqlCacheGroupTest.class);
+    suite.addTestSuite(SqlCacheGroupDaoTest.class);
     //$JUnit-END$
     return suite;
   }

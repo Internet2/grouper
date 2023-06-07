@@ -361,7 +361,25 @@ public enum TableIndexType {
   
     @Override
     public String tableName() {
-      return "grouper_sql_group_cache";
+      return "grouper_sql_cache_group";
+    }
+  
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  }, 
+  /** index assigned to a sql membership cache entry */
+  sqlMembershipCache{
+  
+    @Override
+    public String tableName() {
+      return "grouper_sql_cache_mship";
     }
   
     @Override

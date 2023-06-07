@@ -33,10 +33,12 @@
 package edu.internet2.middleware.grouper;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -71,6 +73,10 @@ import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -963,6 +969,70 @@ public class MemberFinder {
     all=null;
     root=null;
   } // public static void clearInternalMembers()
+
+  /**
+   * cache stuff in members by sourceId, subjectId
+   */
+  private static ExpirableCache<MultiKey, Long> sourceIdSubjectIdToInternalIdCache = new ExpirableCache<>(60);
+
+  /**
+   * this will cache for a minute, find internal ids by name
+   * @param sourceIdsSubjectIds
+   * @return the internal ids
+   */
+  public static Map<MultiKey, Long> findInternalIdsByNames(final Set<MultiKey> sourceIdsSubjectIds) {
+    final Map<MultiKey, Long> result = new HashMap<MultiKey, Long>();
+    final Set<MultiKey> sourceIdsSubjectIdToFind = new HashSet<>(sourceIdsSubjectIds);
+    
+    // try the internal id cache
+    for (MultiKey sourceIdSubjectId : GrouperUtil.nonNull(sourceIdsSubjectIds)) {
+      Long internalId = sourceIdSubjectIdToInternalIdCache.get(sourceIdSubjectId);
+      if (internalId != null) {
+        result.put(sourceIdSubjectId, internalId);
+        sourceIdsSubjectIdToFind.remove(sourceIdSubjectId);
+      }
+    }
+
+    if (sourceIdsSubjectIdToFind.size() == 0) {
+      return result;
+    }
+    
+    List<MultiKey> sourceIdsSubjectIdToFindList = new ArrayList<>(sourceIdsSubjectIdToFind);
+
+    // one bind var in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900) / 2;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(sourceIdsSubjectIdToFindList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<MultiKey> batchOfSourceIdsSubjectIds = GrouperClientUtils.batchList(sourceIdsSubjectIdToFindList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select subject_source, subject_id, internal_id from grouper_members where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      for (int i=0;i<batchOfSourceIdsSubjectIds.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" ( subject_source = ? and subject_id = ? ) ");
+        gcDbAccess.addBindVar(batchOfSourceIdsSubjectIds.get(i).getKey(0));
+        gcDbAccess.addBindVar(batchOfSourceIdsSubjectIds.get(i).getKey(1));
+      }
+      
+      List<Object[]> subjectSourceSubjectIdAndInternalIds = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] subjectSourceSubjectIdAndInternalId : GrouperUtil.nonNull(subjectSourceSubjectIdAndInternalIds)) {
+        String subjectSource = (String)subjectSourceSubjectIdAndInternalId[0];
+        String subjectId = (String)subjectSourceSubjectIdAndInternalId[1];
+        Long internalId = GrouperUtil.longObjectValue(subjectSourceSubjectIdAndInternalId[2], false);
+        result.put(new MultiKey(subjectSource, subjectId), internalId);
+      }
+      
+    }
+    
+    return result;
+  }
 
 } // public class MemberFinder
 

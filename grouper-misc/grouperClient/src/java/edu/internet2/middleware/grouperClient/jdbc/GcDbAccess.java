@@ -1007,7 +1007,7 @@ public class GcDbAccess {
       Field primaryKey = GcPersistableHelper.primaryKeyField(objects.get(0).getClass());
       for (T t : objects) {
         Object primaryKeyValue = GrouperClientUtils.fieldValue(primaryKey, t);
-        boolean isInsert = primaryKeyValue == null;
+        boolean isInsert = primaryKeyValue == null || (primaryKeyValue instanceof Long && ((Long)primaryKeyValue).longValue() == -1L);
         if (isInsert) {
           objectsToInsert.add(t);
         } else {
@@ -1212,7 +1212,7 @@ public class GcDbAccess {
         Boolean isInsert = null;
         if (object instanceof GcSqlAssignPrimaryKey) {
           Object primaryKeyValue = primaryKey.get(object);
-          isInsert = primaryKeyValue == null;
+          isInsert = primaryKeyValue == null || (primaryKeyValue instanceof Long && ((Long)primaryKeyValue).longValue() == -1L);
           if (isInsert) {
             ((GcSqlAssignPrimaryKey)object).gcSqlAssignNewPrimaryKeyForInsert();
             gcSqlAssignPrimaryKey = true;
