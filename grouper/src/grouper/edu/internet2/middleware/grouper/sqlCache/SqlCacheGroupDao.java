@@ -41,6 +41,22 @@ public class SqlCacheGroupDao {
   }
 
   /**
+   * 
+   * @param connectionName
+   * @return number of changes
+   */
+  public static int store(Collection<SqlCacheGroup> sqlCacheGroups) {
+    if (GrouperUtil.length(sqlCacheGroups) == 0) {
+      return 0;
+    }
+    for (SqlCacheGroup sqlCacheGroup : sqlCacheGroups) {
+      sqlCacheGroup.storePrepare();
+    }
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    return new GcDbAccess().storeBatchToDatabase(sqlCacheGroups, batchSize);
+  }
+
+  /**
    * select grouper sync by id
    * @param theConnectionName
    * @param id

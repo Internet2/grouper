@@ -963,6 +963,31 @@ public class GcDbAccess {
    * You cannot have both inserts and updates in the list of objects to store; they MUST all have the 
    * same action (insert or update) being taken against them as jdbc statements supoprt mutliple
    * sqls in a batch but do not support bind variables when using this capability.</pre>
+   * @param <T> is the type to store.
+   * @see GcPersistableClass - this annotation must be placed at the class level.
+   * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
+   * @param objects is the list of objects to store to the database.
+   * @param batchSize is the size of the batch to insert or update in. e.g. GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900)
+   * @return number of changes
+   */
+  public <T> int storeBatchToDatabase(final Collection<T> objects, final int batchSize){
+    if (GrouperClientUtils.length(objects) == 0) {
+      return 0;
+    }
+    
+    if (objects instanceof List) {
+      return storeBatchToDatabase((List<T>)objects, batchSize);
+    }
+    
+    return storeBatchToDatabase(new ArrayList<>(objects), batchSize, false);
+  }
+
+  /**
+   * <pre>Store the given objects to the database in a batch - 
+   * the objects should have appropriate annotations from the PersistableX annotations.
+   * You cannot have both inserts and updates in the list of objects to store; they MUST all have the 
+   * same action (insert or update) being taken against them as jdbc statements supoprt mutliple
+   * sqls in a batch but do not support bind variables when using this capability.</pre>
    * @see GcPersistableClass - this annotation must be placed at the class level.
    * @see GcPersistableField these annotations may be placed at the method level depending on your needs.
    * @param <T> is the type being stored.

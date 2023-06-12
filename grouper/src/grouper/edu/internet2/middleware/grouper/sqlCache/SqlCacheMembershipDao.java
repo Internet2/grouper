@@ -1,9 +1,11 @@
 package edu.internet2.middleware.grouper.sqlCache;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -61,11 +63,222 @@ public class SqlCacheMembershipDao {
   }
 
   /**
+   * things to add to sql cache memberships.  5 fields in multikey: 
+   * groupName, fieldName, sourceId, subjectId, millisSince1970whenMembershipStarted (Long)
+   * @param groupNameFieldNameSourceIdSubjectIdStartedMillis
+   * @return number of changes
+   */
+  public static int insertSqlCacheMembershipsIfCacheable(Collection<MultiKey> groupNameFieldNameSourceIdSubjectIdStartedMillis) {
+    
+    if (GrouperUtil.length(groupNameFieldNameSourceIdSubjectIdStartedMillis) == 0) {
+      return 0;
+    }
+    
+    long currentTimeMillis = System.currentTimeMillis();
+    
+    Set<MultiKey> groupNameFieldNames = new HashSet<>();
+    
+    Map<MultiKey, MultiKey> groupNameFieldNameSourceIdSubjectIdStartedMilliToGroupNameFieldName = new HashMap<>();
+    
+    for (MultiKey groupNameFieldNameSourceIdSubjectIdStartedMilli : groupNameFieldNameSourceIdSubjectIdStartedMillis) {
+      String groupName = (String)groupNameFieldNameSourceIdSubjectIdStartedMilli.getKey(0);
+      String fieldName = (String)groupNameFieldNameSourceIdSubjectIdStartedMilli.getKey(1);
+      
+      MultiKey groupNameFieldName = new MultiKey(groupName, fieldName);
+      groupNameFieldNames.add(groupNameFieldName);
+      groupNameFieldNameSourceIdSubjectIdStartedMilliToGroupNameFieldName.put(groupNameFieldNameSourceIdSubjectIdStartedMilli, groupNameFieldName);
+      
+    }
+    
+    // lets see which of these are cacheable groups
+    Map<MultiKey, SqlCacheGroup> groupNameFieldNameToSqlCacheGroup = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(groupNameFieldNames);
+    
+    List<MultiKey> groupNameFieldNameSourceIdSubjectIdStartedMillisList = new ArrayList<>(groupNameFieldNameSourceIdSubjectIdStartedMillis);
+    
+    Iterator<MultiKey> iterator = groupNameFieldNameSourceIdSubjectIdStartedMillisList.iterator();
+    
+    // filter out uncacheable
+    while (iterator.hasNext()) {
+      MultiKey groupNameFieldNameSourceIdSubjectIdStartedMilli = iterator.next();
+      MultiKey groupNameFieldName = groupNameFieldNameSourceIdSubjectIdStartedMilliToGroupNameFieldName.get(groupNameFieldNameSourceIdSubjectIdStartedMilli);
+      SqlCacheGroup sqlCacheGroup = groupNameFieldNameToSqlCacheGroup.get(groupNameFieldName);
+      
+      if (sqlCacheGroup == null || (sqlCacheGroup.getDisabledOn() != null && sqlCacheGroup.getDisabledOn().getTime() < currentTimeMillis)
+          || (sqlCacheGroup != null && sqlCacheGroup.getEnabledOn() != null && sqlCacheGroup.getEnabledOn().getTime() > currentTimeMillis)) {
+        iterator.remove();
+      }
+
+    }
+
+    Map<MultiKey, MultiKey> groupNameFieldNameSourceIdSubjectIdStartedMilliToSourceIdSubjectId = new HashMap<>();
+    Set<MultiKey> sourceIdSubjectIds = new HashSet<>();
+    
+    for (MultiKey groupNameFieldNameSourceIdSubjectIdStartedMilli : groupNameFieldNameSourceIdSubjectIdStartedMillisList) {
+      String sourceId = (String)groupNameFieldNameSourceIdSubjectIdStartedMilli.getKey(2);
+      String subjectId = (String)groupNameFieldNameSourceIdSubjectIdStartedMilli.getKey(3);
+      
+      MultiKey sourceIdSubjectId = new MultiKey(sourceId, subjectId);
+      sourceIdSubjectIds.add(sourceIdSubjectId);
+      groupNameFieldNameSourceIdSubjectIdStartedMilliToSourceIdSubjectId.put(groupNameFieldNameSourceIdSubjectIdStartedMilli, sourceIdSubjectId);
+      
+    }
+
+    Map<MultiKey, Long> sourceIdSubjectIdToInternalId = MemberFinder.findInternalIdsByNames(sourceIdSubjectIds);
+    
+    List<SqlCacheMembership> sqlCacheMembershipsToInsert = new ArrayList<>();
+
+    for (MultiKey groupNameFieldNameSourceIdSubjectIdStartedMilli : groupNameFieldNameSourceIdSubjectIdStartedMillisList) {
+
+      MultiKey sourceIdSubjectId = groupNameFieldNameSourceIdSubjectIdStartedMilliToSourceIdSubjectId.get(groupNameFieldNameSourceIdSubjectIdStartedMilli);
+      
+      if (sourceIdSubjectId == null) {
+        continue;
+      }
+
+      Long memberInternalId = sourceIdSubjectIdToInternalId.get(sourceIdSubjectId);
+      
+      if (memberInternalId == null) {
+        continue;
+      }
+      
+      MultiKey groupNameFieldName = groupNameFieldNameSourceIdSubjectIdStartedMilliToGroupNameFieldName.get(groupNameFieldNameSourceIdSubjectIdStartedMilli);
+      
+      if (groupNameFieldName == null) {
+        continue;
+      }
+      
+      SqlCacheGroup sqlCacheGroup = groupNameFieldNameToSqlCacheGroup.get(groupNameFieldName);
+      
+      if (sqlCacheGroup == null) {
+        continue;
+      }
+      
+      SqlCacheMembership sqlCacheMembership = new SqlCacheMembership();
+      Long membershipAddedLong = (Long)groupNameFieldNameSourceIdSubjectIdStartedMilli.getKey(4);
+      Timestamp membershipAdded = new Timestamp(membershipAddedLong);
+      sqlCacheMembership.setFlattenedAddTimestamp(membershipAdded);
+      sqlCacheMembership.setMemberInternalId(memberInternalId);
+      sqlCacheMembership.setSqlCacheGroupInternalId(sqlCacheGroup.getInternalId());
+      sqlCacheMembershipsToInsert.add(sqlCacheMembership);
+      
+    }   
+    
+    return SqlCacheMembershipDao.store(sqlCacheMembershipsToInsert);
+  }
+  
+  /**
+   * things to delete to sql cache memberships.  4 fields in multikey: 
+   * groupName, fieldName, sourceId, subjectId
+   * @param groupNameFieldNameSourceIdSubjectIdStartedMillis
+   * @return number of changes
+   */
+  public static int deleteSqlCacheMembershipsIfCacheable(Collection<MultiKey> groupNameFieldNameSourceIdSubjectIds) {
+    
+    if (GrouperUtil.length(groupNameFieldNameSourceIdSubjectIds) == 0) {
+      return 0;
+    }
+    
+    long currentTimeMillis = System.currentTimeMillis();
+
+    Set<MultiKey> groupNameFieldNames = new HashSet<>();
+    
+    Map<MultiKey, MultiKey> groupNameFieldNameSourceIdSubjectIdToGroupNameFieldName = new HashMap<>();
+    
+    for (MultiKey groupNameFieldNameSourceIdSubjectId : groupNameFieldNameSourceIdSubjectIds) {
+      String groupName = (String)groupNameFieldNameSourceIdSubjectId.getKey(0);
+      String fieldName = (String)groupNameFieldNameSourceIdSubjectId.getKey(1);
+      
+      MultiKey groupNameFieldName = new MultiKey(groupName, fieldName);
+      groupNameFieldNames.add(groupNameFieldName);
+      groupNameFieldNameSourceIdSubjectIdToGroupNameFieldName.put(groupNameFieldNameSourceIdSubjectId, groupNameFieldName);
+      
+    }
+    
+    // lets see which of these are cacheable groups
+    Map<MultiKey, SqlCacheGroup> groupNameFieldNameToSqlCacheGroup = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(groupNameFieldNames);
+    
+    List<MultiKey> groupNameFieldNameSourceIdSubjectIdList = new ArrayList<>(groupNameFieldNameSourceIdSubjectIds);
+    
+    Iterator<MultiKey> iterator = groupNameFieldNameSourceIdSubjectIdList.iterator();
+    
+    // filter out uncacheable
+    while (iterator.hasNext()) {
+      MultiKey groupNameFieldNameSourceIdSubjectId = iterator.next();
+      MultiKey groupNameFieldName = groupNameFieldNameSourceIdSubjectIdToGroupNameFieldName.get(groupNameFieldNameSourceIdSubjectId);
+      SqlCacheGroup sqlCacheGroup = groupNameFieldNameToSqlCacheGroup.get(groupNameFieldName);
+      
+      if (sqlCacheGroup == null || (sqlCacheGroup.getDisabledOn() != null && sqlCacheGroup.getDisabledOn().getTime() < currentTimeMillis)
+          || (sqlCacheGroup != null && sqlCacheGroup.getEnabledOn() != null && sqlCacheGroup.getEnabledOn().getTime() > currentTimeMillis)) {
+        iterator.remove();
+      }
+
+    }
+
+    Map<MultiKey, MultiKey> groupNameFieldNameSourceIdSubjectIdStartedMilliToSourceIdSubjectId = new HashMap<>();
+    Set<MultiKey> sourceIdSubjectIds = new HashSet<>();
+    
+    for (MultiKey groupNameFieldNameSourceIdSubjectId : groupNameFieldNameSourceIdSubjectIds) {
+      String sourceId = (String)groupNameFieldNameSourceIdSubjectId.getKey(2);
+      String subjectId = (String)groupNameFieldNameSourceIdSubjectId.getKey(3);
+      
+      MultiKey sourceIdSubjectId = new MultiKey(sourceId, subjectId);
+      sourceIdSubjectIds.add(sourceIdSubjectId);
+      groupNameFieldNameSourceIdSubjectIdStartedMilliToSourceIdSubjectId.put(groupNameFieldNameSourceIdSubjectId, sourceIdSubjectId);
+      
+    }
+
+    Map<MultiKey, Long> sourceIdSubjectIdToInternalId = MemberFinder.findInternalIdsByNames(sourceIdSubjectIds);
+    
+    List<SqlCacheMembership> sqlCacheMembershipsToInsert = new ArrayList<>();
+
+    List<List<Object>> bindVarsAll = new ArrayList<>();
+    
+    for (MultiKey groupNameFieldNameSourceIdSubjectIdStartedMilli : groupNameFieldNameSourceIdSubjectIdList) {
+
+      MultiKey sourceIdSubjectId = groupNameFieldNameSourceIdSubjectIdStartedMilliToSourceIdSubjectId.get(groupNameFieldNameSourceIdSubjectIdStartedMilli);
+      
+      if (sourceIdSubjectId == null) {
+        continue;
+      }
+
+      Long memberInternalId = sourceIdSubjectIdToInternalId.get(sourceIdSubjectId);
+      
+      if (memberInternalId == null) {
+        continue;
+      }
+      
+      MultiKey groupNameFieldName = groupNameFieldNameSourceIdSubjectIdToGroupNameFieldName.get(groupNameFieldNameSourceIdSubjectIdStartedMilli);
+      
+      if (groupNameFieldName == null) {
+        continue;
+      }
+      
+      SqlCacheGroup sqlCacheGroup = groupNameFieldNameToSqlCacheGroup.get(groupNameFieldName);
+      
+      if (sqlCacheGroup == null) {
+        continue;
+      }
+      
+      bindVarsAll.add(GrouperUtil.toListObject(sqlCacheGroup.getInternalId(), memberInternalId));
+      
+      
+    }   
+    
+    int[] rowsChanged = new GcDbAccess().sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id = ? and member_internal_id = ?")
+      .batchBindVars(bindVarsAll).executeBatchSql();
+    int result = 0;
+    for (int rowChanged : rowsChanged) {
+      result += rowChanged;
+    }
+    return result;
+  }
+  
+  /**
    * select caches by group names and field names and source ids and subject ids
    * @param groupNamesFieldNamesSourceIdsSubjectIds
    * @return the caches if they exist by groupName and fieldName and source ids and subject ids
    */
-  public static Map<MultiKey, SqlCacheMembership> retrieveByGroupNamesFieldNamesSourceIdsSubejctIds(Collection<MultiKey> groupNamesFieldNamesSourceIdsSubjectIds) {
+  public static Map<MultiKey, SqlCacheMembership> retrieveByGroupNamesFieldNamesSourceIdsSubjectIds(Collection<MultiKey> groupNamesFieldNamesSourceIdsSubjectIds) {
     
     Map<MultiKey, SqlCacheMembership> result = new HashMap<>();
 
@@ -120,6 +333,23 @@ public class SqlCacheMembershipDao {
 
     return result;
   }
+
+  /**
+   * 
+   * @param connectionName
+   * @return number of changes
+   */
+  public static int store(Collection<SqlCacheMembership> sqlCacheMemberships) {
+    if (GrouperUtil.length(sqlCacheMemberships) == 0) {
+      return 0;
+    }
+    for (SqlCacheMembership sqlCacheMembership : sqlCacheMemberships) {
+      sqlCacheMembership.storePrepare();
+    }
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    return new GcDbAccess().storeBatchToDatabase(sqlCacheMemberships, batchSize);
+  }
+
 
   /**
    * select caches by cache group internal ids and member internal ids
