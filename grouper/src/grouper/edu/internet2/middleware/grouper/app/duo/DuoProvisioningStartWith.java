@@ -142,6 +142,18 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
         provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpression", startWithSuffixToValue.get("entityNameTranslationScript"));
       } else if (StringUtils.equals("other", entityNameSubjectAttributeType)) {
         //do nothing
+      } else if (StringUtils.equals("subjectAttribute", entityNameSubjectAttributeType)) {
+
+        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
+        provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
+
+        provisionerSuffixToValue.put("entityAttributeValueCache2has", "true");
+        provisionerSuffixToValue.put("entityAttributeValueCache2source", "grouper");
+        provisionerSuffixToValue.put("entityAttributeValueCache2type", "subjectTranslationScript");
+        String subjectEntityNameAttribute = startWithSuffixToValue.get("subjectEntityNameAttribute");
+        provisionerSuffixToValue.put("entityAttributeValueCache2translationScript", "${subject.getAttributeValue('"+subjectEntityNameAttribute+"')}");
+
+        
       } else { 
         provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
         provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", entityNameSubjectAttributeType);
