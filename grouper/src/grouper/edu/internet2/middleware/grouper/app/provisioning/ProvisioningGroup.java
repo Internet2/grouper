@@ -6,6 +6,7 @@ import java.util.List;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 
 /**
@@ -19,6 +20,21 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     super();
   }
 
+  public boolean isLoggableHelper() {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames().contains(this.getName())) {
+      return true;
+    }
+    return false;
+  }
+  
+  public boolean isLoggable() {
+    ProvisioningGroupWrapper provisioningGroupWrapper = this.getProvisioningGroupWrapper();
+    if (provisioningGroupWrapper != null) {
+      return provisioningGroupWrapper.getProvisioningStateGroup().isLoggable();
+    }
+    return isLoggableHelper();
+  }
+    
   public static void main(String[] args) {
     ProvisioningGroup provisioningGroup = new ProvisioningGroup();
     provisioningGroup.assignAttributeValue("name", "someName");

@@ -8,7 +8,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
  */
 public abstract class ProvisioningUpdatableWrapper {
 
-
   public ProvisioningStateBase getProvisioningState() {
     if (this instanceof ProvisioningGroupWrapper) {
       return ((ProvisioningGroupWrapper)this).getProvisioningStateGroup();

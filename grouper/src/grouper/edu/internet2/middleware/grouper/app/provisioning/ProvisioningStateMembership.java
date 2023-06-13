@@ -8,7 +8,37 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class ProvisioningStateMembership extends ProvisioningStateBase {
 
   
-  
+  /**
+   * see if loggable if not logging all objects
+   * @return
+   */
+  public boolean isLoggable() {
+    
+    if (this.isLoggableHelper()) {
+      return true;
+    }
+
+    if (this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership() != null && this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership().isLoggableHelper()) {
+      this.setLoggable(true);
+      return true;
+    }
+      
+    ProvisioningEntityWrapper provisioningEntityWrapper = this.getProvisioningMembershipWrapper().getProvisioningEntityWrapper();
+    if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isLoggable()) {
+      this.setLoggable(true);
+      return true;
+    }
+
+    ProvisioningGroupWrapper provisioningGroupWrapper = this.getProvisioningMembershipWrapper().getProvisioningGroupWrapper();
+    if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isLoggable()) {
+      this.setLoggable(true);
+      return true;
+    }
+
+    return false;
+  }
+
+
   private ProvisioningMembershipWrapper provisioningMembershipWrapper = null;
   
   

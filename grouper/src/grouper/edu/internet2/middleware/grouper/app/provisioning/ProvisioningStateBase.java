@@ -7,6 +7,18 @@ package edu.internet2.middleware.grouper.app.provisioning;
  */
 public class ProvisioningStateBase {
   
+  private boolean loggable;
+  
+  public boolean isLoggableHelper() {
+    return loggable;
+  }
+
+  
+  public void setLoggable(boolean loggable) {
+    this.loggable = loggable;
+  }
+
+
   /**
    * insert, update, or delete
    */

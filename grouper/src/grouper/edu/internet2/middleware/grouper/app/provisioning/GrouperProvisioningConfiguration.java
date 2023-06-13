@@ -37,8 +37,53 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private int threadPoolSize = 5;
 
+  /**
+   * log information about these subject ids (comma separated less than 10)
+   */
+  private Set<String> logAllObjectsVerboseForTheseSubjectIds = new HashSet<String>();
   
+  /**
+   * log information about these subject ids (comma separated less than 10)
+   * @return
+   */
+  public Set<String> getLogAllObjectsVerboseForTheseSubjectIds() {
+    return logAllObjectsVerboseForTheseSubjectIds;
+  }
+
+  /**
+   * log information about these group names (comma separated less than 10)
+   * @return
+   */
+  public Set<String> getLogAllObjectsVerboseForTheseGroupNames() {
+    return logAllObjectsVerboseForTheseGroupNames;
+  }
+
+  /**
+   * if there are subject ids or group names then log certain objects
+   */
+  private boolean logCertainObjects;
   
+  /**
+   * if there are subject ids or group names then log certain objects
+   * @return
+   */
+  public boolean isLogCertainObjects() {
+    return logCertainObjects;
+  }
+
+  /**
+   * if there are subject ids or group names then log certain objects
+   * @param logCertainObjects
+   */
+  public void setLogCertainObjects(boolean logCertainObjects) {
+    this.logCertainObjects = logCertainObjects;
+  }
+
+  /**
+   * log information about these group names (comma separated less than 10)
+   */
+  private Set<String> logAllObjectsVerboseForTheseGroupNames = new HashSet<String>();
+
 // grouper-loader.base.properties 3090
 //  # If the group requires members then if there are no members it is not valid and could be deleted
 //  # {valueType: "boolean", subSection: "advanced", defaultValue: "false", order: 113000, showEl: "${showAdvanced}"}
@@ -2651,6 +2696,14 @@ public abstract class GrouperProvisioningConfiguration {
 
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
 
+    this.logAllObjectsVerboseForTheseGroupNames = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(this.retrieveConfigString("logAllObjectsVerboseForTheseGroupNames", false), ","));
+    this.logAllObjectsVerboseForTheseSubjectIds = GrouperUtil.nonNull(GrouperUtil.splitTrimToSet(this.retrieveConfigString("logAllObjectsVerboseForTheseSubjectIds", false), ","));
+
+    if (GrouperUtil.length(this.logAllObjectsVerboseForTheseGroupNames) > 0 
+        || GrouperUtil.length(this.logAllObjectsVerboseForTheseSubjectIds) > 0 ) {
+      this.logCertainObjects = true;
+    }
+    
     this.logAllObjectsVerboseToDaemonDbLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerboseToDaemonDbLog", false), true);
 
     this.logAllObjectsVerboseToLogFile = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerboseToLogFile", false), true);

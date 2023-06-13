@@ -2,10 +2,45 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateEntity extends ProvisioningStateBase {
   
+  /**
+   * see if loggable if not logging all objects
+   * @return
+   */
+  public boolean isLoggable() {
+    
+    if (this.isLoggableHelper()) {
+      return true;
+    }
+
+    // if not filtering based on group
+    if (GrouperUtil.length(this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds()) == 0) {
+      this.setLoggable(true);
+      return true;
+    }
+    
+    if (this.getProvisioningEntityWrapper().getGrouperProvisioningEntity() != null) {
+      if (this.getProvisioningEntityWrapper().getGrouperProvisioningEntity().isLoggableHelper()) {
+        this.setLoggable(true);
+        return true;
+      }
+    }
+
+    if (this.getProvisioningEntityWrapper().getGcGrouperSyncMember() != null) {
+      if (this.getProvisioningEntityWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds()
+          .contains(this.getProvisioningEntityWrapper().getGcGrouperSyncMember().getSubjectId())) {
+        this.setLoggable(true);
+        return true;
+      }
+    }
+    return false;
+  }
+
+
   /**
    * if this subject is marked as unresolvable in the members table
    */
