@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.changeLog;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -58,7 +59,11 @@ import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheMembershipDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * convert the temp objects to regular objects
@@ -283,6 +288,78 @@ public class ChangeLogTempToEntity {
                   List<ChangeLogEntry> currentBatch = GrouperUtil.batchList(changeLogEntriesToSave, batchSize, i);
                   GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(new LinkedHashSet<ChangeLogEntry>(currentBatch), false);
                 }
+                
+                // save to the cached data tables
+                Map<MultiKey, MultiKey> cachedDataAdds = new LinkedHashMap<MultiKey, MultiKey>();
+                Collection<MultiKey> cachedDataDeletes = new LinkedHashSet<MultiKey>();
+                String membershipAddChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId();
+                String membershipDeleteChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId();
+                String privilegeAddChangeLogTypeId = ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId();
+                String privilegeDeleteChangeLogTypeId = ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId();
+                for (ChangeLogEntry changeLogEntry : changeLogEntriesToSave) {
+                  if (membershipAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType))) {
+                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
+                      String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName);
+                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId);
+                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId);
+                      long createdOnLong = changeLogEntry.getCreatedOn().getTime();
+                      
+                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
+                      MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLong);
+                      if (cachedDataDeletes.contains(key)) {
+                        cachedDataDeletes.remove(key);
+                      } else {
+                        cachedDataAdds.put(key, value);
+                      }
+                    }
+                  } else if (membershipDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType))) {
+                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
+                      String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName);
+                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId);
+                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
+                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
+                      if (cachedDataAdds.containsKey(key)) {
+                        cachedDataAdds.remove(key);
+                      } else {
+                        cachedDataDeletes.add(key);
+                      }
+                    }
+                  } else if (privilegeAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType)) && Membership.OWNER_TYPE_GROUP.equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType))) {
+                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName);
+                      String fieldName = AccessPrivilege.privToList(Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName), true));
+                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId);
+                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId);
+                      long createdOnLong = changeLogEntry.getCreatedOn().getTime();
+                      
+                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
+                      MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLong);
+                      if (cachedDataDeletes.contains(key)) {
+                        cachedDataDeletes.remove(key);
+                      } else {
+                        cachedDataAdds.put(key, value);
+                      }
+                    }
+                  } else if (privilegeDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType)) && Membership.OWNER_TYPE_GROUP.equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType))) {
+                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName);
+                      String fieldName = AccessPrivilege.privToList(Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName), true));
+                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId);
+                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId);
+                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
+                      if (cachedDataAdds.containsKey(key)) {
+                        cachedDataAdds.remove(key);
+                      } else {
+                        cachedDataDeletes.add(key);
+                      }
+                    }
+                  }
+                }
+                
+                SqlCacheMembershipDao.insertSqlCacheMembershipsIfCacheable(cachedDataAdds.values());
+                SqlCacheMembershipDao.deleteSqlCacheMembershipsIfCacheable(cachedDataDeletes);
               }
               
               // up to 1000 bind vars seem to be ok for oracle, mysql, and postgres
