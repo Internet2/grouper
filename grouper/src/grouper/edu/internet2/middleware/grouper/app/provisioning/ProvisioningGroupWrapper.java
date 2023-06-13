@@ -4,7 +4,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 
 public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
-  
+
   private ProvisioningStateGroup provisioningStateGroup = new ProvisioningStateGroup();
 
 

@@ -12,6 +12,28 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class ProvisioningMembership extends ProvisioningUpdatable {
 
+  public boolean isLoggableHelper() {
+    if (this.provisioningEntity != null) {
+      if (this.provisioningEntity.isLoggable()) {
+        return true;
+      }
+    }
+    if (this.provisioningGroup != null) {
+      if (this.provisioningGroup.isLoggable()) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
+  public boolean isLoggable() {
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getProvisioningMembershipWrapper();
+    if (provisioningMembershipWrapper != null) {
+      return provisioningMembershipWrapper.getProvisioningStateMembership().isLoggable();
+    }
+    return isLoggableHelper();
+  }
+
   /**
    * see if this object is empty e.g. after translating if empty then dont keep track of group
    * since the translation might have affected another object

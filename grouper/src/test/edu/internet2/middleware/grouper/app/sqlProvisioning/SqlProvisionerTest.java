@@ -145,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPaMatchingIdMissingValidation"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
   
@@ -3549,6 +3549,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .assignEntityAttributeCount(3)
         .assignGroupAttributeCount(6)
         .assignProvisioningType("groupAttributes")
+        .addExtraConfig("logAllObjectsVerboseForTheseSubjectIds", "test.subject.0")
+        .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup")
         );
 
   }
