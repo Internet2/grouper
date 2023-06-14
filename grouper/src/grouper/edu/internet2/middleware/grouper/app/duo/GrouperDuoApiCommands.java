@@ -31,20 +31,23 @@ public class GrouperDuoApiCommands {
   
   public static void main(String[] args) {
     
-    String configId = "duoTest";
-    List<GrouperDuoGroup> duoGroups = retrieveDuoGroups(configId);
-    System.out.println("duo groups size = "+duoGroups.size());
+//    String configId = "duoTest";
+//    List<GrouperDuoGroup> duoGroups = retrieveDuoGroups(configId);
+//    System.out.println("duo groups size = "+duoGroups.size());
+//    
+//    List<GrouperDuoUser> duoUsers = retrieveDuoUsers(configId, true);
+//    System.out.println("duo users size = "+duoUsers.size());
+//    
+//    for (GrouperDuoUser grouperDuoUser: duoUsers) {
+//      List<GrouperDuoGroup> groupsByUser = retrieveDuoGroupsByUser(configId, grouperDuoUser.getId());
+//      System.out.println("for user: "+grouperDuoUser.getUserName()+ " found: "+groupsByUser.size()+ " groups");
+//    }
+//    
+//    GrouperDuoUser userByName = retrieveDuoUserByName(configId, "mchyzer");
+//    System.out.println("userByName: "+userByName);
     
-    List<GrouperDuoUser> duoUsers = retrieveDuoUsers(configId, true);
-    System.out.println("duo users size = "+duoUsers.size());
-    
-    for (GrouperDuoUser grouperDuoUser: duoUsers) {
-      List<GrouperDuoGroup> groupsByUser = retrieveDuoGroupsByUser(configId, grouperDuoUser.getId());
-      System.out.println("for user: "+grouperDuoUser.getUserName()+ " found: "+groupsByUser.size()+ " groups");
-    }
-    
-    GrouperDuoUser userByName = retrieveDuoUserByName(configId, "mchyzer");
-    System.out.println("userByName: "+userByName);
+//    associateUserToGroup("duo1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
+    disassociateUserFromGroup("duo1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
     
   }
 
@@ -953,9 +956,19 @@ public class GrouperDuoApiCommands {
       
       Map<String, String> params = GrouperUtil.toMap("group_id", StringUtils.defaultString(groupId));
 
+      int[] returnStatusCode = new int[] { -1 };
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users/"+userId+"/groups",
-          GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
+          GrouperUtil.toSet(200, 400), returnStatusCode, params, null, "v1");
       
+      if (returnStatusCode[0] == 400) {        
+        String message = GrouperUtil.jsonJacksonGetString(jsonNode, "message_detail");
+        if (StringUtils.isNotBlank(message) && message.toLowerCase().contains("already a member")) {
+          return;
+        } 
+        throw new RuntimeException("Status code: 400 : "+jsonNode);
+      }
+      
+      // {"code": 40004, "message": "Operation failed", "message_detail": "User is already a member of the specified group", "stat": "FAIL"}
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
