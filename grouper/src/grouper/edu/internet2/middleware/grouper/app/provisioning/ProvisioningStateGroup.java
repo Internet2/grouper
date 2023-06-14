@@ -2,9 +2,44 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateGroup extends ProvisioningStateBase {
+
+  /**
+   * see if loggable if not logging all objects
+   * @return
+   */
+  public boolean isLoggable() {
+    
+    if (this.isLoggableHelper()) {
+      return true;
+    }
+
+    // if not filtering based on group
+    if (GrouperUtil.length(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames()) == 0) {
+      this.setLoggable(true);
+      return true;
+    }
+    
+    if (this.getProvisioningGroupWrapper().getGrouperProvisioningGroup() != null) {
+      if (this.getProvisioningGroupWrapper().getGrouperProvisioningGroup().isLoggableHelper()) {
+        this.setLoggable(true);
+        return true;
+      }
+    }
+
+    if (this.getProvisioningGroupWrapper().getGcGrouperSyncGroup() != null) {
+      if (this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames()
+          .contains(this.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getGroupName())) {
+        this.setLoggable(true);
+        return true;
+      }
+    }
+    return false;
+  }
+
 
   public ProvisioningStateGroup() {
     

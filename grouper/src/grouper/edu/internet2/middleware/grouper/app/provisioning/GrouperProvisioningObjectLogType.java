@@ -523,6 +523,7 @@ public enum GrouperProvisioningObjectLogType {
     }
     logMessage.append(":\n");
     int objectCount = 0;
+    int remainingBeans = GrouperUtil.length(beans);
     for (Object bean : GrouperUtil.nonNull(beans)) {
       if (bean instanceof MultiKey) {
         MultiKey multiKey = (MultiKey)bean;
@@ -575,11 +576,36 @@ public enum GrouperProvisioningObjectLogType {
         }
           
       }
+ 
+      if (remainingBeans > 10-objectCount
+          && grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogCertainObjects()
+          && (
+              bean instanceof ProvisioningMembership
+              || (bean instanceof ProvisioningEntity && GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds()) > 0)
+              || (bean instanceof ProvisioningGroup && GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames()) > 0))) {
+        
+        boolean shouldLog = true;
+        
+        if (bean instanceof ProvisioningGroup) {
+          shouldLog = ((ProvisioningGroup)bean).isLoggable();
+        } else if (bean instanceof ProvisioningEntity) {
+          shouldLog = ((ProvisioningEntity)bean).isLoggable();
+        } else if (bean instanceof ProvisioningMembership) {
+          shouldLog = ((ProvisioningMembership)bean).isLoggable();
+        }
+
+        if (!shouldLog) {
+          continue;
+        }
+      }
+      
+      
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
       if (objectCount >= 10) {
         break;
       }
       objectCount++;
+      remainingBeans--;
     }
   }
 
@@ -644,27 +670,34 @@ public enum GrouperProvisioningObjectLogType {
       logMessage.append("\n");
     }
     Set<GcGrouperSyncMembership> gcGrouperSyncMemberships = new LinkedHashSet<GcGrouperSyncMembership>();
-    
+
+    int objectCount = 0;
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    int remainingBeans = GrouperUtil.length(gcGrouperSyncMemberships);
+
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(memberIdToWrapper).values()) {
+      if (objectCount > 10) {
+        break;
+      }
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
       if (gcGrouperSyncMembership != null) {
+        if (remainingBeans > 10-objectCount && grouperProvisioningConfiguration.isLogCertainObjects() && !provisioningMembershipWrapper.getProvisioningStateMembership().isLoggable()) {
+          continue;
+        }
+
         gcGrouperSyncMemberships.add(gcGrouperSyncMembership);
+        objectCount++;
+        remainingBeans--;
       }
     }
     
-    logMessage.append(label).append(" ").append(type).append(" (")
-      .append(GrouperUtil.length(gcGrouperSyncMemberships)).append(")");
+    logMessage.append(label).append(" ").append(type).append(" (").append(GrouperUtil.length(gcGrouperSyncMemberships)).append(")");
     if (GrouperUtil.length(gcGrouperSyncMemberships) == 0) {
       return;
     }
     logMessage.append(":\n");
-    int objectCount = 0;
     for (Object bean : GrouperUtil.nonNull(gcGrouperSyncMemberships)) {
-      if (objectCount > 10) {
-        break;
-      }
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
-      objectCount++;
     }
   }
 
@@ -695,12 +728,23 @@ public enum GrouperProvisioningObjectLogType {
     }
     logMessage.append(":\n");
     int objectCount = 0;
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+
+    int remainingBeans = GrouperUtil.length(gcGrouperSyncMembers);
+
     for (Object bean : GrouperUtil.nonNull(gcGrouperSyncMembers)) {
       if (objectCount > 10) {
         break;
       }
+      if (remainingBeans > 10-objectCount && grouperProvisioningConfiguration.isLogCertainObjects() && GrouperUtil.length(
+          grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseSubjectIds()) > 0 
+          && !grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseSubjectIds().contains(((GcGrouperSyncMember)bean).getSubjectId())) {
+        continue;
+      }
+
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
       objectCount++;
+      remainingBeans--;
     }
   }
 
@@ -725,12 +769,21 @@ public enum GrouperProvisioningObjectLogType {
     }
     logMessage.append(":\n");
     int objectCount = 0;
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    int remainingBeans = GrouperUtil.length(gcGrouperSyncGroups);
     for (Object bean : GrouperUtil.nonNull(gcGrouperSyncGroups)) {
       if (objectCount > 10) {
         break;
       }
+      
+      if (remainingBeans > 10-objectCount && grouperProvisioningConfiguration.isLogCertainObjects() && GrouperUtil.length(
+          grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseGroupNames()) > 0 
+          && !grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseGroupNames().contains(((GcGrouperSyncGroup)bean).getGroupName())) {
+        continue;
+      }
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
       objectCount++;
+      remainingBeans--;
     }
   }
 

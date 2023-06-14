@@ -17,6 +17,21 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  */
 public class ProvisioningEntity extends ProvisioningUpdatable {
 
+  public boolean isLoggableHelper() {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds().contains(this.getSubjectId())) {
+      return true;
+    }
+    return false;
+  }
+  
+  public boolean isLoggable() {
+    ProvisioningEntityWrapper provisioningEntityWrapper = this.getProvisioningEntityWrapper();
+    if (provisioningEntityWrapper != null) {
+      return provisioningEntityWrapper.getProvisioningStateEntity().isLoggable();
+    }
+    return isLoggableHelper();
+  }
+
   /**
    * do a deep clone of the data, but add as many objects as there are objects and membership attribute values, one per wrapper
    * @param provisioningUpdatables
