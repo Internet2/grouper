@@ -94,6 +94,12 @@ public class GrouperGoogleApiCommands {
       grouperHttpClient.assignDoNotLogResponseBody(true);
       grouperHttpClient.assignDoNotLogRequestBody(true);
       
+      String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyUrl");
+      String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyType");
+      
+      grouperHttpClient.assignProxyUrl(proxyUrl);
+      grouperHttpClient.assignProxyType(proxyType);
+      
       String signedJwt = null;
 
       String privateKeyFilePath = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".serviceAccountPKCS12FilePath");
@@ -276,6 +282,12 @@ public class GrouperGoogleApiCommands {
       url = directoryApiBaseUrl + urlSuffix;
       bearerToken = retrieveBearerTokenForGoogleConfigId(debugMap, configId);
     }
+    
+    String proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyUrl");
+    String proxyType = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".proxyType");
+    
+    grouperHttpCall.assignProxyUrl(proxyUrl);
+    grouperHttpCall.assignProxyType(proxyType);
     
     debugMap.put("url", url);
 
