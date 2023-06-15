@@ -130,6 +130,9 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       }
       
       provisionerSuffixToValue.put("targetEntityAttribute.1.name", "loginId");
+      provisionerSuffixToValue.put("targetEntityAttribute.1.showAdvancedAttribute", "true");
+      provisionerSuffixToValue.put("targetEntityAttribute.1.showAttributeValueSettings", "true");
+      provisionerSuffixToValue.put("targetEntityAttribute.1.caseSensitiveCompare", "false");
       
     }
       
