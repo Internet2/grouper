@@ -133,54 +133,98 @@ public class DuoProvisioningStartWith extends ProvisionerStartWithBase {
       
     }
       
-    int numberOfEntityAttributes = 2;
+    int entityAttributesIndex = 2;
     
     String entityNameSubjectAttributeType = startWithSuffixToValue.get("entityNameSubjectAttribute");
     if (StringUtils.isNotBlank(entityNameSubjectAttributeType)) {
       if (StringUtils.equals("script", entityNameSubjectAttributeType)) {
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpression", startWithSuffixToValue.get("entityNameTranslationScript"));
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpression", startWithSuffixToValue.get("entityNameTranslationScript"));
       } else if (StringUtils.equals("other", entityNameSubjectAttributeType)) {
         //do nothing
-      } else if (StringUtils.equals("subjectAttribute", entityNameSubjectAttributeType)) {
+      } else { 
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "grouperProvisioningEntityField");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateFromGrouperProvisioningEntityField", entityNameSubjectAttributeType);
+      }
+      
+      provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".name", "name");
+      entityAttributesIndex++;
+      
+    }
+    
+    String entityLastNameType = startWithSuffixToValue.get("entityLastName");
+    if (StringUtils.isNotBlank(entityLastNameType)) {
+      if (StringUtils.equals("script", entityLastNameType)) {
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpression", startWithSuffixToValue.get("entityLastNameTranslationScript"));
+      } else if (StringUtils.equals("other", entityLastNameType)) {
+        //do nothing
+      } else if (StringUtils.equals("subjectAttribute", entityLastNameType)) {
 
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "grouperProvisioningEntityField");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
 
         provisionerSuffixToValue.put("entityAttributeValueCache2has", "true");
         provisionerSuffixToValue.put("entityAttributeValueCache2source", "grouper");
         provisionerSuffixToValue.put("entityAttributeValueCache2type", "subjectTranslationScript");
-        String subjectEntityNameAttribute = startWithSuffixToValue.get("subjectEntityNameAttribute");
-        provisionerSuffixToValue.put("entityAttributeValueCache2translationScript", "${subject.getAttributeValue('"+subjectEntityNameAttribute+"')}");
+        String subjectLastNameAttribute = startWithSuffixToValue.get("subjectLastNameAttribute");
+        provisionerSuffixToValue.put("entityAttributeValueCache2translationScript", "${subject.getAttributeValue('"+subjectLastNameAttribute+"')}");
 
         
       } else { 
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", entityNameSubjectAttributeType);
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "grouperProvisioningEntityField");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateFromGrouperProvisioningEntityField", entityLastNameType);
       }
-      
-      provisionerSuffixToValue.put("targetEntityAttribute.2.name", "name");
-      numberOfEntityAttributes++;
-      
+      provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".name", "lastName");
+      entityAttributesIndex++;
     }
+    
+    
+    String entityFirstNameType = startWithSuffixToValue.get("entityFirstName");
+    if (StringUtils.isNotBlank(entityFirstNameType)) {
+      if (StringUtils.equals("script", entityFirstNameType)) {
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpression", startWithSuffixToValue.get("entityFirstNameTranslationScript"));
+      } else if (StringUtils.equals("other", entityFirstNameType)) {
+        //do nothing
+      } else if (StringUtils.equals("subjectAttribute", entityFirstNameType)) {
+
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "grouperProvisioningEntityField");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateFromGrouperProvisioningEntityField", "entityAttributeValueCache3");
+
+        provisionerSuffixToValue.put("entityAttributeValueCache3has", "true");
+        provisionerSuffixToValue.put("entityAttributeValueCache3source", "grouper");
+        provisionerSuffixToValue.put("entityAttributeValueCache3type", "subjectTranslationScript");
+        String subjectFirstNameAttribute = startWithSuffixToValue.get("subjectFirstNameAttribute");
+        provisionerSuffixToValue.put("entityAttributeValueCache3translationScript", "${subject.getAttributeValue('"+subjectFirstNameAttribute+"')}");
+
+        
+      } else { 
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "grouperProvisioningEntityField");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateFromGrouperProvisioningEntityField", entityFirstNameType);
+      }
+      provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".name", "firstName");
+      entityAttributesIndex++;
+    }
+    
 
     String entityEmailSubjectAttributeType = startWithSuffixToValue.get("entityEmailSubjectAttribute");
     if (StringUtils.isNotBlank(entityEmailSubjectAttributeType)) {
       if (StringUtils.equals("script", entityEmailSubjectAttributeType)) {
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpression", startWithSuffixToValue.get("entityEmailTranslationScript"));
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "translationScript");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpression", startWithSuffixToValue.get("entityEmailTranslationScript"));
       } else if (StringUtils.equals("other", entityEmailSubjectAttributeType)) {
         //do nothing
       } else { 
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
-        provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", entityEmailSubjectAttributeType);
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateExpressionType", "grouperProvisioningEntityField");
+        provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".translateFromGrouperProvisioningEntityField", entityEmailSubjectAttributeType);
       }
       
-      provisionerSuffixToValue.put("targetEntityAttribute.3.name", "email");
-      numberOfEntityAttributes++;
+      provisionerSuffixToValue.put("targetEntityAttribute."+entityAttributesIndex+".name", "email");
+      entityAttributesIndex++;
     }
       
-    provisionerSuffixToValue.put("numberOfEntityAttributes", numberOfEntityAttributes);
+    provisionerSuffixToValue.put("numberOfEntityAttributes", entityAttributesIndex);
     
     provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
 
