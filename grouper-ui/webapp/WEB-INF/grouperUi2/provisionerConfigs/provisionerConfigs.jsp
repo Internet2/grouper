@@ -68,23 +68,23 @@
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.lastFullSyncTimestamp}
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncStats.lastFullSyncTimestamp}
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.lastIncrementalSyncTimestamp}
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncStats.lastIncrementalSyncTimestamp}
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.groupCount}
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncStats.groupCount}
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.userCount}
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncStats.userCount}
 			                   </td>
 			                   
 			                   <td style="white-space: nowrap;">
-			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncDetails.membershipCount}
+			                    ${guiProvisionerConfiguration.provisionerConfiguration.syncStats.membershipCount}
 			                   </td>
 			                   
 			                   <td>

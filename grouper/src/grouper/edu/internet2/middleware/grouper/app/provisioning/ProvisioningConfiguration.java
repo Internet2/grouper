@@ -411,6 +411,47 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     return provisionerConfigSyncDetails;
   }
   
+  
+  /**
+   * get sync stats for a provisioner config
+   * @return
+   */
+  public ProvisioningConfigSyncStats getSyncStats() {
+    
+    GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, this.getConfigId());    
+    ProvisioningConfigSyncStats provisionerConfigSyncStats = null;
+    
+    if (grouperSync != null) {
+      provisionerConfigSyncStats = new ProvisioningConfigSyncStats();
+      if (grouperSync.getLastFullSyncRun() != null) {
+        provisionerConfigSyncStats.setLastFullSyncTimestamp(GrouperUtil.dateStringValue(grouperSync.getLastFullSyncRun()));
+      }
+      
+      if (grouperSync.getLastIncrementalSyncRun() != null) {
+        provisionerConfigSyncStats.setLastIncrementalSyncTimestamp(GrouperUtil.dateStringValue(grouperSync.getLastIncrementalSyncRun()));
+      }
+      
+      if (grouperSync.getLastFullSyncStart() != null) {
+        provisionerConfigSyncStats.setLastFullSyncStartTimestamp(GrouperUtil.dateStringValue(grouperSync.getLastFullSyncStart()));
+      }
+      
+      if (grouperSync.getLastFullMetadataSyncStart() != null) {
+        provisionerConfigSyncStats.setLastFullMetadataSyncStartTimestamp(GrouperUtil.dateStringValue(grouperSync.getLastFullMetadataSyncStart()));
+      }
+      
+      if (grouperSync.getLastFullMetadataSyncRun() != null) {
+        provisionerConfigSyncStats.setLastFullMetadataSyncTimestamp(GrouperUtil.dateStringValue(grouperSync.getLastFullMetadataSyncRun()));
+      }
+      
+      provisionerConfigSyncStats.setGroupCount(grouperSync.getGroupCount() == null ? 0: grouperSync.getGroupCount());
+      provisionerConfigSyncStats.setUserCount(grouperSync.getUserCount() == null ? 0: grouperSync.getUserCount());
+      provisionerConfigSyncStats.setMembershipCount(grouperSync.getRecordsCount() == null ? 0: grouperSync.getRecordsCount());
+      
+    }
+    
+    return provisionerConfigSyncStats;
+  }
+  
   private void setErrorCount(Map<String, Integer> errorCountByCode, int[] counts) {
     
     for (String error: GrouperUtil.nonNull(errorCountByCode).keySet()) {
