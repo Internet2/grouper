@@ -112,7 +112,7 @@
         -->
         <dependency>
             <groupId>${project.groupId}</groupId>
-            <artifactId>ws-test-interface</artifactId>
+            <artifactId>ws-generated-test-interface</artifactId>
             <version>1.0</version>
             <scope>system</scope>
             <systemPath>${basedir}/lib/grouperWsTestInterfaces.jar</systemPath>
