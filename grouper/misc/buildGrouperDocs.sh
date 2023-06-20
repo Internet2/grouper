@@ -16,7 +16,7 @@
 MVN=/opt/maven/bin/mvn
 GP=/var/grouper-docs/git/grouper
 SITE=/tmp/groupersite
-CURRENT_BRANCH=GROUPER_4_BRANCH
+CURRENT_BRANCH=GROUPER_5_BRANCH
 
 echo $(date) "Starting build"
 
