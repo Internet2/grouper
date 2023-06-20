@@ -203,13 +203,135 @@ public class SqlCacheGroupDao {
   }
 
   /**
+   * find existing sql cache assignments by attribute assign id (of the assignment on assignment)
+   * @param attributeAssignIds
+   * @return the map of attributeAssignmentId to groupName and fieldName
+   */
+  public static Map<String, MultiKey> retrieveExistingAttributeAssignments(Collection<String> attributeAssignIds) {
+    List<String> attributeAssignIdsList = new ArrayList<String>(attributeAssignIds);
+
+    Map<String, MultiKey> existingAttributeAssignIdToGroupNameFieldName = new HashMap<String, MultiKey>();
+
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignIdsList.size(), batchSize, false);
+
+    for (int i=0;i<numberOfBatches;i++) {
+
+      List<String> attributeAssignIdsBatch = GrouperUtil.batchList(attributeAssignIdsList, batchSize, i);
+
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      gcDbAccess.addBindVar(SqlCacheGroup.attributeDefNameNameListName());
+      
+      // make sure its still there
+      StringBuilder query = new StringBuilder("select gaaagv.group_name, gaaagv.value_string, gaaagv.attribute_assign_id2 from grouper_aval_asn_asn_group_v gaaagv "
+          + "where gaaagv.attribute_def_name_name2 = ? and (  ");
+
+      boolean isFirst = true;
+      for (String attributeAssignId : attributeAssignIdsBatch) {
+        if (!isFirst) {
+          query.append(" or ");
+        }
+        query.append(" gaaagv.attribute_assign_id2 = ? ");
+        gcDbAccess.addBindVar(attributeAssignId);
+        isFirst = false;
+      }
+      query.append(" ) ");
+
+      List<Object[]> groupNamesFieldNamesAttributeAssignIds = gcDbAccess.sql(query.toString()).selectList(Object[].class);
+      for (Object[] groupNameFieldNameAttributeAssignId : GrouperUtil.nonNull(groupNamesFieldNamesAttributeAssignIds)) {
+        String groupName = (String)groupNameFieldNameAttributeAssignId[0];
+        String fieldName = (String)groupNameFieldNameAttributeAssignId[1];
+        String attributeAssignId = (String)groupNameFieldNameAttributeAssignId[2];
+        existingAttributeAssignIdToGroupNameFieldName.put(attributeAssignId, new MultiKey(groupName, fieldName));
+      }
+      
+    }
+    return existingAttributeAssignIdToGroupNameFieldName;
+  }
+
+  /**
+   * find existing sql cache assignments by attribute assign id (of the assignment on assignment)
+   * @param attributeAssignIds
+   * @return the map of attributeAssignmentId to groupName and fieldName (could be multiple)
+   */
+  public static Map<String, Set<MultiKey>> retrieveNonexistingAttributeAssignments(Collection<String> attributeAssignIds, long minimumEventMicros) {
+      List<String> attributeAssignIdsList = new ArrayList<String>(attributeAssignIds);
+
+    Map<String, Set<MultiKey>> existingAttributeAssignIdToGroupNameFieldName = new HashMap<String, Set<MultiKey>>();
+
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeAssignIdsList.size(), batchSize, false);
+
+    for (int i=0;i<numberOfBatches;i++) {
+
+      List<String> attributeAssignIdsBatch = GrouperUtil.batchList(attributeAssignIdsList, batchSize, i);
+
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      gcDbAccess.addBindVar(minimumEventMicros);
+      gcDbAccess.addBindVar(SqlCacheGroup.attributeDefNameNameListName());
+      
+      // make sure its still there
+      StringBuilder query = new StringBuilder("select gpg.name owner_group_name, gpaavv.value_string field_name, "
+          + " gpaa_value.source_id value_attribute_assign_id from grouper_pit_attr_asn_value_v gpaavv, "
+          + " grouper_pit_attribute_assign gpaa_value, grouper_pit_attribute_assign gpaa_owner, grouper_pit_groups gpg , "
+          + " grouper_pit_attr_def_name gpadn where gpaavv.attribute_assign_id = gpaa_value.id "
+          + " and gpaavv.owner_attribute_assign_id = gpaa_owner.id and gpaa_owner.owner_group_id = gpg.id "
+          + " and gpaavv.end_time >= ? "
+          + " and gpaavv.attribute_def_name_id = gpadn.id and gpadn.name = ? "
+          + " and (  ");
+
+      boolean isFirst = true;
+      for (String attributeAssignId : attributeAssignIdsBatch) {
+        if (!isFirst) {
+          query.append(" or ");
+        }
+        query.append(" gpaa_value.source_id = ? ");
+        gcDbAccess.addBindVar(attributeAssignId);
+        isFirst = false;
+      }
+      query.append(" ) ");
+
+      List<Object[]> groupNamesFieldNamesAttributeAssignIds = gcDbAccess.selectList(Object[].class);
+      for (Object[] groupNameFieldNameAttributeAssignId : GrouperUtil.nonNull(groupNamesFieldNamesAttributeAssignIds)) {
+        String groupName = (String)groupNameFieldNameAttributeAssignId[0];
+        String fieldName = (String)groupNameFieldNameAttributeAssignId[1];
+        String attributeAssignId = (String)groupNameFieldNameAttributeAssignId[2];
+        Set<MultiKey> set = existingAttributeAssignIdToGroupNameFieldName.get(attributeAssignId);
+        if (set == null) {
+          set = new HashSet<>();
+          existingAttributeAssignIdToGroupNameFieldName.put(attributeAssignId, set);
+        }
+        set.add(new MultiKey(groupName, fieldName));
+      }
+      
+    }
+    return existingAttributeAssignIdToGroupNameFieldName;
+  }
+
+  /**
    * retrieve cache group by group name field name or created
    * @param sqlCacheGroups
    */
-  public static void retrieveOrCreateBySqlGroupCache(Collection<SqlCacheGroup> sqlCacheGroups) {
+  public static SqlCacheGroup retrieveOrCreateBySqlGroupCache(SqlCacheGroup sqlCacheGroup) {
+    if (sqlCacheGroup == null) {
+      return null;
+    }
+    return retrieveOrCreateBySqlGroupCache(GrouperUtil.toList(sqlCacheGroup)).values().iterator().next();
+  }
+
+  /**
+   * retrieve cache group by group name field name or created
+   * @param sqlCacheGroups
+   * @return groupInternalId / fieldInternalId to sql cache group
+   */
+  public static Map<MultiKey, SqlCacheGroup> retrieveOrCreateBySqlGroupCache(Collection<SqlCacheGroup> sqlCacheGroups) {
     
+    Map<MultiKey, SqlCacheGroup> result = new HashMap<MultiKey, SqlCacheGroup>();
+
     if (GrouperUtil.length(sqlCacheGroups) == 0) {
-      return;
+      return result;
     }
     Set<MultiKey> groupInternalIdsFieldInternalIds = new HashSet<>();
     
@@ -225,11 +347,13 @@ public class SqlCacheGroupDao {
       SqlCacheGroup existingCacheGroup = existingGroupInternalIdsFieldInternalIdsToCacheGroups.get(new MultiKey(sqlCacheGroup.getGroupInternalId(), sqlCacheGroup.getFieldInternalId()));
       if (existingCacheGroup == null) {
         sqlCacheGroupsToCreate.add(sqlCacheGroup);
+      } else {
+        result.put(new MultiKey(existingCacheGroup.getGroupInternalId(), existingCacheGroup.getFieldInternalId()), sqlCacheGroup);
       }
     }
 
     if (sqlCacheGroupsToCreate.size() == 0) {
-      return;
+      return result;
     }
 
     // get ids in one fell swoop
@@ -239,6 +363,7 @@ public class SqlCacheGroupDao {
       SqlCacheGroup sqlCacheGroup = sqlCacheGroupsToCreate.get(i);
       sqlCacheGroup.setTempInternalIdOnDeck(ids.get(i));
       sqlCacheGroup.storePrepare();
+      result.put(new MultiKey(sqlCacheGroup.getGroupInternalId(), sqlCacheGroup.getFieldInternalId()), sqlCacheGroup);
 
     }
 
@@ -254,7 +379,7 @@ public class SqlCacheGroupDao {
     int defaultBatchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.batchSize", 1000);
 
     new GcDbAccess().storeBatchToDatabase(sqlCacheGroupsToCreate, defaultBatchSize);
-    
+    return result;
   }
   
 

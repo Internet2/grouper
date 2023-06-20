@@ -167,6 +167,52 @@ public class SqlCacheMembershipDao {
   }
   
   /**
+   * note the sql cache group record needs to be already inserted
+   * @param groupNamesFieldNames
+   * @return the number of inserts
+   */
+  public static int insertSqlCacheMembershipsAsNeededFromSource(Collection<MultiKey> groupNamesFieldNames) {
+    
+    Set<MultiKey> sqlGroupInternalIdsMemberInternalIds = new HashSet<MultiKey>();
+    
+    for (MultiKey groupNameFieldName : groupNamesFieldNames) {
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      StringBuilder sql = new StringBuilder("select gscg.internal_id, gm.internal_id "
+          + " from grouper_memberships_lw_v gmlv, grouper_groups gg, grouper_fields gf, grouper_members gm, grouper_sql_cache_group gscg "
+          + " where group_name = ? and list_name = ?  "
+          + " and gg.id = gmlv.group_id and gm.id = gmlv.member_id and gf.name = gmlv.list_name "
+          + " and gscg.group_internal_id = gg.internal_id and gscg.field_internal_id = gf.internal_id " 
+          + " and not exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = gscg.internal_id "
+          + " and gscm.member_internal_id = gm.internal_id) ");
+      gcDbAccess.sql(sql.toString());
+      gcDbAccess.addBindVar((String)groupNameFieldName.getKey(0));
+      gcDbAccess.addBindVar((String)groupNameFieldName.getKey(1));
+      List<Object[]> sqlGroupInternalIdsMemberInternalIdsList = gcDbAccess.selectList(Object[].class);
+      for (Object[] sqlGroupInternalIdMemberInternalId : sqlGroupInternalIdsMemberInternalIdsList) {
+        sqlGroupInternalIdsMemberInternalIds.add(new MultiKey(
+            GrouperUtil.longValue(sqlGroupInternalIdMemberInternalId[0]), GrouperUtil.longValue(sqlGroupInternalIdMemberInternalId[1])));
+      }
+    }
+    
+    List<SqlCacheMembership> sqlCacheMembershipsToInsert = new ArrayList<>();
+
+    // TODO get the real time
+    Long membershipAddedLong = System.currentTimeMillis();
+    for (MultiKey sqlGroupInternalIdMemberInternalId :  sqlGroupInternalIdsMemberInternalIds) {
+      SqlCacheMembership sqlCacheMembership = new SqlCacheMembership();
+      Timestamp membershipAdded = new Timestamp(membershipAddedLong);
+      sqlCacheMembership.setFlattenedAddTimestamp(membershipAdded);
+      sqlCacheMembership.setSqlCacheGroupInternalId((Long)sqlGroupInternalIdMemberInternalId.getKey(0));
+      sqlCacheMembership.setMemberInternalId((Long)sqlGroupInternalIdMemberInternalId.getKey(1));
+      sqlCacheMembershipsToInsert.add(sqlCacheMembership);
+      
+    }
+    
+    return SqlCacheMembershipDao.store(sqlCacheMembershipsToInsert);
+    
+  }
+  
+  /**
    * things to delete to sql cache memberships.  4 fields in multikey: 
    * groupName, fieldName, sourceId, subjectId
    * @param groupNameFieldNameSourceIdSubjectIdStartedMillis
