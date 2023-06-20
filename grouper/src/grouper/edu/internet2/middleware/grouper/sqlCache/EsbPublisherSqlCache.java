@@ -209,7 +209,7 @@ public class EsbPublisherSqlCache extends EsbListenerBase {
         int insertedSqlCacheGroupSize = SqlCacheGroupDao.store(sqlGroupCachesToCreate);
         
         // add those membership to the cache
-        SqlCacheMembershipDao.insertSqlCacheMembershipsAsNeededFromSource(existingGroupNamesFieldNames);
+        int membershipAdds = SqlCacheMembershipDao.insertSqlCacheMembershipsAsNeededFromSource(existingGroupNamesFieldNames);
         
         debugMap.put("insertedSqlCacheGroupSize", insertedSqlCacheGroupSize);
 
@@ -220,8 +220,10 @@ public class EsbPublisherSqlCache extends EsbListenerBase {
 
         }
         SqlCacheGroupDao.store(sqlGroupCachesToCreate);
+        
+        this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog().addInsertCount(membershipAdds + insertedSqlCacheGroupSize);
       }
-
+      
       provisioningSyncConsumerResult.setLastProcessedSequenceNumber(esbEventContainers.get(esbEventContainers.size()-1).getSequenceNumber());
       return provisioningSyncConsumerResult;
 
