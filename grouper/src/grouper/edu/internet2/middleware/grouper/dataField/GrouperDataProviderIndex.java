@@ -61,6 +61,11 @@ public class GrouperDataProviderIndex {
     return rowWrapperByLowerAlias;
   }
 
+  private Map<String, GrouperDataFieldWrapper> fieldWrapperByLowerAlias = new HashMap<String, GrouperDataFieldWrapper>();
+  
+  public Map<String, GrouperDataFieldWrapper> getFieldWrapperByLowerAlias() {
+    return fieldWrapperByLowerAlias;
+  }
 
 
   

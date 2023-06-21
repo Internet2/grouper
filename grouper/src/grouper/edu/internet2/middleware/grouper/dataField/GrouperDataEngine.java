@@ -1142,6 +1142,12 @@ public class GrouperDataEngine {
         GrouperDataFieldWrapper grouperDataFieldWrapper = new GrouperDataFieldWrapper(this, grouperDataField);
         this.grouperDataProviderIndex.getFieldWrapperByInternalId().put(grouperDataField.getInternalId(), grouperDataFieldWrapper);
         this.grouperDataProviderIndex.getFieldWrapperByConfigId().put(grouperDataField.getConfigId(), grouperDataFieldWrapper);
+
+        GrouperDataFieldConfig grouperDataFieldConfig = this.getFieldConfigByConfigId().get(grouperDataField.getConfigId());
+        grouperDataFieldWrapper.setGrouperDataFieldConfig(grouperDataFieldConfig);
+        for (String alias : grouperDataFieldConfig.getFieldAliases()) {
+          this.grouperDataProviderIndex.getFieldWrapperByLowerAlias().put(alias.toLowerCase(), grouperDataFieldWrapper);
+        }
       }
     }
 

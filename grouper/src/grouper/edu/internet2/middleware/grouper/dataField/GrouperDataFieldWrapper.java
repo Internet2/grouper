@@ -38,4 +38,14 @@ public class GrouperDataFieldWrapper {
     this.grouperDataField = grouperDataField;
   }
   
+  private GrouperDataFieldConfig grouperDataFieldConfig;
+  
+  public GrouperDataFieldConfig getGrouperDataFieldConfig() {
+    return grouperDataFieldConfig;
+  }
+  
+  public void setGrouperDataFieldConfig(GrouperDataFieldConfig grouperDataFieldConfig) {
+    this.grouperDataFieldConfig = grouperDataFieldConfig;
+  }
+
 }
