@@ -406,8 +406,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }   
         String sql = "select id from grouper_members gm where " + whereClause;
 
-        //System.out.println(script);
-        //System.out.println(sql);
+//        System.out.println(script);
+//        System.out.println(sql);
         
         Set<String> memberIds = new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
         

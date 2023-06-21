@@ -168,9 +168,14 @@ public class GrouperDictionaryDao {
 
     Long internalId = textToInternalIdCache().get(string);
     if (internalId == null) {
-      GrouperDictionary grouperDictionary = new GrouperDictionary();
-      grouperDictionary.setTheText(string);
-      store(grouperDictionary);
+      GrouperDictionary grouperDictionary = selectByText(string);
+      
+      if (grouperDictionary == null) {
+      
+        grouperDictionary = new GrouperDictionary();
+        grouperDictionary.setTheText(string);
+        store(grouperDictionary);
+      }
       internalId = grouperDictionary.getInternalId();
       
       if (textToInternalIdCache().size(false) < maxTermsInMemoryCache) {
