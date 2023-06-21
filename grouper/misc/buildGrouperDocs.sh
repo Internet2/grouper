@@ -14,10 +14,9 @@
 #         from /opt/maven/conf/settings.xml.grouper to $HOME/.m2/settings.xml
 
 MVN=/opt/maven/bin/mvn
-JAVA_HOME=/opt/java8; export JAVA_HOME
 GP=/var/grouper-docs/git/grouper
 SITE=/tmp/groupersite
-CURRENT_BRANCH=GROUPER_2_5_BRANCH
+CURRENT_BRANCH=GROUPER_4_BRANCH
 
 echo $(date) "Starting build"
 
