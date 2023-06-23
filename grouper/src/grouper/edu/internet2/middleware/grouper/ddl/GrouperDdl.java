@@ -2842,7 +2842,18 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl5_0_4.createViewGrouperSqlCacheGroupV(ddlVersionBean);
       GrouperDdl5_0_4.createViewGrouperSqlCacheMshipV(ddlVersionBean);
       GrouperDdl5_0_4.createViewGrouperSqlCacheMshipHstV(ddlVersionBean);
+     
+      GrouperDdl5_0_4.addGrouperPITFieldsInternalIdColumn(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperPITFieldsInternalIdIndex(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperPITFieldsInternalIdComments(database, ddlVersionBean);
       
+      GrouperDdl5_0_4.addGrouperPITMembersInternalIdColumn(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperPITMembersInternalIdIndex(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperPITMembersInternalIdComments(database, ddlVersionBean);
+      
+      GrouperDdl5_0_4.addGrouperPITGroupsInternalIdColumn(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperPITGroupsInternalIdIndex(database, ddlVersionBean);
+      GrouperDdl5_0_4.addGrouperPITGroupsInternalIdComments(database, ddlVersionBean);
     }
   },
   V47 {

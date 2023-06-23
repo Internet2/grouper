@@ -34,7 +34,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   GROUP_FIELD_ADD(new ChangeLogType("groupField", "addGroupField", ChangeLogLabels.GROUP_FIELD_ADD.id, 
       ChangeLogLabels.GROUP_FIELD_ADD.name, ChangeLogLabels.GROUP_FIELD_ADD.groupTypeId, 
-      ChangeLogLabels.GROUP_FIELD_ADD.groupTypeName, ChangeLogLabels.GROUP_FIELD_ADD.type)),
+      ChangeLogLabels.GROUP_FIELD_ADD.groupTypeName, ChangeLogLabels.GROUP_FIELD_ADD.type, ChangeLogLabels.GROUP_FIELD_ADD.internalId)),
   
   /**
    * update group field
@@ -186,7 +186,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   GROUP_ADD(new ChangeLogType("group", "addGroup", 
       ChangeLogLabels.GROUP_ADD.id, ChangeLogLabels.GROUP_ADD.name, ChangeLogLabels.GROUP_ADD.parentStemId,
-      ChangeLogLabels.GROUP_ADD.displayName, ChangeLogLabels.GROUP_ADD.description, ChangeLogLabels.GROUP_ADD.idIndex)),
+      ChangeLogLabels.GROUP_ADD.displayName, ChangeLogLabels.GROUP_ADD.description, ChangeLogLabels.GROUP_ADD.idIndex,
+      ChangeLogLabels.GROUP_ADD.internalId)),
   
   /**
    * update group
@@ -223,7 +224,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   ENTITY_ADD(new ChangeLogType("entity", "addEntity", 
       ChangeLogLabels.ENTITY_ADD.id, ChangeLogLabels.ENTITY_ADD.name, ChangeLogLabels.ENTITY_ADD.parentStemId,
-      ChangeLogLabels.ENTITY_ADD.displayName, ChangeLogLabels.ENTITY_ADD.description)),
+      ChangeLogLabels.ENTITY_ADD.displayName, ChangeLogLabels.ENTITY_ADD.description, ChangeLogLabels.ENTITY_ADD.internalId)),
   
   /**
    * enable entity
@@ -315,7 +316,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
       ChangeLogLabels.MEMBER_ADD.subjectIdentifier0,
       ChangeLogLabels.MEMBER_ADD.subjectIdentifier1,
       ChangeLogLabels.MEMBER_ADD.subjectIdentifier2,
-      ChangeLogLabels.MEMBER_ADD.email0)),
+      ChangeLogLabels.MEMBER_ADD.email0,
+      ChangeLogLabels.MEMBER_ADD.internalId)),
       
   /**
    * member add

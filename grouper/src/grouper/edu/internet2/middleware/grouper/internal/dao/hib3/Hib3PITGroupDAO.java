@@ -136,6 +136,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
         pitGroup.setContextId(contextId);
         pitGroup.setActiveDb("T");
         pitGroup.setStartTimeDb(System.currentTimeMillis() * 1000);
+        pitGroup.setSourceInternalId(group.getInternalId());
         
         pitGroup.saveOrUpdate();
       }
@@ -471,7 +472,7 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
       .byHqlStatic()
       .createQuery("select g from Group g where " +
           "not exists (select 1 from PITGroup pitGroup, PITStem pitStem where pitGroup.stemId = pitStem.id " +
-          "            and g.uuid = pitGroup.sourceId and g.nameDb = pitGroup.nameDb and g.parentUuid = pitStem.sourceId) " +
+          "            and g.uuid = pitGroup.sourceId and g.nameDb = pitGroup.nameDb and g.parentUuid = pitStem.sourceId and g.internalId = pitGroup.sourceInternalId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = g.uuid " +
           "    and type.actionName='addGroup' and type.changeLogCategory='group' and type.id=temp.changeLogTypeId) " +

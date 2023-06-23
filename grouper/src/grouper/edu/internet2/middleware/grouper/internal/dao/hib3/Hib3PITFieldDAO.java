@@ -196,7 +196,7 @@ public class Hib3PITFieldDAO extends Hib3DAO implements PITFieldDAO {
     Set<Field> fields = HibernateSession
       .byHqlStatic()
       .createQuery("select f from Field f where " +
-          "not exists (select 1 from PITField pit where f.uuid = pit.sourceId and f.name = pit.nameDb and f.typeString = pit.typeDb) " +
+          "not exists (select 1 from PITField pit where f.uuid = pit.sourceId and f.name = pit.nameDb and f.typeString = pit.typeDb and f.internalId = pit.sourceInternalId) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = f.uuid " +
           "    and type.actionName='addGroupField' and type.changeLogCategory='groupField' and type.id=temp.changeLogTypeId) " +

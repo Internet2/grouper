@@ -65,7 +65,13 @@ CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subjec
 
 CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ;
 
+ALTER TABLE grouper_pit_members ADD COLUMN source_internal_id BIGINT;
+ALTER TABLE grouper_pit_fields ADD COLUMN source_internal_id BIGINT;
+ALTER TABLE grouper_pit_groups ADD COLUMN source_internal_id BIGINT;
 
+CREATE INDEX pit_member_source_internal_idx ON grouper_pit_members (source_internal_id);
+CREATE INDEX pit_field_source_internal_idx ON grouper_pit_fields (source_internal_id);
+CREATE INDEX pit_group_source_internal_idx ON grouper_pit_groups (source_internal_id);
 
 update grouper_ddl set last_updated = date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), history = substring(concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V', db_version, ' to V46, ', history), 1, 3500), db_version = 46 where object_name = 'Grouper';
 commit;

@@ -239,7 +239,17 @@ COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_row_internal_id IS 'data_ro
 
 COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_row_assign_internal_id IS 'data_row_assign_internal_id: data row assign internal id';
 
+ALTER TABLE GROUPER_PIT_MEMBERS ADD source_internal_id NUMBER(38);
+ALTER TABLE GROUPER_PIT_FIELDS ADD source_internal_id NUMBER(38);
+ALTER TABLE GROUPER_PIT_GROUPS ADD source_internal_id NUMBER(38);
 
+CREATE INDEX pit_member_source_internal_idx ON grouper_pit_members (source_internal_id);
+CREATE INDEX pit_field_source_internal_idx ON grouper_pit_fields (source_internal_id);
+CREATE INDEX pit_group_source_internal_idx ON grouper_pit_groups (source_internal_id);
+
+COMMENT ON COLUMN grouper_pit_fields.source_internal_id IS 'internal integer id from the grouper_fields table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
+COMMENT ON COLUMN grouper_pit_groups.source_internal_id IS 'internal integer id from the grouper_groups table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
+COMMENT ON COLUMN grouper_pit_members.source_internal_id IS 'internal integer id from the grouper_members table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
 
 update grouper_ddl set last_updated = to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), history = substr((to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V' || db_version || ' to V46, ' || history), 1, 3500), db_version = 46 where object_name = 'Grouper';
 commit;

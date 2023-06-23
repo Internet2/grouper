@@ -424,6 +424,8 @@ public class ChangeLogTempToEntity {
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
     
+    String internalIdString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.internalId);
+    
     PITGroup existing = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(id, false);
     if (existing != null) {
       LOG.warn("Skipping change since already in PIT: " + changeLogEntry.toStringDeep());
@@ -440,6 +442,10 @@ public class ChangeLogTempToEntity {
     pitGroup.setContextId(contextId);
     pitGroup.setActiveDb("T");
     pitGroup.setStartTimeDb(time);
+    
+    if (!StringUtils.isEmpty(internalIdString)) {
+      pitGroup.setSourceInternalId(Long.parseLong(internalIdString));
+    }
     
     pitGroup.saveOrUpdate();
   }
@@ -738,6 +744,8 @@ public class ChangeLogTempToEntity {
     String type = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.type);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
+    
+    String internalIdString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.internalId);
 
     PITField existing = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(id, false);
     if (existing != null) {
@@ -752,6 +760,10 @@ public class ChangeLogTempToEntity {
     pitField.setContextId(contextId);
     pitField.setActiveDb("T");
     pitField.setStartTimeDb(time);
+    
+    if (!StringUtils.isEmpty(internalIdString)) {
+      pitField.setSourceInternalId(Long.parseLong(internalIdString));
+    }
     
     pitField.saveOrUpdate();
   }
@@ -887,6 +899,8 @@ public class ChangeLogTempToEntity {
     }
     
     Long time = changeLogEntry.getCreatedOnDb();
+    
+    String internalIdString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.internalId);
 
     PITMember existing = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(id, false);
     if (existing != null) {
@@ -902,7 +916,11 @@ public class ChangeLogTempToEntity {
     pitMember.setSubjectIdentifier0(subjectIdentifier0);
     pitMember.setActiveDb("T");
     pitMember.setStartTimeDb(time);
-
+    
+    if (!StringUtils.isEmpty(internalIdString)) {
+      pitMember.setSourceInternalId(Long.parseLong(internalIdString));
+    }
+    
     if (!GrouperUtil.isEmpty(changeLogEntry.getContextId())) {
       pitMember.setContextId(changeLogEntry.getContextId());
     }

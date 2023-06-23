@@ -589,11 +589,12 @@ public class SyncPITTables {
       logDetail("Found missing point in time group with id: " + group.getId() + ", name: " + group.getName());
             
       if (saveUpdates) {
-        // note that we may just need to update the name and/or stemId
+        // note that we may just need to update some fields
         PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(group.getId(), false);
         if (pitGroup != null) {
           PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(group.getParentUuid(), true);
           pitGroup.setNameDb(group.getName());  
+          pitGroup.setSourceInternalId(group.getInternalId());
           pitGroup.setStemId(pitStem.getId());
           if (!StringUtils.isEmpty(group.getContextId())) {
             pitGroup.setContextId(group.getContextId());
@@ -612,7 +613,8 @@ public class SyncPITTables {
               group.getUuid(), ChangeLogLabels.ENTITY_ADD.name.name(), 
               group.getName(), ChangeLogLabels.ENTITY_ADD.parentStemId.name(), group.getParentUuid(),
               ChangeLogLabels.ENTITY_ADD.displayName.name(), group.getDisplayName(),
-              ChangeLogLabels.ENTITY_ADD.description.name(), group.getDescription());
+              ChangeLogLabels.ENTITY_ADD.description.name(), group.getDescription(),
+              ChangeLogLabels.ENTITY_ADD.internalId.name(), "" + group.getInternalId());
 
         } else {
           changeLogEntry = new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_ADD, 
@@ -621,7 +623,8 @@ public class SyncPITTables {
               group.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), group.getParentUuid(),
               ChangeLogLabels.GROUP_ADD.displayName.name(), group.getDisplayName(),
               ChangeLogLabels.GROUP_ADD.description.name(), group.getDescription(),
-              ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + group.getIdIndex());
+              ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + group.getIdIndex(),
+              ChangeLogLabels.GROUP_ADD.internalId.name(), "" + group.getInternalId());
 
         }
         if (!StringUtils.isEmpty(group.getContextId())) {
@@ -756,11 +759,12 @@ public class SyncPITTables {
       logDetail("Found missing point in time field with id: " + field.getUuid() + ", name: " + field.getName());
             
       if (saveUpdates) {
-        // note that we may just need to update the name and/or type
+        // note that we may just need to update some fields
         PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getUuid(), false);
         if (pitField != null) {
           pitField.setNameDb(field.getName());
           pitField.setTypeDb(field.getTypeString());
+          pitField.setSourceInternalId(field.getInternalId());
           if (!StringUtils.isEmpty(field.getContextId())) {
             pitField.setContextId(field.getContextId());
           } else {
@@ -778,7 +782,8 @@ public class SyncPITTables {
             null,
             null, 
             null,
-            ChangeLogLabels.GROUP_FIELD_ADD.type.name(), field.getTypeString()
+            ChangeLogLabels.GROUP_FIELD_ADD.type.name(), field.getTypeString(),
+            ChangeLogLabels.GROUP_FIELD_ADD.internalId.name(), "" + field.getInternalId()
         );
         
         if (!StringUtils.isEmpty(field.getContextId())) {
@@ -816,10 +821,11 @@ public class SyncPITTables {
             
       if (saveUpdates) {
 
-        // note that we may just need to update the subjectId, subjectSourceId, and/or subjectTypeId
+        // note that we may just need to update some fields
         PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(member.getUuid(), false);
         if (pitMember != null) {
           pitMember.setSubjectId(member.getSubjectIdDb());
+          pitMember.setSourceInternalId(member.getInternalId());
           pitMember.setSubjectSourceId(member.getSubjectSourceIdDb());
           pitMember.setSubjectTypeId(member.getSubjectTypeId());
           pitMember.setSubjectIdentifier0(member.getSubjectIdentifier0());
@@ -841,7 +847,8 @@ public class SyncPITTables {
             ChangeLogLabels.MEMBER_ADD.subjectIdentifier0.name(), member.getSubjectIdentifier0(),
             ChangeLogLabels.MEMBER_ADD.subjectIdentifier1.name(), member.getSubjectIdentifier1(),
             ChangeLogLabels.MEMBER_ADD.subjectIdentifier2.name(), member.getSubjectIdentifier2(),
-            ChangeLogLabels.MEMBER_ADD.email0.name(), member.getEmail0());
+            ChangeLogLabels.MEMBER_ADD.email0.name(), member.getEmail0(),
+            ChangeLogLabels.MEMBER_ADD.internalId.name(), "" + member.getInternalId());
 
         if (!StringUtils.isEmpty(member.getContextId())) {
           changeLogEntry.setContextId(member.getContextId());

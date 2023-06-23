@@ -46,7 +46,10 @@ public class ChangeLogLabels {
     description,
     
     /** idIndex */
-    idIndex;
+    idIndex,
+    
+    /** internalId */
+    internalId;
   };
   
   /**
@@ -170,7 +173,10 @@ public class ChangeLogLabels {
     displayName,
     
     /** description */
-    description;
+    description,
+    
+    /** internalId */
+    internalId;
   };
   
   /**
@@ -285,7 +291,10 @@ public class ChangeLogLabels {
     groupTypeName, 
     
     /** type */
-    type;
+    type,
+    
+    /** internalId */
+    internalId;
   };
   
   /** labels for a group field update */
@@ -750,7 +759,10 @@ public class ChangeLogLabels {
     subjectIdentifier2,
     
     /** email0 */
-    email0;
+    email0,
+    
+    /** internalId */
+    internalId;
   };
   
   /**

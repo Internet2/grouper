@@ -823,8 +823,11 @@ CREATE TABLE grouper_pit_members
     end_time NUMBER(38),
     context_id VARCHAR2(40),
     hibernate_version_number NUMBER(38),
+    source_internal_id NUMBER(38) not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_member_source_internal_idx ON grouper_pit_members (source_internal_id);
 
 CREATE INDEX pit_member_source_id_idx ON grouper_pit_members (source_id);
 
@@ -849,8 +852,11 @@ CREATE TABLE grouper_pit_fields
     end_time NUMBER(38),
     context_id VARCHAR2(40),
     hibernate_version_number NUMBER(38),
+    source_internal_id NUMBER(38) not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_field_source_internal_idx ON grouper_pit_fields (source_internal_id);
 
 CREATE INDEX pit_field_source_id_idx ON grouper_pit_fields (source_id);
 
@@ -873,8 +879,11 @@ CREATE TABLE grouper_pit_groups
     end_time NUMBER(38),
     context_id VARCHAR2(40),
     hibernate_version_number NUMBER(38),
+    source_internal_id NUMBER(38) not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_group_source_internal_idx ON grouper_pit_groups (source_internal_id);
 
 CREATE INDEX pit_group_source_id_idx ON grouper_pit_groups (source_id);
 
@@ -4175,6 +4184,8 @@ COMMENT ON COLUMN grouper_pit_fields.type IS 'type of field (e.g. attribute, lis
 
 COMMENT ON COLUMN grouper_pit_fields.context_id IS 'Context id links together multiple operations into one high level action';
 
+COMMENT ON COLUMN grouper_pit_fields.source_internal_id IS 'internal integer id from the grouper_fields table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
+
 COMMENT ON TABLE grouper_groups IS 'holds the groups in the grouper system';
 
 COMMENT ON COLUMN grouper_groups.id IS 'db id of this group record';
@@ -4230,6 +4241,8 @@ COMMENT ON COLUMN grouper_pit_groups.hibernate_version_number IS 'hibernate uses
 COMMENT ON COLUMN grouper_pit_groups.name IS 'group name is the fully qualified extension of group and all parent stems.  It shouldnt change much, and can be used to reference group from external systems';
 
 COMMENT ON COLUMN grouper_pit_groups.context_id IS 'Context id links together multiple operations into one high level action';
+
+COMMENT ON COLUMN grouper_pit_groups.source_internal_id IS 'internal integer id from the grouper_groups table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
 
 COMMENT ON TABLE grouper_members IS 'keeps track of subjects used in grouper.  Records are never deleted from this table';
 
@@ -4288,6 +4301,8 @@ COMMENT ON COLUMN grouper_pit_members.end_time IS 'millis from 1970 when this re
 COMMENT ON COLUMN grouper_pit_members.hibernate_version_number IS 'hibernate uses this to version rows';
 
 COMMENT ON COLUMN grouper_pit_members.context_id IS 'Context id links together multiple operations into one high level action';
+
+COMMENT ON COLUMN grouper_pit_members.source_internal_id IS 'internal integer id from the grouper_members table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)';
 
 COMMENT ON TABLE grouper_memberships IS 'keeps track of memberships and permissions';
 

@@ -3056,7 +3056,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         ChangeLogLabels.MEMBER_ADD.subjectIdentifier0.name(), this.getSubjectIdentifier0(),
         ChangeLogLabels.MEMBER_ADD.subjectIdentifier1.name(), this.getSubjectIdentifier1(),
         ChangeLogLabels.MEMBER_ADD.subjectIdentifier2.name(), this.getSubjectIdentifier2(),
-        ChangeLogLabels.MEMBER_ADD.email0.name(), this.getEmail0()).save();
+        ChangeLogLabels.MEMBER_ADD.email0.name(), this.getEmail0(),
+        ChangeLogLabels.MEMBER_ADD.internalId.name(), "" + this.getInternalId()).save();
   }
 
   /**

@@ -6,6 +6,9 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheMembership;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheMembershipHst;
@@ -102,6 +105,158 @@ public class GrouperDdl5_0_4 {
     
   }
   
+  static void addGrouperPITFieldsInternalIdColumn(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITFieldsInternalIdColumn", true)) {
+      return;
+    }
+  
+    Table grouperTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,PITField.TABLE_GROUPER_PIT_FIELDS);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperTable, "source_internal_id", Types.BIGINT, "12", false, false);
+  
+  }
+
+  static void addGrouperPITFieldsInternalIdIndex(Database database, DdlVersionBean ddlVersionBean) {
+  
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITFieldsRequireIndex", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, PITField.TABLE_GROUPER_PIT_FIELDS, 
+        "pit_field_source_internal_idx", false, 
+        "source_internal_id");
+    
+    
+  }
+  
+  static void addGrouperPITGroupsInternalIdColumn(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITGroupsInternalIdColumn", true)) {
+      return;
+    }
+  
+    Table grouperTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,PITGroup.TABLE_GROUPER_PIT_GROUPS);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperTable, "source_internal_id", Types.BIGINT, "12", false, false);
+  
+  }
+
+  static void addGrouperPITGroupsInternalIdIndex(Database database, DdlVersionBean ddlVersionBean) {
+  
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITGroupsRequireIndex", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, PITGroup.TABLE_GROUPER_PIT_GROUPS,
+        "pit_group_source_internal_idx", false,
+        "source_internal_id");
+    
+    
+  }
+  
+  static void addGrouperPITMembersInternalIdColumn(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITMembersInternalIdColumn", true)) {
+      return;
+    }
+  
+    Table grouperTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database,PITMember.TABLE_GROUPER_PIT_MEMBERS);
+
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperTable, "source_internal_id", Types.BIGINT, "12", false, false);
+  
+  }
+
+  static void addGrouperPITMembersInternalIdIndex(Database database, DdlVersionBean ddlVersionBean) {
+  
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+    
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITMembersRequireIndex", true)) {
+      return;
+    }
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, PITMember.TABLE_GROUPER_PIT_MEMBERS,
+        "pit_member_source_internal_idx", false,
+        "source_internal_id");
+    
+    
+  }
+  
+  static void addGrouperPITFieldsInternalIdComments(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITFieldsInternalIdComments", true)) {
+      return;
+    }
+  
+    final String tableName = PITField.TABLE_GROUPER_PIT_FIELDS;
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName, 
+        "source_internal_id", 
+        "internal integer id from the grouper_fields table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)");
+  }
+  
+  static void addGrouperPITGroupsInternalIdComments(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITGroupsInternalIdComments", true)) {
+      return;
+    }
+  
+    final String tableName = PITGroup.TABLE_GROUPER_PIT_GROUPS;
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName, 
+        "source_internal_id", 
+        "internal integer id from the grouper_groups table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)");
+  }
+  
+  static void addGrouperPITMembersInternalIdComments(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_0_4_addGrouperPITMembersInternalIdComments", true)) {
+      return;
+    }
+  
+    final String tableName = PITMember.TABLE_GROUPER_PIT_MEMBERS;
+  
+    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
+        tableName, 
+        "source_internal_id", 
+        "internal integer id from the grouper_members table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)");
+  }
   
   static void addGrouperSqlCacheGroupTable(Database database, DdlVersionBean ddlVersionBean) {
     

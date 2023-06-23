@@ -35,7 +35,6 @@ import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.Set;
-import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
@@ -724,7 +723,8 @@ public class Field extends GrouperAPI implements Comparable<Field>, GrouperHasCo
         null,
         null, 
         null,
-        ChangeLogLabels.GROUP_FIELD_ADD.type.name(), this.getTypeString()
+        ChangeLogLabels.GROUP_FIELD_ADD.type.name(), this.getTypeString(),
+        ChangeLogLabels.GROUP_FIELD_ADD.internalId.name(), "" + this.getInternalId()
     ).save();
     
    

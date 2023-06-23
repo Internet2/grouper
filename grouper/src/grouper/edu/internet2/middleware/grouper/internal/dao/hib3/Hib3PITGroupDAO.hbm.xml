@@ -64,6 +64,7 @@
     <property name="startTimeDb" column="start_time" />
     <property name="endTimeDb" column="end_time" />
     <property name="sourceId" column="source_id" />
+    <property name="sourceInternalId" column="source_internal_id"/>
   </class>
 </hibernate-mapping>
 

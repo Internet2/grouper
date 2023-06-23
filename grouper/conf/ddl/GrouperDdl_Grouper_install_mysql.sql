@@ -741,8 +741,11 @@ CREATE TABLE grouper_pit_members
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_member_source_internal_idx ON grouper_pit_members (source_internal_id);
 
 CREATE INDEX pit_member_source_id_idx ON grouper_pit_members (source_id);
 
@@ -767,8 +770,11 @@ CREATE TABLE grouper_pit_fields
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_field_source_internal_idx ON grouper_pit_fields (source_internal_id);
 
 CREATE INDEX pit_field_source_id_idx ON grouper_pit_fields (source_id);
 
@@ -791,8 +797,11 @@ CREATE TABLE grouper_pit_groups
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_group_source_internal_idx ON grouper_pit_groups (source_internal_id);
 
 CREATE INDEX pit_group_source_id_idx ON grouper_pit_groups (source_id);
 

@@ -6426,7 +6426,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             this.getUuid(), ChangeLogLabels.ENTITY_ADD.name.name(),
             this.getName(), ChangeLogLabels.ENTITY_ADD.parentStemId.name(), this.getParentUuid(),
             ChangeLogLabels.ENTITY_ADD.displayName.name(), this.getDisplayName(),
-            ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription()).save();
+            ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription(),
+            ChangeLogLabels.ENTITY_ADD.internalId.name(), "" + this.getInternalId()).save();
 
       } else {
    
@@ -6445,7 +6446,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
             ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
             ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription(),
-            ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex()).save();
+            ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex(),
+            ChangeLogLabels.GROUP_ADD.internalId.name(), "" + this.getInternalId()).save();
    
       }
       
@@ -6733,7 +6735,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           this.getUuid(), ChangeLogLabels.ENTITY_ADD.name.name(), 
           this.getName(), ChangeLogLabels.ENTITY_ADD.parentStemId.name(), this.getParentUuid(),
           ChangeLogLabels.ENTITY_ADD.displayName.name(), this.getDisplayName(),
-          ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription()).save();
+          ChangeLogLabels.ENTITY_ADD.description.name(), this.getDescription(),
+          ChangeLogLabels.ENTITY_ADD.internalId.name(), "" + this.getInternalId()).save();
 
     } else {
 
@@ -6744,7 +6747,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           this.getName(), ChangeLogLabels.GROUP_ADD.parentStemId.name(), this.getParentUuid(),
           ChangeLogLabels.GROUP_ADD.displayName.name(), this.getDisplayName(),
           ChangeLogLabels.GROUP_ADD.description.name(), this.getDescription(),
-          ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex()).save();
+          ChangeLogLabels.GROUP_ADD.idIndex.name(), "" + this.getIdIndex(),
+          ChangeLogLabels.GROUP_ADD.internalId.name(), "" + this.getInternalId()).save();
 
     }
     PerformanceLogger.performanceTimingGate(GroupSave.PERFORMANCE_LOG_LABEL, "changeLog");

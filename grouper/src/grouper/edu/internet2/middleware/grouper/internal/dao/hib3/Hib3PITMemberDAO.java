@@ -99,6 +99,7 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
         pitMember.setSubjectId(member.getSubjectId());
         pitMember.setSubjectSourceId(member.getSubjectSourceId());
         pitMember.setSubjectTypeId(member.getSubjectTypeId());
+        pitMember.setSourceInternalId(member.getInternalId());
         
         if (!GrouperUtil.isEmpty(member.getSubjectIdentifier0())) {
           pitMember.setSubjectIdentifier0(member.getSubjectIdentifier0());
@@ -281,7 +282,7 @@ public class Hib3PITMemberDAO extends Hib3DAO implements PITMemberDAO {
     Set<Member> members = HibernateSession
       .byHqlStatic()
       .createQuery("select m from Member m where " +
-          "not exists (select 1 from PITMember pit where m.uuid = pit.sourceId and m.subjectIdDb = pit.subjectId and m.subjectSourceIdDb = pit.subjectSourceId and m.subjectTypeId = pit.subjectTypeId" +
+          "not exists (select 1 from PITMember pit where m.uuid = pit.sourceId and m.subjectIdDb = pit.subjectId and m.subjectSourceIdDb = pit.subjectSourceId and m.subjectTypeId = pit.subjectTypeId and m.internalId = pit.sourceInternalId" +
           "             and ((m.subjectIdentifier0 is null and pit.subjectIdentifier0 is null) or (m.subjectIdentifier0 = pit.subjectIdentifier0))) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = m.uuid " +

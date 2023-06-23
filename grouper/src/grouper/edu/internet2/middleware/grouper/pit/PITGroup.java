@@ -64,6 +64,8 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
   /** column */
   public static final String COLUMN_SOURCE_ID = "source_id";
   
+  /** column */
+  public static final String COLUMN_SOURCE_INTERNAL_ID = "source_internal_id";
   
   /** constant for field name for: sourceId */
   public static final String FIELD_SOURCE_ID = "sourceId";
@@ -80,12 +82,15 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
   /** constant for field name for: stemId */
   public static final String FIELD_STEM_ID = "stemId";
   
+  /** constant for field name for: sourceInternalId */
+  public static final String FIELD_SOURCE_INTERNAL_ID = "sourceInternalId";
+  
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_NAME, FIELD_STEM_ID, FIELD_SOURCE_ID);
+      FIELD_NAME, FIELD_STEM_ID, FIELD_SOURCE_ID, FIELD_SOURCE_INTERNAL_ID);
 
 
 
@@ -108,6 +113,23 @@ public class PITGroup extends GrouperPIT implements Hib3GrouperVersioned {
 
   /** sourceId */
   private String sourceId;
+  
+  /** sourceInternalId */
+  private Long sourceInternalId;
+  
+  /**
+   * @return sourceInternalId
+   */
+  public Long getSourceInternalId() {
+    return sourceInternalId;
+  }
+
+  /**
+   * @param sourceInternalId
+   */
+  public void setSourceInternalId(Long sourceInternalId) {
+    this.sourceInternalId = sourceInternalId;
+  }
   
   /**
    * @return source id
