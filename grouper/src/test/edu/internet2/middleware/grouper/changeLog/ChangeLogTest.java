@@ -100,7 +100,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeDefPrivileges"));
+    TestRunner.run(new ChangeLogTest("testGroups"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -4805,6 +4805,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member.getSubjectSourceId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectSourceId));
     assertEquals(member.getSubjectTypeId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectTypeId));
     assertEquals(member.getSubjectIdentifier0(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.subjectIdentifier0));
+    assertEquals("" + member.getInternalId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBER_ADD.internalId));
 
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -4840,6 +4841,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
     assertEquals(member.getContextId(), pitMember.getContextId());
     assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
+    assertEquals(member.getInternalId(), pitMember.getSourceInternalId());
     
     //##################################
     // try an update
@@ -4896,6 +4898,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(member.getSubjectTypeId(), pitMember.getSubjectTypeId());
     assertEquals(member.getContextId(), pitMember.getContextId());
     assertEquals(member.getSubjectIdentifier0(), pitMember.getSubjectIdentifier0());
+    assertEquals(member.getInternalId(), pitMember.getSourceInternalId());
     
     
     //##################################
@@ -5828,6 +5831,7 @@ public class ChangeLogTest extends GrouperTest {
     
     assertEquals(field.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.name));
     assertEquals(field.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.id));
+    assertEquals("" + field.getInternalId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_FIELD_ADD.internalId));
     
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -5860,6 +5864,7 @@ public class ChangeLogTest extends GrouperTest {
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(field.getUuid(), false);
     assertNotNull(pitField);
     assertEquals(field.getName(), pitField.getName());
+    assertEquals(field.getInternalId(), pitField.getSourceInternalId());
     assertEquals(field.getContextId(), pitField.getContextId());
 
     PITGroup pitGroup1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group1.getId(), true);
@@ -6024,6 +6029,7 @@ public class ChangeLogTest extends GrouperTest {
     pitField2 = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(field2.getUuid(), false);
     assertNotNull(pitField2);
     assertEquals(field2.getName(), pitField2.getName());
+    assertEquals(field2.getInternalId(), pitField2.getSourceInternalId());
     assertEquals(field2.getContextId(), pitField2.getContextId());
 
     //##################################
@@ -6035,6 +6041,7 @@ public class ChangeLogTest extends GrouperTest {
     PITField pitField3 = GrouperDAOFactory.getFactory().getPITField().findBySourceIdUnique(field3.getUuid(), false);
     assertNotNull(pitField3);
     assertEquals("testList3", pitField3.getName());
+    assertEquals(field3.getInternalId(), pitField3.getSourceInternalId());
   }
 
   /**
@@ -6099,6 +6106,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(group.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.name));
     assertEquals(group.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.id));
     assertEquals(group.getIdIndex().toString(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.idIndex));
+    assertEquals(group.getInternalId().toString(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.internalId));
   
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -6134,6 +6142,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(group.getName(), pitGroup.getName());
     assertEquals(group.getParentUuid(), pitGroup.getPITStem().getSourceId());
     assertEquals(group.getContextId(), pitGroup.getContextId());
+    assertEquals(group.getInternalId(), pitGroup.getSourceInternalId());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
@@ -6308,6 +6317,7 @@ public class ChangeLogTest extends GrouperTest {
     PITGroup pitGroup3 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdUnique(group3.getId(), false);
     assertNotNull(pitGroup3);
     assertEquals("edu:group3a", pitGroup3.getName());
+    assertEquals(group3.getInternalId(), pitGroup3.getSourceInternalId());
   }
 
   /**
