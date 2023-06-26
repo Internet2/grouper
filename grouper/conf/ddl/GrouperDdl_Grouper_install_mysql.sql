@@ -1945,7 +1945,7 @@ CREATE TABLE grouper_dictionary (
 
 CREATE INDEX dictionary_last_referenced_idx ON grouper_dictionary (last_referenced);
 CREATE INDEX dictionary_pre_load_idx ON grouper_dictionary (pre_load);
-CREATE UNIQUE INDEX dictionary_the_text_idx ON grouper_dictionary (the_text(1000));
+CREATE UNIQUE INDEX dictionary_the_text_idx ON grouper_dictionary (the_text(255));
 
 CREATE TABLE  grouper_data_provider (
   internal_id BIGINT NOT NULL,
