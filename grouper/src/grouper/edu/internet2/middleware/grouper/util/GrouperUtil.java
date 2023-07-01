@@ -66,6 +66,7 @@ import java.text.DecimalFormat;
 import java.text.Normalizer;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Calendar;
@@ -401,21 +402,35 @@ public class GrouperUtil {
 //      elVariableMap, true, false, true);
 //  System.out.println(result);
 
-      ProvisioningEntity provisioningEntity = new ProvisioningEntity();
-      provisioningEntity.setSubjectIdentifier0("hello");
+//      ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+//      provisioningEntity.setSubjectIdentifier0("hello");
+//
+//    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+//      elVariableMap.put("provisioningEntity", provisioningEntity);
+//      
+//      String el = "${provisioningEntity.subjectIdentifier0 ? provisioningEntity.subjectIdentifier0 : null}";
+//      
+//      boolean silent = false;
+//      boolean lenient = false;
+//      boolean allowStaticClasses = true;
+//
+//      Object result = substituteExpressionLanguageScript(el,elVariableMap, allowStaticClasses, silent, lenient);
+//    System.out.println(result);
 
-    Map<String, Object> elVariableMap = new HashMap<String, Object>();
-      elVariableMap.put("provisioningEntity", provisioningEntity);
+//      * allow: 2023-06-29T18:27:01.227972Z
+//      * @param timestamp
+//      * @return timestamp string
+//      */
+//     public static Timestamp timestampIsoUtcSecondsConvertFromString(String string) {
+      String time = "2023-10-03T17:03:41Z";
+    
+      System.out.println(timestampIsoUtcSecondsConvertFromString(time));
       
-      String el = "${provisioningEntity.subjectIdentifier0 ? provisioningEntity.subjectIdentifier0 : null}";
+      time = "2023-06-29T18:27:01.227972Z";
+
+      System.out.println(timestampIsoUtcSecondsConvertFromString(time));
       
-      boolean silent = false;
-      boolean lenient = false;
-      boolean allowStaticClasses = true;
-
-      Object result = substituteExpressionLanguageScript(el,elVariableMap, allowStaticClasses, silent, lenient);
-    System.out.println(result);
-
+      
     } finally {
       GrouperShutdown.shutdown();
     }
@@ -3745,19 +3760,52 @@ public class GrouperUtil {
    * @param timestamp
    * @return timestamp string
    */
+  public static String timestampIsoUtcMicrosConvertToString(Timestamp timestamp) {
+    
+    if (timestamp == null) {
+      return null;
+    }
+    
+    String my8601formattedDate = timestampIsoUtcMicros.format(timestamp);
+    return my8601formattedDate;
+  }
+
+  /**
+   * allow: 2023-06-29T18:27:01Z
+   * allow: 2023-06-29T18:27:01.227972Z
+   * @param timestamp
+   * @return timestamp string
+   */
   public static Timestamp timestampIsoUtcSecondsConvertFromString(String string) {
     
     if (StringUtils.isBlank(string)) {
       return null;
     }
-    
+
     try {
       Date date = timestampIsoUtcSeconds.parse(string);
       return new Timestamp(date.getTime());
     } catch (Exception e) {
-      throw new RuntimeException("Cant parse string: '" + string + "' in format: yyyy-MM-dd'T'HH:mm:ss'Z'");
+      
+      try {
+        Instant instant = Instant.parse(string);
+        return new Timestamp(instant.toEpochMilli());
+      } catch (Exception e2) {
+      
+        throw new RuntimeException("Cant parse string: '" + string + "' in format: 2023-06-29T18:27:01Z or 2023-06-29T18:27:01.227972Z");
+      }
     }
   }
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampIsoUtcMicros = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000Z'");
+  
+  static {
+    timestampIsoUtcMicros.setTimeZone(TimeZone.getTimeZone("UTC"));
+  }
+
 
   /**
    * 
