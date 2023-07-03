@@ -249,6 +249,11 @@ public class GcTableSync {
    */
   private boolean done = false;
   
+  
+  public Map<String, Object> getDebugMap() {
+    return debugMap;
+  }
+
   /**
    * pass in the output which will update as it runs
    * @param gcTableSyncOutputArray 
@@ -266,8 +271,6 @@ public class GcTableSync {
     
     this.gcTableSyncConfiguration = new GcTableSyncConfiguration();
     this.gcTableSyncConfiguration.configureTableSync(this.debugMap, this, configKey, gcTableSyncSubtype);
-    
-    final Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
     long now = System.nanoTime();
     
@@ -374,8 +377,12 @@ public class GcTableSync {
           gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.INTERRUPTED);
           return this.gcTableSyncOutput;
         }
-        
+
         // step 2
+        debugMap.put("state", "formatData");
+        this.gcTableSyncConfiguration.getGcTableSyncSubtype().formatData(debugMap, this);
+
+        // step 3
         debugMap.put("state", "syncData");
         {
           Integer recordsChanged = this.gcTableSyncConfiguration.getGcTableSyncSubtype().syncData(debugMap, this);
@@ -520,6 +527,13 @@ public class GcTableSync {
       int gcSyncObjectChanges = this.getGcGrouperSync().getGcGrouperSyncDao().storeAllObjects();
       debugMap.put("gcSyncObjectChanges", gcSyncObjectChanges + gcGrouperSync.getInternalObjectsCreatedCount());
 
+      int duplicateSourceKeyCount = GrouperClientUtils.intValue(debugMap.get("duplicateSourceKeyCount"), 0);
+      if (duplicateSourceKeyCount > 0 && !this.gcTableSyncConfiguration.isIgnoreDuplicateSourceKeys()
+          && (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError())) {
+        gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);
+        debugMap.put("errorMultipleSourceRecordsMatchSameKey", "You can allow this in config or change the number of keys or adjust the source data");
+      }
+      
     } catch (RuntimeException re) {
       if (gcGrouperSyncLog.getStatus() == null || !gcGrouperSyncLog.getStatus().isError()) {
         gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.ERROR);

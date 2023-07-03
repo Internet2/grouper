@@ -56,7 +56,7 @@ public class GcTableSyncTableMetadata {
         result.append(" and ");
       }
       
-      result.append(" ").append(gcTableSyncColumnMetadata.getColumnName()).append(" = ? ");
+      result.append(" \"").append(gcTableSyncColumnMetadata.getColumnName()).append("\" = ? ");
       
       first = false;
     }
@@ -82,7 +82,7 @@ public class GcTableSyncTableMetadata {
         result.append(" , ");
       }
       
-      result.append(" ").append(gcTableSyncColumnMetadata.getColumnName()).append(" = ? ");
+      result.append(" \"").append(gcTableSyncColumnMetadata.getColumnName()).append("\" = ? ");
       
       first = false;
     }
@@ -243,7 +243,9 @@ public class GcTableSyncTableMetadata {
     
     String sql = "select * from " + tableName;
     GcTableSyncTableMetadata gcTableSyncTableMetadata = retrieveQueryMetadataFromDatabase(theConnectionName, sql);
-    gcTableSyncTableMetadata.setTableName(tableName);
+    if (GrouperClientUtils.isBlank(gcTableSyncTableMetadata.getTableName())) {
+      gcTableSyncTableMetadata.setTableName(tableName);
+    }
     return gcTableSyncTableMetadata;
   }
 
@@ -320,6 +322,10 @@ public class GcTableSyncTableMetadata {
           
           ResultSetMetaData resultSetMetaData = resultSet.getMetaData();
   
+//          if (resultSetMetaData.getColumnCount() > 0) {
+//            gcTableSyncTableMetadata.setTableName(resultSetMetaData.getTableName(1));
+//          }
+          
           for (int i=0;i<resultSetMetaData.getColumnCount();i++) {
             GcTableSyncColumnMetadata gcTableSyncColumnMetadata = new GcTableSyncColumnMetadata();
             // label is the alias and column name is the column name
@@ -406,7 +412,7 @@ public class GcTableSyncTableMetadata {
               if (o2 == null) {
                 return 1;
               }
-              return o1.getColumnName().compareTo(o2.getColumnName());
+              return o1.getColumnName().toLowerCase().compareTo(o2.getColumnName().toLowerCase());
             }
           });
           
@@ -653,6 +659,24 @@ public class GcTableSyncTableMetadata {
         result.append(", ");
       }
       result.append(gcTableSyncColumnMetadata.getColumnName());
+      
+      first = false;
+    }
+    return result.toString();
+  }
+  
+  /**
+   * get comma separated list of all columns
+   * @return the columns
+   */
+  public String columnListAllQuoted() {
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (GcTableSyncColumnMetadata gcTableSyncColumnMetadata : GrouperClientUtils.nonNull(this.columns)) {
+      if (!first) {
+        result.append(", ");
+      }
+      result.append("\"").append(gcTableSyncColumnMetadata.getColumnName()).append("\"");
       
       first = false;
     }

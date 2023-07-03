@@ -186,7 +186,7 @@ public class GcTableSyncFromData {
     gcTableSyncTableMetadata.assignColumns(columnsCommaSeparated);
     gcTableSyncTableMetadata.assignPrimaryKeyColumns(GrouperClientUtils.join(this.columnNamesPrimaryKey.iterator(), ","));
 
-    String sql = "select " + gcTableSyncTableMetadata.columnListAll() + " from " + gcTableSyncTableMetadata.getTableName();
+    String sql = "select " + gcTableSyncTableMetadata.columnListAllQuoted() + " from " + gcTableSyncTableMetadata.getTableName();
     long nowNanos = System.nanoTime();
     
     List<Object[]> sqlResults = new GcDbAccess().connectionName(this.connectionName).sql(sql).selectList(Object[].class);
