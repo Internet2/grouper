@@ -754,6 +754,15 @@ public enum GcTableSyncSubtype {
     newFull.setGcGrouperSyncLog(gcGrouperSyncLog);
     newFull.sync(gcGrouperSyncJob.getGrouperSync().getProvisionerName(), switchFromIncrementalToFullSubtype);
 
+    for (String key : newFull.getDebugMap().keySet()) {
+      debugMap.put("subJob_" + key, newFull.getDebugMap().get(key));
+    }
+    
+    debugMap.put("switchedToFullSync", true);
+    debugMap.put("switchedToFullSyncSubtype", switchFromIncrementalToFullSubtype.name());
+    debugMap.put("paused", true);
+
+    
     // wait a sec
     GrouperClientUtils.sleep(1000);
 
@@ -2046,8 +2055,14 @@ public enum GcTableSyncSubtype {
 
           // assign bind vars
           MultiKey primaryKey = primaryKeyBatch.get(primaryKeyIndex);
+          int keyIndex = 0;
           for (Object primaryKeyValue : primaryKey.getKeys()) {
-            bindVars[bindVarIndex++] = primaryKeyValue;
+
+            GcTableSyncColumnMetadata keyColumnMetadata = gcTableSyncTableBean.getTableMetadata().getPrimaryKey().get(keyIndex);
+            
+            bindVars[bindVarIndex++] = keyColumnMetadata.getColumnType().convertToType(primaryKeyValue);
+            
+            keyIndex++;
           }
           
           
