@@ -61,6 +61,10 @@ public class GrouperAbac {
     if (script == null) {
       return "script is null";
     }
+    //TODO
+    if (true) {
+      return null;
+    }
     script = script.trim();
     try {
       GrouperAbacEntity grouperAbacEntity = new GrouperAbacEntity();
