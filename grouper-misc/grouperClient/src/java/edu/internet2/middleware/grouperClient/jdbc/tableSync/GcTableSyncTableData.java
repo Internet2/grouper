@@ -202,19 +202,17 @@ public class GcTableSyncTableData {
     this.indexByPrimaryKey = new HashMap<MultiKey, GcTableSyncRowData>();
     
     // are we looking at the from side?
-    if (this.gcTableSyncTableBean == this.gcTableSyncTableBean.getGcTableSync().getDataBeanFrom()) {
+    boolean isFrom = this.gcTableSyncTableBean != null && this.gcTableSyncTableBean == this.gcTableSyncTableBean.getGcTableSync().getDataBeanFrom();
       
-      for (GcTableSyncRowData row : GrouperClientUtils.nonNull(this.rows)) {
-        
-        MultiKey rowPrimaryKey = row.getPrimaryKey();
-        
-        if (this.indexByPrimaryKey.containsKey(rowPrimaryKey)) {
-          GrouperClientUtils.mapAddValue(this.gcTableSyncTableBean.getGcTableSync().getDebugMap(), "duplicateSourceKeyCount", 1);
-        }
-        
-        this.indexByPrimaryKey.put(rowPrimaryKey, row);
+    for (GcTableSyncRowData row : GrouperClientUtils.nonNull(this.rows)) {
+      
+      MultiKey rowPrimaryKey = row.getPrimaryKey();
+      
+      if (this.indexByPrimaryKey.containsKey(rowPrimaryKey) && isFrom) {
+        GrouperClientUtils.mapAddValue(this.gcTableSyncTableBean.getGcTableSync().getDebugMap(), "duplicateSourceKeyCount", 1);
       }
       
+      this.indexByPrimaryKey.put(rowPrimaryKey, row);
     }
     
   }

@@ -109,7 +109,7 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
 
       //dbVersion  DONT EQUALS
 
-      .append(this.description, other.description)
+      .append(this.getDescriptionOrDescriptionClob(), other.getDescriptionOrDescriptionClob())
       //grouperSyncGroup  DONT EQUALS
 
       .append(this.grouperSyncId, other.grouperSyncId)

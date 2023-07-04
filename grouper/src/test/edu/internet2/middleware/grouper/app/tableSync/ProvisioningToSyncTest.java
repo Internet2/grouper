@@ -73,7 +73,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncGroupStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncMembershipStoreAndDelete"));
     //TestRunner.run(new ProvisioningToSyncTest("testProvisioningAttributesToGroupSyncFull"));
-    TestRunner.run(new ProvisioningToSyncTest("testEsbConsumerPrint"));
+    TestRunner.run(new ProvisioningToSyncTest("testGcGrouperSyncLogStoreAndDelete"));
     
   }
   
@@ -518,172 +518,173 @@ public class ProvisioningToSyncTest extends GrouperTest {
 
   }
   
-  /**
-   * add provisioning attributes and see them transition to group sync attribute
-   */
-  public void testProvisioningAttributesToGroupSyncFull() {
-    
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-        
-    Stem testStem = new StemSave(grouperSession).assignName("test").save();
-    
-    Group testGroup1 = new GroupSave(grouperSession).assignName("test:testGroup1").save();
-    
-    testGroup1.addMember(SubjectTestHelper.SUBJ0);
-    testGroup1.addMember(SubjectTestHelper.SUBJ1);
-    
-    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
-
-    testGroup2.addMember(SubjectTestHelper.SUBJ2);
-
-    Group testGroup3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
-
-    testGroup3.addMember(SubjectTestHelper.SUBJ3);
-
-    Group testGroup4 = new GroupSave(grouperSession).assignName("test:test2:testGroup4").assignCreateParentStemsIfNotExist(true).save();
-
-    testGroup4.addMember(SubjectTestHelper.SUBJ4);
-
-    // marker
-    AttributeDefName provisioningMarkerAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker();
-
-    // target name
-    AttributeDefName provisioningTargetAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget();
-
-    // direct name
-    AttributeDefName provisioningDirectAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment();
-
-    // direct name
-    AttributeDefName provisioningStemScopeAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameStemScope();
-
-    // do provision
-    AttributeDefName provisioningDoProvisionAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision();
-    
-    Set<Group> groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
-    assertEquals(0, GrouperUtil.length(groups));
-    
-    AttributeAssign testStemAttributeAssign = testStem.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
-    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
-    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningStemScopeAttributeDefName.getName(), "sub");
-    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
-    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
-
-    AttributeAssign testGroup2attributeAssign = testGroup2.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
-    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
-    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
-    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
-    
-    GrouperProvisioningJob.runDaemonStandalone();
-    
-    //Then - Most the children of stem0 should have metadata coming from parent
-    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
-    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
-    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
-    
-    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
-    assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
-    assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertNull(grouperProvisioningAttributeValue.getDoProvision());
-    
-    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
-    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
-    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
-    
-    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
-    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
-    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
-    
-    groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
-    assertEquals(3, GrouperUtil.length(groups));
-
-    assertTrue(groups.contains(testGroup1));
-    assertTrue(groups.contains(testGroup3));
-    assertTrue(groups.contains(testGroup4));
-    
-    //TODO move to new method
-    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult(); //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
-    
-    Map<String, Group> groupIdToGroup = new HashMap<String, Group>(); // provisioningSyncResult.getMapGroupIdToGroup();
-
-    assertEquals(3, groupIdToGroup.size());
-    assertTrue(groupIdToGroup.containsKey(testGroup1.getId()));
-    assertTrue(groupIdToGroup.containsKey(testGroup3.getId()));
-    assertTrue(groupIdToGroup.containsKey(testGroup4.getId()));
-
-    //TODO
-    Map<String, Group> groupIdToGcGrouperSyncGroup = new HashMap<String, Group>();//provisioningSyncResult.getMapGroupIdToGroup();
-
-    assertEquals(3, groupIdToGcGrouperSyncGroup.size());
-    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup1.getId()));
-    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup3.getId()));
-    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup4.getId()));
-
-    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "testTarget");
-    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
-    
-    Set<String> uuidsToProvision = new HashSet<String>();
-    
-    for (GcGrouperSyncGroup gcGrouperSyncGroup : gcGrouperSyncGroups) {
-      if (gcGrouperSyncGroup.isProvisionable()) {
-        uuidsToProvision.add(gcGrouperSyncGroup.getGroupId());
-      }
-    }
-    
-    assertEquals(3, uuidsToProvision.size());
-    assertTrue(uuidsToProvision.contains(testGroup1.getId()));
-    assertTrue(uuidsToProvision.contains(testGroup3.getId()));
-    assertTrue(uuidsToProvision.contains(testGroup4.getId()));
-
-    // ##########  Remove, then add
-    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
-
-    GrouperProvisioningJob.runDaemonStandalone();
-    
-    //Then - Most the children of stem0 should have metadata coming from parent
-    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
-    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
-    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertNull(grouperProvisioningAttributeValue.getDoProvision());
-    
-    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
-    assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
-    assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertNull(grouperProvisioningAttributeValue.getDoProvision());
-    
-    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
-    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
-    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertNull(grouperProvisioningAttributeValue.getDoProvision());
-    
-    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
-    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
-    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
-    assertNull(grouperProvisioningAttributeValue.getDoProvision());
-    
-    groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
-    assertEquals(0, GrouperUtil.length(groups));
-
-    // TODO
-    //provisioningSyncResult = null; //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
-    
-    //groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
-
-    assertEquals(0, groupIdToGroup.size());
-
-    //TODO 
-    //groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
-
-    assertEquals(0, groupIdToGcGrouperSyncGroup.size());
-
-    // ##########  Put back
-    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
-
-    GrouperProvisioningJob.runDaemonStandalone();
-    
-  }
+//  /**
+//   * add provisioning attributes and see them transition to group sync attribute
+//   */
+//  public void testProvisioningAttributesToGroupSyncFull() {
+//    
+//    // this wont work without provisioner
+//    GrouperSession grouperSession = GrouperSession.startRootSession();
+//        
+//    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+//    
+//    Group testGroup1 = new GroupSave(grouperSession).assignName("test:testGroup1").save();
+//    
+//    testGroup1.addMember(SubjectTestHelper.SUBJ0);
+//    testGroup1.addMember(SubjectTestHelper.SUBJ1);
+//    
+//    Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").save();
+//
+//    testGroup2.addMember(SubjectTestHelper.SUBJ2);
+//
+//    Group testGroup3 = new GroupSave(grouperSession).assignName("test:testGroup3").save();
+//
+//    testGroup3.addMember(SubjectTestHelper.SUBJ3);
+//
+//    Group testGroup4 = new GroupSave(grouperSession).assignName("test:test2:testGroup4").assignCreateParentStemsIfNotExist(true).save();
+//
+//    testGroup4.addMember(SubjectTestHelper.SUBJ4);
+//
+//    // marker
+//    AttributeDefName provisioningMarkerAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker();
+//
+//    // target name
+//    AttributeDefName provisioningTargetAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget();
+//
+//    // direct name
+//    AttributeDefName provisioningDirectAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDirectAssignment();
+//
+//    // direct name
+//    AttributeDefName provisioningStemScopeAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameStemScope();
+//
+//    // do provision
+//    AttributeDefName provisioningDoProvisionAttributeDefName = GrouperProvisioningAttributeNames.retrieveAttributeDefNameDoProvision();
+//    
+//    Set<Group> groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+//    assertEquals(0, GrouperUtil.length(groups));
+//    
+//    AttributeAssign testStemAttributeAssign = testStem.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+//    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+//    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningStemScopeAttributeDefName.getName(), "sub");
+//    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+//    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
+//
+//    AttributeAssign testGroup2attributeAssign = testGroup2.getAttributeDelegate().addAttribute(provisioningMarkerAttributeDefName).getAttributeAssign();
+//    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDirectAttributeDefName.getName(), "true");
+//    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningTargetAttributeDefName.getName(), "testTarget");
+//    testGroup2attributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
+//    
+//    GrouperProvisioningJob.runDaemonStandalone();
+//    
+//    //Then - Most the children of stem0 should have metadata coming from parent
+//    GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
+//    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
+//    assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertNull(grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
+//    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
+//    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertEquals("testTarget", grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+//    assertEquals(3, GrouperUtil.length(groups));
+//
+//    assertTrue(groups.contains(testGroup1));
+//    assertTrue(groups.contains(testGroup3));
+//    assertTrue(groups.contains(testGroup4));
+//    
+//    //TODO move to new method
+//    ProvisioningSyncResult provisioningSyncResult = new ProvisioningSyncResult(); //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+//    
+//    Map<String, Group> groupIdToGroup = new HashMap<String, Group>(); // provisioningSyncResult.getMapGroupIdToGroup();
+//
+//    assertEquals(3, groupIdToGroup.size());
+//    assertTrue(groupIdToGroup.containsKey(testGroup1.getId()));
+//    assertTrue(groupIdToGroup.containsKey(testGroup3.getId()));
+//    assertTrue(groupIdToGroup.containsKey(testGroup4.getId()));
+//
+//    //TODO
+//    Map<String, Group> groupIdToGcGrouperSyncGroup = new HashMap<String, Group>();//provisioningSyncResult.getMapGroupIdToGroup();
+//
+//    assertEquals(3, groupIdToGcGrouperSyncGroup.size());
+//    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup1.getId()));
+//    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup3.getId()));
+//    assertTrue(groupIdToGcGrouperSyncGroup.containsKey(testGroup4.getId()));
+//
+//    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("grouper", "testTarget");
+//    List<GcGrouperSyncGroup> gcGrouperSyncGroups = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
+//    
+//    Set<String> uuidsToProvision = new HashSet<String>();
+//    
+//    for (GcGrouperSyncGroup gcGrouperSyncGroup : gcGrouperSyncGroups) {
+//      if (gcGrouperSyncGroup.isProvisionable()) {
+//        uuidsToProvision.add(gcGrouperSyncGroup.getGroupId());
+//      }
+//    }
+//    
+//    assertEquals(3, uuidsToProvision.size());
+//    assertTrue(uuidsToProvision.contains(testGroup1.getId()));
+//    assertTrue(uuidsToProvision.contains(testGroup3.getId()));
+//    assertTrue(uuidsToProvision.contains(testGroup4.getId()));
+//
+//    // ##########  Remove, then add
+//    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "false");
+//
+//    GrouperProvisioningJob.runDaemonStandalone();
+//    
+//    //Then - Most the children of stem0 should have metadata coming from parent
+//    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup1, "testTarget");
+//    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertNull(grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup2, "testTarget");
+//    assertNull(grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertTrue(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertNull(grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup3, "testTarget");
+//    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertNull(grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    grouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(testGroup4, "testTarget");
+//    assertEquals(testStem.getUuid(), grouperProvisioningAttributeValue.getOwnerStemId());
+//    assertFalse(grouperProvisioningAttributeValue.isDirectAssignment());
+//    assertNull(grouperProvisioningAttributeValue.getDoProvision());
+//    
+//    groups = GrouperProvisioningService.findAllGroupsForTarget("testTarget");
+//    assertEquals(0, GrouperUtil.length(groups));
+//
+//    // TODO
+//    //provisioningSyncResult = null; //new ProvisioningSyncIntegration().assignTarget("testTarget").fullSync();
+//    
+//    //groupIdToGroup = provisioningSyncResult.getMapGroupIdToGroup();
+//
+//    assertEquals(0, groupIdToGroup.size());
+//
+//    //TODO 
+//    //groupIdToGcGrouperSyncGroup = provisioningSyncResult.getMapGroupIdToGroup();
+//
+//    assertEquals(0, groupIdToGcGrouperSyncGroup.size());
+//
+//    // ##########  Put back
+//    testStemAttributeAssign.getAttributeValueDelegate().assignValue(provisioningDoProvisionAttributeDefName.getName(), "true");
+//
+//    GrouperProvisioningJob.runDaemonStandalone();
+//    
+//  }
   
   /**
    * esb consumer
