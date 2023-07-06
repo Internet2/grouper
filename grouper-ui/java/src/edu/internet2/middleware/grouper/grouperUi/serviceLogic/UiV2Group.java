@@ -4893,6 +4893,8 @@ public class UiV2Group {
             
           } catch (RuntimeException re) {
             progressBean.setHasException(true);
+            progressBean.setException(re);
+
             // log this since the thread will just end and will never get logged
             LOG.error("error", re);
           } finally {
@@ -5373,7 +5375,15 @@ public class UiV2Group {
   public void groupEditCompositeStatus(HttpServletRequest request, HttpServletResponse response) {
     String sessionId = request.getSession().getId();
     String uniqueCompositeId = request.getParameter("uniqueCompositeId");
-    groupEditCompositeStatusHelper(sessionId, uniqueCompositeId);
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+
+    try {
+      groupEditCompositeStatusHelper(sessionId, uniqueCompositeId);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
   }
   
   /**
@@ -5394,17 +5404,18 @@ public class UiV2Group {
       MultiKey reportMultiKey = new MultiKey(sessionId, uniqueCompositeId);
       
       GroupContainer groupContainer = compositeThreadProgress.get(reportMultiKey);
-      GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupContainer(groupContainer);
   
-      ProgressBean progressBean = groupContainer.getProgressBean();
-  
-      //show the report screen
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#id_"+uniqueCompositeId, 
-          "/WEB-INF/grouperUi2/group/groupEditCompositeProgress.jsp"));
-      
   
       if (groupContainer != null) {
         
+        GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupContainer(groupContainer);
+        
+        //show the report screen
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#id_"+uniqueCompositeId, 
+            "/WEB-INF/grouperUi2/group/groupEditCompositeProgress.jsp"));
+        
+        ProgressBean progressBean = groupContainer.getProgressBean();
+
         // endless loop?
         if (progressBean.isThisLastStatus()) {
           return;
@@ -5436,8 +5447,8 @@ public class UiV2Group {
   
         }
       } else {
-        //go back to view group
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + groupContainer.getGuiGroup().getGroup().getId() + "');"));
+        //go back to main screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain');"));
       }
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperUtil.getFullStackTrace(re));

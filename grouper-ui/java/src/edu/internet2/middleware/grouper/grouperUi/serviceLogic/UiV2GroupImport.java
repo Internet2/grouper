@@ -762,6 +762,8 @@ public class UiV2GroupImport {
                 startDate, endDate);
           } catch (RuntimeException re) {
             groupImportContainer.getProgressBean().setHasException(true);
+            groupImportContainer.getProgressBean().setException(re);
+
             // log this since the thread will just end and will never get logged
             LOG.error("error", re);
           } finally {
