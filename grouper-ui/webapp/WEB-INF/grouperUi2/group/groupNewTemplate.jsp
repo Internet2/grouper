@@ -33,29 +33,29 @@
           <span class="description">${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.gshTemplateConfig.templateDescriptionForUi }</span><br /><br /></td>
         </tr>
       
-      	<c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
-			
-			<c:set var="guiGshTemplateInputConfigName" value="${guiGshTemplateInputConfigMap.key}"></c:set>		  				
-			<c:set var="guiGshTemplateInputConfig" value="${guiGshTemplateInputConfigMap.value}"></c:set>		  				
-								  				
-			<grouper:configFormElement 
-				formElementType="${guiGshTemplateInputConfig.gshTemplateInputConfig.configItemFormElement}"
-				configId="${guiGshTemplateInputConfig.gshTemplateInputConfig.name}" 
-				label="${guiGshTemplateInputConfig.gshTemplateInputConfig.labelForUi}"
-				readOnly="false"
-				helperText="${guiGshTemplateInputConfig.gshTemplateInputConfig.descriptionForUi}"
-				helperTextDefaultValue="${guiGshTemplateInputConfig.gshTemplateInputConfig.defaultValue}"
-				required="${guiGshTemplateInputConfig.gshTemplateInputConfig.required}"
-				shouldShow="true"
-				shouldShowElCheckbox="false"
-				value="${guiGshTemplateInputConfig.value}"
-				hasExpressionLanguage="false"
-				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}', {formIds: 'newGroupTemplateFormId'}); return false;"
-				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
-        indent="${attribute.configItemMetadata.indent}"
-			/>
-  				
-  			</c:forEach>
+          <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
+      			
+      			<c:set var="guiGshTemplateInputConfigName" value="${guiGshTemplateInputConfigMap.key}"></c:set>		  				
+      			<c:set var="guiGshTemplateInputConfig" value="${guiGshTemplateInputConfigMap.value}"></c:set>		  				
+      								  				
+      			<grouper:configFormElement 
+      				formElementType="${guiGshTemplateInputConfig.gshTemplateInputConfig.configItemFormElement}"
+      				configId="${guiGshTemplateInputConfig.gshTemplateInputConfig.name}" 
+      				label="${guiGshTemplateInputConfig.gshTemplateInputConfig.labelForUi}"
+      				readOnly="false"
+      				helperText="${guiGshTemplateInputConfig.gshTemplateInputConfig.descriptionForUi}"
+      				helperTextDefaultValue="${guiGshTemplateInputConfig.gshTemplateInputConfig.defaultValue}"
+      				required="${guiGshTemplateInputConfig.gshTemplateInputConfig.required}"
+      				shouldShow="true"
+      				shouldShowElCheckbox="false"
+      				value="${guiGshTemplateInputConfig.value}"
+      				hasExpressionLanguage="false"
+      				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}', {formIds: 'newGroupTemplateFormId'}); return false;"
+      				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
+              indent="${attribute.configItemMetadata.indent}"
+      			/>
+        				
+        	</c:forEach>
       
       </c:if>
 

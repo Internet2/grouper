@@ -3341,5 +3341,33 @@ public class GrouperLoaderContainer {
     }
     
   }
+  
+  /**
+   * Input script or Pattern
+   */
+  private String editLoaderConstructScript;
 
+  
+  public String getEditLoaderConstructScript() {
+    return editLoaderConstructScript;
+  }
+
+  
+  public void setEditLoaderConstructScript(String editLoaderConstructScript) {
+    this.editLoaderConstructScript = editLoaderConstructScript;
+  }
+
+  
+  private String editLoaderAbacPattern;
+
+  
+  public String getEditLoaderAbacPattern() {
+    return editLoaderAbacPattern;
+  }
+
+  
+  public void setEditLoaderAbacPattern(String editLoaderAbacPattern) {
+    this.editLoaderAbacPattern = editLoaderAbacPattern;
+  }
+  
 }

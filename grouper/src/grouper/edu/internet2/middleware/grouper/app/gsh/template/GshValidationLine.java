@@ -23,6 +23,6 @@ public class GshValidationLine {
   public String getText() {
     return text;
   }
-  
+
   
 }

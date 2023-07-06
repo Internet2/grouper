@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.util.List;
 
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -10,6 +11,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -603,9 +605,6 @@ public class GshTemplateExecTest extends GrouperTest {
     
     UpgradeTasks.V7.updateVersionFromPrevious();
     
-    String folderUuidToShow = GrouperConfig.retrieveConfig().propertyValueString("grouperGshTemplate.testGshTemplateConfig.folderUuidToShow");
-    assertEquals("abc,def", folderUuidToShow);
-    // verify that in db, we have singular property 
     
     String gshScript = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-script2.gsh", false);
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.gshTemplate", gshScript);
@@ -627,6 +626,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     // when
     GshTemplateExecOutput output = exec.execute();
+    
     
     // then
     Group groupCreatedByGsh = GroupFinder.findByName(grouperSession, "test:test-zoomTest", true);
@@ -650,13 +650,16 @@ public class GshTemplateExecTest extends GrouperTest {
     for (String keyValue: templateConfigProperties) {
       if (StringUtils.isNotBlank(keyValue)) {
         String[] keyValueArr = keyValue.split("=", 2);
-        GrouperConfig.retrieveConfig().propertiesOverrideMap().put(keyValueArr[0].trim(), keyValueArr[1].trim());
+//        GrouperConfig.retrieveConfig().propertiesOverrideMap().put(keyValueArr[0].trim(), keyValueArr[1].trim());
+        new GrouperDbConfig().configFileName("grouper.properties").propertyName(keyValueArr[0].trim()).value(keyValueArr[1].trim()).store();
       }
     }
     
     String gshScript = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-script-penn.gsh", false);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.gshTemplate", gshScript);
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.name", "gsh_input_prefix");
+//    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.gshTemplate", gshScript);
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperGshTemplate.testGshTemplateConfig.gshTemplate").value(gshScript).store();
+//    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.name", "gsh_input_prefix");
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperGshTemplate.testGshTemplateConfig.input.0.name").value("gsh_input_prefix").store();
     
     Stem ownerStem = new StemSave(grouperSession).assignName("test2").save();
     

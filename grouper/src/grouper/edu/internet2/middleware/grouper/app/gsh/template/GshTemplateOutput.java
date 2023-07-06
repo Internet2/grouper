@@ -13,6 +13,12 @@ public class GshTemplateOutput {
   
   private List<GshValidationLine> validationLines = new ArrayList<GshValidationLine>();
   
+  private String abacScript;
+  
+  //defaults to false
+  private Boolean abacIncludeInternalSubjectSources;
+  
+  
   /**
    * operation to redirect to from grouper, e.g. operation=UiV2Stem.viewStem&stemId=abc123
    */
@@ -34,6 +40,16 @@ public class GshTemplateOutput {
    */
   public GshTemplateOutput assignRedirectToGrouperOperation(String redirectToGrouperOperation) {
     this.redirectToGrouperOperation = redirectToGrouperOperation;
+    return this;
+  }
+  
+  public GshTemplateOutput assignAbacScript(String abacScript) {
+    this.abacScript = abacScript;
+    return this;
+  }
+  
+  public GshTemplateOutput assignAbacIncludeInternalSubjectSources(boolean abacIncludeInternalSubjectSources) {
+    this.abacIncludeInternalSubjectSources = abacIncludeInternalSubjectSources;
     return this;
   }
 
@@ -89,6 +105,16 @@ public class GshTemplateOutput {
   
   public List<GshValidationLine> getValidationLines() {
     return validationLines;
+  }
+  
+  
+  public String getAbacScript() {
+    return abacScript;
+  }
+
+  
+  public Boolean getAbacIncludeInternalSubjectSources() {
+    return abacIncludeInternalSubjectSources;
   }
 
   public static GshTemplateOutput retrieveGshTemplateOutput() {

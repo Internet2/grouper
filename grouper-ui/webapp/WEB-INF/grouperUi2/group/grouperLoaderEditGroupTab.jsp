@@ -115,7 +115,75 @@
                           </c:if>
                         </c:if>
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'JEXL_SCRIPT'}"> 
-                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderShowJexlScript}">
+                        
+                          <tr>
+                            <td style="vertical-align: top; white-space: nowrap;"><strong><label for="constructScriptId">${textContainer.text['grouperLoaderConstructScript']}</label></strong></td>
+                            <td>
+                              <span style="white-space: nowrap">
+                                <select name="constructScript" id="constructScriptId" style="width: 40em" onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
+                                  <option value=""></option>
+                                  <option value="inputScript" ${grouperRequestContainer.grouperLoaderContainer.editLoaderConstructScript == 'inputScript' ? 'selected="selected"' : '' } 
+                                    >${textContainer.textEscapeXml['grouperLoaderConstructScriptInputScript']}</option>
+                                  <option value="pattern" ${grouperRequestContainer.grouperLoaderContainer.editLoaderConstructScript == 'pattern' ? 'selected="selected"' : '' }
+                                    >${textContainer.textEscapeXml['grouperLoaderConstructScriptPattern']}</option>
+                                </select>
+                                <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                  data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                              </span>
+                              <br />
+                              <span class="description">${textContainer.text["grouperLoaderConstructScriptDescription"]}</span>
+                            </td>
+                          </tr>
+                          
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderConstructScript == 'pattern'}">
+                            <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderAbacPatternId">${textContainer.text['grouperLoaderAbacPatterns']}</label></strong></td>
+                              <td>
+                                <span style="white-space: nowrap">
+                                  <select name="templateType" id="grouperLoaderAbacPatternId" style="width: 40em"
+                                    onchange="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;">
+                                    <option value=""></option>
+                                    <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.customAbacTemplates}" var="abacTemplate">
+                                      <option value="${abacTemplate.key}" ${grouperRequestContainer.grouperLoaderContainer.editLoaderAbacPattern == abacTemplate.key ? 'selected="selected"' : '' } 
+                                        >${abacTemplate.value}</option>
+                                    </c:forEach>
+                                  </select>
+                                  <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
+                                    data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                                </span>
+                                <br />
+                                <span class="description">
+                                ${textContainer.text['grouperLoaderAbacPatternsDescription']}</span> 
+                              </td>
+                            </tr>
+                            
+                            <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
+            
+                              <c:set var="guiGshTemplateInputConfigName" value="${guiGshTemplateInputConfigMap.key}"></c:set>             
+                              <c:set var="guiGshTemplateInputConfig" value="${guiGshTemplateInputConfigMap.value}"></c:set>             
+                                                  
+                              <grouper:configFormElement 
+                                formElementType="${guiGshTemplateInputConfig.gshTemplateInputConfig.configItemFormElement}"
+                                configId="${guiGshTemplateInputConfig.gshTemplateInputConfig.name}" 
+                                label="${guiGshTemplateInputConfig.gshTemplateInputConfig.labelForUi}"
+                                readOnly="false"
+                                helperText="${guiGshTemplateInputConfig.gshTemplateInputConfig.descriptionForUi}"
+                                helperTextDefaultValue="${guiGshTemplateInputConfig.gshTemplateInputConfig.defaultValue}"
+                                required="${guiGshTemplateInputConfig.gshTemplateInputConfig.required}"
+                                shouldShow="true"
+                                shouldShowElCheckbox="false"
+                                value="${guiGshTemplateInputConfig.value}"
+                                hasExpressionLanguage="false"
+                                ajaxCallback="ajax('../app/UiV2GrouperLoader.editGrouperLoader', {formIds: 'editLoaderFormId'}); return false;"
+                                valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
+                                indent="${attribute.configItemMetadata.indent}"
+                              />
+                                  
+                            </c:forEach>
+                            
+                          </c:if>
+                          
+                           <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderConstructScript == 'inputScript'}">
                             <tr>
                               <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperLoaderJexlScriptId">${textContainer.text['grouperLoaderEntityJexlScript']}</label></strong></td>
                               <td>
@@ -146,6 +214,7 @@
                               </td>
                             </tr>
                           </c:if>
+                         
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderType == 'SQL'}">
@@ -993,14 +1062,26 @@
                       
                       <tr>
                         <td></td>
-                        <td style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;"><input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
-                          value="${textContainer.text['grouperLoaderEditButtonSave'] }" 
-                          onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;"> 
-                          &nbsp; 
-                          <a class="btn btn-cancel" role="button" 
-                            onclick="return guiV2link('operation=UiV2GrouperLoader.loader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
-                            >${textContainer.text['grouperLoaderEditButtonCancel'] }</a>
-                        </td>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderConstructScript == 'pattern'}">
+                          <td style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;"><input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
+                            value="${textContainer.text['grouperLoaderEditButtonContinue'] }" 
+                            onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;"> 
+                            &nbsp; 
+                            <a class="btn btn-cancel" role="button" 
+                              onclick="return guiV2link('operation=UiV2GrouperLoader.loader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['grouperLoaderEditButtonCancel'] }</a>
+                          </td>
+                        </c:if>
+                        <c:if test="${grouperRequestContainer.grouperLoaderContainer.editLoaderConstructScript != 'pattern'}">
+                          <td style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;"><input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
+                            value="${textContainer.text['grouperLoaderEditButtonSave'] }" 
+                            onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;"> 
+                            &nbsp; 
+                            <a class="btn btn-cancel" role="button" 
+                              onclick="return guiV2link('operation=UiV2GrouperLoader.loader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                              >${textContainer.text['grouperLoaderEditButtonCancel'] }</a>
+                          </td>
+                        </c:if>
                       </tr>
                     </tbody>
                   </table>

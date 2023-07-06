@@ -222,7 +222,7 @@ public class UiV2Template {
     }
   }
   
-  private Map<String, GuiGshTemplateInputConfig> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
+  public static Map<String, GuiGshTemplateInputConfig> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -299,6 +299,131 @@ public class UiV2Template {
     templateContainer.setGuiGshTemplateConfig(guiGshTemplateConfig);
     
     return guiTemplateInputConfigsMap;
+    
+  }
+  
+  public static void customTemplateExecuteHelper(HttpServletRequest request, HttpServletResponse response, boolean useThreads) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    Group group = null;
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
+      
+      if (stem == null && group == null) {
+        return;
+      }
+      
+      GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
+      GshTemplateContainer gshTemplateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer();
+      
+      String templateType = request.getParameter("templateType");
+      
+      if (StringUtils.isBlank(templateType)) {
+        throw new RuntimeException("templateType cannot be blank.");
+      }
+      
+      templateContainer.setTemplateType(templateType);
+      
+      GshTemplateExec exec = new GshTemplateExec();
+      
+      exec.assignConfigId(templateType);
+      exec.assignCurrentUser(loggedInSubject);
+      
+      if (stem != null) {
+        exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
+        if (stem.isRootStem()) {
+          exec.assignOwnerStemName(":");
+        } else {
+          exec.assignOwnerStemName(stem.getName());
+        }
+      } else {
+        exec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
+        exec.assignOwnerGroupName(group.getName());
+      }
+      
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
+      gshTemplateConfig.populateConfiguration();
+      
+      Map<String, GuiGshTemplateInputConfig> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
+      
+      if (gshTemplateInputs == null) {
+        return;
+      }
+      
+      for (String inputName: gshTemplateInputs.keySet()) {
+        
+        String value = request.getParameter("config_"+inputName);
+        
+        GshTemplateInput input = new GshTemplateInput();
+        input.assignName(inputName);
+        input.assignValueString(value);
+        exec.addGshTemplateInput(input);
+        
+      }
+      String sessionId = request.getSession().getId();
+      
+      // uniquely identifies this task as opposed to other tasks in other tabs
+      String uniqueId = GrouperUuid.getUuid();
+
+      gshTemplateContainer.setUniqueId(uniqueId);
+
+      MultiKey reportMultiKey = new MultiKey(sessionId, uniqueId);
+      
+      gshExecThreadProgress.put(reportMultiKey, exec);
+
+      GrouperCallable<GshTemplateExecOutput> grouperCallable = new GrouperCallable<GshTemplateExecOutput>("gshTemplateExec") {
+
+        @Override
+        public GshTemplateExecOutput callLogic() {
+          try {
+
+            exec.getProgressBean().setStartedMillis(System.currentTimeMillis());
+
+            GshTemplateExecOutput gshTemplateExecOutput = exec.execute();
+
+            if (gshTemplateExecOutput.getException() != null) {
+              LOG.error("error running template: " + exec.getConfigId(), gshTemplateExecOutput.getException());
+            }
+            
+            return gshTemplateExecOutput;
+            
+          } catch (RuntimeException re) {
+            exec.getProgressBean().setHasException(true);
+            // log this since the thread will just end and will never get logged
+            LOG.error("error", re);
+          } finally {
+            // we done
+            exec.getProgressBean().setComplete(true);
+          }
+          return null;
+        }
+      };      
+      
+      if (useThreads) {
+        
+        GrouperFuture<GshTemplateExecOutput> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+        
+        int waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.gshExec.progressStartsInSeconds", 5);
+
+        GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
+        
+      } else {
+        GshTemplateExecOutput gshTemplateExecOutput = grouperCallable.callLogic();
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
     
   }
   

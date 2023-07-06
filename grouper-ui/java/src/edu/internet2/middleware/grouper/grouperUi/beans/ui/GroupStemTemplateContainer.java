@@ -256,8 +256,22 @@ public class GroupStemTemplateContainer {
    * cache this
    */
   private Map<String, String> customGshTemplates = null;
+
   
+  /**
+   * cache this
+   */
+  private Map<String, String> customAbacTemplates = null;
   
+  /**
+   * get custom abac templates to show in pattern dropdown
+   * @return
+   */
+  public Map<String, String> getCustomAbacTemplates() {
+    this.abacTemplatesToShowHelper();
+    return this.customAbacTemplates;
+  }
+
   /**
    * cache this
    */
@@ -279,6 +293,91 @@ public class GroupStemTemplateContainer {
   }
 
   private static final Log LOG = GrouperUtil.getLog(GroupStemTemplateContainer.class);
+  
+  private void abacTemplatesToShowHelper() {
+    
+    Map<String, String> configsToShowInAbacPatternDropdown = new HashMap<String, String>();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+    
+    Group group = null;
+    if (groupContainer != null && groupContainer.getGuiGroup() != null && groupContainer.getGuiGroup().getGroup() != null) {
+      group  = groupContainer.getGuiGroup().getGroup();
+    }
+    
+    if (group == null) {
+      throw new RuntimeException("group is null");
+    }
+    
+    List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
+    
+    for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
+      
+      String templateTypeString = gshTemplateConfiguration.retrieveAttributeValueFromConfig("templateType", true);
+      if (!StringUtils.equals(templateTypeString, "abac")) {
+        continue;
+      }
+      
+      if (gshTemplateConfiguration.isEnabled()) {
+        
+        try {
+          GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(gshTemplateConfiguration.getConfigId());
+          gshTemplateConfig.populateConfiguration();
+          
+          if (StringUtils.isBlank(gshTemplateConfiguration.getConfigId())) {
+            continue;
+          }
+          
+          GshTemplateExec gshTemplateExec = new GshTemplateExec()
+              .assignConfigId(gshTemplateConfiguration.getConfigId())
+              .assignCurrentUser(loggedInSubject)
+              .assignGshTemplateOwnerType(GshTemplateOwnerType.group)
+              .assignOwnerGroupName(group.getName());
+          
+          if (gshTemplateExec == null || !new GshTemplateValidationService().canSubjectExecuteTemplate(gshTemplateConfig, gshTemplateExec)) {
+            continue;
+          }
+
+          if (!StringUtils.isBlank(gshTemplateConfig.getTemplateNameForUi())) {
+            configsToShowInAbacPatternDropdown.put(gshTemplateConfiguration.getConfigId(), gshTemplateConfig.getTemplateNameForUi());
+          }
+          
+        } catch (Exception e) {
+          LOG.error("Cant decide if GSH template should display! " + gshTemplateConfiguration.getConfigId(), e);
+        }
+      }
+    }
+    
+    {
+      List<Map.Entry<String, String>> listToShowInAbacPatternDropdown = new LinkedList<Map.Entry<String, String>>(configsToShowInAbacPatternDropdown.entrySet()); 
+  
+      // Sort the list 
+      Collections.sort(listToShowInAbacPatternDropdown, new Comparator<Map.Entry<String, String> >() { 
+       public int compare(Map.Entry<String, String> o1,  
+                          Map.Entry<String, String> o2) { 
+         if (o1 == o2) {
+           return 0;
+         }
+         if (o1 == null) {
+           return -1;
+         }
+         if (o2 == null) {
+           return 1;
+         }
+         return GrouperUtil.compare(o1.getValue(), o2.getValue()); 
+       } 
+      }); 
+      
+      
+      Map<String, String> sortedAbacTemplatesByNameToShowInPatternDropdown = new LinkedHashMap<String, String>();
+      
+      for (Map.Entry<String, String> templateIdAndName : listToShowInAbacPatternDropdown) { 
+        sortedAbacTemplatesByNameToShowInPatternDropdown.put(templateIdAndName.getKey(), templateIdAndName.getValue()); 
+      } 
+      this.customAbacTemplates = sortedAbacTemplatesByNameToShowInPatternDropdown;
+    }
+  }
 
   /**
    * get templates to show in more actions. map of configId to template name
