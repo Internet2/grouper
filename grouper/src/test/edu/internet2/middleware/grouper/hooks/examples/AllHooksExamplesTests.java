@@ -43,6 +43,9 @@ public class AllHooksExamplesTests {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.membershipCannotAddSelfToGroupHook", false)) {
       suite.addTestSuite(MembershipCannotAddSelfToGroupHookTest.class);
     }
+    if (GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.membershipCannotAddSelfToGroupHook", false)) {
+      suite.addTestSuite(MembershipCannotAddEveryEntityHookTest.class);
+    }
     suite.addTestSuite(MembershipOneInFolderMaxHookTest.class);
     suite.addTestSuite(StemAttributeNameValidationHookTest.class);
     suite.addTestSuite(StemUniqueNameCaseInsensitiveHookTest.class);

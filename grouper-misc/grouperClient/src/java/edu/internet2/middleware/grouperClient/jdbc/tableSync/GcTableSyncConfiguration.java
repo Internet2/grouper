@@ -143,6 +143,51 @@ public class GcTableSyncConfiguration {
   }
 
   /**
+   * if there are multiple source records with the same key, that is an error, this will ignore those to not be an error
+   */
+  private boolean ignoreDuplicateSourceKeys;
+  
+  
+  
+  /**
+   * if there are multiple source records with the same key, that is an error, this will ignore those to not be an error
+   * @return
+   */
+  public boolean isIgnoreDuplicateSourceKeys() {
+    return ignoreDuplicateSourceKeys;
+  }
+
+
+  /**
+   * if there are multiple source records with the same key, that is an error, this will ignore those to not be an error
+   * @param ignoreDuplicateSourceKeys
+   */
+  public void setIgnoreDuplicateSourceKeys(boolean ignoreDuplicateSourceKeys) {
+    this.ignoreDuplicateSourceKeys = ignoreDuplicateSourceKeys;
+  }
+
+  /**
+   * if remove null characters (not null values) from strings e.g. when going to postgres (default false)
+   */
+  private boolean removeNullCharactersFromStrings;
+  
+  /**
+   * if remove null characters (not null values) from strings e.g. when going to postgres (default false)
+   * @return
+   */
+  public boolean isRemoveNullCharactersFromStrings() {
+    return removeNullCharactersFromStrings;
+  }
+
+  /**
+   * if remove null characters (not null values) from strings e.g. when going to postgres (default false)
+   * @param removeNullCharactersFromStrings
+   */
+  public void setRemoveNullCharactersFromStrings(boolean removeNullCharactersFromStrings) {
+    this.removeNullCharactersFromStrings = removeNullCharactersFromStrings;
+  }
+
+  /**
    * batch size when batching data
    */
   private int batchSize = 800;
@@ -509,6 +554,19 @@ public class GcTableSyncConfiguration {
         debugMap.put("configBatchSize", this.batchSize);
       }
       
+      boolean defaultRemoveNullCharactersFromStrings = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.syncTableDefault.removeNullCharactersFromStrings", false);
+      // grouperClient.syncTable.personSource.removeNullCharactersFromStrings = true
+      this.removeNullCharactersFromStrings = GrouperClientUtils.booleanValue(this.retrieveConfigBoolean("removeNullCharactersFromStrings", false), defaultRemoveNullCharactersFromStrings);
+      if (this.removeNullCharactersFromStrings != defaultRemoveNullCharactersFromStrings) {
+        debugMap.put("configRemoveNullCharactersFromStrings", this.removeNullCharactersFromStrings);
+      }
+      
+      boolean defaultIgnoreDuplicateSourceKeys = GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.syncTableDefault.ignoreDuplicateSourceKeys", false);
+      // grouperClient.syncTable.personSource.ignoreDuplicateSourceKeys = true
+      this.ignoreDuplicateSourceKeys = GrouperClientUtils.booleanValue(this.retrieveConfigBoolean("ignoreDuplicateSourceKeys", false), defaultIgnoreDuplicateSourceKeys);
+      if (this.ignoreDuplicateSourceKeys != defaultIgnoreDuplicateSourceKeys) {
+        debugMap.put("configIgnoreDuplicateSourceKeys", this.ignoreDuplicateSourceKeys);
+      }
       
       int defaultMaxBindVarsInSelect = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
       // grouperClient.syncTable.personSource.maxBindVarsInSelect = 900

@@ -211,16 +211,12 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     grouperHttpClient.assignUrl(url);
     
     String proxyHost = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".proxyHost");
-    String proxyPort = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".proxyPort");
     String proxyType = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.boxConnector." + configId + ".proxyType");
     
     String proxyUrl  = null;
     
     if(StringUtils.isNotBlank(proxyHost)) {
       proxyUrl = proxyHost;
-      if (StringUtils.isNotBlank(proxyPort)) {
-        proxyUrl = proxyUrl + ":"+ proxyPort;
-      }
     }
     if (StringUtils.isNotBlank(proxyUrl)) {
       grouperHttpClient.assignProxyUrl(proxyUrl);

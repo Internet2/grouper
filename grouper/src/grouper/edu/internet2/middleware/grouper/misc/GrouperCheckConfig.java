@@ -136,6 +136,7 @@ import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefNameUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueNameCaseInsensitiveHook;
+import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddEveryEntityHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipOneInFolderMaxHook;
 import edu.internet2.middleware.grouper.hooks.examples.StemUniqueNameCaseInsensitiveHook;
@@ -1235,6 +1236,10 @@ public class GrouperCheckConfig {
             "Assign this attribute to a group and users will not be able to add themself to the group for separation of duties", wasInCheckConfig);
         
         MembershipCannotAddSelfToGroupHook.registerHookIfNecessary();
+      }
+
+      if (MembershipCannotAddEveryEntityHook.cannotAddEveryEntityEnabled()) {
+        MembershipCannotAddEveryEntityHook.registerHookIfNecessary();
       }
       
       // sql cacheable group

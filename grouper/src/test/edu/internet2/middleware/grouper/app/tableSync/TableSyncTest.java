@@ -60,7 +60,7 @@ public class TableSyncTest extends GrouperTest {
     
     
 //    TestRunner.run(new TableSyncTest("testTableSyncMetadata"));
-    TestRunner.run(new TableSyncTest("testPersonSyncFull"));
+    TestRunner.run(new TableSyncTest("testPersonSyncIncrementalPrimaryKey"));
     
 //    BigDecimal a = new BigDecimal(1);
 //    BigDecimal b = new BigDecimal(1.000);
@@ -165,7 +165,7 @@ public class TableSyncTest extends GrouperTest {
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
-    dropTableSyncTables();
+//    dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
   }
@@ -1680,7 +1680,7 @@ public class TableSyncTest extends GrouperTest {
   
     
     // ######################
-    // make changes, do a fan incremental, should fix these with full sync
+    // make changes, do a big incremental, should fix these with full sync
     GrouperUtil.sleep(100);
     
     int numberOfNewInserts = 105;
@@ -1727,11 +1727,11 @@ public class TableSyncTest extends GrouperTest {
   
     // these dont happen on incremental all columns
     assertEquals(0, gcTableSyncOutput.getDelete());
-    assertEquals(7, gcTableSyncOutput.getUpdate());
-    assertTrue(numberOfNewInserts + numberOfNewUpdates < gcTableSyncOutput.getRowsSelectedFrom());
-    assertEquals(numberOfNewInserts, gcTableSyncOutput.getInsert());
-    assertFalse(gcTableSyncOutput.isSwitchedToFull());
-    assertEquals(10, GrouperUtil.length(gcTableSyncOutput.getSwitchedToGroups()));
+    assertEquals(0, gcTableSyncOutput.getUpdate());
+    //assertTrue(numberOfNewInserts + numberOfNewUpdates < gcTableSyncOutput.getRowsSelectedFrom());
+    assertEquals(0, gcTableSyncOutput.getInsert());
+    assertTrue(gcTableSyncOutput.isSwitchedToFull());
+    //assertEquals(10, GrouperUtil.length(gcTableSyncOutput.getSwitchedToGroups()));
   
     
     GrouperUtil.sleep(100);

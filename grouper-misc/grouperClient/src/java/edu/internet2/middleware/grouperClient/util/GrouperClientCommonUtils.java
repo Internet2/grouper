@@ -381,6 +381,54 @@ public class GrouperClientCommonUtils  {
   }
   
   /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd long
+   */
+  public synchronized static void mapAddValue(Map<String, Object> map, String key, long numberToAdd) {
+    if (map == null) {
+      return;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0L;
+    }
+
+    long newValue = longValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+    
+  }
+
+  /**
+   * in a map get a value if there and increment or set a value
+   * @param map
+   * @param key
+   * @param numberToAdd int
+   */
+  public synchronized static void mapAddValue(Map<String, Object> map, String key, int numberToAdd) {
+    if (map == null) {
+      return;
+    }
+    
+    Object currentValue = map.get(key);
+    
+    if (currentValue == null) {
+      
+      currentValue = 0;
+    }
+
+    int newValue = intValue(currentValue) + numberToAdd;
+    
+    map.put(key, newValue);
+
+  }
+
+  /**
    * If we can, inject this into the exception, else return false
    * @param t
    * @param message
