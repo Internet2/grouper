@@ -1357,7 +1357,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
       if (!this.valueString.startsWith(folderNameWithColon)) {
         throw new RuntimeException("Value must start with the entity's folder name: '" + folderNameWithColon + "'" );
       }
-      
+      // TODO how do we know we are looking at the right attribute???
       Set<AttributeAssignValue> attributeAssignValues = GrouperDAOFactory.getFactory().getAttributeAssignValue().findByValueString(this.valueString);
       
       for (AttributeAssignValue attributeAssignValue : GrouperUtil.nonNull(attributeAssignValues)) {
