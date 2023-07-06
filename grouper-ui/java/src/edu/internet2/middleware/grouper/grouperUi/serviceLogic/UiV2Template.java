@@ -398,6 +398,7 @@ public class UiV2Template {
             
           } catch (RuntimeException re) {
             exec.getProgressBean().setHasException(true);
+            exec.getProgressBean().setException(re);
             // log this since the thread will just end and will never get logged
             LOG.error("error", re);
           } finally {
