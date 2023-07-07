@@ -11058,7 +11058,8 @@ public class GrouperServiceLogic {
       }
       
       GshTemplateExecOutput output = exec.execute();
-      
+
+      wsGshTemplateExecResult.setGshExitCode(output.getGrouperGroovyResult().getResultCode());
       if (output.getException() != null) {
         wsGshTemplateExecResult.assignResultCodeException(output.getException(), output.getExceptionStack(), clientVersion);
       } else {
@@ -11091,12 +11092,13 @@ public class GrouperServiceLogic {
         
         if (wsGshValidationLines.length > 0) {
           wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.INVALID, clientVersion);
+        } else if (!output.isSuccess() && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.gshTemplate.ResultConsiderExecStatus", false)) {
+          wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.ERROR, clientVersion);
+          wsGshTemplateExecResult.getResultMetadata().appendResultMessage("Error for: " + theSummary);
         } else {
           wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.SUCCESS, clientVersion);
           wsGshTemplateExecResult.getResultMetadata().appendResultMessage("Success for: " + theSummary);
         }
-        
-        
       }
       
       
