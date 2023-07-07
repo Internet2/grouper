@@ -1931,9 +1931,16 @@ public class UiV2Provisioning {
             elVariableMap.put(name, value);
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
-          } else {
+          } else if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN && GrouperUtil.length(metadataItem.getKeysAndLabelsForDropdown()) > 0) {
+            String firstValue = GrouperUtil.stringValue(metadataItem.getKeysAndLabelsForDropdown().get(0).getKey(0));
+            elVariableMap.put(name,  firstValue);
+          }
+//          else if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON && !GrouperUtil.isBlank(metadataItem.getDefaultValue())) {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
+          else {
             elVariableMap.put(name,  "");
-          } 
+          }
 //          else {
 //            elVariableMap.put(name,  metadataItem.getDefaultValue());
 //          }
