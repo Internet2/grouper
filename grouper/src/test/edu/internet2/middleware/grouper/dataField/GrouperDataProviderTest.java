@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -24,11 +25,13 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.config.SubjectConfig;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
 
 
@@ -39,7 +42,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataProviderTest("testProvider"));
+    TestRunner.run(new GrouperDataProviderTest("testLdapProvider"));
   }
 
   public void setUp() {
@@ -48,6 +51,16 @@ public class GrouperDataProviderTest extends GrouperTest {
     createTableAttributes();
     createTableAttributesMulti();
 
+  }
+  
+
+  protected void tearDown() {
+
+    SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
+    SourceManager.getInstance().internal_removeSource("personLdapSource");
+
+    super.tearDown();
   }
   
   /**
@@ -61,7 +74,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   /**
    * 
    */
-  public void testProvider() {
+  public void testSqlProvider() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -313,6 +326,99 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertTrue(testGroup4.hasMember(testSubject3));
     assertTrue(testGroup4.hasMember(testSubject0));
 
+  }
+  
+  /**
+   * 
+   */
+  public void testLdapProvider() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+    LdapProvisionerTestUtils.startLdapContainer();
+    LdapProvisionerTestUtils.setupSubjectSource();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+        
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldAliases").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldDataType").value("string").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldMultiValued").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldPrivacyRealm").value("public").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.businessCategory.fieldAliases").value("businessCategory").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.businessCategory.fieldDataType").value("string").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.businessCategory.fieldPrivacyRealm").value("public").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.ldap.name").value("ldap").store();
+    
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerConfigId").value("ldap").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryType").value("ldap").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapConfigId").value("personLdap").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapBaseDn").value("ou=People,dc=example,dc=edu").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapSearchScope").value("SUBTREE_SCOPE").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapFilter").value("(|(uid=a-jbutler985)(uid=a-kmartinez977)(uid=a-jvales975)(uid=a-ngonazles)(uid=banderson))").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQuerySubjectIdAttribute").value("uid").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQuerySubjectSourceId").value("personLdapSource").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryNumberOfDataFields").value("2").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.0.providerDataFieldConfigId").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.0.providerDataFieldAttribute").value("eduPersonAffiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldConfigId").value("businessCategory").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldAttribute").value("businessCategory").store();
+
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    
+    GrouperDataEngine.syncDataProviders(grouperConfig);
+    GrouperDataEngine.syncDataFields(grouperConfig);
+    GrouperDataEngine.syncDataRows(grouperConfig);
+    GrouperDataEngine.syncDataAliases(grouperConfig);
+    
+    new GrouperDataEngine().loadFieldsAndRows(grouperConfig);
+
+    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText("ldap");
+    
+    // load data
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
+
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_alias").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_provider").select(int.class).intValue());
+
+    
+    // check synced data
+    
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975'").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-kmartinez977'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985'").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'affiliation' and value_text = 'faculty'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'affiliation' and value_text = 'alum'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'businessCategory' and value_text = 'Account Payable'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'affiliation' and value_text = 'community'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'businessCategory' and value_text = 'Language Arts'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-kmartinez977' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-kmartinez977' and data_field_config_id = 'businessCategory' and value_text = 'Account Payable'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'affiliation' and value_text = 'student'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'businessCategory' and value_text = 'Purchasing'").select(int.class).intValue());
+    
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson' and data_field_config_id = 'affiliation' and value_text is null").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson' and data_field_config_id = 'businessCategory' and value_text is null").select(int.class).intValue());
   }
 
   /**
