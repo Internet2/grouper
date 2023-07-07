@@ -11092,7 +11092,11 @@ public class GrouperServiceLogic {
         
         if (wsGshValidationLines.length > 0) {
           wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.INVALID, clientVersion);
+<<<<<<< GROUPER_5_BRANCH
         } else if (!output.isSuccess() && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.gshTemplate.ResultConsiderExecStatus", true)) {
+=======
+        } else if (!output.isSuccess() && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.gshTemplate.ResultConsiderExecStatus", false)) {
+>>>>>>> 984d4fb GRP-4800: WS GshTemplateExec returns success even though GshTemplateExecOutput.isSuccess=false
           wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.ERROR, clientVersion);
           wsGshTemplateExecResult.getResultMetadata().appendResultMessage("Error for: " + theSummary);
         } else {
