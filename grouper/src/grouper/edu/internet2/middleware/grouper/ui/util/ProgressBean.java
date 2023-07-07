@@ -38,6 +38,16 @@ public class ProgressBean {
    * if there are too many statuses then just quit
    */
   private int statusCountdown = 10000;
+  
+  private Exception exception = null;
+  
+  public Exception getException() {
+    return exception;
+  }
+  
+  public void setException(Exception exception) {
+    this.exception = exception;
+  }
 
   /**
    * decrement the status countdown and see if this is the last one
