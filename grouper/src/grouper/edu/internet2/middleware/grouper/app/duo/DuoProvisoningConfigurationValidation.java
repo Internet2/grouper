@@ -26,7 +26,7 @@ public class DuoProvisoningConfigurationValidation extends GrouperProvisioningCo
 
   @Override
   public Collection<String> validateEntityAttributeNamesAllowed() {
-    return GrouperUtil.toSet("name", "email", "firstName", "lastName");
+    return GrouperUtil.toSet("alias1", "alias2", "alias3", "alias4", "name", "email", "firstName", "lastName");
   }
 
   @Override

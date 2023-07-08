@@ -51,6 +51,11 @@
     <property name="notes" column="notes" />
     <property name="status" column="status" />
     
+     <property name="alias1" column="alias1" />
+     <property name="alias2" column="alias2" />
+     <property name="alias3" column="alias3" />
+     <property name="alias4" column="alias4" />
+    
     <property name="pushEnabledDb" column="push_enabled" />
     <property name="enrolledDb" column="enrolled" />
     <property name="lastDirectorySync" column="last_directory_sync" />
