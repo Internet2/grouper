@@ -670,6 +670,11 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     String email = mockServiceRequest.getHttpServletRequest().getParameter("email");
     String firstName = mockServiceRequest.getHttpServletRequest().getParameter("firstname");
     String lastName = mockServiceRequest.getHttpServletRequest().getParameter("lastname");
+
+    String alias1 = mockServiceRequest.getHttpServletRequest().getParameter("alias1");
+    String alias2 = mockServiceRequest.getHttpServletRequest().getParameter("alias2");
+    String alias3 = mockServiceRequest.getHttpServletRequest().getParameter("alias3");
+    String alias4 = mockServiceRequest.getHttpServletRequest().getParameter("alias4");
     
 
     GrouperDuoUser grouperDuoUser = new GrouperDuoUser();
@@ -679,6 +684,10 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     grouperDuoUser.setRealName(realName);
     grouperDuoUser.setFirstName(firstName);
     grouperDuoUser.setLastName(lastName);
+    grouperDuoUser.setAlias1(alias1);
+    grouperDuoUser.setAlias2(alias2);
+    grouperDuoUser.setAlias3(alias3);
+    grouperDuoUser.setAlias4(alias4);
     
     List<GrouperDuoUser> grouperDuoUsers = HibernateSession.byHqlStatic().createQuery("select user from GrouperDuoUser user where user.userName = :userName ")
         .setString("userName", grouperDuoUser.getUserName())
@@ -741,6 +750,11 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     String email = mockServiceRequest.getHttpServletRequest().getParameter("email");
     String firstName = mockServiceRequest.getHttpServletRequest().getParameter("firstname");
     String lastName = mockServiceRequest.getHttpServletRequest().getParameter("lastname");
+
+    String alias1 = mockServiceRequest.getHttpServletRequest().getParameter("alias1");
+    String alias2 = mockServiceRequest.getHttpServletRequest().getParameter("alias2");
+    String alias3 = mockServiceRequest.getHttpServletRequest().getParameter("alias3");
+    String alias4 = mockServiceRequest.getHttpServletRequest().getParameter("alias4");
     
     
     GrouperDuoUser grouperDuoUser = grouperDuoUsers.get(0);
@@ -777,6 +791,18 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     }
     if (StringUtils.isNotBlank(email)) {
       grouperDuoUser.setEmail(email);
+    }
+    if (StringUtils.isNotBlank(alias1)) {
+      grouperDuoUser.setAlias1(alias1);
+    }
+    if (StringUtils.isNotBlank(alias2)) {
+      grouperDuoUser.setAlias2(alias1);
+    }
+    if (StringUtils.isNotBlank(alias3)) {
+      grouperDuoUser.setAlias3(alias3);
+    }
+    if (StringUtils.isNotBlank(alias4)) {
+      grouperDuoUser.setAlias4(alias4);
     }
     
     HibernateSession.byObjectStatic().saveOrUpdate(grouperDuoUser);
@@ -1269,6 +1295,11 @@ public class DuoMockServiceHandler extends MockServiceHandler {
     GrouperUtil.jsonJacksonAssignBoolean(result, "is_enrolled", grouperDuoUser.getEnrolled());
     GrouperUtil.jsonJacksonAssignLong(result, "last_directory_sync", grouperDuoUser.getLastDirectorySync());
     GrouperUtil.jsonJacksonAssignLong(result, "last_login", grouperDuoUser.getLastLogin());
+    
+    GrouperUtil.jsonJacksonAssignString(result, "alias1", grouperDuoUser.getAlias1());
+    GrouperUtil.jsonJacksonAssignString(result, "alias2", grouperDuoUser.getAlias2());
+    GrouperUtil.jsonJacksonAssignString(result, "alias3", grouperDuoUser.getAlias3());
+    GrouperUtil.jsonJacksonAssignString(result, "alias4", grouperDuoUser.getAlias4());
     
     ArrayNode groupsNode = GrouperUtil.jsonJacksonArrayNode();
     
