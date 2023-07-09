@@ -1,6 +1,10 @@
  <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-
-    <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.grouperProvisioningErrorSummary != null && grouperRequestContainer.provisionerConfigurationContainer.grouperProvisioningErrorSummary.errorsCount > 0}">
+    
+    
+    <c:if test="${grouperRequestContainer.provisionerConfigurationContainer.grouperProvisioningErrorSummary != null}">
+    
+    <c:choose>
+    <c:when test="${grouperRequestContainer.provisionerConfigurationContainer.grouperProvisioningErrorSummary.errorsCount > 0}">
      
      <div class="row-fluid">
      <div class="span3">
@@ -94,4 +98,18 @@
      </table>
      </div>
      </div>
-   </c:if>
+   </c:when>
+   <c:otherwise>
+    <div class="row-fluid">
+      <div class="span9">
+        <p><b>
+        ${textContainer.text['provisionerConfigNoErrorsFound'] } 
+        ${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId}
+        </b></p>
+      </div>
+    </div>
+  </c:otherwise>
+  </c:choose>
+    
+    
+    </c:if>
