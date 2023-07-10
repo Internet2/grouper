@@ -68,6 +68,8 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupContainer {
   
+  private GuiGroup errorGuiGroup;
+  
   private ProgressBean progressBean = null;
   
   public ProgressBean getProgressBean() {

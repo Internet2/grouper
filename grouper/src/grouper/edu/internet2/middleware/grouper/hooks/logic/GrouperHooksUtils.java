@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.hooks.examples.AttributeDefUniqueNameCas
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeSecurityHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupTypeTupleIncludeExcludeHook;
+import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueExtensionInFoldersHook;
 import edu.internet2.middleware.grouper.hooks.examples.GrouperAttributeAssignValueRulesConfigHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddEveryEntityHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
@@ -571,7 +572,7 @@ public class GrouperHooksUtils {
     MembershipOneInFolderMaxHook.clearHook();
     StemUniqueNameCaseInsensitiveHook.clearHook();
     MembershipRequireMembershipHook.clearHook();
-
+    GroupUniqueExtensionInFoldersHook.clearHook();
   }
 
 }

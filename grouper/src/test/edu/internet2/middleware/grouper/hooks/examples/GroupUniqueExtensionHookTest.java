@@ -115,7 +115,8 @@ public class GroupUniqueExtensionHookTest extends GrouperTest {
       //alternate name
       new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test2:someGroupName").save();
-      
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
@@ -125,7 +126,8 @@ public class GroupUniqueExtensionHookTest extends GrouperTest {
       //name
       group = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test2:someGroupNamE").save();
-      
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
@@ -139,6 +141,8 @@ public class GroupUniqueExtensionHookTest extends GrouperTest {
       group.setExtension("someGroupNaME");
       group.store();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
@@ -177,6 +181,8 @@ public class GroupUniqueExtensionHookTest extends GrouperTest {
       new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test2:someGroupName").save();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
@@ -191,6 +197,8 @@ public class GroupUniqueExtensionHookTest extends GrouperTest {
       group.setExtension("someGroUpName");
       group.store();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueExtensionHook.VETO_GROUP_UNIQUE_EXTENSION);
