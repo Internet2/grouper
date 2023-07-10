@@ -133,6 +133,8 @@ public class StemUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test:someStemNamEExists").save();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), StemUniqueNameCaseInsensitiveHook.VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE);
@@ -143,6 +145,8 @@ public class StemUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test:someStemNamE").save();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), StemUniqueNameCaseInsensitiveHook.VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE);
@@ -153,6 +157,8 @@ public class StemUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       stem.setExtension("someStemNameExistS");
       stem.store();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), StemUniqueNameCaseInsensitiveHook.VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE);
@@ -163,6 +169,8 @@ public class StemUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       stem.setExtension("someStemNameExistS2");
       stem.store();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), StemUniqueNameCaseInsensitiveHook.VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE);
