@@ -11092,7 +11092,7 @@ public class GrouperServiceLogic {
         
         if (wsGshValidationLines.length > 0) {
           wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.INVALID, clientVersion);
-        } else if (!output.isSuccess() && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.gshTemplate.ResultConsiderExecStatus", false)) {
+        } else if (!output.isSuccess() && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.gshTemplate.ResultConsiderExecStatus", true)) {
           wsGshTemplateExecResult.assignResultCode(WsGshTemplateExecResultCode.ERROR, clientVersion);
           wsGshTemplateExecResult.getResultMetadata().appendResultMessage("Error for: " + theSummary);
         } else {
