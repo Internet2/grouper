@@ -81,7 +81,8 @@ public class GrouperProvisioningGrouperDao {
         "    grouper_sync_group gsg " + 
         "where " + 
         "    gsg.grouper_sync_id = ? " +
-        "    and gg.id = gsg.group_id " + 
+        "    and gg.id = gsg.group_id " +
+        "    and gg.type_of_group != 'entity' " + 
         "    and gsg.provisionable = 'T' ";
     
     List<Object> paramsInitial = new ArrayList<Object>();
@@ -1336,6 +1337,7 @@ public class GrouperProvisioningGrouperDao {
           "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
           "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
           "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+          "    AND gg.type_of_group != 'entity' " + 
           "    AND gaa_marker.enabled = 'T' " + 
           "    AND gaa_target.enabled = 'T' " + 
           "    AND gaa_config.enabled = 'T' ";
@@ -1403,6 +1405,7 @@ public class GrouperProvisioningGrouperDao {
           "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
           "    AND gadn_marker.name = ? " + 
           "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
+          "    AND gg.type_of_group != 'entity' " + 
           "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
           "    AND gadn_target.name = ? " + 
           "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
@@ -1611,6 +1614,7 @@ public class GrouperProvisioningGrouperDao {
         "WHERE " + 
         "    gg.id = ? " +
         "    AND gg.id = gaa_marker.owner_group_id " + 
+        "    AND gg.type_of_group != 'entity' " + 
         "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
         "    AND gadn_marker.name = ? " + 
         "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
@@ -1927,6 +1931,7 @@ public class GrouperProvisioningGrouperDao {
           "    AND gs.id = gss.then_has_stem_id " +
           "    AND gss.if_has_stem_id = gg.parent_stem " + 
           "    AND gg.id = gaa_marker.owner_group_id " + 
+          "    AND gg.type_of_group != 'entity' " + 
           "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
           "    AND gadn_marker.name = ? " + 
           "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
@@ -1993,6 +1998,7 @@ public class GrouperProvisioningGrouperDao {
           "    grouper_groups gg " + 
           "WHERE " + 
           "    gss.then_has_stem_id = ?" +
+          "    AND gg.type_of_group != 'entity' " + 
           "    AND gss.if_has_stem_id = gg.parent_stem ";
       
       List<Object> paramsInitial = new ArrayList<Object>();
@@ -2182,6 +2188,7 @@ public class GrouperProvisioningGrouperDao {
           "    AND gs.id = gss.then_has_stem_id " + 
           "    AND gss.if_has_stem_id = gg.parent_stem " +          
           "    AND gg.id = gaa_type_marker.owner_group_id " +
+          "    AND gg.type_of_group != 'entity' " + 
           "    AND gaa_type_marker.attribute_def_name_id = gadn_type_marker.id " +
           "    AND gadn_type_marker.name = ? " +
           "    AND gaa_type_marker.id = gaa_type_name.owner_attribute_assign_id " + 
