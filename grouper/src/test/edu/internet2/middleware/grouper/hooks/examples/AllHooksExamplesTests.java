@@ -51,6 +51,7 @@ public class AllHooksExamplesTests {
     suite.addTestSuite(StemUniqueNameCaseInsensitiveHookTest.class);
     suite.addTestSuite(UniqueObjectHookTest.class);
     suite.addTestSuite(GroupUniqueExtensionHookTest.class);
+    suite.addTestSuite(GroupUniqueExtensionInFoldersHookTest.class);
     //$JUnit-END$
     return suite;
   }
