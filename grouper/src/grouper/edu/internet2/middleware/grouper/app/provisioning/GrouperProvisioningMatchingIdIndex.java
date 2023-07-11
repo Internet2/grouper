@@ -337,7 +337,8 @@ public class GrouperProvisioningMatchingIdIndex {
     while (iterator.hasNext()) {
       ProvisioningEntityWrapper newEntityWrapper = iterator.next();
       // see if this is a new one
-      if (newEntityWrapper.getTargetProvisioningEntity() != null && newEntityWrapper.getGrouperTargetEntity() == null) {
+      if (newEntityWrapper.getTargetProvisioningEntity() != null && newEntityWrapper.getGrouperTargetEntity() == null 
+          && GrouperUtil.length(newEntityWrapper.getTargetProvisioningEntity().getMatchingIdAttributeNameToValues()) > 0) {
         if (foundMatchOfMatchingAttributeToWrapper.containsKey(newEntityWrapper.getTargetProvisioningEntity().getMatchingIdAttributeNameToValues().iterator().next())) {
           iterator.remove();
           // note: no need to remove from indexes...
