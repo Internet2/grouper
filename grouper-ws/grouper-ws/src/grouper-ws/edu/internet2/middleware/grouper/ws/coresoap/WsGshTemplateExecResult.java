@@ -18,6 +18,9 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
     SUCCESS(200),
 
     /** exception was thrown while running gsh template (http status code 500) (success: F) */
+    ERROR(500),
+
+    /** exception was thrown while running gsh template (http status code 500) (success: F) */
     EXCEPTION(500),
 
     /** invalid input (e.g. if everything blank) (http status code 400) (success: F) */
@@ -73,9 +76,11 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
   private WsGshValidationLine[] gshValidationLines;
   
   private WsGshOutputLine[] gshOutputLines;
-  
+
   private String gshScriptOutput;
-  
+
+  private Integer gshExitCode;
+
   
   public Boolean getTransaction() {
     return transaction;
@@ -154,5 +159,22 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
   public void assignResultCode(WsGshTemplateExecResultCode wsGshTemplateExecResultCode, GrouperVersion clientVersion) {
     this.getResultMetadata().assignResultCode(wsGshTemplateExecResultCode, clientVersion);
   }
-  
+
+  /**
+   * Exit code returned by the gsh script (non-zero generally indicates an error)
+   * @return
+   */
+  public Integer getGshExitCode() {
+    return gshExitCode;
+  }
+
+  /**
+   * Exit code returned by the gsh script (non-zero generally indicates an error)
+   * @param gshExitCode
+   * @return
+   */
+  public WsGshTemplateExecResult setGshExitCode(Integer gshExitCode) {
+    this.gshExitCode = gshExitCode;
+    return this;
+  }
 }
