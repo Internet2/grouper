@@ -5,6 +5,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -28,12 +29,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning.GuiGrouperSyncObject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiPaging;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Group;
-import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Stem;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -491,7 +488,7 @@ public class ProvisioningContainer {
    * get editable targets for current group/stem and logged in subject
    * @return
    */
-  public Set<GrouperProvisioningTarget> getEditableTargets() {
+  public List<GrouperProvisioningTarget> getEditableTargets() {
     
     GrouperObject grouperObject = null;
     
@@ -516,7 +513,17 @@ public class ProvisioningContainer {
       }
     }
     
-    return editableTargets;
+    List<GrouperProvisioningTarget> editableTargetsSorted = new ArrayList<>(editableTargets);
+    
+    editableTargetsSorted.sort(new Comparator<GrouperProvisioningTarget>() {
+
+      @Override
+      public int compare(GrouperProvisioningTarget o1, GrouperProvisioningTarget o2) {
+        return o1.getExternalizedName().compareTo(o2.getExternalizedName());
+      }
+    });
+    
+    return editableTargetsSorted;
   }
 
   /**

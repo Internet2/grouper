@@ -72,7 +72,7 @@ public class GroupStemTemplateContainer {
   /**
    * all the template types to labels
    */
-  private Map<String, String> templateOptions = new HashMap<String, String>();
+  private Map<String, String> templateOptions = new LinkedHashMap<String, String>();
   
   /**
    * create template in current folder or a subfolder
