@@ -967,7 +967,10 @@ public class GrouperDataEngine {
                   
                   for (Object currentValue : (Set)value) {
                     currentValue = grouperDataFieldConfig.getFieldDataType().convertValue(currentValue);
-                    data.add(currentValue);
+                    
+                    if (currentValue != null && currentValue != Void.TYPE) {
+                      data.add(currentValue);
+                    }
                   }
                 }
               } else {
@@ -981,7 +984,10 @@ public class GrouperDataEngine {
                     data = new ArrayList<>();
                     grouperDataMemberWrapper.getDataProviderDataByDataFieldIternalId().put(grouperDataFieldWrapper.getGrouperDataField().getInternalId(), data);
                   }
-                  data.add(value);
+                  
+                  if (value != null && value != Void.TYPE) {
+                    data.add(value);
+                  }
                 } else {
                   // if this is a row
                   List<Object> values = rowDataFieldInternalIdToValues.get(grouperDataFieldWrapper.getGrouperDataField().getInternalId());
