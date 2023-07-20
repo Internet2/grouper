@@ -68,6 +68,14 @@
                                
                                <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
                                
+                               <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'group'}">
+                                 <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&groupId=${guiGshTemplateConfiguration.gshTemplateConfiguration.groupId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
+                               </c:if>
+                               <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'folder'}">
+                                <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.gshTemplateConfiguration.folderId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
+                               </c:if>
+                               
+                               
 <li>&nbsp;</li>			                             
 			                             <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['gshTemplatesConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2GshTemplateConfig.deleteGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');}">${textContainer.text['gshTemplatesTableDeleteDetailsActionOption'] }</a></li>
 			                           </ul>
