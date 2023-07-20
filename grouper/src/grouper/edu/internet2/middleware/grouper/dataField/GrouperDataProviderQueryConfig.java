@@ -61,7 +61,7 @@ public class GrouperDataProviderQueryConfig {
     //  # Data structure
     //  # {valueType: "string", required: true, regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQueryDataStructure$", formElement: "dropdown", optionValues: ["attribute", "row"]}
     //  # grouperDataProviderQuery.dataProviderQueryConfigId.providerQueryDataStructure =
-    String providerQueryDataStructureString = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryDataStructure");
+    String providerQueryDataStructureString = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryDataStructure", "attribute");
     GrouperDataFieldStructure grouperDataFieldStructure = GrouperDataFieldStructure.valueOfIgnoreCase(providerQueryDataStructureString, true);
     this.providerQueryDataStructure = grouperDataFieldStructure;
 
@@ -98,6 +98,10 @@ public class GrouperDataProviderQueryConfig {
       
     }
 
+    this.providerQueryLdapConfigId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapConfigId");
+    this.providerQueryLdapBaseDn = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapBaseDn");
+    this.providerQueryLdapSearchScope = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapSearchScope");
+    this.providerQueryLdapFilter = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapFilter");
   }
 
   /**
@@ -404,7 +408,79 @@ public class GrouperDataProviderQueryConfig {
     this.grouperDataProviderQueryFieldConfigs = grouperDataProviderQueryFieldConfigs;
   }
 
-  
+  private String providerQueryLdapBaseDn;
+  private String providerQueryLdapSearchScope;
+  private String providerQueryLdapFilter;
+  private String providerQueryLdapConfigId;
+
+  /**
+   * LDAP base DN
+   * @return
+   */
+  public String getProviderQueryLdapBaseDn() {
+    return providerQueryLdapBaseDn;
+  }
 
 
+  /**
+   * LDAP base DN
+   * @param providerQueryLdapBaseDn
+   */
+  public void setProviderQueryLdapBaseDn(String providerQueryLdapBaseDn) {
+    this.providerQueryLdapBaseDn = providerQueryLdapBaseDn;
+  }
+
+
+  /**
+   * LDAP search scope
+   * @return
+   */
+  public String getProviderQueryLdapSearchScope() {
+    return providerQueryLdapSearchScope;
+  }
+
+
+  /**
+   * LDAP search scope
+   * @param providerQueryLdapSearchScope
+   */
+  public void setProviderQueryLdapSearchScope(String providerQueryLdapSearchScope) {
+    this.providerQueryLdapSearchScope = providerQueryLdapSearchScope;
+  }
+
+
+  /**
+   * LDAP filter
+   * @return
+   */
+  public String getProviderQueryLdapFilter() {
+    return providerQueryLdapFilter;
+  }
+
+
+  /**
+   * LDAP filter
+   * @param providerQueryLdapFilter
+   */
+  public void setProviderQueryLdapFilter(String providerQueryLdapFilter) {
+    this.providerQueryLdapFilter = providerQueryLdapFilter;
+  }
+
+
+  /**
+   * ldap external system config id
+   * @return
+   */
+  public String getProviderQueryLdapConfigId() {
+    return providerQueryLdapConfigId;
+  }
+
+
+  /**
+   * ldap external system config id
+   * @param providerQueryLdapConfigId
+   */
+  public void setProviderQueryLdapConfigId(String providerQueryLdapConfigId) {
+    this.providerQueryLdapConfigId = providerQueryLdapConfigId;
+  }
 }

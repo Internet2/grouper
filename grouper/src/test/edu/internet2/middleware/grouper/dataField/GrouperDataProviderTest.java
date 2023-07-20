@@ -9,6 +9,8 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
+import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -24,11 +26,17 @@ import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
-import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouper.ldap.LdapAttribute;
+import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
+import edu.internet2.middleware.grouper.ldap.LdapModificationType;
+import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.config.SubjectConfig;
+import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
 
 
@@ -39,7 +47,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataProviderTest("testProvider"));
+    TestRunner.run(new GrouperDataProviderTest("testSqlProvider"));
   }
 
   public void setUp() {
@@ -48,6 +56,16 @@ public class GrouperDataProviderTest extends GrouperTest {
     createTableAttributes();
     createTableAttributesMulti();
 
+  }
+  
+
+  protected void tearDown() {
+
+    SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
+    GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
+    SourceManager.getInstance().internal_removeSource("personLdapSource");
+
+    super.tearDown();
   }
   
   /**
@@ -61,7 +79,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   /**
    * 
    */
-  public void testProvider() {
+  public void testSqlProvider() {
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -313,6 +331,357 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertTrue(testGroup4.hasMember(testSubject3));
     assertTrue(testGroup4.hasMember(testSubject0));
 
+
+    // make some updates in db - update single valued attribute, update multi-valued attribute, and update affiliation in row data
+    new GcDbAccess().sql("update testgrouper_field_attr set two_step_enrolled='T' where subject_id='test.subject.0'").executeBatchSql();
+    new GcDbAccess().sql("update testgrouper_field_attr_multi set attribute_value='999' where subject_id='test.subject.0' and attribute_value='234'").executeBatchSql();
+    new GcDbAccess().sql("update testgrouper_field_row_affil set affiliation_code='faculty' where subject_id='test.subject.0' and affiliation_code='staff'").executeBatchSql();
+    
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 999").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'faculty'").select(long.class);
+
+    assertEquals("engl", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'alum'").select(long.class);
+
+    assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    
+    // make some updates in db - update another field in row data
+    new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
+    
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 999").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'faculty'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'alum'").select(long.class);
+
+    assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    // make some updates in db - null a field
+    new GcDbAccess().sql("update testgrouper_field_row_affil set org=null where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
+    
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 999").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'faculty'").select(long.class);
+
+    assertEquals(0, new GcDbAccess().sql("select count(*) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'alum'").select(long.class);
+
+    assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+    // make some updates in db - bring value back from null
+    new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
+    
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 999").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'faculty'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'alum'").select(long.class);
+
+    assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+    
+    // make some updates in db - update a boolean
+    new GcDbAccess().sql("update testgrouper_field_row_affil set active='F' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
+    
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 999").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'faculty'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(0, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'alum'").select(long.class);
+
+    assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+    
+    // delete a row
+    new GcDbAccess().sql("delete from testgrouper_field_row_affil where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
+    
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 999").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'alum'").select(long.class);
+
+    assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+    
+    // add row back
+    new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values('test.subject.0', 'faculty', 'F', 'english')").executeBatchSql();
+    
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+    assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 999").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_v where subject_id = 'test.subject.0' and data_row_config_id = 'affiliation'").select(int.class).intValue());
+    
+    assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0'").select(int.class).intValue());
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'faculty'").select(long.class);
+
+    assertEquals("english", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(0, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+
+
+    rowAssignId = new GcDbAccess().sql("select data_row_assign_internal_id from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' "
+        + "and data_field_config_id = 'affiliationCode' and value_text = 'alum'").select(long.class);
+
+    assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
+    
+  }
+  
+  /**
+   * 
+   */
+  public void testLdapProvider() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
+    LdapProvisionerTestUtils.startLdapContainer();
+    LdapProvisionerTestUtils.setupSubjectSource();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
+        
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldAliases").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldDataType").value("string").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldMultiValued").value("true").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.affiliation.fieldPrivacyRealm").value("public").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.businessCategory.fieldAliases").value("businessCategory").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.businessCategory.fieldDataType").value("string").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataField.businessCategory.fieldPrivacyRealm").value("public").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.ldap.name").value("ldap").store();
+    
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerConfigId").value("ldap").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryType").value("ldap").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapConfigId").value("personLdap").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapBaseDn").value("ou=People,dc=example,dc=edu").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapSearchScope").value("SUBTREE_SCOPE").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryLdapFilter").value("(|(uid=a-jbutler985)(uid=a-kmartinez977)(uid=a-jvales975)(uid=a-ngonazles)(uid=banderson))").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQuerySubjectIdAttribute").value("uid").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQuerySubjectSourceId").value("personLdapSource").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryNumberOfDataFields").value("2").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.0.providerDataFieldConfigId").value("affiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.0.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.0.providerDataFieldAttribute").value("eduPersonAffiliation").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldConfigId").value("businessCategory").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldAttribute").value("businessCategory").store();
+
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    
+    GrouperDataEngine.syncDataProviders(grouperConfig);
+    GrouperDataEngine.syncDataFields(grouperConfig);
+    GrouperDataEngine.syncDataRows(grouperConfig);
+    GrouperDataEngine.syncDataAliases(grouperConfig);
+    
+    new GrouperDataEngine().loadFieldsAndRows(grouperConfig);
+
+    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText("ldap");
+    
+    // load data
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
+
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_alias").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_provider").select(int.class).intValue());
+
+    
+    // check synced data
+    
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975'").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-kmartinez977'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985'").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'affiliation' and value_text = 'faculty'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'affiliation' and value_text = 'alum'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'businessCategory' and value_text = 'Account Payable'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'affiliation' and value_text = 'community'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'businessCategory' and value_text = 'Language Arts'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-kmartinez977' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-kmartinez977' and data_field_config_id = 'businessCategory' and value_text = 'Account Payable'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'affiliation' and value_text = 'student'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'businessCategory' and value_text = 'Purchasing'").select(int.class).intValue());
+        
+    // now try updates
+
+    grouperDataProvider = GrouperDataProviderDao.selectByText("ldap");
+    
+    // make some updates in ldap
+    List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
+    ldapModificationItems.add(new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonAffiliation", "staff")));
+    ldapModificationItems.add(new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonAffiliation", "member")));
+    ldapModificationItems.add(new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("businessCategory", "Something")));
+    new LdapSyncDaoForLdap().modify("personLdap", "uid=banderson,ou=People,dc=example,dc=edu", ldapModificationItems);
+    
+    ldapModificationItems = new ArrayList<LdapModificationItem>();
+    ldapModificationItems.add(new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute("eduPersonAffiliation")));
+    ldapModificationItems.add(new LdapModificationItem(LdapModificationType.REMOVE_ATTRIBUTE, new LdapAttribute("businessCategory")));
+    new LdapSyncDaoForLdap().modify("personLdap", "uid=a-kmartinez977,ou=People,dc=example,dc=edu", ldapModificationItems);
+
+    ldapModificationItems = new ArrayList<LdapModificationItem>();
+    ldapModificationItems.add(new LdapModificationItem(LdapModificationType.REPLACE_ATTRIBUTE, new LdapAttribute("businessCategory", "Something else")));
+    new LdapSyncDaoForLdap().modify("personLdap", "uid=a-ngonazles,ou=People,dc=example,dc=edu", ldapModificationItems);
+
+    
+    // load data updates
+    GrouperDataEngine.loadFull(grouperDataProvider);
+
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
+
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row").select(int.class).intValue());
+
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_alias").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_provider").select(int.class).intValue());
+
+    
+    // check synced data
+    
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975'").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-kmartinez977'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985'").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'affiliation' and value_text = 'faculty'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'affiliation' and value_text = 'alum'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-ngonazles' and data_field_config_id = 'businessCategory' and value_text = 'Something else'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'affiliation' and value_text = 'community'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jvales975' and data_field_config_id = 'businessCategory' and value_text = 'Language Arts'").select(int.class).intValue());
+
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'affiliation' and value_text = 'student'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'businessCategory' and value_text = 'Purchasing'").select(int.class).intValue());
+    
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson' and data_field_config_id = 'affiliation' and value_text = 'member'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson' and data_field_config_id = 'affiliation' and value_text = 'staff'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'banderson' and data_field_config_id = 'businessCategory' and value_text = 'Something'").select(int.class).intValue());
   }
 
   /**

@@ -4,7 +4,9 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public enum GrouperDataProviderQueryType {
 
-  sql;  
+  sql,
+  
+  ldap;  
   
   /**
    * 
