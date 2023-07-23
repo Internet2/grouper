@@ -2770,6 +2770,16 @@ public abstract class GrouperProvisioningConfiguration {
           continue;
         }
         this.entityAttributeDbCaches[i] = new GrouperProvisioningConfigurationAttributeDbCache(this.grouperProvisioner, i, "entity");
+        
+        Boolean theEntityAttributeValueCacheNullChecksInScript = this.retrieveConfigBoolean("entityAttributeValueCache" + i + "nullChecksInScript", false);
+        if (theEntityAttributeValueCacheNullChecksInScript == null) {
+          theEntityAttributeValueCacheNullChecksInScript = false;
+        }
+        this.entityAttributeDbCaches[i].setNullChecksInScript(theEntityAttributeValueCacheNullChecksInScript);
+        
+        String entityAttributeValueCacheTranslationContinueCondition = this.retrieveConfigString("entityAttributeValueCache" + i + "translationContinueCondition", false);
+        this.entityAttributeDbCaches[i].setTranslationContinueConditon(entityAttributeValueCacheTranslationContinueCondition);
+        
         String theEntityAttributeValueCache0source = this.retrieveConfigString("entityAttributeValueCache" + i + "source", true);
         this.entityAttributeDbCaches[i].setSource(
             GrouperProvisioningConfigurationAttributeDbCacheSource.valueOfIgnoreCase(theEntityAttributeValueCache0source, true));

@@ -1,0 +1,1 @@
+${grouperProvisioningGroup.retrieveAttributeValueString('md_M365') == null ? null: 'M365'}

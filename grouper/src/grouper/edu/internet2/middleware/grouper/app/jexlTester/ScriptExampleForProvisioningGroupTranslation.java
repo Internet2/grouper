@@ -33,6 +33,22 @@ public enum ScriptExampleForProvisioningGroupTranslation implements ScriptExampl
     public Object expectedOutput() {
       return "true";
     }
+  },
+  
+  CHECK_METADATA_BOOLEAN {
+
+    @Override
+    public Object expectedOutput() {
+      return "MailingList";
+    }
+  },
+  
+  CHECK_IF_METADATA_EXISTS {
+
+    @Override
+    public Object expectedOutput() {
+      return "M365";
+    }
   };
 
 

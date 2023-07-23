@@ -1,0 +1,1 @@
+${grouperUtil.booleanValue(grouperProvisioningGroup.retrieveAttributeValueBoolean('md_MailingList'), false) ? 'MailingList' : null}
