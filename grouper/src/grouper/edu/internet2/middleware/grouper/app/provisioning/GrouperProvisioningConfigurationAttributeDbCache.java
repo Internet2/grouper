@@ -236,6 +236,10 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
   
   private String translationScript;
 
+  private boolean nullChecksInScript;
+
+  private String translationContinueCondition;
+
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperProvisioningConfigurationAttributeDbCache.class);
 
@@ -273,6 +277,22 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
 
   public void setTranslationScript(String translationScript) {
     this.translationScript = translationScript;
+  }
+
+  public void setNullChecksInScript(boolean theEntityAttributeValueCacheNullChecksInScript) {
+   this.nullChecksInScript = theEntityAttributeValueCacheNullChecksInScript;
+  }
+
+  public void setTranslationContinueConditon(String translationContinueCondition) {
+    this.translationContinueCondition = translationContinueCondition;
+  }
+  
+  public boolean isNullChecksInScript() {
+    return nullChecksInScript;
+  }
+
+  public String getTranslationContinueCondition() {
+    return translationContinueCondition;
   }
   
 }

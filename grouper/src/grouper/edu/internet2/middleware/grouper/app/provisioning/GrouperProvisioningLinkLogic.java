@@ -122,7 +122,7 @@ public class GrouperProvisioningLinkLogic {
   }
 
   public void retrieveSubjectLink() {
-
+    
     Set<GcGrouperSyncMember> gcGrouperSyncMembers = new HashSet<GcGrouperSyncMember>(); 
   
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {

@@ -127,6 +127,24 @@ public enum ScriptType {
     }
   },
   
+  PROVISIONING_SUBJECT_CACHE_TRANSLATION {
+
+    @Override
+    public Class<? extends ScriptExample> retrieveScriptExampleForType() {
+      return ScriptExampleForProvisioningSubjectCacheTranslation.class;
+    }
+
+    @Override
+    public Object runJexl(Map<String, Object> elVariableMap, String jexlScript) {
+      return GrouperProvisioningTranslator.runScriptStatic(jexlScript, elVariableMap);
+    }
+
+    @Override
+    public boolean hasNullCheckingOption() {
+      return true;
+    }
+  },
+  
   SUBJECT_SOURCE {
 
     @Override
