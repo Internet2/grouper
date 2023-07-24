@@ -1817,6 +1817,59 @@ public class UiV2GrouperLoader {
     }
   }
   
+  public void editGrouperLoaderAnalyze(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      GrouperLoaderContainer grouperLoaderContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer();
+      
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+      
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
+
+      if (!canEditLoader) {
+        return;
+      }
+      
+      editGrouperLoaderHelper(request, grouperLoaderContainer);
+      
+      String grouperLoaderJexlScript = grouperLoaderContainer.getEditLoaderJexlScriptJexlScript();
+      if (StringUtils.isBlank(grouperLoaderJexlScript)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequired")));
+        return;
+      }
+      
+      //TODO call GrouperLoaderJexlScriptFullSync analyze method
+      String analysesResult = "<b>result of analyses</b>";
+      grouperLoaderContainer.setJexlScriptAnalysesResult(analysesResult);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
+      
+      
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
   /**
    * edit the grouper loader
    * @param request

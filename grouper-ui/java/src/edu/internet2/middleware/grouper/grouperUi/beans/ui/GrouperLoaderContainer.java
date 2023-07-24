@@ -3370,4 +3370,17 @@ public class GrouperLoaderContainer {
     this.editLoaderAbacPattern = editLoaderAbacPattern;
   }
   
+  private String jexlScriptAnalysesResult;
+
+
+  public String getJexlScriptAnalysesResult() {
+    return jexlScriptAnalysesResult;
+  }
+
+  
+  public void setJexlScriptAnalysesResult(String jexlScriptAnalysesResult) {
+    this.jexlScriptAnalysesResult = jexlScriptAnalysesResult;
+  }
+  
+  
 }
