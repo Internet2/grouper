@@ -1149,6 +1149,9 @@ public class GuiAuditEntry {
           this.setupStem();
           return TextContainer.retrieveFromRequest().getText().get("audits_STEM_REPORT_DOWNLONAD");          
           
+        case JEXL_TEST_EXEC:
+          return TextContainer.retrieveFromRequest().getText().get("audits_JEXL_SCRIPT_EXECUTE");
+          
         default:
           LOG.error("Cant find audit builtin for category: " + category + " and action: " + actionName);
           return GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.getDescription(), 500));
