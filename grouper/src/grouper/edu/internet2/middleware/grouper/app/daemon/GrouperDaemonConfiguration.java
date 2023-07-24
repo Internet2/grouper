@@ -81,7 +81,8 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobObjectTypesFullSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSubjectChangeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSyncToGrouperFromSqlConfiguration.class.getName());
-
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDataProviderFullSyncConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDataProviderIncrementalSyncConfiguration.class.getName());
   }
 
   /**

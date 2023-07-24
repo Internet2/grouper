@@ -307,6 +307,11 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
    * use this to full sync membership require
    */
   public static final String MEMBERSHIP_REQUIRE = "membershipRequire";
+  
+  /**
+   * use this to sync data providers
+   */
+  public static final String DATA_PROVIDER = "dataProvider";
 
   /**
    * 
