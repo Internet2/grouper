@@ -27,6 +27,61 @@
                 <div class="row-fluid">
                   <c:if test="${!grouper:isBlank(grouperRequestContainer.grouperLoaderContainer.jexlScriptAnalysesResult)}">
                     
+                    <div id="analyze-member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade lead span12">
+                      <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+                        <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
+                      </div>
+                      <div class="modal-body">
+                        <form class="form form-inline" id="addAnalyzeMemberSearchFormId">
+                          <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+                          <button class="btn" onclick="ajax('../app/UiV2GrouperLoader.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addAnalyzeMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
+                          <br />
+                          <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+                          <br />
+                          <span style="white-space: nowrap;">${textContainer.text['find.search-source'] } 
+                          <select name="sourceId">
+                            <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
+                            <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
+                              <option value="${grouper:escapeHtml(source.id)}">
+                                ${grouper:escapeHtml(source.name) } (
+                                  <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
+                                    <c:if test="${typeStatus.count>1}">, </c:if>
+                                    ${grouper:escapeHtml(subjectType)}
+                                  </c:forEach>
+                                )                               
+                              </option>
+                            </c:forEach>
+                          </select></span>
+                        </form>
+                        <div id="addAnalyzeMemberResults">
+                        </div>
+                      </div>
+                      <div class="modal-footer">
+                        <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['groupSearchCloseButton']}</button>
+                      </div>
+                    </div>
+                    
+                     <form id="editLoaderJexlSubjectAnalyzeFormId" class="form-horizontal form-highlight">
+                      <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
+                        <label for="analyzeAddMemberComboID" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
+                        <div class="controls">
+                          <div id="add-members-container">
+                           
+                            <%-- placeholder: Enter the name of a person, group, or other entity --%>
+                            <grouper:combobox2 idBase="analyzeAddMemberCombo" style="width: 30em"
+                              filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
+                            ${textContainer.text['groupSearchLabelPreComboLink']} <a href="#analyze-member-search" onclick="$('#addAnalyzeMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupSearchForEntityLink']}</a>
+                           
+                          </div>
+                        </div>
+                      </div>
+                     </form>
+                    <div class="span10" style="margin-left: 180px;">
+                      <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="analyzeSubjectId" 
+                          value="${textContainer.text['grouperLoaderEditButtonAnalyze'] }"
+                          onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderAnalyze', {formIds: 'editLoaderFormId, editLoaderJexlSubjectAnalyzeFormId'}); return false;">
+                    </div>
+                    
                     <div class="lead span12">${grouperRequestContainer.grouperLoaderContainer.jexlScriptAnalysesResult}</div>
                     <div class="lead span12">
                      <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 

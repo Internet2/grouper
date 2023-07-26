@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.app.loader.ldap.LdapResultsTransformatio
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapElUtils;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
@@ -67,9 +69,11 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupStemTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -88,12 +92,14 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import net.redhogs.cronparser.CronExpressionDescriptor;
 
@@ -1851,6 +1857,33 @@ public class UiV2GrouperLoader {
         return;
       }
       
+      String subjectString = request.getParameter("analyzeAddMemberComboName");
+      
+      Subject subject = null;
+      if (StringUtils.isNotBlank(subjectString)) {
+        
+        if (subjectString != null && subjectString.contains("||")) {
+          String sourceId = GrouperUtil.prefixOrSuffix(subjectString, "||", true);
+          String subjectId = GrouperUtil.prefixOrSuffix(subjectString, "||", false);
+          subject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
+
+        } else {
+          try {
+            subject = SubjectFinder.findByIdOrIdentifier(subjectString, false);
+          } catch (SubjectNotUniqueException snue) {
+            //ignore
+          }
+            
+        }
+
+        if (subject == null) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("groupAddMemberCantFindSubject")));
+          return;
+        }    
+      }
+      
+      
       //TODO call GrouperLoaderJexlScriptFullSync analyze method
       String analysesResult = "<b>result of analyses</b>";
       grouperLoaderContainer.setJexlScriptAnalysesResult(analysesResult);
@@ -1868,6 +1901,119 @@ public class UiV2GrouperLoader {
       GrouperSession.stopQuietly(grouperSession);
     }
     
+  }
+  
+  /**
+   * search for a subject for loader jexl analyses
+   * @param request
+   * @param response
+   */
+  public void addMemberSearch(HttpServletRequest request, HttpServletResponse response) {
+
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+  
+      String searchString = request.getParameter("addMemberSubjectSearch");
+      
+      Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE, false).getGroup();
+      String stemName = null;
+      if (group != null) {
+        stemName = group.getParentStemName();
+      } else {
+        Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false).getStem();
+        if (stem != null) {
+          stemName = stem.getName();
+        } else {
+          AttributeDef attributeDef = UiV2AttributeDef.retrieveAttributeDefHelper(request, AttributeDefPrivilege.ATTR_ADMIN, true).getAttributeDef();
+          if (attributeDef != null) {
+            stemName = attributeDef.getParentStemName();
+          }
+        }
+      }
+      
+      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+      if (!searchOk) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addMemberResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberNotEnoughChars")));
+        return;
+      }
+
+      String matchExactIdString = request.getParameter("matchExactId[]");
+      boolean matchExactId = GrouperUtil.booleanValue(matchExactIdString, false);
+
+      String sourceId = request.getParameter("sourceId");
+      
+      Set<Subject> subjects = null;
+      if (matchExactId) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperQuerySubjectsMultipleQueriesCommaSeparated", true)) {
+          Set<String> searchStrings = GrouperUtil.splitTrimToSet(searchString, ",");
+          if (StringUtils.equals("all", sourceId)) {
+            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings)).values());
+          } else {
+            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings, sourceId)).values());
+          }
+        } else {
+          Subject subject = null;
+          if (StringUtils.equals("all", sourceId)) {
+            try {
+              subject = SubjectFinder.findByIdOrIdentifier(searchString, false);
+            } catch (SubjectNotUniqueException snue) {
+              //ignore
+            }
+          } else {
+            subject = SubjectFinder.findByIdOrIdentifierAndSource(searchString, sourceId, false);
+          }
+
+          subjects = new LinkedHashSet<Subject>();
+          if (subject != null) {
+            subjects.add(subject);
+          }
+        }
+      } else {
+        if (StringUtils.equals("all", sourceId)) {
+          if (group != null) {
+            subjects = SubjectFinder.findPageInStem(stemName, searchString).getResults();
+          } else {
+            subjects = SubjectFinder.findPage(searchString).getResults();
+          }
+        } else {
+          Set<Source> sources = GrouperUtil.toSet(SourceManager.getInstance().getSource(sourceId));
+          if (group != null) {
+            subjects = SubjectFinder.findPageInStem(stemName, searchString, sources).getResults();
+          } else {
+            subjects = SubjectFinder.findPage(searchString, sources).getResults();
+          }
+        }
+      }
+      
+      if (GrouperUtil.length(subjects) == 0) {
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addMemberResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoSubjectsFound")));
+        return;
+      }
+      
+      Set<GuiSubject> guiSubjects = GuiSubject.convertFromSubjects(subjects, "uiV2.subjectSearchResults", 30);
+      
+      groupContainer.setGuiSubjectsAddMember(guiSubjects);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#addAnalyzeMemberResults", 
+          "/WEB-INF/grouperUi2/group/addJexlAnalyzeMemberResults.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   /**
