@@ -17,7 +17,6 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -29,7 +28,6 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapModificationItem;
 import edu.internet2.middleware.grouper.ldap.LdapModificationType;
-import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -47,7 +45,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataProviderTest("testSqlProvider"));
+    TestRunner.run(new GrouperDataProviderTest("testLdapProvider"));
   }
 
   public void setUp() {
@@ -215,20 +213,9 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldConfigId").value("affiliationOrg").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldMappingType").value("attribute").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldAttribute").value("org").store();
-    
-    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-    
-    GrouperDataEngine.syncDataProviders(grouperConfig);
-    GrouperDataEngine.syncDataFields(grouperConfig);
-    GrouperDataEngine.syncDataRows(grouperConfig);
-    GrouperDataEngine.syncDataAliases(grouperConfig);
-    
-    new GrouperDataEngine().loadFieldsAndRows(grouperConfig);
-
-    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText("idm");
-    
+        
     // load data
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("idm");
 
 
     assertEquals(7, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
@@ -337,7 +324,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GcDbAccess().sql("update testgrouper_field_attr_multi set attribute_value='999' where subject_id='test.subject.0' and attribute_value='234'").executeBatchSql();
     new GcDbAccess().sql("update testgrouper_field_row_affil set affiliation_code='faculty' where subject_id='test.subject.0' and affiliation_code='staff'").executeBatchSql();
     
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("idm");
 
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
@@ -368,8 +355,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - update another field in row data
     new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    GrouperDataEngine.loadFull(grouperDataProvider);
-
+    GrouperDataEngine.loadFull("idm");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -398,7 +384,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - null a field
     new GcDbAccess().sql("update testgrouper_field_row_affil set org=null where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("idm");
 
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
@@ -428,7 +414,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - bring value back from null
     new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("idm");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -457,7 +443,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - update a boolean
     new GcDbAccess().sql("update testgrouper_field_row_affil set active='F' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("idm");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -486,7 +472,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // delete a row
     new GcDbAccess().sql("delete from testgrouper_field_row_affil where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("idm");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -508,7 +494,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // add row back
     new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values('test.subject.0', 'faculty', 'F', 'english')").executeBatchSql();
     
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("idm");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -541,7 +527,7 @@ public class GrouperDataProviderTest extends GrouperTest {
    */
   public void testLdapProvider() {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
+    GrouperSession.startRootSession();
     
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
     LdapProvisionerTestUtils.startLdapContainer();
@@ -577,20 +563,9 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldConfigId").value("businessCategory").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldMappingType").value("attribute").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.ldapAttrs.providerQueryDataField.1.providerDataFieldAttribute").value("businessCategory").store();
-
-    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-    
-    GrouperDataEngine.syncDataProviders(grouperConfig);
-    GrouperDataEngine.syncDataFields(grouperConfig);
-    GrouperDataEngine.syncDataRows(grouperConfig);
-    GrouperDataEngine.syncDataAliases(grouperConfig);
-    
-    new GrouperDataEngine().loadFieldsAndRows(grouperConfig);
-
-    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText("ldap");
     
     // load data
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("ldap");
 
 
     assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
@@ -626,8 +601,6 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'a-jbutler985' and data_field_config_id = 'businessCategory' and value_text = 'Purchasing'").select(int.class).intValue());
         
     // now try updates
-
-    grouperDataProvider = GrouperDataProviderDao.selectByText("ldap");
     
     // make some updates in ldap
     List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
@@ -647,7 +620,7 @@ public class GrouperDataProviderTest extends GrouperTest {
 
     
     // load data updates
-    GrouperDataEngine.loadFull(grouperDataProvider);
+    GrouperDataEngine.loadFull("ldap");
 
 
     assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());

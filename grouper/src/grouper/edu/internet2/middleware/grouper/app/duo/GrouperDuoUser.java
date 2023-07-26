@@ -41,6 +41,14 @@ public class GrouperDuoUser {
 
   private String userName;
   
+  private String alias1;
+  
+  private String alias2;
+  
+  private String alias3;
+  
+  private String alias4;
+  
   // fields below are ready only. They are used to load data into grouper_prov_duo_user table
   /**
    * alphabetical list of comma separated phone numbers
@@ -124,7 +132,7 @@ public class GrouperDuoUser {
 
   /**
    * @param targetEntity
-   * @param fieldNamesToSet - these are the grouper names in the duo provisioner wiki. They are: id, loginId, firstname, lastname, realname, email
+   * @param fieldNamesToSet - these are the grouper names in the duo provisioner wiki. They are: alias1, alias2, alias3, alias4, id, loginId, firstname, lastname, realname, email
    * @return
    */
   public static GrouperDuoUser fromProvisioningEntity(ProvisioningEntity targetEntity, Set<String> fieldNamesToSet) {
@@ -149,6 +157,18 @@ public class GrouperDuoUser {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
       grouperDuoUser.setRealName(targetEntity.getName());
     }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("alias1")) {      
+      grouperDuoUser.setAlias1(targetEntity.retrieveAttributeValueString("alias1"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("alias2")) {      
+      grouperDuoUser.setAlias2(targetEntity.retrieveAttributeValueString("alias2"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("alias3")) {      
+      grouperDuoUser.setAlias3(targetEntity.retrieveAttributeValueString("alias3"));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("alias4")) {      
+      grouperDuoUser.setAlias4(targetEntity.retrieveAttributeValueString("alias4"));
+    }
     
     return grouperDuoUser;
 
@@ -161,6 +181,10 @@ public class GrouperDuoUser {
     targetEntity.assignAttributeValue("lastName", this.lastName);
     targetEntity.assignAttributeValue("phones", this.phones);
     targetEntity.assignAttributeValue("isPushEnabled", this.getPushEnabledDb());
+    targetEntity.assignAttributeValue("aliase1", this.alias1);
+    targetEntity.assignAttributeValue("aliase2", this.alias2);
+    targetEntity.assignAttributeValue("aliase3", this.alias3);
+    targetEntity.assignAttributeValue("aliase4", this.alias4);
     targetEntity.assignAttributeValue("aliases", this.aliases);
     targetEntity.assignAttributeValue("isEnrolled", this.getEnrolledDb());
     targetEntity.assignAttributeValue("lastDirectorySync", this.lastDirectorySync);
@@ -320,6 +344,44 @@ public class GrouperDuoUser {
   }
   
   
+  public String getAlias1() {
+    return alias1;
+  }
+
+  public void setAlias1(String alias1) {
+    this.alias1 = alias1;
+  }
+
+  public String getAlias2() {
+    return alias2;
+  }
+  
+  public void setAlias2(String alias2) {
+    this.alias2 = alias2;
+  }
+
+  public String getAlias3() {
+    return alias3;
+  }
+
+
+  
+  public void setAlias3(String alias3) {
+    this.alias3 = alias3;
+  }
+
+
+  
+  public String getAlias4() {
+    return alias4;
+  }
+
+
+  
+  public void setAlias4(String alias4) {
+    this.alias4 = alias4;
+  }
+
 
   /**
    * convert from jackson json
@@ -336,6 +398,11 @@ public class GrouperDuoUser {
     grouperDuoUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "username");
     grouperDuoUser.email = GrouperUtil.jsonJacksonGetString(entityNode, "email");
     grouperDuoUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "user_id");
+    
+    grouperDuoUser.alias1 = GrouperUtil.jsonJacksonGetString(entityNode, "alias1");
+    grouperDuoUser.alias2 = GrouperUtil.jsonJacksonGetString(entityNode, "alias2");
+    grouperDuoUser.alias3 = GrouperUtil.jsonJacksonGetString(entityNode, "alias3");
+    grouperDuoUser.alias4 = GrouperUtil.jsonJacksonGetString(entityNode, "alias4");
     
     ArrayNode groupsNode = (ArrayNode)GrouperUtil.jsonJacksonGetNode(entityNode, "groups");
     Set<GrouperDuoGroup> grouperDuoGroups = new HashSet<GrouperDuoGroup>();
@@ -449,6 +516,12 @@ public class GrouperDuoUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "phones", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "push_enabled", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "aliases", Types.VARCHAR, "256", false, false);
+      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "alias1", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "alias2", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "alias3", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "alias4", Types.VARCHAR, "256", false, false);
+      
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "enrolled", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_directory_sync", Types.BIGINT, "15", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "notes", Types.VARCHAR, "512", false, false);

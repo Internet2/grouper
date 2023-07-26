@@ -639,27 +639,66 @@ public class GrouperProvisioningGrouperSyncDao {
       variableMap.put("subject", subject);
 
       if (hasSubjectLinkAttributeValueCache0) {
-        String entityAttributeValueCache0Value = GrouperUtil
-            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache0.getTranslationScript(), variableMap);
-        gcGrouperSyncMember.setEntityAttributeValueCache0(entityAttributeValueCache0Value);
+        
+        // have continue translation
+        // and if there and true then only call 
+        // grouper provisioning translation. static script function
+        boolean continueTranslation = GrouperProvisioningTranslator.continueTranslation(variableMap, 
+            grouperProvisioningConfigurationAttributeDbCache0.isNullChecksInScript(), 
+            grouperProvisioningConfigurationAttributeDbCache0.getTranslationContinueCondition());
+        if (!continueTranslation) {
+          gcGrouperSyncMember.setEntityAttributeValueCache0(null);
+        } else {
+          Object entityAttributeValueCache0Value = GrouperProvisioningTranslator.runScriptStatic(grouperProvisioningConfigurationAttributeDbCache0.getTranslationScript(), variableMap);
+          String stringValue = GrouperUtil.stringValue(entityAttributeValueCache0Value);
+          gcGrouperSyncMember.setEntityAttributeValueCache0(stringValue);
+        }
+        
       }
 
       if (hasSubjectLinkAttributeValueCache1) {
-        String entityAttributeValueCache1Value = GrouperUtil
-            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache1.getTranslationScript(), variableMap);
-        gcGrouperSyncMember.setEntityAttributeValueCache1(entityAttributeValueCache1Value);
+        
+        boolean continueTranslation = GrouperProvisioningTranslator.continueTranslation(variableMap, 
+            grouperProvisioningConfigurationAttributeDbCache1.isNullChecksInScript(), 
+            grouperProvisioningConfigurationAttributeDbCache1.getTranslationContinueCondition());
+        if (!continueTranslation) {
+          gcGrouperSyncMember.setEntityAttributeValueCache1(null);
+        } else {
+          Object entityAttributeValueCache1Value = GrouperProvisioningTranslator.runScriptStatic(grouperProvisioningConfigurationAttributeDbCache1.getTranslationScript(), variableMap);
+          String stringValue = GrouperUtil.stringValue(entityAttributeValueCache1Value);
+          gcGrouperSyncMember.setEntityAttributeValueCache1(stringValue);
+        }
+        
       }
 
       if (hasSubjectLinkAttributeValueCache2) {
-        String entityAttributeValueCache2Value = GrouperUtil
-            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache2.getTranslationScript(), variableMap);
-        gcGrouperSyncMember.setEntityAttributeValueCache2(entityAttributeValueCache2Value);
+        
+        boolean continueTranslation = GrouperProvisioningTranslator.continueTranslation(variableMap, 
+            grouperProvisioningConfigurationAttributeDbCache2.isNullChecksInScript(), 
+            grouperProvisioningConfigurationAttributeDbCache2.getTranslationContinueCondition());
+        if (!continueTranslation) {
+          gcGrouperSyncMember.setEntityAttributeValueCache2(null);
+        } else {
+          Object entityAttributeValueCache2Value = GrouperProvisioningTranslator.runScriptStatic(grouperProvisioningConfigurationAttributeDbCache2.getTranslationScript(), variableMap);
+          String stringValue = GrouperUtil.stringValue(entityAttributeValueCache2Value);
+          gcGrouperSyncMember.setEntityAttributeValueCache2(stringValue);
+        }
+        
       }
 
       if (hasSubjectLinkAttributeValueCache3) {
-        String entityAttributeValueCache3Value = GrouperUtil
-            .substituteExpressionLanguage(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript(), variableMap);
-        gcGrouperSyncMember.setEntityAttributeValueCache3(entityAttributeValueCache3Value);
+        
+        boolean continueTranslation = GrouperProvisioningTranslator.continueTranslation(variableMap, 
+            grouperProvisioningConfigurationAttributeDbCache3.isNullChecksInScript(), 
+            grouperProvisioningConfigurationAttributeDbCache3.getTranslationContinueCondition());
+        if (!continueTranslation) {
+          gcGrouperSyncMember.setEntityAttributeValueCache3(null);
+        } else {
+          Object entityAttributeValueCache3Value = GrouperProvisioningTranslator.runScriptStatic(grouperProvisioningConfigurationAttributeDbCache3.getTranslationScript(), variableMap);
+          String stringValue = GrouperUtil.stringValue(entityAttributeValueCache3Value);
+          gcGrouperSyncMember.setEntityAttributeValueCache3(stringValue);
+        }
+        
       }
       gcSyncMembersChangedInSubjectLink.add(gcGrouperSyncMember);
     }

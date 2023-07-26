@@ -145,6 +145,8 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test:someGroupNamEExists").save();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);
@@ -155,6 +157,8 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("test:someGroupNamE").save();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);
@@ -165,6 +169,8 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
         .assignName("Test:someGroupName").save();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), StemUniqueNameCaseInsensitiveHook.VETO_STEM_UNIQUE_ID_CASE_INSENSITIVE);
@@ -175,6 +181,8 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       group.setExtension("someGroupNameExistS");
       group.store();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);
@@ -185,6 +193,8 @@ public class GroupUniqueNameCaseInsensitiveHookTest extends GrouperTest {
       group.setExtension("someGroupNameExistS2");
       group.store();
       
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), GroupUniqueNameCaseInsensitiveHook.VETO_GROUP_UNIQUE_ID_CASE_INSENSITIVE);

@@ -16,6 +16,8 @@ import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.MockServiceHandler;
 import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
@@ -81,7 +83,7 @@ private static boolean mockTablesThere = false;
       mockServiceResponse.setResponseCode(401);
       return;
     }
-
+    
     List<GrouperDigitalMarketplaceGroup> grouperDigitalMarketplaceGroups = null;
     ByHqlStatic query = null;
     query = HibernateSession.byHqlStatic().createQuery("from GrouperDigitalMarketplaceGroup");
@@ -180,6 +182,33 @@ private static boolean mockTablesThere = false;
     List<GrouperDigitalMarketplaceUser> grouperDigitalMarketplaceUsers = null;
     ByHqlStatic query = null;
     query = HibernateSession.byHqlStatic().createQuery("from GrouperDigitalMarketplaceUser");
+    
+    String offset = mockServiceRequest.getHttpServletRequest().getParameter("startIndex");
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("pageSize");
+    
+    int limitInt = 100;
+    if (StringUtils.isNotBlank(limit)) {
+      limitInt = GrouperUtil.intValue(limit);
+      if (limitInt <= 0) {
+        throw new RuntimeException("limit cannot be less than or equal to 0.");
+      }
+      if (limitInt > 300) {
+        limitInt = 300;
+      }
+    }
+    
+    int offsetInt = 0;
+    int pageNumber = 1;
+    if (StringUtils.isNotBlank(offset)) {
+      offsetInt = GrouperUtil.intValue(offset);
+      pageNumber = offsetInt/limitInt + 1;
+    }
+    
+    QueryOptions queryOptions = new QueryOptions();
+    QueryPaging queryPaging = QueryPaging.page(limitInt, pageNumber, true);
+    queryOptions = queryOptions.paging(queryPaging);
+    
+    query.options(queryOptions);
     
     grouperDigitalMarketplaceUsers = query.list(GrouperDigitalMarketplaceUser.class);
     

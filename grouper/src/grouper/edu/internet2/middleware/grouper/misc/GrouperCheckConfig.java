@@ -135,6 +135,7 @@ import edu.internet2.middleware.grouper.hooks.StemHooks;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefNameUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeDefUniqueNameCaseInsensitiveHook;
+import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueExtensionInFoldersHook;
 import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueNameCaseInsensitiveHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddEveryEntityHook;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
@@ -1242,6 +1243,11 @@ public class GrouperCheckConfig {
         MembershipCannotAddEveryEntityHook.registerHookIfNecessary();
       }
       
+      if (GroupUniqueExtensionInFoldersHook.hasConfiguredFolders()) {
+        GroupUniqueExtensionInFoldersHook.registerHookIfNecessary();
+      }
+
+
       // sql cacheable group
       {
         String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();

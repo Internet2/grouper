@@ -483,13 +483,24 @@ public class GrouperProvisioningTranslator {
    * @param grouperProvisioningConfigurationAttribute
    * @return true if continue with translation otherwise false
    */
-  private boolean continueTranslation(Map<String, Object> elVariableMap,
+  public static boolean continueTranslation(Map<String, Object> elVariableMap,
       GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute) {
     
+    
+    String translationContinueCondition = grouperProvisioningConfigurationAttribute.getTranslationContinueCondition();
     boolean checkForNullsInScript = grouperProvisioningConfigurationAttribute.isCheckForNullsInScript();
+    return continueTranslation(elVariableMap, checkForNullsInScript, translationContinueCondition);
+  }
+  
+  /**
+   * @param elVariableMap
+   * @param checkForNullsInScript
+   * @param translationContinueCondition
+   * @return true if continue with translation otherwise false
+   */
+  public static boolean continueTranslation(Map<String, Object> elVariableMap, boolean checkForNullsInScript, String translationContinueCondition) {
     
     if (checkForNullsInScript) {
-      String translationContinueCondition = grouperProvisioningConfigurationAttribute.getTranslationContinueCondition();
       if (StringUtils.isNotBlank(translationContinueCondition)) {
         try {
           Object result = GrouperUtil.substituteExpressionLanguageScript(translationContinueCondition, elVariableMap, true, true, true);

@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiEngine;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -67,6 +68,40 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class GroupContainer {
   
+  private GuiGroup errorGuiGroup;
+  
+  private ProgressBean progressBean = null;
+  
+  public ProgressBean getProgressBean() {
+    return progressBean;
+  }
+  
+  public void setProgressBean(ProgressBean progressBean) {
+    this.progressBean = progressBean;
+  }
+
+
+  /**
+   * for progress
+   */
+  private String uniqueCompositeId;
+
+  /**
+   * for progress
+   * @return
+   */
+  public String getUniqueCompositeId() {
+    return uniqueCompositeId;
+  }
+
+  /**
+   * for progress
+   * @param uniqueCompositeId
+   */
+  public void setUniqueCompositeId(String uniqueCompositeId) {
+    this.uniqueCompositeId = uniqueCompositeId;
+  }
+
   /** logger */
   protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(GroupContainer.class);
 

@@ -15,12 +15,6 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import java.util.Collections;
-import java.util.Comparator;
-import java.util.HashMap;
-import java.util.LinkedHashMap;
-import java.util.LinkedList;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
@@ -28,11 +22,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateValidationService;
+import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMembershipSubjectContainer;
@@ -47,6 +37,7 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -59,6 +50,49 @@ import edu.internet2.middleware.subject.Subject;
 public class StemContainer {
   
   
+  private ProgressBean progressBean = null;
+  
+  public ProgressBean getProgressBean() {
+    return progressBean;
+  }
+   
+  public void setProgressBean(ProgressBean progressBean) {
+    this.progressBean = progressBean;
+  }
+   
+   
+  /**
+   * for progress
+   */
+  private String uniqueId;
+   
+  /**
+   * for progress
+   * @return
+   */
+  public String getUniqueId() {
+    return uniqueId;
+  }
+   
+  /**
+   * for progress
+   * @param uniqueCompositeId
+   */
+  public void setUniqueId(String uniqueId) {
+    this.uniqueId = uniqueId;
+  }
+  
+  private StemSave stemSave = null;
+  
+  public StemSave getStemSave() {
+    return stemSave;
+  }
+  
+  public void setStemSave(StemSave stemSave) {
+    this.stemSave = stemSave;
+  }
+
+
   private static final Log LOG = GrouperUtil.getLog(StemContainer.class);
 
   /**

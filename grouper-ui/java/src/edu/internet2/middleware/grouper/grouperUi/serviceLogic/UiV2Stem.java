@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,13 +34,11 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
 import edu.internet2.middleware.grouper.Member;
@@ -80,6 +79,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
@@ -87,6 +87,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemDeleteContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -115,11 +116,14 @@ import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.PerformanceLogger;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
@@ -130,6 +134,12 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
  */
 public class UiV2Stem {
 
+  /**
+   * keep an expirable cache of progress for 5 hours (longest an import is expected).  This has multikey of session id and some random uuid
+   * uniquely identifies this action as opposed to other actions in other tabs
+   */
+  private static ExpirableCache<MultiKey, StemContainer> threadProgress = new ExpirableCache<MultiKey, StemContainer>(300);
+  
   /**
    * use this for performance log label
    */
@@ -2774,29 +2784,84 @@ public class UiV2Stem {
   
       try {
   
-        //save the group
-        StemSave stemSave = new StemSave(GROUPER_SESSION).assignUuid(stem.getId())
-            .assignSaveMode(SaveMode.UPDATE)
-            .assignName(stem.getParentStem().isRootStem() ? extension : 
-              (stem.getParentStemName() + ":" + extension))
-            .assignDisplayExtension(displayExtension)
-            .assignAlternateName(alternateName)
-            .assignSetAlternateNameIfRename(setAlternateNameIfRename)
-            .assignDescription(description);
-        stem = stemSave.save();
+        final ProgressBean progressBean = new ProgressBean();
+        progressBean.setStartedMillis(System.currentTimeMillis());
+   
+        StemContainer stemContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer();
+        stemContainer.setProgressBean(progressBean);
+   
+        GuiStem guiStem = new GuiStem(stem);
+        stemContainer.setGuiStem(guiStem);
+         
+        StemSave stemSave = new StemSave(GROUPER_SESSION);
         
-        //go to the view group screen
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
-    
-        //lets show a success message on the new screen
-        if (stemSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
-              TextContainer.retrieveFromRequest().getText().get("stemEditNoChangeNote")));
-        } else {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-              TextContainer.retrieveFromRequest().getText().get("stemEditSuccess")));
-        }
+        stemContainer.setStemSave(stemSave);
+        final Stem STEM = stem;
+            
+        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("stemEdit") {
+           
+          @Override
+          public Void callLogic() {
+            try {
+   
+              //save the stem
+              stemSave.assignUuid(STEM.getId())
+                  .assignSaveMode(SaveMode.UPDATE)
+                  .assignName(STEM.getParentStem().isRootStem() ? extension : 
+                    (STEM.getParentStemName() + ":" + extension))
+                  .assignDisplayExtension(displayExtension)
+                  .assignAlternateName(alternateName)
+                  .assignSetAlternateNameIfRename(setAlternateNameIfRename)
+                  .assignDescription(description);
+              stemSave.save();
 
+   
+              GrouperUtil.sleep(1000L * GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.editStem.pauseInActionSeconds", 0));
+               
+            } catch (RuntimeException re) {
+              progressBean.setHasException(true);
+              progressBean.setException(re);
+              // log this since the thread will just end and will never get logged
+              LOG.error("error", re);
+            } finally {
+              // we done
+              progressBean.setComplete(true);
+            }
+            return null;
+          }
+        };    
+          
+        // see if running in thread
+        boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBooleanRequired("grouperUi.composite.useThread");
+      
+        if (useThreads) {
+            
+          GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+            
+          Integer waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.composite.progressStartsInSeconds");
+      
+          GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
+               
+        } else {
+          grouperCallable.callLogic();
+        }
+   
+        String sessionId = request.getSession().getId();
+         
+        // uniquely identifies this composite as opposed to other composite in other tabs
+        String uniqueStemEditId = GrouperUuid.getUuid();
+     
+        stemContainer.setUniqueId(uniqueStemEditId);
+         
+        MultiKey reportMultiKey = new MultiKey(sessionId, uniqueStemEditId);
+         
+        threadProgress.put(reportMultiKey, stemContainer);
+   
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+            "/WEB-INF/grouperUi2/stem/stemEditWrapper.jsp"));
+          
+        stemEditStatusHelper(sessionId, uniqueStemEditId);
+        
 
       } catch (GrouperValidationException gve) {
         handleGrouperValidationException(guiResponseJs, gve);
@@ -2835,6 +2900,130 @@ public class UiV2Stem {
     }
   }
 
+  
+  /**
+   * get the status of a stem edit
+   * @param request
+   * @param response
+   */
+  public void stemEditStatus(HttpServletRequest request, HttpServletResponse response) {
+    String sessionId = request.getSession().getId();
+    String uniqueCompositeId = request.getParameter("uniqueId");
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+
+    try {
+      stemEditStatusHelper(sessionId, uniqueCompositeId);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+   
+  /**
+   * get the status of a progress screen
+   */
+  private void stemEditStatusHelper(String sessionId, String uniqueId) {
+     
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+     
+    debugMap.put("method", "stemEditStatusHelper");
+    debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
+    debugMap.put("uniqueId", GrouperUtil.abbreviate(uniqueId, 8));
+   
+    long startNanos = System.nanoTime();
+    try {
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+   
+      MultiKey multiKey = new MultiKey(sessionId, uniqueId);
+       
+      StemContainer stemContainer = threadProgress.get(multiKey);
+
+   
+      if (stemContainer != null) {
+         
+        GrouperRequestContainer.retrieveFromRequestOrCreate().setStemContainer(stemContainer);
+
+        //show the report screen
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#id_"+uniqueId,
+            "/WEB-INF/grouperUi2/stem/stemEditProgress.jsp"));
+         
+        ProgressBean progressBean = stemContainer.getProgressBean();
+     
+        debugMap.put("elapsedSeconds", progressBean.getElapsedSeconds());
+        
+        Stem stem = stemContainer.getGuiStem().getStem();
+        StemSave stemSave = stemContainer.getStemSave();
+        
+        // endless loop?
+        if (progressBean.isThisLastStatus()) {
+          return;
+        }
+         
+        if (progressBean.isHasException()) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("stemEditException")));
+          // it has an exception, leave it be
+          threadProgress.put(multiKey, null);
+          
+          if (progressBean.getException() != null) {
+
+            if (GrouperUiUtils.vetoHandle(guiResponseJs, progressBean.getException())) {
+              return;
+            }
+
+            //dont change screens
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("stemEditError") 
+                + ": " + GrouperUtil.xmlEscape(progressBean.getException().getMessage(), true)));
+
+          }
+          return;
+        }
+        // kick it off again?
+        debugMap.put("complete", progressBean.isComplete());
+        if (!progressBean.isComplete()) {
+          int progressRefreshSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.editStem.progressRefreshSeconds");
+          progressRefreshSeconds = Math.max(progressRefreshSeconds, 1);
+          progressRefreshSeconds *= 1000;
+          guiResponseJs.addAction(GuiScreenAction.newScript("setTimeout(function() {ajax('../app/UiV2Stem.stemEditStatus?uniqueId=" + uniqueId + "')}, " + progressRefreshSeconds + ")"));
+        } else {
+          
+          //go to the view stem screen
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStem&stemId=" + stem.getId() + "')"));
+      
+          //lets show a success message on the new screen
+          if (stemSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+                TextContainer.retrieveFromRequest().getText().get("stemEditNoChangeNote")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("stemEditSuccess")));
+          }
+
+
+          // it is complete, leave it be
+          threadProgress.put(multiKey, null);
+           
+        }
+      } else {
+        //go back to main screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain');"));
+      }
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime()-startNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+
+    }
+   
+   
+  }
   /**
    * @param guiResponseJs
    * @param gve

@@ -20,6 +20,7 @@ import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -33,7 +34,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.CompositeFinder;
@@ -98,6 +98,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hooks.examples.MembershipCannotAddSelfToGroupHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.CompositeType;
@@ -122,8 +123,13 @@ import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -4738,6 +4744,8 @@ public class UiV2Group {
     
   }
 
+  private static ExpirableCache<MultiKey, GroupContainer> compositeThreadProgress = new ExpirableCache<MultiKey, GroupContainer>(300);
+  
   /**
    * edit group composite submit
    * @param request
@@ -4858,27 +4866,84 @@ public class UiV2Group {
         
       }
 
-      //to edit a composite, delete and add
-      if (composite != null) {
-        group.deleteCompositeMember();
-      }
-      //create composite
-      group.addCompositeMember(compositeType, leftFactorGroup, rightFactorGroup);
+      final ProgressBean progressBean = new ProgressBean();
+      progressBean.setStartedMillis(System.currentTimeMillis());
 
+      GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+      groupContainer.setProgressBean(progressBean);
+
+      GuiGroup guiGroup = new GuiGroup(group);
+      groupContainer.setGuiGroup(guiGroup);
       
-      //go back to view group
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + group.getId() + "');"));
+      final CompositeType COMPOSITE_TYPE = compositeType;
+      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("groupComposite") {
+        
+        @Override
+        public Void callLogic() {
+          try {
+      
+            //to edit a composite, delete and add
+            if (composite != null) {
+              guiGroup.getGroup().deleteCompositeMember();
+            }
+            //create composite
+            guiGroup.getGroup().addCompositeMember(COMPOSITE_TYPE, leftFactorGroup, rightFactorGroup);
 
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-          TextContainer.retrieveFromRequest().getText().get("groupCompositeSuccess")));
+            GrouperUtil.sleep(1000L * GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.composite.pauseInCompositeSeconds", 0));
+            
+          } catch (RuntimeException re) {
+            progressBean.setHasException(true);
+            progressBean.setException(re);
+
+            // log this since the thread will just end and will never get logged
+            LOG.error("error", re);
+          } finally {
+            // we done
+            progressBean.setComplete(true);
+          }
+          return null;
+        }
+      };     
+       
+      // see if running in thread
+      boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBooleanRequired("grouperUi.composite.useThread");
+   
+      if (useThreads) {
+         
+        GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+         
+        Integer waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.composite.progressStartsInSeconds");
+   
+        GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
+            
+      } else {
+        grouperCallable.callLogic();
+      }
 
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
-          loggedInSubject, group);
+          loggedInSubject, guiGroup.getGroup());
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, leftFactorGroup);
       GrouperUserDataApi.recentlyUsedGroupAdd(GrouperUiUserData.grouperUiGroupNameForUserData(), 
           loggedInSubject, rightFactorGroup);
-    
+
+      String sessionId = request.getSession().getId();
+      
+      // uniquely identifies this composite as opposed to other composite in other tabs
+      String uniqueCompositeId = GrouperUuid.getUuid();
+  
+      groupContainer.setUniqueCompositeId(uniqueCompositeId);
+      
+      MultiKey reportMultiKey = new MultiKey(sessionId, uniqueCompositeId);
+      
+      compositeThreadProgress.put(reportMultiKey, groupContainer);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/group/groupEditCompositeWrapper.jsp"));
+       
+      groupEditCompositeStatusHelper(sessionId, uniqueCompositeId);
+      
+          
     } catch (RuntimeException re) {
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
         return;
@@ -5301,45 +5366,102 @@ public class UiV2Group {
     });
     
   }
+
+  /**
+   * get the status of a report
+   * @param request
+   * @param response
+   */
+  public void groupEditCompositeStatus(HttpServletRequest request, HttpServletResponse response) {
+    String sessionId = request.getSession().getId();
+    String uniqueCompositeId = request.getParameter("uniqueCompositeId");
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+
+    try {
+      groupEditCompositeStatusHelper(sessionId, uniqueCompositeId);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * get the status of a report
+   */
+  private void groupEditCompositeStatusHelper(String sessionId, String uniqueCompositeId) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "groupEditCompositeStatusHelper");
+    debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
+    debugMap.put("uniqueCompositeId", GrouperUtil.abbreviate(uniqueCompositeId, 8));
+  
+    long startNanos = System.nanoTime();
+    try {
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+      MultiKey reportMultiKey = new MultiKey(sessionId, uniqueCompositeId);
+      
+      GroupContainer groupContainer = compositeThreadProgress.get(reportMultiKey);
+  
+  
+      if (groupContainer != null) {
+        
+        GrouperRequestContainer.retrieveFromRequestOrCreate().setGroupContainer(groupContainer);
+        
+        //show the report screen
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#id_"+uniqueCompositeId, 
+            "/WEB-INF/grouperUi2/group/groupEditCompositeProgress.jsp"));
+        
+        ProgressBean progressBean = groupContainer.getProgressBean();
+
+        // endless loop?
+        if (progressBean.isThisLastStatus()) {
+          return;
+        }
+        
+        if (progressBean.isHasException()) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("groupCompositeException")));
+          // it has an exception, leave it be
+          compositeThreadProgress.put(reportMultiKey, null);
+          return;
+        }
+        // kick it off again?
+        debugMap.put("complete", progressBean.isComplete());
+        if (!progressBean.isComplete()) {
+          int progressRefreshSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.composite.progressRefreshSeconds");
+          progressRefreshSeconds = Math.max(progressRefreshSeconds, 1);
+          progressRefreshSeconds *= 1000;
+          guiResponseJs.addAction(GuiScreenAction.newScript("setTimeout(function() {ajax('../app/UiV2Group.groupEditCompositeStatus?uniqueCompositeId=" + uniqueCompositeId + "')}, " + progressRefreshSeconds + ")"));
+        } else {
+          // it is complete, leave it be
+          compositeThreadProgress.put(reportMultiKey, null);
+          
+          //go back to view group
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + groupContainer.getGuiGroup().getGroup().getId() + "');"));
+  
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupCompositeSuccess")));
+  
+        }
+      } else {
+        //go back to main screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain');"));
+      }
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime()-startNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+  
+  
+  }
   
 }
-
-//  /**
-//   * this subjects privileges inherited from folders
-//   * @param request
-//   * @param response
-//   */
-//  public void provisioning(HttpServletRequest request, HttpServletResponse response) {
-//    
-//    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-//    
-//    GrouperSession grouperSession = null;
-//  
-//    Group group = null;
-//    
-//    try {
-//  
-//      grouperSession = GrouperSession.start(loggedInSubject);
-//  
-//      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
-//      
-//      if (group == null) {
-//        return;
-//      }
-//  
-//      ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
-//      
-//      //if viewing a subject, and that subject is a group, just show the group screen
-//      GrouperSubject grouperSubject = new GrouperSubject(group);
-//
-//      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-//  
-//  
-//      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-//          "/WEB-INF/grouperUi2/group/groupProvisioning.jsp"));
-//  
-//    } finally {
-//      GrouperSession.stopQuietly(grouperSession);
-//    }
-//  }
 

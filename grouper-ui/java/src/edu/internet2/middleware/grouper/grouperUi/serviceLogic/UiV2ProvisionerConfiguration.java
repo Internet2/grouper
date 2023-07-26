@@ -233,6 +233,8 @@ public class UiV2ProvisionerConfiguration {
             provisioner.provision(GrouperProvisioningType.diagnostics);
           } catch (RuntimeException re) {
             provisioner.retrieveGrouperProvisioningDiagnosticsContainer().getProgressBean().setHasException(true);
+            provisioner.retrieveGrouperProvisioningDiagnosticsContainer().getProgressBean().setException(re);
+            
             // log this since the thread will just end and will never get logged
             LOG.error("error", re);
           } finally {

@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.abac;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,43 +66,261 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
   public static void main(String[] args) {
-    List<MultiKey> arguments = new ArrayList<MultiKey>();
-    System.out.println(convertJexlScriptToSqlWhereClause("entity.memberOf('test:testGroup')", arguments));
-    System.out.println(GrouperUtil.toStringForLog(arguments));
-    arguments.clear();
-    System.out.println(convertJexlScriptToSqlWhereClause("( entity.memberOf('test:testGroup') && !entity.memberOf('etc:lockout') )", arguments));
-    System.out.println(GrouperUtil.toStringForLog(arguments));
-    arguments.clear();
-    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasAttribute('active')", arguments));
-    System.out.println(GrouperUtil.toStringForLog(arguments));
-    arguments.clear();
-    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasAttribute('active', 'true')", arguments));
-    System.out.println(GrouperUtil.toStringForLog(arguments));
-    arguments.clear();
-    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasAttribute('org', 123)", arguments));
-    System.out.println(GrouperUtil.toStringForLog(arguments));
-    arguments.clear();
-    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasRow('affiliation', 'name==staff && dept==english')", arguments));
-    System.out.println(GrouperUtil.toStringForLog(arguments));
-    // ASTJexlScript
-    // - ASTAndNode
-    //   - ASTEQNode
-    //     - ASTIdentifier
-    //     - ASTIdentifier
-    //   - ASTEQNode
-    //     - ASTIdentifier
-    //     - ASTIdentifier
     
-    arguments.clear();
+    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScriptAndPrint("entity.memberOf('test:testGroup')")));
+
+    System.out.println(GrouperUtil.substituteExpressionLanguageScript("${true}", new HashMap(), true, false, false));
     
-    
+//    List<MultiKey> arguments = new ArrayList<MultiKey>();
+//    System.out.println(convertJexlScriptToSqlWhereClause("entity.memberOf('test:testGroup')", arguments));
+//    System.out.println(GrouperUtil.toStringForLog(arguments));
+//    arguments.clear();
+//    System.out.println(convertJexlScriptToSqlWhereClause("( entity.memberOf('test:testGroup') && !entity.memberOf('etc:lockout') )", arguments));
+//    System.out.println(GrouperUtil.toStringForLog(arguments));
+//    arguments.clear();
+//    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasAttribute('active')", arguments));
+//    System.out.println(GrouperUtil.toStringForLog(arguments));
+//    arguments.clear();
+//    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasAttribute('active', 'true')", arguments));
+//    System.out.println(GrouperUtil.toStringForLog(arguments));
+//    arguments.clear();
+//    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasAttribute('org', 123)", arguments));
+//    System.out.println(GrouperUtil.toStringForLog(arguments));
+//    arguments.clear();
+//    System.out.println(convertJexlScriptToSqlWhereClause("entity.hasRow('affiliation', 'name==staff && dept==english')", arguments));
+//    System.out.println(GrouperUtil.toStringForLog(arguments));
+//    // ASTJexlScript
+//    // - ASTAndNode
+//    //   - ASTEQNode
+//    //     - ASTIdentifier
+//    //     - ASTIdentifier
+//    //   - ASTEQNode
+//    //     - ASTIdentifier
+//    //     - ASTIdentifier
+//    
+//    arguments.clear();
 
   }
-  
+
+  /**
+   * 
+   * @param jexlStript
+   * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup).  Used for bind variables
+   * @return the sql
+   */
+  public static String analyzeJexlScriptAndPrint(String jexlStript) {
+
+    jexlStript = jexlStript.trim();
+    if (jexlStript.startsWith("${") && jexlStript.endsWith("}")) {
+      jexlStript = jexlStript.substring(2, jexlStript.length()-1);
+    }
+    
+    JexlEngine jexlEngine = new Engine();
+    
+    JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
+
+    ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
+
+    GrouperJexlScriptPart grouperJexlScriptPart = new GrouperJexlScriptPart();
+    
+    analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, astJexlScript);
+    return grouperJexlScriptPart.getWhereClause().toString();
+  }
+
+  public static void analyzeJexlScriptToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, JexlNode jexlNode) {
+    if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
+      analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+    } else if (jexlNode instanceof ASTReference && 2==jexlNode.jjtGetNumChildren()) {
+      analyzeJexlReferenceTwoChildrenToSqlHelper(grouperJexlScriptPart, (ASTReference)jexlNode);
+    } else if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
+      grouperJexlScriptPart.getWhereClause().append("(");
+      analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+      grouperJexlScriptPart.getWhereClause().append(")");
+    } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
+      grouperJexlScriptPart.getWhereClause().append("not ");
+      analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+    } else if (jexlNode instanceof ASTAndNode) {
+      
+      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
+        if (i>0) {
+          grouperJexlScriptPart.getWhereClause().append("and ");
+        }
+        analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+      }
+    } else if (jexlNode instanceof ASTOrNode) {
+      
+      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
+        if (i>0) {
+          grouperJexlScriptPart.getWhereClause().append("or ");
+        }
+        analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+      }
+      
+    } else {
+      throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
+    }
+  }
+
+  /**
+   * has two children
+   * @param result
+   * @param astReference
+   */
+  public static void analyzeJexlReferenceTwoChildrenToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, ASTReference astReference) {
+    ASTIdentifier astIdentifier = (ASTIdentifier)astReference.jjtGetChild(0);
+    if (!StringUtils.equals("entity", astIdentifier.getName())) {
+      throw new RuntimeException("Not expecting non-entity: '" + astIdentifier.getName() + "'");
+    }
+    ASTMethodNode astMethodNode = (ASTMethodNode)astReference.jjtGetChild(1);
+    ASTIdentifierAccess astIdentifierAccess = (ASTIdentifierAccess)astMethodNode.jjtGetChild(0);
+    if (StringUtils.equals("memberOf", astIdentifierAccess.getName())) {
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 1) {
+        throw new RuntimeException("Not expecting method with more than one argument! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+      String groupName = astStringLiteral.getLiteral();
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? and gscm.member_internal_id = gm.internal_id) ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
+    } else if (StringUtils.equals("hasAttribute", astIdentifierAccess.getName())) {
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 1 && astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+      String attributeAlias = astStringLiteral.getLiteral();
+      if (astArguments.jjtGetNumChildren() == 1) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? and gdfa.member_internal_id = gm.internal_id and gdfa.value_integer = 1) ");
+        grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      } else if (astArguments.jjtGetNumChildren() == 2) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ = ?) ");
+        grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+        if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
+          grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral()));
+        } else if (astArguments.jjtGetChild(1) instanceof ASTNumberLiteral) {
+          grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", ((ASTNumberLiteral)astArguments.jjtGetChild(1)).getLiteral()));
+        } else {
+          throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
+        }
+      }
+    } else if (StringUtils.equals("hasRow", astIdentifierAccess.getName())) {
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
+      }
+      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+      ASTStringLiteral scriptLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
+      String rowAlias = astStringLiteral.getLiteral();
+      
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_assign gdra where gdra.data_row_internal_id = ? and gdra.member_internal_id = gm.internal_id and ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("row", rowAlias));
+
+      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, scriptLiteral.getLiteral());
+
+      grouperJexlScriptPart.getWhereClause().append(") ");
+    } else {
+      throw new RuntimeException("Not expecting method name: '" + astIdentifierAccess.getName() + "'");
+    }
+  }
+
   /**
    * 
    * @param jexlStript
    * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup)
+   * @return the sql
+   */
+  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, String jexlStript) {
+
+    jexlStript = jexlStript.trim();
+    if (jexlStript.startsWith("${") && jexlStript.endsWith("}")) {
+      jexlStript = jexlStript.substring(2, jexlStript.length()-1);
+    }
+    
+    JexlEngine jexlEngine = new Engine();
+    
+    JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
+
+    ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
+
+    analyzeJexlRowToSqlHelper(grouperJexlScriptPart, astJexlScript);
+  }
+
+
+  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, JexlNode jexlNode) {
+    
+    if (jexlNode instanceof ASTIdentifier && 0==jexlNode.jjtGetNumChildren()) {
+      
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
+          + "and gdrfa.data_field_internal_id = ? and gdrfa.value_integer = ?) ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", ((ASTIdentifier)jexlNode).getName()));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", true));
+    } else if (jexlNode instanceof ASTEQNode && 2==jexlNode.jjtGetNumChildren()) {
+      if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
+            + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
+      }
+      if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier)) {
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
+            + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
+      }
+      ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
+      ASTIdentifier rightPart = (ASTIdentifier)jexlNode.jjtGetChild(1);
+      
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
+          + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ = ?) ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPart.getName()));
+      
+    } else if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
+      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+    } else if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
+      grouperJexlScriptPart.getWhereClause().append("(");
+      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+      grouperJexlScriptPart.getWhereClause().append(")");
+    } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
+      grouperJexlScriptPart.getWhereClause().append("not ");
+      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+    } else if (jexlNode instanceof ASTAndNode) {
+      
+      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
+        if (i>0) {
+          grouperJexlScriptPart.getWhereClause().append("and ");
+        }
+        analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+      }
+    } else if (jexlNode instanceof ASTOrNode) {
+      
+      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
+        if (i>0) {
+          grouperJexlScriptPart.getWhereClause().append("or ");
+        }
+        analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+      }
+      
+    } else {
+      throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
+    }
+  }
+  
+
+
+  /**
+   * 
+   * @param jexlStript
+   * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup).  Used for bind variables
    * @return the sql
    */
   public static String convertJexlScriptToSqlWhereClause(String jexlStript, List<MultiKey> arguments) {

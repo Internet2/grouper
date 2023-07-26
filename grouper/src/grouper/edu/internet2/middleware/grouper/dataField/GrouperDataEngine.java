@@ -3,12 +3,14 @@ package edu.internet2.middleware.grouper.dataField;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -24,13 +26,20 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperDataEngine {
 
   
+  private static final Log LOG = GrouperUtil.getLog(GrouperDataEngine.class);
+      
   /**
    * privacy realm
    */
@@ -587,27 +596,161 @@ public class GrouperDataEngine {
   public GrouperDataProvider getGrouperDataProvider() {
     return grouperDataProvider;
   }
+  
+  /**
+   * 
+   * @param dataProviderConfigId
+   */
+  public static Map<String, Object> loadFull(String dataProviderConfigId) {
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_" + dataProviderConfigId);
+    
+    gcGrouperSync.setSyncEngine(GcGrouperSync.DATA_PROVIDER);
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("full");
+    gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
+    
+    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+    gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
+    gcGrouperSyncHeartbeat.setFullSync(true);
+    gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
+      @Override
+      public void run() {
+        
+      }
+    });
+    if (!gcGrouperSyncHeartbeat.isStarted()) {
+      gcGrouperSyncHeartbeat.runHeartbeatThread();
+    }
+     
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    RuntimeException runtimeException = null;
+    
+    try {
+      loadFullHelper(dataProviderConfigId);
+    } catch (RuntimeException re) {
+      runtimeException = re;
+    } finally {
+      GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
+      debugMap.put("finalLog", true);
+
+      synchronized (GrouperDataEngine.class) {
+        try {
+          if (gcGrouperSyncJob != null) {
+            gcGrouperSyncJob.assignHeartbeatAndEndJob();
+          }
+        } catch (RuntimeException re2) {
+          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+
+          if (runtimeException == null) {
+            throw re2;
+          }
+          
+        }
+      }
+      
+      if (runtimeException != null) {
+        throw runtimeException;
+      }
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
+    return debugMap;
+  }
+  
+  /**
+   * 
+   * @param dataProviderConfigId
+   */
+  public static Map<String, Object> loadIncremental(String dataProviderConfigId) {
+
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_" + dataProviderConfigId);
+    
+    gcGrouperSync.setSyncEngine(GcGrouperSync.DATA_PROVIDER);
+    gcGrouperSync.getGcGrouperSyncDao().store();
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("incremental");
+    gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
+    
+    GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
+    gcGrouperSyncHeartbeat.setGcGrouperSyncJob(gcGrouperSyncJob);
+    gcGrouperSyncHeartbeat.setFullSync(true);
+    gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
+      @Override
+      public void run() {
+        
+      }
+    });
+    if (!gcGrouperSyncHeartbeat.isStarted()) {
+      gcGrouperSyncHeartbeat.runHeartbeatThread();
+    }
+     
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    RuntimeException runtimeException = null;
+    
+    try {
+      // TODO add incremental
+    } catch (RuntimeException re) {
+      runtimeException = re;
+    } finally {
+      GcGrouperSyncHeartbeat.endAndWaitForThread(gcGrouperSyncHeartbeat);
+      debugMap.put("finalLog", true);
+
+      synchronized (GrouperDataEngine.class) {
+        try {
+          if (gcGrouperSyncJob != null) {
+            gcGrouperSyncJob.assignHeartbeatAndEndJob();
+          }
+        } catch (RuntimeException re2) {
+          debugMap.put("exception2", GrouperClientUtils.getFullStackTrace(re2));
+
+          if (runtimeException == null) {
+            throw re2;
+          }
+          
+        }
+      }
+      
+      if (runtimeException != null) {
+        throw runtimeException;
+      }
+      
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+    
+    return debugMap;
+  }
 
   /**
    * 
    * @param grouperDataProvider
    */
-  public static void loadFull(GrouperDataProvider grouperDataProvider) {
-    if (grouperDataProvider == null) {
+  private static void loadFullHelper(String dataProviderConfigId) {
+    if (StringUtils.isEmpty(dataProviderConfigId)) {
       throw new NullPointerException();
     }
     
-    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
-    
-    grouperDataEngine.grouperDataProvider = grouperDataProvider;
-    
-
     GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-    
+
+    GrouperDataEngine.syncDataProviders(grouperConfig);
+    GrouperDataEngine.syncDataFields(grouperConfig);
+    GrouperDataEngine.syncDataRows(grouperConfig);
+    GrouperDataEngine.syncDataAliases(grouperConfig);
+
+    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
+
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();        
+    grouperDataEngine.grouperDataProvider = grouperDataProvider;
     grouperDataEngine.loadFieldsAndRows(grouperConfig);
-    
+
     // maybe things in DB arent in sync with the config yet
-    if (!grouperDataEngine.getProviderConfigByConfigId().containsKey(grouperDataProvider.getConfigId())) {
+    if (!grouperDataEngine.getProviderConfigByConfigId().containsKey(dataProviderConfigId)) {
       return;
     }
 

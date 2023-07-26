@@ -159,6 +159,8 @@ public class MembershipOneInFolderMaxHookTest extends GrouperTest {
       
       group1C.addMember(SubjectTestHelper.SUBJ5);
 
+      fail("Should fail");
+
     } catch (HookVeto hv) {
       //this is a success, it is supposed to veto  
       assertEquals(hv.getReasonKey(), MembershipOneInFolderMaxHook.HOOK_VETO_MEMBERSHIP_ONE_IN_FOLDER_CANT_DELETE_MEMBER);

@@ -703,7 +703,11 @@ public class GrouperDuoApiCommands {
       Map<String, String> params = GrouperUtil.toMap("firstname", 
           StringUtils.defaultString(grouperDuoUser.getFirstName()), "lastname", StringUtils.defaultString(grouperDuoUser.getLastName()),
           "realname", StringUtils.defaultString(grouperDuoUser.getRealName()), "email", StringUtils.defaultString(grouperDuoUser.getEmail()),
-          "username", StringUtils.defaultString(grouperDuoUser.getUserName()));
+          "username", StringUtils.defaultString(grouperDuoUser.getUserName()),
+          "alias1", StringUtils.defaultString(grouperDuoUser.getAlias1()),
+          "alias2", StringUtils.defaultString(grouperDuoUser.getAlias2()),
+          "alias3", StringUtils.defaultString(grouperDuoUser.getAlias3()),
+          "alias4", StringUtils.defaultString(grouperDuoUser.getAlias4()));
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
           GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
@@ -770,6 +774,22 @@ public class GrouperDuoApiCommands {
       
       if (fieldsToUpdate == null || fieldsToUpdate.contains("username")) {
         params.put("username", StringUtils.defaultString(grouperDuoUser.getUserName()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("alias1")) {
+        params.put("alias1", StringUtils.defaultString(grouperDuoUser.getAlias1()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("alias2")) {
+        params.put("alias2", StringUtils.defaultString(grouperDuoUser.getAlias2()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("alias3")) {
+        params.put("alias3", StringUtils.defaultString(grouperDuoUser.getAlias3()));
+      }
+      
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("alias4")) {
+        params.put("alias4", StringUtils.defaultString(grouperDuoUser.getAlias4()));
       }
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users/" + id,

@@ -80,7 +80,7 @@ public class UiV2Provisioning {
    * @param request
    * @param response
    */
-  public void viewProvisioningOnFolder(final HttpServletRequest request, final HttpServletResponse response) {
+  public void viewProvisioningOnFolder2(final HttpServletRequest request, final HttpServletResponse response) {
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -187,6 +187,75 @@ public class UiV2Provisioning {
           
           guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
               "/WEB-INF/grouperUi2/provisioning/provisioningFolderSettingsView.jsp"));
+          
+          return null;
+        }
+      });
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  
+  /**
+   * view provisioning settings for a folder
+   * @param request
+   * @param response
+   */
+  public void viewProvisioningOnFolder(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      stem = UiV2Stem.retrieveStemHelper(request, false).getStem();
+     
+      if (stem == null) {
+        return;
+      }
+      
+      if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanViewPrivileges()) {
+        return;
+      }
+      
+      
+      final Stem STEM = stem;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkProvisioning()) {
+            return null;
+          }
+            
+          // add ones that are already assigned
+          List<GrouperProvisioningAttributeValue> attributeValuesForStem = GrouperProvisioningService.getProvisioningAttributeValues(STEM);
+          
+          // convert from raw to gui
+          List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(attributeValuesForStem);
+          
+          provisioningContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
+          
+          GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+          addProvisioningBreadcrumbs(guiStem, null, null, null, null);
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/provisioning/provisioningFolderProvisioners.jsp"));
           
           return null;
         }
@@ -1931,9 +2000,16 @@ public class UiV2Provisioning {
             elVariableMap.put(name, value);
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
-          } else {
+          } else if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN && GrouperUtil.length(metadataItem.getKeysAndLabelsForDropdown()) > 0) {
+            String firstValue = GrouperUtil.stringValue(metadataItem.getKeysAndLabelsForDropdown().get(0).getKey(0));
+            elVariableMap.put(name,  firstValue);
+          }
+//          else if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON && !GrouperUtil.isBlank(metadataItem.getDefaultValue())) {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
+          else {
             elVariableMap.put(name,  "");
-          } 
+          }
 //          else {
 //            elVariableMap.put(name,  metadataItem.getDefaultValue());
 //          }
@@ -2060,7 +2136,6 @@ public class UiV2Provisioning {
       }
       
       final Group GROUP = group;
-      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
       final String targetName = request.getParameter("provisioningTargetName");
       
       //switch over to admin so attributes work
@@ -2081,22 +2156,8 @@ public class UiV2Provisioning {
       
       boolean addProvisioningAttribute = false;
       if (provisioningAttributeValue == null) {
-        provisioningAttributeValue = new GrouperProvisioningAttributeValue();
-        addProvisioningAttribute = true;
+       throw new RuntimeException("No provisioning attributes assigned to the group");
       }
-      
-      if (StringUtils.equals(targetName, previousTargetName)) {
-        String configurationType = request.getParameter("provisioningHasConfigurationName");
-        if (!StringUtils.isBlank(configurationType)) {
-          boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
-          provisioningAttributeValue.setDirectAssignment(isDirect);
-        }
-        String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
-        boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
-        provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
-
-      }
-      
       
       if (StringUtils.isNotBlank(targetName)) {
         
@@ -2123,23 +2184,25 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
-        // variableMap is used only when there's at least one metadata item which has showEl non blank
         Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           String name = metadataItem.getName();
           String value = request.getParameter(name);
-//          String defaultValue = GrouperUtil.stringValue(metadataItem.getDefaultValue());
-//          if (!StringUtils.equals(defaultValue, value)) {
-//            metadataItem.setDefaultValue(value); // override the value so that screen can show the right value after rerendering
-//          }
           
           if (value != null) {
             elVariableMap.put(name, value);
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
             elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
-          } else {
+          } else if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN && GrouperUtil.length(metadataItem.getKeysAndLabelsForDropdown()) > 0) {
+            String firstValue = GrouperUtil.stringValue(metadataItem.getKeysAndLabelsForDropdown().get(0).getKey(0));
+            elVariableMap.put(name,  firstValue);
+          }
+//          else if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON && !GrouperUtil.isBlank(metadataItem.getDefaultValue())) {
+//            elVariableMap.put(name,  metadataItem.getDefaultValue());
+//          }
+          else {
             elVariableMap.put(name,  "");
-          } 
+          }
 //          else {
 //            elVariableMap.put(name,  metadataItem.getDefaultValue());
 //          }
