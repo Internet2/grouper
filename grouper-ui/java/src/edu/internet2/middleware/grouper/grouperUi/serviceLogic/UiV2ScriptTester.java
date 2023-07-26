@@ -160,6 +160,7 @@ public class UiV2ScriptTester {
       AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.JEXL_TEST_EXEC, "jexlTestExample",
           scriptExample.name(),
           "script", jexlScript);
+      auditEntry.setDescription(jexlScript);
       
       auditEntry.saveOrUpdate(true);
 
