@@ -49,6 +49,14 @@ public enum ScriptExampleForProvisioningGroupTranslation implements ScriptExampl
     public Object expectedOutput() {
       return "M365";
     }
+  },
+  
+  PART_OF_GROUP_NAME {
+
+    @Override
+    public Object expectedOutput() {
+      return "MyApplication";
+    }
   };
 
 

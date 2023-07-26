@@ -1,0 +1,1 @@
+${grouperProvisioningGroup.name.split(":").get(1)}
