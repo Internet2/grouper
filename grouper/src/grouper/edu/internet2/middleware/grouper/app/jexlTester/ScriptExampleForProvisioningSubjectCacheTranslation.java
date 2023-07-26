@@ -6,7 +6,7 @@ public enum ScriptExampleForProvisioningSubjectCacheTranslation implements Scrip
 
     @Override
     public Object expectedOutput() {
-      return "subjectName_subjectId";
+      return "GrouperSysAdmin_GrouperSystem";
     }
     
   };
