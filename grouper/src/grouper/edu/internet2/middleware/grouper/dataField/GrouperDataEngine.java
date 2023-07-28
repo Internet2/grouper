@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
@@ -600,8 +601,9 @@ public class GrouperDataEngine {
   /**
    * 
    * @param dataProviderConfigId
+   * @param hib3GrouperLoaderLog
    */
-  public static Map<String, Object> loadFull(String dataProviderConfigId) {
+  public static Map<String, Object> loadFull(String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_" + dataProviderConfigId);
     
@@ -628,7 +630,7 @@ public class GrouperDataEngine {
     RuntimeException runtimeException = null;
     
     try {
-      loadFullHelper(dataProviderConfigId);
+      loadFullHelper(dataProviderConfigId, hib3GrouperLoaderLog);
     } catch (RuntimeException re) {
       runtimeException = re;
     } finally {
@@ -665,14 +667,16 @@ public class GrouperDataEngine {
   /**
    * 
    * @param dataProviderConfigId
+   * @param hib3GrouperLoaderLog
    */
-  public static Map<String, Object> loadIncremental(String dataProviderConfigId) {
+  public static Map<String, Object> loadIncremental(String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_" + dataProviderConfigId);
     
     gcGrouperSync.setSyncEngine(GcGrouperSync.DATA_PROVIDER);
     gcGrouperSync.getGcGrouperSyncDao().store();
     GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("incremental");
+    
     gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
     
     GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
@@ -730,8 +734,9 @@ public class GrouperDataEngine {
   /**
    * 
    * @param grouperDataProvider
+   * @param hib3GrouperLoaderLog
    */
-  private static void loadFullHelper(String dataProviderConfigId) {
+  private static void loadFullHelper(String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     if (StringUtils.isEmpty(dataProviderConfigId)) {
       throw new NullPointerException();
     }
@@ -907,11 +912,13 @@ public class GrouperDataEngine {
           // cant have same value
           if (valueToFieldAssignWrapper.containsKey(value)) {
             GrouperDataFieldAssignDao.delete(dataFieldAssignWrapper.getGrouperDataFieldAssign());
+            hib3GrouperLoaderLog.addDeleteCount(1);
             continue;
           }
           
           if (!grouperDataFieldConfig.isFieldMultiValued() && valueToFieldAssignWrapper.size() >= 1) {
             GrouperDataFieldAssignDao.delete(dataFieldAssignWrapper.getGrouperDataFieldAssign());
+            hib3GrouperLoaderLog.addDeleteCount(1);
             continue;
           }
           values.add(value);
@@ -1173,7 +1180,7 @@ public class GrouperDataEngine {
             for (Object value : dataToDelete) {
               GrouperDataFieldAssignWrapper grouperDataFieldAssignWrapper = valueToFieldAssignWrapper.get(value);
               GrouperDataFieldAssignDao.delete(grouperDataFieldAssignWrapper.getGrouperDataFieldAssign());
-    
+              hib3GrouperLoaderLog.addDeleteCount(1);
             }
             
             Set<Object> dataToInsert = new HashSet<>(dataFromProvider);
@@ -1187,6 +1194,7 @@ public class GrouperDataEngine {
               grouperDataFieldAssign.setMemberInternalId(grouperDataMemberWrapper.getInternalId());
               grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataFieldAssign, value);
               GrouperDataFieldAssignDao.store(grouperDataFieldAssign);
+              hib3GrouperLoaderLog.addInsertCount(1);
             }
           }
         }
@@ -1251,6 +1259,7 @@ public class GrouperDataEngine {
               }
               
               GrouperDataRowAssignDao.delete(grouperDataRowAssignWrapper.getGrouperDataRowAssign());
+              hib3GrouperLoaderLog.addDeleteCount(1);
             }
 
             Set<MultiKey> rowKeyFieldsToInserts = new HashSet<>(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
@@ -1281,6 +1290,8 @@ public class GrouperDataEngine {
                   
                 }
               }
+              
+              hib3GrouperLoaderLog.addInsertCount(1);
             }
 
             // do the updates
@@ -1305,6 +1316,7 @@ public class GrouperDataEngine {
                       grouperValuesConverted.add(grouperValueConverted);
                     } else {
                       GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign());
+                      hib3GrouperLoaderLog.addDeleteCount(1);
                     }
                   }
                   
@@ -1318,6 +1330,7 @@ public class GrouperDataEngine {
                       grouperDataRowFieldAssign.setDataRowAssignInternalId(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getInternalId());
                       grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, valueToAdd);
                       GrouperDataRowFieldAssignDao.store(grouperDataRowFieldAssign);
+                      hib3GrouperLoaderLog.addInsertCount(1);
                     }
                   }
                 }

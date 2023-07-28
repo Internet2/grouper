@@ -33,7 +33,7 @@ public class GrouperDataProviderFullSyncJob extends OtherJobBase {
         String dataProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString(key);
         
         try {
-          Map<String, Object> debugMap = GrouperDataEngine.loadFull(dataProviderConfigId);
+          Map<String, Object> debugMap = GrouperDataEngine.loadFull(dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
           otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running full sync for dataProviderConfigId=" + dataProviderConfigId + "\n" + GrouperUtil.mapToString(debugMap));
         } catch (Exception e) {
           LOG.warn("Error while running full sync for dataProviderConfigId=" + dataProviderConfigId, e);
