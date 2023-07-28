@@ -78,7 +78,7 @@
                          	
                          	<li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
 
-                          <c:if test="${grouperRequestContainer.provisioningContainer.canAssignProvisioning}">          
+                          <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">          
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnGroup2&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsEditProvisioning'] }</a></li>
                           </c:if>
 

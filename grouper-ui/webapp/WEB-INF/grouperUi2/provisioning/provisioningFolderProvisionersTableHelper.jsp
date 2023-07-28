@@ -72,13 +72,9 @@
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                          
-                          <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningConfigurationOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewConfiguration'] }</a></li>
-                          
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetLogsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewLogs'] }</a></li> --%>
-                          
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
 
-                          <c:if test="${grouperRequestContainer.provisioningContainer.canAssignProvisioning}">          
+                          <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">        
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsEditProvisioning'] }</a></li>
                           </c:if>
 

@@ -43,7 +43,7 @@ public class GuiGrouperProvisioningAttributeValue {
   
   private boolean hasDirectSettings;
   
-//  private boolean canAssignProvisioning;
+  private boolean canAssignProvisioning;
   
   private List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
   
@@ -152,14 +152,13 @@ public class GuiGrouperProvisioningAttributeValue {
     this.hasDirectSettings = hasDirectSettings;
   }
 
-//  public boolean isCanAssignProvisioning() {
-//    return canAssignProvisioning;
-//  }
-//
-//
-//  
-//  public void setCanAssignProvisioning(boolean canAssignProvisioning) {
-//    this.canAssignProvisioning = canAssignProvisioning;
-//  }
+  public boolean isCanAssignProvisioning() {
+    return canAssignProvisioning;
+  }
+
+  
+  public void setCanAssignProvisioning(boolean canAssignProvisioning) {
+    this.canAssignProvisioning = canAssignProvisioning;
+  }
   
 }

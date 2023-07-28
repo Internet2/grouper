@@ -246,8 +246,33 @@ public class UiV2Provisioning {
           // add ones that are already assigned
           List<GrouperProvisioningAttributeValue> attributeValuesForStem = GrouperProvisioningService.getProvisioningAttributeValues(STEM);
           
+          List<GrouperProvisioningAttributeValue> provisioningAttributeValuesViewable = new ArrayList<GrouperProvisioningAttributeValue>();
+          
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          
+          for (GrouperProvisioningAttributeValue grouperProvisioningAttributeValue: attributeValuesForStem) {
+           
+            String localTargetName = grouperProvisioningAttributeValue.getTargetName();
+            GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
+            if (grouperProvisioningTarget != null && GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, STEM)) {
+              provisioningAttributeValuesViewable.add(grouperProvisioningAttributeValue);
+            }
+           
+          }
+          
           // convert from raw to gui
-          List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(attributeValuesForStem);
+          List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = GuiGrouperProvisioningAttributeValue.convertFromGrouperProvisioningAttributeValues(provisioningAttributeValuesViewable);
+          
+          for (GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue: guiGrouperProvisioningAttributeValues) {
+            
+            String localTargetName = guiGrouperProvisioningAttributeValue.getGrouperProvisioningAttributeValue().getTargetName();
+            
+            GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(localTargetName);
+            if (GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, STEM)) {
+              guiGrouperProvisioningAttributeValue.setCanAssignProvisioning(true);
+            }
+          }
+          
           
           provisioningContainer.setGuiGrouperProvisioningAttributeValues(guiGrouperProvisioningAttributeValues);
           
@@ -1127,10 +1152,10 @@ public class UiV2Provisioning {
       
       guiGrouperProvisioningAttributeValue.setMetadataItems(itemsToShow);
       
-//      GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(provisionerName);
-//      
-//      boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
-//      guiGrouperProvisioningAttributeValue.setCanAssignProvisioning(canAssignProvisioning);
+      GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(provisionerName);
+      
+      boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+      guiGrouperProvisioningAttributeValue.setCanAssignProvisioning(canAssignProvisioning);
     }
     
     final ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
@@ -2121,12 +2146,6 @@ public class UiV2Provisioning {
             return false;
           }
           
-          if (!provisioningContainer.isCanWriteProvisioning()) {
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteGroup")));
-            return false;
-          }
-  
           return true;
         }
       });
