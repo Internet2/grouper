@@ -1159,8 +1159,15 @@ public class GrouperProvisioningBehavior {
    * @param gcGrouperSyncMembership
    * @return false
    */
-  public boolean isDeleteMembership(GcGrouperSyncMembership gcGrouperSyncMembership) {
+  public boolean isDeleteMembership(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
     
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()) {
+      if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
+        return provisioningMembershipWrapper.getProvisioningStateMembership().isValueExistsInGrouper();
+      }
+    }
+    
+    GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
     if (this.isDeleteMembershipsIfNotExistInGrouper()) {
       
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsOnlyInTrackedGroups()) {
@@ -1200,7 +1207,9 @@ public class GrouperProvisioningBehavior {
     }
     
     // grouper deleted it
-    if (this.isDeleteMembershipsIfGrouperDeleted()) {
+    if (this.isDeleteMembershipsIfGrouperDeleted() || 
+        (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper() 
+            && getGrouperProvisioningType() == GrouperProvisioningType.incrementalProvisionChangeLog)) {
       return true;
     }
     

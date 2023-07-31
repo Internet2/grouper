@@ -1769,6 +1769,15 @@ public abstract class GrouperProvisioningConfiguration {
     this.deleteMembershipsIfNotExistInGrouper = deleteMembershipsIfNotExistInGrouper;
   }
   
+  
+  public boolean isDeleteValueIfManagedByGrouper() {
+    return deleteValueIfManagedByGrouper;
+  }
+  
+  public void setDeleteValueIfManagedByGrouper(boolean deleteValueIfManagedByGrouper) {
+    this.deleteValueIfManagedByGrouper = deleteValueIfManagedByGrouper;
+  }
+
   public boolean isDeleteMembershipsOnlyInTrackedGroups() {
     return deleteMembershipsOnlyInTrackedGroups;
   }
@@ -1868,6 +1877,11 @@ public abstract class GrouperProvisioningConfiguration {
    * delete memberships if not exist in grouper
    */
   private boolean deleteMembershipsIfNotExistInGrouper = false;
+  
+  /**
+   * delete value if managed by grouper
+   */
+  private boolean deleteValueIfManagedByGrouper = false;
   
   /**
    * delete memberships only in tracked groups
@@ -2860,6 +2874,8 @@ public abstract class GrouperProvisioningConfiguration {
       this.selectMemberships = false;
   
       this.deleteMembershipsIfNotExistInGrouper = false;
+
+      this.deleteValueIfManagedByGrouper = false;
   
       this.deleteMembershipsIfGrouperDeleted = false;
   
@@ -2880,6 +2896,7 @@ public abstract class GrouperProvisioningConfiguration {
       this.deleteMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMemberships", false), true);
 
       this.deleteMembershipsIfNotExistInGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfNotExistInGrouper", false), false);
+      this.deleteValueIfManagedByGrouper = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteValueIfManagedByGrouper", false), false);
       this.deleteMembershipsOnlyInTrackedGroups = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsOnlyInTrackedGroups", false), true);
 
       this.deleteMembershipsIfGrouperDeleted = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperDeleted", false), false);
