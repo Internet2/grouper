@@ -56,6 +56,7 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
   }
 
   private MultiKey groupIdMemberId = null;
+  private boolean valueExistsInGrouper;
 
   
   
@@ -97,6 +98,16 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
       return false;
     }
     return true;
+  }
+
+
+
+  public void setValueExistsInGrouper(boolean valueExistsInGrouper) {
+    this.valueExistsInGrouper = valueExistsInGrouper;
+  }
+
+  public boolean isValueExistsInGrouper() {
+    return valueExistsInGrouper;
   }
   
 }

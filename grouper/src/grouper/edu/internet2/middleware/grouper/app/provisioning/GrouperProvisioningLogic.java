@@ -238,6 +238,8 @@ public class GrouperProvisioningLogic {
     // index the memberships
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().indexMatchingIdMemberships(null);
     
+    this.identifyTargetValuesThatExistInGrouper();
+    
     if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
         if (provisioningMembershipWrapper.getProvisioningGroupWrapper() != null) {
@@ -371,6 +373,111 @@ public class GrouperProvisioningLogic {
 //    }
     if (GrouperClientUtils.isBlank(this.getGrouperProvisioner().getGcGrouperSyncLog().getStatus())) {
       this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.SUCCESS);
+    }
+    
+  }
+  
+  public void identifyTargetValuesThatExistInGrouper() {
+    
+    if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      
+      Set<Object> membershipValuesThatExistInGrouper = new HashSet<>();
+      
+      Set<ProvisioningGroupWrapper> provisioningGroupWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers();
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper: provisioningGroupWrappers) {
+        
+        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+        if (grouperTargetGroup != null) {          
+          Set<?> setForMemberships = grouperTargetGroup.retrieveAttributeValueSetForMemberships();
+          membershipValuesThatExistInGrouper.addAll(setForMemberships);
+        }
+        
+      }
+      
+      Set<ProvisioningEntityWrapper> provisioningEntityWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers();
+      String entityCacheName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeValue();
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: provisioningEntityWrappers) {
+        GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+        if (gcGrouperSyncMember != null) {
+          String entityCacheValue = provisioningEntityWrapper.getGcGrouperSyncMember().retrieveField(entityCacheName);
+          membershipValuesThatExistInGrouper.add(entityCacheValue);
+        }
+      }
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setMembershipValuesThatExistInGrouper(membershipValuesThatExistInGrouper);
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper: provisioningGroupWrappers) {
+        ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+        Set<?> setForMemberships = targetProvisioningGroup.retrieveAttributeValueSetForMemberships();
+        String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+        for (Object obj: GrouperUtil.nonNull(setForMemberships)) {
+          if (membershipValuesThatExistInGrouper.contains(obj)) {
+            
+            ProvisioningAttribute membershipAttribute = targetProvisioningGroup.getAttributes().get(membershipAttributeName);
+            Map<Object,ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper();
+            if (valueToProvisioningMembershipWrapper != null) {
+              ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper().get(obj);
+              if (provisioningMembershipWrapper != null) {
+                provisioningMembershipWrapper.getProvisioningStateMembership().setValueExistsInGrouper(true);
+              }
+            }
+          }
+        }
+      }
+      
+    } else if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
+        == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+      
+      Set<Object> membershipValuesThatExistInGrouper = new HashSet<>();
+      
+      Set<ProvisioningEntityWrapper> provisioningEntityWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers();
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: provisioningEntityWrappers) {
+        
+        ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+        if (grouperTargetEntity != null) {          
+          Set<?> setForMemberships = grouperTargetEntity.retrieveAttributeValueSetForMemberships();
+          membershipValuesThatExistInGrouper.addAll(setForMemberships);
+        }
+        
+      }
+      
+      Set<ProvisioningGroupWrapper> provisioningGroupWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers();
+      String groupCacheName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeValue();
+      
+      for (ProvisioningGroupWrapper provisioningGroupWrapper: provisioningGroupWrappers) {
+        if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null) {
+          String groupCacheValue = provisioningGroupWrapper.getGcGrouperSyncGroup().retrieveField(groupCacheName);
+          membershipValuesThatExistInGrouper.add(groupCacheValue);
+        }
+      }
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setMembershipValuesThatExistInGrouper(membershipValuesThatExistInGrouper);
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: provisioningEntityWrappers) {
+        ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+        Set<?> setForMemberships = targetProvisioningEntity.retrieveAttributeValueSetForMemberships();
+        String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+        
+        for (Object obj: GrouperUtil.nonNull(setForMemberships)) {
+          if (membershipValuesThatExistInGrouper.contains(obj)) {
+            
+            ProvisioningAttribute membershipAttribute = targetProvisioningEntity.getAttributes().get(membershipAttributeName);
+            Map<Object,ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper();
+            if (valueToProvisioningMembershipWrapper != null) {
+              ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper().get(obj);
+              if (provisioningMembershipWrapper != null) {
+                provisioningMembershipWrapper.getProvisioningStateMembership().setValueExistsInGrouper(true);
+              }
+            }
+            
+          }
+        }
+      }
+      
     }
     
   }

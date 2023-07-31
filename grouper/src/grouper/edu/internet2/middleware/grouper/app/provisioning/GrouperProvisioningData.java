@@ -241,6 +241,8 @@ public class GrouperProvisioningData {
 
   private GrouperProvisioner grouperProvisioner;
 
+  private Set<Object> membershipValuesThatExistInGrouper;
+
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
   }
@@ -726,5 +728,13 @@ public class GrouperProvisioningData {
     }    
   }
 
+  public void setMembershipValuesThatExistInGrouper(Set<Object> membershipValuesThatExistInGrouper) {
+   this.membershipValuesThatExistInGrouper = membershipValuesThatExistInGrouper;
+  }
+
+  
+  public Set<Object> getMembershipValuesThatExistInGrouper() {
+    return membershipValuesThatExistInGrouper;
+  }
 
 }
