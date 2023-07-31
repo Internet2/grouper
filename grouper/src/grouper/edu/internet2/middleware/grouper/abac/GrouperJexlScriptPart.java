@@ -4,8 +4,31 @@ import java.util.ArrayList;
 import java.util.List;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperJexlScriptPart {
+
+  /**
+   * 
+   */
+  @Override
+  public String toString() {
+    return GrouperClientUtils.toStringReflection(this, null);
+  }
+
+  /**
+   * 
+   */
+  @Override
+  protected GrouperJexlScriptPart clone() {
+    GrouperJexlScriptPart clone = new GrouperJexlScriptPart();
+    for (MultiKey argument : this.arguments) {
+      clone.arguments.add(new MultiKey(argument.getKeys()));
+    }
+    clone.displayDescription.append(this.displayDescription);
+    clone.whereClause.append(this.whereClause);
+    return clone;
+  }
 
   public GrouperJexlScriptPart() {
   }
@@ -55,7 +78,7 @@ public class GrouperJexlScriptPart {
   /**
    * description of this scriptlet
    */
-  private StringBuilder displayDescription;
+  private StringBuilder displayDescription = new StringBuilder();
 
   /**
    * description of this scriptlet

@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssign;
@@ -66,10 +67,26 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
   public static void main(String[] args) {
-    
-    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScriptAndPrint("entity.memberOf('test:testGroup')")));
 
-    System.out.println(GrouperUtil.substituteExpressionLanguageScript("${true}", new HashMap(), true, false, false));
+    System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')"));
+
+    
+    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup')")));
+    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')")));
+    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2')")));
+    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.hasAttribute('active')")));
+    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.hasAttribute('active', 'true')")));
+    //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.hasRow('affiliation', 'name==staff && dept==english')")));
+    
+    
+    // A & !B
+    // A and push A
+    // B and push B
+    // !B and push !B
+    // done
+    
+    // && is resolved before or (require parens?)
+    //System.out.println(GrouperUtil.substituteExpressionLanguageScript("${false && true || true}", new HashMap(), true, false, false));
     
 //    List<MultiKey> arguments = new ArrayList<MultiKey>();
 //    System.out.println(convertJexlScriptToSqlWhereClause("entity.memberOf('test:testGroup')", arguments));
@@ -102,13 +119,95 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
   }
 
+  public static String analyzeJexlScriptHtml(String jexlScript) {
+    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(jexlScript);
+    
+    StringBuilder result = new StringBuilder();
+    
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    
+    grouperDataEngine.loadFieldsAndRows(grouperConfig);
+
+    for (GrouperJexlScriptPart grouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      String whereClause = grouperJexlScriptPart.getWhereClause().toString();
+      int argumentIndex = 0;
+      for (MultiKey argument : grouperJexlScriptPart.getArguments()) {
+        String argumentString = (String)argument.getKey(0);
+        if (StringUtils.equals(argumentString, "group")) {
+          String fieldName = (String)argument.getKey(1);
+          if (!StringUtils.equals(fieldName, "members")) {
+            throw new RuntimeException("Not expecting field: '" + fieldName + "'");
+          }
+          String groupName = (String)argument.getKey(2);
+          //TODO make this more efficient
+          SqlCacheGroup sqlCacheGroup = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName))).values().iterator().next();
+          gcDbAccess.addBindVar(sqlCacheGroup.getInternalId());
+        } else if (StringUtils.equals(argumentString, "attribute")) {
+          String attributeAlias = (String)argument.getKey(1);
+          GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
+          GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
+          gcDbAccess.addBindVar(grouperDataField.getInternalId());
+          
+        } else if (StringUtils.equals(argumentString, "row")) {
+          String rowAlias = (String)argument.getKey(1);
+          GrouperDataRowWrapper grouperDataRowWrapper = grouperDataEngine.getGrouperDataProviderIndex().getRowWrapperByLowerAlias().get(rowAlias.toLowerCase());
+          GrouperDataRow grouperDataRow = grouperDataRowWrapper.getGrouperDataRow();
+          gcDbAccess.addBindVar(grouperDataRow.getInternalId());
+  
+        } else if (StringUtils.equals(argumentString, "attributeValue")) {
+          
+          MultiKey argumentNameMultiKey = grouperJexlScriptPart.getArguments().get(argumentIndex-1);
+          String attributeAlias = (String)argumentNameMultiKey.getKey(1);
+          GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
+          GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
+          
+          GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+          GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+          GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
+          
+          Object value = argument.getKey(1);
+          fieldDataType.assignValue(grouperDataFieldAssign, value);
+          
+          if (fieldDataType == GrouperDataFieldType.bool || fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
+            gcDbAccess.addBindVar(grouperDataFieldAssign.getValueInteger());
+            whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_integer");
+            
+          } else if (fieldDataType == GrouperDataFieldType.string) {
+            gcDbAccess.addBindVar(grouperDataFieldAssign.getValueDictionaryInternalId());
+            whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id");
+  
+          } else {
+            throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
+          }
+  
+        }
+        argumentIndex++;
+      }   
+      String sql = "select count(1) from grouper_members gm where " + whereClause;
+  
+  //    System.out.println(script);
+  //    System.out.println(sql);
+      
+      int count = gcDbAccess.sql(sql).select(Integer.class);
+      if (result.length() != 0) {
+        result.append("<br />\n");
+      }
+      result.append(grouperJexlScriptPart.getDisplayDescription()).append(": ").append(count);
+    }
+    return result.toString();
+  }
+  
   /**
    * 
    * @param jexlStript
    * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup).  Used for bind variables
    * @return the sql
    */
-  public static String analyzeJexlScriptAndPrint(String jexlStript) {
+  public static GrouperJexlScriptAnalysis analyzeJexlScript(String jexlStript) {
 
     jexlStript = jexlStript.trim();
     if (jexlStript.startsWith("${") && jexlStript.endsWith("}")) {
@@ -121,44 +220,71 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
     ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
 
+    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = new GrouperJexlScriptAnalysis();
     GrouperJexlScriptPart grouperJexlScriptPart = new GrouperJexlScriptPart();
+    grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPart);
     
-    analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, astJexlScript);
-    return grouperJexlScriptPart.getWhereClause().toString();
+    analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, astJexlScript, true);
+    return grouperJexlScriptAnalysis;
   }
 
-  public static void analyzeJexlScriptToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, JexlNode jexlNode) {
+  public static void analyzeJexlScriptToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+      GrouperJexlScriptPart theGrouperJexlScriptPart, JexlNode jexlNode, boolean clonePart) {
+    GrouperJexlScriptPart grouperJexlScriptPartClone = null;
     if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
-      analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+      analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
+      return;
     } else if (jexlNode instanceof ASTReference && 2==jexlNode.jjtGetNumChildren()) {
-      analyzeJexlReferenceTwoChildrenToSqlHelper(grouperJexlScriptPart, (ASTReference)jexlNode);
-    } else if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
-      grouperJexlScriptPart.getWhereClause().append("(");
-      analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
-      grouperJexlScriptPart.getWhereClause().append(")");
+      analyzeJexlReferenceTwoChildrenToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, (ASTReference)jexlNode, clonePart);
+      return;
+    }
+
+    if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
+      theGrouperJexlScriptPart.getWhereClause().append("(");
+      analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), false);
+      theGrouperJexlScriptPart.getWhereClause().append(")");
     } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
-      grouperJexlScriptPart.getWhereClause().append("not ");
-      analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
-    } else if (jexlNode instanceof ASTAndNode) {
-      
-      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
-        if (i>0) {
-          grouperJexlScriptPart.getWhereClause().append("and ");
-        }
-        analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+      theGrouperJexlScriptPart.getWhereClause().append("not ");
+      theGrouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
+      analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
+      if (clonePart) {
+        grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+        grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(0), false);
       }
+    } else if (jexlNode instanceof ASTAndNode) {
+      for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
+        if (j>0) {
+          theGrouperJexlScriptPart.getWhereClause().append("and ");
+          theGrouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisAnd")).append(" ");
+        }
+        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
+        if (clonePart) {
+          grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+          analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
+        }
+      }
+      return;
     } else if (jexlNode instanceof ASTOrNode) {
       
-      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
-        if (i>0) {
-          grouperJexlScriptPart.getWhereClause().append("or ");
+      for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
+        if (j>0) {
+          theGrouperJexlScriptPart.getWhereClause().append("or ");
+          theGrouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisOr")).append(" ");
         }
-        analyzeJexlScriptToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
+        if (clonePart) {
+          grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+          grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+          analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
+        }
       }
-      
+      return;
     } else {
       throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
     }
+    
   }
 
   /**
@@ -166,7 +292,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param result
    * @param astReference
    */
-  public static void analyzeJexlReferenceTwoChildrenToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, ASTReference astReference) {
+  public static void analyzeJexlReferenceTwoChildrenToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+      GrouperJexlScriptPart grouperJexlScriptPart, ASTReference astReference, boolean clonePart) {
     ASTIdentifier astIdentifier = (ASTIdentifier)astReference.jjtGetChild(0);
     if (!StringUtils.equals("entity", astIdentifier.getName())) {
       throw new RuntimeException("Not expecting non-entity: '" + astIdentifier.getName() + "'");
@@ -185,6 +312,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       String groupName = astStringLiteral.getLiteral();
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? and gscm.member_internal_id = gm.internal_id) ");
       grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
+        .append(" '").append(groupName).append("'");
     } else if (StringUtils.equals("hasAttribute", astIdentifierAccess.getName())) {
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
       if (astArguments.jjtGetNumChildren() != 1 && astArguments.jjtGetNumChildren() != 2) {
@@ -196,16 +325,32 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
       String attributeAlias = astStringLiteral.getLiteral();
       if (astArguments.jjtGetNumChildren() == 1) {
+
         grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? and gdfa.member_internal_id = gm.internal_id and gdfa.value_integer = 1) ");
         grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+
+        grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttribute"))
+          .append(" '").append(attributeAlias).append("'");
+
       } else if (astArguments.jjtGetNumChildren() == 2) {
+
         grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
             + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ = ?) ");
         grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
         if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
           grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral()));
+          
+          grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+            .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" '")
+            .append(((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral()).append("'");
+
         } else if (astArguments.jjtGetChild(1) instanceof ASTNumberLiteral) {
           grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", ((ASTNumberLiteral)astArguments.jjtGetChild(1)).getLiteral()));
+          
+          grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+            .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue2")).append(" ")
+            .append(((ASTNumberLiteral)astArguments.jjtGetChild(1)).getLiteral());
+
         } else {
           throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
         }
@@ -224,12 +369,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
       ASTStringLiteral scriptLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
       String rowAlias = astStringLiteral.getLiteral();
+ 
+      GrouperJexlScriptPart rowJexlScriptPart = new GrouperJexlScriptPart();
+      rowJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_assign gdra where gdra.data_row_internal_id = ? and gdra.member_internal_id = gm.internal_id and ");
+      rowJexlScriptPart.getArguments().add(new MultiKey("row", rowAlias));
+      rowJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRow"))
+      .append(" '").append(rowAlias).append("' ");
       
-      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_assign gdra where gdra.data_row_internal_id = ? and gdra.member_internal_id = gm.internal_id and ");
-      grouperJexlScriptPart.getArguments().add(new MultiKey("row", rowAlias));
+      grouperJexlScriptPart.getWhereClause().append(rowJexlScriptPart.getWhereClause());
+      grouperJexlScriptPart.getArguments().add(new MultiKey(rowJexlScriptPart.getArguments().get(0).getKeys()));
 
-      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, scriptLiteral.getLiteral());
+      grouperJexlScriptPart.getDisplayDescription().append(rowJexlScriptPart.getDisplayDescription());
 
+      analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, scriptLiteral.getLiteral(), clonePart);
+    
       grouperJexlScriptPart.getWhereClause().append(") ");
     } else {
       throw new RuntimeException("Not expecting method name: '" + astIdentifierAccess.getName() + "'");
@@ -242,12 +395,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup)
    * @return the sql
    */
-  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, String jexlStript) {
+  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+      GrouperJexlScriptPart grouperJexlScriptPart, GrouperJexlScriptPart rowJexlScriptPart, String jexlStript, boolean clonePart) {
 
     jexlStript = jexlStript.trim();
-    if (jexlStript.startsWith("${") && jexlStript.endsWith("}")) {
-      jexlStript = jexlStript.substring(2, jexlStript.length()-1);
-    }
     
     JexlEngine jexlEngine = new Engine();
     
@@ -255,18 +406,28 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
     ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
 
-    analyzeJexlRowToSqlHelper(grouperJexlScriptPart, astJexlScript);
+    analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, astJexlScript, clonePart);
   }
 
 
-  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptPart grouperJexlScriptPart, JexlNode jexlNode) {
+  public static void analyzeJexlRowToSqlHelper(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis, 
+      GrouperJexlScriptPart grouperJexlScriptPart, GrouperJexlScriptPart rowJexlScriptPart, JexlNode jexlNode, boolean clonePart) {
     
+    GrouperJexlScriptPart grouperJexlScriptPartClone = new GrouperJexlScriptPart();
+        
     if (jexlNode instanceof ASTIdentifier && 0==jexlNode.jjtGetNumChildren()) {
       
-      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
-          + "and gdrfa.data_field_internal_id = ? and gdrfa.value_integer = ?) ");
-      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", ((ASTIdentifier)jexlNode).getName()));
+      String sql = "exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
+          + "and gdrfa.data_field_internal_id = ? and gdrfa.value_integer = ?) ";
+
+      grouperJexlScriptPart.getWhereClause().append(sql);
+      String rowAlias = ((ASTIdentifier)jexlNode).getName();
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", rowAlias));
       grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", true));
+      
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttribute"))
+        .append(" '").append(rowAlias).append("'");
+      
     } else if (jexlNode instanceof ASTEQNode && 2==jexlNode.jjtGetNumChildren()) {
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
@@ -284,30 +445,56 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
       grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPart.getName()));
       
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+        .append(" '").append(leftPart.getName()).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2")).append(" '")
+        .append(rightPart.getName()).append("'");
+
     } else if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
-      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+      analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
     } else if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
       grouperJexlScriptPart.getWhereClause().append("(");
-      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
+      grouperJexlScriptPart.getDisplayDescription().append("(");
+      analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
       grouperJexlScriptPart.getWhereClause().append(")");
+      grouperJexlScriptPart.getDisplayDescription().append(")");
     } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
       grouperJexlScriptPart.getWhereClause().append("not ");
-      analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(0));
-    } else if (jexlNode instanceof ASTAndNode) {
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
+      analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
       
+      if (clonePart) {
+        grouperJexlScriptPartClone = rowJexlScriptPart.clone();
+        grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+        analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(0), false);
+      }
+
+      
+    } else if (jexlNode instanceof ASTAndNode) {
       for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
         if (i>0) {
           grouperJexlScriptPart.getWhereClause().append("and ");
+          grouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisAnd")).append(" ");
         }
-        analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+        analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(i), clonePart);
+        if (clonePart) {
+          grouperJexlScriptPartClone = rowJexlScriptPart.clone();
+          grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+          analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
+        }
       }
     } else if (jexlNode instanceof ASTOrNode) {
       
       for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
         if (i>0) {
           grouperJexlScriptPart.getWhereClause().append("or ");
+          grouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisOr")).append(" ");
         }
-        analyzeJexlRowToSqlHelper(grouperJexlScriptPart, jexlNode.jjtGetChild(i));
+        analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(i), clonePart);
+        if (clonePart) {
+          grouperJexlScriptPartClone = rowJexlScriptPart.clone();
+          grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
+          analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
+        }
       }
       
     } else {
