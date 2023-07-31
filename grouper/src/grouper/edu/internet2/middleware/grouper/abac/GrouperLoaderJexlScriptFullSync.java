@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.abac;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -33,7 +32,9 @@ import org.quartz.DisallowConcurrentExecution;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -57,6 +58,7 @@ import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * 
@@ -68,7 +70,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
   public static void main(String[] args) {
 
-    System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')"));
+    GrouperSession.startRootSession();
+    
+    Subject subject = SubjectFinder.findById("test.subject.2", true);
+    
+    System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject));
 
     
     //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup')")));
@@ -119,7 +125,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
   }
 
-  public static String analyzeJexlScriptHtml(String jexlScript) {
+  public static String analyzeJexlScriptHtml(String jexlScript, Subject subject) {
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+    
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(jexlScript);
     
     StringBuilder result = new StringBuilder();
@@ -197,6 +206,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         result.append("<br />\n");
       }
       result.append(grouperJexlScriptPart.getDisplayDescription()).append(": ").append(count);
+      
+      if (subject != null) {
+        sql += " and gm.id = ?";
+        count = gcDbAccess.sql(sql).addBindVar(member.getId()).select(Integer.class);
+        if (count == 0) {
+          result.append(" (").append(GrouperTextContainer.textOrNull("jexlAnalysisNotIncludesPerson")).append(": ").append(GrouperUtil.xmlEscape(subject.getName())).append(")");
+        } else {
+          result.append(" (").append(GrouperTextContainer.textOrNull("jexlAnalysisIncludesPerson")).append(": ").append(GrouperUtil.xmlEscape(subject.getName())).append(")");
+        }
+      }
+      
     }
     return result.toString();
   }
