@@ -254,6 +254,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPart);
     
     analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, astJexlScript, true);
+    for (GrouperJexlScriptPart currentGrouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
+      if (currentGrouperJexlScriptPart.getDisplayDescription().length() > 0) {
+        currentGrouperJexlScriptPart.getDisplayDescription().setCharAt(0, Character.toUpperCase(currentGrouperJexlScriptPart.getDisplayDescription().charAt(0)));
+      }
+    }
     return grouperJexlScriptAnalysis;
   }
 
