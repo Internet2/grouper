@@ -96,6 +96,28 @@ public class GrouperJexlScriptPart {
     this.displayDescription = displayDescription;
   }
 
+  private int populationCount = -1;
   
+  
+  public int getPopulationCount() {
+    return populationCount;
+  }
+
+  
+  public void setPopulationCount(int populationCount) {
+    this.populationCount = populationCount;
+  }
+
+  
+  public boolean isContainsSubject() {
+    return containsSubject;
+  }
+
+  
+  public void setContainsSubject(boolean containsSubject) {
+    this.containsSubject = containsSubject;
+  }
+
+  private boolean containsSubject = false;
   
 }

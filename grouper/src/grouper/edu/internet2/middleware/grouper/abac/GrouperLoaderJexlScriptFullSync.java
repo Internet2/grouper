@@ -140,13 +140,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
   }
 
-  public static String analyzeJexlScriptHtml(String jexlScript, Subject subject) {
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(String jexlScript, Subject subject) {
     
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
     
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(jexlScript);
-    
-    StringBuilder result = new StringBuilder();
     
     GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
     
@@ -220,23 +218,16 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   //    System.out.println(sql);
       
       int count = gcDbAccess.sql(sql).select(Integer.class);
-      if (result.length() != 0) {
-        result.append("<br />\n");
-      }
-      result.append(grouperJexlScriptPart.getDisplayDescription()).append(": ").append(count);
+      grouperJexlScriptPart.setPopulationCount(count);
       
       if (subject != null) {
         sql += " and gm.id = ?";
         count = gcDbAccess.sql(sql).addBindVar(member.getId()).select(Integer.class);
-        if (count == 0) {
-          result.append(" (").append(GrouperTextContainer.textOrNull("jexlAnalysisNotIncludesPerson")).append(": ").append(GrouperUtil.xmlEscape(subject.getName())).append(")");
-        } else {
-          result.append(" (").append(GrouperTextContainer.textOrNull("jexlAnalysisIncludesPerson")).append(": ").append(GrouperUtil.xmlEscape(subject.getName())).append(")");
-        }
+        grouperJexlScriptPart.setContainsSubject(count>0);
       }
       
     }
-    return result.toString();
+    return grouperJexlScriptAnalysis;
   }
   
   /**
