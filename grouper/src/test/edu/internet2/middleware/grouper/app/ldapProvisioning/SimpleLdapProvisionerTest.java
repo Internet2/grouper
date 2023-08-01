@@ -67,7 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testProvisioningTypeEntityAttributesDeleteValueManagedByGrouperIncremental"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerFullSubjectIdentifier2"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -126,7 +126,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("jdbc"));
     
     long started = System.currentTimeMillis();
@@ -264,7 +264,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertEquals("test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache0());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
@@ -322,11 +322,12 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignGroupAttributeValueCache2dn(false)
         .assignSubjectSourcesToProvision("jdbc")
         .addExtraConfig("subjectIdentifierForMemberSyncTable", "subjectIdentifier2")
-        .addExtraConfig("groupMembershipAttributeValue", "subjectIdentifier")
+        .addExtraConfig("targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectIdentifier2")
+        .addExtraConfig("groupMembershipAttributeValue", "entityAttributeValueCache0")
         );
 
     long started = System.currentTimeMillis();
@@ -464,7 +465,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertEquals("name.test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache0());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
@@ -514,7 +515,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("jdbc"));
 
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
@@ -591,7 +592,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("jdbc"));
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.ldapProvTest.deleteGroups").value("true").store();
@@ -877,7 +878,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("jdbc"));
     
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
@@ -927,7 +928,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("jdbc"));
 
     // note, targetGroupLink was false for some reason in original test
@@ -1207,7 +1208,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
           .assignConfigId("eduPersonEntitlement")
           .assignMembershipStructureEntityAttributes(true)
           .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
-          .assignGroupAttributeCount(0)
+          .assignGroupAttributeCount(1)
           .assignEntityAttributeCount(3)
           .assignExplicitFilters(true)
           );
@@ -1260,8 +1261,8 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     LdapEntry ldapEntry = ldapEntries.get(0);
     
     assertEquals(2, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
-    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup"));
+    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup3"));
     
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=jsmith)", new String[] {"eduPersonEntitlement"}, null);
     assertEquals(1, ldapEntries.size());
@@ -1269,7 +1270,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     ldapEntry = ldapEntries.get(0);
     
     assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup"));
     
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=kwhite)", new String[] {"eduPersonEntitlement"}, null);
     assertEquals(1, ldapEntries.size());
@@ -1277,7 +1278,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     ldapEntry = ldapEntries.get(0);
     
     assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup3"));
     
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=whenderson)", new String[] {"eduPersonEntitlement"}, null);
     assertEquals(1, ldapEntries.size());
@@ -1299,8 +1300,8 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     ldapEntry = ldapEntries.get(0);
     
     assertEquals(2, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
-    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup"));
+    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup3"));
     
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=jsmith)", new String[] {"eduPersonEntitlement"}, null);
     assertEquals(1, ldapEntries.size());
@@ -1315,7 +1316,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     ldapEntry = ldapEntries.get(0);
     
     assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+    assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup3"));
     
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=whenderson)", new String[] {"eduPersonEntitlement"}, null);
     assertEquals(1, ldapEntries.size());
@@ -1465,6 +1466,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     LdapProvisionerTestUtils.configureLdapProvisioner_1(
         new LdapProvisionerTestConfigInput()
           .assignConfigId("eduPersonEntitlement")
+          .assignGroupAttributeCount(1)
           );
           
     long started = System.currentTimeMillis();
@@ -1868,7 +1870,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignGroupAttributeValueCache2dn(false)
         .assignSubjectSourcesToProvision("jdbc"));
     
@@ -2022,7 +2024,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertEquals("test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache0());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
@@ -2075,7 +2077,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         new LdapProvisionerTestConfigInput()
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignGroupAttributeValueCache2dn(false)
         .assignSubjectSourcesToProvision("jdbc"));
     
@@ -2214,7 +2216,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started <= gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertEquals("test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache0());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
@@ -2273,7 +2275,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         .assignConfigId("openldapTestUnixPosixGroups")
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("jdbc")
         );
     long started = System.currentTimeMillis();
@@ -2411,7 +2413,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncMember.getProvisionableEnd());
     assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
     assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
-    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertEquals("test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache0());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
