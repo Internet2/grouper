@@ -391,7 +391,7 @@ public class GrouperProvisioningLogic {
         ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
         if (grouperTargetGroup != null) {          
           Set<?> setForMemberships = grouperTargetGroup.retrieveAttributeValueSetForMemberships();
-          membershipValuesThatExistInGrouper.addAll(setForMemberships);
+          membershipValuesThatExistInGrouper.addAll(GrouperUtil.nonNull(setForMemberships));
         }
         
       }
@@ -411,6 +411,9 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: provisioningGroupWrappers) {
         ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
+        if (targetProvisioningGroup == null) {
+          continue;
+        } 
         Set<?> setForMemberships = targetProvisioningGroup.retrieveAttributeValueSetForMemberships();
         String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         for (Object obj: GrouperUtil.nonNull(setForMemberships)) {
@@ -440,7 +443,7 @@ public class GrouperProvisioningLogic {
         ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
         if (grouperTargetEntity != null) {          
           Set<?> setForMemberships = grouperTargetEntity.retrieveAttributeValueSetForMemberships();
-          membershipValuesThatExistInGrouper.addAll(setForMemberships);
+          membershipValuesThatExistInGrouper.addAll(GrouperUtil.nonNull(setForMemberships));
         }
         
       }
@@ -459,6 +462,9 @@ public class GrouperProvisioningLogic {
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper: provisioningEntityWrappers) {
         ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+        if (targetProvisioningEntity == null) {
+          continue;
+        }
         Set<?> setForMemberships = targetProvisioningEntity.retrieveAttributeValueSetForMemberships();
         String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         

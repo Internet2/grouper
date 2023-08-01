@@ -41,7 +41,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerDiagnosticsTest("testEntityAndMembershipInsertAndDelete"));    
+    TestRunner.run(new LdapProvisionerDiagnosticsTest("testGroupAndMembershipWithoutEntitiesInsertAndDelete"));    
   }
   
   public LdapProvisionerDiagnosticsTest() {
@@ -345,7 +345,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
         .assignUpdateGroupsAndDn(true)
         .assignPosixGroup(true)
         .assignMembershipAttribute("description")
-        .assignEntityAttributeCount(0)
+        .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("jdbc")
         .assignGroupDnTypeBushy(true)
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")

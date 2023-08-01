@@ -49,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalDoNotCreateUsers"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testFullEntityAttributesWithUnresolvableDontInsertAndDontRemove"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -2273,7 +2273,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
         new LdapProvisionerTestConfigInput()
           .assignMembershipStructureEntityAttributes(true)
           .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
-          .assignGroupAttributeCount(0)
+          .assignGroupAttributeCount(1)
           .assignEntityAttributeCount(7)
           .assignSubjectSourcesToProvision("jdbc")
           .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
@@ -2307,7 +2307,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     {
       LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
       assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup"));
     }
     
     // test don't insert new membership and don't remove existing
@@ -2319,7 +2319,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     {
       LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
       assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup"));
     }
         
     // delete membership should propagate
@@ -2338,7 +2338,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
         new LdapProvisionerTestConfigInput()
           .assignMembershipStructureEntityAttributes(true)
           .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
-          .assignGroupAttributeCount(0)
+          .assignGroupAttributeCount(1)
           .assignEntityAttributeCount(7)
           .assignSubjectSourcesToProvision("jdbc")
           .assignEntityUidTranslateFromGrouperProvisioningEntityField("subjectIdentifier0")
@@ -2373,7 +2373,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     {
       LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
       assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup"));
     }
     
     // test insert new membership and don't remove existing
@@ -2385,8 +2385,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     {
       LdapEntry ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=notinldap1)", new String[] {"eduPersonEntitlement"}, null).get(0);
       assertEquals(2, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup"));
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup2"));
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup"));
+      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("test:testGroup2"));
     }
   }
   

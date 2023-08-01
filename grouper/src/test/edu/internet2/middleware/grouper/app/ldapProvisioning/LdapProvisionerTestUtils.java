@@ -224,6 +224,24 @@ public class LdapProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     
+  configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+  configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+  configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "false");
+  configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
+  configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+  configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");
+  configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", provisioningTestConfigInput.getGroupAttributeCount() + "");
+  configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "groupId");
+  configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+  configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "name");
+  
+  configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+  configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+  configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "grouper");
+  configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
+  configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "groupId");
+  configureProvisionerSuffix(provisioningTestConfigInput, "entityMembershipAttributeValue", "groupAttributeValueCache0");
+    
 //    configureProvisionerSuffix(provisioningTestConfigInput, "userSearchAllFilter", "(&(objectClass=person)(uid=*))");
 //    configureProvisionerSuffix(provisioningTestConfigInput, "userSearchFilter", "(&(objectClass=person)(uid=${targetEntity.retrieveAttributeValue('uid')}))");
     
@@ -417,7 +435,7 @@ public class LdapProvisionerTestUtils {
         && !StringUtils.equals("description", provisioningTestConfigInput.getMembershipAttribute())) {
       throw new RuntimeException("Expecting member or description but was '" + provisioningTestConfigInput.getMembershipAttribute() + "'");
     }
-    if (0 != provisioningTestConfigInput.getEntityAttributeCount() && 2 != provisioningTestConfigInput.getEntityAttributeCount() 
+    if (0 != provisioningTestConfigInput.getEntityAttributeCount() && 1 != provisioningTestConfigInput.getEntityAttributeCount() && 2 != provisioningTestConfigInput.getEntityAttributeCount() 
         && 3 != provisioningTestConfigInput.getEntityAttributeCount() && 6 != provisioningTestConfigInput.getEntityAttributeCount()
         && 7 != provisioningTestConfigInput.getEntityAttributeCount()) {
       throw new RuntimeException("Expecting 0, 2, 3, 6, or 7 for entityAttributeCount but was '" + provisioningTestConfigInput.getEntityAttributeCount() + "'");
@@ -539,6 +557,7 @@ public class LdapProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.defaultValue", "cn=admin,dc=example,dc=edu");
           
           configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "member");
+          //TODO fix it. subjectId is not even a valid value
           configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "entityAttributeValueCache2" : "subjectId");
           
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "description");
@@ -551,6 +570,7 @@ public class LdapProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "description");
 
           configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "description");
+          //TODO fix it. subjectId is not even a valid value
           configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", provisioningTestConfigInput.getEntityAttributeCount() > 0 ? "entityAttributeValueCache2" : "subjectId");
           
           if (!provisioningTestConfigInput.isPosixGroup()) {
@@ -567,7 +587,46 @@ public class LdapProvisionerTestUtils {
       }
     }
     
-    if (provisioningTestConfigInput.getEntityAttributeCount() > 0) {
+    if (provisioningTestConfigInput.getEntityAttributeCount() == 1) {
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "false");
+      configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", provisioningTestConfigInput.getEntityAttributeCount() + "");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "subjectId");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "grouperProvisioningEntityField");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateFromGrouperProvisioningEntityField", "subjectId");
+      
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
+      configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "subjectId");
+      configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", "entityAttributeValueCache0");
+    }
+    
+    if (provisioningTestConfigInput.getGroupAttributeCount() == 1) {
+      
+//      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "false");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", provisioningTestConfigInput.getGroupAttributeCount() + "");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "groupId");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "id");
+//      
+//      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "grouper");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "groupId");
+//      configureProvisionerSuffix(provisioningTestConfigInput, "entityMembershipAttributeValue", "groupAttributeValueCache0");
+    }
+    
+    if (provisioningTestConfigInput.getEntityAttributeCount() >= 2) {
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", provisioningTestConfigInput.getEntityAttributeCount() + "");
     
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "ldap_dn");
