@@ -347,7 +347,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     //check if userid exists
     List<GrouperGoogleUser> grouperGoogleUsers = HibernateSession.byHqlStatic().createQuery("select user from GrouperGoogleUser user where user.id = :theId")
-        .setString("theId", groupId).list(GrouperGoogleUser.class);
+        .setString("theId", userId).list(GrouperGoogleUser.class);
     
     if (GrouperUtil.length(grouperGoogleUsers) == 0) {
       mockServiceResponse.setResponseCode(404);
@@ -356,7 +356,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     HibernateSession.byHqlStatic()
       .createQuery("delete from GrouperGoogleMembership where userId = :userId and groupId = :groupId")
-      .setString("userId", groupId)
+      .setString("userId", userId)
       .setString("groupId", groupId)
       .executeUpdateInt();
 
