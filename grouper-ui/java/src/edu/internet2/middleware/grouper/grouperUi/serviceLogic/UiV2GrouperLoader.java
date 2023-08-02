@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
+import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
@@ -1883,10 +1885,12 @@ public class UiV2GrouperLoader {
         }    
       }
       
+      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperLoaderJexlScript, subject);
       
-      //TODO call GrouperLoaderJexlScriptFullSync analyze method
-      String analysesResult = "<b>result of analyses</b>";
-      grouperLoaderContainer.setJexlScriptAnalysesResult(analysesResult);
+      GuiSubject guiSubject = subject != null ? new GuiSubject(subject): null;
+      
+      grouperLoaderContainer.setGrouperJexlScriptAnalysis(jexlScriptAnalysis);
+      grouperLoaderContainer.setGuiSubject(guiSubject);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));

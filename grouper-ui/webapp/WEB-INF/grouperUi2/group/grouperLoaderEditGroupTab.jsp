@@ -25,7 +25,7 @@
                 </div>
                 
                 <div class="row-fluid">
-                  <c:if test="${!grouper:isBlank(grouperRequestContainer.grouperLoaderContainer.jexlScriptAnalysesResult)}">
+                  <c:if test="${fn:length(grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.grouperJexlScriptParts) > 0}">
                     
                     <div id="analyze-member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade lead span12">
                       <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
@@ -76,13 +76,51 @@
                         </div>
                       </div>
                      </form>
-                    <div class="span10" style="margin-left: 180px;">
+                    <div class="span10" style="margin-left: 180px; margin-bottom: 20px;">
                       <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="analyzeSubjectId" 
                           value="${textContainer.text['grouperLoaderEditButtonAnalyze'] }"
                           onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderAnalyze', {formIds: 'editLoaderFormId, editLoaderJexlSubjectAnalyzeFormId'}); return false;">
                     </div>
                     
-                    <div class="lead span12">${grouperRequestContainer.grouperLoaderContainer.jexlScriptAnalysesResult}</div>
+                    <div class="span10">The overall JEXL analysis is the first row.</div>
+                    
+                    <div class="row-fluid">
+                      
+                      <table class="table table-hover table-bordered table-striped table-condensed data-table">
+                      <thead>        
+                        <tr>
+                          <th style="white-space: nowrap; text-align: center; width: 5em; vertical-align: top;">Population count</th>
+                          <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiSubject != null}">
+                            <th style="white-space: nowrap; text-align: center; width: 5em; vertical-align: top;">Contains
+                            <br/>
+                             ${grouperRequestContainer.grouperLoaderContainer.guiSubject.shortLinkWithIcon}</th>
+                          </c:if>
+                          
+                          <th style="vertical-align: top;">ABAC script description</th>
+                         </tr>
+                        </thead>
+                    <tbody>
+                    <c:forEach items="${grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.grouperJexlScriptParts}" var="scriptPart">
+                    
+                      <tr>
+                         <td style="white-space: nowrap; text-align: center; width: 5em;">
+                          ${scriptPart.populationCount}
+                         </td>
+                         
+                         <c:if test="${grouperRequestContainer.grouperLoaderContainer.guiSubject != null}">
+                            <td style="white-space: nowrap; text-align: center; width: 5em;">${scriptPart.containsSubject}</td>
+                          </c:if>
+                         
+                         <td>
+                          ${scriptPart.displayDescription}
+                         </td>
+                       </tr>
+
+                     </c:forEach>
+                      </tbody>
+                      </table>
+                    
+                    </div>
                     <div class="lead span12">
                      <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
                               value="${textContainer.text['grouperLoaderEditButtonSave'] }" 

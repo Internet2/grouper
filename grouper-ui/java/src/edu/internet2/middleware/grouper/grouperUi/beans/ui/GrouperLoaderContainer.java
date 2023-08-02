@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.abac.GrouperJexlScriptAnalysis;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -39,6 +40,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiDaemonJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGrouperLoaderJob;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -3370,17 +3372,24 @@ public class GrouperLoaderContainer {
     this.editLoaderAbacPattern = editLoaderAbacPattern;
   }
   
-  private String jexlScriptAnalysesResult;
-
-
-  public String getJexlScriptAnalysesResult() {
-    return jexlScriptAnalysesResult;
+  private GrouperJexlScriptAnalysis grouperJexlScriptAnalysis;
+  
+  public void setGrouperJexlScriptAnalysis(GrouperJexlScriptAnalysis grouperJexlScriptAnalysis) {
+    this.grouperJexlScriptAnalysis = grouperJexlScriptAnalysis;
   }
 
-  
-  public void setJexlScriptAnalysesResult(String jexlScriptAnalysesResult) {
-    this.jexlScriptAnalysesResult = jexlScriptAnalysesResult;
+  public GrouperJexlScriptAnalysis getGrouperJexlScriptAnalysis() {
+    return grouperJexlScriptAnalysis;
   }
   
+  private GuiSubject guiSubject;
+  
+  public void setGuiSubject(GuiSubject guiSubject) {
+    this.guiSubject = guiSubject;
+  }
+
+  public GuiSubject getGuiSubject() {
+    return guiSubject;
+  }
   
 }

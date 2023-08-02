@@ -142,7 +142,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
   public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(String jexlScript, Subject subject) {
     
-    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+    Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(jexlScript);
     
