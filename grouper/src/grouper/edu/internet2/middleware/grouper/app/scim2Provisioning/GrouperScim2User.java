@@ -32,6 +32,8 @@ public class GrouperScim2User {
     grouperScimUser.setDisplayName("dispName");
     grouperScimUser.setEmailType("emailTy");
     grouperScimUser.setEmailValue("emailVal");
+    grouperScimUser.setEmailType2("emailTy2");
+    grouperScimUser.setEmailValue2("emailVal2");
     grouperScimUser.setEmployeeNumber("12345");
     grouperScimUser.setExternalId("extId");
     grouperScimUser.setFamilyName("famName");
@@ -85,6 +87,14 @@ public class GrouperScim2User {
     
     if (this.emailValue != null) {
       targetEntity.assignAttributeValue("emailValue", this.emailValue);
+    }
+    
+    if (this.emailType2 != null) {
+      targetEntity.assignAttributeValue("emailType2", this.emailType);
+    }
+    
+    if (this.emailValue2 != null) {
+      targetEntity.assignAttributeValue("emailValue2", this.emailValue);
     }
     
     if (this.employeeNumber != null) {
@@ -150,6 +160,7 @@ public class GrouperScim2User {
     if (entityNode.has("emails")) {
       ArrayNode emailsNode = (ArrayNode)entityNode.get("emails");
       JsonNode emailNode = null;
+      JsonNode emailNode2 = null;
       if (emailsNode.size() == 1) {
         emailNode = emailsNode.get(0);
       } else {
@@ -157,7 +168,10 @@ public class GrouperScim2User {
           JsonNode currentEmailNode = emailsNode.get(i);
           if (GrouperUtil.jsonJacksonGetBoolean(currentEmailNode, "primary", false)) {
             emailNode = currentEmailNode;
-            break;
+          } else {
+            if (emailNode2 == null) {
+              emailNode2 = currentEmailNode;
+            }
           }
         }
         // uh... multiple emails and no primary... guess there isnt a real email
@@ -165,6 +179,10 @@ public class GrouperScim2User {
       if (emailNode != null) {
         grouperScimUser.emailValue = GrouperUtil.jsonJacksonGetString(emailNode, "value");
         grouperScimUser.emailType = GrouperUtil.jsonJacksonGetString(emailNode, "type");
+      }
+      if (emailNode2 != null) {
+        grouperScimUser.emailValue2 = GrouperUtil.jsonJacksonGetString(emailNode2, "value");
+        grouperScimUser.emailType2 = GrouperUtil.jsonJacksonGetString(emailNode2, "type");
       }
     }
 
@@ -251,17 +269,31 @@ public class GrouperScim2User {
       GrouperUtil.jsonJacksonAssignString(result, "org", this.org);
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("emailValue")) {     
-      if (!StringUtils.isBlank(this.emailValue)) {
-        
-        ObjectNode emailNode = GrouperUtil.jsonJacksonNode();
-        GrouperUtil.jsonJacksonAssignString(emailNode, "value", this.emailValue);
-        GrouperUtil.jsonJacksonAssignBoolean(emailNode, "primary", true);
-        if (fieldNamesToSet == null || fieldNamesToSet.contains("emailType")) {
-          GrouperUtil.jsonJacksonAssignString(emailNode, "type", this.emailType);
-        }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("emailValue") || fieldNamesToSet.contains("emailValue2")) {     
+      if (!StringUtils.isBlank(this.emailValue) || !StringUtils.isBlank(this.emailValue2)) {
+
         ArrayNode emailsNode = GrouperUtil.jsonJacksonArrayNode();
-        emailsNode.add(emailNode);
+        boolean hasPrimary = false;
+        if (!StringUtils.isBlank(this.emailValue)) {
+          ObjectNode emailNode = GrouperUtil.jsonJacksonNode();
+          GrouperUtil.jsonJacksonAssignString(emailNode, "value", this.emailValue);
+          GrouperUtil.jsonJacksonAssignBoolean(emailNode, "primary", true);
+          if (fieldNamesToSet == null || fieldNamesToSet.contains("emailType")) {
+            GrouperUtil.jsonJacksonAssignString(emailNode, "type", this.emailType);
+          }
+          emailsNode.add(emailNode);
+          hasPrimary = true;
+        }
+        if (!StringUtils.isBlank(this.emailValue2)) {
+          ObjectNode emailNode = GrouperUtil.jsonJacksonNode();
+          GrouperUtil.jsonJacksonAssignString(emailNode, "value", this.emailValue2);
+          GrouperUtil.jsonJacksonAssignBoolean(emailNode, "primary", !hasPrimary);
+          if (fieldNamesToSet == null || fieldNamesToSet.contains("emailType2")) {
+            GrouperUtil.jsonJacksonAssignString(emailNode, "type", this.emailType2);
+          }
+          emailsNode.add(emailNode);
+        }
+        
         result.set("emails", emailsNode);
       }
     }
@@ -319,6 +351,8 @@ public class GrouperScim2User {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "email_type", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "email_value", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "email_type2", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "email_value2", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "employee_number", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "external_id", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "family_name", Types.VARCHAR, "256", false, false);
@@ -445,6 +479,10 @@ public class GrouperScim2User {
   
   private String org;
 
+  private String emailType2;
+
+  private String emailValue2;
+
   
   public String getId() {
     return id;
@@ -546,6 +584,26 @@ public class GrouperScim2User {
   }
 
   
+  
+  public String getEmailType2() {
+    return emailType2;
+  }
+
+  
+  public void setEmailType2(String emailType2) {
+    this.emailType2 = emailType2;
+  }
+
+  
+  public String getEmailValue2() {
+    return emailValue2;
+  }
+
+  
+  public void setEmailValue2(String emailValue2) {
+    this.emailValue2 = emailValue2;
+  }
+
   public String getUserType() {
     return userType;
   }
@@ -632,6 +690,14 @@ public class GrouperScim2User {
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("emailValue")) {      
       grouperScim2User.setEmailValue(targetEntity.retrieveAttributeValueString("emailValue"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("emailType2")) {      
+      grouperScim2User.setEmailType2(targetEntity.retrieveAttributeValueString("emailType2"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("emailValue2")) {      
+      grouperScim2User.setEmailValue2(targetEntity.retrieveAttributeValueString("emailValue2"));
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("employeeNumber")) {      
