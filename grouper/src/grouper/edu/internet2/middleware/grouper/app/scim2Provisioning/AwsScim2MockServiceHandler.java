@@ -621,7 +621,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
             grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "type"));
           }
           if (newEmailNode.has("value")) {
-            grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
+            grouperScimUser.setEmailValue(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
           }
           
         } else {
@@ -651,7 +651,7 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
               grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "type"));
             }
             if (newEmailNode.has("value")) {
-              grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
+              grouperScimUser.setEmailValue(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
             }
             
             

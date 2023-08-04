@@ -35,6 +35,8 @@
     <property name="displayName" column="display_name" />
     <property name="emailType" column="email_type" />
     <property name="emailValue" column="email_value" />
+     <property name="emailType2" column="email_type2" />
+    <property name="emailValue2" column="email_value2" />
     <property name="employeeNumber" column="employee_number" />
     <property name="externalId" column="external_id" />
     <property name="familyName" column="family_name" />
