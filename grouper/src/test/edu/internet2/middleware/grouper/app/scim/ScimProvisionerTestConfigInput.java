@@ -350,5 +350,17 @@ public class ScimProvisionerTestConfigInput {
     this.useFirstLastName = useFirstLastName;
     return this;
   }
+
+  
+  public boolean isUseEmails() {
+    return useEmails;
+  }
+
+  private boolean useEmails = false;
+
+  public ScimProvisionerTestConfigInput assignUseEmails(boolean b) {
+    this.useEmails  = b;
+    return this;
+  }
   
 }
