@@ -575,36 +575,66 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
         
         JsonNode newEmailNode = operation.get("value");
         
+        ArrayNode newEmailsArray = newEmailNode.isArray() ? (ArrayNode) newEmailNode : null;
+        
+        if (newEmailsArray != null && newEmailsArray.size() > 2) {
+          throw new RuntimeException("We only support upto 2 email addresses.");
+        }
+        
+        newEmailNode = newEmailsArray.get(0);
+        JsonNode newEmailNode2 = newEmailsArray.size() > 1 ? newEmailsArray.get(1) : null;
+        
         // validate the email
         if (opAdd) {
           
+          boolean hasEmail = !StringUtils.isBlank(grouperScimUser.getEmailValue()) || !StringUtils.isBlank(grouperScimUser.getEmailType());
+          boolean hasEmail2 = !StringUtils.isBlank(grouperScimUser.getEmailValue2()) || !StringUtils.isBlank(grouperScimUser.getEmailType2());
+          
           // if theres an existing, thats bad
-          if (!StringUtils.isBlank(grouperScimUser.getEmailValue()) || !StringUtils.isBlank(grouperScimUser.getEmailType())) {
-            
+          if (hasEmail && hasEmail2) {
             throw new RuntimeException("Adding email but already exists! " + grouperScimUser);
-            
+          }
+          
+          // if 2 emails are passed in and there's one already set, there's a problem.
+          if (newEmailNode2 != null && (hasEmail || hasEmail2)) {
+            throw new RuntimeException("Adding emails but at least one exists! " + grouperScimUser);
           }
 
           if (newEmailNode.has("type")) {
-            grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "type"));
+            
+            if (hasEmail) {
+              grouperScimUser.setEmailType2(GrouperUtil.jsonJacksonGetString(newEmailNode, "type"));
+            } else {
+              grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "type"));
+            }
+            
           }
+          
+          if (newEmailNode2 != null && newEmailNode2.has("type")) {
+            grouperScimUser.setEmailType2(GrouperUtil.jsonJacksonGetString(newEmailNode2, "type"));
+          }
+
           if (newEmailNode.has("value")) {
-            grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
+            if (hasEmail) {
+              grouperScimUser.setEmailValue2(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
+            } else {
+              grouperScimUser.setEmailValue(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
+            }
+          }
+          
+          if (newEmailNode2 != null && newEmailNode2.has("value")) {
+            grouperScimUser.setEmailValue2(GrouperUtil.jsonJacksonGetString(newEmailNode2, "value"));
           }
           
         } else {
           grouperScimUser.validateEmail(path);
 
-          if (StringUtils.isBlank(grouperScimUser.getEmailValue()) && StringUtils.isBlank(grouperScimUser.getEmailType())) {
-            
-            throw new RuntimeException(op + " email but not there! " + grouperScimUser);
-            
-          }
-
           if (opRemove) {
             
             grouperScimUser.setEmailType(null);
             grouperScimUser.setEmailValue(null);
+            grouperScimUser.setEmailType2(null);
+            grouperScimUser.setEmailValue2(null);
             
           } else {
             
@@ -612,14 +642,22 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
             GrouperUtil.assertion(opReplace, "expecting replace");
 
             if (newEmailNode.isArray()) {
-              GrouperUtil.assertion(newEmailNode.size() == 1, "expecting size 1 but was " + newEmailNode.size());
+              GrouperUtil.assertion(newEmailNode.size() > 0 && newEmailNode.size() <= 2, "expecting size less than or equal to 2 but was " + newEmailNode.size());
               newEmailNode = ((ArrayNode)newEmailNode).get(0);
+              newEmailNode2 = ((ArrayNode)newEmailNode).size() > 1 ? ((ArrayNode)newEmailNode).get(1) : null;
             }
             if (newEmailNode.has("type")) {
               grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "type"));
             }
             if (newEmailNode.has("value")) {
-              grouperScimUser.setEmailType(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
+              grouperScimUser.setEmailValue(GrouperUtil.jsonJacksonGetString(newEmailNode, "value"));
+            }
+            
+            if (newEmailNode2 != null && newEmailNode2.has("type")) {
+              grouperScimUser.setEmailType2(GrouperUtil.jsonJacksonGetString(newEmailNode2, "type"));
+            }
+            if (newEmailNode2 != null && newEmailNode2.has("value")) {
+              grouperScimUser.setEmailValue2(GrouperUtil.jsonJacksonGetString(newEmailNode2, "value"));
             }
             
             
