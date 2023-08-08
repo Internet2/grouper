@@ -1,8 +1,9 @@
+<%@ page import="edu.internet2.middleware.grouper.ui.GrouperUiFilter" %>
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-
+<c:set var="lang" value="${(empty GrouperUiFilter.retrieveLocale()) ? 'en' : GrouperUiFilter.retrieveLocale().getLanguage()}" />
 <!DOCTYPE html>
-<html>
-  <!-- start index.jsp -->
+<html lang="${lang}">
+  <!-- start index/index.jsp -->
   <head><title>${textContainer.text['guiTitle']}</title>
   <%@ include file="../assetsJsp/commonHead.jsp"%>
   </head>
@@ -53,10 +54,11 @@
             <div class="btn-group btn-group-create"><a id="homepageCreateGroupButton" href="#" 
               onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
               class="btn btn-bigger btn-create" role="button"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a>
-              <a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-bigger btn-create dropdown-toggle" 
+              <button type="button" data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-bigger btn-create dropdown-toggle" 
               	aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#main-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#main-more-options li').first().focus();return true;});">
               	<span class="caret"></span>
-              </a>
+                <span class="visually-hidden">${textContainer.text['ariaLabelGuiMoreOptions']}</span>
+            </button>
               <ul class="dropdown-menu dropdown-menu-right" id="main-more-options">
                 <li><a href="#" 
                   onclick="return guiV2link('operation=UiV2Stem.newStem', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['stemNewCreateNewStemMenuButton'] }</a></li>
@@ -80,10 +82,11 @@
                   </ul>
                 </div>
               </div>
-              <div class="btn btn-block btn-grouper last" style="cursor: default;">${textContainer.text['indexBrowseFolders'] }
-              <i class="fa fa-exchange" style="cursor: pointer;" aria-label="${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }"
-                onclick="dojoInitMenu(true)"
-              ></i></div>
+              <button class="btn btn-block btn-grouper first" onclick="dojoInitMenu(true)" aria-label="${textContainer.text['indexBrowseFolders'] } ${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }">
+                ${textContainer.text['indexBrowseFolders'] }
+                <i class="fa fa-exchange"></i>
+                <span class="visually-hidden">${textContainer.text['ariaLabelGuiRefreshFolderBrowse'] }</span>
+              </button>
               <div class="accordion-inner">
                 <script>
                   $(document).ready(function(){

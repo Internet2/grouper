@@ -254,7 +254,7 @@ function guiMessageHelper(messageType, message, shouldEmpty=true) {
   }
   
   var finalMessage = '<div role="alert" class="alert alert-' + messageType 
-    + '"><button type="button" class="close" data-dismiss="alert">&times;</button>'
+    + '"><button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>'
     + '<span class="messageText">' + message + '</span></div>';
   $('#messaging').hide();
   if (shouldEmpty) {
@@ -2787,3 +2787,17 @@ function handleGuiV2LinkClick(event, url, options) {
 $(window).on("unload", function() {
   $.unblockUI();
 });
+
+(function ($) {
+  $(window).on('load', function () {
+    setTimeout(function () {
+      $('a[role="button"]').on('keyup', function(e) {
+        var keyD = e.key !== undefined ? e.key : e.keyCode;
+        if ( (keyD === 'Enter' || keyD === 13) || (['Spacebar', ' '].indexOf(keyD) >= 0 || keyD === 32)) {
+          e.preventDefault();
+          this.click();
+        }
+      });
+    }, 1000);
+  });
+})(jQuery);
