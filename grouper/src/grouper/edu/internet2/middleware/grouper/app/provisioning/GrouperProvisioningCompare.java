@@ -1119,6 +1119,9 @@ public class GrouperProvisioningCompare {
         }
          
         if (deleteMembershipAttributeValues) {
+          
+          Set<String> membershipValuesDeleted = new HashSet<>();
+          
           if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes 
               && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -1140,6 +1143,7 @@ public class GrouperProvisioningCompare {
                   new ProvisioningObjectChange(attributeForMemberships, 
                       ProvisioningObjectChangeAction.delete, membershipValue, null)
                 );
+                membershipValuesDeleted.add(membershipValue);
                 if (!deleted) {
                   deleted = true;
                   provisioningEntityWrappersForUpdate.add(provisioningEntityWrapper);
@@ -1149,9 +1153,12 @@ public class GrouperProvisioningCompare {
               }
               
             }
-          } else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes && 
+          }
+          
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes && 
               this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync() && 
-              this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()){
+              provisioningEntityWrapper.getTargetProvisioningEntity() != null &&
+              this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()) {
             
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
             
@@ -1159,6 +1166,12 @@ public class GrouperProvisioningCompare {
             boolean delete = false;
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
               String membershipValue = GrouperUtil.stringValue(obj);
+              
+              //already deleted in the above if condition
+              if (membershipValuesDeleted.contains(membershipValue)) {
+                continue;
+              }
+              
               if (this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
                   || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(membershipValue)) {
                 this.membershipDeleteCount++;
@@ -1385,6 +1398,9 @@ public class GrouperProvisioningCompare {
         }
 
         if (deleteMembershipAttributeValues) {
+          
+          Set<String> membershipDeletedValues = new HashSet<>();
+          
           if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes 
               && provisioningGroupWrapper.getGrouperTargetGroup() != null) {
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -1408,6 +1424,7 @@ public class GrouperProvisioningCompare {
                   new ProvisioningObjectChange(attributeForMemberships, 
                       ProvisioningObjectChangeAction.delete, membershipValue, null)
                 );
+                membershipDeletedValues.add(membershipValue);
                 if (!deleted) {
                   deleted = true;
                   provisioningGroupWrappersForUpdate.add(provisioningGroupWrapper);
@@ -1417,8 +1434,11 @@ public class GrouperProvisioningCompare {
               }
               
             }
-          }  else if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes && 
+          }
+          
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes && 
               this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync() && 
+              provisioningGroupWrapper.getTargetProvisioningGroup() != null &&
               this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()){
             
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -1427,6 +1447,11 @@ public class GrouperProvisioningCompare {
             boolean delete = false;
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
               String membershipValue = GrouperUtil.stringValue(obj);
+              
+              if (membershipDeletedValues.contains(membershipValue)) {
+                continue;
+              }
+              
               if (this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
                   || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(membershipValue)) {
                 this.membershipDeleteCount++;
