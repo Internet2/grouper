@@ -254,7 +254,7 @@ function guiMessageHelper(messageType, message, shouldEmpty=true) {
   }
   
   var finalMessage = '<div role="alert" class="alert alert-' + messageType 
-    + '"><button type="button" class="close" data-dismiss="alert">&times;</button>'
+    + '"><button type="button" class="close" data-dismiss="alert" aria-label="Close">&times;</button>'
     + message + '</div>';
   $('#messaging').hide();
   if (shouldEmpty) {
@@ -2707,3 +2707,17 @@ function showLinkToRefreshProvisioningConfig(focusOnElementName, provisionerConf
 $(window).unload(function() {
   $.unblockUI();                
 });
+
+(function ($) {
+  $(window).on('load', function () {
+    setTimeout(function () {
+      $('a[role="button"]').on('keyup', function(e) {
+        var keyD = e.key !== undefined ? e.key : e.keyCode;
+        if ( (keyD === 'Enter' || keyD === 13) || (['Spacebar', ' '].indexOf(keyD) >= 0 || keyD === 32)) {
+          e.preventDefault();
+          this.click();
+        }
+      });
+    }, 1000);
+  });
+})(jQuery);

@@ -199,3 +199,47 @@ div.c3.instrumentationGraph  {
   padding-left: 5px;
   color: #666666;
 }
+
+.visually-hidden,
+.visually-hidden-focusable:not(:focus):not(:focus-within):not(caption),
+.visually-hidden:not(caption) {
+  width: 1px!important;
+  height: 1px!important;
+  padding: 0!important;
+  margin: -1px!important;
+  overflow: hidden!important;
+  clip: rect(0,0,0,0)!important;
+  white-space: nowrap!important;
+  border: 0!important;
+}
+
+.visually-hidden-focusable:not(:focus):not(:focus-within):not(caption), .visually-hidden:not(caption) {
+  position: absolute!important;
+}
+
+input::placeholder { /* Chrome, Firefox, Opera, Safari 10.1+ */
+  color: #757575 !important;
+  opacity: 1 !important; /* Firefox */
+}
+
+input:-ms-input-placeholder { /* Internet Explorer 10-11 */
+  color: #757575;
+}
+
+input::-ms-input-placeholder { /* Microsoft Edge */
+  color: #757575;
+}
+
+.alert.alert-error {
+  color: #58151c;
+}
+
+/* uncomment to add underlines to hyperlinks for accessibility */
+/*
+a:not(.btn):not([role]) {
+  text-decoration: underline !important;
+}
+.nav a:not(.btn):not([role]) {
+  text-decoration: none !important;
+}
+*/
