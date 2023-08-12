@@ -1884,6 +1884,11 @@ public abstract class GrouperProvisioningConfiguration {
   private boolean deleteValueIfManagedByGrouper = false;
   
   /**
+   * delete memberships for unprovisionable users  
+   */
+  private boolean deleteMembershipsForUnprovisionableUsers = false;
+  
+  /**
    * delete memberships only in tracked groups
    */
   private boolean deleteMembershipsOnlyInTrackedGroups = true;
@@ -2742,6 +2747,8 @@ public abstract class GrouperProvisioningConfiguration {
       }
     }
     this.debugMap.put("subjectSourcesToProvision", GrouperUtil.join(this.subjectSourcesToProvision.iterator(), ','));
+    
+    this.deleteMembershipsForUnprovisionableUsers = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsForUnprovisionableUsers", false), false);
 
     this.groupAttributeValueCacheHas = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupAttributeValueCacheHas", false), false);
     if (this.groupAttributeValueCacheHas) {
@@ -2876,6 +2883,8 @@ public abstract class GrouperProvisioningConfiguration {
       this.deleteMembershipsIfNotExistInGrouper = false;
 
       this.deleteValueIfManagedByGrouper = false;
+      
+      this.deleteMembershipsForUnprovisionableUsers = false;
   
       this.deleteMembershipsIfGrouperDeleted = false;
   
@@ -4090,9 +4099,17 @@ public abstract class GrouperProvisioningConfiguration {
       Map<String, GrouperProvisioningConfigurationAttribute> targetMembershipAttributeNameToConfig) {
     this.targetMembershipAttributeNameToConfig = targetMembershipAttributeNameToConfig;
   }
+
   
+  public boolean isDeleteMembershipsForUnprovisionableUsers() {
+    return deleteMembershipsForUnprovisionableUsers;
+  }
+
   
-  
+  public void setDeleteMembershipsForUnprovisionableUsers(
+      boolean deleteMembershipsForUnprovisionableUsers) {
+    this.deleteMembershipsForUnprovisionableUsers = deleteMembershipsForUnprovisionableUsers;
+  }
   
   
 }
