@@ -1155,10 +1155,13 @@ public class GrouperProvisioningCompare {
             }
           }
           
+          boolean deleteAllMembershipsForUnprovisionableUsers = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteMembershipsForUnprovisionableUsers() && 
+              this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper();
+          
           if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes && 
               this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync() && 
               provisioningEntityWrapper.getTargetProvisioningEntity() != null &&
-              this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()) {
+              (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper() || deleteAllMembershipsForUnprovisionableUsers)) {
             
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
             
@@ -1172,7 +1175,7 @@ public class GrouperProvisioningCompare {
                 continue;
               }
               
-              if (this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
+              if (deleteAllMembershipsForUnprovisionableUsers || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
                   || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(membershipValue)) {
                 this.membershipDeleteCount++;
                 provisioningEntityWrapper.getTargetProvisioningEntity().addInternal_objectChange(
@@ -1185,7 +1188,6 @@ public class GrouperProvisioningCompare {
             if (delete) {
               provisioningEntitiesToUpdate.add(provisioningEntityWrapper.getTargetProvisioningEntity());
             }
-            
             
           }
 
