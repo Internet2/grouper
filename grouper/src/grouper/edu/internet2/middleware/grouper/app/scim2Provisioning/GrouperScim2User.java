@@ -1,13 +1,13 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Types;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -17,6 +17,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -116,7 +118,11 @@ public class GrouperScim2User {
     if (this.givenName != null) {
       targetEntity.assignAttributeValue("givenName", this.givenName);
     }
-    
+
+    if (this.schemas != null) {
+      targetEntity.assignAttributeValue("schemas", this.schemas);
+    }
+
     if (this.id != null) {
       targetEntity.setId(this.id);
     }
@@ -197,7 +203,12 @@ public class GrouperScim2User {
       grouperScimUser.givenName = GrouperUtil.jsonJacksonGetString(nameNode, "givenName");
       grouperScimUser.middleName = GrouperUtil.jsonJacksonGetString(nameNode, "middleName");
     }
-    
+
+    if (entityNode.get("schemas") != null) {
+      Set<String> schemasStringSet = GrouperUtil.jsonJacksonGetStringSet(entityNode, "schemas");
+      grouperScimUser.schemas = GrouperUtil.join(schemasStringSet.iterator(), ',');
+    }
+
     grouperScimUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "userName");
     grouperScimUser.userType = GrouperUtil.jsonJacksonGetString(entityNode, "userType");
     
@@ -327,6 +338,11 @@ public class GrouperScim2User {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("userType")) {      
       GrouperUtil.jsonJacksonAssignString(result, "userType", this.userType);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {      
+      if (!StringUtils.isBlank(this.schemas)) {
+        GrouperUtil.jsonJacksonAssignStringArray(result, "schemas", GrouperUtil.splitTrimToSet(this.schemas, ","));
+      }
     }
     
     return result;
@@ -460,7 +476,9 @@ public class GrouperScim2User {
   private String familyName;
   
   private String givenName;
-  
+
+  private String schemas;
+
   private String middleName;
   
   private String displayName;
@@ -534,6 +552,16 @@ public class GrouperScim2User {
   }
 
   
+  
+  public String getSchemas() {
+    return schemas;
+  }
+
+  
+  public void setSchemas(String schemas) {
+    this.schemas = schemas;
+  }
+
   public String getGivenName() {
     return givenName;
   }
@@ -734,6 +762,10 @@ public class GrouperScim2User {
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("userType")) {      
       grouperScim2User.setUserType(targetEntity.retrieveAttributeValueString("userType"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {      
+      grouperScim2User.setSchemas(targetEntity.retrieveAttributeValueString("schemas"));
     }
     
     return grouperScim2User;
