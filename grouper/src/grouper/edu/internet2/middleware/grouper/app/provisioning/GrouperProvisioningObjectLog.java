@@ -40,9 +40,6 @@ public class GrouperProvisioningObjectLog {
     if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;
     }
-    if (!LOG.isDebugEnabled()) {
-      return;
-    }
     StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId())
         .append("' (").append(this.grouperProvisioner.getInstanceId()).append(")")
         .append(" state '").append(state)
@@ -79,8 +76,19 @@ public class GrouperProvisioningObjectLog {
     }
     // put id on each line
     String logMessageString = this.grouperProvisioner.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(logMessage.toString()); 
-    if (LOG.isDebugEnabled() && this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerboseToLogFile()) {
-      LOG.debug(logMessageString);      
+    if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerboseToLogFile()) {
+      // should be debug but its ok if not
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(logMessageString);      
+      } else if (LOG.isInfoEnabled()) {
+        LOG.info(logMessageString);      
+      } else if (LOG.isWarnEnabled()) {
+        LOG.warn(logMessageString);      
+      } else if (LOG.isErrorEnabled()) {
+        LOG.error(logMessageString);      
+      } else if (LOG.isFatalEnabled()) {
+        LOG.fatal(logMessageString);      
+      }
     }
     if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerboseToDaemonDbLog()) {
       this.objectLog.append(new Timestamp(System.currentTimeMillis()).toString()).append(": ").append(logMessageString).append("\n\n");
