@@ -1138,6 +1138,10 @@ public class GrouperProvisioningGrouperSyncDao {
       
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper
           .getGcGrouperSyncGroup();
+      
+      if (gcGrouperSyncGroup == null) {
+        return;
+      }
 
       if (grouperTargetGroup.getException() == null
           && GrouperUtil.booleanValue(grouperTargetGroup.getProvisioned(), false)) {
