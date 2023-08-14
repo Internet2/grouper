@@ -2309,6 +2309,10 @@ public class GrouperProvisioningGrouperDao {
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
     }
+    
+    if (StringUtils.isBlank(provisioningGroupWrapper.getSyncGroupId())) {
+      return 0;
+    }
       
     String sqlInitial = "SELECT " + 
         "    count(sync_membership.id) " + 
