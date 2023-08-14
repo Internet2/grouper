@@ -1,8 +1,10 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+<%@ page import="edu.internet2.middleware.grouper.ui.GrouperUiFilter" %>
+<c:set var="lang" value="${(empty GrouperUiFilter.retrieveLocale()) ? 'en' : GrouperUiFilter.retrieveLocale().getLanguage()}" />
 
 <!DOCTYPE html>
-<html>
-  <!-- start index.jsp -->
+<html lang="${lang}">
+  <!-- start grouperUi2/index/indexCustomUi.jsp -->
   <head><title>${textContainer.text['guiTitle']}</title>
   <%@ include file="../assetsJsp/commonHead.jsp"%>
   </head>

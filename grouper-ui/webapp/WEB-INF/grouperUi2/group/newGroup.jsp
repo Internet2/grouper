@@ -29,15 +29,15 @@
                 </div>
                 <form id="addGroupForm" class="form-horizontal">
                   <div class="control-group">
-                    <label for="folder-path" class="control-label">${textContainer.text['groupCreateFolderLabel'] }</label>
+                    <label for="parentFolderComboId" class="control-label">${textContainer.text['groupCreateFolderLabel'] }</label>
                     <div class="controls">
                       <%-- placeholder: Enter a folder name --%>
                       <grouper:combobox2 idBase="parentFolderCombo" style="width: 30em" 
                         filterOperation="../app/UiV2Stem.createGroupParentFolderFilter"
                         value="${grouper:escapeHtml(grouperRequestContainer.stemContainer.objectStemId)}"
                         />
-                      <span class="help-block">${textContainer.text['groupCreateIntoFolderDescription'] }</span>
-                    
+                      <span class="help-block" id="parentFolderCombo_help">${textContainer.text['groupCreateIntoFolderDescription'] }</span>
+                      <script>$('#parentFolderComboId').attr('aria-describedby', 'parentFolderCombo_help');</script>
                     </div>
                   </div>
                   <div class="control-group">
@@ -45,22 +45,26 @@
                     <div class="controls">
                       <input type="text" id="groupName" name="displayExtension" 
                         onkeyup="syncNameAndId('groupName', 'groupId', 'nameDifferentThanIdId', false, null); return true;"
+                        aria-describedby="groupName_help"
                        />
-                      <span class="help-block">${textContainer.text['groupCreateNameDescription'] }</span>
+                      <span class="help-block" id="groupName_help">${textContainer.text['groupCreateNameDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
                     <label for="groupId" class="control-label">${textContainer.text['groupCreateIdLabel'] }</label>
                     <div class="controls">
                       <span onclick="syncNameAndId('groupName', 'groupId', 'nameDifferentThanIdId', true, '${textContainer.textEscapeXml['groupNewAlertWhenClickingOnDisabledId']}'); return true;">
-                        <input type="text" id="groupId" name="extension" disabled="disabled"  /> 
+                        <input type="text" id="groupId" name="extension" disabled="disabled" aria-describedby="groupId_help"  /> 
                       </span>
                       <span style="white-space: nowrap;">
-                        <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true"
-                          onchange="syncNameAndId('groupName', 'groupId', 'nameDifferentThanIdId', false, null); return true;"
-                        /> ${textContainer.text['groupNewEditTheId'] }
+                        <label for="nameDifferentThanIdId" class="checkbox" style="display: inline-block;">
+                          <input type="checkbox" name="nameDifferentThanId" id="nameDifferentThanIdId" value="true" style="float: none"
+                            onchange="syncNameAndId('groupName', 'groupId', 'nameDifferentThanIdId', false, null); return true;"
+                          />
+                          ${textContainer.text['groupNewEditTheId'] }
+                        </label>
                       </span>
-                      <span class="help-block">${textContainer.text['groupCreateIdDescription'] }</span>
+                      <span class="help-block" id="groupId_help">${textContainer.text['groupCreateIdDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
@@ -80,7 +84,8 @@
                         <c:if test="${groupTypeForEdit.formElementType == 'TEXTFIELD'}">
                           <input type="text" name="${groupTypeForEdit.configId}__name"
                               value="${grouper:escapeHtml(groupTypeForEdit.value)}"
-                              id="${groupTypeForEdit.configId}__id">
+                              id="${groupTypeForEdit.configId}__id"
+                              aria-describedby="groupTypeForEdit_help">
                         </c:if>
                         
                         <c:if test="${groupTypeForEdit.formElementType == 'CHECKBOX'}">
@@ -91,7 +96,7 @@
                            onclick="if($(this).is(':checked')) {$('.${groupTypeForEdit.attributeDefName.id}__class').show(300);} else { $('.${groupTypeForEdit.attributeDefName.id}__class').hide(200); }"
                           />
                         </c:if>
-                        <span class="help-block">${grouper:escapeHtml(groupTypeForEdit.description)}</span>
+                        <span class="help-block" id="groupTypeForEdit_help">${grouper:escapeHtml(groupTypeForEdit.description)}</span>
                       </div>
                     </div>
                   
@@ -141,11 +146,11 @@
                       <label for="group-type" class="control-label">${textContainer.text['groupCreateTypeLabel'] }</label>
                       <div class="controls">
                         <label class="radio">
-                          <input type="radio" name="groupType" id="group-type-group" value="group" checked>${textContainer.text['groupCreateTypeGroup'] }
+                          <input aria-describedby="groupType_help" type="radio" name="groupType" id="group-type-group" value="group" checked>${textContainer.text['groupCreateTypeGroup'] }
                         </label>
                         <label class="radio">
-                          <input type="radio" name="groupType" id="group-type-role" value="role">${textContainer.text['groupCreateTypeRole'] }
-                        </label><span class="help-block">${textContainer.text['groupCreateTypeDescription'] }</span>
+                          <input aria-describedby="groupType_help" type="radio" name="groupType" id="group-type-role" value="role">${textContainer.text['groupCreateTypeRole'] }
+                        </label><span class="help-block" id="groupType_help">${textContainer.text['groupCreateTypeDescription'] }</span>
                       </div>
                     </div>
                   </div>
