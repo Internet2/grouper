@@ -39,6 +39,10 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntitiesResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntitiesRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntitiesResponse;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsRequest;
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntitiesRequest;
@@ -1540,6 +1544,36 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     return new TargetDaoRetrieveAllGroupsResponse(result);
     
   }
+  
+  
+
+  @Override
+  public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(
+      TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
+    
+    List<ProvisioningMembership> memberships = this.retrieveMemberships(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups(), null, null);
+    
+    TargetDaoRetrieveMembershipsByGroupsResponse response = new TargetDaoRetrieveMembershipsByGroupsResponse(memberships);
+     
+    response.setTargetGroups(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups());
+     
+    return response;
+  }
+  
+  
+
+  @Override
+  public TargetDaoRetrieveMembershipsByEntitiesResponse retrieveMembershipsByEntities(
+      TargetDaoRetrieveMembershipsByEntitiesRequest targetDaoRetrieveMembershipsByEntitiesRequest) {
+    
+    List<ProvisioningMembership> memberships = this.retrieveMemberships(null, targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities(), null);
+    
+    TargetDaoRetrieveMembershipsByEntitiesResponse response = new TargetDaoRetrieveMembershipsByEntitiesResponse(memberships);
+    
+    response.setTargetEntities(targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities());
+    
+    return response;
+  }
 
   /**
    * 
@@ -2106,6 +2140,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.membershipObjects) {
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByGroups(true);
       grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsSomeByEntities(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroups(true);
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntities(true);
     }
     
   }

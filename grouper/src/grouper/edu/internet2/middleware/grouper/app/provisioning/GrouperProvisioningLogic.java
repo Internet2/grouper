@@ -2043,6 +2043,8 @@ public class GrouperProvisioningLogic {
     
     enhanceEntityAttributesWithLdapResolver();
     
+    enhanceGroupAttributesWithSqlResolver(true);
+    
     GrouperProvisioningLists extraTargetData = retrieveExtraTargetData(grouperProvisioningLists);
     if (extraTargetData != null) {
       processTargetDataEntities(extraTargetData.getProvisioningEntities(), true);
@@ -2057,6 +2059,239 @@ public class GrouperProvisioningLogic {
     this.getGrouperProvisioner().getDebugMap().put("grouperEntitiesRetrieved", GrouperUtil.length(grouperProvisioningLists.getProvisioningEntities()));
     this.getGrouperProvisioner().getDebugMap().put("grouperMembershipsRetrieved", GrouperUtil.length(grouperProvisioningLists.getProvisioningMemberships()));
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.retrieveDataFromGrouper);
+    
+  }
+  
+  public void enhanceGroupAttributesWithSqlResolver(boolean isFullSync) {
+    
+    GrouperProvisioningConfiguration provisioningConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    if (!provisioningConfiguration.isResolveGroupAttributesWithSql()) {
+      return;
+    }
+    
+    String dbConnectionName = provisioningConfiguration.getGroupAttributesSqlExternalSystem();
+    
+    String tableOrViewName = provisioningConfiguration.getGroupAttributesTableViewName();
+    
+    String tableStucture = provisioningConfiguration.getGroupAttributesTableStructure();
+    
+    String groupMatchingColumn = provisioningConfiguration.getGroupAttributesGroupMatchingColumn();
+    
+    String lastUpdatedColumn = provisioningConfiguration.getGroupAttributesLastUpdatedColumn();
+
+    String lastUpdatedColumnType = provisioningConfiguration.getGroupAttributesLastUpdatedType();
+    
+    List<ProvisioningGroup> provisioningGroups =
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups();
+        
+    
+    if (StringUtils.equals(tableStucture, "columnsAreAttributes")) {
+      
+      String commaSeparatedColumns = provisioningConfiguration.getGroupAttributesColumnNames();
+      
+      Set<String> columnsWhichAreAttributes = GrouperUtil.splitTrimToSet(commaSeparatedColumns, ",");
+      
+      Set<String> columnNamesToFetch = GrouperUtil.splitTrimToSet(commaSeparatedColumns, ",");
+      
+      if (StringUtils.isNotBlank(lastUpdatedColumn) && !columnNamesToFetch.contains(lastUpdatedColumn.trim())) {
+        columnNamesToFetch.add(lastUpdatedColumn.trim());
+      }
+      
+      if (!columnNamesToFetch.contains(groupMatchingColumn.trim())) {
+        columnNamesToFetch.add(groupMatchingColumn.trim());
+      }
+      
+      String commaSeparatedColNames = GrouperUtil.setToString(columnNamesToFetch);
+      
+      StringBuilder sqlInitial = new StringBuilder("select ");
+      sqlInitial.append(commaSeparatedColNames);
+      sqlInitial.append(" from ");
+      sqlInitial.append(tableOrViewName);
+     
+      List<Object[]> attributesFromTable = new ArrayList<Object[]>();
+      
+      boolean selectAllSqlOnFull = provisioningConfiguration.isGroupAttributesSelectAllSqlOnFull();
+      
+      if ((isFullSync && !selectAllSqlOnFull) || !isFullSync) {
+        if (provisioningGroups.size() == 0) {
+          return;
+        }
+        
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(provisioningGroups.size(), 900);
+        
+        for (int i = 0; i < numberOfBatches; i++) {
+          
+          List<ProvisioningGroup> currentBatchProvisioningGroups = GrouperUtil.batchList(provisioningGroups, 900, i);
+          StringBuilder sql = new StringBuilder(sqlInitial);
+          
+          sql.append(" where "+ groupMatchingColumn + " in ( ");
+          
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbConnectionName);
+          
+          for (int j=0; j<currentBatchProvisioningGroups.size();j++) {
+            ProvisioningGroup provisioningGroup = currentBatchProvisioningGroups.get(j);
+            
+            String groupMatchingIdentifier =  provisioningGroup.getName();
+            
+            gcDbAccess.addBindVar(groupMatchingIdentifier);
+            if (j>0) {
+              sql.append(",");
+            }
+            sql.append("?");
+          }
+          sql.append(" ) ");
+          attributesFromTable.addAll(gcDbAccess.sql(sql.toString()).selectList(Object[].class));
+        }
+      } else {
+        attributesFromTable.addAll(new GcDbAccess().connectionName(dbConnectionName).sql(sqlInitial.toString()).selectList(Object[].class));
+      }
+      
+      String[] colNamesFromAttributesTable = GrouperUtil.splitTrim(commaSeparatedColNames, ",");
+      
+      // group name to group attributes
+      Map<String, Object[]> groupSearchMatchingColumnToAttributes = new HashMap<String, Object[]>();
+      
+      int indexOfGroupSearchMatchingColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, groupMatchingColumn);
+      
+      for (Object[] oneRowOfAttributes: attributesFromTable) {
+        Object groupSearchMatchingValue = oneRowOfAttributes[indexOfGroupSearchMatchingColumn];
+        if (groupSearchMatchingValue != null) {
+          
+          String groupSearchMatchingValueString = GrouperUtil.stringValue(groupSearchMatchingValue);
+          groupSearchMatchingColumnToAttributes.put(groupSearchMatchingValueString, oneRowOfAttributes);
+        }
+      }
+      
+      /**
+       * groupSearchMatchingColumnToAttributes looks like
+       * test:testGroup -> [attributeValue1, attributeValue2,....]
+       */
+      
+      for (ProvisioningGroup provisioningGroup: provisioningGroups) {
+        Object[] attributeValues = groupSearchMatchingColumnToAttributes.get(provisioningGroup.getName());
+        if (attributeValues != null) {
+          int i = 0;
+          for (String attributeName: colNamesFromAttributesTable) {
+            
+            if (columnsWhichAreAttributes.contains(attributeName)) {
+              
+              provisioningGroup.assignAttributeValue("groupAttributeResolverSql__"+attributeName.toLowerCase(), attributeValues[i]);
+            }
+            i++;
+          }
+        }
+        
+      }
+      
+      
+    } else if (StringUtils.equals(tableStucture, "attributeNameInColumnValue")) {
+      
+      String attributeNameColumnName = provisioningConfiguration.getGroupAttributesAttributeNameColumnName();
+      String attributeValueColumnName = provisioningConfiguration.getGroupAttributesAttributeValueColumnName();
+      
+      Set<String> columnNamesToFetch = new HashSet<>(); 
+      columnNamesToFetch.add(attributeNameColumnName);
+      columnNamesToFetch.add(attributeValueColumnName);
+          
+      if (StringUtils.isNotBlank(lastUpdatedColumn) && !columnNamesToFetch.contains(lastUpdatedColumn.trim())) {
+        columnNamesToFetch.add(lastUpdatedColumn.trim());
+      }
+      
+      if (!columnNamesToFetch.contains(groupMatchingColumn.trim())) {
+        columnNamesToFetch.add(groupMatchingColumn.trim());
+      }
+      
+      String commaSeparatedColNames = GrouperUtil.setToString(columnNamesToFetch);
+      
+      StringBuilder sqlInitial = new StringBuilder("select ");
+      sqlInitial.append(commaSeparatedColNames);
+      sqlInitial.append(" from ");
+      sqlInitial.append(tableOrViewName);
+      
+      List<Object[]> attributesFromTable = new ArrayList<Object[]>();
+      
+      boolean selectAllSqlOnFull = provisioningConfiguration.isGroupAttributesSelectAllSqlOnFull();
+      
+      if ((isFullSync && !selectAllSqlOnFull) || !isFullSync) {
+        if (provisioningGroups.size() == 0) {
+          return;
+        }
+        
+        int numberOfBatches = GrouperUtil.batchNumberOfBatches(provisioningGroups.size(), 900);
+        
+        for (int i = 0; i < numberOfBatches; i++) {
+          
+          List<ProvisioningGroup> currentBatchProvisioningGroups = GrouperUtil.batchList(provisioningGroups, 900, i);
+          StringBuilder sql = new StringBuilder(sqlInitial);
+          
+          sql.append(" where "+ groupMatchingColumn + " in ( ");
+          
+          GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbConnectionName);
+          
+          for (int j=0; j<currentBatchProvisioningGroups.size();j++) {
+            ProvisioningGroup provisioningGroup = currentBatchProvisioningGroups.get(j);
+            
+            String groupMatchingIdentifier =  provisioningGroup.getName();
+            
+            gcDbAccess.addBindVar(groupMatchingIdentifier);
+            if (j>0) {
+              sql.append(",");
+            }
+            sql.append("?");
+          }
+          sql.append(" ) ");
+          attributesFromTable.addAll(gcDbAccess.sql(sql.toString()).selectList(Object[].class));
+        }
+      } else {
+        attributesFromTable.addAll(new GcDbAccess().connectionName(dbConnectionName).sql(sqlInitial.toString()).selectList(Object[].class));
+      }
+      
+      String[] colNamesFromAttributesTable = GrouperUtil.splitTrim(commaSeparatedColNames, ",");
+      
+      // group name to group attributes
+      // e.g test:testGroup -> [ description -> testDescription, suffix -> groupSuffix ]
+      Map<String, Map<String, String>> groupSearchMatchingColumnToAttributes = new HashMap<String, Map<String, String>>();
+      
+      int indexOfGroupSearchMatchingColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, groupMatchingColumn);
+      int indexOfAttributeNameMatchingColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, attributeNameColumnName);
+      int indexOfAttributeValueMatchingColumn = GrouperUtil.indexOf(colNamesFromAttributesTable, attributeValueColumnName);
+      
+      for (Object[] oneRowOfAttributes: attributesFromTable) {
+        Object groupSearchMatchingValue = oneRowOfAttributes[indexOfGroupSearchMatchingColumn];
+        Object attributeName = oneRowOfAttributes[indexOfAttributeNameMatchingColumn];
+        Object attributeValue = oneRowOfAttributes[indexOfAttributeValueMatchingColumn];
+        if (groupSearchMatchingValue != null && attributeName != null) {
+          String groupSearchMatchingValueString = GrouperUtil.stringValue(groupSearchMatchingValue);
+          String attributeNameString = GrouperUtil.stringValue(attributeName);
+          String attributeValueString = GrouperUtil.stringValue(attributeValue);
+          
+          if (groupSearchMatchingColumnToAttributes.containsKey(groupSearchMatchingValueString)) {
+            Map<String, String> attributeNameToValue = groupSearchMatchingColumnToAttributes.get(groupSearchMatchingValueString);
+            attributeNameToValue.put(attributeNameString, attributeValueString);
+            groupSearchMatchingColumnToAttributes.put(groupSearchMatchingValueString, attributeNameToValue);
+          } else {
+            Map<String, String> attributeNameToValue = new HashMap<>();
+            attributeNameToValue.put(attributeNameString, attributeValueString);
+            groupSearchMatchingColumnToAttributes.put(groupSearchMatchingValueString, attributeNameToValue);
+          }
+          
+        }
+      }
+      
+      //e.g test:testGroup -> [ description -> testDescription, suffix -> groupSuffix ]
+      for (ProvisioningGroup provisioningGroup: provisioningGroups) {
+        Map<String, String> attributeNameToValue = groupSearchMatchingColumnToAttributes.get(provisioningGroup.getName());
+        
+        for (String attributeName: attributeNameToValue.keySet()) {
+          provisioningGroup.assignAttributeValue("groupAttributeResolverSql__"+attributeName.toLowerCase(), attributeNameToValue.get(attributeName));
+        }
+        
+      }
+      
+    } else {
+      throw new RuntimeException("Invalid group attributes table structure value");
+    }
     
   }
   
