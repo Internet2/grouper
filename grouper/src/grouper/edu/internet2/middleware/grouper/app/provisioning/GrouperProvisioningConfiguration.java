@@ -2272,7 +2272,33 @@ public abstract class GrouperProvisioningConfiguration {
     return entityMembershipAttributeValue;
   }
 
-  private String entityMembershipAttributeValue;  
+  private String entityMembershipAttributeValue;
+
+  private boolean hasGroupAttributes;
+
+  private boolean resolveGroupAttributesWithSql;
+
+  private String groupAttributesSqlExternalSystem;
+
+  private String groupAttributesTableViewName;
+
+  private String groupAttributesColumnNames;
+
+  private String groupAttributesTableStructure;
+
+  private String groupAttributesAttributeNameColumnName;
+
+  private String groupAttributesAttributeValueColumnName;
+
+  private String groupAttributesGroupMatchingColumn;
+
+  private String groupAttributesLastUpdatedColumn;
+
+  private String groupAttributesLastUpdatedType;
+
+  private boolean groupAttributesRecalcMembershipsOnIncremental;
+
+  private boolean groupAttributesSelectAllSqlOnFull;  
   
   
   /**
@@ -3028,7 +3054,22 @@ public abstract class GrouperProvisioningConfiguration {
     this.entityAttributesLdapMatchingExpression = this.retrieveConfigString("entityResolver.ldapMatchingExpression", false);
     this.entityAttributesLdapLastUpdatedAttribute = this.retrieveConfigString("entityResolver.lastUpdatedAttribute", false);
     this.entityAttributesLdapLastUpdatedAttributeFormat = this.retrieveConfigString("entityResolver.lastUpdatedFormat", false);
-
+    
+    this.hasGroupAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupResolver.groupResolverAttributes", false), false);
+    this.resolveGroupAttributesWithSql = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupResolver.resolveAttributesWithSQL", false), false);
+    this.groupAttributesSqlExternalSystem = this.retrieveConfigString("groupResolver.sqlConfigId", false);
+    this.groupAttributesTableViewName = this.retrieveConfigString("groupResolver.tableOrViewName", false);
+    this.groupAttributesColumnNames = this.retrieveConfigString("groupResolver.columnNames", false);
+    this.groupAttributesTableStructure = this.retrieveConfigString("groupResolver.tableStructure", false);
+    this.groupAttributesAttributeNameColumnName = this.retrieveConfigString("groupResolver.attributeNameColumnName", false);
+    this.groupAttributesAttributeValueColumnName = this.retrieveConfigString("groupResolver.attributeValueColumnName", false);
+    this.groupAttributesGroupMatchingColumn = this.retrieveConfigString("groupResolver.groupMatchingColumn", false);
+    this.groupAttributesLastUpdatedColumn = this.retrieveConfigString("groupResolver.lastUpdatedColumn", false);
+    this.groupAttributesLastUpdatedType = this.retrieveConfigString("groupResolver.lastUpdatedType", false);
+    this.groupAttributesRecalcMembershipsOnIncremental = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupResolver.recalcMembershipsOnIncremental", false), false);
+    this.groupAttributesSelectAllSqlOnFull = GrouperUtil.booleanValue(this.retrieveConfigBoolean("groupResolver.selectAllSQLOnFull", false), false);
+    
+    
     this.threadPoolSize = GrouperUtil.intValue(this.retrieveConfigInt("threadPoolSize", false), 5);
     if (this.threadPoolSize < 1) {
       this.threadPoolSize = 1;
@@ -4110,6 +4151,142 @@ public abstract class GrouperProvisioningConfiguration {
       boolean deleteMembershipsForUnprovisionableUsers) {
     this.deleteMembershipsForUnprovisionableUsers = deleteMembershipsForUnprovisionableUsers;
   }
+
+  
+  public boolean isHasGroupAttributes() {
+    return hasGroupAttributes;
+  }
+
+  
+  public void setHasGroupAttributes(boolean hasGroupAttributes) {
+    this.hasGroupAttributes = hasGroupAttributes;
+  }
+
+  
+  public boolean isResolveGroupAttributesWithSql() {
+    return resolveGroupAttributesWithSql;
+  }
+
+  
+  public void setResolveGroupAttributesWithSql(boolean resolveGroupAttributesWithSql) {
+    this.resolveGroupAttributesWithSql = resolveGroupAttributesWithSql;
+  }
+
+  
+  public String getGroupAttributesSqlExternalSystem() {
+    return groupAttributesSqlExternalSystem;
+  }
+
+  
+  public void setGroupAttributesSqlExternalSystem(String groupAttributesSqlExternalSystem) {
+    this.groupAttributesSqlExternalSystem = groupAttributesSqlExternalSystem;
+  }
+
+  
+  public String getGroupAttributesTableViewName() {
+    return groupAttributesTableViewName;
+  }
+
+  
+  public void setGroupAttributesTableViewName(String groupAttributesTableViewName) {
+    this.groupAttributesTableViewName = groupAttributesTableViewName;
+  }
+
+  
+  public String getGroupAttributesColumnNames() {
+    return groupAttributesColumnNames;
+  }
+
+  
+  public void setGroupAttributesColumnNames(String groupAttributesColumnNames) {
+    this.groupAttributesColumnNames = groupAttributesColumnNames;
+  }
+
+  
+  public String getGroupAttributesTableStructure() {
+    return groupAttributesTableStructure;
+  }
+
+  
+  public void setGroupAttributesTableStructure(String groupAttributesTableStructure) {
+    this.groupAttributesTableStructure = groupAttributesTableStructure;
+  }
+
+  
+  public String getGroupAttributesAttributeNameColumnName() {
+    return groupAttributesAttributeNameColumnName;
+  }
+
+  
+  public void setGroupAttributesAttributeNameColumnName(
+      String groupAttributesAttributeNameColumnName) {
+    this.groupAttributesAttributeNameColumnName = groupAttributesAttributeNameColumnName;
+  }
+
+  
+  public String getGroupAttributesAttributeValueColumnName() {
+    return groupAttributesAttributeValueColumnName;
+  }
+
+  
+  public void setGroupAttributesAttributeValueColumnName(
+      String groupAttributesAttributeValueColumnName) {
+    this.groupAttributesAttributeValueColumnName = groupAttributesAttributeValueColumnName;
+  }
+
+  
+  public String getGroupAttributesGroupMatchingColumn() {
+    return groupAttributesGroupMatchingColumn;
+  }
+
+  
+  public void setGroupAttributesGroupMatchingColumn(
+      String groupAttributesGroupMatchingColumn) {
+    this.groupAttributesGroupMatchingColumn = groupAttributesGroupMatchingColumn;
+  }
+
+  
+  public String getGroupAttributesLastUpdatedColumn() {
+    return groupAttributesLastUpdatedColumn;
+  }
+
+  
+  public void setGroupAttributesLastUpdatedColumn(String groupAttributesLastUpdatedColumn) {
+    this.groupAttributesLastUpdatedColumn = groupAttributesLastUpdatedColumn;
+  }
+
+  
+  public String getGroupAttributesLastUpdatedType() {
+    return groupAttributesLastUpdatedType;
+  }
+
+  
+  public void setGroupAttributesLastUpdatedType(String groupAttributesLastUpdatedType) {
+    this.groupAttributesLastUpdatedType = groupAttributesLastUpdatedType;
+  }
+
+  
+  public boolean isGroupAttributesRecalcMembershipsOnIncremental() {
+    return groupAttributesRecalcMembershipsOnIncremental;
+  }
+
+  
+  public void setGroupAttributesRecalcMembershipsOnIncremental(
+      boolean groupAttributesRecalcMembershipsOnIncremental) {
+    this.groupAttributesRecalcMembershipsOnIncremental = groupAttributesRecalcMembershipsOnIncremental;
+  }
+
+  
+  public boolean isGroupAttributesSelectAllSqlOnFull() {
+    return groupAttributesSelectAllSqlOnFull;
+  }
+
+  
+  public void setGroupAttributesSelectAllSqlOnFull(
+      boolean groupAttributesSelectAllSqlOnFull) {
+    this.groupAttributesSelectAllSqlOnFull = groupAttributesSelectAllSqlOnFull;
+  }
+  
   
   
 }
