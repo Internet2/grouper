@@ -47,6 +47,8 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogScriptConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonChangeLogToMessagingConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobCsvReportConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDataProviderFullSyncConfiguration.class.getName());
+    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDataProviderIncrementalSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonCleanLogsConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonEnabledDisabledConfiguration.class.getName());
@@ -81,8 +83,6 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobObjectTypesFullSyncConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSubjectChangeConfiguration.class.getName());
     grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobSyncToGrouperFromSqlConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDataProviderFullSyncConfiguration.class.getName());
-    grouperDaemonConfigClassNames.add(GrouperDaemonOtherJobDataProviderIncrementalSyncConfiguration.class.getName());
   }
 
   /**
