@@ -819,6 +819,9 @@ public class GrouperProvisioningLogic {
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingDataUnprocessed);
     }
     
+    // ######### STEP 3.5: bring groups from sql attributes
+    grouperProvisioningLogicIncremental.addGroupsFromSqlAttributes();
+    
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
     
       // ######### STEP 4: see if any actions happened before the last full sync
@@ -2041,7 +2044,7 @@ public class GrouperProvisioningLogic {
     
     enhanceEntityAttributesWithSqlResolver(true);
     
-    enhanceEntityAttributesWithLdapResolver();
+    enhanceEntityAttributesWithLdapResolver(); //TODO pass true like others 
     
     enhanceGroupAttributesWithSqlResolver(true);
     
@@ -2080,8 +2083,6 @@ public class GrouperProvisioningLogic {
     
     String lastUpdatedColumn = provisioningConfiguration.getGroupAttributesLastUpdatedColumn();
 
-    String lastUpdatedColumnType = provisioningConfiguration.getGroupAttributesLastUpdatedType();
-    
     List<ProvisioningGroup> provisioningGroups =
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups();
         
@@ -2987,6 +2988,12 @@ public class GrouperProvisioningLogic {
     // incrementals need to consult sync objects to know what to delete
     this.calculateProvisioningGroupsToDelete();
     this.calculateProvisioningEntitiesToDelete();
+    
+    enhanceEntityAttributesWithSqlResolver(false);
+    
+    // enhanceEntityAttributesWithLdapResolver(); //TODO pass false like others 
+    
+    enhanceGroupAttributesWithSqlResolver(false);
     
   }
 

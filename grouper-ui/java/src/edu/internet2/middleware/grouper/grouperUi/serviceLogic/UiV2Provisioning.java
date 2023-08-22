@@ -2489,33 +2489,35 @@ public class UiV2Provisioning {
         LOG.error("Could not initialize provisioner: "+grouperProvisioner.getConfigId(), e);
       }
       provisioningContainer.setGrouperProvisioner(grouperProvisioner);
-
-      GrouperProvisioningObjectMetadata provisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
-      List<GrouperProvisioningObjectMetadataItem> metadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
-      List<GrouperProvisioningObjectMetadataItem> metadataItemsForFolder = metadataItems.stream()
-          .filter(metadataItem -> metadataItem.isShowForFolder())
-          .collect(Collectors.toList());
       
-      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
-      
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder, grouperProvisioner, stem.getName());
-      if (errors) {
-        return;
-      }
-      
-      Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
-      
-      if (validateMetadataInputForFolder != null && validateMetadataInputForFolder.size() > 0) {
-        for (String name: validateMetadataInputForFolder.keySet()) {
-          String errorMessage = validateMetadataInputForFolder.get(name);
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
-          errors = true;
+      if (isDirect && shouldDoProvisionBoolean) {
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> metadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+        List<GrouperProvisioningObjectMetadataItem> metadataItemsForFolder = metadataItems.stream()
+            .filter(metadataItem -> metadataItem.isShowForFolder())
+            .collect(Collectors.toList());
+        
+        Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+        
+        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder, grouperProvisioner, stem.getName());
+        if (errors) {
+          return;
         }
+        
+        Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
+        
+        if (validateMetadataInputForFolder != null && validateMetadataInputForFolder.size() > 0) {
+          for (String name: validateMetadataInputForFolder.keySet()) {
+            String errorMessage = validateMetadataInputForFolder.get(name);
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
+            errors = true;
+          }
+        }
+        
+        if (errors) return;
+        
+        attributeValue.setMetadataNameValues(metadataNameValues);
       }
-      
-      if (errors) return;
-      
-      attributeValue.setMetadataNameValues(metadataNameValues);
 
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -3087,31 +3089,33 @@ public class UiV2Provisioning {
         LOG.error("Could not initialize provisioner: "+provisioner.getConfigId(), e);
       }
       provisioningContainer.setGrouperProvisioner(provisioner);
-
-      GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
-      List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
-      List<GrouperProvisioningObjectMetadataItem> metadataItemsForGroup = provisioningObjectMetadataItems.stream()
-          .filter(metadataItem -> metadataItem.isShowForGroup())
-          .collect(Collectors.toList());
       
-      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
-      
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForGroup, provisioner, group.getName());
-      if (errors) return;
-      
-      Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
-      
-      if (validateMetadataInputForFolder != null && validateMetadataInputForFolder.size() > 0) {
-        for (String name: validateMetadataInputForFolder.keySet()) {
-          String errorMessage = validateMetadataInputForFolder.get(name);
-          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
-          errors = true;
+      if (isDirect && shouldDoProvisionBoolean) {
+        GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
+        List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
+        List<GrouperProvisioningObjectMetadataItem> metadataItemsForGroup = provisioningObjectMetadataItems.stream()
+            .filter(metadataItem -> metadataItem.isShowForGroup())
+            .collect(Collectors.toList());
+        
+        Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+        
+        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForGroup, provisioner, group.getName());
+        if (errors) return;
+        
+        Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
+        
+        if (validateMetadataInputForFolder != null && validateMetadataInputForFolder.size() > 0) {
+          for (String name: validateMetadataInputForFolder.keySet()) {
+            String errorMessage = validateMetadataInputForFolder.get(name);
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
+            errors = true;
+          }
         }
+        
+        if (errors) return;
+        
+        attributeValue.setMetadataNameValues(metadataNameValues);
       }
-      
-      if (errors) return;
-      
-      attributeValue.setMetadataNameValues(metadataNameValues);
 
       //switch over to admin so attributes work
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
