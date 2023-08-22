@@ -50,6 +50,69 @@ public class GrouperProvisioningGrouperDao {
   public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner1) {
     this.grouperProvisioner = grouperProvisioner1;
   }
+  
+  public List<ProvisioningGroup> retrieveGroupsFromNames(Collection<String> names) {
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
+    
+    if (GrouperUtil.length(names) == 0) {
+      return results;
+    }
+    
+    String sqlInitial = "select " + 
+        "    gg.id, " + 
+        "    gg.name, " + 
+        "    gg.display_name, " + 
+        "    gg.description, " + 
+        "    gg.id_index, " +
+        "    gsg.metadata_json " +
+        "from " + 
+        "    grouper_groups gg, " + 
+        "    grouper_sync_group gsg " + 
+        "where " + 
+        "    gsg.grouper_sync_id = ? " +
+        "    and gg.id = gsg.group_id " +
+        "    and gg.type_of_group != 'entity' " + 
+        "    and gsg.provisionable = 'T' ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
+    
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    
+    List<String[]> queryResults = null;
+    List<String> namesList = GrouperUtil.listFromCollection(names);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(namesList.size(), 900);
+    for (int i = 0; i < numberOfBatches; i++) {
+      List<String> currentBatchNames = GrouperUtil.batchList(namesList, 900, i);
+      
+      List<Object> params = new ArrayList<Object>(paramsInitial);
+      params.addAll(currentBatchNames);
+
+      List<Type> types = new ArrayList<Type>(typesInitial);
+
+      for (int j = 0; j < GrouperUtil.length(currentBatchNames); j++) {
+        types.add(StringType.INSTANCE);
+      }
+      
+      StringBuilder sql = new StringBuilder(sqlInitial);
+      sql.append(" and gg.name in (");
+      sql.append(HibUtils.convertToInClauseForSqlStatic(currentBatchNames));
+      sql.append(") ");
+      
+      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), params, types);
+      
+      List<ProvisioningGroup> targetGroupMapFromQueryResults = getTargetGroupMapFromQueryResults(queryResults);
+      results.addAll(GrouperUtil.nonNull(targetGroupMapFromQueryResults));
+    }      
+
+    return results;
+  }
 
   /**
    * get either all groups or a list of groups

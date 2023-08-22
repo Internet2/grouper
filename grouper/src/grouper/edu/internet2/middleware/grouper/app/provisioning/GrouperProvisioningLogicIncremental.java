@@ -14,6 +14,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -33,6 +34,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -993,6 +995,83 @@ public class GrouperProvisioningLogicIncremental {
             , this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupMembershipsForRecalc(), System.currentTimeMillis(), null);
       }      
     }
+  }
+  
+  public void addGroupsFromSqlAttributes() {
+    
+    GrouperProvisioningConfiguration provisioningConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    boolean resolveAttributesWithSql = provisioningConfiguration.isResolveGroupAttributesWithSql();
+    if (!resolveAttributesWithSql) {
+      return;
+    }
+    
+    String lastUpdatedColumn = provisioningConfiguration.getGroupAttributesLastUpdatedColumn();
+    String lastUpdatedColumnType = provisioningConfiguration.getGroupAttributesLastUpdatedType();
+    
+    if (StringUtils.isBlank(lastUpdatedColumn) || StringUtils.isBlank(lastUpdatedColumnType)) {
+      return; // don't do anything because we need last updated column and type both to retrieve groups that have changed
+    }
+    
+    String dbConnectionName = provisioningConfiguration.getGroupAttributesSqlExternalSystem();
+    
+    String tableOrViewName = provisioningConfiguration.getGroupAttributesTableViewName();
+    
+    String groupMatchingColumn = provisioningConfiguration.getGroupAttributesGroupMatchingColumn();
+    
+    Timestamp lastFullSyncTimestamp = this.grouperProvisioner.getGcGrouperSync().getLastFullSyncStart();
+    Timestamp lastIncrementalSyncTimestamp = this.grouperProvisioner.getGcGrouperSyncJob().getLastSyncStart();
+    
+    int compare = GrouperUtil.compare(lastFullSyncTimestamp, lastIncrementalSyncTimestamp);
+    
+    Timestamp lastSyncTimestamp = null;
+    if (compare == 0) {
+      if (lastFullSyncTimestamp != null) {
+        lastSyncTimestamp = lastFullSyncTimestamp;
+      }
+    } else if (compare > 0) {
+      lastSyncTimestamp = lastFullSyncTimestamp;
+    } else if (compare < 0) {
+      lastSyncTimestamp = lastIncrementalSyncTimestamp;
+    }
+    
+    if (lastSyncTimestamp == null) {
+      throw new RuntimeException("No last sync timestamp found for provisioner "+this.grouperProvisioner.getConfigId());
+    }
+    
+    StringBuilder sqlInitial = new StringBuilder("select ");
+    sqlInitial.append(groupMatchingColumn);
+    sqlInitial.append(" from ");
+    sqlInitial.append(tableOrViewName);
+    sqlInitial.append(" where " + lastUpdatedColumn + " > ?");
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbConnectionName).sql(sqlInitial.toString());
+    
+    if (StringUtils.equals(lastUpdatedColumnType, "timestamp")) {
+      gcDbAccess.addBindVar(lastSyncTimestamp);
+    } else if (StringUtils.equals(lastUpdatedColumnType, "millisSince1970")) {
+      long lastSyncMillisSince1970 = lastSyncTimestamp.getTime();
+      gcDbAccess.addBindVar(lastSyncMillisSince1970);
+    } else {
+      throw new RuntimeException("Invalid groupAttributesLastUpdatedType for provisioner: "+this.grouperProvisioner.getConfigId());
+    }
+    
+    List<String> groupNames = gcDbAccess.selectList(String.class);
+    
+    List<ProvisioningGroup> groupsToAddForProcessing = this.getGrouperProvisioner().retrieveGrouperDao().retrieveGroupsFromNames(groupNames);
+    
+    boolean selectGroupsForRecalc = getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc();
+    boolean recalcMembershipsOnIncremental = getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupAttributesRecalcMembershipsOnIncremental();
+    
+    for(ProvisioningGroup provisioningGroup: groupsToAddForProcessing) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(provisioningGroup.getId(), selectGroupsForRecalc,
+          recalcMembershipsOnIncremental, null, null);
+    }
+    
+    if (GrouperUtil.length(groupsToAddForProcessing) > 0) {
+      this.grouperProvisioner.getDebugMap().put("groupAttributeIncrementalCount", GrouperUtil.length(groupsToAddForProcessing));
+    }
+      
   }
 
   public void incrementalCheckChangeLog() {
