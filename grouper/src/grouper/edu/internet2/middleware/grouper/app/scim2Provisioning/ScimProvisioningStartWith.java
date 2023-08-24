@@ -259,29 +259,35 @@ public class ScimProvisioningStartWith extends ProvisionerStartWithBase {
       }
     }
     
+    GrouperConfigurationModuleAttribute manageEntitiesAttribute = this.retrieveAttributes().get("manageEntities");
+    
     GrouperConfigurationModuleAttribute scimTypeAttribute = this.retrieveAttributes().get("scimType");
-    if (scimTypeAttribute != null && (GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "AWS") || GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "Github")) ) {
+    if (scimTypeAttribute != null && manageEntitiesAttribute != null && GrouperUtil.booleanValue(manageEntitiesAttribute.getValueOrExpressionEvaluation(), false) 
+        && (GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "AWS") || GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "Github")) ) {
       GrouperConfigurationModuleAttribute entityFamilyNameAttribute = this.retrieveAttributes().get("subjectLastNameAttribute");
       if (entityFamilyNameAttribute == null || StringUtils.isBlank(entityFamilyNameAttribute.getValueOrExpressionEvaluation())) {
         String errorMessage = GrouperTextContainer.textOrNull("scim2AWSEntityFamilyNameIsRequired");
         validationErrorsToDisplay.put(subjectSourceEntityResoverModuleAttribute.getHtmlForElementIdHandle(), errorMessage);
       }
     }
-    if (scimTypeAttribute != null && (GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "AWS") || GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "Github")) ) {
+    if (scimTypeAttribute != null && manageEntitiesAttribute != null && GrouperUtil.booleanValue(manageEntitiesAttribute.getValueOrExpressionEvaluation(), false) 
+        && (GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "AWS") || GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "Github")) ) {
       GrouperConfigurationModuleAttribute entityGivenNameAttribute = this.retrieveAttributes().get("subjectFirstNameAttribute");
       if (entityGivenNameAttribute == null || StringUtils.isBlank(entityGivenNameAttribute.getValueOrExpressionEvaluation())) {
         String errorMessage = GrouperTextContainer.textOrNull("scim2AWSEntityGivenNameIsRequired");
         validationErrorsToDisplay.put(subjectSourceEntityResoverModuleAttribute.getHtmlForElementIdHandle(), errorMessage);
       }
     }
-    if (scimTypeAttribute != null) {
+    
+    if (scimTypeAttribute != null && manageEntitiesAttribute != null && GrouperUtil.booleanValue(manageEntitiesAttribute.getValueOrExpressionEvaluation(), false)) {
       GrouperConfigurationModuleAttribute entityUserNameAttribute = this.retrieveAttributes().get("entityUsername");
       if (entityUserNameAttribute == null || StringUtils.isBlank(entityUserNameAttribute.getValueOrExpressionEvaluation())) {
         String errorMessage = GrouperTextContainer.textOrNull("scim2AWSEntityUserNameIsRequired");
         validationErrorsToDisplay.put(subjectSourceEntityResoverModuleAttribute.getHtmlForElementIdHandle(), errorMessage);
       }
     }
-    if (scimTypeAttribute != null && GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "AWS")) {
+    if (scimTypeAttribute != null && manageEntitiesAttribute != null && GrouperUtil.equals(scimTypeAttribute.getValueOrExpressionEvaluation(), "AWS")
+        && GrouperUtil.booleanValue(manageEntitiesAttribute.getValueOrExpressionEvaluation(), false)) {
       GrouperConfigurationModuleAttribute entityDisplayNameAttribute = this.retrieveAttributes().get("entityDisplayName");
       if (entityDisplayNameAttribute == null || StringUtils.isBlank(entityDisplayNameAttribute.getValueOrExpressionEvaluation())) {
         String errorMessage = GrouperTextContainer.textOrNull("scim2AWSEntityDisplayNameIsRequired");
