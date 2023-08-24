@@ -560,40 +560,61 @@ public class GrouperScim2ApiCommands {
 
     List<GrouperScim2User> results = new ArrayList<GrouperScim2User>();
     
+    int pageSize = GrouperLoaderConfig.retrieveConfig()
+        .propertyValueInt(
+            "grouper.wsBearerToken." + configId + ".pageSize", 50);
+    pageSize = GrouperLoaderConfig.retrieveConfig()
+        .propertyValueInt(
+            "grouper.wsBearerToken." + configId + ".userPageSize", pageSize);
+
     try {
       
-      boolean moreResults = true;
       int startIndex = 1;
+      int maxCalls = Math.max(10000000/pageSize, 1);
       do {
-        
-        JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Users?startIndex="+startIndex+"&count="+50,
-            GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
+
+        JsonNode jsonNode = null;
+        if (pageSize == -1) {
+          jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Users",
+              GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
+        } else {
+          jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Users?startIndex="+startIndex+"&count="+pageSize,
+              GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
+        }
 
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
         int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
         startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+
+        if (maxCalls-- < 0) {
+          throw new RuntimeException("Endless loop detected! total: " + totalResults 
+              + ", itemsPerPage: " + itemsPerPage + ", startIndex: " + startIndex + ", resultsRetrieved: " + results.size());
+        }
 
         if (totalResults == 0) {
           return results;
         }
         
         ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
+
+        if (resourcesNode.size() == 0) {
+          return results;
+        }
    
         for (int i=0;i<resourcesNode.size();i++) {
           JsonNode userNode = resourcesNode.get(i);
           GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
           results.add(grouperScimUser);
         }
+        // this doesnt increase by pageSize since the server might not support it
+        startIndex = startIndex + resourcesNode.size();
         
-        if (results.size() >= totalResults) {
-          moreResults = false;
+        if (pageSize == -1) {
+          return results;
         }
+
+      } while (true);
         
-        startIndex = startIndex + itemsPerPage;
-        
-      } while (moreResults);
-        
-      return results;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -1031,46 +1052,77 @@ public class GrouperScim2ApiCommands {
   public static List<GrouperScim2Group> retrieveScimGroups(String configId, String acceptHeader) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-  
+
     debugMap.put("method", "retrieveScimGroups");
-  
+
     long startTime = System.nanoTime();
-  
+
     List<GrouperScim2Group> results = new ArrayList<GrouperScim2Group>();
     
+    int pageSize = GrouperLoaderConfig.retrieveConfig()
+        .propertyValueInt(
+            "grouper.wsBearerToken." + configId + ".pageSize", 50);
+    pageSize = GrouperLoaderConfig.retrieveConfig()
+        .propertyValueInt(
+            "grouper.wsBearerToken." + configId + ".groupPageSize", pageSize);
+
     try {
-  
-      JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Groups",
-          GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
-  
-      int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
-      int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
-      int startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-  
-      if (totalResults > itemsPerPage) {
-        throw new RuntimeException("Total results " + totalResults + " is greater than items per page " + itemsPerPage);
-      }
-  
-      if (totalResults == 0) {
-        return results;
-      }
       
-      ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
-  
-      for (int i=0;i<resourcesNode.size();i++) {
-        JsonNode userNode = resourcesNode.get(i);
-        GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(userNode);
-        results.add(grouperScimGroup);
-      }
-      
-      return results;
+      int startIndex = 1;
+      int maxCalls = Math.max(5000000/pageSize, 1);
+      do {
+
+        JsonNode jsonNode = null;
+        
+        if (pageSize == -1) {
+          jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Groups",
+              GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
+        } else {
+          jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Groups?startIndex="+startIndex+"&count="+pageSize,
+              GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader);
+        }
+        int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
+        int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
+        startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+
+        if (maxCalls-- < 0) {
+          throw new RuntimeException("Endless loop detected! total: " + totalResults 
+              + ", itemsPerPage: " + itemsPerPage + ", startIndex: " + startIndex + ", resultsRetrieved: " + results.size());
+        }
+
+        if (totalResults == 0) {
+          return results;
+        }
+        
+        ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
+
+        if (resourcesNode.size() == 0) {
+          return results;
+        }
+   
+        for (int i=0;i<resourcesNode.size();i++) {
+          JsonNode userNode = resourcesNode.get(i);
+          GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(userNode);
+          results.add(grouperScimGroup);
+        }
+
+        // this doesnt increase by pageSize since the server might not support it
+        startIndex = startIndex + resourcesNode.size();
+        
+        if (pageSize == -1) {
+          return results;
+        }
+
+        
+      } while (true);
+        
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
       GrouperScim2Log.scimLog(debugMap, startTime);
     }
-  
+
   }
 
 
