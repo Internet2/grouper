@@ -317,7 +317,7 @@ public class UiV2Template {
     Group group = null;
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
       if (stem == null && group == null) {
