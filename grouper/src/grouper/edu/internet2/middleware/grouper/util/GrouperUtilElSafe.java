@@ -100,7 +100,7 @@ public class GrouperUtilElSafe {
     if (text == null) {
       return text;
     }
-    Normalizer.Form formEnum = Normalizer.Form.valueOf(text);
+    Normalizer.Form formEnum = Normalizer.Form.valueOf(form);
     return Normalizer.normalize(text, formEnum);
 
   }

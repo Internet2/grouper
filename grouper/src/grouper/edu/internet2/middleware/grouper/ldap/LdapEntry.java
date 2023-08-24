@@ -62,6 +62,7 @@ public class LdapEntry {
   }
   
   /**
+   * add or replace an attribute, note this will replace existing values too
    * @param attribute
    */
   public void addAttribute(LdapAttribute attribute) {
