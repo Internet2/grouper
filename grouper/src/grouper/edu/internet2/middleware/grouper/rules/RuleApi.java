@@ -635,22 +635,26 @@ public class RuleApi {
         continue;
       }
       
-      Subject ruleSubject = SubjectFinder.findByPackedSubjectString(subjectString, true);
-      
-      if (!SubjectHelper.eq(ruleSubject, subjectToAssign)) {
-        boolean subjectInGroup = false;
+      try {
+        Subject ruleSubject = SubjectFinder.findByPackedSubjectString(subjectString, true);
+        
+        if (!SubjectHelper.eq(ruleSubject, subjectToAssign)) {
+          boolean subjectInGroup = false;
 
-        //if consider
-        if (considerInGroup) {
-          if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), ruleSubject.getSourceId())) {
-            subjectInGroup = new MembershipFinder().addGroupId(ruleSubject.getId()).addField(Group.getDefaultList()).addSubject(subjectToAssign).findMembershipsMembers().size() > 0;
+          //if consider
+          if (considerInGroup) {
+            if (StringUtils.equals(GrouperSourceAdapter.groupSourceId(), ruleSubject.getSourceId())) {
+              subjectInGroup = new MembershipFinder().addGroupId(ruleSubject.getId()).addField(Group.getDefaultList()).addSubject(subjectToAssign).findMembershipsMembers().size() > 0;
+            }
           }
-        }
 
-        if (!considerInGroup || !subjectInGroup) {
-          iterator.remove();
-          continue;
-        }        
+          if (!considerInGroup || !subjectInGroup) {
+            iterator.remove();
+            continue;
+          }        
+        }
+      } catch (Exception e) {
+        LOG.error("Problem assigning subject: '"+subjectString+"'", e);
       }
       
       //check the privilege
