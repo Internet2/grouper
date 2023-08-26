@@ -5,14 +5,17 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Random;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
@@ -40,12 +43,18 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
 public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
+  
+  
+  private static int AWS_GROUPS_TO_CREATE = 110;
+  private static int AWS_USERS_TO_CREATE = 510;
+  
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAwsProvisionerTest("testFullSyncAwsStartWithAndDiagnostics"));
+    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncBulkProvision"));
 
   }
   
@@ -648,6 +657,89 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       assertNull(gcGrouperSyncMembership.getMembershipId2());
       assertNull(gcGrouperSyncMembership.getErrorMessage());
       assertNull(gcGrouperSyncMembership.getErrorTimestamp());
+      
+    } finally {
+//      tomcatStop();
+//      if (commandLineExec != null) {
+//        GrouperUtil.threadJoin(commandLineExec.getThread());
+//      }
+    }
+    
+  }
+  
+  public void testAWSFullSyncBulkProvision() {
+    
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+      .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+      .assignBearerTokenExternalSystemConfigId("awsConfigId")
+      .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+      .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+      .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
+      .assignScimType("AWS")
+      .assignGroupAttributeCount(2)
+    );
+
+    GrouperStartup.startup();
+    
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+    
+    try {
+      // this will create tables
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+  
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      
+      for (int i=0; i<AWS_USERS_TO_CREATE; i++) {
+        RegistrySubject.add(grouperSession, "Fred"+i , "person", "Fred"+i);
+      }
+      
+      List<Group> groups = new ArrayList<>();
+      for (int i=0; i<AWS_GROUPS_TO_CREATE; i++) {
+        Group testGroup = new GroupSave(grouperSession).assignName("test:test"+i).save();
+        groups.add(testGroup);
+        
+        for (int j=0; j<50; j++) {
+          Random ran = new Random();
+          int index = ran.nextInt(AWS_USERS_TO_CREATE);
+          Subject subject = SubjectFinder.findByIdAndSource("Fred"+index, "jdbc", true);
+          testGroup.addMember(subject, false);
+        }
+        
+      }
+      
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("awsProvisioner");
+      attributeValue.setTargetName("awsProvisioner");
+      attributeValue.setStemScopeString("sub");
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      long started = System.currentTimeMillis();
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperUtil.sleep(10000);
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      
+      fullProvision();
+      GrouperUtil.sleep(10000);
+      assertTrue(0 == grouperProvisioningOutput.getInsert());
+    
       
     } finally {
 //      tomcatStop();
