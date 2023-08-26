@@ -252,28 +252,6 @@ public class ScimProvisionerTestConfigInput {
   }
   
   /**
-   * e.g. groups
-   */
-  private String scimMembershipType;
-
-  /**
-   * e.g. groups
-   * @return
-   */
-  public String getScimMembershipType() {
-    return scimMembershipType;
-  }
-
-  /**
-   * e.g. groups
-   * @param scimMembershipType
-   */
-  public ScimProvisionerTestConfigInput assignScimMembershipType(String scimMembershipType) {
-    this.scimMembershipType = scimMembershipType;
-    return this;
-  }
-  
-  /**
    * e.g. AWS or Github
    */
   private String scimType;

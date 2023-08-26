@@ -23,11 +23,23 @@ public class ScimProvisionerTestUtils {
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
     
     //String token = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword");
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
+    if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.aws.scim.provisioning.real", false)) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").
+        value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.aws.scim.provisioning.real.endpoint")).store();
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword")
+        .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.aws.scim.provisioning.real.accessTokenPassword")).store();
+      
+    } else {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value("abcdef").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword").value("abcdef").store();
+    }
     
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value("abcdef").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword").value("abcdef").store();
-
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.testUrlSuffix").value("/Users?count=0").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.testUrlResponseBodyRegex").value(".*totalResults.*").store();
+    
   }
   
   public static void setupGithubExternalSystem() {
@@ -121,21 +133,30 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
     
-    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");
     
-    if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
-      
-      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
+    if (provisioningTestConfigInput.getScimType().equals("Github")) {
+      //configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "false");
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "false");
+      if (!StringUtils.isBlank(provisioningTestConfigInput.getGroupDeleteType())) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "true");
+        
+        configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getGroupDeleteType(), "true");
+      }
+      if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipDeleteType())) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+        configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getMembershipDeleteType(), "true");
+      }
+      if (provisioningTestConfigInput.getGroupAttributeCount() == 0) {
+        configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "false");
+      }
     }
-    if (!StringUtils.isBlank(provisioningTestConfigInput.getMembershipDeleteType())) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteMemberships", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
-      configureProvisionerSuffix(provisioningTestConfigInput, provisioningTestConfigInput.getMembershipDeleteType(), "true");
-    }
+    
+    
     if (provisioningTestConfigInput.getGroupOfUsersToProvision() != null) {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupIdOfUsersToProvision", provisioningTestConfigInput.getGroupOfUsersToProvision().getUuid());
     }
@@ -173,9 +194,6 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "replaceMemberships", "true");
     }
 
-    if (!StringUtils.isBlank(provisioningTestConfigInput.getScimMembershipType())) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "scimMembershipType", provisioningTestConfigInput.getScimMembershipType());
-    }
     if (!StringUtils.isBlank(provisioningTestConfigInput.getScimType())) {
       configureProvisionerSuffix(provisioningTestConfigInput, "scimType", provisioningTestConfigInput.getScimType());
     }
@@ -184,14 +202,13 @@ public class ScimProvisionerTestUtils {
     }
     configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
     
-    if (provisioningTestConfigInput.getGroupAttributeCount() == 0) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "selectGroups", "false");
+    if (provisioningTestConfigInput.getScimType().equals("Github")) {
+      
+    } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "false");
     }
-    
-    
-    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");

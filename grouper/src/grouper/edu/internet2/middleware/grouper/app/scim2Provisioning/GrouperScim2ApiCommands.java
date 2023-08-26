@@ -571,6 +571,7 @@ public class GrouperScim2ApiCommands {
       
       int startIndex = 1;
       int maxCalls = Math.max(10000000/pageSize, 1);
+      int previousStartIndex = 0;
       do {
 
         JsonNode jsonNode = null;
@@ -584,8 +585,12 @@ public class GrouperScim2ApiCommands {
 
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
         int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
-        startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-
+        int returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+        if (previousStartIndex == returnedStartIndex) {
+          // the server returned the previous page so we're done. It happens in AWS.
+          return results;
+        }
+        
         if (maxCalls-- < 0) {
           throw new RuntimeException("Endless loop detected! total: " + totalResults 
               + ", itemsPerPage: " + itemsPerPage + ", startIndex: " + startIndex + ", resultsRetrieved: " + results.size());
@@ -606,6 +611,9 @@ public class GrouperScim2ApiCommands {
           GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
           results.add(grouperScimUser);
         }
+        
+        previousStartIndex = startIndex;
+        
         // this doesnt increase by pageSize since the server might not support it
         startIndex = startIndex + resourcesNode.size();
         
@@ -1070,6 +1078,7 @@ public class GrouperScim2ApiCommands {
       
       int startIndex = 1;
       int maxCalls = Math.max(5000000/pageSize, 1);
+      int previousStartIndex = 0;
       do {
 
         JsonNode jsonNode = null;
@@ -1083,8 +1092,13 @@ public class GrouperScim2ApiCommands {
         }
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
         int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
-        startIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-
+        int returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
+        if (previousStartIndex == returnedStartIndex) {
+          // the server returned the previous page so we're done. It happens in AWS.
+          return results;
+        }
+        
+        
         if (maxCalls-- < 0) {
           throw new RuntimeException("Endless loop detected! total: " + totalResults 
               + ", itemsPerPage: " + itemsPerPage + ", startIndex: " + startIndex + ", resultsRetrieved: " + results.size());
@@ -1105,7 +1119,9 @@ public class GrouperScim2ApiCommands {
           GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(userNode);
           results.add(grouperScimGroup);
         }
-
+        
+        previousStartIndex = startIndex;
+        
         // this doesnt increase by pageSize since the server might not support it
         startIndex = startIndex + resourcesNode.size();
         
