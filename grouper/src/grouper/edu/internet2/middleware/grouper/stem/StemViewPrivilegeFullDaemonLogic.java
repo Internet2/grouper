@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -35,12 +36,22 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
    * debug map
    */
   private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  
+  private OtherJobInput otherJobInput; 
+  
+
+  public StemViewPrivilegeFullDaemonLogic() {
+    super();
+    otherJobInput = new OtherJobInput();
+    otherJobInput.setHib3GrouperLoaderLog(new Hib3GrouperLoaderLog());
+  }
 
   private static final Log LOG = GrouperUtil.getLog(StemViewPrivilegeFullDaemonLogic.class);
   
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     try {
+      this.otherJobInput = otherJobInput;
       fullSyncLogic();
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running stem view privilege full sync daemon. \n "+GrouperUtil.mapToString(debugMap));
     } catch (Exception e) {
@@ -154,7 +165,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + "and (gll.last_stem_view_need is null or gll.last_stem_view_need < ?)")
       .addBindVar(everyEntityMember.getId()).addBindVar(recalcChangeLogIfNeededInLastMillis).selectList(String.class));
 
-    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedUpdate(this.debugMap, memberIds, "preCompute_");
+    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedUpdate(this.debugMap, memberIds, "preCompute_", this.otherJobInput.getHib3GrouperLoaderLog());
     
     // get people to insert
     memberIds = new GcDbAccess().sql("select gmlv.member_id from grouper_memberships_lw_v gmlv where gmlv.group_name = ? "
@@ -168,7 +179,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + " and not exists (select 1 from grouper_last_login gll where gm.id = gll.member_uuid)")
       .addBindVar(everyEntityMember.getId()).selectList(String.class));
 
-    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedInsert(this.debugMap, memberIds, "preCompute_");
+    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedInsert(this.debugMap, memberIds, "preCompute_", this.otherJobInput.getHib3GrouperLoaderLog());
 
        
   }
@@ -179,7 +190,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
     
     try {
 
-      StemViewPrivilege.recalculateStemViewPrivilegesForUsers(this.memberIdsToRecalc);
+      StemViewPrivilege.recalculateStemViewPrivilegesForUsers(this.memberIdsToRecalc, this.otherJobInput.getHib3GrouperLoaderLog());
     
     } finally {
       this.debugMap.put("recalcStemPrivilegesMs", (System.nanoTime() - start)/1000000);
@@ -270,6 +281,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
           rowsDeleted += resultCount;
         }
         this.debugMap.put("stemPrivRowsDeletedCount", rowsDeleted);
+        this.getOtherJobInput().getHib3GrouperLoaderLog().addDeleteCount(rowsDeleted);
       }
       
     } finally {

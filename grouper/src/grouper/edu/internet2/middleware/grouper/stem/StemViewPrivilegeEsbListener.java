@@ -234,7 +234,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForAttributeDelete.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForAttributeDelete.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeDelete(memberIds, GrouperUtil.toSet(stemId));
+          StemViewPrivilege.recalculateStemViewPrivilegesAttributeDelete(memberIds, GrouperUtil.toSet(stemId), null);
           fixPrivilegesTypeCount++;
         }
       }
@@ -242,7 +242,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForAttributeInsert.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForAttributeInsert.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeInsert(memberIds, GrouperUtil.toSet(stemId));
+          StemViewPrivilege.recalculateStemViewPrivilegesAttributeInsert(memberIds, GrouperUtil.toSet(stemId), null);
           fixPrivilegesTypeCount++;
         }
       }
@@ -250,7 +250,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForStemDelete.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForStemDelete.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesStemDelete(memberIds, GrouperUtil.toSet(stemId));
+          StemViewPrivilege.recalculateStemViewPrivilegesStemDelete(memberIds, GrouperUtil.toSet(stemId), null);
           fixPrivilegesTypeCount++;
         }
       }
@@ -266,7 +266,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForGroupDelete.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForGroupDelete.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesGroupDelete(memberIds, GrouperUtil.toSet(stemId));
+          StemViewPrivilege.recalculateStemViewPrivilegesGroupDelete(memberIds, GrouperUtil.toSet(stemId), null);
           fixPrivilegesTypeCount++;
         }
       }
@@ -368,7 +368,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForAttributeDelete.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForAttributeDelete.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeDelete(GrouperUtil.toSet(memberId), stemIds);
+          StemViewPrivilege.recalculateStemViewPrivilegesAttributeDelete(GrouperUtil.toSet(memberId), stemIds, null);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -376,7 +376,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForAttributeInsert.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForAttributeInsert.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeInsert(GrouperUtil.toSet(memberId), stemIds);
+          StemViewPrivilege.recalculateStemViewPrivilegesAttributeInsert(GrouperUtil.toSet(memberId), stemIds, null);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -384,7 +384,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForStemDelete.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForStemDelete.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesStemDelete(GrouperUtil.toSet(memberId), stemIds);
+          StemViewPrivilege.recalculateStemViewPrivilegesStemDelete(GrouperUtil.toSet(memberId), stemIds, null);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -400,7 +400,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForGroupDelete.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForGroupDelete.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesGroupDelete(GrouperUtil.toSet(memberId), stemIds);
+          StemViewPrivilege.recalculateStemViewPrivilegesGroupDelete(GrouperUtil.toSet(memberId), stemIds, null);
           fixPrivilegesForUserTypeCount++;
         }
       }
