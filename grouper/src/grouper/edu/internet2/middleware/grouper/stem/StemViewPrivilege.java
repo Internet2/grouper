@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -259,7 +260,7 @@ public class StemViewPrivilege implements Serializable {
    * recalculate stem view privileges, but do attributes in a new thread
    * @param memberIds
    */
-  public static void recalculateStemViewPrivilegesForUsers(Collection<String> memberIdsCollection) {
+  public static void recalculateStemViewPrivilegesForUsers(Collection<String> memberIdsCollection, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     if (GrouperUtil.length(memberIdsCollection) == 0) {
       return;
@@ -282,10 +283,10 @@ public class StemViewPrivilege implements Serializable {
         @Override
         public void run() {
           try {
-            recalculateStemViewPrivilegesAttributeInsert(debugMap, memberIdsList, null);
-            recalculateStemViewPrivilegesGroupDelete(debugMap, memberIdsList, null);
-            recalculateStemViewPrivilegesStemDelete(debugMap, memberIdsList, null);
-            recalculateStemViewPrivilegesAttributeDelete(debugMap, memberIdsList, null);
+            recalculateStemViewPrivilegesAttributeInsert(debugMap, memberIdsList, null, hib3GrouperLoaderLog);
+            recalculateStemViewPrivilegesGroupDelete(debugMap, memberIdsList, null, hib3GrouperLoaderLog);
+            recalculateStemViewPrivilegesStemDelete(debugMap, memberIdsList, null, hib3GrouperLoaderLog);
+            recalculateStemViewPrivilegesAttributeDelete(debugMap, memberIdsList, null, hib3GrouperLoaderLog);
 
           } catch (RuntimeException re) {
             attrException[0] = re;
@@ -331,7 +332,7 @@ public class StemViewPrivilege implements Serializable {
   /**
    * @param memberId
    */
-  public static void recalculatePrivilegesIfNotAlreadyIncludedInIncremental(Subject subject) {
+  public static void recalculatePrivilegesIfNotAlreadyIncludedInIncremental(Subject subject, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     if (subject == null || PrivilegeHelper.isWheelOrRootOrViewonlyRoot(subject)) {
       return;
@@ -379,7 +380,7 @@ public class StemViewPrivilege implements Serializable {
       
     }
     
-    recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(memberId));
+    recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(memberId), hib3GrouperLoaderLog);
     
   }
   
@@ -444,7 +445,7 @@ public class StemViewPrivilege implements Serializable {
    * @return the list of member ids to reprocess
    */
   public static void recalculateStemViewPrivilegesLastStemViewNeedUpdate(
-      Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix) {
+      Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     if (GrouperUtil.length(memberIdsList) == 0) {
       return;
     }
@@ -473,6 +474,10 @@ public class StemViewPrivilege implements Serializable {
         rowsLastLoginUpdate++;
       }
     }
+    
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addUpdateCount(rowsLastLoginUpdate);
+    }
 
     debugMap.put(logPrefix + "rowsStemViewNeedUpdate", rowsLastLoginUpdate);
     debugMap.put(logPrefix+ "rowsStemViewNeedTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
@@ -484,7 +489,7 @@ public class StemViewPrivilege implements Serializable {
    * @param memberIdsList
    */
   public static void recalculateStemViewPrivilegesLastStemViewNeedInsert(
-      Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix) {
+      Map<String, Object> debugMap, final List<String> memberIdsList, String logPrefix, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     if (GrouperUtil.length(memberIdsList) == 0) {
       return;
     }
@@ -504,11 +509,14 @@ public class StemViewPrivilege implements Serializable {
     }
     int[] rowsInserted = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
     
-  
     for (int i=0;i<memberIdsList.size(); i++) {
       if (rowsInserted[i] == 1) {
         rowsLastLoginInsert++;
       }
+    }
+    
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addInsertCount(rowsLastLoginInsert);
     }
     debugMap.put(logPrefix + "rowsStemViewNeedInsert", rowsLastLoginInsert);
     debugMap.put(logPrefix + "rowsStemViewNeedInsertTookMs", (System.nanoTime()-groupStemStartNanos) / 1000000);
@@ -519,7 +527,7 @@ public class StemViewPrivilege implements Serializable {
    * @param memberIdsSet
    * @param stemIdsSet
    */
-  public static void recalculateStemViewPrivilegesStemDelete(Set<String> memberIdsSet, Set<String> stemIdsSet) {
+  public static void recalculateStemViewPrivilegesStemDelete(Set<String> memberIdsSet, Set<String> stemIdsSet, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     if (GrouperUtil.length(memberIdsSet) == 0) {
       return;
@@ -533,7 +541,7 @@ public class StemViewPrivilege implements Serializable {
     debugMap.put("memberIdCount", GrouperUtil.length(memberIdsSet));
     
     try {
-      recalculateStemViewPrivilegesStemDelete(debugMap, memberIdsList, stemIdsList);
+      recalculateStemViewPrivilegesStemDelete(debugMap, memberIdsList, stemIdsList, hib3GrouperLoaderLog);
     } finally {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
@@ -550,17 +558,17 @@ public class StemViewPrivilege implements Serializable {
   }
   
   private static void recalculateStemViewPrivilegesStemDelete(Map<String, Object> debugMap, 
-      final List<String> memberIdsList, List<String> stemIds) {
+      final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long stemDeleteTookMs = 0;
     if (GrouperUtil.length(stemIds) == 0) {
-      recalculateStemViewPrivilegesStemDeleteHelper(debugMap, memberIdsList, stemIds);
+      recalculateStemViewPrivilegesStemDeleteHelper(debugMap, memberIdsList, stemIds, hib3GrouperLoaderLog);
       stemDeleteTookMs = (Long)debugMap.get("stemDeleteTookMs");
     } else {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, 200);
       int stemRowsDeleted = 0;
       for (int i=0;i<numberOfBatches;i++) {
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, 200, i);
-        recalculateStemViewPrivilegesStemDeleteHelper(debugMap, memberIdsList, batchStemIds);
+        recalculateStemViewPrivilegesStemDeleteHelper(debugMap, memberIdsList, batchStemIds, hib3GrouperLoaderLog);
         stemDeleteTookMs += (Long)debugMap.get("stemDeleteTookMs");
         stemRowsDeleted += (Integer)debugMap.get("stemRowsDeleted");
       }
@@ -570,7 +578,7 @@ public class StemViewPrivilege implements Serializable {
   }
 
   private static void recalculateStemViewPrivilegesStemDeleteHelper(
-      Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds) {
+      Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long groupStemStartNanos = System.nanoTime();
     groupStemStartNanos = System.nanoTime();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsList, BATCH_SIZE);
@@ -630,6 +638,9 @@ public class StemViewPrivilege implements Serializable {
       });
     }
   
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addDeleteCount(rowsDeleted[0]);
+    }
     debugMap.put("stemRowsDeleted", rowsDeleted[0]);
     debugMap.put("stemDeleteTookMs", System.nanoTime()-groupStemStartNanos);
   }
@@ -737,7 +748,7 @@ public class StemViewPrivilege implements Serializable {
    * @param memberIdsSet
    * @param stemIdsSet
    */
-  public static void recalculateStemViewPrivilegesGroupDelete(Set<String> memberIdsSet, Set<String> stemIdsSet) {
+  public static void recalculateStemViewPrivilegesGroupDelete(Set<String> memberIdsSet, Set<String> stemIdsSet, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     if (GrouperUtil.length(memberIdsSet) == 0) {
       return;
@@ -751,7 +762,7 @@ public class StemViewPrivilege implements Serializable {
     debugMap.put("memberIdCount", GrouperUtil.length(memberIdsSet));
     
     try {
-      recalculateStemViewPrivilegesGroupDelete(debugMap, memberIdsList, stemIdsList);
+      recalculateStemViewPrivilegesGroupDelete(debugMap, memberIdsList, stemIdsList, hib3GrouperLoaderLog);
     } finally {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
@@ -761,17 +772,17 @@ public class StemViewPrivilege implements Serializable {
 
 
   private static void recalculateStemViewPrivilegesGroupDelete(Map<String, Object> debugMap, 
-      final List<String> memberIdsList, List<String> stemIds) {
+      final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long groupDeleteTookMs = 0;
     if (GrouperUtil.length(stemIds) == 0) {
-      recalculateStemViewPrivilegesGroupDeleteHelper(debugMap, memberIdsList, stemIds);
+      recalculateStemViewPrivilegesGroupDeleteHelper(debugMap, memberIdsList, stemIds, hib3GrouperLoaderLog);
       groupDeleteTookMs = (Long)debugMap.get("groupDeleteTookMs");
     } else {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, 200);
       int groupRowsDeleted = 0;
       for (int i=0;i<numberOfBatches;i++) {
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, 200, i);
-        recalculateStemViewPrivilegesGroupDeleteHelper(debugMap, memberIdsList, batchStemIds);
+        recalculateStemViewPrivilegesGroupDeleteHelper(debugMap, memberIdsList, batchStemIds, hib3GrouperLoaderLog);
         groupDeleteTookMs += (Long)debugMap.get("groupDeleteTookMs");
         groupRowsDeleted += (Integer)debugMap.get("groupRowsDeleted");
       }
@@ -781,7 +792,7 @@ public class StemViewPrivilege implements Serializable {
   }
 
   private static void recalculateStemViewPrivilegesGroupDeleteHelper(
-      Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds) {
+      Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long groupStemStartNanos = System.nanoTime();
     groupStemStartNanos = System.nanoTime();
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsList, BATCH_SIZE);
@@ -840,6 +851,9 @@ public class StemViewPrivilege implements Serializable {
       });
     }
   
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addDeleteCount(rowsDeleted[0]);
+    }
     debugMap.put("groupRowsDeleted", rowsDeleted[0]);
     debugMap.put("groupDeleteTookMs", System.nanoTime()-groupStemStartNanos);
   }
@@ -947,7 +961,7 @@ public class StemViewPrivilege implements Serializable {
    * @param memberIdsSet
    * @param stemIdsSet
    */
-  public static void recalculateStemViewPrivilegesAttributeInsert(Set<String> memberIdsSet, Set<String> stemIdsSet) {
+  public static void recalculateStemViewPrivilegesAttributeInsert(Set<String> memberIdsSet, Set<String> stemIdsSet, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     if (GrouperUtil.length(memberIdsSet) == 0) {
       return;
@@ -961,7 +975,7 @@ public class StemViewPrivilege implements Serializable {
     debugMap.put("memberIdCount", GrouperUtil.length(memberIdsSet));
     
     try {
-      recalculateStemViewPrivilegesAttributeInsert(debugMap, memberIdsList, stemIdsList);
+      recalculateStemViewPrivilegesAttributeInsert(debugMap, memberIdsList, stemIdsList, hib3GrouperLoaderLog);
     } finally {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
@@ -970,17 +984,17 @@ public class StemViewPrivilege implements Serializable {
   }
 
 
-  private static void recalculateStemViewPrivilegesAttributeInsert(Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds) {
+  private static void recalculateStemViewPrivilegesAttributeInsert(Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long attrInsertTookMs = 0;
     if (GrouperUtil.length(stemIds) == 0) {
-      recalculateStemViewPrivilegesAttributeInsertHelper(debugMap, memberIdsList, stemIds);
+      recalculateStemViewPrivilegesAttributeInsertHelper(debugMap, memberIdsList, stemIds, hib3GrouperLoaderLog);
       attrInsertTookMs = (Long)debugMap.get("attrInsertTookMs");
     } else {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, BATCH_SIZE);
       int attrRowsInserted = 0;
       for (int i=0;i<numberOfBatches;i++) {
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, BATCH_SIZE, i);
-        recalculateStemViewPrivilegesAttributeInsertHelper(debugMap, memberIdsList, batchStemIds);
+        recalculateStemViewPrivilegesAttributeInsertHelper(debugMap, memberIdsList, batchStemIds, hib3GrouperLoaderLog);
         attrInsertTookMs += (Long)debugMap.get("attrInsertTookMs");
         attrRowsInserted += (Integer)debugMap.get("attrRowsInserted");
       }
@@ -992,7 +1006,7 @@ public class StemViewPrivilege implements Serializable {
   
   
   private static void recalculateStemViewPrivilegesAttributeInsertHelper(Map<String, Object> debugMap, 
-      final List<String> memberIdsList, List<String> stemIds) {
+      final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long attrStartNanos = System.nanoTime();
     final int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsList, BATCH_SIZE);
 
@@ -1037,7 +1051,9 @@ public class StemViewPrivilege implements Serializable {
         }
       });
     }
-
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addInsertCount(rowsInserted[0]);
+    }
     debugMap.put("attrRowsInserted", rowsInserted[0]);
     debugMap.put("attrInsertTookMs", System.nanoTime()-attrStartNanos);
   }
@@ -1047,7 +1063,7 @@ public class StemViewPrivilege implements Serializable {
    * @param memberIdsSet
    * @param stemIdsSet
    */
-  public static void recalculateStemViewPrivilegesAttributeDelete(Set<String> memberIdsSet, Set<String> stemIdsSet) {
+  public static void recalculateStemViewPrivilegesAttributeDelete(Set<String> memberIdsSet, Set<String> stemIdsSet, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     
     if (GrouperUtil.length(memberIdsSet) == 0) {
       return;
@@ -1061,7 +1077,7 @@ public class StemViewPrivilege implements Serializable {
     debugMap.put("memberIdCount", GrouperUtil.length(memberIdsSet));
     
     try {
-      recalculateStemViewPrivilegesAttributeDelete(debugMap, memberIdsList, stemIdsList);
+      recalculateStemViewPrivilegesAttributeDelete(debugMap, memberIdsList, stemIdsList, hib3GrouperLoaderLog);
     } finally {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
@@ -1069,17 +1085,17 @@ public class StemViewPrivilege implements Serializable {
     }
   }
 
-  private static void recalculateStemViewPrivilegesAttributeDelete(Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds) {
+  private static void recalculateStemViewPrivilegesAttributeDelete(Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long attrDeleteTookMs = 0;
     if (GrouperUtil.length(stemIds) == 0) {
-      recalculateStemViewPrivilegesAttributeDeleteHelper(debugMap, memberIdsList, stemIds);
+      recalculateStemViewPrivilegesAttributeDeleteHelper(debugMap, memberIdsList, stemIds, hib3GrouperLoaderLog);
       attrDeleteTookMs = (Long)debugMap.get("attrDeleteTookMs");
     } else {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, BATCH_SIZE);
       int attrRowsDeleted = 0;
       for (int i=0;i<numberOfBatches;i++) {
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, BATCH_SIZE, i);
-        recalculateStemViewPrivilegesAttributeDeleteHelper(debugMap, memberIdsList, batchStemIds);
+        recalculateStemViewPrivilegesAttributeDeleteHelper(debugMap, memberIdsList, batchStemIds, hib3GrouperLoaderLog);
         attrDeleteTookMs += (Long)debugMap.get("attrDeleteTookMs");
         attrRowsDeleted += (Integer)debugMap.get("attrRowsDeleted");
       }
@@ -1088,7 +1104,7 @@ public class StemViewPrivilege implements Serializable {
     debugMap.put("attrDeleteTookMs", attrDeleteTookMs/1000000);
   }
 
-  private static void recalculateStemViewPrivilegesAttributeDeleteHelper(Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds) {
+  private static void recalculateStemViewPrivilegesAttributeDeleteHelper(Map<String, Object> debugMap, final List<String> memberIdsList, List<String> stemIds, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
     long attrStartNanos = System.nanoTime();
     final int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsList, BATCH_SIZE);
 
@@ -1145,6 +1161,9 @@ public class StemViewPrivilege implements Serializable {
       });
     }
 
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addDeleteCount(rowsDeleted[0]);
+    }
     debugMap.put("attrRowsDeleted", rowsDeleted[0]);
     
     // start with nanos

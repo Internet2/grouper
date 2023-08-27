@@ -2051,7 +2051,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       if (!PrivilegeHelper.isWheelOrRootOrViewonlyRoot(subject) && !StemViewPrivilege.stemViewAdmin(subject)) {
         
         // see if we need a recalc
-        StemViewPrivilege.recalculatePrivilegesIfNotAlreadyIncludedInIncremental(subject);
+        StemViewPrivilege.recalculatePrivilegesIfNotAlreadyIncludedInIncremental(subject, null);
         // update last stem view need
         StemViewPrivilege.updateLastStemViewNeed(subject);
         
