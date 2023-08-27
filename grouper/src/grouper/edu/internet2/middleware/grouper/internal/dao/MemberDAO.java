@@ -56,7 +56,7 @@ import edu.internet2.middleware.subject.Subject;
 public interface MemberDAO extends GrouperDAO {
 
   /**
-   * get all the members that are assigned in a data provider
+   * get all the members that are assigned in a data provider to fields or rows
    * @param dataProviderInternalId
    * @return the members by internal id
    */

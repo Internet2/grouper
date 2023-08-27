@@ -66,7 +66,7 @@ public class GrouperDataProviderDao {
     // this should never happen :)
     throw runtimeException;
   }  
-
+  // TODO rename
   public static GrouperDataProvider selectByText(String configId) {
     if (StringUtils.isBlank(configId)) {
       return null;

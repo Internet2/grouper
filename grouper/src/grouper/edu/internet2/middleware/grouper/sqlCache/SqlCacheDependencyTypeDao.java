@@ -19,14 +19,14 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
- * dao for sql cache groups
+ * dao for sql cache dependency types
  * @author mchyzer
  *
  */
-public class SqlCacheGroupDao {
+public class SqlCacheDependencyTypeDao {
 
 
-  public SqlCacheGroupDao() {
+  public SqlCacheDependencyTypeDao() {
   }
 
   /**
@@ -34,26 +34,10 @@ public class SqlCacheGroupDao {
    * @param connectionName
    * @return true if changed
    */
-  public static boolean store(SqlCacheGroup sqlCacheGroup) {
-    sqlCacheGroup.storePrepare();
-    boolean changed = new GcDbAccess().storeToDatabase(sqlCacheGroup);
+  public static boolean store(SqlCacheDependencyType sqlCacheDependencyType) {
+    sqlCacheDependencyType.storePrepare();
+    boolean changed = new GcDbAccess().storeToDatabase(sqlCacheDependencyType);
     return changed;
-  }
-
-  /**
-   * 
-   * @param connectionName
-   * @return number of changes
-   */
-  public static int store(Collection<SqlCacheGroup> sqlCacheGroups) {
-    if (GrouperUtil.length(sqlCacheGroups) == 0) {
-      return 0;
-    }
-    for (SqlCacheGroup sqlCacheGroup : sqlCacheGroups) {
-      sqlCacheGroup.storePrepare();
-    }
-    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
-    return new GcDbAccess().storeBatchToDatabase(sqlCacheGroups, batchSize);
   }
 
   /**
@@ -62,19 +46,20 @@ public class SqlCacheGroupDao {
    * @param id
    * @return the sync
    */
-  public static SqlCacheGroup retrieveByInternalId(Long id) {
-    SqlCacheGroup sqlCacheGroup = new GcDbAccess()
-        .sql("select * from grouper_sql_cache_group where internal_id = ?").addBindVar(id).select(SqlCacheGroup.class);
-    return sqlCacheGroup;
+  public static SqlCacheDependencyType retrieveByInternalId(Long id) {
+    SqlCacheDependencyType sqlCacheDependencyType = new GcDbAccess()
+        .sql("select * from grouper_sql_cache_depend_type where internal_id = ?").addBindVar(id).select(SqlCacheDependencyType.class);
+    return sqlCacheDependencyType;
   }
   
 
   /**
    * 
-   * @param sqlCacheMembership
+   * @param sqlCacheDependencyType
    */
-  public static void delete(SqlCacheGroup sqlCacheGroup) {
-    new GcDbAccess().deleteFromDatabase(sqlCacheGroup);
+  public static void delete(SqlCacheDependencyType sqlCacheDependencyType) {
+    
+    new GcDbAccess().deleteFromDatabase(sqlCacheDependencyType);
   }
 
   /**
@@ -381,5 +366,7 @@ public class SqlCacheGroupDao {
     new GcDbAccess().storeBatchToDatabase(sqlCacheGroupsToCreate, defaultBatchSize);
     return result;
   }
+  
+
 
 }

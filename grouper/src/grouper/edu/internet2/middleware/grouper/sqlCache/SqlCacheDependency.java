@@ -13,52 +13,50 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
-@GcPersistableClass(tableName="grouper_sql_cache_depend_type", defaultFieldPersist=GcPersist.doPersist)
-public class SqlCacheDependencyType implements GcSqlAssignPrimaryKey, GcDbVersionable {
+@GcPersistableClass(tableName="grouper_sql_cache_dependency", defaultFieldPersist=GcPersist.doPersist)
+public class SqlCacheDependency implements GcSqlAssignPrimaryKey, GcDbVersionable {
 
-  public SqlCacheDependencyType() {
+  public SqlCacheDependency() {
   }
   
   /**
-   * alphaNumeric name of this dependency type
+   * the thing that something is dependent on
    */
-  private String name;
-
-  /**
-   * alphaNumeric name of this dependency type
-   * @return
-   */
-  public String getName() {
-    return name;
+  private long ownerInternalId = -1;
+  
+  public long getOwnerInternalId() {
+    return ownerInternalId;
+  }
+  
+  public void setOwnerInternalId(long ownerInternalId) {
+    this.ownerInternalId = ownerInternalId;
   }
 
   /**
-   * alphaNumeric name of this dependency type
-   * @param name
+   * the thing that depends on something else
    */
-  public void setName(String name) {
-    this.name = name;
+  private long dependentInternalId = -1;
+  
+  
+  public long getDependentInternalId() {
+    return dependentInternalId;
   }
 
-  /**
-   * describe the dependency and columns
-   */
-  private String description;
   
   /**
-   * describe the dependency and columns
-   * @return
+   * SqlCacheDependencyType or SqlCacheDependencyTypeType
    */
-  public String getDescription() {
-    return description;
+  @GcPersistableField(columnName = "dep_type_internal_id")
+  private long dependencyTypeInternalId = -1;
+  
+  
+  public long getDependencyTypeInternalId() {
+    return dependencyTypeInternalId;
   }
 
-  /**
-   * describe the dependency and columns
-   * @param description
-   */
-  public void setDescription(String description) {
-    this.description = description;
+  
+  public void setDependencyTypeInternalId(long dependencyTypeInternalId) {
+    this.dependencyTypeInternalId = dependencyTypeInternalId;
   }
 
   /**
@@ -69,7 +67,7 @@ public class SqlCacheDependencyType implements GcSqlAssignPrimaryKey, GcDbVersio
    * version from db
    */
   @GcPersistableField(persist = GcPersist.dontPersist)
-  private SqlCacheDependencyType dbVersion;
+  private SqlCacheDependency dbVersion;
   /**
    * internal integer id
    */
@@ -77,40 +75,21 @@ public class SqlCacheDependencyType implements GcSqlAssignPrimaryKey, GcDbVersio
   private long internalId = -1;
   
   /**
-   * owner_type  varchar 
-   * G means group
-   * D means data field
-   * @return
-   */
-  public SqlCacheDependencyTypeType getNameEnum() {
-    return SqlCacheDependencyTypeType.valueOfIgnoreCase(name, false);
-  }
-
-  /**
-   * owner_type  varchar 
-   * G means group
-   * D means data field
-   * @param ownerTypeEnum
-   */
-  public void setNameEnum(SqlCacheDependencyTypeType ownerTypeEnum) {
-    this.name = ownerTypeEnum == null ? null : ownerTypeEnum.name();
-  }
-
-  /**
    * deep clone the fields in this object
    */
   @Override
-  public SqlCacheDependencyType clone() {
+  public SqlCacheDependency clone() {
   
-    SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
+    SqlCacheDependency sqlCacheDependency = new SqlCacheDependency();
   
     //dbVersion  DONT CLONE
-    sqlCacheDependencyType.createdOn = this.createdOn;
-    sqlCacheDependencyType.description = sqlCacheDependencyType.description;
-    sqlCacheDependencyType.internalId = this.internalId;
-    sqlCacheDependencyType.name = this.name;
+    sqlCacheDependency.createdOn = this.createdOn;
+    sqlCacheDependency.dependencyTypeInternalId = sqlCacheDependency.dependencyTypeInternalId;
+    sqlCacheDependency.dependentInternalId = sqlCacheDependency.dependentInternalId;
+    sqlCacheDependency.internalId = this.internalId;
+    sqlCacheDependency.ownerInternalId = this.ownerInternalId;
   
-    return sqlCacheDependencyType;
+    return sqlCacheDependency;
   }
 
   /**
@@ -169,19 +148,20 @@ public class SqlCacheDependencyType implements GcSqlAssignPrimaryKey, GcDbVersio
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof SqlCacheDependencyType)) {
+    if (!(obj instanceof SqlCacheDependency)) {
       return false;
     }
-    SqlCacheDependencyType other = (SqlCacheDependencyType) obj;
+    SqlCacheDependency other = (SqlCacheDependency) obj;
   
     return new EqualsBuilder()
   
   
       //dbVersion  DONT EQUALS
       .append(this.createdOn, other.createdOn)
-      .append(this.description, other.description)
+      .append(this.dependencyTypeInternalId, other.dependencyTypeInternalId)
+      .append(this.dependentInternalId, other.dependentInternalId)
       .append(this.internalId, other.internalId)
-      .append(this.name, other.name)
+      .append(this.ownerInternalId, other.ownerInternalId)
         .isEquals();
   
   }
@@ -196,7 +176,7 @@ public class SqlCacheDependencyType implements GcSqlAssignPrimaryKey, GcDbVersio
     if (this.tempInternalIdOnDeck != null) {
       this.internalId = this.tempInternalIdOnDeck;
     } else {
-      this.internalId = TableIndex.reserveId(TableIndexType.sqlCacheDependencyType);
+      this.internalId = TableIndex.reserveId(TableIndexType.sqlCacheDependency);
     }
     return true;
   }

@@ -24,7 +24,7 @@ public class GrouperDictionaryDao {
   }
 
   /**
-   * get dictionary items by data provider
+   * get dictionary items by data provider for field and row assignments
    * @param dataProviderInternalId
    * @return internal id to value
    */
