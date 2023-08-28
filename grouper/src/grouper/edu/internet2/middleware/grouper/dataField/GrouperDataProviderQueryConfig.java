@@ -3,9 +3,10 @@ package edu.internet2.middleware.grouper.dataField;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 
-public class GrouperDataProviderQueryConfig {
+public abstract class GrouperDataProviderQueryConfig {
 
   public GrouperDataProviderQueryConfig() {
 
@@ -22,13 +23,30 @@ public class GrouperDataProviderQueryConfig {
   public void setConfigId(String configId) {
     this.configId = configId;
   }
+  
+  private GrouperDataProviderQuery grouperDataProviderQuery;
+
+  
+  public GrouperDataProviderQuery getGrouperDataProviderQuery() {
+    return grouperDataProviderQuery;
+  }
+
+  
+  public void setGrouperDataProviderQuery(GrouperDataProviderQuery grouperDataProviderQuery) {
+    this.grouperDataProviderQuery = grouperDataProviderQuery;
+  }
+  
+  /**
+   * 
+   */
+  public abstract void configureSpecificSettings();
 
   /**
    * 
    * @param configId
    * @param grouperConfig optional
    */
-  public void readFromConfig(String configId, GrouperConfig grouperConfig) {
+  public void configureGenericSettings(String configId, GrouperConfig grouperConfig) {
     
     if (grouperConfig == null) {
       grouperConfig = GrouperConfig.retrieveConfig();
@@ -47,16 +65,6 @@ public class GrouperDataProviderQueryConfig {
     String providerQueryTypeString = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryType");
     GrouperDataProviderQueryType grouperDataProviderQueryType = GrouperDataProviderQueryType.valueOfIgnoreCase(providerQueryTypeString, true);
     this.providerQueryType = grouperDataProviderQueryType;
-
-    //  # SQL config id
-    //  # {valueType: "string", required: true, formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlConfigId$"}
-    //  # grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlConfigId = 
-    this.providerQuerySqlConfigId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQuerySqlConfigId");
-   
-    //  # SQL query
-    //  # {valueType: "string", required: true, regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlQuery$"}
-    //  # grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlQuery =
-    this.providerQuerySqlQuery = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQuerySqlQuery");
 
     //  # Data structure
     //  # {valueType: "string", required: true, regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQueryDataStructure$", formElement: "dropdown", optionValues: ["attribute", "row"]}
@@ -97,11 +105,6 @@ public class GrouperDataProviderQueryConfig {
       this.grouperDataProviderQueryFieldConfigs.add(grouperDataProviderQueryFieldConfig);
       
     }
-
-    this.providerQueryLdapConfigId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapConfigId");
-    this.providerQueryLdapBaseDn = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapBaseDn");
-    this.providerQueryLdapSearchScope = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapSearchScope");
-    this.providerQueryLdapFilter = GrouperConfig.retrieveConfig().propertyValueString("grouperDataProviderQuery." + configId + ".providerQueryLdapFilter");
   }
 
   /**
@@ -160,62 +163,6 @@ public class GrouperDataProviderQueryConfig {
    */
   public void setProviderQueryType(GrouperDataProviderQueryType providerQueryType) {
     this.providerQueryType = providerQueryType;
-  }
-
-  /**
-   * SQL config id
-   * {valueType: "string", required: true, formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlConfigId$"}
-   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlConfigId = 
-   */
-  private String providerQuerySqlConfigId;
-
-  /**
-   * SQL config id
-   * {valueType: "string", required: true, formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlConfigId$"}
-   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlConfigId = 
-   * @return
-   */
-  public String getProviderQuerySqlConfigId() {
-    return providerQuerySqlConfigId;
-  }
-
-  /**
-   * SQL config id
-   * {valueType: "string", required: true, formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlConfigId$"}
-   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlConfigId = 
-   * @param providerQuerySqlConfigId
-   */
-  public void setProviderQuerySqlConfigId(String providerQuerySqlConfigId) {
-    this.providerQuerySqlConfigId = providerQuerySqlConfigId;
-  }
-
-  /**
-   * SQL query
-   * {valueType: "string", required: true, regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlQuery$"}
-   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlQuery =
-   */
-  private String providerQuerySqlQuery;
-
-  
-  
-  /**
-   * SQL query
-   * {valueType: "string", required: true, regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlQuery$"}
-   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlQuery =
-   * @return
-   */
-  public String getProviderQuerySqlQuery() {
-    return providerQuerySqlQuery;
-  }
-
-  /**
-   * SQL query
-   * {valueType: "string", required: true, regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlQuery$"}
-   * grouperDataProviderQuery.dataProviderQueryConfigId.providerQuerySqlQuery =
-   * @param providerQuerySqlQuery
-   */
-  public void setProviderQuerySqlQuery(String providerQuerySqlQuery) {
-    this.providerQuerySqlQuery = providerQuerySqlQuery;
   }
 
   /**
@@ -406,81 +353,5 @@ public class GrouperDataProviderQueryConfig {
   public void setGrouperDataProviderQueryFieldConfigs(
       List<GrouperDataProviderQueryFieldConfig> grouperDataProviderQueryFieldConfigs) {
     this.grouperDataProviderQueryFieldConfigs = grouperDataProviderQueryFieldConfigs;
-  }
-
-  private String providerQueryLdapBaseDn;
-  private String providerQueryLdapSearchScope;
-  private String providerQueryLdapFilter;
-  private String providerQueryLdapConfigId;
-
-  /**
-   * LDAP base DN
-   * @return
-   */
-  public String getProviderQueryLdapBaseDn() {
-    return providerQueryLdapBaseDn;
-  }
-
-
-  /**
-   * LDAP base DN
-   * @param providerQueryLdapBaseDn
-   */
-  public void setProviderQueryLdapBaseDn(String providerQueryLdapBaseDn) {
-    this.providerQueryLdapBaseDn = providerQueryLdapBaseDn;
-  }
-
-
-  /**
-   * LDAP search scope
-   * @return
-   */
-  public String getProviderQueryLdapSearchScope() {
-    return providerQueryLdapSearchScope;
-  }
-
-
-  /**
-   * LDAP search scope
-   * @param providerQueryLdapSearchScope
-   */
-  public void setProviderQueryLdapSearchScope(String providerQueryLdapSearchScope) {
-    this.providerQueryLdapSearchScope = providerQueryLdapSearchScope;
-  }
-
-
-  /**
-   * LDAP filter
-   * @return
-   */
-  public String getProviderQueryLdapFilter() {
-    return providerQueryLdapFilter;
-  }
-
-
-  /**
-   * LDAP filter
-   * @param providerQueryLdapFilter
-   */
-  public void setProviderQueryLdapFilter(String providerQueryLdapFilter) {
-    this.providerQueryLdapFilter = providerQueryLdapFilter;
-  }
-
-
-  /**
-   * ldap external system config id
-   * @return
-   */
-  public String getProviderQueryLdapConfigId() {
-    return providerQueryLdapConfigId;
-  }
-
-
-  /**
-   * ldap external system config id
-   * @param providerQueryLdapConfigId
-   */
-  public void setProviderQueryLdapConfigId(String providerQueryLdapConfigId) {
-    this.providerQueryLdapConfigId = providerQueryLdapConfigId;
   }
 }
