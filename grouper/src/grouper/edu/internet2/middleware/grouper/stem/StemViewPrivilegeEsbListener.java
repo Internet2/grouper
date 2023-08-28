@@ -12,15 +12,17 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.emory.mathcs.backport.java.util.Collections;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
-import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -35,7 +37,15 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
   /**
    * debug map
    */
-  private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  private Map<String, Object> debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
+  
+  public static void main(String[] args) {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_stemViewPrivileges");
+  }
+  
+  private StemViewPrivilegeLogic stemViewPrivilegeLogic = new StemViewPrivilegeLogic();
+
   /**
    * events to process
    */
@@ -55,10 +65,14 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
   @Override
   public ProvisioningSyncConsumerResult dispatchEventList(List<EsbEventContainer> esbEventContainers) {
 
+    this.stemViewPrivilegeLogic.setHib3GrouperLoaderLog(this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog());
+
     ProvisioningSyncConsumerResult provisioningSyncConsumerResult = new ProvisioningSyncConsumerResult();
     incrementalLogic(esbEventContainers);
     
     provisioningSyncConsumerResult.setLastProcessedSequenceNumber(esbEventContainers.get(esbEventContainers.size()-1).getSequenceNumber());
+    
+    this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog().appendJobMessage("Finished successfully running stem view privilege incremental sync daemon. \n "+GrouperUtil.mapToString(debugMap));
     
     return provisioningSyncConsumerResult;
     
@@ -69,6 +83,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
   public void incrementalLogic(List<EsbEventContainer> esbEventContainers) {
     
     test_debugMapLast = debugMap;
+    this.stemViewPrivilegeLogic.setDebugMap(this.debugMap);
     
     // dont edit the list given by change log
     eventsToProcess = new ArrayList<EsbEventContainer>(GrouperUtil.nonNull(esbEventContainers));
@@ -98,7 +113,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
     try {
       
       // TODO see if we are doing a full refresh on each view...
-      int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+      int recalcChangeLogIfNeededInLastSeconds = this.stemViewPrivilegeLogic.recalcChangeLogIfNeededInLastSeconds();
       this.debugMap.put("eventCount", GrouperUtil.length(this.eventsToProcess));
       if (recalcChangeLogIfNeededInLastSeconds != 604800) {
         this.debugMap.put("recalcChangeLogIfNeededInLastSeconds", recalcChangeLogIfNeededInLastSeconds);
@@ -234,7 +249,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForAttributeDelete.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForAttributeDelete.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeDelete(memberIds, GrouperUtil.toSet(stemId), null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesAttributeDelete(memberIds, GrouperUtil.toSet(stemId));
           fixPrivilegesTypeCount++;
         }
       }
@@ -242,7 +257,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForAttributeInsert.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForAttributeInsert.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeInsert(memberIds, GrouperUtil.toSet(stemId), null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesAttributeInsert(memberIds, GrouperUtil.toSet(stemId));
           fixPrivilegesTypeCount++;
         }
       }
@@ -250,7 +265,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForStemDelete.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForStemDelete.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesStemDelete(memberIds, GrouperUtil.toSet(stemId), null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesStemDelete(memberIds, GrouperUtil.toSet(stemId));
           fixPrivilegesTypeCount++;
         }
       }
@@ -258,7 +273,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForStemInsert.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForStemInsert.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesStemInsert(memberIds, GrouperUtil.toSet(stemId));
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesStemInsert(memberIds, GrouperUtil.toSet(stemId));
           fixPrivilegesTypeCount++;
         }
       }
@@ -266,7 +281,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForGroupDelete.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForGroupDelete.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesGroupDelete(memberIds, GrouperUtil.toSet(stemId), null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesGroupDelete(memberIds, GrouperUtil.toSet(stemId));
           fixPrivilegesTypeCount++;
         }
       }
@@ -274,7 +289,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String stemId : stemIdToMemberIdsForGroupInsert.keySet()) {
         Set<String> memberIds = stemIdToMemberIdsForGroupInsert.get(stemId);
         if (GrouperUtil.length(memberIds) > 0) {
-          StemViewPrivilege.recalculateStemViewPrivilegesGroupInsert(memberIds, GrouperUtil.toSet(stemId));
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesGroupInsert(memberIds, GrouperUtil.toSet(stemId));
           fixPrivilegesTypeCount++;
         }
       }
@@ -368,7 +383,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForAttributeDelete.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForAttributeDelete.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeDelete(GrouperUtil.toSet(memberId), stemIds, null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesAttributeDelete(GrouperUtil.toSet(memberId), stemIds);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -376,7 +391,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForAttributeInsert.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForAttributeInsert.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesAttributeInsert(GrouperUtil.toSet(memberId), stemIds, null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesAttributeInsert(GrouperUtil.toSet(memberId), stemIds);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -384,7 +399,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForStemDelete.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForStemDelete.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesStemDelete(GrouperUtil.toSet(memberId), stemIds, null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesStemDelete(GrouperUtil.toSet(memberId), stemIds);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -392,7 +407,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForStemInsert.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForStemInsert.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesStemInsert(GrouperUtil.toSet(memberId), stemIds);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesStemInsert(GrouperUtil.toSet(memberId), stemIds);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -400,7 +415,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForGroupDelete.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForGroupDelete.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesGroupDelete(GrouperUtil.toSet(memberId), stemIds, null);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesGroupDelete(GrouperUtil.toSet(memberId), stemIds);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -408,7 +423,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       for (String memberId : memberIdToStemIdsForGroupInsert.keySet()) {
         Set<String> stemIds = memberIdToStemIdsForGroupInsert.get(memberId);
         if (GrouperUtil.length(stemIds) > 5) {
-          StemViewPrivilege.recalculateStemViewPrivilegesGroupInsert(GrouperUtil.toSet(memberId), stemIds);
+          this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesGroupInsert(GrouperUtil.toSet(memberId), stemIds);
           fixPrivilegesForUserTypeCount++;
         }
       }
@@ -493,7 +508,7 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
 
   private void removePeopleNotCalculatingEvents() {
     
-    int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+    int recalcChangeLogIfNeededInLastSeconds = this.stemViewPrivilegeLogic.recalcChangeLogIfNeededInLastSeconds();
     
     long start = System.nanoTime();
     
@@ -637,10 +652,10 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
           eventType = "G";
         } else if (PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
-          eventType = "S";
+          eventType = "A";
         } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
           stemName = esbEventContainer.getEsbEvent().getOwnerName();
-          eventType = "A";
+          eventType = "S";
         }
         
         String stemId = stemNameToStemId.get(stemName);
@@ -718,10 +733,10 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
           eventType = "G";
         } else if (PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
-          eventType = "S";
+          eventType = "A";
         } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
           stemName = esbEventContainer.getEsbEvent().getOwnerName();
-          eventType = "A";
+          eventType = "S";
         }
         
         String stemId = stemNameToStemId.get(stemName);

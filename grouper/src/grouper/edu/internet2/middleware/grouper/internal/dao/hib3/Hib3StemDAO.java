@@ -95,7 +95,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.stem.StemHierarchyType;
 import edu.internet2.middleware.grouper.stem.StemSet;
-import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
+import edu.internet2.middleware.grouper.stem.StemViewPrivilegeLogic;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.util.PerformanceLogger;
@@ -2048,12 +2048,12 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
   private boolean appendQueryFilterIfNeededViewChildObjects(String stemVariable, Subject subject, StringBuilder sql, ByHqlStatic byHqlStatic, boolean changedQuery) {
     if (!GrouperConfig.retrieveConfig().propertyValueBoolean("security.folders.are.viewable.by.all", false)) {
       
-      if (!PrivilegeHelper.isWheelOrRootOrViewonlyRoot(subject) && !StemViewPrivilege.stemViewAdmin(subject)) {
+      if (!PrivilegeHelper.isWheelOrRootOrViewonlyRoot(subject) && !StemViewPrivilegeLogic.stemViewAdmin(subject)) {
         
         // see if we need a recalc
-        StemViewPrivilege.recalculatePrivilegesIfNotAlreadyIncludedInIncremental(subject, null);
+        new StemViewPrivilegeLogic().recalculatePrivilegesIfNotAlreadyIncludedInIncremental(subject);
         // update last stem view need
-        StemViewPrivilege.updateLastStemViewNeed(subject);
+        new StemViewPrivilegeLogic().updateLastStemViewNeed(subject);
         
         if (changedQuery && sql.toString().contains(" where ")) {
           sql.append(" and ");

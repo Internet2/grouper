@@ -155,7 +155,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesGroupBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesPrivilegeBean;
 import edu.internet2.middleware.grouper.rules.beans.RulesStemBean;
 import edu.internet2.middleware.grouper.stem.StemSet;
-import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
+import edu.internet2.middleware.grouper.stem.StemViewPrivilegeLogic;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -1550,7 +1550,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         }
       });
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subj, false);
-    StemViewPrivilege.addStemPrivilegeIfNeeded(this.getId(), member.getId());
+    new StemViewPrivilegeLogic().addStemPrivilegeIfNeeded(this.getId(), member.getId());
     return existed;
   } 
 
@@ -3098,7 +3098,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         // someone not an admin created a folder, now they need to be able to see it
         if (!GrouperConfig.retrieveConfig().propertyValueBoolean("security.folders.are.viewable.by.all", false)) {
           
-          int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+          int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilegeLogic.recalcChangeLogIfNeededInLastSeconds();
 
           //  # 0 means dont do this for anyone (full recalc each time),
           //  # -1 means do this for everyone who has ever checked stem view,
