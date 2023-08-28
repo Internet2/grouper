@@ -599,7 +599,7 @@ public class GshTemplateConfig {
     } else if (GshTemplateFolderShowOnDescendants.oneChildLevel == gshTemplateFolderShowOnDescendants) {
       
       for (Stem folderToShow: foldersToShow) {
-        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(folder.getName()), folderToShow.getName())) {
+        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(folder.getName(), false), folderToShow.getName())) {
           return true;
         }
       }
@@ -612,7 +612,7 @@ public class GshTemplateConfig {
       } 
       
       for (Stem folderToShow: foldersToShow) {
-        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(folder.getName()), folderToShow.getName())) {
+        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(folder.getName(), false), folderToShow.getName())) {
           return true;
         }
       }

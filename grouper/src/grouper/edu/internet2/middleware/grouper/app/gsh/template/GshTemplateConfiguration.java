@@ -330,7 +330,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     } else if (showOnDescendants == GshTemplateFolderShowOnDescendants.oneChildLevel) {
       
       for (Stem folderToShow: stems) {
-        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(defaultRunFolder.getName()), folderToShow.getName())) {
+        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(defaultRunFolder.getName(), false), folderToShow.getName())) {
           return true;
         }
       }
@@ -343,7 +343,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       } 
       
       for (Stem folderToShow: stems) {
-        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(defaultRunFolder.getName()), folderToShow.getName())) {
+        if (StringUtils.equals(GrouperUtil.parentStemNameFromName(defaultRunFolder.getName(), false), folderToShow.getName())) {
           return true;
         }
       }

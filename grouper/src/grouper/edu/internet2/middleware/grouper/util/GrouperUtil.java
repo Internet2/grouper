@@ -3025,14 +3025,17 @@ public class GrouperUtil {
 
     //null safe
     if (isBlank(name)) {
-      return name;
+      return null;
+    }
+    if (equals(name, ":")) {
+      return null;
     }
 
     int lastColonIndex = name.lastIndexOf(':');
     if (lastColonIndex == -1) {
 
       if (nullForRoot) {
-      return null;
+        return null;
       }
       return ":";
     }
