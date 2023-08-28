@@ -11,8 +11,7 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -35,11 +34,12 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
   /**
    * debug map
    */
-  private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+  private Map<String, Object> debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
   
   private OtherJobInput otherJobInput; 
   
-
+  private StemViewPrivilegeLogic stemViewPrivilegeLogic = new StemViewPrivilegeLogic();
+  
   public StemViewPrivilegeFullDaemonLogic() {
     super();
     otherJobInput = new OtherJobInput();
@@ -52,8 +52,9 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     try {
       this.otherJobInput = otherJobInput;
+      this.stemViewPrivilegeLogic.setHib3GrouperLoaderLog(otherJobInput.getHib3GrouperLoaderLog());
       fullSyncLogic();
-      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running stem view privilege full sync daemon. \n "+GrouperUtil.mapToString(debugMap));
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Finished successfully running stem view privilege full sync daemon. \n "+GrouperUtil.mapToString(debugMap));
     } catch (Exception e) {
       LOG.warn("Error while running stem view privilege full sync daemon", e);
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running object stem view privilege full sync logic daemon with an error: " + ExceptionUtils.getFullStackTrace(e));
@@ -75,6 +76,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
   public void fullSyncLogic() {
     
     test_debugMapLast = debugMap;
+    this.stemViewPrivilegeLogic.setDebugMap(this.debugMap);
 
     GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("stemViewPrivileges");
     
@@ -147,7 +149,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
   private void addFlagForPrecompute() {
     String groupName = GrouperConfig.retrieveConfig().propertyValueStringRequired("security.folder.view.privileges.precompute.group");
     
-    int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+    int recalcChangeLogIfNeededInLastSeconds = this.stemViewPrivilegeLogic.recalcChangeLogIfNeededInLastSeconds();
     long recalcChangeLogIfNeededInLastMillis = System.currentTimeMillis() - (recalcChangeLogIfNeededInLastSeconds*1000);
 
       
@@ -165,7 +167,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + "and (gll.last_stem_view_need is null or gll.last_stem_view_need < ?)")
       .addBindVar(everyEntityMember.getId()).addBindVar(recalcChangeLogIfNeededInLastMillis).selectList(String.class));
 
-    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedUpdate(this.debugMap, memberIds, "preCompute_", this.otherJobInput.getHib3GrouperLoaderLog());
+    this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesLastStemViewNeedUpdate(memberIds, "preCompute_");
     
     // get people to insert
     memberIds = new GcDbAccess().sql("select gmlv.member_id from grouper_memberships_lw_v gmlv where gmlv.group_name = ? "
@@ -179,7 +181,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + " and not exists (select 1 from grouper_last_login gll where gm.id = gll.member_uuid)")
       .addBindVar(everyEntityMember.getId()).selectList(String.class));
 
-    StemViewPrivilege.recalculateStemViewPrivilegesLastStemViewNeedInsert(this.debugMap, memberIds, "preCompute_", this.otherJobInput.getHib3GrouperLoaderLog());
+    this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesLastStemViewNeedInsert(memberIds, "preCompute_");
 
        
   }
@@ -190,7 +192,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
     
     try {
 
-      StemViewPrivilege.recalculateStemViewPrivilegesForUsers(this.memberIdsToRecalc, this.otherJobInput.getHib3GrouperLoaderLog());
+      this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesForUsers(this.memberIdsToRecalc);
     
     } finally {
       this.debugMap.put("recalcStemPrivilegesMs", (System.nanoTime() - start)/1000000);
@@ -203,7 +205,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
     
     try {
 
-      int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+      int recalcChangeLogIfNeededInLastSeconds = this.stemViewPrivilegeLogic.recalcChangeLogIfNeededInLastSeconds();
 
       GcDbAccess gcDbAccess = new GcDbAccess();
       
@@ -238,7 +240,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
     
     try {
 
-      int recalcChangeLogIfNeededInLastSeconds = StemViewPrivilege.recalcChangeLogIfNeededInLastSeconds();
+      int recalcChangeLogIfNeededInLastSeconds = this.stemViewPrivilegeLogic.recalcChangeLogIfNeededInLastSeconds();
 
       GcDbAccess gcDbAccess = new GcDbAccess();
       

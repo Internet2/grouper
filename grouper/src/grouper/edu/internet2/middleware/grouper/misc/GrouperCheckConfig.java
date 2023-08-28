@@ -151,7 +151,7 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
-import edu.internet2.middleware.grouper.stem.StemViewPrivilege;
+import edu.internet2.middleware.grouper.stem.StemViewPrivilegeLogic;
 import edu.internet2.middleware.grouper.ui.customUi.CustomUiAttributeNames;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataUtils;
@@ -1435,7 +1435,7 @@ public class GrouperCheckConfig {
       
       {
         // add stem view admin
-        String stemViewAdminGroup = StemViewPrivilege.stemViewAdminGroupName();
+        String stemViewAdminGroup = StemViewPrivilegeLogic.stemViewAdminGroupName();
 
         checkGroup(grouperSession, stemViewAdminGroup, wasInCheckConfig, true, 
             wasInCheckConfig, null,

@@ -235,7 +235,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
 
   public void testRecalculateStemViewPrivilegesForUsers() {
     
-    StemViewPrivilege.testingWaitForAttributes = true;
+    StemViewPrivilegeLogic.testingWaitForAttributes = true;
     try {
       assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege").select(int.class).intValue());
       assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
@@ -245,7 +245,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
       Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
       Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
       
-      StemViewPrivilege.recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId()));
+      new StemViewPrivilegeLogic().recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId()));
       
       assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege").select(int.class).intValue());
       assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
@@ -265,7 +265,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
       groupE.grantPriv(SubjectTestHelper.SUBJ0, AccessPrivilege.OPTIN);
       attributeDefC.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ0, AttributeDefPrivilege.ATTR_OPTOUT, false);
       
-      StemViewPrivilege.recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId()));
+      new StemViewPrivilegeLogic().recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId()));
       
       assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege").select(int.class).intValue());
       Set<MultiKey> grouperStemViewPrivileges = GrouperUtil.multiKeySet(new GcDbAccess().sql("select member_uuid, stem_uuid, object_type from grouper_stem_view_privilege").selectList(Object[].class));
@@ -280,7 +280,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
       groupD.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
       attributeDefC.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, false);
       
-      StemViewPrivilege.recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId(), member1.getId(), member2.getId()));
+      new StemViewPrivilegeLogic().recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId(), member1.getId(), member2.getId()));
       
       assertEquals(6, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege").select(int.class).intValue());
       grouperStemViewPrivileges = GrouperUtil.multiKeySet(new GcDbAccess().sql("select member_uuid, stem_uuid, object_type from grouper_stem_view_privilege").selectList(Object[].class));
@@ -299,7 +299,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
       groupD.revokePriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
       attributeDefC.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ1, AttributeDefPrivilege.ATTR_UPDATE, false);
       
-      StemViewPrivilege.recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId(), member1.getId(), member2.getId()));
+      new StemViewPrivilegeLogic().recalculateStemViewPrivilegesForUsers(GrouperUtil.toSet(member0.getId(), member1.getId(), member2.getId()));
       
       assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_stem_view_privilege").select(int.class).intValue());
       grouperStemViewPrivileges = GrouperUtil.multiKeySet(new GcDbAccess().sql("select member_uuid, stem_uuid, object_type from grouper_stem_view_privilege").selectList(Object[].class));
@@ -312,7 +312,7 @@ public class StemViewPrivilegeTest extends GrouperTest {
       assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_last_login").select(int.class).intValue());
 
     } finally {
-      StemViewPrivilege.testingWaitForAttributes = false;
+      StemViewPrivilegeLogic.testingWaitForAttributes = false;
     }
 
   }
