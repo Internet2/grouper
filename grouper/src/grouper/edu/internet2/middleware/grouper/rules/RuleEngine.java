@@ -168,6 +168,10 @@ public class RuleEngine {
     
     Set<RuleDefinition> ruleDefinitions = new HashSet<RuleDefinition>();
     
+    if (StringUtils.equals(":", ownerName)) {
+      return ruleDefinitions;
+    }
+    
     //direct parent
     String parentStemName = GrouperUtil.parentStemNameFromName(ownerName);
     
