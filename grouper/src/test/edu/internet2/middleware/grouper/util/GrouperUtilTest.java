@@ -58,7 +58,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testStringFormatNameReverseTruncate"));
+    TestRunner.run(new GrouperUtilTest("testParentStemNameFromName"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     
@@ -599,6 +599,22 @@ public class GrouperUtilTest extends GrouperTest {
     assertEquals("a", stemNamesList.get(1));
     assertEquals("a:b", stemNamesList.get(2));
     assertEquals("a:b:c", stemNamesList.get(3));
+    
+  }
+
+  /**
+   * 
+   */
+  public void testParentStemNameFromName() {
+    assertNull(GrouperUtil.parentStemNameFromName("a", true));
+    assertEquals(":", GrouperUtil.parentStemNameFromName("a", false));
+    assertEquals("a", GrouperUtil.parentStemNameFromName("a:b", false));
+    assertNull(GrouperUtil.parentStemNameFromName(":", true));
+    assertNull(GrouperUtil.parentStemNameFromName("", true));
+    assertNull(GrouperUtil.parentStemNameFromName(null, true));
+    assertNull(GrouperUtil.parentStemNameFromName(":", false));
+    assertNull(GrouperUtil.parentStemNameFromName("", false));
+    assertNull(GrouperUtil.parentStemNameFromName(null, false));
     
   }
 
