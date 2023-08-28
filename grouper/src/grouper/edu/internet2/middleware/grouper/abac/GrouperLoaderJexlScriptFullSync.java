@@ -84,7 +84,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject));
       //System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', 'name==staff && dept==english')", subject));
       //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') || (entity.memberOf('test:testGroup2') && entity.memberOf('test:testGroup3'))", subject));
-      System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', 'affiliationCode==staff && affiliationOrg==1234') "
+      System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', \"affiliationCode=='staff' && affiliationOrg==1234\") "
           + "|| (entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2'))", subject));
       
       //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup')")));
@@ -478,7 +478,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
             + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
       }
-      if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)) {
+      if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)
+          && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral)) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
       }
@@ -488,6 +489,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         rightPartValue = ((ASTIdentifier)jexlNode.jjtGetChild(1)).getName();
       } else if (jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral) {
         rightPartValue = GrouperUtil.stringValue(((ASTNumberLiteral)jexlNode.jjtGetChild(1)).getLiteral());
+      } else if (jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) {
+        rightPartValue = ((ASTStringLiteral)jexlNode.jjtGetChild(1)).getLiteral();
       }
       
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
