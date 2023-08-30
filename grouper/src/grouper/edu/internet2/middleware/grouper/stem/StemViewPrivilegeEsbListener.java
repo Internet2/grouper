@@ -795,10 +795,10 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       // get distinct subjects
       for (EsbEventContainer esbEventContainer : this.eventsToProcess) {
 
-        if (PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())
-            || PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        if (PrivilegeType.ACCESS.getPrivilegeName().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType().toLowerCase())
+            || PrivilegeType.ATTRIBUTE_DEF.getPrivilegeName().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType().toLowerCase())) {
           stemNamesSet.add(GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName()));
-        } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (PrivilegeType.NAMING.getPrivilegeName().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType().toLowerCase())) {
           stemNamesSet.add(esbEventContainer.getEsbEvent().getOwnerName());
         } else {
           throw new RuntimeException("Unexpected privilege type: " + esbEventContainer.getEsbEvent().getPrivilegeType());
