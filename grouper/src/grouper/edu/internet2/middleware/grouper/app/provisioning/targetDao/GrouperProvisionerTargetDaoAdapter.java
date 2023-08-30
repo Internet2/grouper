@@ -733,19 +733,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
     }
 
-    boolean canSelectGroups = GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroups(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false) ;
-    
-    boolean canSelectEntities = GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntities(), false)
-        || GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false) ;
-    
     // only retrieve all data if we can and if we're selecting all groups or can't select individual groups
     // and if we're selecting all entities or can't select individual entities
-    boolean retrieveAllData = GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)
-        && (!canSelectGroups || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups())
-        && (!canSelectEntities || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities());
     
-    if (retrieveAllData) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectAllData()) {
       this.getGrouperProvisioner().getDebugMap().put("retrieveAllData", true);
       boolean hasError = false;
       boolean commandLogStarted = false;
@@ -863,7 +854,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       }
     }
     
-    if (!this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedMemberships() && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
+    if (!this.getGrouperProvisioner().getProvisioningStateGlobal().isSelectResultProcessedMemberships() 
+        && this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsAll()) {
 
       // if we are getting this with groups or entities then dont do it here
       if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsWithEntity()

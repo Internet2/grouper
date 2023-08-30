@@ -578,9 +578,16 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
+//    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups() &&
+//        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities()) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
+//    }
+//    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities()) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
+//    }
+//    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups()) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
+//    }
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
