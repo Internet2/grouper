@@ -74,9 +74,7 @@ public class ChangeLogTempToEntity {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ChangeLogTempToEntity.class);
-  
-  private static final int TEMP_CHANGE_LOG_PAGE_SIZE = 1000;
-    
+      
   /**
    * convert the temps to regulars, assign id's
    * hib3GrouperLoaderLog is the log object to post updates, can be null
@@ -92,12 +90,17 @@ public class ChangeLogTempToEntity {
    * @return the number of records converted
    */
   public static int convertRecords(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    int changeLogTempToChangeLogQuerySize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.changeLogTempToChangeLogQuerySize");
+    if (changeLogTempToChangeLogQuerySize <= 0) {
+      changeLogTempToChangeLogQuerySize = 1;
+    }
+    
     int totalCount = 0;
     while (true) {
-      int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog);
+      int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog, changeLogTempToChangeLogQuerySize);
       totalCount += currentCount;
       
-      if (currentCount != TEMP_CHANGE_LOG_PAGE_SIZE) {
+      if (currentCount != changeLogTempToChangeLogQuerySize) {
         break;
       }
     }
@@ -105,7 +108,7 @@ public class ChangeLogTempToEntity {
     return totalCount;
   }
   
-  private static int convertRecordsOnePage(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  private static int convertRecordsOnePage(Hib3GrouperLoaderLog hib3GrouperLoaderLog, int changeLogTempToChangeLogQuerySize) {
     
     final boolean includeNonFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedMemberships", false);
     final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedPrivileges", false);
@@ -115,7 +118,7 @@ public class ChangeLogTempToEntity {
         
     //first select the temp records
     final List<ChangeLogEntry> tempChangeLogEntryList = HibernateSession.byHqlStatic().createQuery("from ChangeLogEntryTemp order by createdOnDb")
-      .options(new QueryOptions().paging(TEMP_CHANGE_LOG_PAGE_SIZE, 1, false)).list(ChangeLogEntry.class);
+      .options(new QueryOptions().paging(changeLogTempToChangeLogQuerySize, 1, false)).list(ChangeLogEntry.class);
     
     int tempChangeLogEntryListOrigSize = tempChangeLogEntryList.size();
         
@@ -365,23 +368,28 @@ public class ChangeLogTempToEntity {
               // up to 1000 bind vars seem to be ok for oracle, mysql, and postgres
               if (tempChangeLogEntryListProcessed.size() > 0) {
                 //delete from the temp
-                List<Object> idsToDelete = new ArrayList<Object>();
-                List<Type> types = new ArrayList<Type>();
-                StringBuilder queryInClause = new StringBuilder();
-                for (int i = 0; i < tempChangeLogEntryListProcessed.size(); i++) {
-                  ChangeLogEntry changeLogEntry = tempChangeLogEntryListProcessed.get(i);
-                  idsToDelete.add(changeLogEntry.getId());
-                  types.add(StringType.INSTANCE);
-                  queryInClause.append("?");
-    
-                  if (i < tempChangeLogEntryListProcessed.size() - 1) {
-                    queryInClause.append(", ");
+                int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(tempChangeLogEntryListProcessed), 1000);
+                for (int j = 0; j < numberOfBatches; j++) {
+                  List<ChangeLogEntry> currentBatch = GrouperUtil.batchList(tempChangeLogEntryListProcessed, 1000, j);
+                  
+                  List<Object> idsToDelete = new ArrayList<Object>();
+                  List<Type> types = new ArrayList<Type>();
+                  StringBuilder queryInClause = new StringBuilder();
+                  for (int i = 0; i < currentBatch.size(); i++) {
+                    ChangeLogEntry changeLogEntry = currentBatch.get(i);
+                    idsToDelete.add(changeLogEntry.getId());
+                    types.add(StringType.INSTANCE);
+                    queryInClause.append("?");
+      
+                    if (i < currentBatch.size() - 1) {
+                      queryInClause.append(", ");
+                    }
                   }
-                }
-    
-                int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id in (" + queryInClause.toString() + ")", idsToDelete, types);
-                if (count != tempChangeLogEntryListProcessed.size()) {
-                  throw new RuntimeException("Bad count of " + count + " when deleting temp change log entries, expected " + tempChangeLogEntryListProcessed.size() + ".");
+      
+                  int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id in (" + queryInClause.toString() + ")", idsToDelete, types);
+                  if (count != currentBatch.size()) {
+                    throw new RuntimeException("Bad count of " + count + " when deleting temp change log entries, expected " + tempChangeLogEntryListProcessed.size() + ".");
+                  }
                 }  
               }
           
