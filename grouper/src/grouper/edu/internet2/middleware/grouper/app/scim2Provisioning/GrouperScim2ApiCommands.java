@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -567,6 +568,8 @@ public class GrouperScim2ApiCommands {
         .propertyValueInt(
             "grouper.wsBearerToken." + configId + ".userPageSize", pageSize);
 
+    Set<String> idsRetreved = new HashSet<String>();
+    
     try {
       
       int startIndex = 1;
@@ -609,7 +612,10 @@ public class GrouperScim2ApiCommands {
         for (int i=0;i<resourcesNode.size();i++) {
           JsonNode userNode = resourcesNode.get(i);
           GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
-          results.add(grouperScimUser);
+          if (!idsRetreved.contains(grouperScimUser.getId())) {
+            results.add(grouperScimUser);
+            idsRetreved.add(grouperScimUser.getId());
+          }
         }
         
         previousStartIndex = startIndex;
@@ -1074,6 +1080,8 @@ public class GrouperScim2ApiCommands {
         .propertyValueInt(
             "grouper.wsBearerToken." + configId + ".groupPageSize", pageSize);
 
+    Set<String> idsRetreved = new HashSet<String>();
+
     try {
       
       int startIndex = 1;
@@ -1117,7 +1125,10 @@ public class GrouperScim2ApiCommands {
         for (int i=0;i<resourcesNode.size();i++) {
           JsonNode userNode = resourcesNode.get(i);
           GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(userNode);
-          results.add(grouperScimGroup);
+          if (!idsRetreved.contains(grouperScimGroup.getId())) {
+            results.add(grouperScimGroup);
+            idsRetreved.add(grouperScimGroup.getId());
+          }
         }
         
         previousStartIndex = startIndex;
