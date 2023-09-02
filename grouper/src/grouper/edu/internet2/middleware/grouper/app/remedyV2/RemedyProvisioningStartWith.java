@@ -99,9 +99,12 @@ public class RemedyProvisioningStartWith extends ProvisionerStartWithBase {
 
       provisionerSuffixToValue.put("hasTargetGroupLink", "true");
       
+      provisionerSuffixToValue.put("groupMatchingAttributeSameAsSearchAttribute", "false");
       provisionerSuffixToValue.put("groupMatchingAttributeCount", "2");
       provisionerSuffixToValue.put("groupMatchingAttribute0name", "permissionGroup");
       provisionerSuffixToValue.put("groupMatchingAttribute1name", "permissionGroupId");
+      provisionerSuffixToValue.put("groupSearchAttributeCount", "1");
+      provisionerSuffixToValue.put("groupSearchAttribute0name", "permissionGroupId");
       
     }
     

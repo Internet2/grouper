@@ -43,7 +43,7 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
 
     GrouperStartup.startup();
-    TestRunner.run(new RemedyProvisionerTest("testFullRemedyProvisioner"));
+    TestRunner.run(new RemedyProvisionerTest("testFullSyncRemedyStartWithAndDiagnostics"));
   
   }
 
@@ -191,8 +191,8 @@ public class RemedyProvisionerTest extends GrouperProvisioningBaseTest {
       grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupName("test:testGroup2");
       grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsSubjectIdOrIdentifier("test.subject.0");
       grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsMembershipInsert(true);
-      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(true);
-      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityInsert(true);
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupInsert(false);
+      grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsEntityInsert(false);
       grouperProvisioningDiagnosticsContainer.getGrouperProvisioningDiagnosticsSettings().setDiagnosticsGroupsAllSelect(true);
       grouperProvisioningOutput = provisioner.provision(GrouperProvisioningType.diagnostics);
       assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
