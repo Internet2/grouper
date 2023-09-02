@@ -398,7 +398,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             
             try {
-              ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+              if (isDNMoveApplicable((String)oldValue, (String)newValue)) {
+                ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+              }
             } catch (Exception e) {
               createParentFolders(ldapSyncConfiguration, ldapSyncDaoForLdap, (String)newValue);
               ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
@@ -1238,7 +1240,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             newValue = GrouperUtil.stringValue(newValue);
             oldValue = GrouperUtil.stringValue(oldValue);
-            ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+            if (isDNMoveApplicable((String)oldValue, (String)newValue)) {
+              ldapSyncDaoForLdap.move(ldapConfigId, (String)oldValue, (String)newValue);
+            }
             movedDn = true;
             dn = (String)newValue;
             provisionObjectChange.setProvisioned(true);
@@ -1524,6 +1528,34 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     return filterBuilder.toString();
 
+  }
+  
+  private boolean isDNMoveApplicable(String oldDnString, String newDnString) {
+    if (oldDnString.equals(newDnString)) {
+      return false;
+    }
+    
+    try {
+      DN oldDn = new DN(oldDnString);
+      DN newDn = new DN(newDnString);
+      
+      // if the rdn is different, even case difference
+      if (!oldDn.getRDN().equals(newDn.getRDN())) {
+        return true;
+      }
+      
+      // otherwise, we only care if the parent is actually different
+      if (!oldDn.getParent().toNormalizedString().equals(newDn.getParent().toNormalizedString())) {
+        return true;
+      }
+      
+      return false;
+    } catch (LDAPException e) {
+      LOG.warn("Error checking if DN move is applicable for oldDnString=" + oldDnString + ", newDnString=" + newDnString, e);
+      
+      // just try the move anyways?
+      return true;
+    }
   }
   
   private void checkParentFolderCaseChanges(LdapSyncConfiguration ldapSyncConfiguration, String oldDnString, String newDnString) {
