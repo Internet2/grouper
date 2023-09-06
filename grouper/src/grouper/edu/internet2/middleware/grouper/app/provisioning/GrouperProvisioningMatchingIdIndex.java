@@ -622,7 +622,8 @@ public class GrouperProvisioningMatchingIdIndex {
                 if (gcGrouperSyncGroup != null) {
                   gcGrouperSyncGroup.setErrorCode(GcGrouperSyncErrorCode.MAT);
                   gcGrouperSyncGroup.setErrorMessage("Matching ID " + provisioningUpdatableAttributeAndValue.toString() + " matches " + GrouperUtil.length(targetProvisioningGroups) + " target groups");
-                  gcGrouperSyncGroup.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                  Timestamp groupErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().groupErrorTimestamp(gcGrouperSyncGroup);
+                  gcGrouperSyncGroup.setErrorTimestamp(groupErrorTimestamp);
                 }
                 
                 
@@ -649,7 +650,8 @@ public class GrouperProvisioningMatchingIdIndex {
                 if (gcGrouperSyncGroup != null) {
                   gcGrouperSyncGroup.setErrorCode(GcGrouperSyncErrorCode.MAT);
                   gcGrouperSyncGroup.setErrorMessage("Matching ID " + provisioningUpdatableAttributeAndValue.toString() + " matches multiple grouper groups");
-                  gcGrouperSyncGroup.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                  Timestamp groupErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().groupErrorTimestamp(gcGrouperSyncGroup);
+                  gcGrouperSyncGroup.setErrorTimestamp(groupErrorTimestamp);
                 }
                 
                 matchingIdToMultipleTargetProvisioningGroups++;
@@ -987,7 +989,8 @@ public class GrouperProvisioningMatchingIdIndex {
               if (gcGrouperSyncMembership != null) {
                 gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.MAT);
                 gcGrouperSyncMembership.setErrorMessage("Matching ID " + provisioningUpdatableAttributeAndValue.toString() + " matches " + GrouperUtil.length(targetProvisioningMemberships) + " target memberships");
-                gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                Timestamp membershipErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
+                gcGrouperSyncMembership.setErrorTimestamp(membershipErrorTimestamp);
               }
               
               
@@ -1014,7 +1017,8 @@ public class GrouperProvisioningMatchingIdIndex {
               if (gcGrouperSyncMembership != null) {
                 gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.MAT);
                 gcGrouperSyncMembership.setErrorMessage("Matching ID " + provisioningUpdatableAttributeAndValue.toString() + " matches multiple grouper memberships");
-                gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                Timestamp membershipErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
+                gcGrouperSyncMembership.setErrorTimestamp(membershipErrorTimestamp);
               }
               
               matchingIdToMultipleTargetProvisioningMemberships++;
@@ -1285,7 +1289,8 @@ public class GrouperProvisioningMatchingIdIndex {
                 if (gcGrouperSyncEntity != null) {
                   gcGrouperSyncEntity.setErrorCode(GcGrouperSyncErrorCode.MAT);
                   gcGrouperSyncEntity.setErrorMessage("Matching ID " + provisioningUpdatableAttributeAndValue.toString() + " matches " + GrouperUtil.length(targetProvisioningEntities) + " target entities");
-                  gcGrouperSyncEntity.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+                  Timestamp entityErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().entityErrorTimestamp(gcGrouperSyncEntity);
+                  gcGrouperSyncEntity.setErrorTimestamp(entityErrorTimestamp);
                 }
                 
                 

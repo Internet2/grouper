@@ -1299,6 +1299,8 @@ public class GrouperProvisioningBehavior {
   private Boolean deleteEntitiesIfGrouperDeleted;
 
   private Boolean selectMembershipsAll;
+  
+  private Boolean selectMembershipsAllWithRetrieveAllMembershipsDao;
 
   private Set<String> selectMembershipAttributes;
 
@@ -1693,8 +1695,8 @@ public class GrouperProvisioningBehavior {
       return selectAllData;
     }
     selectAllData = GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)
-        && this.isSelectGroupsAll()
-        && this.isSelectEntitiesAll();
+        && (this.isSelectGroupsAll() || !this.isSelectGroups())
+        && (this.isSelectEntitiesAll() || !this.isSelectEntities());
     
     return selectAllData;
   }
@@ -1717,7 +1719,9 @@ public class GrouperProvisioningBehavior {
     boolean canRetrieveAllMemberships = GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities()
         .getCanRetrieveAllMemberships(), false);
     
-    if (canRetrieveAllMemberships && this.isSelectGroupsAll() && this.isSelectEntitiesAll()) {
+    //if we can select all memberships and we're configured to select all groups and entities, and we can, then select all memberships. 
+    //if we are not selecting groups at all or not selecting entities at all, then don't consider them.
+    if (canRetrieveAllMemberships && (this.isSelectGroupsAll() || !this.isSelectGroups()) && (this.isSelectEntitiesAll() || !this.isSelectEntities())) {
       this.selectMembershipsAll = true;
       return this.selectMembershipsAll;
     }
@@ -1742,22 +1746,22 @@ public class GrouperProvisioningBehavior {
       return this.selectMembershipsAll;
     }
     
-    if (!this.isSelectEntitiesAll() && this.isSelectMembershipsWithEntity()) {
+    if ((!this.isSelectEntitiesAll() && this.isSelectEntities()) && this.isSelectMembershipsWithEntity()) {
       this.selectMembershipsAll = false;
       return this.selectMembershipsAll;
     }
       
-    if (!this.isSelectGroupsAll() && this.isSelectMembershipsWithGroup()) {
+    if ((!this.isSelectGroupsAll() && this.isSelectGroups()) && this.isSelectMembershipsWithGroup()) {
       this.selectMembershipsAll = false;
       return this.selectMembershipsAll;
     }
 
-    if (!this.isSelectEntitiesAll() && this.isSelectMembershipsAllForEntity() && !this.isSelectMembershipsAllForGroup()) {
+    if ((!this.isSelectEntitiesAll() && this.isSelectEntities()) && this.isSelectMembershipsAllForEntity() && !this.isSelectMembershipsAllForGroup()) {
       this.selectMembershipsAll = false;
       return this.selectMembershipsAll;
     }
       
-    if (!this.isSelectGroupsAll() && this.isSelectMembershipsAllForGroup()) {
+    if ((!this.isSelectGroupsAll() && this.isSelectGroups()) && this.isSelectMembershipsAllForGroup()) {
       this.selectMembershipsAll = false;
       return this.selectMembershipsAll;
     }
@@ -1769,6 +1773,38 @@ public class GrouperProvisioningBehavior {
     
     this.selectMembershipsAll = false;
     return this.selectMembershipsAll;
+  }
+  
+  public boolean isSelectMembershipsAllWithRetrieveAllMembershipsDao() {
+    if (this.selectMembershipsAllWithRetrieveAllMembershipsDao != null) {
+      return this.selectMembershipsAllWithRetrieveAllMembershipsDao;
+    }
+    
+    if (!this.isSelectMembershipsAll()) {
+      selectMembershipsAllWithRetrieveAllMembershipsDao = false;
+      return this.selectMembershipsAllWithRetrieveAllMembershipsDao;
+    }
+
+    boolean canRetrieveAllMemberships = GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities()
+        .getCanRetrieveAllMemberships(), false);
+    
+    if (!canRetrieveAllMemberships) {
+      this.selectMembershipsAllWithRetrieveAllMembershipsDao = false;
+      return this.selectMembershipsAllWithRetrieveAllMembershipsDao;
+    }
+    
+    if (this.isSelectEntitiesAll() && this.isSelectMembershipsWithEntity()) {
+      this.selectMembershipsAllWithRetrieveAllMembershipsDao = false;
+      return this.selectMembershipsAllWithRetrieveAllMembershipsDao;
+    }
+      
+    if (this.isSelectGroupsAll() && this.isSelectMembershipsWithGroup()) {
+      this.selectMembershipsAllWithRetrieveAllMembershipsDao = false;
+      return this.selectMembershipsAllWithRetrieveAllMembershipsDao;
+    }
+
+    this.selectMembershipsAllWithRetrieveAllMembershipsDao = true;
+    return this.selectMembershipsAllWithRetrieveAllMembershipsDao;
   }
 
   public void setSelectMembershipsAll(Boolean membershipsRetrieveAll) {

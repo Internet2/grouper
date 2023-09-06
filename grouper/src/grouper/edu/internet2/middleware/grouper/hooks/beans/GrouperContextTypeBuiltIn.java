@@ -15,6 +15,9 @@
  */
 package edu.internet2.middleware.grouper.hooks.beans;
 
+import edu.internet2.middleware.grouper.app.attestation.AttestationType;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * type of context
  */
@@ -118,6 +121,11 @@ public enum GrouperContextTypeBuiltIn implements GrouperContextType {
    */
   public static GrouperContextType _internal_getThreadLocalGrouperContextType() {
     return threadLocalGrouperContextType.get();
+  }
+  
+  public static GrouperContextTypeBuiltIn valueOfIgnoreCase(String string, boolean exceptionOnNotFound) {
+    return GrouperUtil.enumValueOfIgnoreCase(GrouperContextTypeBuiltIn.class, 
+        string, exceptionOnNotFound);
   }
   
 }

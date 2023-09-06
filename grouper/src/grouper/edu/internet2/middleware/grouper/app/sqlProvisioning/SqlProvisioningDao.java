@@ -194,7 +194,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         List<Object[]> membershipAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
             dbExternalSystemConfigId, membershipColumnNames, membershipTableName, null, null, 
-            GrouperUtil.toList(membershipGroupColumn), idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
+            GrouperUtil.toList(membershipEntityColumn), idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
         retrieveMembershipsAddRecord(overallResult, membershipAttributeValues, membershipColumnNames);
       }

@@ -492,7 +492,7 @@ public class GrouperProvisioningLogic {
     
     this.grouperProvisioner.getDebugMap().put("state", "assignRecalc");
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectGroups()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroups()) {
     
       // everything in a full sync is a recalc if it can be
       for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
@@ -502,7 +502,7 @@ public class GrouperProvisioningLogic {
       }
     }
     
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntities()) {
       for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
         
         provisioningEntityWrapper.getProvisioningStateEntity().setRecalcObject(this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc());
@@ -1388,12 +1388,14 @@ public class GrouperProvisioningLogic {
       if (exception != null && gcGrouperSyncGroup.getErrorCode() == null) {
         gcGrouperSyncGroup.setErrorCode(GcGrouperSyncErrorCode.ERR);
         gcGrouperSyncGroup.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
-        gcGrouperSyncGroup.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+        Timestamp groupErrorTimestamp = this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().groupErrorTimestamp(gcGrouperSyncGroup);
+        gcGrouperSyncGroup.setErrorTimestamp(groupErrorTimestamp);
       }
       
       if (gcGrouperSyncGroup.getErrorCode() == null && provisioningGroupWrapper.getErrorCode() != null) {
         gcGrouperSyncGroup.setErrorCode(provisioningGroupWrapper.getErrorCode());
-        gcGrouperSyncGroup.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+        Timestamp groupErrorTimestamp = this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().groupErrorTimestamp(gcGrouperSyncGroup);
+        gcGrouperSyncGroup.setErrorTimestamp(groupErrorTimestamp);
       }
       
       if (gcGrouperSyncGroup.getErrorCode() == null) {
@@ -1412,12 +1414,14 @@ public class GrouperProvisioningLogic {
       if (exception != null && gcGrouperSyncMember.getErrorCode() == null) {
         gcGrouperSyncMember.setErrorCode(GcGrouperSyncErrorCode.ERR);
         gcGrouperSyncMember.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
-        gcGrouperSyncMember.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+        Timestamp entityErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().entityErrorTimestamp(gcGrouperSyncMember);
+        gcGrouperSyncMember.setErrorTimestamp(entityErrorTimestamp);
       }
       
       if (gcGrouperSyncMember.getErrorCode() == null && provisioningEntityWrapper.getErrorCode() != null) {
         gcGrouperSyncMember.setErrorCode(provisioningEntityWrapper.getErrorCode());
-        gcGrouperSyncMember.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+        Timestamp entityErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().entityErrorTimestamp(gcGrouperSyncMember);
+        gcGrouperSyncMember.setErrorTimestamp(entityErrorTimestamp);
       }
       if (gcGrouperSyncMember.getErrorCode() == null) {
         continue;
@@ -1435,12 +1439,14 @@ public class GrouperProvisioningLogic {
       if (exception != null && gcGrouperSyncMembership.getErrorCode() == null) {
         gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
         gcGrouperSyncMembership.setErrorMessage(GrouperUtil.getFullStackTrace(exception));
-        gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+        Timestamp membershipErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.setErrorTimestamp(membershipErrorTimestamp);
       }
       
       if (gcGrouperSyncMembership.getErrorCode() == null && provisioningMembershipWrapper.getErrorCode() != null) {
         gcGrouperSyncMembership.setErrorCode(provisioningMembershipWrapper.getErrorCode());
-        gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+        Timestamp membershipErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
+        gcGrouperSyncMembership.setErrorTimestamp(membershipErrorTimestamp);
       }
       if (gcGrouperSyncMembership.getErrorCode() == null) {
         continue;

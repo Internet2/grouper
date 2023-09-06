@@ -84,9 +84,9 @@ public enum GrouperProvisioningObjectLogType {
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
       
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request group only", 
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target request from target group only", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetGroupsForGroupOnly(), "groups");
-      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target data request entity only", 
+      appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Grouper target request from target entity only", 
           grouperProvisioner.retrieveGrouperProvisioningDataIncrementalInput().getTargetDaoRetrieveIncrementalDataRequest().getTargetEntitiesForEntityOnly(), "entities");
 
       appendProvisioningObjectsOfType(grouperProvisioner, logMessage, "Target provisioning", grouperProvisioner.retrieveGrouperProvisioningData().retrieveTargetProvisioningGroups(), "groups");
