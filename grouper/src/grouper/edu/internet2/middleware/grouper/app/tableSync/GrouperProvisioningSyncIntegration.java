@@ -874,7 +874,10 @@ public class GrouperProvisioningSyncIntegration {
           provisioningMembershipWrapper.setGcGrouperSyncMembership(gcGrouperSyncMembership);
           gcGrouperSyncMembership.setErrorCode(GcGrouperSyncErrorCode.ERR);
           gcGrouperSyncMembership.setErrorMessage(errorMessage);
-          gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+          
+          Timestamp membershipErrorTimestamp = this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
+          gcGrouperSyncMembership.setErrorTimestamp(membershipErrorTimestamp);
+          
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().removeAndUnindexMembershipWrapper(provisioningMembershipWrapper);
           this.getGrouperProvisioner().getDebugMap().put(errorDebug, true);
           continue;

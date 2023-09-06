@@ -439,7 +439,8 @@ public class GrouperProvisioningValidation {
     if (gcGrouperSyncMembership.getErrorCode() != errorCode) {
       gcGrouperSyncMembership.setErrorCode(errorCode);
       gcGrouperSyncMembership.setErrorMessage(errorMessage);
-      gcGrouperSyncMembership.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      Timestamp membershipErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
+      gcGrouperSyncMembership.setErrorTimestamp(membershipErrorTimestamp);
     }
 
   }
@@ -460,7 +461,8 @@ public class GrouperProvisioningValidation {
     if (gcGrouperSyncGroup.getErrorCode() != errorCode) {
       gcGrouperSyncGroup.setErrorCode(errorCode);
       gcGrouperSyncGroup.setErrorMessage(errorMessage);
-      gcGrouperSyncGroup.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      Timestamp groupErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().groupErrorTimestamp(gcGrouperSyncGroup);
+      gcGrouperSyncGroup.setErrorTimestamp(groupErrorTimestamp);
     }
 
   }
@@ -481,7 +483,8 @@ public class GrouperProvisioningValidation {
     if (gcGrouperSyncMember.getErrorCode() != errorCode) {
       gcGrouperSyncMember.setErrorCode(errorCode);
       gcGrouperSyncMember.setErrorMessage(errorMessage);
-      gcGrouperSyncMember.setErrorTimestamp(new Timestamp(System.currentTimeMillis()));
+      Timestamp entityErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().entityErrorTimestamp(gcGrouperSyncMember);
+      gcGrouperSyncMember.setErrorTimestamp(entityErrorTimestamp);
     }
 
   }
