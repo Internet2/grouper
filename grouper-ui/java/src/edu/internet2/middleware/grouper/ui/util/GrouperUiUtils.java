@@ -162,7 +162,19 @@ public class GrouperUiUtils {
    * @return true if handling veto
    */
   public static boolean vetoHandle(GuiResponseJs guiResponseJs, Throwable cause) {
+    
+    String errorMessage = vetoHandleErrorMessage(cause);
+    if (errorMessage != null) {
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+          errorMessage));
+      return true;
+    }
 
+    return false;
+  }
+  
+  public static String vetoHandleErrorMessage(Throwable cause) {
+    
     Throwable causeCause = cause == null ? null : cause.getCause();
 
     Throwable causeCauseCause = causeCause == null ? null : causeCause.getCause();
@@ -183,15 +195,11 @@ public class GrouperUiUtils {
       }
 
       if (!StringUtils.isBlank(messageToScreen)) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            messageToScreen));
-
-        return true;
+       return messageToScreen;
       }
 
     }
-    return false;
+    return null;
   }
   
   /**

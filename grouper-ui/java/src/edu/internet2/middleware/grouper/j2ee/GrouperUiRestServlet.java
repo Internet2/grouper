@@ -367,23 +367,27 @@ public class GrouperUiRestServlet extends HttpServlet {
         //do nothing, this is ok
       } catch (RuntimeException re) {
         String error = "Problem calling reflection from URL: " + className + "." + methodName + "\n\n" + ExceptionUtils.getFullStackTrace(re);
-        LOG.error(error);
-        GrouperUiUtils.appendErrorToRequest(error);
-        
-        if (uiv2) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-              TextContainer.retrieveFromRequest().getText().get("guiMiscErrorPrefix")
-              + " " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+        if (uiv2 && GrouperUiUtils.vetoHandle(guiResponseJs, re)) {
+          LOG.debug(error);
         } else {
-          //if adding text area for form file submits, make sure to do that in errors too
-          boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+          LOG.error(error);
+          GrouperUiUtils.appendErrorToRequest(error);
           
-          //print out error message for user, a new one
-          guiResponseJs = new GuiResponseJs();
-          guiResponseJs.addAction(GuiScreenAction.newCloseModal());
-          guiResponseJs.setAddTextAreaTag(addTextArea);
-          guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
-        }        
+          if (uiv2) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                TextContainer.retrieveFromRequest().getText().get("guiMiscErrorPrefix")
+                + " " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+          } else {
+            //if adding text area for form file submits, make sure to do that in errors too
+            boolean addTextArea = guiResponseJs.isAddTextAreaTag();
+            
+            //print out error message for user, a new one
+            guiResponseJs = new GuiResponseJs();
+            guiResponseJs.addAction(GuiScreenAction.newCloseModal());
+            guiResponseJs.setAddTextAreaTag(addTextArea);
+            guiResponseJs.addAction(GuiScreenAction.newAlert("Error: " + GrouperUiUtils.escapeHtml(re.getMessage(), true)));
+          }  
+        }
       }
     } else {
       //print out error message for user, a new one

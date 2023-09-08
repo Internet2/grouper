@@ -19,6 +19,7 @@ public class GrouperDeprovisioningObjectAttributes {
  
   private boolean isOwnedByGroup;
   private boolean isOwnedByStem;
+  private boolean isOwnedByAttributeDef;
   
   private String affiliation;
   private String ownerStemId;
@@ -192,6 +193,16 @@ public class GrouperDeprovisioningObjectAttributes {
   
   public void setStemScope(String stemScope) {
     this.stemScope = stemScope;
+  }
+
+  
+  public boolean isOwnedByAttributeDef() {
+    return isOwnedByAttributeDef;
+  }
+
+  
+  public void setOwnedByAttributeDef(boolean isOwnedByAttributeDef) {
+    this.isOwnedByAttributeDef = isOwnedByAttributeDef;
   }
   
 }
