@@ -73,6 +73,7 @@ import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioning
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningJob;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningOverallConfiguration;
 import edu.internet2.middleware.grouper.app.deprovisioning.GrouperDeprovisioningSettings;
+import edu.internet2.middleware.grouper.app.deprovisioning.MembershipVetoIfDeprovisionedHook;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
@@ -2536,6 +2537,7 @@ public class GrouperCheckConfig {
     }
 
     MembershipRequireMembershipHook.registerHookIfNecessary();
+    MembershipVetoIfDeprovisionedHook.registerHookIfNecessary();
     
     GrouperSession grouperSession = null;
     boolean startedGrouperSession = false;

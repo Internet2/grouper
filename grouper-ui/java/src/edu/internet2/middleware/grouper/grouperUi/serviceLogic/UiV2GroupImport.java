@@ -1003,11 +1003,16 @@ public class UiV2GroupImport {
               GrouperUtil.sleep(pauseBetweenRecordsMillis);
               groupImportGroupSummary.groupCountAddedIncrement();
             } catch (Exception e) {
+              // if not already logged
               if (!hasError) {
-                // if not already logged
                 String subjectString = SubjectUtils.subjectToString(subject);
-
-                GroupImportError groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
+                String errorMessage = GrouperUiUtils.vetoHandleErrorMessage(e);
+                GroupImportError groupImportError = null;
+                if (errorMessage != null) {
+                  groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(errorMessage));
+                } else {
+                  groupImportError = new GroupImportError(subjectString, GrouperUtil.xmlEscape(e.getMessage()));
+                }
                 groupImportGroupSummary.getGroupImportErrors().add(groupImportError);
 
                 groupImportGroupSummary.groupCountErrorsIncrement();

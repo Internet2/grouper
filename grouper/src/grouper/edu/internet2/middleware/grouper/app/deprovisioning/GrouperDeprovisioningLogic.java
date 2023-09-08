@@ -36,10 +36,17 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextType;
+import edu.internet2.middleware.grouper.hooks.beans.GrouperContextTypeBuiltIn;
+import edu.internet2.middleware.grouper.hooks.beans.HooksContext;
 import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.membership.MembershipSubjectContainer;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -828,6 +835,87 @@ public class GrouperDeprovisioningLogic {
   }
   
   /**
+   * @param grouperSession
+   * @param hooksContext
+   * @param subject
+   * @param groupId
+   * @param attributeDefId
+   * @param stemId
+   * @param ownerArray - load it with the name of the owner
+   * @return true if this subject is allowed to be added to this group otherwise false
+   */
+  public static boolean shouldAddSubject(GrouperSession grouperSession, HooksContext hooksContext, Subject subject, String groupId, String attributeDefId, String stemId, String[] ownerArray) {
+    
+   GrouperContextType grouperContextType = hooksContext.getGrouperContextType();
+   GrouperContextTypeBuiltIn grouperContextTypeBuiltIn = GrouperContextTypeBuiltIn.valueOfIgnoreCase(grouperContextType.name(), false);
+    if (grouperContextTypeBuiltIn == GrouperContextTypeBuiltIn.GROUPER_LOADER) {
+      // method shouldAddSubject below handles loader group memberships
+      return true;
+    }
+    
+    Set<String> deprovisionedInAffiliations = subjectDeprovisionedInAffiliations(subject);
+    
+    if (deprovisionedInAffiliations.size() == 0) {
+      return true;
+    }
+    
+    GrouperObject grouperObject;
+    
+    if (StringUtils.isNotBlank(groupId)) {
+      grouperObject = GroupFinder.findByUuid(grouperSession, groupId, true);
+    } else if (StringUtils.isNotBlank(attributeDefId)) {
+      grouperObject = AttributeDefFinder.findById(attributeDefId, true, null);
+    } else if (StringUtils.isNotBlank(stemId)) {
+      grouperObject = StemFinder.findByUuid(grouperSession, stemId, true);
+    } else {
+      throw new RuntimeException("groupId, attributeDefId, and stemId all cannot be null");
+    }
+    
+    String rootStemDisplayName =  GrouperUtil.defaultIfBlank(GrouperTextContainer.textOrNull("stem.root.display-name"), ":");
+    ownerArray[0] = GrouperUtil.defaultIfBlank(grouperObject.getDisplayName(), rootStemDisplayName);
+    Set<String> affiliationsToDeprovision = GrouperDeprovisioningLogic.affiliationsToDeprovision(grouperObject);
+    
+    if (affiliationsToDeprovision.size() == 0) {
+      // the group, attributeDef, stem to which subject is getting added, it doesn't have any affiliations, nothing to do
+      return true;
+    }
+    
+    GrouperDeprovisioningOverallConfiguration deprovisioningConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(grouperObject);
+    
+    for (String deprovisionedInAffiliation: deprovisionedInAffiliations) {
+      if (!affiliationsToDeprovision.contains(deprovisionedInAffiliation)) {
+        continue;
+      }
+      if (!deprovisioningConfiguration.isAllowAddsWhileDeprovisioned(deprovisionedInAffiliation)) {
+        return false;
+      }
+    }
+    return true;
+  }
+  
+  /**
+   * 
+   * @param subject
+   * @return list of affiliations this subject has been deprovisioned from 
+   */
+  public static Set<String> subjectDeprovisionedInAffiliations(Subject subject) {
+    
+    Map<String, GrouperDeprovisioningAffiliation> allAffiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
+    Set<String> affiliations = new HashSet<>();
+    for (String affiliation: allAffiliations.keySet()) {
+      
+      Set<Subject> subjectsForAffiliation = GrouperDeprovisioningLogic.deprovisionedSubjectsForAffiliation(affiliation, true);
+      
+      if (subjectsForAffiliation.contains(subject)) {
+        affiliations.add(affiliation);
+      }
+    }
+    
+    return affiliations;
+  }
+  
+  
+  /**
    * 
    * @param grouperSession
    * @param loaderGroup
@@ -837,6 +925,12 @@ public class GrouperDeprovisioningLogic {
    */
   public static boolean shouldAddSubject(GrouperSession grouperSession, Group loaderGroup, Subject subject) {
     
+    Set<String> deprovisionedInAffiliations = subjectDeprovisionedInAffiliations(subject);
+    
+    if (deprovisionedInAffiliations.size() == 0) {
+      return true;
+    }
+    
     Map<String, GrouperDeprovisioningAffiliation> allAffiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations();
     
     GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(loaderGroup, true);
@@ -845,9 +939,8 @@ public class GrouperDeprovisioningLogic {
     
     for (String affiliation: affiliationsToDeprovision) {
       
-      Set<Subject> subjectsForAffiliation = GrouperDeprovisioningLogic.deprovisionedSubjectsForAffiliation(affiliation, true);
       
-      if (subjectsForAffiliation.contains(subject)) {
+      if (deprovisionedInAffiliations.contains(affiliation)) {
         boolean autoChangeLoader = grouperDeprovisioningOverallConfiguration.getAffiliationToConfiguration()
             .get(affiliation).getOriginalConfig().isAutoChangeLoader();
         

@@ -123,6 +123,12 @@ public enum GrouperContextTypeBuiltIn implements GrouperContextType {
     return threadLocalGrouperContextType.get();
   }
   
+  /**
+   * 
+   * @param string
+   * @param exceptionOnNotFound
+   * @return
+   */
   public static GrouperContextTypeBuiltIn valueOfIgnoreCase(String string, boolean exceptionOnNotFound) {
     return GrouperUtil.enumValueOfIgnoreCase(GrouperContextTypeBuiltIn.class, 
         string, exceptionOnNotFound);

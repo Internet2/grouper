@@ -48,6 +48,112 @@ public class GrouperDeprovisioningDaemonLogic extends OtherJobBase {
   private static final Log LOG = GrouperUtil.getLog(GrouperDeprovisioningDaemonLogic.class);
   
   /**
+   * this method retrieves all deprovisioning attributes assignments and values for all attribute defs. 
+   * @return
+   */
+  public static Map<String, Map<String, GrouperDeprovisioningObjectAttributes>> retrieveAllAttributeDefsOfInterestForDeprovisioning() {
+    
+    Map<String, Map<String, GrouperDeprovisioningObjectAttributes>> results = new HashMap<String, Map<String, GrouperDeprovisioningObjectAttributes>>();
+    
+    {
+      String sql = "SELECT " +
+          "    gad.id, " +
+          "    gad.name, " + 
+          "    gadn_config.name, " + 
+          "    gaav_config.value_string, " + 
+          "    gaav_affiliation.value_string as affiliation, " + 
+          "    gaa_marker.id " + 
+          "FROM " + 
+          "    grouper_attribute_def gad, " + 
+          "    grouper_attribute_assign gaa_marker, " + 
+          "    grouper_attribute_assign gaa_affiliation, " + 
+          "    grouper_attribute_assign gaa_config, " + 
+          "    grouper_attribute_assign_value gaav_affiliation, " + 
+          "    grouper_attribute_assign_value gaav_config, " + 
+          "    grouper_attribute_def_name gadn_marker, " + 
+          "    grouper_attribute_def_name gadn_affiliation, " + 
+          "    grouper_attribute_def_name gadn_config " + 
+          "WHERE " + 
+          "    gad.id = gaa_marker.owner_attribute_def_id " + 
+          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
+          "    AND gadn_marker.name = ? " + 
+          "    AND gaa_marker.id = gaa_affiliation.owner_attribute_assign_id " + 
+          "    AND gaa_affiliation.attribute_def_name_id = gadn_affiliation.id " + 
+          "    AND gadn_affiliation.name = ? " + 
+          "    AND gaav_affiliation.attribute_assign_id = gaa_affiliation.id " + 
+          "    AND gaa_marker.id = gaa_config.owner_attribute_assign_id " + 
+          "    AND gaav_config.attribute_assign_id = gaa_config.id " + 
+          "    AND gadn_config.id = gaa_config.attribute_def_name_id " + 
+          "    AND gaa_marker.enabled = 'T' " + 
+          "    AND gaa_affiliation.enabled = 'T' " + 
+          "    AND gaa_config.enabled = 'T' ";
+      
+      List<Object> paramsInitial = new ArrayList<Object>();
+
+      paramsInitial.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameBase().getName());
+      paramsInitial.add(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName());
+      
+      List<Type> typesInitial = new ArrayList<Type>();
+      typesInitial.add(StringType.INSTANCE);
+      typesInitial.add(StringType.INSTANCE);
+  
+      List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql, paramsInitial, typesInitial);
+      for (String[] queryResult : queryResults) {
+        String attributeDefId = queryResult[0];
+        String attributeDefName = queryResult[1];
+        String configName = queryResult[2];
+        String configValue = queryResult[3];
+        String affiliation = queryResult[4];
+        String markerAttributeAssignId = queryResult[5];
+        
+        Map<String, GrouperDeprovisioningObjectAttributes> attributeDefToDeprovisioningAttributes = results.get(affiliation);
+        if (attributeDefToDeprovisioningAttributes == null) {
+          attributeDefToDeprovisioningAttributes = new HashMap<String, GrouperDeprovisioningObjectAttributes>();
+          results.put(affiliation, attributeDefToDeprovisioningAttributes);
+        }
+        
+        GrouperDeprovisioningObjectAttributes grouperDeprovisioningAttributes = attributeDefToDeprovisioningAttributes.get(attributeDefName);
+        if (grouperDeprovisioningAttributes == null) {
+          grouperDeprovisioningAttributes = new GrouperDeprovisioningObjectAttributes(attributeDefId, attributeDefName, markerAttributeAssignId);
+          attributeDefToDeprovisioningAttributes.put(attributeDefName, grouperDeprovisioningAttributes);
+          grouperDeprovisioningAttributes.setOwnedByAttributeDef(true);
+        }
+        
+        if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAffiliation().getName())) {
+          grouperDeprovisioningAttributes.setAffiliation(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAllowAddsWhileDeprovisioned().getName())) {
+          grouperDeprovisioningAttributes.setAllowAddsWhileDeprovisioned(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoChangeLoader().getName())) {
+          grouperDeprovisioningAttributes.setAutoChangeLoader(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameAutoSelectForRemoval().getName())) {
+          grouperDeprovisioningAttributes.setAutoSelectForRemoval(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDeprovision().getName())) {
+          grouperDeprovisioningAttributes.setDeprovision(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameDirectAssignment().getName())) {
+          grouperDeprovisioningAttributes.setDirectAssign(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameEmailAddresses().getName())) {
+          grouperDeprovisioningAttributes.setEmailAddresses(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameEmailBody().getName())) {
+          grouperDeprovisioningAttributes.setEmailBody(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameInheritedFromFolderId().getName())) {
+          grouperDeprovisioningAttributes.setOwnerStemId(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameMailToGroup().getName())) {
+          grouperDeprovisioningAttributes.setMailToGroup(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameSendEmail().getName())) {
+          grouperDeprovisioningAttributes.setSendEmail(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameShowForRemoval().getName())) {
+          grouperDeprovisioningAttributes.setShowForRemoval(configValue);
+        } else if (configName.equals(GrouperDeprovisioningAttributeNames.retrieveAttributeDefNameStemScope().getName())) {
+          grouperDeprovisioningAttributes.setStemScope(configValue);
+        }
+      }
+    }
+    
+    return results;
+  }
+  
+  
+  /**
    * this method retrieves all deprovisioning attributes assignments and values for all folders. 
    * Also it returns all folders underneath folders with deprovisioning assigned.
    * @return
