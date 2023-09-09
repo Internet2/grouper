@@ -375,6 +375,11 @@ public class GrouperBoxProvisionerTest extends GrouperProvisioningBaseTest {
       CommandLineExec commandLineExec = tomcatStart();
     }
     try {
+      
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_box_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_box_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_box_user").executeSql();
+      
       BoxProvisionerTestUtils.setupBoxExternalSystem();
       
       BoxProvisioningStartWith startWith = new BoxProvisioningStartWith();

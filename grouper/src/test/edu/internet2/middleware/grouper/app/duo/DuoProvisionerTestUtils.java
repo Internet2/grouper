@@ -28,8 +28,7 @@ public class DuoProvisionerTestUtils {
       new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.duo.mock.configId").value("duo1").store();
 
   }
-  
-  /**
+    /**
    * 
    * @param duoProvisioningTestConfigInput
    * @param suffix
@@ -72,7 +71,7 @@ public class DuoProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertMemberships", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "5");
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "3");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
@@ -92,6 +91,18 @@ public class DuoProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "loginId");
 
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "id");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "alias1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "name");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "alias2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "email");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "alias3");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", "description");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");

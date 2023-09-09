@@ -41,7 +41,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerDiagnosticsTest("testGroupAndMembershipWithoutEntitiesInsertAndDelete"));    
+    TestRunner.run(new LdapProvisionerDiagnosticsTest("testEntityAndMembershipInsertAndDelete"));    
   }
   
   public LdapProvisionerDiagnosticsTest() {

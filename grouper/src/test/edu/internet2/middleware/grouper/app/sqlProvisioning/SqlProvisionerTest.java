@@ -145,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
+    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameEntityIncrementalMatchOnOld"));
     
   }
   
@@ -441,6 +441,46 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       
       assertEquals(0, membershipsInTable.size());
     }
+  }
+  
+  public void testPennDentalDatabase() {
+    
+    
+    SqlProvisionerTestUtils.configureSqlProvisionerDentalDatabase(new SqlProvisionerTestConfigInput());
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    incrementalProvision();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+
+    //lets sync these over
+    incrementalProvision();
+    
+    assertEquals(1, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
+    
+    testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup1").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+    incrementalProvision();
+    
+    assertEquals(2, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+    assertEquals(4, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
   }
   
   public void testFullWithUnresolvableInsertAndDontRemove() {
@@ -1767,6 +1807,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "1024", false, false);
 
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
+          
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, "200", false, false);
         }
         
       });
@@ -1869,6 +1911,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "uuid", Types.VARCHAR, "40", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, "200", false, false);
         }
         
       });
@@ -1898,6 +1941,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
           Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "entity_uuid", Types.VARCHAR, "40", true, true);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, "200", false, false);
         }
         
       });
