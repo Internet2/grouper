@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProvider;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderQueryConfiguration;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderChangeLogQueryConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfiguration;
@@ -27,7 +28,9 @@ public class EntityDataFieldsContainer {
   private int dataProvidersNumberOfConfigs;
   
   private int dataProviderQueriesNumberOfConfigs;
-  
+
+  private int dataProviderChangeLogQueriesNumberOfConfigs;
+
   private List<GrouperDataField> grouperDataFields;
 
   private List<GrouperDataRow> grouperDataRows;
@@ -44,6 +47,8 @@ public class EntityDataFieldsContainer {
 
   private GuiDataProviderQueryConfiguration guiDataProviderQueryConfiguration;
 
+  private GuiDataProviderChangeLogQueryConfiguration guiDataProviderChangeLogQueryConfiguration;
+
   private GuiDataRowConfiguration guiDataRowConfiguration;
   
   private List<GuiPrivacyRealmConfiguration> guiPrivacyRealmConfigurations = new ArrayList<>();
@@ -51,6 +56,8 @@ public class EntityDataFieldsContainer {
   private List<GuiDataProviderConfiguration> guiDataProviderConfigurations = new ArrayList<>();
 
   private List<GuiDataProviderQueryConfiguration> guiDataProviderQueryConfigurations = new ArrayList<>();
+
+  private List<GuiDataProviderChangeLogQueryConfiguration> guiDataProviderChangeLogQueryConfigurations = new ArrayList<>();
   
   private List<GuiDataFieldConfiguration> guiDataFieldConfigurations = new ArrayList<>();
 
@@ -97,6 +104,32 @@ public class EntityDataFieldsContainer {
     this.guiDataProviderQueryConfigurations = guiDataProviderQueryConfigurations;
   }
 
+  public GuiDataProviderChangeLogQueryConfiguration getGuiDataProviderChangeLogQueryConfiguration() {
+    return guiDataProviderChangeLogQueryConfiguration;
+  }
+
+
+
+  
+  public void setGuiDataProviderChangeLogQueryConfiguration(
+      GuiDataProviderChangeLogQueryConfiguration guiDataProviderChangeLogQueryConfiguration) {
+    this.guiDataProviderChangeLogQueryConfiguration = guiDataProviderChangeLogQueryConfiguration;
+  }
+
+
+
+  
+  public List<GuiDataProviderChangeLogQueryConfiguration> getGuiDataProviderChangeLogQueryConfigurations() {
+    return guiDataProviderChangeLogQueryConfigurations;
+  }
+
+
+
+  
+  public void setGuiDataProviderChangeLogQueryConfigurations(
+      List<GuiDataProviderChangeLogQueryConfiguration> guiDataProviderChangeLogQueryConfigurations) {
+    this.guiDataProviderChangeLogQueryConfigurations = guiDataProviderChangeLogQueryConfigurations;
+  }
 
 
   public GuiDataProviderConfiguration getGuiDataProviderConfiguration() {
@@ -211,9 +244,18 @@ public class EntityDataFieldsContainer {
     return dataProviderQueriesNumberOfConfigs;
   }
   
+  public int getDataProviderChangeLogQueriesNumberOfConfigs() {
+    return dataProviderChangeLogQueriesNumberOfConfigs;
+  }
+  
   public void setDataProviderQueriesNumberOfConfigs(
       int dataProviderQueriesNumberOfConfigs) {
     this.dataProviderQueriesNumberOfConfigs = dataProviderQueriesNumberOfConfigs;
+  }
+  
+  public void setDataProviderChangeLogQueriesNumberOfConfigs(
+      int dataProviderChangeLogQueriesNumberOfConfigs) {
+    this.dataProviderChangeLogQueriesNumberOfConfigs = dataProviderChangeLogQueriesNumberOfConfigs;
   }
 
   public int getDataRowsNumberOfConfigs() {
@@ -286,6 +328,10 @@ public class EntityDataFieldsContainer {
 
   public List<GrouperDataProviderQueryConfiguration> getAllDataProviderQueryTypes() {
     return Arrays.asList(new GrouperDataProviderQueryConfiguration());
+  }
+  
+  public List<GrouperDataProviderChangeLogQueryConfiguration> getAllDataProviderChangeLogQueryTypes() {
+    return Arrays.asList(new GrouperDataProviderChangeLogQueryConfiguration());
   }
   
   public List<GrouperPrivacyRealmConfiguration> getAllPrivacyRealmTypes() {

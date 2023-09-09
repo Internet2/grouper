@@ -58,6 +58,16 @@ public class EntityDataFieldsService {
   
   /**
    * 
+   * @return number of data provider change log query configs
+   */
+  public static int retrieveDataProviderChangeLogQueriesNumberOfConfigs() {
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    Set<String> configIdsInConfig = GrouperUtil.nonNull(grouperConfig.propertyConfigIds(GrouperDataEngine.dataProviderChangeLogQueryPattern));
+    return configIdsInConfig.size();
+  }
+  
+  /**
+   * 
    * @return number of data provider queries configs
    */
   public static int retrievePrivacyRealmNumberOfConfigs() {

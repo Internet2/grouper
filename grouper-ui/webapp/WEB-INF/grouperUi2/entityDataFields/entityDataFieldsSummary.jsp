@@ -94,6 +94,17 @@
               </td>
 
              </tr>
+             <tr>
+              <td style="white-space: nowrap;">
+                <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries');" style="white-space: nowrap;"
+                      >${textContainer.text['entityDataFieldsSummaryTableDataProviderChangeLogQueries'] }</a>
+              </td>
+
+              <td style="white-space: nowrap;">
+                ${grouperRequestContainer.entityDataFieldsContainer.dataProviderChangeLogQueriesNumberOfConfigs}
+              </td>
+
+             </tr>
               
         </tbody>
       </table>

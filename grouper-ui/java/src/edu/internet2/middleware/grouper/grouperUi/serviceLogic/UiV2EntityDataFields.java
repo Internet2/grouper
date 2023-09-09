@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.dataField.EntityDataFieldsService;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfiguration;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderChangeLogQueryConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderQueryConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfiguration;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.EntityDataFieldsContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataFieldConfiguration;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataProviderChangeLogQueryConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataProviderConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataProviderQueryConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataRowConfiguration;
@@ -69,6 +71,9 @@ public class UiV2EntityDataFields {
       int dataProviderQueriesNumberOfConfigs = EntityDataFieldsService.retrieveDataProviderQueriesNumberOfConfigs();
       entityDataFieldsContainer.setDataProviderQueriesNumberOfConfigs(dataProviderQueriesNumberOfConfigs);
 
+      int dataProviderChangeLogQueriesNumberOfConfigs = EntityDataFieldsService.retrieveDataProviderChangeLogQueriesNumberOfConfigs();
+      entityDataFieldsContainer.setDataProviderChangeLogQueriesNumberOfConfigs(dataProviderChangeLogQueriesNumberOfConfigs);
+      
       int privacyRealmNumberOfConfigs = EntityDataFieldsService.retrievePrivacyRealmNumberOfConfigs();
       entityDataFieldsContainer.setPrivacyRealmNumberOfConfigs(privacyRealmNumberOfConfigs);
       
@@ -351,6 +356,65 @@ public class UiV2EntityDataFields {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/entityDataFields/editDataProviderQueryConfigDetails.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * show edit data provider change log query config screen
+   * @param request
+   * @param response
+   */
+  public void editDataProviderChangeLogQueryConfig(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      if (!entityDataFieldsContainer.isCanOperateOnEntityDataFieldConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String configId = request.getParameter("dataProviderChangeLogQueryConfigId");
+      
+      if (StringUtils.isBlank(configId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#dataProviderChangeLogQueryConfigId",
+            TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryCreateErrorConfigIdRequired")));
+        return;
+      }
+      
+      GrouperDataProviderChangeLogQueryConfiguration grouperDataProviderChangeLogQueryConfiguration = new GrouperDataProviderChangeLogQueryConfiguration();
+      
+      grouperDataProviderChangeLogQueryConfiguration.setConfigId(configId);
+      
+      String previousConfigId = request.getParameter("previousDataProviderChangeLogQueryConfigId");
+      
+      if (StringUtils.isBlank(previousConfigId)) {
+        // first time loading the screen. let's get values from config files/database
+        GuiDataProviderChangeLogQueryConfiguration guiDataProviderChangeLogQueryConfiguration = GuiDataProviderChangeLogQueryConfiguration.convertFromDataProviderChangeLogQueryConfiguration(grouperDataProviderChangeLogQueryConfiguration);
+        entityDataFieldsContainer.setGuiDataProviderChangeLogQueryConfiguration(guiDataProviderChangeLogQueryConfiguration);
+      } else {
+        // change was made on the form
+        grouperDataProviderChangeLogQueryConfiguration.populateConfigurationValuesFromUi(request);
+        
+        GuiDataProviderChangeLogQueryConfiguration guiDataProviderChangeLogQueryConfiguration = GuiDataProviderChangeLogQueryConfiguration.convertFromDataProviderChangeLogQueryConfiguration(grouperDataProviderChangeLogQueryConfiguration);
+        entityDataFieldsContainer.setGuiDataProviderChangeLogQueryConfiguration(guiDataProviderChangeLogQueryConfiguration);
+        
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/entityDataFields/editDataProviderChangeLogQueryConfigDetails.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -989,6 +1053,77 @@ public class UiV2EntityDataFields {
   }
   
   /**
+   * save edited data provider change log query config into db
+   * @param request
+   * @param response
+   */
+  public void editDataProviderChangeLogQueryConfigSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      if (!entityDataFieldsContainer.isCanOperateOnEntityDataFieldConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String configId = request.getParameter("dataProviderChangeLogQueryConfigId");
+      
+      if (StringUtils.isBlank(configId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#dataProviderChangeLogQueryConfigId",
+            TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryCreateErrorConfigIdRequired")));
+        return;
+      }
+      
+      GrouperDataProviderChangeLogQueryConfiguration dataProviderChangeLogQueryConfiguration = new GrouperDataProviderChangeLogQueryConfiguration();
+      
+      dataProviderChangeLogQueryConfiguration.setConfigId(configId);
+      dataProviderChangeLogQueryConfiguration.populateConfigurationValuesFromUi(request);
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      List<String> actionsPerformed = new ArrayList<String>();
+
+      dataProviderChangeLogQueryConfiguration.editConfig(true, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+        return;
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryConfigAddEditSuccess")));
+   
+      if (actionsPerformed.size() > 0) {
+        for (String actionPerformed: actionsPerformed) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, actionPerformed));
+        }
+      }      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
    * delete data field config
    * @param request
    * @param response
@@ -1117,6 +1252,51 @@ public class UiV2EntityDataFields {
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("dataProviderQueryConfigDeleteSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * delete data provider change log query config
+   * @param request
+   * @param response
+   */
+  public void deleteDataProviderChangeLogQueryConfig(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      if (!entityDataFieldsContainer.isCanOperateOnEntityDataFieldConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String configId = request.getParameter("dataProviderChangeLogQueryConfigId");
+      
+      if (StringUtils.isBlank(configId)) {
+        throw new RuntimeException("ConfigId cannot be blank");
+      }
+      
+      GrouperDataProviderChangeLogQueryConfiguration dataProviderChangeLogQueryConfiguration = new GrouperDataProviderChangeLogQueryConfiguration();
+      
+      dataProviderChangeLogQueryConfiguration.setConfigId(configId);
+      
+      dataProviderChangeLogQueryConfiguration.deleteConfig(true);
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryConfigDeleteSuccess")));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);
@@ -1532,6 +1712,62 @@ public class UiV2EntityDataFields {
     
   }
   
+
+  /**
+   * @param request
+   * @param response
+   */
+  public void addDataProviderChangeLogQueryConfig(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      if (!entityDataFieldsContainer.isCanOperateOnEntityDataFieldConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String configId = request.getParameter("dataProviderChangeLogQueryConfigId");
+      
+      String type = request.getParameter("dataProviderChangeLogQueryType");
+      
+      if (StringUtils.isNotBlank(type)) {
+        
+        Class<GrouperDataProviderChangeLogQueryConfiguration> klass = (Class<GrouperDataProviderChangeLogQueryConfiguration>) GrouperUtil.forName(type);
+        GrouperDataProviderChangeLogQueryConfiguration dataProviderChangeLogQueryConfiguration = (GrouperDataProviderChangeLogQueryConfiguration) GrouperUtil.newInstance(klass);
+        
+        if (StringUtils.isBlank(configId)) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+              "#dataProviderChangeLogQueryConfigId",
+              TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryCreateErrorConfigIdRequired")));
+          return;
+        }
+        
+        dataProviderChangeLogQueryConfiguration.setConfigId(configId);
+        dataProviderChangeLogQueryConfiguration.populateConfigurationValuesFromUi(request);
+        
+        GuiDataProviderChangeLogQueryConfiguration guiDataProviderChangeLogQueryConfig = GuiDataProviderChangeLogQueryConfiguration.convertFromDataProviderChangeLogQueryConfiguration(dataProviderChangeLogQueryConfiguration);
+        entityDataFieldsContainer.setGuiDataProviderChangeLogQueryConfiguration(guiDataProviderChangeLogQueryConfig);
+        
+      }
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/entityDataFields/dataProviderChangeLogQueryConfigAdd.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
   
   /**
    * insert a new config in db
@@ -1665,6 +1901,71 @@ public class UiV2EntityDataFields {
     }
   }
   
+  /**
+   * insert a new config in db
+   * @param request
+   * @param response
+   */
+  public void addDataProviderChangeLogQueryConfigSubmit(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      if (!entityDataFieldsContainer.isCanOperateOnEntityDataFieldConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      String configId = request.getParameter("dataProviderChangeLogQueryConfigId");
+      
+      if (StringUtils.isBlank(configId)) {
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, 
+            "#dataProviderChangeLogQueryConfigId",
+            TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryCreateErrorConfigIdRequired")));
+        return;
+      }
+      
+      GrouperDataProviderChangeLogQueryConfiguration dataProviderChangeLogQueryConfiguration = new GrouperDataProviderChangeLogQueryConfiguration();
+      
+      dataProviderChangeLogQueryConfiguration.setConfigId(configId);
+      dataProviderChangeLogQueryConfiguration.populateConfigurationValuesFromUi(request);
+      
+      StringBuilder message = new StringBuilder();
+      List<String> errorsToDisplay = new ArrayList<String>();
+      Map<String, String> validationErrorsToDisplay = new HashMap<String, String>();
+      
+      dataProviderChangeLogQueryConfiguration.insertConfig(true, message, errorsToDisplay, validationErrorsToDisplay, new ArrayList<String>());
+      
+      if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+
+        for (String errorToDisplay: errorsToDisplay) {
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, errorToDisplay));
+        }
+        for (String validationKey: validationErrorsToDisplay.keySet()) {
+          guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, validationKey, 
+              validationErrorsToDisplay.get(validationKey)));
+        }
+
+        return;
+
+      }
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries')"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          TextContainer.retrieveFromRequest().getText().get("dataProviderChangeLogQueryConfigAddEditSuccess")));
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
   
   /**
    * view data rows
@@ -1735,6 +2036,44 @@ public class UiV2EntityDataFields {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/entityDataFields/entityDataProviderQueries.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * view data provider change log queries
+   * @param request
+   * @param response
+   */
+  public void viewEntityDataProviderChangeLogQueries(final HttpServletRequest request, final HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+       
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      if (!entityDataFieldsContainer.isCanOperateOnEntityDataFieldConfigs()) {
+        throw new RuntimeException("Not allowed!!!!!");
+      }
+      
+      List<GrouperDataProviderChangeLogQueryConfiguration> dataProviderChangeLogQueryConfigurations = GrouperDataProviderChangeLogQueryConfiguration.retrieveAllDataProviderChangeLogQueryConfigurations();
+      
+      List<GuiDataProviderChangeLogQueryConfiguration> guiDataProviderChangeLogQueryConfigurations = GuiDataProviderChangeLogQueryConfiguration.convertFromDataProviderChangeLogQueryConfiguration(dataProviderChangeLogQueryConfigurations);
+      
+      entityDataFieldsContainer.setGuiDataProviderChangeLogQueryConfigurations(guiDataProviderChangeLogQueryConfigurations);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/entityDataFields/entityDataProviderChangeLogQueries.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

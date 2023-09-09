@@ -59,6 +59,11 @@ public class GrouperDataEngine {
   public static final Pattern dataProviderQueryPattern = Pattern.compile("^grouperDataProviderQuery\\.([^.]+)\\.providerConfigId$");
   
   /**
+   * data provider change log query
+   */
+  public static final Pattern dataProviderChangeLogQueryPattern = Pattern.compile("^grouperDataProviderChangeLogQuery\\.([^.]+)\\.providerConfigId$");
+  
+  /**
    * field configs by config id
    */
   private Map<String, GrouperDataFieldConfig> fieldConfigByConfigId = new HashMap<String, GrouperDataFieldConfig>();
