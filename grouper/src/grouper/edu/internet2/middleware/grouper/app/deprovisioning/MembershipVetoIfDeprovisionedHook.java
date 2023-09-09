@@ -61,7 +61,7 @@ public class MembershipVetoIfDeprovisionedHook extends MembershipHooks {
    * @param membership
    * @param hooksContext
    */
-  private static void checkMembershipEligibility(Membership membership, HooksContext hooksContext) {
+  protected static void checkMembershipEligibility(Membership membership, HooksContext hooksContext) {
     
     final String[] ownerArray = new String[1];
     boolean shouldAddSubject = (boolean)GrouperSession.internal_callbackRootGrouperSession(true, new GrouperSessionHandler() {
