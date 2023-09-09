@@ -72,7 +72,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testAddEntityFailsTranslationCheckIncremental"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testDeleteMembershipsInTrackedGroupsOnlyTrue"));
     //realAzureAddUsers();
   }
 
@@ -545,14 +545,22 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   }
   
   public void testDeleteEntityFromAzureAndThenRunProvisionerAgainFull() {
-    deleteEntityFromAzureAndThenRunProvisionerAgainHelper(true);
+    deleteEntityFromAzureAndThenRunProvisionerAgainHelper(true, false);
   }
   
   public void testDeleteEntityFromAzureAndThenRunProvisionerAgainIncremental() {
-    deleteEntityFromAzureAndThenRunProvisionerAgainHelper(false);
+    deleteEntityFromAzureAndThenRunProvisionerAgainHelper(false, false);
   }
   
-  public void deleteEntityFromAzureAndThenRunProvisionerAgainHelper(boolean isFull) {
+  public void testDeleteEntityFromAzureAndThenRunProvisionerAgainFullSelectAllGroups() {
+    deleteEntityFromAzureAndThenRunProvisionerAgainHelper(true, true);
+  }
+  
+  public void testDeleteEntityFromAzureAndThenRunProvisionerAgainIncrementalSelectAllGroups() {
+    deleteEntityFromAzureAndThenRunProvisionerAgainHelper(false, true);
+  }
+  
+  public void deleteEntityFromAzureAndThenRunProvisionerAgainHelper(boolean isFull, boolean selectAllGroups) {
     
     GrouperStartup.startup();
     
@@ -564,6 +572,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
           .assignRealAzure(false)
           .assignProvisioningStrategy("michiganAzure")
           .addExtraConfig("errorHandlingShow", "true")
+          .addExtraConfig("selectAllGroups", String.valueOf(selectAllGroups))
           .addExtraConfig("errorHandlingTargetObjectDoesNotExistIsAnError", "false")
         );
     
@@ -652,6 +661,29 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     Set<String> userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", grouperAzureGroups1.get(0).getId());
     assertEquals(1, GrouperUtil.length(userIds));
     assertTrue(userIds.contains(grouperAzureUsers.get(0).getId()));
+    
+    
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    }
+    GrouperUtil.sleep(10000);
+
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    
+    assertEquals(0, grouperProvisioningOutput.getInsert());
+    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+    assertEquals(1, grouperAzureGroups1.size());
+
+    grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
+    assertEquals(1, grouperAzureUsers.size());
+
+    userIds = GrouperAzureApiCommands.retrieveAzureGroupMembers("myAzure", grouperAzureGroups1.get(0).getId());
+    assertEquals(1, GrouperUtil.length(userIds));
+    assertTrue(userIds.contains(grouperAzureUsers.get(0).getId()));
+    
     
     GrouperAzureApiCommands.deleteAzureUsers("myAzure", grouperAzureUsers);
     

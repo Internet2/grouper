@@ -54,7 +54,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testDoNotDeleteFull"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullOnlyDnOverrideFlat"));    
   }
   
   @Override
@@ -4236,7 +4236,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertEquals(0, GrouperUtil.length(ldapEntries.get(0).getAttribute("description").getStringValues()));
     
   }
-
+  
   public void testInternet2memberOfFull() {
     internet2memberOf(true);
   }
