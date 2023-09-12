@@ -190,7 +190,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
           GrouperUtil.appendIfNotBlank(response, null, "\n", message, null);
           
           //ok, we either log or delete
-          boolean isUsdu = UsduSettings.usduStemName().equals(GrouperUtil.parentStemNameFromName(attributeDefWithCurrent.getName()));
+          boolean isUsdu = UsduSettings.usduStemName().equals(GrouperUtil.parentStemNameFromName(attributeDefWithCurrent.getName(), false));
           if (!logOnly || isUsdu) {
             
             try {
@@ -392,7 +392,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
             LOG.error("Cant log attributeAssign: " + attributeAssignCurrent, e);
           }
           
-          boolean isUsdu = UsduSettings.usduStemName().equals(GrouperUtil.parentStemNameFromName(attributeDefWithCurrent.getName()));
+          boolean isUsdu = UsduSettings.usduStemName().equals(GrouperUtil.parentStemNameFromName(attributeDefWithCurrent.getName(), false));
 
           //ok, we either log or delete
           if (!logOnly || isUsdu) {
