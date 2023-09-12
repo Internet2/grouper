@@ -914,13 +914,17 @@ public class GrouperHttpClient {
       if (this.urlParameters != null && this.urlParameters.size() > 0){
 
         String urlToUse = this.url;
-        if (!urlToUse.endsWith("?") && ! urlToUse.contains("?")){
-          urlToUse = urlToUse + "?";
+        if (urlToUse.endsWith("?")) {
+          urlToUse = urlToUse.substring(0, urlToUse.length()-1);
         }
+        
+        boolean addQuestion = !urlToUse.contains("?");
 
         // Add params.
+        boolean first = true;
         for (String key : this.urlParameters.keySet()){
-          urlToUse = urlToUse + "&" + URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(this.urlParameters.get(key), "UTF-8");
+          urlToUse = urlToUse + ((first && addQuestion) ? "?" : "&") + URLEncoder.encode(key, "UTF-8") + "=" + URLEncoder.encode(this.urlParameters.get(key), "UTF-8");
+          first = false;
         }
 
         // Set the URL to the URl with quary params.

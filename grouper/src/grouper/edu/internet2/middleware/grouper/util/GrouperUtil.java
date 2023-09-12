@@ -3009,6 +3009,7 @@ public class GrouperUtil {
    * the return value is a:b
    * @param name
    * @return the parent stem name or null if none
+   * @deprecated dont use this!  call the overload and specify if you want root stem or not
    */
   public static String parentStemNameFromName(String name) {
     return parentStemNameFromName(name, true);
