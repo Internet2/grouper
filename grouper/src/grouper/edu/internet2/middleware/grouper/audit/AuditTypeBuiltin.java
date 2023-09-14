@@ -237,19 +237,19 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * 
    */
   ATTRIBUTE_ASSIGN_VALUE_ADD(new AuditType("attributeAssignValue", "addAttributeAssignValue", null, 
-      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName")),
+      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName", "groupOrStemId")),
   
   /**
    * update attribute def
    */
   ATTRIBUTE_ASSIGN_VALUE_UPDATE(new AuditType("attributeAssignValue", "updateAttributeAssignValue", null, 
-      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName")),
+      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName", "groupOrStemId")),
 
   /**
    * delete attribute def
    */
   ATTRIBUTE_ASSIGN_VALUE_DELETE(new AuditType("attributeAssignValue", "deleteAttributeAssignValue", null, 
-      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName")),
+      "id", "attributeAssignId", "attributeDefNameId", "value", "attributeDefNameName", "groupOrStemId")),
 
 
       
@@ -365,19 +365,19 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
    * insert attribute assign
    */
   ATTRIBUTE_ASSIGN_ASSIGN_ADD(new AuditType("attributeAssignAssign", "addAttributeAssignAssign", null, 
-      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId", "groupOrStemId")),
   
   /**
    * update attribute assign
    */
   ATTRIBUTE_ASSIGN_ASSIGN_UPDATE(new AuditType("attributeAssignAssign", "updateAttributeAssignAssign", null, 
-      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId", "groupOrStemId")),
 
   /**
    * delete attribute assign
    */
   ATTRIBUTE_ASSIGN_ASSIGN_DELETE(new AuditType("attributeAssignAssign", "deleteAttributeAssignAssign", null, 
-      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId")),
+      "id", "ownerAttributeAssignId", "attributeDefNameName", "attributeDefNameId", "action", "attributeDefId", "groupOrStemId")),
 
   /**
    * externalSubject add

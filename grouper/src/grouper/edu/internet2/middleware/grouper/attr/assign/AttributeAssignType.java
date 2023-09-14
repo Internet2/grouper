@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.group.GroupMember;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 
 
 /**
@@ -658,6 +659,14 @@ public enum AttributeAssignType {
 
     auditEntry.assignStringValue(auditEntry.getAuditType(), 
         "ownerAttributeAssignId", owner.getId());
+    
+    String groupOrStemId = null;
+    if (StringUtils.isNotBlank(owner.getOwnerGroupId())) {
+      groupOrStemId = owner.getOwnerGroupId();
+    } else if (StringUtils.isNotBlank(owner.getOwnerStemId())) {
+      groupOrStemId = owner.getOwnerStemId();
+    }
+    auditEntry.assignStringValue(auditEntry.getAuditType(),  "groupOrStemId", groupOrStemId);
 
   }
   
@@ -672,6 +681,14 @@ public enum AttributeAssignType {
     auditEntry.assignStringValue(auditEntry.getAuditType(), 
         "ownerAttributeAssignId", owner.getId());
     
+    String groupOrStemId = null;
+    if (StringUtils.isNotBlank(owner.getOwnerGroupId())) {
+      groupOrStemId = owner.getOwnerGroupId();
+    } else if (StringUtils.isNotBlank(owner.getOwnerStemId())) {
+      groupOrStemId = owner.getOwnerStemId();
+    }
+    auditEntry.assignStringValue(auditEntry.getAuditType(),  "groupOrStemId", groupOrStemId);
+    
   }
   
   /**
@@ -684,6 +701,14 @@ public enum AttributeAssignType {
 
     auditEntry.assignStringValue(auditEntry.getAuditType(), 
         "ownerAttributeAssignId", owner.getId());
+    
+    String groupOrStemId = null;
+    if (StringUtils.isNotBlank(owner.getOwnerGroupId())) {
+      groupOrStemId = owner.getOwnerGroupId();
+    } else if (StringUtils.isNotBlank(owner.getOwnerStemId())) {
+      groupOrStemId = owner.getOwnerStemId();
+    }
+    auditEntry.assignStringValue(auditEntry.getAuditType(),  "groupOrStemId", groupOrStemId);
     
   }
   
