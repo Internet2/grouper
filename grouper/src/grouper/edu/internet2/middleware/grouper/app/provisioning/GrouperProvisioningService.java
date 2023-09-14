@@ -2094,7 +2094,7 @@ public class GrouperProvisioningService {
       String currObjectName = grouperProvisioningObjectAttribute.getName();
       while (true) {
         depth++;
-        currObjectName = GrouperUtil.parentStemNameFromName(currObjectName);
+        currObjectName = GrouperUtil.parentStemNameFromName(currObjectName, false);
         if (currObjectName == null) {
           break;
         }

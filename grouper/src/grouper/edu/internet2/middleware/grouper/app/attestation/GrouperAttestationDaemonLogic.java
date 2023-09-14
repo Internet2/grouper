@@ -408,7 +408,7 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
       String objectName = grouperAttestationObjectAttribute.getName();
       while (true) {
         
-        String parentStemName = GrouperUtil.parentStemNameFromName(objectName);
+        String parentStemName = GrouperUtil.parentStemNameFromName(objectName, false);
         
         if (parentStemName != null) {
           if (childToParent.containsKey(objectName)) {
@@ -1124,7 +1124,7 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
       
       String stemName = stemIdsToNamesAttributeChange.get(stemId);
       
-      String parentFolderName = GrouperUtil.parentStemNameFromName(stemName);
+      String parentFolderName = GrouperUtil.parentStemNameFromName(stemName, false);
       
       if (StringUtils.isNotBlank(parentFolderName)) {
         stemNamesToProcess.add(parentFolderName);
@@ -1136,7 +1136,7 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
       
       String groupName = groupIdToNamesAddAndAttributeChange.get(groupId);
       
-      String parentFolderName = GrouperUtil.parentStemNameFromName(groupName);
+      String parentFolderName = GrouperUtil.parentStemNameFromName(groupName, false);
       
       stemNamesToProcess.add(parentFolderName);
       

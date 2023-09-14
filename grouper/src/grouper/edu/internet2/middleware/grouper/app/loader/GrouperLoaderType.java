@@ -2144,7 +2144,7 @@ public enum GrouperLoaderType {
         continue;
       }
       
-      String folderDisplayName = GrouperUtil.parentStemNameFromName(groupDisplayName);
+      String folderDisplayName = GrouperUtil.parentStemNameFromName(groupDisplayName, false);
       
       if (folderNameToDisplayName.containsKey(folderName)) {
         

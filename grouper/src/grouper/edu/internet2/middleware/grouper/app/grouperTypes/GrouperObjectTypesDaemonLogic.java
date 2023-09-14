@@ -1124,7 +1124,7 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
       
       String groupName = groupIdToNamesAddAndAttributeChange.get(groupId);
       
-      String parentFolderName = GrouperUtil.parentStemNameFromName(groupName);
+      String parentFolderName = GrouperUtil.parentStemNameFromName(groupName, false);
       
       stemNamesToProcess.add(parentFolderName);
       
@@ -1644,7 +1644,7 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
       String objectName = grouperObjectTypesObjectAttribute.getName();
       while (true) {
         
-        String parentStemName = GrouperUtil.parentStemNameFromName(objectName);
+        String parentStemName = GrouperUtil.parentStemNameFromName(objectName, false);
         
         if (parentStemName != null) {
           if (childToParent.containsKey(objectName)) {
@@ -1666,7 +1666,7 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
       String objectName = grouperObjectTypesObjectAttribute.getName();
       while (true) {
         
-        String parentStemName = GrouperUtil.parentStemNameFromName(objectName);
+        String parentStemName = GrouperUtil.parentStemNameFromName(objectName, false);
         
         if (parentStemName != null) {
           if (childToParent.containsKey(objectName)) {
