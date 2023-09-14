@@ -398,7 +398,14 @@ public class GuiAuditEntry {
    * enum for this audit category and action
    */
   private AuditTypeBuiltin auditTypeBuiltin = null;
+
+  private String attributeValue;
   
+  
+  public String getAttributeValue() {
+    return attributeValue;
+  }
+
   /**
    * enum for this audit category and action
    * @return enum
@@ -718,18 +725,21 @@ public class GuiAuditEntry {
         case ATTRIBUTE_ASSIGN_VALUE_ADD:
           
           this.setupAttributeDefName();
+          this.setupAttributeValue();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_VALUE_ADD");
         
         case ATTRIBUTE_ASSIGN_VALUE_DELETE:
           
           this.setupAttributeDefName();
+          this.setupAttributeValue();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_VALUE_DELETE");
         
         case ATTRIBUTE_ASSIGN_VALUE_UPDATE:
           
           this.setupAttributeDefName();
+          this.setupAttributeValue();
           
           return TextContainer.retrieveFromRequest().getText().get("audits_ATTRIBUTE_ASSIGN_VALUE_UPDATE");
         
@@ -1247,6 +1257,18 @@ public class GuiAuditEntry {
       GuiAttributeDefName theGuiAttributeDefName = new GuiAttributeDefName(attributeDefName);
       this.setGuiAttributeDefName(theGuiAttributeDefName);
     }    
+  }
+  
+  /**
+   * setup a group from an audit
+   */
+  private void setupAttributeValue() {
+    AuditTypeBuiltin theAuditTypeBuiltin = this.getAuditTypeBuiltin();
+    if (theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD 
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE
+        || theAuditTypeBuiltin == AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE) {
+      this.attributeValue = GrouperUtil.xmlEscape(GrouperUtil.abbreviate(this.auditEntry.retrieveStringValue("value"), 100));
+    }
   }
 
   /**

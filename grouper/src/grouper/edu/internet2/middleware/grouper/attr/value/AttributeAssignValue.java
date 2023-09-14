@@ -601,15 +601,33 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
                   attribute, Attribute.class, VetoTypeGrouper.ATTRIBUTE_POST_UPDATE, true, false);
             }
             
+            
             if (!GrouperConfig.retrieveConfig().attributeDefIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getAttributeDefId()) && 
                 !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(attributeDefName.getId())) {
               if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                
+                String groupOrStemId = null;
+                if (StringUtils.isNotBlank(attributeAssign.getOwnerGroupId())) {
+                  groupOrStemId = attributeAssign.getOwnerGroupId();
+                } else if (StringUtils.isNotBlank(attributeAssign.getOwnerStemId())) {
+                  groupOrStemId = attributeAssign.getOwnerStemId();
+                } else if (StringUtils.isNotBlank(attributeAssign.getOwnerAttributeAssignId())) {
+                  AttributeAssign ownerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssign.getOwnerAttributeAssignId(), false);
+                  if (ownerAttributeAssign != null) {
+                    if (StringUtils.isNotBlank(ownerAttributeAssign.getOwnerGroupId())) {
+                      groupOrStemId = ownerAttributeAssign.getOwnerGroupId();
+                    } else if (StringUtils.isNotBlank(ownerAttributeAssign.getOwnerStemId())) {
+                      groupOrStemId = ownerAttributeAssign.getOwnerStemId();
+                    }
+                  }
+                }
+                
                 AuditEntry auditEntry = new AuditEntry(
                     isInsert ? AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD : AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, 
                         "id", 
                     AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
                     "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
-                    "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+                    "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName(), "groupOrStemId", groupOrStemId);
     
                 if (isInsert) {
                   
@@ -951,13 +969,30 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
                     !GrouperConfig.retrieveConfig().attributeDefNameIdsToIgnoreChangeLogAndAudit().contains(
                         AttributeAssignValue.this.getAttributeAssign().getAttributeDefName().getId())) {
                   if (!hibernateHandlerBean.isCallerWillCreateAudit()) {
+                    
+                    String groupOrStemId = null;
+                    if (StringUtils.isNotBlank(attributeAssign.getOwnerGroupId())) {
+                      groupOrStemId = attributeAssign.getOwnerGroupId();
+                    } else if (StringUtils.isNotBlank(attributeAssign.getOwnerStemId())) {
+                      groupOrStemId = attributeAssign.getOwnerStemId();
+                    } else if (StringUtils.isNotBlank(attributeAssign.getOwnerAttributeAssignId())) {
+                      AttributeAssign ownerAttributeAssign = GrouperDAOFactory.getFactory().getAttributeAssign().findById(attributeAssign.getOwnerAttributeAssignId(), false);
+                      if (ownerAttributeAssign != null) {
+                        if (StringUtils.isNotBlank(ownerAttributeAssign.getOwnerGroupId())) {
+                          groupOrStemId = ownerAttributeAssign.getOwnerGroupId();
+                        } else if (StringUtils.isNotBlank(ownerAttributeAssign.getOwnerStemId())) {
+                          groupOrStemId = ownerAttributeAssign.getOwnerStemId();
+                        }
+                      }
+                    }
+                    
                     AttributeAssign attributeAssign = AttributeAssignValue.this.getAttributeAssign();
                     AttributeDefName attributeDefName = attributeAssign.getAttributeDefName();
                     AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, 
                             "id", 
                         AttributeAssignValue.this.getId(), "attributeAssignId", AttributeAssignValue.this.getAttributeAssignId(), 
                         "attributeDefNameId", attributeAssign.getAttributeDefNameId(), 
-                        "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName());
+                        "value", AttributeAssignValue.this.valueString(), "attributeDefNameName", attributeDefName.getName(), "groupOrStemId", groupOrStemId);
                     auditEntry.setDescription("Deleted attributeAssignValue: " + AttributeAssignValue.this.getId());
                     auditEntry.saveOrUpdate(true);
                   }

@@ -127,6 +127,12 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_ADD, "ownerOwnerId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_DELETE, "ownerOwnerId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_IMMMSHIP_UPDATE, "ownerOwnerId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ASSIGN_ADD, "groupOrStemId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ASSIGN_DELETE, "groupOrStemId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_ASSIGN_UPDATE, "groupOrStemId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_ADD, "groupOrStemId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_DELETE, "groupOrStemId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.ATTRIBUTE_ASSIGN_VALUE_UPDATE, "groupOrStemId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTRIBUTE_ADD, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTRIBUTE_DELETE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.GROUP_ATTRIBUTE_UPDATE, "groupId");
