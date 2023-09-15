@@ -185,21 +185,30 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
         }
         
         String parentStemId = null;
+        boolean proceedWithPITStemCreation = true;
         
         if (stem.getParentUuid() != null) {
-          parentStemId = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getParentUuid(), true, true).getId();
+          PITStem pitStemParent = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getParentUuid(), true, false);
+          
+          if (pitStemParent != null) {
+            parentStemId = pitStemParent.getId();
+          } else {
+            proceedWithPITStemCreation = false;
+          }
         }
         
-        pitStem = new PITStem();
-        pitStem.setId(GrouperUuid.getUuid());
-        pitStem.setSourceId(id);
-        pitStem.setNameDb(stem.getName());
-        pitStem.setParentStemId(parentStemId);
-        pitStem.setContextId(contextId);
-        pitStem.setActiveDb("T");
-        pitStem.setStartTimeDb(System.currentTimeMillis() * 1000);
-        
-        pitStem.saveOrUpdate();
+        if (proceedWithPITStemCreation) {
+          pitStem = new PITStem();
+          pitStem.setId(GrouperUuid.getUuid());
+          pitStem.setSourceId(id);
+          pitStem.setNameDb(stem.getName());
+          pitStem.setParentStemId(parentStemId);
+          pitStem.setContextId(contextId);
+          pitStem.setActiveDb("T");
+          pitStem.setStartTimeDb(System.currentTimeMillis() * 1000);
+          
+          pitStem.saveOrUpdate();
+        }
       }
     }
     
