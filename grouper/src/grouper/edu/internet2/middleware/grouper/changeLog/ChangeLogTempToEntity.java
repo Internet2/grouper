@@ -74,6 +74,8 @@ public class ChangeLogTempToEntity {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ChangeLogTempToEntity.class);
+  
+  private static ChangeLogEntry lastTempChangeLogProcessingIfIndividual = null;
       
   /**
    * convert the temps to regulars, assign id's
@@ -97,11 +99,27 @@ public class ChangeLogTempToEntity {
     
     int totalCount = 0;
     while (true) {
-      int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog, changeLogTempToChangeLogQuerySize);
-      totalCount += currentCount;
-      
-      if (currentCount != changeLogTempToChangeLogQuerySize) {
-        break;
+      try {
+        lastTempChangeLogProcessingIfIndividual = null;
+        int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog, changeLogTempToChangeLogQuerySize);
+        totalCount += currentCount;
+        
+        if (currentCount != changeLogTempToChangeLogQuerySize) {
+          break;
+        }
+      } catch (Exception e) {
+        if (changeLogTempToChangeLogQuerySize > 1) {
+          LOG.warn("Error while processing temp change log, trying individually now", e);
+          changeLogTempToChangeLogQuerySize = 1;
+        } else {
+          if (lastTempChangeLogProcessingIfIndividual == null) {
+            LOG.error("Error processing temp change log with query size = 1", e);
+          } else {
+            LOG.error("Error processing the following individual temp change log entry with id=" + lastTempChangeLogProcessingIfIndividual.getId(), e);
+          }
+          
+          throw e;
+        }
       }
     }
     
@@ -121,6 +139,10 @@ public class ChangeLogTempToEntity {
       .options(new QueryOptions().paging(changeLogTempToChangeLogQuerySize, 1, false)).list(ChangeLogEntry.class);
     
     int tempChangeLogEntryListOrigSize = tempChangeLogEntryList.size();
+    
+    if (changeLogTempToChangeLogQuerySize == 1 && tempChangeLogEntryListOrigSize == 1) {
+      lastTempChangeLogProcessingIfIndividual = tempChangeLogEntryList.get(0);
+    }
         
     int totalCountActuallyProcessed = 0;
     while (true) {
@@ -2176,7 +2198,7 @@ public class ChangeLogTempToEntity {
   private static void processGroupSetAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
-    
+
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.depth.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.fieldId.name());
