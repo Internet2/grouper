@@ -312,7 +312,7 @@ public class GrouperScim2ApiCommands {
         } else if ("familyName".equals(fieldToUpdate)) {
           fieldToUpdate = "name.familyName";
         } else if ("formattedName".equals(fieldToUpdate)) {
-          fieldToUpdate = "name.formattedName";
+          fieldToUpdate = "name.formatted";
         } else if ("middleName".equals(fieldToUpdate)) {
           fieldToUpdate = "name.middleName";
         } else if ("givenName".equals(fieldToUpdate)) {
