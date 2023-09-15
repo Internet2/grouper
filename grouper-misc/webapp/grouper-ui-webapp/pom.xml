@@ -41,11 +41,13 @@
     </dependencies>
 
     <build>
+        <!--
         <resources>
             <resource>
                 <directory>../../../grouper/conf</directory>
             </resource>
         </resources>
+        -->
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
