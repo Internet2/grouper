@@ -492,7 +492,22 @@ public class GrouperProvisioningConfigurationAttribute {
    * Check for nulls for jexl translation
    */
   private boolean checkForNullsInScript;
+
+  /**
+   * don't send the group to target if this value is null
+   */
+  private boolean unprovisionableIfNull;
   
+  
+  public boolean isUnprovisionableIfNull() {
+    return unprovisionableIfNull;
+  }
+
+  
+  public void setUnprovisionableIfNull(boolean unprovisionableIfNull) {
+    this.unprovisionableIfNull = unprovisionableIfNull;
+  }
+
   /**
    * condition that must be evaluated to true in order to continue translation e.g. ${grouperProvisioningEntity.subjectIdentifier2 != null}
    */
