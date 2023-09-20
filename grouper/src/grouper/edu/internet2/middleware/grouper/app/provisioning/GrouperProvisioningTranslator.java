@@ -55,7 +55,9 @@ public class GrouperProvisioningTranslator {
 
     Collection<Object> changedMemberships = new HashSet<Object>();
 
-    int invalidMembershipsDuringTranslation = 0;
+    int invalidMembershipsDuringTranslation = 0; //TODO: looks like we're never updating this value
+    int membershipsRemovedDueToGroupRemoved = 0;
+    int membershipsRemovedDueToEntityRemoved = 0;
     
     // clear out the membership attribute, it might have a default value in there
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
@@ -80,13 +82,29 @@ public class GrouperProvisioningTranslator {
 
     List<String> scripts = GrouperUtil.nonNull(GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningToTargetTranslation()).get("Membership"));
 
-    for (ProvisioningMembership grouperProvisioningMembership: GrouperUtil.nonNull(grouperProvisioningMemberships)) {
+    Iterator<ProvisioningMembership> iterator = GrouperUtil.nonNull(grouperProvisioningMemberships).iterator();
+    
+    while (iterator.hasNext()) {
+      
+      ProvisioningMembership grouperProvisioningMembership = iterator.next();
 
       ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperProvisioningMembership.getProvisioningMembershipWrapper();
       
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
 
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+      ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
+      
+      if (provisioningGroupWrapper.getProvisioningStateGroup().isGroupRemovedDueToAttribute()) {
+        membershipsRemovedDueToGroupRemoved++;
+        continue;
+      }
+      
+      if (provisioningEntityWrapper.getProvisioningStateEntity().isEntityRemovedDueToAttribute()) {
+        membershipsRemovedDueToEntityRemoved++;
+        continue;
+      }
+      
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
       
       GcGrouperSyncErrorCode errorCode = provisioningGroupWrapper.getErrorCode();
@@ -95,7 +113,6 @@ public class GrouperProvisioningTranslator {
         errorCode = GcGrouperSyncErrorCode.ERR;
       }
           
-      ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
       ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
       
       if (errorCode == null) {
@@ -348,7 +365,13 @@ public class GrouperProvisioningTranslator {
     if (GrouperUtil.length(grouperTargetMembershipsTranslated) > 0) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.translateGrouperMembershipsToTarget, grouperTargetMembershipsTranslated);
     }
-
+    
+    if (membershipsRemovedDueToGroupRemoved > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipsRemovedDueToGroupRemoved", membershipsRemovedDueToGroupRemoved);
+    }
+    if (membershipsRemovedDueToEntityRemoved > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipsRemovedDueToEntityRemoved", membershipsRemovedDueToEntityRemoved);
+    }
 
     return grouperTargetMemberships;
   }

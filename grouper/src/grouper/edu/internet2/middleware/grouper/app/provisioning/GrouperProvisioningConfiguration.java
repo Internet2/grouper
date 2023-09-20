@@ -2298,9 +2298,21 @@ public abstract class GrouperProvisioningConfiguration {
 
   private boolean groupAttributesRecalcMembershipsOnIncremental;
 
-  private boolean groupAttributesSelectAllSqlOnFull;  
+  private boolean groupAttributesSelectAllSqlOnFull;
+
+  private int sleepBeforeSelectAfterInsertMillis;  
   
   
+  public int getSleepBeforeSelectAfterInsertMillis() {
+    return sleepBeforeSelectAfterInsertMillis;
+  }
+
+  
+  public void setSleepBeforeSelectAfterInsertMillis(
+      int sleepBeforeSelectAfterInsertMillis) {
+    this.sleepBeforeSelectAfterInsertMillis = sleepBeforeSelectAfterInsertMillis;
+  }
+
   /**
    * number of metadata
    * @return
@@ -2357,6 +2369,8 @@ public abstract class GrouperProvisioningConfiguration {
       
     }
 
+    this.sleepBeforeSelectAfterInsertMillis = GrouperUtil.intValue(this.retrieveConfigInt("sleepBeforeSelectAfterInsertMillis", false), 0);
+    
     this.numberOfMetadata = GrouperUtil.intValue(this.retrieveConfigInt("numberOfMetadata", false), 0);
     
     for (int i=0;i<this.numberOfMetadata;i++) {
@@ -2561,6 +2575,11 @@ public abstract class GrouperProvisioningConfiguration {
         {
           boolean nullChecksInScript = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".nullChecksInScript" , false), false);
           attributeConfig.setCheckForNullsInScript(nullChecksInScript);
+        }
+        
+        {
+          boolean unprovisionableIfNull = GrouperUtil.booleanValue(this.retrieveConfigBoolean(objectType + "."+i+".unprovisionableIfNull" , false), false);
+          attributeConfig.setUnprovisionableIfNull(unprovisionableIfNull);
         }
         
         {
@@ -3702,7 +3721,7 @@ public abstract class GrouperProvisioningConfiguration {
   }
   
   public int getDaoSleepBeforeSelectAfterInsertMillis() {
-    return 0;
+    return sleepBeforeSelectAfterInsertMillis;
   }
 
   /**

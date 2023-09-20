@@ -375,11 +375,7 @@ public class AzureProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAttributeCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "mailNickname");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
-      if (provisioningTestConfigInput.getGroupAttributeCount() == 5) {
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "extension");
-      } else {
-        configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "extension");
-      }
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "extension");
       if (!provisioningTestConfigInput.isUdelUseCase()) {
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.select", "true");
         configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.insert", "true");

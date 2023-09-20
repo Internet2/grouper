@@ -223,4 +223,15 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
     this.selectSomeMembershipsResultProcessed = selectSomeMembershipsResultProcessed;
   }
   
+  private boolean entityRemovedDueToAttribute;
+  
+  public boolean isEntityRemovedDueToAttribute() {
+    return entityRemovedDueToAttribute;
+  }
+  
+  public void setEntityRemovedDueToAttribute(boolean entityRemovedDueToAttribute) {
+    this.entityRemovedDueToAttribute = entityRemovedDueToAttribute;
+  }
+  
+  
 }
