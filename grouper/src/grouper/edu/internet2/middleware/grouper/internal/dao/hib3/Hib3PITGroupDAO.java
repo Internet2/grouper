@@ -126,18 +126,20 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
           contextId = group.getContextId();
         }
         
-        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(group.getParentUuid(), true, true);
+        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(group.getParentUuid(), true, false);
         
-        pitGroup = new PITGroup();
-        pitGroup.setId(GrouperUuid.getUuid());
-        pitGroup.setSourceId(id);
-        pitGroup.setNameDb(group.getName());  
-        pitGroup.setStemId(pitStem.getId());        
-        pitGroup.setContextId(contextId);
-        pitGroup.setActiveDb("T");
-        pitGroup.setStartTimeDb(System.currentTimeMillis() * 1000);
-        
-        pitGroup.saveOrUpdate();
+        if (pitStem != null) {
+          pitGroup = new PITGroup();
+          pitGroup.setId(GrouperUuid.getUuid());
+          pitGroup.setSourceId(id);
+          pitGroup.setNameDb(group.getName());  
+          pitGroup.setStemId(pitStem.getId());        
+          pitGroup.setContextId(contextId);
+          pitGroup.setActiveDb("T");
+          pitGroup.setStartTimeDb(System.currentTimeMillis() * 1000);
+          
+          pitGroup.saveOrUpdate();
+        }
       }
     }
     

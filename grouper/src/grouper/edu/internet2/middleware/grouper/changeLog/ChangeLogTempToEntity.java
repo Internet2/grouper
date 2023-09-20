@@ -70,8 +70,8 @@ public class ChangeLogTempToEntity {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(ChangeLogTempToEntity.class);
   
-  private static final int TEMP_CHANGE_LOG_PAGE_SIZE = 1000;
-    
+  private static ChangeLogEntry lastTempChangeLogProcessingIfIndividual = null;
+      
   /**
    * convert the temps to regulars, assign id's
    * hib3GrouperLoaderLog is the log object to post updates, can be null
@@ -87,20 +87,41 @@ public class ChangeLogTempToEntity {
    * @return the number of records converted
    */
   public static int convertRecords(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    int changeLogTempToChangeLogQuerySize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.changeLogTempToChangeLogQuerySize");
+    if (changeLogTempToChangeLogQuerySize <= 0) {
+      changeLogTempToChangeLogQuerySize = 1;
+    }
+    
     int totalCount = 0;
     while (true) {
-      int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog);
-      totalCount += currentCount;
-      
-      if (currentCount != TEMP_CHANGE_LOG_PAGE_SIZE) {
-        break;
+      try {
+        lastTempChangeLogProcessingIfIndividual = null;
+        int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog, changeLogTempToChangeLogQuerySize);
+        totalCount += currentCount;
+        
+        if (currentCount != changeLogTempToChangeLogQuerySize) {
+          break;
+        }
+      } catch (Exception e) {
+        if (changeLogTempToChangeLogQuerySize > 1) {
+          LOG.warn("Error while processing temp change log, trying individually now", e);
+          changeLogTempToChangeLogQuerySize = 1;
+        } else {
+          if (lastTempChangeLogProcessingIfIndividual == null) {
+            LOG.error("Error processing temp change log with query size = 1", e);
+          } else {
+            LOG.error("Error processing the following individual temp change log entry with id=" + lastTempChangeLogProcessingIfIndividual.getId(), e);
+          }
+          
+          throw e;
+        }
       }
     }
     
     return totalCount;
   }
   
-  private static int convertRecordsOnePage(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  private static int convertRecordsOnePage(Hib3GrouperLoaderLog hib3GrouperLoaderLog, int changeLogTempToChangeLogQuerySize) {
     
     final boolean includeNonFlattenedMemberships = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedMemberships", false);
     final boolean includeNonFlattenedPrivileges = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.includeNonFlattenedPrivileges", false);
@@ -110,9 +131,13 @@ public class ChangeLogTempToEntity {
         
     //first select the temp records
     final List<ChangeLogEntry> tempChangeLogEntryList = HibernateSession.byHqlStatic().createQuery("from ChangeLogEntryTemp order by createdOnDb")
-      .options(new QueryOptions().paging(TEMP_CHANGE_LOG_PAGE_SIZE, 1, false)).list(ChangeLogEntry.class);
+      .options(new QueryOptions().paging(changeLogTempToChangeLogQuerySize, 1, false)).list(ChangeLogEntry.class);
     
     int tempChangeLogEntryListOrigSize = tempChangeLogEntryList.size();
+    
+    if (changeLogTempToChangeLogQuerySize == 1 && tempChangeLogEntryListOrigSize == 1) {
+      lastTempChangeLogProcessingIfIndividual = tempChangeLogEntryList.get(0);
+    }
         
     int totalCountActuallyProcessed = 0;
     while (true) {
@@ -288,23 +313,28 @@ public class ChangeLogTempToEntity {
               // up to 1000 bind vars seem to be ok for oracle, mysql, and postgres
               if (tempChangeLogEntryListProcessed.size() > 0) {
                 //delete from the temp
-                List<Object> idsToDelete = new ArrayList<Object>();
-                List<Type> types = new ArrayList<Type>();
-                StringBuilder queryInClause = new StringBuilder();
-                for (int i = 0; i < tempChangeLogEntryListProcessed.size(); i++) {
-                  ChangeLogEntry changeLogEntry = tempChangeLogEntryListProcessed.get(i);
-                  idsToDelete.add(changeLogEntry.getId());
-                  types.add(StringType.INSTANCE);
-                  queryInClause.append("?");
-    
-                  if (i < tempChangeLogEntryListProcessed.size() - 1) {
-                    queryInClause.append(", ");
+                int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(tempChangeLogEntryListProcessed), 1000);
+                for (int j = 0; j < numberOfBatches; j++) {
+                  List<ChangeLogEntry> currentBatch = GrouperUtil.batchList(tempChangeLogEntryListProcessed, 1000, j);
+                  
+                  List<Object> idsToDelete = new ArrayList<Object>();
+                  List<Type> types = new ArrayList<Type>();
+                  StringBuilder queryInClause = new StringBuilder();
+                  for (int i = 0; i < currentBatch.size(); i++) {
+                    ChangeLogEntry changeLogEntry = currentBatch.get(i);
+                    idsToDelete.add(changeLogEntry.getId());
+                    types.add(StringType.INSTANCE);
+                    queryInClause.append("?");
+      
+                    if (i < currentBatch.size() - 1) {
+                      queryInClause.append(", ");
+                    }
                   }
-                }
-    
-                int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id in (" + queryInClause.toString() + ")", idsToDelete, types);
-                if (count != tempChangeLogEntryListProcessed.size()) {
-                  throw new RuntimeException("Bad count of " + count + " when deleting temp change log entries, expected " + tempChangeLogEntryListProcessed.size() + ".");
+      
+                  int count = HibernateSession.bySqlStatic().executeSql("delete from grouper_change_log_entry_temp where id in (" + queryInClause.toString() + ")", idsToDelete, types);
+                  if (count != currentBatch.size()) {
+                    throw new RuntimeException("Bad count of " + count + " when deleting temp change log entries, expected " + tempChangeLogEntryListProcessed.size() + ".");
+                  }
                 }  
               }
           
@@ -353,7 +383,11 @@ public class ChangeLogTempToEntity {
       return;
     }
 
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.parentStemId), true, true);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.parentStemId), true, false);
+    if (pitStem == null) {
+      LOG.warn("Skipping change since stem couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITGroup pitGroup = new PITGroup();
     pitGroup.setId(GrouperUuid.getUuid());
@@ -393,7 +427,11 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_UPDATE.parentStemId.name());
 
-      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.parentStemId), true, true);
+      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.parentStemId), true, false);
+      if (pitParentStem == null) {
+        LOG.warn("Skipping change since stem couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_UPDATE.id), false);
       if (pitGroup == null) {
@@ -471,7 +509,12 @@ public class ChangeLogTempToEntity {
     }
     
     if (parentStemId != null) {
-      parentStemId = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(parentStemId, true, true).getId();
+      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(parentStemId, true, false);
+      if (pitParentStem == null) {
+        LOG.warn("Skipping change since parent stem couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
+      parentStemId = pitParentStem.getId();
     }
     
     pitStem.setId(GrouperUuid.getUuid());
@@ -511,7 +554,12 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.STEM_UPDATE.parentStemId.name());
       
-      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.parentStemId), true, true);
+      PITStem pitParentStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.parentStemId), true, false);
+      if (pitParentStem == null) {
+        LOG.warn("Skipping change since parent stem couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
+      
       PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(
           changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_UPDATE.id), false);
       if (pitStem == null) {
@@ -571,7 +619,11 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId), true, true);
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId), true, false);
+    if (pitStem == null) {
+      LOG.warn("Skipping change since stem couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     PITAttributeDef pitAttributeDef = new PITAttributeDef();
     pitAttributeDef.setId(GrouperUuid.getUuid());
     pitAttributeDef.setSourceId(id);
@@ -600,7 +652,11 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name.name());
 
       PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id), false);
+      if (pitAttributeDef == null) {
+        LOG.warn("Skipping change since attr def couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeDef.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.name));
       pitAttributeDef.setContextId(contextId);
       pitAttributeDef.saveOrUpdate();
@@ -608,9 +664,17 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id.name());
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId.name());
 
-      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId), true, true);
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.stemId), true, false);
+      if (pitStem == null) {
+        LOG.warn("Skipping change since stem couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_UPDATE.id), false);
+      if (pitAttributeDef == null) {
+        LOG.warn("Skipping change since attr def couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeDef.setStemId(pitStem.getId());
       pitAttributeDef.setContextId(contextId);
       pitAttributeDef.saveOrUpdate();
@@ -983,7 +1047,11 @@ public class ChangeLogTempToEntity {
       PITGroup pitGroup = pitGroupsMap.get(groupId);
       if (pitGroup == null) {
         // out of order in change log?
-        pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true, true);
+        pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(groupId, true, false);
+        if (pitGroup == null) {
+          LOG.warn("Skipping change since group couldn't be found: " + changeLogEntry.toStringDeep());
+          continue;
+        }
       }
       
       PITField pitField = pitFieldsMap.get(fieldId);
@@ -994,7 +1062,11 @@ public class ChangeLogTempToEntity {
       PITMember pitMember = pitMembersMap.get(memberId);
       if (pitMember == null) {
         // out of order in change log?
-        pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, true);
+        pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, false);
+        if (pitMember == null) {
+          LOG.warn("Skipping change since member couldn't be found: " + changeLogEntry.toStringDeep());
+          continue;
+        }
       }
             
       PITMembership pitMembership = new PITMembership();
@@ -1139,7 +1211,11 @@ public class ChangeLogTempToEntity {
     }
     
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(fieldId, true);
-    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, true);
+    PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(memberId, true, false);
+    if (pitMember == null) {
+      LOG.warn("Skipping change since member couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITMembership pitMembership = new PITMembership();
     pitMembership.setId(GrouperUuid.getUuid());
@@ -1150,13 +1226,25 @@ public class ChangeLogTempToEntity {
     pitMembership.setStartTimeDb(time);
     
     if (ownerType.equals(Membership.OWNER_TYPE_GROUP)) {
-      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId, true, true);
+      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId, true, false);
+      if (pitOwner == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitMembership.setOwnerGroupId(pitOwner.getId());
     } else if (ownerType.equals(Membership.OWNER_TYPE_STEM)) {
-      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId, true, true);
+      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId, true, false);
+      if (pitOwner == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitMembership.setOwnerStemId(pitOwner.getId());
     } else if (ownerType.equals(Membership.OWNER_TYPE_ATTRIBUTE_DEF)) {
-      PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId, true);
+      PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId, false);
+      if (pitOwner == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitMembership.setOwnerAttrDefId(pitOwner.getId());
     } else {
       throw new RuntimeException("unexpected ownerType: " + ownerType);
@@ -1253,8 +1341,16 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefNameId, true);
-    PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionId, true);
+    PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(attributeDefNameId, false);
+    if (pitAttributeDefName == null) {
+      LOG.warn("Skipping change since attr def name couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(actionId, false);
+    if (pitAttributeAssignAction == null) {
+      LOG.warn("Skipping change since action couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITAttributeAssign pitAttributeAssign = new PITAttributeAssign();
     pitAttributeAssign.setId(GrouperUuid.getUuid());
@@ -1268,20 +1364,44 @@ public class ChangeLogTempToEntity {
     pitAttributeAssign.setDisallowedDb(disallowedDb);
     
     if (AttributeAssignType.group.name().equals(assignType)) {
-      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true, true);
+      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true, false);
+      if (pitOwner1 == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
     } else if (AttributeAssignType.stem.name().equals(assignType)) {
-      PITStem pitOwner1 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId1, true, true);
+      PITStem pitOwner1 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerId1, true, false);
+      if (pitOwner1 == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeAssign.setOwnerStemId(pitOwner1.getId());
     } else if (AttributeAssignType.member.name().equals(assignType)) {
-      PITMember pitOwner1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId1, true, true);
+      PITMember pitOwner1 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId1, true, false);
+      if (pitOwner1 == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeAssign.setOwnerMemberId(pitOwner1.getId());
     } else if (AttributeAssignType.attr_def.name().equals(assignType)) {
-      PITAttributeDef pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId1, true);
+      PITAttributeDef pitOwner1 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerId1, false);
+      if (pitOwner1 == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeAssign.setOwnerAttributeDefId(pitOwner1.getId());
     } else if (AttributeAssignType.any_mem.name().equals(assignType)) {
-      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true, true);
-      PITMember pitOwner2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId2, true, true);
+      PITGroup pitOwner1 = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerId1, true, false);
+      if (pitOwner1 == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
+      PITMember pitOwner2 = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(ownerId2, true, false);
+      if (pitOwner2 == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeAssign.setOwnerGroupId(pitOwner1.getId());
       pitAttributeAssign.setOwnerMemberId(pitOwner2.getId());
     } else if (AttributeAssignType.imm_mem.name().equals(assignType)) {
@@ -1300,7 +1420,12 @@ public class ChangeLogTempToEntity {
           pitOwner1 = new PITMembership();
           pitOwner1.setId(GrouperUuid.getUuid());
           pitOwner1.setSourceId(owner1.getImmediateMembershipId());
-          pitOwner1.setMemberId(GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(owner1.getMemberUuid(), true, true).getId());
+          PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findBySourceIdActive(owner1.getMemberUuid(), true, false);
+          if (pitMember == null) {
+            LOG.warn("Skipping change since member couldn't be found: " + changeLogEntry.toStringDeep());
+            return;
+          }
+          pitOwner1.setMemberId(pitMember.getId());
           pitOwner1.setFieldId(GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(owner1.getFieldId(), true).getId());
           pitOwner1.setActiveDb("T");
           pitOwner1.setStartTimeDb(owner1.getCreateTimeLong() * 1000L);
@@ -1309,13 +1434,25 @@ public class ChangeLogTempToEntity {
             pitOwner1.setEndTimeDb(owner1.getCreateTimeLong() * 1000L);
           }
           if (owner1.getOwnerGroupId() != null) {
-            PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(owner1.getOwnerGroupId(), true, true);
+            PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(owner1.getOwnerGroupId(), true, false);
+            if (pitOwner == null) {
+              LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+              return;
+            }
             pitOwner1.setOwnerGroupId(pitOwner.getId());
           } else if (owner1.getOwnerStemId() != null) {
-            PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(owner1.getOwnerStemId(), true, true);
+            PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(owner1.getOwnerStemId(), true, false);
+            if (pitOwner == null) {
+              LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+              return;
+            }
             pitOwner1.setOwnerStemId(pitOwner.getId());
           } else if (owner1.getOwnerAttrDefId() != null) {
-            PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(owner1.getOwnerAttrDefId(), true);
+            PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(owner1.getOwnerAttrDefId(), false);
+            if (pitOwner == null) {
+              LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+              return;
+            }
             pitOwner1.setOwnerAttrDefId(pitOwner.getId());
           } else {
             throw new RuntimeException("unexpected owner: " + owner1);
@@ -1502,8 +1639,17 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, true);
-    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stemId, true, true);
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, false);
+    if (pitAttributeDef == null) {
+      LOG.warn("Skipping change since attr def couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
+    PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stemId, true, false);
+    if (pitStem == null) {
+      LOG.warn("Skipping change since stem couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     
     PITAttributeDefName pitAttributeDefName = new PITAttributeDefName();
     pitAttributeDefName.setId(GrouperUuid.getUuid());
@@ -1533,7 +1679,11 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name.name());
 
       PITAttributeDefName pitAttributeDefName = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.id), false);
+      if (pitAttributeDefName == null) {
+        LOG.warn("Skipping change since attr def name couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitAttributeDefName.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_NAME_UPDATE.name));
       pitAttributeDefName.setContextId(contextId);
       pitAttributeDefName.saveOrUpdate();
@@ -1589,8 +1739,12 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, true);
-
+    PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attributeDefId, false);
+    if (pitAttributeDef == null) {
+      LOG.warn("Skipping change since attr def couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    
     PITAttributeAssignAction pitAttributeAssignAction = new PITAttributeAssignAction();
     pitAttributeAssignAction.setId(GrouperUuid.getUuid());
     pitAttributeAssignAction.setSourceId(id);
@@ -1617,7 +1771,10 @@ public class ChangeLogTempToEntity {
       assertNotEmpty(changeLogEntry, ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id.name());
 
       PITAttributeAssignAction pitAttributeAssignAction = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(
-          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id), true);
+          changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.id), false);
+      if (pitAttributeAssignAction == null) {
+        return;
+      }
       pitAttributeAssignAction.setNameDb(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_ASSIGN_ACTION_UPDATE.name));
       pitAttributeAssignAction.setContextId(contextId);
       pitAttributeAssignAction.saveOrUpdate();
@@ -1678,8 +1835,16 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITAttributeAssignAction pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(ifHas, true);
-    PITAttributeAssignAction pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(thenHas, true);
+    PITAttributeAssignAction pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(ifHas, false);
+    if (pitIfHas == null) {
+      LOG.warn("Skipping change since ifHas couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    PITAttributeAssignAction pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeAssignAction().findBySourceIdActive(thenHas, false);
+    if (pitThenHas == null) {
+      LOG.warn("Skipping change since thenHas group couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     PITAttributeAssignActionSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet().findBySourceIdActive(parent, false);
     
     PITAttributeAssignActionSet pitAttributeAssignActionSet = new PITAttributeAssignActionSet();
@@ -1688,7 +1853,17 @@ public class ChangeLogTempToEntity {
     pitAttributeAssignActionSet.setDepth(Integer.parseInt(depth));
     pitAttributeAssignActionSet.setIfHasAttrAssignActionId(pitIfHas.getId());
     pitAttributeAssignActionSet.setThenHasAttrAssignActionId(pitThenHas.getId());
-    pitAttributeAssignActionSet.setParentAttrAssignActionSetId(Integer.parseInt(depth) == 0 ? pitAttributeAssignActionSet.getId() : pitParent.getId());
+    
+    if (Integer.parseInt(depth) == 0) {
+      pitAttributeAssignActionSet.setParentAttrAssignActionSetId(pitAttributeAssignActionSet.getId());
+    } else {
+      if (pitParent == null) {
+        LOG.warn("Skipping change since parent couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
+      pitAttributeAssignActionSet.setParentAttrAssignActionSetId(pitParent.getId()); 
+    }    
+    
     pitAttributeAssignActionSet.setActiveDb("T");
     pitAttributeAssignActionSet.setStartTimeDb(time);
     pitAttributeAssignActionSet.setContextId(contextId);
@@ -1768,8 +1943,16 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITAttributeDefName pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(ifHas, true);
-    PITAttributeDefName pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(thenHas, true);
+    PITAttributeDefName pitIfHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(ifHas, false);
+    if (pitIfHas == null) {
+      LOG.warn("Skipping change since ifHas couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    PITAttributeDefName pitThenHas = GrouperDAOFactory.getFactory().getPITAttributeDefName().findBySourceIdActive(thenHas, false);
+    if (pitThenHas == null) {
+      LOG.warn("Skipping change since thenHas couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     PITAttributeDefNameSet pitParent = GrouperDAOFactory.getFactory().getPITAttributeDefNameSet().findBySourceIdActive(parent, false);
 
     PITAttributeDefNameSet pitAttributeDefNameSet = new PITAttributeDefNameSet();
@@ -1778,7 +1961,17 @@ public class ChangeLogTempToEntity {
     pitAttributeDefNameSet.setDepth(Integer.parseInt(depth));
     pitAttributeDefNameSet.setIfHasAttributeDefNameId(pitIfHas.getId());
     pitAttributeDefNameSet.setThenHasAttributeDefNameId(pitThenHas.getId());
-    pitAttributeDefNameSet.setParentAttrDefNameSetId(Integer.parseInt(depth) == 0 ? pitAttributeDefNameSet.getId() : pitParent.getId());
+    
+    if (Integer.parseInt(depth) == 0) {
+      pitAttributeDefNameSet.setParentAttrDefNameSetId(pitAttributeDefNameSet.getId());
+    } else {
+      if (pitParent == null) {
+        LOG.warn("Skipping change since parent couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
+      pitAttributeDefNameSet.setParentAttrDefNameSetId(pitParent.getId());
+    }
+    
     pitAttributeDefNameSet.setActiveDb("T");
     pitAttributeDefNameSet.setStartTimeDb(time);
     pitAttributeDefNameSet.setContextId(contextId);
@@ -1858,8 +2051,16 @@ public class ChangeLogTempToEntity {
       return;
     }
     
-    PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ifHas, true, true);
-    PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(thenHas, true, true);
+    PITGroup pitIfHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ifHas, true, false);
+    if (pitIfHas == null) {
+      LOG.warn("Skipping change since ifHas group couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
+    PITGroup pitThenHas = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(thenHas, true, false);
+    if (pitThenHas == null) {
+      LOG.warn("Skipping change since thenHas group couldn't be found: " + changeLogEntry.toStringDeep());
+      return;
+    }
     PITRoleSet pitParent = GrouperDAOFactory.getFactory().getPITRoleSet().findBySourceIdActive(parent, false);
 
     PITRoleSet pitRoleSet = new PITRoleSet();
@@ -1868,7 +2069,17 @@ public class ChangeLogTempToEntity {
     pitRoleSet.setDepth(Integer.parseInt(depth));
     pitRoleSet.setIfHasRoleId(pitIfHas.getId());
     pitRoleSet.setThenHasRoleId(pitThenHas.getId());
-    pitRoleSet.setParentRoleSetId(Integer.parseInt(depth) == 0 ? pitRoleSet.getId() : pitParent.getId());
+    
+    if (Integer.parseInt(depth) == 0) {
+      pitRoleSet.setParentRoleSetId(pitRoleSet.getId());
+    } else {
+      if (pitParent == null) {
+        LOG.warn("Skipping change since parent couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
+      pitRoleSet.setParentRoleSetId(pitParent.getId());
+    }
+    
     pitRoleSet.setActiveDb("T");
     pitRoleSet.setStartTimeDb(time);
     pitRoleSet.setContextId(contextId);
@@ -1892,7 +2103,7 @@ public class ChangeLogTempToEntity {
   private static void processGroupSetAdd(ChangeLogEntry changeLogEntry, List<ChangeLogEntry> changeLogEntriesToSave) {
     
     LOG.debug("Processing change: " + changeLogEntry.toStringDeep());
-    
+
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.id.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.depth.name());
     assertNotEmpty(changeLogEntry, ChangeLogLabels.GROUP_SET_ADD.fieldId.name());
@@ -1929,26 +2140,50 @@ public class ChangeLogTempToEntity {
     pitGroupSet.setContextId(contextId);
     
     if (!StringUtils.isEmpty(ownerGroupId)) {
-      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerGroupId, true, true);
+      PITGroup pitOwner = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(ownerGroupId, true, false);
+      if (pitOwner == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitGroupSet.setOwnerGroupId(pitOwner.getId());
     } else if (!StringUtils.isEmpty(ownerStemId)) {
-      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerStemId, true, true);
+      PITStem pitOwner = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(ownerStemId, true, false);
+      if (pitOwner == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitGroupSet.setOwnerStemId(pitOwner.getId());
     } else if (!StringUtils.isEmpty(ownerAttributeDefId)) {
-      PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerAttributeDefId, true);
+      PITAttributeDef pitOwner = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(ownerAttributeDefId, false);
+      if (pitOwner == null) {
+        LOG.warn("Skipping change since owner couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitGroupSet.setOwnerAttrDefId(pitOwner.getId());
     } else {
       throw new RuntimeException("missing owner in change log for group set id " + id);
     }
     
     if (!StringUtils.isEmpty(memberGroupId)) {
-      PITGroup pitMember = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(memberGroupId, true, true);
+      PITGroup pitMember = GrouperDAOFactory.getFactory().getPITGroup().findBySourceIdActive(memberGroupId, true, false);
+      if (pitMember == null) {
+        LOG.warn("Skipping change since member couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitGroupSet.setMemberGroupId(pitMember.getId());
     } else if (!StringUtils.isEmpty(memberStemId)) {
-      PITStem pitMember = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(memberStemId, true, true);
+      PITStem pitMember = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(memberStemId, true, false);
+      if (pitMember == null) {
+        LOG.warn("Skipping change since member couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitGroupSet.setMemberStemId(pitMember.getId());
     } else if (!StringUtils.isEmpty(memberAttributeDefId)) {
-      PITAttributeDef pitMember = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(memberAttributeDefId, true);
+      PITAttributeDef pitMember = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(memberAttributeDefId, false);
+      if (pitMember == null) {
+        LOG.warn("Skipping change since member couldn't be found: " + changeLogEntry.toStringDeep());
+        return;
+      }
       pitGroupSet.setMemberAttrDefId(pitMember.getId());
     } else {
       throw new RuntimeException("missing member in change log for group set id " + id);
