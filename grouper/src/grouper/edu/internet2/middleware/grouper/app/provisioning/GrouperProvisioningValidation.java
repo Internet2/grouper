@@ -126,22 +126,42 @@ public class GrouperProvisioningValidation {
       membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName();
     }
     
+    int groupsRemovedDueToAttributeBeingUnprovisionableIfNull = 0;
+    
     //check for required attributes
     Iterator<ProvisioningGroup> iterator = provisioningGroups.iterator();
     GROUPS: while (iterator.hasNext()) {
       ProvisioningGroup provisioningGroup = iterator.next();
       ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
       if (provisioningGroupWrapper.getErrorCode() != null) {
-      if (removeInvalid) {
-        iterator.remove();
+        if (removeInvalid) {
+          iterator.remove();
+          provisioningGroupWrapper.setGrouperTargetGroup(null);
           continue;
-      	}
+        }
       }
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGcGrouperSyncGroup();
       
       //if we're not provisioning this group, maybe this is used in membership that needs to be removed so we shouldn't validate.
       if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isProvisionable()) {
         continue;
+      }
+      
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
+        
+        // if attribute value is null and the group is configured to be marked as unprovisionable when that happens, remove it from the list of groups that are going to be provisioned
+        // also set groupRemovedDueToAttribute to true so that later we can remove the corresponding memberships
+        if (grouperProvisioningConfigurationAttribute.isUnprovisionableIfNull()) {
+          Object attributeValue = provisioningGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute);
+          if (attributeValue == null) {
+            provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().setGroupRemovedDueToAttribute(true);
+            iterator.remove();
+            groupsRemovedDueToAttributeBeingUnprovisionableIfNull++;
+            continue GROUPS;
+          }
+        }
+        
       }
 
       // matching ID must be there
@@ -155,40 +175,39 @@ public class GrouperProvisioningValidation {
         }
       }
       
-      for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
-        new Collection[] {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values(),
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()}) {
-        // look for required fields
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-            grouperProvisioningConfigurationAttributes) {
-          
-          boolean isMembershipAttribute = StringUtils.equals(membershipAttributeName, grouperProvisioningConfigurationAttribute.getName());
-          
-          if (forMembershipAttribute != null && isMembershipAttribute != forMembershipAttribute) {
-            continue;
-          }
-          
-          boolean hasErrorCode = assignErrorCodeToGroupWrapper(provisioningGroup, grouperProvisioningConfigurationAttribute, provisioningGroupWrapper);
-          if (hasErrorCode) {
-            invalidGroups.add(provisioningGroup);
-          }
-          if (hasErrorCode && removeInvalid) {
-            iterator.remove();
-          }
+      // look for required fields
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().values()) {
+        
+        boolean isMembershipAttribute = StringUtils.equals(membershipAttributeName, grouperProvisioningConfigurationAttribute.getName());
+        
+        if (forMembershipAttribute != null && isMembershipAttribute != forMembershipAttribute) {
+          continue;
+        }
+        
+        boolean hasErrorCode = assignErrorCodeToGroupWrapper(provisioningGroup, grouperProvisioningConfigurationAttribute, provisioningGroupWrapper);
+        if (hasErrorCode) {
+          invalidGroups.add(provisioningGroup);
+        }
+        if (hasErrorCode && removeInvalid) {
+          iterator.remove();
           continue GROUPS;
         }
       }
     }
       
-    if (groupsMissingRequiredData > 0) {
-      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "groupsViolateMaxLength", groupsViolateMaxLength);
+    if (groupsRemovedDueToAttributeBeingUnprovisionableIfNull > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "groupsRemovedDueToAttributeBeingUnprovisionableIfNull", groupsRemovedDueToAttributeBeingUnprovisionableIfNull);
+    }
+    
+    if (groupsViolateMaxLength > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("groupsViolateMaxLength", groupsViolateMaxLength);
     }
     if (groupsMissingRequiredData > 0) {
-      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "groupsMissingRequiredData", groupsMissingRequiredData);
+      this.getGrouperProvisioner().getDebugMap().put("groupsMissingRequiredData", groupsMissingRequiredData);
     }
     if (groupsViolateValidExpression > 0) {
-      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "groupsViolateValidExpression", groupsViolateValidExpression);
+      this.getGrouperProvisioner().getDebugMap().put("groupsViolateValidExpression", groupsViolateValidExpression);
     }
     if (GrouperUtil.length(invalidGroups) > 0) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperGroups, invalidGroups);
@@ -210,6 +229,8 @@ public class GrouperProvisioningValidation {
       membershipAttributeName =  this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
     }
     
+    int entitiesRemovedDueToAttributeBeingUnprovisionableIfNull = 0;
+    
     //check for required attributes
     Iterator<ProvisioningEntity> iterator = provisioningEntities.iterator();
     ENTITIES: while (iterator.hasNext()) {
@@ -226,6 +247,24 @@ public class GrouperProvisioningValidation {
         continue;
       }
       
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
+        
+        // if attribute value is null and the entity is configured to be marked as unprovisionable when that happens, remove it from the list of entities that are going to be provisioned
+        // also set entityRemovedDueToAttribute to true so that later we can remove the corresponding memberships
+        if (grouperProvisioningConfigurationAttribute.isUnprovisionableIfNull()) {
+          Object attributeValue = provisioningEntity.retrieveAttributeValue(grouperProvisioningConfigurationAttribute);
+          if (attributeValue == null) {
+            provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setEntityRemovedDueToAttribute(true);
+            iterator.remove();
+            provisioningEntityWrapper.setGrouperTargetEntity(null);
+            entitiesRemovedDueToAttributeBeingUnprovisionableIfNull++;
+            continue ENTITIES;
+          }
+        }
+        
+      }
+      
       // matching ID must be there
       if (!validateEntityHasMatchingId(provisioningEntity, forInsert)) {
         this.assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.MAT, "matching ID is required and missing");
@@ -236,44 +275,44 @@ public class GrouperProvisioningValidation {
         }
       }
       
-      for (Collection<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes : 
-        new Collection[] {
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values(),
-          this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()}) {
         // look for required fields
-        for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
-            grouperProvisioningConfigurationAttributes) {
-          
-          boolean isMembershipAttribute = StringUtils.equals(membershipAttributeName, grouperProvisioningConfigurationAttribute.getName());
-          
-          if (forMembershipAttribute != null && isMembershipAttribute != forMembershipAttribute) {
-            continue;
-          }
-          
-          boolean hasError = assignErrorCodeToEntityWrapper(provisioningEntity, grouperProvisioningConfigurationAttribute, provisioningEntityWrapper);
-          if (hasError) {
-            invalidEntities.add(provisioningEntity);
-          }
-          if (hasError && removeInvalid) {
-            iterator.remove();
-          }
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().values()) {
+        
+        boolean isMembershipAttribute = StringUtils.equals(membershipAttributeName, grouperProvisioningConfigurationAttribute.getName());
+        
+        if (forMembershipAttribute != null && isMembershipAttribute != forMembershipAttribute) {
+          continue;
+        }
+        
+        boolean hasError = assignErrorCodeToEntityWrapper(provisioningEntity, grouperProvisioningConfigurationAttribute, provisioningEntityWrapper);
+        if (hasError) {
+          invalidEntities.add(provisioningEntity);
+        }
+        if (hasError && removeInvalid) {
+          iterator.remove();
           continue ENTITIES;
         }
       }
     }
       
-    if (entitiesMissingRequiredData > 0) {
-      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "entitiesViolateMaxLength", entitiesViolateMaxLength);
+    if (entitiesRemovedDueToAttributeBeingUnprovisionableIfNull > 0) {
+      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "entitiesRemovedDueToAttributeBeingUnprovisionableIfNull", entitiesRemovedDueToAttributeBeingUnprovisionableIfNull);
+    }
+    
+    if (entitiesViolateMaxLength > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("entitiesViolateMaxLength", entitiesViolateMaxLength);
     }
     if (entitiesMissingRequiredData > 0) {
-      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "entitiesMissingRequiredData", entitiesMissingRequiredData);
+      this.getGrouperProvisioner().getDebugMap().put("entitiesMissingRequiredData", entitiesMissingRequiredData);
     }
     if (entitiesViolateValidExpression > 0) {
-      GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "entitiesViolateValidExpression", entitiesViolateValidExpression);
+      this.getGrouperProvisioner().getDebugMap().put("entitiesViolateValidExpression", entitiesViolateValidExpression);
     }
     if (GrouperUtil.length(invalidEntities) > 0) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.validateGrouperEntities, invalidEntities);
     }
+    
     return invalidEntities;
   }
   
@@ -306,6 +345,17 @@ public class GrouperProvisioningValidation {
         default:
           throw new RuntimeException("Not expecting error code: " + errorCode);
       }
+      
+      if (entitiesViolateMaxLength > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("entitiesViolateMaxLength", entitiesViolateMaxLength);
+      }
+      if (entitiesMissingRequiredData > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("entitiesMissingRequiredData", entitiesMissingRequiredData);
+      }
+      if (entitiesViolateValidExpression > 0) {
+        this.getGrouperProvisioner().getDebugMap().put("entitiesViolateValidExpression", entitiesViolateValidExpression);
+      }
+      
       return true;
     }
     
@@ -341,6 +391,15 @@ public class GrouperProvisioningValidation {
             break;
           default:
             throw new RuntimeException("Not expecting error code: " + errorCode);
+        }
+        if (groupsViolateMaxLength > 0) {
+          this.getGrouperProvisioner().getDebugMap().put("groupsViolateMaxLength", groupsViolateMaxLength);
+        }
+        if (groupsMissingRequiredData > 0) {
+          this.getGrouperProvisioner().getDebugMap().put("groupsMissingRequiredData", groupsMissingRequiredData);
+        }
+        if (groupsViolateValidExpression > 0) {
+          this.getGrouperProvisioner().getDebugMap().put("groupsViolateValidExpression", groupsViolateValidExpression);
         }
         return true;
       }
@@ -398,8 +457,8 @@ public class GrouperProvisioningValidation {
           }
           if (removeInvalid) {
             iterator.remove();
+            continue MEMBERSHIPS;
           }
-          continue MEMBERSHIPS;
         }
       }
       

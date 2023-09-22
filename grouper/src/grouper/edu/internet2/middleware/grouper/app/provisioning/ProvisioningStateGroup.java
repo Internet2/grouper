@@ -191,5 +191,16 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   public void setGroupId(String groupId) {
     this.groupId = groupId;
   }
+  
+  private boolean groupRemovedDueToAttribute;
+  
+  public boolean isGroupRemovedDueToAttribute() {
+    return groupRemovedDueToAttribute;
+  }
+
+  
+  public void setGroupRemovedDueToAttribute(boolean groupRemovedDueToAttribute) {
+    this.groupRemovedDueToAttribute = groupRemovedDueToAttribute;
+  }
 
 }

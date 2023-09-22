@@ -72,7 +72,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testDeleteMembershipsInTrackedGroupsOnlyTrue"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureWhenGroupIsUnprovisioableDueToAnAttribute"));
     //realAzureAddUsers();
   }
 
@@ -1050,6 +1050,79 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperAzureUsers3 = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred3.getId()), "userPrincipalName");
     assertNotNull(grouperAzureUsers3);
     assertEquals(0, grouperAzureUsers3.size());
+    
+  }
+  
+  public void testFullSyncAzureWhenGroupIsUnprovisioableDueToAnAttribute() {
+    
+    GrouperStartup.startup();
+    
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+    
+    try {
+      AzureProvisionerTestUtils.configureAzureProvisioner(
+          new AzureProvisionerTestConfigInput()
+          .assignGroupAttributeCount(5)
+          
+          .addExtraConfig("targetGroupAttribute.2.showAdvancedAttribute", "true")
+          .addExtraConfig("targetGroupAttribute.2.showAttributeValidation", "true")
+
+          .addExtraConfig("targetEntityAttribute.1.showAdvancedAttribute", "true")
+          .addExtraConfig("targetEntityAttribute.1.showAttributeValidation", "true")
+          
+          .addExtraConfig("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description") // group description is null
+          .addExtraConfig("targetGroupAttribute.2.unprovisionableIfNull", "true") // due to group description being null, the testGroup shouldn't make it to the target
+          
+          .addExtraConfig("entityAttributeValueCache0translationScript", "${subject.id == 'test.subject.1' ? null : subject.getAttributeValue('email')}") // userPrincipalName is going to be null 
+          .addExtraConfig("targetEntityAttribute.1.unprovisionableIfNull", "true") // due to userPrincipalName being null, the entity shouldn't make it to the target
+          
+          );
+            
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      Group testGroup2 = new GroupSave(grouperSession).assignName("test:testGroup2").assignDescription("test_group_2").save();
+      
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("myAzureProvisioner");
+      attributeValue.setTargetName("myAzureProvisioner");
+      attributeValue.setStemScopeString("sub");
+      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      metadataNameValues.put("md_grouper_allowOnlyMembersToPost", true);
+      metadataNameValues.put("md_grouper_resourceProvisioningOptionsTeam", true);
+      attributeValue.setMetadataNameValues(metadataNameValues);
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over
+      
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_azure_group").select(int.class));
+  
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      
+      assertTrue(3 == grouperProvisioningOutput.getInsert());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
+      
+    } finally {
+      
+    }
     
   }
   
