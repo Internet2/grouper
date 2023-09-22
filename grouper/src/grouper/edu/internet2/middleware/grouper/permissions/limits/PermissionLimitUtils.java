@@ -442,7 +442,7 @@ public class PermissionLimitUtils {
    * pattern to parse the limit configs
    * grouper.permissions.limits.logic.someName.limitName
    */
-  private static Pattern limitNamePattern = Pattern.compile("^grouper\\.permissions\\.limits\\.logic\\.([^.]+)\\.limitName$");
+  private static Pattern limitNamePattern = Pattern.compile("^grouper\\.permissions\\.limits\\.logic\\.([^.]+)\\.logicClass$");
   
   
   /**
