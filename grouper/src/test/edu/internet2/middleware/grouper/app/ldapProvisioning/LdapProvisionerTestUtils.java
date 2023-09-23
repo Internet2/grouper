@@ -28,6 +28,7 @@ public class LdapProvisionerTestUtils {
     startLdapContainer();
     setupLdapExternalSystem();
     setupSubjectSource();
+    System.exit(0);
   }
   
   
