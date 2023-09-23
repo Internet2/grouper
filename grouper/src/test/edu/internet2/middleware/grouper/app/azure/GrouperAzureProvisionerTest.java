@@ -28,7 +28,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
-import edu.internet2.middleware.grouper.app.provisioningExamples.exampleWsReplaceProvisioner.ExampleWsProvisioningStartWith;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -72,7 +71,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureWhenGroupIsUnprovisioableDueToAnAttribute"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzureRemoveAccentedCharacters"));
     //realAzureAddUsers();
   }
 
@@ -1119,6 +1118,67 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
+      
+    } finally {
+      
+    }
+    
+  }
+  
+  public void testFullSyncAzureRemoveAccentedCharacters() {
+    
+    GrouperStartup.startup();
+    
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+    
+    try {
+      AzureProvisionerTestUtils.configureAzureProvisioner(
+          new AzureProvisionerTestConfigInput()
+          .assignGroupAttributeCount(5)
+          .addExtraConfig("removeAccentedChars", "true")
+          .addExtraConfig("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description") // group description is null
+          );
+            
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").assignDescription("test ç").save();
+      
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("myAzureProvisioner");
+      attributeValue.setTargetName("myAzureProvisioner");
+      attributeValue.setStemScopeString("sub");
+      Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      metadataNameValues.put("md_grouper_allowOnlyMembersToPost", true);
+      metadataNameValues.put("md_grouper_resourceProvisioningOptionsTeam", true);
+      attributeValue.setMetadataNameValues(metadataNameValues);
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over
+      
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_azure_group").select(int.class));
+  
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      
+      assertTrue(5 == grouperProvisioningOutput.getInsert());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureUser").list(GrouperAzureUser.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperAzureMembership").list(GrouperAzureMembership.class).size());
+      
+      List<GrouperAzureGroup> groups = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class);
+      assertEquals("test c", groups.get(0).getMailNickname());
       
     } finally {
       

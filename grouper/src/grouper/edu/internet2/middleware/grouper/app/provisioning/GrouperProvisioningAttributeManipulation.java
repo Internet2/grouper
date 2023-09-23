@@ -46,24 +46,32 @@ public class GrouperProvisioningAttributeManipulation {
     Set<ProvisioningGroup> changedGroups = new LinkedHashSet<>();
     int[] manipulateAttributesGroupsCount = new int[] {0};
     int[] convertNullsEmptyCount = new int[] {0};
+    int[] removeAccentedCharsCount = new int[] {0};
 
     Map<String, GrouperProvisioningConfigurationAttribute> groupAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig();
+    
+    boolean removeAccentedChars = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isRemoveAccentedChars();
     
     for (ProvisioningGroup provisioningGroup : GrouperUtil.nonNull(provisioningGroups)) {
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : groupAttributeNameToConfig.values() ) {
         manipulateValue((Collection<Object>)(Object)changedGroups, provisioningGroup, grouperProvisioningConfigurationAttribute, manipulateAttributesGroupsCount);
         convertNullsEmpties((Collection<Object>)(Object)changedGroups, provisioningGroup, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
+        if (removeAccentedChars) {
+          removeAccentedCharacters((Collection<Object>)(Object)changedGroups, provisioningGroup, grouperProvisioningConfigurationAttribute, removeAccentedCharsCount);
+        }
       }
     }
     if (manipulateAttributesGroupsCount[0] > 0) {
       manipulateAttributesGroupsCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("manipulateAttributesGroupsCount"), 0);
       this.grouperProvisioner.getDebugMap().put("manipulateAttributesGroupsCount", manipulateAttributesGroupsCount[0]);
-      
     }
     if (convertNullsEmptyCount[0] > 0) {
       convertNullsEmptyCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("convertNullsEmptyCount"), 0);
       this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
-      
+    }
+    if (removeAccentedCharsCount[0] > 0) {
+      removeAccentedCharsCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("removeAccentedCharsCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("removeAccentedCharsCount", removeAccentedCharsCount[0]);
     }
     return changedGroups;
   }
@@ -74,15 +82,22 @@ public class GrouperProvisioningAttributeManipulation {
     
     int[] manipulateAttributesEntitiesCount = new int[] {0};
     int[] convertNullsEmptyCount = new int[] {0};
+    int[] removeAccentedCharsCount = new int[] {0};
 
     Map<String, GrouperProvisioningConfigurationAttribute> entityAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
+    
+    boolean removeAccentedChars = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isRemoveAccentedChars();
     
     for (ProvisioningEntity provisioningEntity : GrouperUtil.nonNull(provisioningEntities)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : entityAttributeNameToConfig.values() ) {
         manipulateValue((Collection<Object>)(Object)changedEntities, provisioningEntity, grouperProvisioningConfigurationAttribute, manipulateAttributesEntitiesCount);
         convertNullsEmpties((Collection<Object>)(Object)changedEntities, provisioningEntity, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
+        if (removeAccentedChars) {
+          removeAccentedCharacters((Collection<Object>)(Object)changedEntities, provisioningEntity, grouperProvisioningConfigurationAttribute, removeAccentedCharsCount);
+        }
       }
+      
     }
     if (manipulateAttributesEntitiesCount[0] > 0) {
       manipulateAttributesEntitiesCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("manipulateAttributesEntitiesCount"), 0);
@@ -92,7 +107,11 @@ public class GrouperProvisioningAttributeManipulation {
     if (convertNullsEmptyCount[0] > 0) {
       convertNullsEmptyCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("convertNullsEmptyCount"), 0);
       this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
-      
+    }
+
+    if (removeAccentedCharsCount[0] > 0) {
+      removeAccentedCharsCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("removeAccentedCharsCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("removeAccentedCharsCount", removeAccentedCharsCount[0]);
     }
     return changedEntities;
   }
@@ -442,6 +461,73 @@ public class GrouperProvisioningAttributeManipulation {
     provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), newValue);
   }
 
+  
+  public void removeAccentedCharacters(Collection<Object> changedObjects, ProvisioningUpdatable provisioningUpdatable,
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute, int[] count) {
+    
+    // not sure what this is
+    if (grouperProvisioningConfigurationAttribute == null) {
+      return;
+    }
+
+    Object currentValue = provisioningUpdatable.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName());
+
+    GrouperProvisioningConfigurationAttributeValueType valueType = grouperProvisioningConfigurationAttribute.getValueType();
+    
+    // only do this for strings
+    if (valueType == null) {
+      return;
+    }
+    
+    if (valueType != GrouperProvisioningConfigurationAttributeValueType.STRING) {
+      return;
+    }
+    
+    if (currentValue == null) {
+      return;
+    }
+    
+    if (currentValue instanceof String) {
+      String newValue = org.apache.commons.lang3.StringUtils.stripAccents((String)currentValue); 
+      if (!GrouperUtil.equals(currentValue, newValue)) {
+        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), newValue);
+        changedObjects.add(provisioningUpdatable);
+        
+        // keep a count if supposed to
+        if (count!= null) {
+          count[0]++;
+        }
+      }
+    }
+    
+    if (currentValue instanceof Collection) {
+      Collection<Object> newCollection = new HashSet<>();
+      Collection collection = (Collection)currentValue;
+      boolean changed = false;
+      for (Object obj: collection) {
+        if (obj instanceof String) {
+          String newIndividualValue = org.apache.commons.lang3.StringUtils.stripAccents((String)obj); 
+          newCollection.add(newIndividualValue);
+          if (changed == false && !GrouperUtil.equals(obj, newIndividualValue)) {
+            changed = true;
+            changedObjects.add(provisioningUpdatable);
+            if (count!= null) {
+              count[0]++;
+            }
+          }
+          
+        } else {
+          newCollection.add(obj);
+        }
+      }
+      if (changed) {
+        provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), newCollection);
+      }
+      
+    }
+    
+  }
+  
   /**
    * if the provisioner should equate nulls and empties, then convert nulls to empties
    * @param provisioningUpdatable
