@@ -903,6 +903,21 @@
       ${grouper:escapeHtml(someVar.someField)}
     </example>
   </function>
+  
+  <function>
+    <description>
+      Replace dot with underscore
+    </description>
+    <name>replaceDotWithUnderscore</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String replaceDotWithUnderscore(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:replaceDotWithUnderscore(someVar.someField)}
+    </example>
+  </function>
+  
   <function>
     <description>
       Escapes XML ( ampersand, lessthan, greater than, double quote), and single quote with slash
