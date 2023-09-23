@@ -1091,12 +1091,20 @@ public abstract class GrouperProvisioningConfiguration {
     return unresolvableSubjectsRemove;
   }
 
-
   public void setUnresolvableSubjectsRemove(boolean unresolvableSubjectsRemove) {
     this.unresolvableSubjectsRemove = unresolvableSubjectsRemove;
   }
   
+  private boolean removeAccentedChars;
   
+  public boolean isRemoveAccentedChars() {
+    return removeAccentedChars;
+  }
+
+  public void setRemoveAccentedChars(boolean removeAccentedChars) {
+    this.removeAccentedChars = removeAccentedChars;
+  }
+
   private boolean logCommandsAlways = false;
 
   
@@ -2757,6 +2765,8 @@ public abstract class GrouperProvisioningConfiguration {
     this.unresolvableSubjectsInsert = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("unresolvableSubjectsInsert", false), false);
 
     this.unresolvableSubjectsRemove = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("unresolvableSubjectsRemove", false), false);
+
+    this.removeAccentedChars = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("removeAccentedChars", false), false);
 
     this.logAllObjectsVerbose = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logAllObjectsVerbose", false), false);
 
