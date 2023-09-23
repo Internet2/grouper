@@ -385,4 +385,8 @@ public class GrouperUiFunctions {
     }
     return GrouperUtil.stringValue(a) + GrouperUtil.stringValue(b) + GrouperUtil.stringValue(c);
   }
+  
+  public static String replaceDotWithUnderscore(String input) {
+    return GrouperUtil.replace(input, ".", "_");
+  }
 }

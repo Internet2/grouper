@@ -57,7 +57,7 @@
          <c:forEach items="${grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.subSections}" var="subSection">
             <ul>
               <c:if test="${!grouper:isBlank(subSection.label) and subSection.show}">
-              <li><a href="#subsection_${subSection.label}">${subSection.title}</a></li>
+              <li><a href="#subsection_${grouper:replaceDotWithUnderscore(subSection.label)}">${subSection.title}</a></li>
               </c:if>
             </ul>
          </c:forEach>     
@@ -71,7 +71,7 @@
                     <c:set target="${grouperRequestContainer.provisionerConfigurationContainer}"
                       property="currentConfigSuffix"
                       value="${subSection.label}.header" /> 
-                    <a id="subsection_${subSection.label}" href="#">${textContainer.text['backToTop'] }</a> 
+                    <a id="subsection_${grouper:replaceDotWithUnderscore(subSection.label)}" href="#">${textContainer.text['backToTop'] }</a> 
 				  					<h4>${subSection.title}</h4>
 				  					<p style="font-weight: normal;">${subSection.description} </p>
 				  				</th>
