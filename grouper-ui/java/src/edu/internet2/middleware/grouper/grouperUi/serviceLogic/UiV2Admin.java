@@ -1296,6 +1296,14 @@ public class UiV2Admin extends UiServiceLogicBase {
       AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
       guiDaemonJobs.add(new GuiDaemonJob(jobName));
+      
+      // see which jobs are not failsafe approved and need approval
+      Set<String> jobNamesNeedApprovalNotApproved = GrouperFailsafe.retrieveJobNamesNeedApprovalNotApproved();
+      
+      for (GuiDaemonJob guiDaemonJob : GrouperUtil.nonNull(guiDaemonJobs)) {
+        guiDaemonJob.assignFailsafeNeedsApproval(jobNamesNeedApprovalNotApproved.contains(guiDaemonJob.getJobName()));
+      }
+      
       adminContainer.setGuiDaemonJobs(guiDaemonJobs);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
