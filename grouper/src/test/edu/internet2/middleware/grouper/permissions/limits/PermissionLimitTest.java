@@ -832,7 +832,7 @@ public class PermissionLimitTest extends GrouperTest {
     //grouper.permissions.limits.logic.someName.logicClass = 
   
     //associate the class
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.customEl.limitNameOfAttributeDef", limitName.getName());
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.customEl.limitNameOfAttributeDef", limitDef.getName());
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouper.permissions.limits.logic.customEl.logicClass", PermissionLimitElLogic.class.getName());
     
     //this is still cached
