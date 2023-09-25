@@ -1209,7 +1209,7 @@ public class GrouperUtil {
    */
   public static Log getLog(Class<?> theClass) {
     logDirsCreateIfNotDone();
-    return new GrouperLogger(theClass);
+    return new GrouperLogger(LogFactory.getLog(theClass));
   }
 
   /**
