@@ -1,11 +1,9 @@
 package edu.internet2.middleware.grouper.log;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
@@ -229,9 +227,10 @@ public class GrouperLoggingDynamicConfig {
         for (MultiKey multiKey : appendersToAdd) {
           String name = (String)multiKey.getKey(0);
           debugMap.put("addingLogger_" + name, true);
-          LOG.warn("Dynamically adding logger config '" + name + "'");
           String appender = (String)multiKey.getKey(2);
-  
+
+          LOG.warn("Dynamically adding logger config '" + name + "', appender: '" + appender + "'");
+
           // get the least specific level
           Level level = newLoggingCustomizationsNameToLevel.get(name);
 
@@ -255,6 +254,8 @@ public class GrouperLoggingDynamicConfig {
               AppenderRef ref = AppenderRef.createAppenderRef(appender, null, null);
               AppenderRef[] refs = new AppenderRef[] {ref};
               loggerConfig = LoggerConfig.createLogger(false, level, name, "true", refs, null, configuration, null);
+              
+              loggerConfig.addAppender(configuration.getAppender(appender), level, null);
               configuration.addLogger(loggerConfig.getName(), loggerConfig);
 
             } else {
