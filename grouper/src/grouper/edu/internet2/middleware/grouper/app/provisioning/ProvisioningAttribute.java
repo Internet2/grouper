@@ -81,6 +81,9 @@ public class ProvisioningAttribute {
    * @return the map
    */
   public Map<Object, ProvisioningMembershipWrapper> getValueToProvisioningMembershipWrapper() {
+    if (this.valueToProvisioningMembershipWrapper == null) {
+      this.valueToProvisioningMembershipWrapper = new HashMap<Object, ProvisioningMembershipWrapper>();
+    }
     return valueToProvisioningMembershipWrapper;
   }
 

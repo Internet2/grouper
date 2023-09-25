@@ -237,6 +237,28 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
     return this.toString();
   }
 
+  public String toStringForErrorVerbose() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    if (this.grouperTargetEntity != null) {
+      result.append("grouperTargetEntity: " + this.grouperTargetEntity + ", ");
+    }
+
+    if (this.grouperProvisioningEntity != null) {
+      result.append("grouperProvisioningEntity: " + this.grouperProvisioningEntity + ", ");
+    }
+
+    if (this.targetProvisioningEntity != null) {
+      result.append("targetProvisioningEntity: " + this.targetProvisioningEntity + ", ");
+    }
+    
+    if (this.provisioningStateEntity != null) {
+      result.append("provisioningStateEntity: " + this.provisioningStateEntity + ", ");
+    }
+
+    return this.toString();
+  }
 
 
 }

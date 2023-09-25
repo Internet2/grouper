@@ -333,6 +333,27 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     return "membership";
   }
 
+  public String toStringForErrorVerbose() {
+    StringBuilder result = new StringBuilder();
+    if (this.getGrouperProvisioningMembership() != null && this.getGrouperProvisioningMembership().getProvisioningGroup() != null && this.getGrouperProvisioningMembership().getProvisioningGroup().getProvisioningGroupWrapper() != null) {
+      result.append(this.getGrouperProvisioningMembership().getProvisioningGroup().getProvisioningGroupWrapper().toStringForErrorVerbose()).append(", ");
+    } else if (this.grouperTargetMembership != null && this.grouperTargetMembership.getProvisioningGroup() != null) {
+      result.append(this.grouperTargetMembership.getProvisioningGroup()).append(", ");
+    }
+
+    if (this.getGrouperProvisioningMembership() != null && this.getGrouperProvisioningMembership().getProvisioningEntity() != null && this.getGrouperProvisioningMembership().getProvisioningEntity().getProvisioningEntityWrapper() != null) {
+      result.append(this.getGrouperProvisioningMembership().getProvisioningEntity().getProvisioningEntityWrapper().toStringForErrorVerbose()).append(", ");
+    } else if (this.grouperTargetMembership != null && this.grouperTargetMembership.getProvisioningEntity() != null) {
+      result.append(this.grouperTargetMembership.getProvisioningEntity());
+    }
+
+    if (result.length() > 0) {
+      return result.toString();
+    }
+    return this.toString();
+    
+  }
+  
   public String toStringForError() {
     
     StringBuilder result = new StringBuilder();
