@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -339,7 +340,13 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
         return false;
       }
 
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(deleteValue);
+      Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
+      
+      if (valueToProvisioningMembershipWrapper == null) {
+        return false;
+      }
+
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(deleteValue);
       if (provisioningMembershipWrapper == null) {
         return false;
       }

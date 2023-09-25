@@ -267,6 +267,29 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
     return this.toString();
   }
 
+  public String toStringForErrorVerbose() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    if (this.grouperTargetGroup != null) {
+      result.append("grouperTargetGroup: " + this.grouperTargetGroup + ", ");
+    }
+
+    if (this.grouperProvisioningGroup != null) {
+      result.append("grouperProvisioningGroup: " + this.grouperProvisioningGroup + ", ");
+    }
+
+    if (this.targetProvisioningGroup != null) {
+      result.append("targetProvisioningGroup: " + this.targetProvisioningGroup + ", ");
+    }
+    
+    if (this.provisioningStateGroup != null) {
+      result.append("provisioningStateGroup: " + this.provisioningStateGroup + ", ");
+    }
+
+    return this.toString();
+  }
+
   @Override
   public String objectTypeName() {
     return "group";

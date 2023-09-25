@@ -481,8 +481,14 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
       if (provisioningAttribute == null) {
         return false;
       }
+      
+      Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
+      
+      if (valueToProvisioningMembershipWrapper == null) {
+        return false;
+      }
 
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(deleteValue);
+      ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(deleteValue);
       if (provisioningMembershipWrapper == null) {
         return false;
       }
