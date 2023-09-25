@@ -24,6 +24,7 @@ import java.util.Calendar;
 import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
@@ -47,6 +48,7 @@ import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitI
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitLabelsContain;
 import edu.internet2.middleware.grouper.permissions.limits.impl.PermissionLimitWeekday9to5Logic;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 
@@ -480,13 +482,26 @@ public class PermissionLimitUtils {
             matcher = limitNamePattern.matcher(sourcePropertyName);
             if (matcher.matches()) {
               String limitKey = matcher.group(1);
-              String className = GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.logic." + limitKey + ".logicClass");
-              String limitAttributeName = GrouperConfig.retrieveConfig().propertyValueString(sourcePropertyName);
+              
+              String limitAttributeName = GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.logic." + limitKey + ".limitName");
+              String limitAttributeDef = GrouperConfig.retrieveConfig().propertyValueString("grouper.permissions.limits.logic." + limitKey + ".limitNameOfAttributeDef");
+                  
+              String className = GrouperConfig.retrieveConfig().propertyValueString(sourcePropertyName);
               
               try {
                 Class<PermissionLimitInterface> theClass = GrouperUtil.forName(className);
                 
-                limitMap.put(limitAttributeName, theClass);
+                if (!StringUtils.isBlank(limitAttributeName)) {
+                  limitMap.put(limitAttributeName, theClass);
+                } else {
+                  // add all for attribute def
+                  List<String> limitAttributeNames = new GcDbAccess()
+                    .sql("select gadn.name from grouper_attribute_def gad, grouper_attribute_def_name gadn where gad.id = gadn.attribute_def_id and gad.name = ?")
+                    .addBindVar(limitAttributeDef).selectList(String.class);
+                  for (String limitAttributeNameCurrent : limitAttributeNames) {
+                    limitMap.put(limitAttributeNameCurrent, theClass);
+                  }
+                }
                 
               } catch (RuntimeException runtimeException) {
                 LOG.error("Error with classname for limit, maybe class not on classpath or it is misconfigured in grouper.properties: " + sourcePropertyName + ", classname: " + className, runtimeException);
