@@ -86,8 +86,8 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
     setSqlLastModifiedColumnName("last_modified");
     setSqlDeletedColumnName("deleted");
     
-    setMembershipGroupForeignKeyColumn("group_id_index");
-    setMembershipEntityForeignKeyColumn("subject_id_index");
+    setMembershipGroupMatchingIdAttribute("group_id_index");
+    setMembershipEntityMatchingIdAttribute("subject_id_index");
     
     setEntityTableName(this.midPointTablesPrefix + "_mp_subjects");
     

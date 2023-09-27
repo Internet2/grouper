@@ -145,7 +145,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testGroupEntityMembershipRenameEntityIncrementalMatchOnOld"));
+    TestRunner.run(new SqlProvisionerTest("testFullSyncAcLille"));
     
   }
   
@@ -5376,8 +5376,77 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       assertFalse(member.isSubjectResolutionResolvable());
     }
   }
+
   
-    public void testFullSyncPennListserv() {
+  
+  public void testFullSyncAcLille() {
+    
+    GrouperStartup.startup();
+        
+    try {
+      SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+          .assignProvisioningStrategy("acLille")
+          .assignConfigId("rsst_role")
+      );
+      
+      
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
+      
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("rsst_role");
+      attributeValue.setTargetName("rsst_role");
+      attributeValue.setStemScopeString("sub");
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over
+      
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship0").select(int.class).intValue());
+        
+      new GcDbAccess().sql("insert into testgrouper_prov_mship0 (group_name, subject_id) values (?, ?)").addBindVar("abc").addBindVar("123").executeSql();
+      new GcDbAccess().sql("insert into testgrouper_prov_mship0 (group_name, subject_id) values (?, ?)").addBindVar("testGroup").addBindVar("234").executeSql();
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision("rsst_role");
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      
+      assertEquals(1, grouperProvisioningOutput.getDelete());
+      assertEquals(2, grouperProvisioningOutput.getInsert());
+      
+      assertEquals(1, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship0 where group_name = ? and subject_id = ?")
+          .addBindVar("abc").addBindVar("123").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship0 where group_name = ? and subject_id = ?")
+          .addBindVar("testGroup").addBindVar("123").select(int.class).intValue());
+      assertEquals(1, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship0 where group_name = ? and subject_id = ?")
+          .addBindVar("testGroup").addBindVar("test.subject.1").select(int.class).intValue());
+      assertEquals(1, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship0 where group_name = ? and subject_id = ?")
+          .addBindVar("testGroup").addBindVar("test.subject.2").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship0 where group_name = ? and subject_id = ?")
+          .addBindVar("testGroup2").addBindVar("test.subject.2").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from testgrouper_prov_mship0 where group_name = ? and subject_id = ?")
+          .addBindVar("testGroup2").addBindVar("test.subject.3").select(int.class).intValue());
+      
+      
+      
+    } finally {
+      
+    }
+  
+  }
+
+  public void testFullSyncPennListserv() {
     
     GrouperStartup.startup();
         

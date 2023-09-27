@@ -867,6 +867,95 @@ public class GrouperProvisioningGrouperDao {
     }
   }
   
+  /**
+   * If there is no match to a grouper membership, see if we can match the group or entity
+   */
+  public void fixGrouperTargetMembershipReferences() {
+    
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    
+    int missingTargetMembershipReferencesFixedCount = 0;
+
+    // index the new target groups by matching id, and pick the best one if multiple
+    Map<String, ProvisioningGroupWrapper> groupTargetMatchingAttributeToGroupWrapper = new HashMap<>();
+    
+    boolean indexesInitialized = false;
+    
+    Map<String, ProvisioningEntityWrapper> entityTargetMatchingAttributeToEntityWrapper = new HashMap<>();
+
+    // add wrappers for groups
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
+
+      ProvisioningMembership targetProvisioningMembership = provisioningMembershipWrapper.getTargetProvisioningMembership();
+
+      // only if there is a target and it is not matched
+      if (targetProvisioningMembership == null || provisioningMembershipWrapper.getGrouperTargetMembership() != null) {
+        continue;
+      }
+
+      if (!indexesInitialized) {
+        String membershipGroupMatchingIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipGroupMatchingIdGrouperAttribute();
+        
+        if (!StringUtils.isBlank(membershipGroupMatchingIdAttribute)) {
+          for (ProvisioningGroup grouperProvisioningGroup : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningGroups())) {
+            
+            String value = GrouperUtil.stringValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
+                .translateFromGrouperProvisioningGroupField(grouperProvisioningGroup.getProvisioningGroupWrapper(), membershipGroupMatchingIdAttribute));
+
+            if (!StringUtils.isBlank(value)) {
+              groupTargetMatchingAttributeToGroupWrapper.put(value, grouperProvisioningGroup.getProvisioningGroupWrapper());
+            }
+          }
+        }
+
+        String membershipEntityMatchingIdAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getMembershipEntityMatchingIdGrouperAttribute();
+        
+        if (!StringUtils.isBlank(membershipEntityMatchingIdAttribute)) {
+          for (ProvisioningEntity grouperProvisioningEntity : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningEntities())) {
+            
+            String value = GrouperUtil.stringValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
+                .translateFromGrouperProvisioningEntityField(grouperProvisioningEntity.getProvisioningEntityWrapper(), membershipEntityMatchingIdAttribute));
+
+            if (!StringUtils.isBlank(value)) {
+              entityTargetMatchingAttributeToEntityWrapper.put(value, grouperProvisioningEntity.getProvisioningEntityWrapper());
+            }
+          }
+        }
+        
+        indexesInitialized = true;
+      }
+      // if the matching id is a multikey with two parts (group and entity)
+      for (ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue : GrouperUtil.nonNull(targetProvisioningMembership.getMatchingIdAttributeNameToValues())) {
+        Object attributeValue = provisioningUpdatableAttributeAndValue.getAttributeValue();
+        if (attributeValue instanceof MultiKey) {
+          MultiKey attributeValueMultiKey = (MultiKey)attributeValue;
+          if (attributeValueMultiKey.size() == 2) {
+            String groupAttributeValue = GrouperUtil.stringValue(attributeValueMultiKey.getKey(0));
+            String entityAttributeValue = GrouperUtil.stringValue(attributeValueMultiKey.getKey(1));
+            
+            ProvisioningGroupWrapper provisioningGroupWrapper = groupTargetMatchingAttributeToGroupWrapper.get(groupAttributeValue);
+            ProvisioningEntityWrapper provisioningEntityWrapper = entityTargetMatchingAttributeToEntityWrapper.get(entityAttributeValue);
+
+            if (provisioningGroupWrapper != null || provisioningEntityWrapper != null) {
+              missingTargetMembershipReferencesFixedCount++;
+              MultiKey groupIdMemberId = new MultiKey(new Object[] {
+                  provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGroupId(),
+                  provisioningEntityWrapper == null ? null : provisioningEntityWrapper.getMemberId()
+              });
+              provisioningMembershipWrapper.setGroupIdMemberId(groupIdMemberId);
+            }
+            
+          }
+        }
+      }
+      
+    }
+
+    if (missingTargetMembershipReferencesFixedCount > 0) {
+      GrouperUtil.mapAddValue(debugMap, "missingTargetMembershipReferencesFixedCount", missingTargetMembershipReferencesFixedCount);
+    }
+  }
+  
   private List<ProvisioningGroup> getTargetGroupMapFromQueryResults(List<String[]> queryResults) {
     
     List<GrouperProvisioningObjectMetadataItem> grouperProvisioningObjectMetadataItems = 

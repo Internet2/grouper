@@ -26,6 +26,32 @@ public class SqlProvisionerTestUtils {
     }
   }
   
+  public static void configureSqlProvisionerAcLilleDatabase(SqlProvisionerTestConfigInput provisioningTestConfigInput) {
+    configureProvisionerSuffix(provisioningTestConfigInput, "addDisabledFullSyncDaemon", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "addDisabledIncrementalSyncDaemon", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "class", SqlProvisioner.class.getName());
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "dbExternalSystemConfigId", "grouper");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsIfNotExistInGrouper", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteMembershipsOnlyInTrackedGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "membershipAdvancedOptions", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "membershipTableName", "testgrouper_prov_mship0");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfMembershipAttributes", "2");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
+    configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "startWith", "this is start with read only");
+    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.name", "group_name");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField", "displayExtension");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.name", "subject_id");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
+    
+  }
+  
   public static void configureSqlProvisionerDentalDatabase(SqlProvisionerTestConfigInput provisioningTestConfigInput) {
     
     configureProvisionerSuffix(provisioningTestConfigInput, "class", SqlProvisioner.class.getName());
@@ -139,6 +165,8 @@ public class SqlProvisionerTestUtils {
     
       configurePennListserv(provisioningTestConfigInput);  
       
+    } else if (StringUtils.equals("acLille", provisioningTestConfigInput.getProvisioningStrategy())) {
+      configureSqlProvisionerAcLilleDatabase(provisioningTestConfigInput);  
     } else {
       configureProvisionerSuffix(provisioningTestConfigInput, "class", SqlProvisioner.class.getName());
       configureProvisionerSuffix(provisioningTestConfigInput, "dbExternalSystemConfigId", "grouper");
