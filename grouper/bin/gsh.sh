@@ -198,7 +198,7 @@ if [ -f /opt/tomcat/lib/servlet-api.jar ]; then
         GROUPER_CP=${GROUPER_CP}:/opt/tomcat/lib/servlet-api.jar
 fi
 
-GROUPER_ADD_OPENS="--add-opens java.base/java.lang=ALL-UNNAMED \
+GROUPER_ADD_OPENS="--add-opens=java.base/java.nio=ALL-UNNAMED --add-opens java.base/java.lang=ALL-UNNAMED \
   --add-opens java.base/java.util=ALL-UNNAMED \
   --add-opens java.sql/java.sql=ALL-UNNAMED"
 
