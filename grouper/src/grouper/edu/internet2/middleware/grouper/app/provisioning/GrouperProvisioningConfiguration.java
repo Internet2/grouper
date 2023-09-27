@@ -3272,6 +3272,53 @@ public abstract class GrouperProvisioningConfiguration {
     //register metadata
     this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().appendMetadataItemsFromConfig(this.metadataNameToMetadataItem.values());
     
+    if (this.isSelectMemberships() || isInsertMemberships() || isDeleteMemberships()) {
+      
+      // "id", "email", "loginid", "memberId", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", "subjectId", "subjectSourceId", "description", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2"
+      //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.name", "subject_id");
+      //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+      //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
+      for (String entityMapping : new String[] {"memberId", "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "email", "loginid", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "id", "idIndex"}) {
+        for (String name: getTargetMembershipAttributeNameToConfig().keySet()) {
+          
+          GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (GrouperProvisioningConfigurationAttribute) this.getTargetMembershipAttributeNameToConfig().get(name);
+          
+          if (StringUtils.equals(entityMapping, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
+            if (StringUtils.isBlank(membershipEntityMatchingIdAttribute)) {
+              membershipEntityMatchingIdAttribute = name;
+            }
+            if (StringUtils.isBlank(membershipEntityMatchingIdGrouperAttribute)) {
+              membershipEntityMatchingIdGrouperAttribute = entityMapping;
+            }
+          }
+          
+        }
+        
+      }
+      // "id", "idIndex", "idIndexString", "displayExtension", "displayName", "extension", "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3", "name", "description"
+      //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.name", "group_name");
+      //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField", "name");
+      //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+      for (String groupMapping : new String[] {"id", "idIndex", "idIndexString", "name", "displayName", "extension", "displayExtension", "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3"}) {
+        for (String name: getTargetMembershipAttributeNameToConfig().keySet()) {
+          
+          GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (GrouperProvisioningConfigurationAttribute) this.getTargetMembershipAttributeNameToConfig().get(name);
+          
+          if (StringUtils.equals(groupMapping, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
+            if (StringUtils.isBlank(membershipGroupMatchingIdAttribute)) {
+              membershipGroupMatchingIdAttribute = name;
+            }
+            if (StringUtils.isBlank(membershipGroupMatchingIdGrouperAttribute)) {
+              membershipGroupMatchingIdGrouperAttribute = groupMapping;
+            }
+          }
+          
+        }
+        
+      }
+    }
+    
+
     assignAutoTranslatedGroupsConfiguration();
 
     assignAutoTranslatedEntitiesConfiguration();
@@ -3548,6 +3595,67 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private Map<String, GrouperProvisioningConfigurationAttribute> targetMembershipAttributeNameToConfig = new LinkedHashMap<String, GrouperProvisioningConfigurationAttribute>();
 
+  /**
+   * grouper attribute from GrouperProvisioningEntity that maps to the value in membershipEntityMatchingIdAttribute
+   */
+  protected String membershipEntityMatchingIdGrouperAttribute;
+
+  /**
+   * membership attribute that matches entities
+   */
+  protected String membershipEntityMatchingIdAttribute;
+
+  
+  public void setMembershipEntityMatchingIdGrouperAttribute(
+      String membershipEntityMatchingIdGrouperAttribute) {
+    this.membershipEntityMatchingIdGrouperAttribute = membershipEntityMatchingIdGrouperAttribute;
+  }
+
+  
+  public void setMembershipEntityMatchingIdAttribute(
+      String membershipEntityMatchingIdAttribute) {
+    this.membershipEntityMatchingIdAttribute = membershipEntityMatchingIdAttribute;
+  }
+
+  
+  public void setMembershipGroupMatchingIdAttribute(
+      String membershipGroupMatchingIdAttribute) {
+    this.membershipGroupMatchingIdAttribute = membershipGroupMatchingIdAttribute;
+  }
+
+  
+  public void setMembershipGroupMatchingIdGrouperAttribute(
+      String membershipGroupMatchingIdGrouperAttribute) {
+    this.membershipGroupMatchingIdGrouperAttribute = membershipGroupMatchingIdGrouperAttribute;
+  }
+
+  /**
+   * grouper attribute from GrouperProvisioningGroup that maps to the value in membershipGroupMatchingIdAttribute
+   */
+  protected String membershipGroupMatchingIdAttribute;
+
+  /**
+   * membership attribute that matches groups
+   */
+  protected String membershipGroupMatchingIdGrouperAttribute;
+
+
+  /**
+   * grouper attribute from GrouperProvisioningEntity that maps to the value in membershipEntityMatchingIdAttribute
+   * @return
+   */
+  public String getMembershipEntityMatchingIdGrouperAttribute() {
+    return membershipEntityMatchingIdGrouperAttribute;
+  }
+
+  /**
+   * grouper attribute from GrouperProvisioningGroup that maps to the value in membershipGroupMatchingIdAttribute
+   * @return
+   */
+  public String getMembershipGroupMatchingIdGrouperAttribute() {
+    return membershipGroupMatchingIdGrouperAttribute;
+  }
+
   public Map<String, GrouperProvisioningConfigurationAttribute> getTargetMembershipAttributeNameToConfig() {
     return targetMembershipAttributeNameToConfig;
   }
@@ -3574,7 +3682,7 @@ public abstract class GrouperProvisioningConfiguration {
       this.configureGenericSettings();
       
       this.configureSpecificSettings();
-    
+      
     } catch (RuntimeException re) {
       if (this.grouperProvisioner != null && this.grouperProvisioner.getGcGrouperSyncLog() != null) {
         try {
@@ -4317,5 +4425,21 @@ public abstract class GrouperProvisioningConfiguration {
   }
   
   
+
+  /**
+   * find the matching ID part for membership table that goes to the entity
+   * @return the column which is the matching ID in memberships for entity
+   */
+  public String getMembershipEntityMatchingIdAttribute() {
+    return this.membershipEntityMatchingIdAttribute;
+  }
+
+  /**
+   * find the matching ID part for membership table that goes to the group
+   * @return the column which is the matching ID in memberships for group
+   */
+  public String getMembershipGroupMatchingIdAttribute() {
+    return this.membershipGroupMatchingIdAttribute;
+  }  
   
 }
