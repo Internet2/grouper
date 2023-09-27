@@ -368,7 +368,7 @@ public class GrouperProvisioningSyncIntegration {
       throw new RuntimeException("Target '" + gcGrouperSync.getProvisionerName() 
         + "' is not configured. Go to Miscellaneous -> Provisioning to configure a new target.");
     }
-
+    
     Map<String, GcGrouperSyncMember> memberUuidToSyncMember = new HashMap<String, GcGrouperSyncMember>();
 
     for (GcGrouperSyncMember gcGrouperSyncMember : initialGcGrouperSyncMembers) {
@@ -404,8 +404,13 @@ public class GrouperProvisioningSyncIntegration {
         GrouperProvisioningObjectAttributes grouperProvisioningObjectAttributes = memberUuidToProvisioningObjectAttributes.get(gcGrouperSyncMember.getMemberId());
 
         String newMetadataJson = grouperProvisioningObjectAttributes == null ? null : grouperProvisioningObjectAttributes.getProvisioningMetadataJson();
+        if (!StringUtils.equals(newMetadataJson, gcGrouperSyncMember.getMetadataJson())) {
+          
+          memberIdsToUpdate.add(gcGrouperSyncMember.getMemberId());
+          
+        }
         gcGrouperSyncMember.setMetadataJson(newMetadataJson);
-
+        
         //if we arent provisionable, and the member has not been in the target for a week, then we done with that one
         if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) && !gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getInTargetEnd() != null) {
           long targetEndMillis = gcGrouperSyncMember.getInTargetEnd() == null ? 0 : gcGrouperSyncMember.getInTargetEnd().getTime();

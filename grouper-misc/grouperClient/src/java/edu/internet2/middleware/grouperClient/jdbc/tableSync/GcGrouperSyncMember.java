@@ -150,6 +150,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
         .append(this.entityAttributeValueCache2, other.entityAttributeValueCache2)
         .append(this.entityAttributeValueCache3, other.entityAttributeValueCache3)
         .append(this.metadataUpdated, other.metadataUpdated)
+        .append(this.metadataJson, other.metadataJson)
         .append(this.provisionableDb, other.provisionableDb)
         .append(this.provisionableEnd, other.provisionableEnd)
         .append(this.provisionableStart, other.provisionableStart)

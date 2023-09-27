@@ -2095,6 +2095,10 @@ public class GrouperProvisioningGrouperDao {
       throw new RuntimeException("grouperProvisioner is not set");
     }
     
+    if (StringUtils.isBlank(markerAttributeAssignId)) {
+      return null;
+    }
+    
     String sql = "SELECT gps.source_id " +
         "FROM " + 
         "    grouper_pit_stems gps, " +
@@ -2144,6 +2148,59 @@ public class GrouperProvisioningGrouperDao {
     return null;
   }
   
+  
+  /**
+   * @return member id if is/was a direct member assignment for this provisioner
+   */
+  public String getMemberIdIfDirectMemberAssignmentByPITMarkerAttributeAssignId(String markerAttributeAssignId) {
+
+    if (this.grouperProvisioner == null) {
+      throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    if (StringUtils.isBlank(markerAttributeAssignId)) {
+      return null;
+    }
+    
+    String sql = "SELECT gpm.source_id " +
+        "FROM " + 
+        "    grouper_pit_members gpm, " +
+        "    grouper_pit_attribute_assign gpaa_marker, " + 
+        "    grouper_pit_attribute_assign gpaa_target, " + 
+        "    grouper_pit_attr_assn_value gpaav_target, " + 
+        "    grouper_pit_attr_def_name gpadn_marker, " + 
+        "    grouper_pit_attr_def_name gpadn_target " + 
+        "WHERE " + 
+        "    gpaa_marker.id = ? " +
+        "    AND gpaa_marker.owner_member_id = gpm.id " +
+        "    AND gpaa_marker.attribute_def_name_id = gpadn_marker.id " + 
+        "    AND gpadn_marker.name = ? " + 
+        "    AND gpaa_marker.id = gpaa_target.owner_attribute_assign_id " + 
+        "    AND gpaa_target.attribute_def_name_id = gpadn_target.id " + 
+        "    AND gpadn_target.name = ? " + 
+        "    AND gpaav_target.attribute_assign_id = gpaa_target.id " + 
+        "    AND gpaav_target.value_string = ? ";
+    
+    List<Object> paramsInitial = new ArrayList<Object>();
+    paramsInitial.add(markerAttributeAssignId);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
+    paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_TARGET);
+    paramsInitial.add(this.grouperProvisioner.getConfigId());
+
+    List<Type> typesInitial = new ArrayList<Type>();
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+    typesInitial.add(StringType.INSTANCE);
+
+    List<String> memberIds = HibernateSession.bySqlStatic().listSelect(String.class, sql, paramsInitial, typesInitial);
+    if (memberIds.size() > 0) {
+      return memberIds.get(0);
+    }
+    
+    return null;
+  }
+  
   /**
    * @return group id if is/was a direct group assignment for this provisioner
    */
@@ -2151,6 +2208,10 @@ public class GrouperProvisioningGrouperDao {
 
     if (this.grouperProvisioner == null) {
       throw new RuntimeException("grouperProvisioner is not set");
+    }
+    
+    if (StringUtils.isBlank(markerAttributeAssignId)) {
+      return null;
     }
     
     String sql = "SELECT gpg.source_id " +
