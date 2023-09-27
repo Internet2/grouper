@@ -484,6 +484,12 @@ public class GrouperZoomCommands {
     if (jsonObject.containsKey("verified")) {
       result.put("verified", jsonObject.getInt("verified"));
     }
+    if (jsonObject.containsKey("created_at")) {
+      result.put("created_at", jsonObject.getString("created_at"));
+    }
+    if (jsonObject.containsKey("last_login_time")) {
+      result.put("last_login_time", jsonObject.getString("last_login_time"));
+    }
     JSONArray groupIdsJsonArray = jsonObject.containsKey("group_ids") ? jsonObject.getJSONArray("group_ids") : null;
     String[] groupIdsArray = new String[groupIdsJsonArray == null ? 0 : groupIdsJsonArray.size()];
     for (int i=0;i<(groupIdsJsonArray == null ? 0 : groupIdsJsonArray.size());i++) {
