@@ -139,7 +139,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     attributeAssign.saveOrUpdate(true);
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(attributeAssign);
     attributeAssignValue.setValueString("hello");
     attributeAssignValue.setId(GrouperUuid.getUuid());
     try {
@@ -192,7 +192,7 @@ public class AttributeAssignValueTest extends GrouperTest {
       //create a new one
       attributeAssignValue = new AttributeAssignValue();
       attributeAssignValue.setId(GrouperUuid.getUuid());
-      attributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(attributeAssign);
       attributeAssignValue.saveOrUpdate();
     }
     return attributeAssignValue;
@@ -219,7 +219,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     
     AttributeAssignValue attributeAssignValue2 = new AttributeAssignValue();
     attributeAssignValue2.setId(GrouperUuid.getUuid());
-    attributeAssignValue2.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue2.setAttributeAssign(attributeAssign);
     attributeAssignValue2.setValueString("abc");
     attributeAssignValue2.saveOrUpdate();
 
@@ -242,7 +242,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     
     AttributeAssignValue attributeAssignValue1 = new AttributeAssignValue();
     attributeAssignValue1.setId(GrouperUuid.getUuid());
-    attributeAssignValue1.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue1.setAttributeAssign(attributeAssign);
     attributeAssignValue1.setValueInteger(55L);
     attributeAssignValue1.saveOrUpdate();
     
@@ -265,7 +265,7 @@ public class AttributeAssignValueTest extends GrouperTest {
     
     AttributeAssignValue attributeAssignValue3 = new AttributeAssignValue();
     attributeAssignValue3.setId(GrouperUuid.getUuid());
-    attributeAssignValue3.setAttributeAssignId(attributeAssign.getId());
+    attributeAssignValue3.setAttributeAssign(attributeAssign);
     attributeAssignValue3.setValueMemberId(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, true).getUuid());
     attributeAssignValue3.saveOrUpdate();
     

@@ -773,6 +773,15 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
   
   /**
    * attribute assignment in this value assignment
+   * @param attributeAssign1 the attributeAssign to set
+   */
+  public void setAttributeAssign(AttributeAssign attributeAssign1) {
+    this.attributeAssignId = attributeAssign1 == null ? null : attributeAssign1.getId();
+    this.attributeAssign = attributeAssign1;
+  }
+  
+  /**
+   * attribute assignment in this value assignment
    * @param attributeAssignId1 the attributeNameId to set
    */
   public void setAttributeAssignId(String attributeAssignId1) {
@@ -1313,7 +1322,7 @@ public class AttributeAssignValue extends GrouperAPI implements GrouperHasContex
       //we dont validate blank values
       if (!StringUtils.isBlank(valueFriendly)) {
         AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-        attributeAssignValue.setAttributeAssignId(limitAssign.getId());
+        attributeAssignValue.setAttributeAssign(limitAssign);
         
         AttributeDefName limit = limitAssign.getAttributeDefName();
         String limitName = limit.getName();

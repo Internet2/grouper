@@ -307,7 +307,7 @@ public class AttributeAssignValueDelegate {
     attributeAssignValuesResult.setAttributeAssignValueResults(new LinkedHashSet<AttributeAssignValueResult>());
     for (Object value : values) {
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.assignValue(value);
       AttributeAssignValuesResult currentResult = internal_addValues(GrouperUtil.toSet(attributeAssignValue), true);
       attributeAssignValuesResult.setChanged(attributeAssignValuesResult.isChanged() || currentResult.isChanged());
@@ -326,7 +326,7 @@ public class AttributeAssignValueDelegate {
     attributeAssignValuesResult.setAttributeAssignValueResults(new LinkedHashSet<AttributeAssignValueResult>());
     for (String value : values) {
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.assignValue(value);
       AttributeAssignValuesResult currentResult = internal_addValues(GrouperUtil.toSet(attributeAssignValue), true);
       attributeAssignValuesResult.setChanged(attributeAssignValuesResult.isChanged() || currentResult.isChanged());
@@ -342,7 +342,7 @@ public class AttributeAssignValueDelegate {
    */
   public AttributeAssignValueResult assignValue(String value) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(this.attributeAssign);
     attributeAssignValue.assignValue(value);
     return assignValue(attributeAssignValue);
   }
@@ -354,7 +354,7 @@ public class AttributeAssignValueDelegate {
    */
   public AttributeAssignValueResult assignValueObject(Object value) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(this.attributeAssign);
     attributeAssignValue.assignValue(value);
     return assignValue(attributeAssignValue);
   }
@@ -384,7 +384,7 @@ public class AttributeAssignValueDelegate {
     }
     for (String value : values) {
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueString(value);
       AttributeAssignValuesResult currentResult = internal_addValues(GrouperUtil.toSet(attributeAssignValue), true);
       attributeAssignValuesResult.setChanged(attributeAssignValuesResult.isChanged() || currentResult.isChanged());
@@ -400,7 +400,7 @@ public class AttributeAssignValueDelegate {
    */
   public AttributeAssignValueResult assignValueString(String value) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(this.attributeAssign);
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
     if (attributeDef.getValueType() != AttributeDefValueType.string) {
       throw new RuntimeException("Expecting String value type: " + attributeDef.getValueType());
@@ -416,7 +416,7 @@ public class AttributeAssignValueDelegate {
    */
   public AttributeAssignValueResult assignValueFloating(Double value) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(this.attributeAssign);
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
     if (attributeDef.getValueType() != AttributeDefValueType.floating) {
       throw new RuntimeException("Expecting floating value type: " + attributeDef.getValueType());
@@ -442,7 +442,7 @@ public class AttributeAssignValueDelegate {
    */
   public AttributeAssignValueResult internal_assignValueInteger(Long value, AttributeDefValueType attributeDefValueType) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(this.attributeAssign);
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
     if (attributeDef.getValueType() != attributeDefValueType) {
       throw new RuntimeException("Expecting " + attributeDefValueType + " value type: " + attributeDef.getValueType());
@@ -476,7 +476,7 @@ public class AttributeAssignValueDelegate {
    */
   public AttributeAssignValueResult assignValueMember(String value) {
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(this.attributeAssign);
     AttributeDef attributeDef = this.attributeAssign.getAttributeDef();
     if (attributeDef.getValueType() != AttributeDefValueType.memberId) {
       throw new RuntimeException("Expecting member value type: " + attributeDef.getValueType());
@@ -510,7 +510,7 @@ public class AttributeAssignValueDelegate {
     }
     for (Double value : values) {
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueFloating(value);
       
       AttributeAssignValuesResult currentResult = internal_addValues(GrouperUtil.toSet(attributeAssignValue), true);
@@ -557,7 +557,7 @@ public class AttributeAssignValueDelegate {
     }
     for (Long value : values) {
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueInteger(value);
       AttributeAssignValuesResult currentResult = internal_addValues(GrouperUtil.toSet(attributeAssignValue), true);
       attributeAssignValuesResult.setChanged(attributeAssignValuesResult.isChanged() || currentResult.isChanged());
@@ -639,7 +639,7 @@ public class AttributeAssignValueDelegate {
     }
     for (String value: values) {
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueMemberId(value);
       AttributeAssignValuesResult currentResult = internal_addValues(GrouperUtil.toSet(attributeAssignValue), true);
       attributeAssignValuesResult.setChanged(attributeAssignValuesResult.isChanged() || currentResult.isChanged());
@@ -683,7 +683,7 @@ public class AttributeAssignValueDelegate {
             + ", " + attributeDef);
       }
       
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       
       attributeAssignValue.saveOrUpdate();
       
@@ -864,7 +864,7 @@ public class AttributeAssignValueDelegate {
     for (String value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.assignValue(value);
       attributeAssignValues.add(attributeAssignValue);
       
@@ -888,7 +888,7 @@ public class AttributeAssignValueDelegate {
     for (String value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueString(value);
       attributeAssignValues.add(attributeAssignValue);
       
@@ -912,7 +912,7 @@ public class AttributeAssignValueDelegate {
     for (Object value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.assignValue(value);
       attributeAssignValues.add(attributeAssignValue);
       
@@ -952,7 +952,7 @@ public class AttributeAssignValueDelegate {
     for (String value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueMemberId(value);
       attributeAssignValues.add(attributeAssignValue);
       
@@ -977,7 +977,7 @@ public class AttributeAssignValueDelegate {
     for (Timestamp value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueInteger(value == null ? null : value.getTime());
       attributeAssignValues.add(attributeAssignValue);
       
@@ -1002,7 +1002,7 @@ public class AttributeAssignValueDelegate {
     for (Double value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueFloating(value);
       attributeAssignValues.add(attributeAssignValue);
       
@@ -1028,7 +1028,7 @@ public class AttributeAssignValueDelegate {
     for (Long value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.setValueInteger(value);
       attributeAssignValues.add(attributeAssignValue);
       
@@ -1248,7 +1248,7 @@ public class AttributeAssignValueDelegate {
     for (Object value : values) {
       
       AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-      attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+      attributeAssignValue.setAttributeAssign(this.attributeAssign);
       attributeAssignValue.assignValue(value);
       
       Set<AttributeAssignValue> foundValues = this.internal_findValues(attributeAssignValue, false);
@@ -1327,7 +1327,7 @@ public class AttributeAssignValueDelegate {
   public Set<AttributeAssignValue> internal_findValues(String value, boolean checkSecurity) {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
-    attributeAssignValue.setAttributeAssignId(this.attributeAssign.getId());
+    attributeAssignValue.setAttributeAssign(this.attributeAssign);
     attributeAssignValue.assignValue(value);
     
     return this.internal_findValues(attributeAssignValue, checkSecurity);
@@ -1983,7 +1983,7 @@ public class AttributeAssignValueDelegate {
               System.out.println("Made change updated attribute value from '" + oldValue + "' to '" + existingAttributeAssignValue.valueString(true) + "' on " + this.attributeAssign);
             }
           } else {
-            expectedAttributeAssignValue.setAttributeAssignId(attributeAssign.getId());
+            expectedAttributeAssignValue.setAttributeAssign(attributeAssign);
             expectedAttributeAssignValue.saveOrUpdate();
             if (AttributeAssignSave.printChangesToSystemOutThreadlocal()) {
               System.out.println("Made change added attribute value '" + expectedAttributeAssignValue.valueString(true) + "' on " + this.attributeAssign);
