@@ -30,6 +30,9 @@ import edu.internet2.middleware.grouper.internal.dao.RegistrySubjectDAO;
 import edu.internet2.middleware.grouper.misc.CompositeType;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -42,7 +45,7 @@ public class UsduJobTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new UsduJobTest("testNoLongerSubjectResolutionEligibleLocalEntities"));
+    TestRunner.run(new UsduJobTest("testUsduJobWithPrivileges"));
   }
   
   public UsduJobTest(String name) {
@@ -275,6 +278,43 @@ public class UsduJobTest extends GrouperTest {
     assertTrue(member.getAttributeDelegate().retrieveAttributes().contains(UsduAttributeNames.retrieveAttributeDefNameBase()));
     assertFalse(member.getAttributeDelegate().retrieveAttributes().contains(attributeDefName));
     assertFalse(new GroupMember(group, member).getAttributeDelegate().retrieveAttributes().contains(attributeDefName));
+  }
+  
+  public void testUsduJobWithPrivileges() throws InterruptedException {
+    int initialSize = GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size();
+    
+    Group group = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    Stem stem = group.getParentStem();
+    AttributeDef attributeDef = stem.addChildAttributeDef("attributeDef", AttributeDefType.attr);
+
+    Subject subject = SubjectFinder.findById("test.subject.0", true);
+    
+    group.grantPriv(subject, AccessPrivilege.ADMIN);
+    stem.grantPriv(subject, NamingPrivilege.STEM_ADMIN);
+    attributeDef.getPrivilegeDelegate().grantPriv(subject, AttributeDefPrivilege.ATTR_ADMIN, true);
+    
+    Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, false);
+    
+    deleteSubject(subject);
+    
+    UsduJob.runDaemonStandalone();
+    assertTrue(group.hasAdmin(subject));
+    assertTrue(stem.hasStemAdmin(subject));
+    assertTrue(attributeDef.getPrivilegeDelegate().hasAttrAdmin(subject));
+    
+    assertTrue(member.getAttributeDelegate().retrieveAttributes().contains(UsduAttributeNames.retrieveAttributeDefNameBase()));
+    
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
+
+    assertEquals(initialSize + 1, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+    UsduJob.runDaemonStandalone();
+    assertEquals(initialSize, GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck().size());
+
+    assertFalse(group.hasAdmin(subject));
+    assertFalse(stem.hasStemAdmin(subject));
+    assertFalse(attributeDef.getPrivilegeDelegate().hasAttrAdmin(subject));
+    
+    assertTrue(member.getAttributeDelegate().retrieveAttributes().contains(UsduAttributeNames.retrieveAttributeDefNameBase()));
   }
   
   public void testUsduJobWhenSubjectIsDeleted() throws InterruptedException {

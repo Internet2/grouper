@@ -52,8 +52,6 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -76,10 +74,7 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public class UsduJob extends OtherJobBase {
   
   private static final Log LOG = GrouperUtil.getLog(UsduJob.class);
-  
-  /** map list names to corresponding privileges, a better way probably exists */
-  private static Map<String, Privilege> list2priv = new HashMap<String, Privilege>();
-  
+    
   private static Map<String, UsduSource> usduConfiguredSources = new HashMap<String, UsduSource>();
   
   private static InheritableThreadLocal<Boolean> runningUsduThreadLocal = new InheritableThreadLocal<Boolean>();
@@ -92,20 +87,6 @@ public class UsduJob extends OtherJobBase {
   }
 
   static {
-    list2priv.put(Field.FIELD_NAME_ADMINS, AccessPrivilege.ADMIN);
-    list2priv.put(Field.FIELD_NAME_OPTINS, AccessPrivilege.OPTIN);
-    list2priv.put(Field.FIELD_NAME_OPTOUTS, AccessPrivilege.OPTOUT);
-    list2priv.put(Field.FIELD_NAME_READERS, AccessPrivilege.READ);
-    list2priv.put(Field.FIELD_NAME_UPDATERS, AccessPrivilege.UPDATE);
-    list2priv.put(Field.FIELD_NAME_VIEWERS, AccessPrivilege.VIEW);
-    list2priv.put(Field.FIELD_NAME_GROUP_ATTR_READERS, AccessPrivilege.GROUP_ATTR_READ);
-    list2priv.put(Field.FIELD_NAME_GROUP_ATTR_UPDATERS, AccessPrivilege.GROUP_ATTR_UPDATE);
-    list2priv.put(Field.FIELD_NAME_CREATORS, NamingPrivilege.CREATE);
-    list2priv.put(Field.FIELD_NAME_STEM_ADMINS, NamingPrivilege.STEM_ADMIN);
-    list2priv.put(Field.FIELD_NAME_STEM_VIEWERS, NamingPrivilege.STEM_VIEW);
-    list2priv.put(Field.FIELD_NAME_STEM_ATTR_READERS, NamingPrivilege.STEM_ATTR_READ);
-    list2priv.put(Field.FIELD_NAME_STEM_ATTR_UPDATERS, NamingPrivilege.STEM_ATTR_UPDATE);
-    
     populateUsduConfiguredSources();
   }
   
@@ -869,6 +850,9 @@ public class UsduJob extends OtherJobBase {
         if (membership.getList().getType().equals(FieldType.NAMING)) {
           LOG.info(" stem='" + membership.getOwnerStem().getName());
         }
+        if (membership.getList().getType().equals(FieldType.ATTRIBUTE_DEF)) {
+          LOG.info(" attrDef='" + membership.getOwnerAttributeDef().getName());
+        }
         LOG.info(" list='" + membership.getList().getName() + "'");
         
         HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_OR_USE_EXISTING, AuditControl.WILL_AUDIT, new HibernateHandler() {
@@ -884,6 +868,10 @@ public class UsduJob extends OtherJobBase {
             
             if (membership.getList().getType().equals(FieldType.NAMING)) {
               USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerStem(), getPrivilege(membership.getList()));
+            }
+            
+            if (membership.getList().getType().equals(FieldType.ATTRIBUTE_DEF)) {
+              USDU.deleteUnresolvableMember(membership.getMember(), membership.getOwnerAttributeDef(), getPrivilege(membership.getList()));
             }
             
             return null;
@@ -934,7 +922,7 @@ public class UsduJob extends OtherJobBase {
   
   /**
    * Get fields of which a subject might be a member. Includes all fields of
-   * type FieldType.LIST, FieldType.ACCESS, and FieldType.NAMING.
+   * type FieldType.LIST, FieldType.ACCESS, FieldType.ATTRIBUTE_DEF, and FieldType.NAMING.
    * 
    * @return set of fields
    * @throws SchemaException
@@ -949,6 +937,9 @@ public class UsduJob extends OtherJobBase {
       listFields.add((Field) field);
     }
     for (Object field : FieldFinder.findAllByType(FieldType.NAMING)) {
+      listFields.add((Field) field);
+    }
+    for (Object field : FieldFinder.findAllByType(FieldType.ATTRIBUTE_DEF)) {
       listFields.add((Field) field);
     }
     return listFields;
@@ -986,7 +977,7 @@ public class UsduJob extends OtherJobBase {
    */
   protected static Privilege getPrivilege(Field field) {
 
-    return list2priv.get(field.getName());
+    return Privilege.listToPriv(field.getName(), true);
   }
 
 }
