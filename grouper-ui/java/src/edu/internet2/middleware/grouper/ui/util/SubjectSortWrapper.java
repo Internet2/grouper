@@ -236,6 +236,11 @@ public class SubjectSortWrapper implements Subject, Comparable {
     
   }
   
-  
+  public boolean isResolvedFromSource() {
+    return this.wrappedSubject.isResolvedFromSource();
+  }
 
+  public void setResolvedFromSource(boolean isResolvedFromSource) {
+    this.wrappedSubject.setResolvedFromSource(isResolvedFromSource);
+  }
 }
