@@ -644,7 +644,20 @@ public class RegistrySubject extends GrouperAPI implements Subject {
     throw new UnsupportedOperationException();
   } 
   
-  
+  /**
+   * @return true if resolved from source (rather than cache)
+   */
+  public boolean isResolvedFromSource() {
+    return this.subject.isResolvedFromSource();
+  }
+
+  /**
+   * true if resolved from source (rather than cache)
+   * @param isResolvedFromSource
+   */
+  public void setResolvedFromSource(boolean isResolvedFromSource) {
+    this.subject.setResolvedFromSource(isResolvedFromSource);
+  }
   
 }
 

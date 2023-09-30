@@ -144,6 +144,9 @@ public class SubjectImpl implements Subject {
   /** */
   private Map<String, Set<String>> attributes = null;
   
+  /** */
+  private boolean isResolvedFromSource = false;
+  
   /**
    * Constructor called by SourceManager.  Will create an empty map for attributes
    * @param id1 
@@ -744,6 +747,18 @@ public class SubjectImpl implements Subject {
     this.descriptionOverride = descriptionOverride;
   }
 
-  
-  
+  /**
+   * @return true if resolved from source (rather than cache)
+   */
+  public boolean isResolvedFromSource() {
+    return isResolvedFromSource;
+  }
+
+  /**
+   * true if resolved from source (rather than cache)
+   * @param isResolvedFromSource
+   */
+  public void setResolvedFromSource(boolean isResolvedFromSource) {
+    this.isResolvedFromSource = isResolvedFromSource;
+  }
 }

@@ -65,7 +65,7 @@ public class TestMemberAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMemberAttributes("testPersonMemberIgnoreCachedSubjects"));
+    TestRunner.run(new TestMemberAttributes("testPersonMember"));
     //TestRunner.run(TestMemberAttributes.class);
   }
   
@@ -1125,6 +1125,8 @@ public class TestMemberAttributes extends GrouperTest {
     // verify that an update will work
     member.setSortString0("bogus");
     member.setSortString1(null);
+    member.setSubjectResolutionDeleted(true);
+    member.setSubjectResolutionResolvable(false);
     member.store();
     
     // member record should get corrected by this
@@ -1142,6 +1144,8 @@ public class TestMemberAttributes extends GrouperTest {
     member = GrouperDAOFactory.getFactory().getMember().findBySubject(subj, true);
     assertEquals(subj.getAttributeValue("LFNAME"), member.getSortString0());
     assertEquals(subj.getAttributeValue("LOGINID"), member.getSortString1());
+    assertTrue(member.isSubjectResolutionResolvable());
+    assertFalse(member.isSubjectResolutionDeleted());
   }
   
   /**
