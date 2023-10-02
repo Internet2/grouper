@@ -158,7 +158,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
 
   @Override
   public int getDaoSleepBeforeSelectAfterInsertMillis() {
-   return 3000;
+    return GrouperUtil.intValue(this.retrieveConfigInt("sleepBeforeSelectAfterInsertMillis", false), 3000);
   }
   
   
