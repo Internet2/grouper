@@ -13,13 +13,22 @@
        <div class="page-header blue-gradient">
        
          <div class="row-fluid">
-           <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsRecentActivityDescription'] }</h1></div>
+           <div class="lead span9 pull-left"><h1>${textContainer.text['miscellaneousProvisionerConfigurationsRecentActivityTitle'] }</h1>
+            
+           </div>
            <div class="span2 pull-right">
              <c:set var="buttonSize" value="btn-medium" />
              <c:set var="buttonBlock" value="btn-block" />
              <%@ include file="provisionerConfigsMoreActionsButtonContents.jsp"%>
            </div>
          </div>
+         
+        <div class="row-fluid">
+          <div class="span12">
+            <p style="margin-top: -1em; margin-bottom: 1em">${textContainer.text['miscellaneousProvisionerConfigurationsRecentActivityDescription']}</p>
+          </div>
+        </div>
+                
        </div>
      </div>
      
@@ -44,6 +53,7 @@
 				  <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigObjectTypeId">${textContainer.text['provisionerConfigObjectType']}</label></strong></td>
 				    <td>
                        <select name="provisionerConfigObjectType" id="provisionerConfigObjectTypeId" style="width: 30em">
+                         <option value=""></option>
                          <option ${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'group' ? 'selected="selected"' : '' } value="group">${textContainer.textEscapeXml['provisionerConfigObjectTypeGroup']}</option>
                          <option ${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'entity' ? 'selected="selected"' : '' } value="entity">${textContainer.textEscapeXml['provisionerConfigObjectTypeEntity']}</option>
                          <option ${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'membership' ? 'selected="selected"' : '' } value="membership">${textContainer.textEscapeXml['provisionerConfigObjectTypeMembership']}</option>
@@ -76,13 +86,13 @@
 	  </div>
 	</div>
 	
-	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'group'}">
+	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'group' or grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == '' }">
 		<%@ include file="provisioningConfigActivityGroup.jsp"%>	
 	</c:if>
-	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'entity'}">
+	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'entity' or grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == ''}">
 		<%@ include file="provisioningConfigActivityMember.jsp"%>	
 	</c:if>
-	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'membership'}">
+	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'membership' or grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == ''}">
 		<%@ include file="provisioningConfigActivityMembership.jsp"%>	
 	</c:if>
 	

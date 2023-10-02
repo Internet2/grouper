@@ -2165,6 +2165,8 @@ public abstract class GrouperProvisioningConfiguration {
    */
   private boolean deleteGroupsIfGrouperCreated = true;
 
+  private boolean deleteGroupsIfUnmarkedProvisionable = true;
+
   /**
    * 
    * @return
@@ -2193,8 +2195,17 @@ public abstract class GrouperProvisioningConfiguration {
   public void setDeleteGroupsIfGrouperCreated(boolean deleteGroupsIfGrouperCreated) {
     this.deleteGroupsIfGrouperCreated = deleteGroupsIfGrouperCreated;
   }
-
   
+  
+  public boolean isDeleteGroupsIfUnmarkedProvisionable() {
+    return deleteGroupsIfUnmarkedProvisionable;
+  }
+  
+  public void setDeleteGroupsIfUnmarkedProvisionable(
+      boolean deleteGroupsIfUnmarkedProvisionable) {
+    this.deleteGroupsIfUnmarkedProvisionable = deleteGroupsIfUnmarkedProvisionable;
+  }
+
   public boolean isDeleteMembershipsIfGrouperCreated() {
     return deleteMembershipsIfGrouperCreated;
   }
@@ -2907,6 +2918,8 @@ public abstract class GrouperProvisioningConfiguration {
       this.deleteGroupsIfGrouperDeleted = false;
   
       this.deleteGroupsIfGrouperCreated = false;
+
+      this.deleteGroupsIfUnmarkedProvisionable = false;
     }
     
     if (this.customizeGroupCrud) {
@@ -2925,6 +2938,8 @@ public abstract class GrouperProvisioningConfiguration {
 
       this.deleteGroupsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfGrouperCreated", false), 
           (deleteGroups && !this.deleteGroupsIfNotExistInGrouper && !this.deleteGroupsIfGrouperDeleted));
+      
+      this.deleteGroupsIfUnmarkedProvisionable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteGroupsIfUnmarkedProvisionable", false), true);
     }
 
     

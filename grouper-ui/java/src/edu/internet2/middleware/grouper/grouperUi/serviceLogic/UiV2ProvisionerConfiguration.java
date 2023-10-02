@@ -756,10 +756,6 @@ public class UiV2ProvisionerConfiguration {
         throw new RuntimeException("provisionerConfigId cannot be blank");
       }
       
-      if (StringUtils.isBlank(provisionerConfigObjectType)) {
-        throw new RuntimeException("provisionerConfigObjectType cannot be blank");
-      }
-      
       if (!provisionerConfigurationContainer.isCanViewProvisionerConfiguration(provisionerConfigId)) {
         throw new RuntimeException("Not allowed!!!!!");
       }
@@ -769,7 +765,18 @@ public class UiV2ProvisionerConfiguration {
       GuiProvisionerConfiguration guiProvisioningConfiguration = GuiProvisionerConfiguration.convertFromProvisioningConfiguration(provisionerConfiguration);
       provisionerConfigurationContainer.setGuiProvisionerConfiguration(guiProvisioningConfiguration);
       
-      if (provisionerConfigObjectType.equals("group")) {
+      if (StringUtils.isBlank(provisionerConfigObjectType)) {
+        
+        List<GcGrouperSyncGroup> activityForGroup = GrouperProvisioningService.retrieveRecentActivityForGroup(provisionerConfigId);
+        provisionerConfigurationContainer.setActivityForGroup(activityForGroup);
+        
+        List<GcGrouperSyncMember> activityForMember = GrouperProvisioningService.retrieveRecentActivityForMember(provisionerConfigId);
+        provisionerConfigurationContainer.setActivityForMember(activityForMember);
+        
+        List<GcGrouperSyncMembership> activityForMembership = GrouperProvisioningService.retrieveRecentActivityForMembership(provisionerConfigId);
+        provisionerConfigurationContainer.setActivityForMembership(activityForMembership);
+        
+      } else if (provisionerConfigObjectType.equals("group")) {
         List<GcGrouperSyncGroup> activityForGroup = GrouperProvisioningService.retrieveRecentActivityForGroup(provisionerConfigId);
         provisionerConfigurationContainer.setActivityForGroup(activityForGroup);
       } else if (provisionerConfigObjectType.equals("entity")) {
