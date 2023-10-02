@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.entity.Entity;
 import edu.internet2.middleware.grouper.entity.EntitySave;
@@ -45,7 +46,7 @@ public class UsduJobTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new UsduJobTest("testUsduJobWithPrivileges"));
+    TestRunner.run(new UsduJobTest("testNoLongerSubjectResolutionEligible"));
   }
   
   public UsduJobTest(String name) {
@@ -190,6 +191,9 @@ public class UsduJobTest extends GrouperTest {
     
     // run usdu
     UsduJob.runDaemonStandalone();
+    
+    Thread.sleep(100);
+    GrouperCacheUtils.clearAllCaches();
     
     assertFalse(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionEligible());
     assertTrue(MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject0, false).isSubjectResolutionResolvable());

@@ -5,9 +5,11 @@ import java.text.DateFormat;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -54,6 +56,7 @@ import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncHeartbeat;
@@ -175,13 +178,18 @@ public class UsduJob extends OtherJobBase {
         Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
   
         for (Member member : currentMembers) {
-          
           if (!member.isSubjectResolutionEligible()) {
             member.setSubjectResolutionEligible(true);
             member.store();
           }
-          
-          if (!USDU.isMemberResolvable(grouperSession, member, memberIdToSubjectMap)) {
+        }
+        
+        Map<String, Subject> currMemberIdToSubjectMap = resolveMembers(currentMembers);
+        memberIdToSubjectMap.putAll(currMemberIdToSubjectMap);
+        
+        for (Member member : currentMembers) {
+
+          if (!currMemberIdToSubjectMap.containsKey(member.getId())) {
             LOG.debug("Found unresolvable member, subjectId=" + member.getSubjectId() + " source=" + member.getSubjectSourceId());
             unresolvableMembers.add(member);
           }
@@ -233,6 +241,37 @@ public class UsduJob extends OtherJobBase {
     }
     
     return null;
+  }
+  
+  /**
+   * resolve members and update member attributes
+   * @param members
+   * @return map of member id to subject for resolved members
+   */
+  private static Map<String, Subject> resolveMembers(Set<Member> members) {
+
+    Map<String, Subject> finalResult = new LinkedHashMap<String, Subject>();
+    if (members.size() == 0) {
+      return finalResult;
+    }
+    
+    Collection<MultiKey> sourceIdsSubjectIds = new HashSet<MultiKey>();
+    for (Member member : members) {
+      sourceIdsSubjectIds.add(new MultiKey(member.getSubjectSourceId(), member.getSubjectId()));
+    }
+    
+    Map<MultiKey, Subject> queryResult = SubjectFinder.findBySourceIdsAndSubjectIds(sourceIdsSubjectIds, false, true);
+    for (Member member : members) {
+      MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
+      Subject subject = queryResult.get(multiKey);
+      
+      if (subject != null) {
+        finalResult.put(member.getId(), subject);
+        member.updateMemberAttributes(subject, true);
+      }
+    }
+    
+    return finalResult;
   }
   
   /**
@@ -495,16 +534,13 @@ public class UsduJob extends OtherJobBase {
    
     Set<Member> members = GrouperDAOFactory.getFactory().getMember().getUnresolvableMembers(null, null);
     
+    // resolving will clear the metadata
+    Map<String, Subject> memberIdToSubjectMap = resolveMembers(members);
+
     long resolvableMembers = 0; 
     
     for (Member member: members) {
-      if (USDU.isMemberResolvable(grouperSession, member)) {
-        UsduService.deleteAttributeAssign(member);
-        
-        member.setSubjectResolutionDeleted(false);
-        member.setSubjectResolutionResolvable(true);
-        member.store();
-        
+      if (memberIdToSubjectMap.containsKey(member.getId())) {
         resolvableMembers++;
       }
     }
