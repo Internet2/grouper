@@ -1552,6 +1552,8 @@ public class GrouperProvisioningCompare {
     
     List<ProvisioningGroup> provisioningGroupsToDelete = new ArrayList<>();
     
+    int groupDeleteSkipsDueToUnmarkedProvisionable = 0;
+    
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
       for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappersForDelete) {
         
@@ -1568,6 +1570,12 @@ public class GrouperProvisioningCompare {
         }
         
         boolean shouldDelete = false;
+        
+        if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfUnmarkedProvisionable() && 
+            provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+          groupDeleteSkipsDueToUnmarkedProvisionable++;
+          continue;
+        }
         
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfNotExistInGrouper()) {
           shouldDelete = true;
@@ -1610,7 +1618,9 @@ public class GrouperProvisioningCompare {
       }
     }
     this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().setProvisioningGroups(provisioningGroupsToDelete);
-   
+    
+    this.getGrouperProvisioner().getDebugMap().put("groupDeleteSkipsDueToUnmarkedProvisionable", groupDeleteSkipsDueToUnmarkedProvisionable);
+    
     boolean behaviorIsUpdateGroups = (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isUpdateGroups() || 
         (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes &&
         (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isInsertMemberships() ||this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMemberships())));

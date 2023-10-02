@@ -949,6 +949,8 @@ public class GrouperProvisioningBehavior {
   private Boolean insertGroups;
 
   private Boolean deleteGroupsIfNotExistInGrouper;
+
+  private Boolean deleteGroupsIfUnmarkedProvisionable;
   
   private Boolean deleteGroupsIfGrouperDeleted;
 
@@ -1445,7 +1447,14 @@ public class GrouperProvisioningBehavior {
     this.insertGroups = groupsInsert;
   }
 
-  
+  public boolean isDeleteGroupsIfUnmarkedProvisionable() {
+    if (this.deleteGroupsIfUnmarkedProvisionable != null) {
+      return deleteGroupsIfUnmarkedProvisionable;
+    }
+    
+    deleteGroupsIfUnmarkedProvisionable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroupsIfUnmarkedProvisionable();
+    return deleteGroupsIfUnmarkedProvisionable;
+  }
   
   public boolean isDeleteGroupsIfNotExistInGrouper() {
     if (this.deleteGroupsIfNotExistInGrouper != null) {
