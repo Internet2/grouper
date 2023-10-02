@@ -210,7 +210,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   
   @Override
   public int getDaoSleepBeforeSelectAfterInsertMillis() {
-    return 15000;
+    return GrouperUtil.intValue(this.retrieveConfigInt("sleepBeforeSelectAfterInsertMillis", false), 15000);
   }
   
 }
