@@ -111,7 +111,7 @@ docker rm -f grouper-ci-pgsql
 
 ## Start up postgres container compatible with the confForTest hibernate login
 echo "Starting Docker database container"
-docker run --name grouper-ci-pgsql -d -e "POSTGRES_USER=grouper" -e "POSTGRES_PASSWORD=test" -e "POSTGRES_DB=grouper" -p 15432:5432  postgres >>$TESTLOG 2>&1
+docker run --name grouper-ci-pgsql -d -e "POSTGRES_USER=grouper" -e "POSTGRES_PASSWORD=test" -e "POSTGRES_DB=grouper" -p 15432:5432  postgres -N 1000 >>$TESTLOG 2>&1
 exit_code=$?
 if [ $exit_code -ne 0 ]; then
   echo "docker database container startup failed (exit $exit_code)" >&2
