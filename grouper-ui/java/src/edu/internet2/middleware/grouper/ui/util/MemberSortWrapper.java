@@ -176,6 +176,13 @@ public class MemberSortWrapper implements Comparable {
           return null;
         }
         
+        public boolean isResolvedFromSource() {
+          return false;
+        }
+        
+        public void setResolvedFromSource(boolean isResolvedFromSource) {
+
+        }
       });
     }
   }

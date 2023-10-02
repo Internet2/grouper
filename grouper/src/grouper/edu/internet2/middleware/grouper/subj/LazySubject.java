@@ -376,5 +376,18 @@ public class LazySubject implements Subject {
     getSubject().setTranslationMap(translationMap);
   }
   
+  /**
+   * @return true if resolved from source (rather than cache)
+   */
+  public boolean isResolvedFromSource() {
+    return false;
+  }
   
+  /**
+   * true if resolved from source (rather than cache)
+   * @param isResolvedFromSource
+   */
+  public void setResolvedFromSource(boolean isResolvedFromSource) {
+    // ignore
+  }
 }

@@ -1239,9 +1239,11 @@ public class SubjectSourceCache {
           }
           dontCache = true;
         }
+        boolean retrieved = false;
         Subject subject = null;
         if (dontCache) {
           subject =  source.getSubject(id, false);
+          retrieved = true;
         } else {
           MultiKey multiKey = new MultiKey(source.getId(), "id", id);
           SubjectSourceCacheItem subjectSourceCacheItem = subjectCache.get(multiKey);
@@ -1250,7 +1252,6 @@ public class SubjectSourceCache {
             debugMap.put("foundCacheItem", subjectSourceCacheItem != null);
           }
 
-          boolean retrieved = false;
           if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired() || ignoreCachedSubjects) {
             subject = source.getSubject(id, false);
             if (subjectSourceCacheItem != null) {
@@ -1268,10 +1269,12 @@ public class SubjectSourceCache {
           updateSubjectInCache(subject, subjectSourceCacheItem, source.getId(), true, id, true, retrieved, false);
 
           subject = SubjectImpl.cloneSubject(subject);
-
         }
 
         resolved = subject != null;
+        if (resolved) {
+          subject.setResolvedFromSource(retrieved);
+        }
 
         if (exceptionIfNotFound && subject == null) {
           throw new SubjectNotFoundException("Subject not found: '" + source.getId() + "': '" + id + "'");
@@ -1374,12 +1377,13 @@ public class SubjectSourceCache {
           dontCache = true;
         }
         Map<String, Subject> subjects = null;
+        Collection<String> idsToRetrieveFromSource = new HashSet<String>();
         if (dontCache) {
-          subjects = source.getSubjectsByIds(ids);
+          idsToRetrieveFromSource.addAll(ids);
+          subjects = source.getSubjectsByIds(idsToRetrieveFromSource);
         } else {
           
           subjects = new HashMap<String, Subject>();
-          Collection<String> idsToRetrieveFromSource = new HashSet<String>();
 
           int itemsFoundInCache = 0;
           int subjectsFoundInCache = 0;
@@ -1447,6 +1451,14 @@ public class SubjectSourceCache {
 
           subjects = cloneSubjects(subjects);
 
+        }
+        
+        for (String id: idsToRetrieveFromSource) {
+          Subject subject = subjects.get(id);
+
+          if (subject != null) {
+            subject.setResolvedFromSource(true);
+          }
         }
         
         return subjects;
@@ -1530,8 +1542,10 @@ public class SubjectSourceCache {
           dontCache = true;
         }
         Subject subject = null;
+        boolean retrieved = false;
         if (dontCache) {
           subject =  source.getSubjectByIdentifier(identifier, exceptionIfNotFound);
+          retrieved = true;
         } else {
           MultiKey multiKey = new MultiKey(source.getId(), "identifier", identifier);
           SubjectSourceCacheItem subjectSourceCacheItem = subjectCache.get(multiKey);
@@ -1540,7 +1554,6 @@ public class SubjectSourceCache {
             debugMap.put("foundCacheItem", subjectSourceCacheItem != null);
           }
 
-          boolean retrieved = false;
           if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired() || ignoreCachedSubjects) {
             subject = source.getSubjectByIdentifier(identifier, false);
             if (subjectSourceCacheItem != null) {
@@ -1561,7 +1574,10 @@ public class SubjectSourceCache {
         }
         
         resolved = subject != null;
-
+        if (resolved) {
+          subject.setResolvedFromSource(retrieved);
+        }
+        
         if (exceptionIfNotFound && subject == null) {
           throw new SubjectNotFoundException("Subject not found: '" + source.getId() + "': '" + identifier + "'");
         }
@@ -1672,8 +1688,10 @@ public class SubjectSourceCache {
           dontCache = true;
         }
         Subject subject = null;
+        boolean retrieved = false;
         if (dontCache) {
           subject =  source.getSubjectByIdOrIdentifier(idOrIdentifier, false);
+          retrieved = true;
         } else {
           boolean foundById = false;
           MultiKey multiKey = new MultiKey(source.getId(), "id", idOrIdentifier);
@@ -1697,7 +1715,6 @@ public class SubjectSourceCache {
             foundById = true;
           }
           
-          boolean retrieved = false;
           if (subjectSourceCacheItem == null || subjectSourceCacheItem.expired() || ignoreCachedSubjects) {
             subject = source.getSubjectByIdOrIdentifier(idOrIdentifier, false);
             if (subjectSourceCacheItem != null) {
@@ -1719,9 +1736,11 @@ public class SubjectSourceCache {
               foundById, idOrIdentifier, true, retrieved, false);
 
           subject = SubjectImpl.cloneSubject(subject);
-
         }
         resolved = subject != null;
+        if (resolved) {
+          subject.setResolvedFromSource(retrieved);
+        }
         
         if (exceptionIfNotFound && subject == null) {
           throw new SubjectNotFoundException("Subject not found: '" + source.getId() + "': '" + idOrIdentifier + "'");
@@ -1812,12 +1831,13 @@ public class SubjectSourceCache {
           dontCache = true;
         }
         Map<String, Subject> subjects = null;
+        Collection<String> identifiersToRetrieveFromSource = new HashSet<String>();
         if (dontCache) {
-          subjects = source.getSubjectsByIdentifiers(identifiers);
+          identifiersToRetrieveFromSource.addAll(identifiers);
+          subjects = source.getSubjectsByIdentifiers(identifiersToRetrieveFromSource);
         } else {
           
           subjects = new HashMap<String, Subject>();
-          Collection<String> identifiersToRetrieveFromSource = new HashSet<String>();
   
           int itemsFoundInCache = 0;
           int subjectsFoundInCache = 0;
@@ -1885,6 +1905,14 @@ public class SubjectSourceCache {
             debugMap.put("subjectsUnresolvable", subjectsUnresolvable);
           }
           subjects = cloneSubjects(subjects);
+        }
+        
+        for (String identifier: identifiersToRetrieveFromSource) {
+          Subject subject = subjects.get(identifier);
+
+          if (subject != null) {
+            subject.setResolvedFromSource(true);
+          }
         }
         
         return subjects;
@@ -1979,12 +2007,13 @@ public class SubjectSourceCache {
           dontCache = true;
         }
         Map<String, Subject> subjects = null;
+        Collection<String> idsOrIdentifiersToRetrieveFromSource = new HashSet<String>();
         if (dontCache) {
-          subjects = source.getSubjectsByIdsOrIdentifiers(idsOrIdentifiers);
+          idsOrIdentifiersToRetrieveFromSource.addAll(idsOrIdentifiers);
+          subjects = source.getSubjectsByIdsOrIdentifiers(idsOrIdentifiersToRetrieveFromSource);
         } else {
           
           subjects = new HashMap<String, Subject>();
-          Collection<String> idsOrIdentifiersToRetrieveFromSource = new HashSet<String>();
   
           int itemsFoundInCache = 0;
           int subjectsFoundInCache = 0;
@@ -2081,6 +2110,14 @@ public class SubjectSourceCache {
   
           subjects = cloneSubjects(subjects);
 
+        }
+        
+        for (String idOrIdentifier: idsOrIdentifiersToRetrieveFromSource) {
+          Subject subject = subjects.get(idOrIdentifier);
+
+          if (subject != null) {
+            subject.setResolvedFromSource(true);
+          }
         }
         
         return subjects;

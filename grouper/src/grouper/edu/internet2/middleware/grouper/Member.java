@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
+import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignMemberDelegate;
@@ -4905,6 +4906,11 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     this.searchString3 = GrouperUtil.isEmpty(this.searchString3) ? null : GrouperUtil.truncateAscii(this.searchString3.toLowerCase(), 1500);
     this.searchString4 = GrouperUtil.isEmpty(this.searchString4) ? null : GrouperUtil.truncateAscii(this.searchString4.toLowerCase(), 1500);
 
+    if (subject.isResolvedFromSource()) {
+      this.setSubjectResolutionResolvable(true);
+      this.setSubjectResolutionDeleted(false);
+    }
+    
     //dont do this if hibernate is not initted, since the two threads will deadlock...
     if (storeChanges && this.dbVersionIsDifferent() && GrouperStartup.isFinishedStartupSuccessfully() && !StringUtils.isBlank(this.getUuid())) {
       
@@ -4922,9 +4928,23 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
 
               public Object callback(HibernateHandlerBean hibernateHandlerBean)
                   throws GrouperDAOException {
+                
+                if (subject.isResolvedFromSource()) {
+                  if (Member.this.dbVersion().isSubjectResolutionDeleted() || !Member.this.dbVersion().isSubjectResolutionResolvable()) {
+                    UsduService.deleteAttributeAssign(Member.this);
+                  }
+                }
+                
                 String query = "update grouper_members set sort_string0 = ?, sort_string1 = ?, sort_string2 = ?, sort_string3 = ?, " +
                   "sort_string4 = ?, search_string0 = ?, search_string1 = ?, search_string2 = ?, " +
-                  "search_string3 = ?, search_string4 = ?, name = ?, description = ?, subject_identifier0 = ?, subject_identifier1 = ?, subject_identifier2 = ?, email0 = ? where id = ?";
+                  "search_string3 = ?, search_string4 = ?, name = ?, description = ?, subject_identifier0 = ?, subject_identifier1 = ?, subject_identifier2 = ?, email0 = ?";
+                
+                if (subject.isResolvedFromSource()) {
+                  query += ", subject_resolution_deleted='F', subject_resolution_resolvable='T'";
+                }
+                
+                query += " where id = ?";
+                
                 List<Object> bindVars = GrouperUtil.toList((Object)Member.this.sortString0, Member.this.sortString1,
                     Member.this.sortString2, Member.this.sortString3, Member.this.sortString4, Member.this.searchString0,
                     Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, 

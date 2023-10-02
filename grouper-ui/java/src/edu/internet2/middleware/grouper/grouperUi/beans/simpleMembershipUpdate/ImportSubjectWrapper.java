@@ -374,4 +374,11 @@ public class ImportSubjectWrapper implements Subject {
     
   }
 
+  public boolean isResolvedFromSource() {
+    return false;
+  }
+  
+  public void setResolvedFromSource(boolean isResolvedFromSource) {
+
+  }
 }

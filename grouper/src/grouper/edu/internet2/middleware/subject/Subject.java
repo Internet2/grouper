@@ -200,5 +200,14 @@ public interface Subject extends Serializable {
 	 */
 	public void setTranslationMap(Map<String, Object> translationMap);
 	
-
+	/**
+	 * @return true if resolved from source (rather than cache)
+	 */
+	public boolean isResolvedFromSource();
+	
+  /**
+   * true if resolved from source (rather than cache)
+   * @param isResolvedFromSource
+   */
+  public void setResolvedFromSource(boolean isResolvedFromSource);
 }

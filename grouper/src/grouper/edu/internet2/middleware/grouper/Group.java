@@ -5210,7 +5210,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               
               AttributeAssign newOrExistingAssignment = groupTypeAssignment.getAttributeDelegate().internal_assignAttributeHelper(null, legacyAttribute, false, uuid, null).getAttributeAssign();
               AttributeAssignValue newAttributeAssignValue = new AttributeAssignValue();
-              newAttributeAssignValue.setAttributeAssignId(newOrExistingAssignment.getId());
+              newAttributeAssignValue.setAttributeAssign(newOrExistingAssignment);
               newAttributeAssignValue.assignValue(value);
               AttributeAssignValueResult result = newOrExistingAssignment.getValueDelegate().internal_assignValue(newAttributeAssignValue, false);
                             

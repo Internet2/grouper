@@ -161,7 +161,7 @@ public class XmlExportMainTest extends GrouperTest {
 
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid());
-    attributeAssignValue.setAttributeAssignId(attributeAssignResult.getAttributeAssign().getId());
+    attributeAssignValue.setAttributeAssign(attributeAssignResult.getAttributeAssign());
     attributeAssignValue.setValueString("string");
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValue);
     
@@ -479,13 +479,13 @@ public class XmlExportMainTest extends GrouperTest {
     
     AttributeAssignValue attributeAssignValue = new AttributeAssignValue();
     attributeAssignValue.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid());
-    attributeAssignValue.setAttributeAssignId(attributeAssignResult.getAttributeAssign().getId());
+    attributeAssignValue.setAttributeAssign(attributeAssignResult.getAttributeAssign());
     attributeAssignValue.setValueString("string");
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValue);
     
     AttributeAssignValue attributeAssignValueYes = new AttributeAssignValue();
     attributeAssignValueYes.setId(edu.internet2.middleware.grouper.internal.util.GrouperUuid.getUuid());
-    attributeAssignValueYes.setAttributeAssignId(attributeAssignResultYes.getAttributeAssign().getId());
+    attributeAssignValueYes.setAttributeAssign(attributeAssignResultYes.getAttributeAssign());
     attributeAssignValueYes.setValueString("stringYes");
     HibernateSession.byObjectStatic().saveOrUpdate(attributeAssignValueYes);
     

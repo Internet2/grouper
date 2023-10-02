@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvis
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -647,7 +649,12 @@ public abstract class GrouperProvisioner {
     Class<GrouperProvisioner> provisionerClass = GrouperUtil.forName(provisionerClassName);
     GrouperProvisioner provisioner = GrouperUtil.newInstance(provisionerClass);
     provisioner.setConfigId(configId);
-    internalLastProvisioner = provisioner;
+    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+    
+    // dont waste memory
+    if (grouperContext != null && grouperContext.getGrouperEngine() == GrouperEngineBuiltin.JUNIT) {
+      internalLastProvisioner = provisioner;
+    }
     return provisioner;
     
   }

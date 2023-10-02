@@ -1173,19 +1173,27 @@ public class GrouperProvisioningBehavior {
     if (this.isDeleteMembershipsIfNotExistInGrouper()) {
       
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsOnlyInTrackedGroups()) {
-        
+
+        GcGrouperSyncGroup grouperSyncGroup = null;
+
         /**
          * If this is true, then only delete memberships if:
 
           the group is being deleted
           (or) if the group is or was provisionable (has a grouper sync group record and provisionable is true or provisionable_end is not null)
          */
+        ProvisioningGroupWrapper provisioningGroupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+
+        if (provisioningGroupWrapper != null && provisioningGroupWrapper.getGcGrouperSyncGroup() != null) {
+          grouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+        }
         
-        if (gcGrouperSyncMembership == null) {
+        
+        if (grouperSyncGroup == null && gcGrouperSyncMembership == null) {
           return false;
         } 
           
-        GcGrouperSyncGroup grouperSyncGroup = gcGrouperSyncMembership.getGrouperSyncGroup();
+        grouperSyncGroup = grouperSyncGroup == null ? gcGrouperSyncMembership.getGrouperSyncGroup() : grouperSyncGroup;
         if (grouperSyncGroup == null) {
           // maybe the grouperSyncGroup needs to be put in the membership somewhere
           return false;

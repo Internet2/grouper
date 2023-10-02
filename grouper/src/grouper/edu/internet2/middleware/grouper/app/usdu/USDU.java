@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
@@ -337,6 +338,25 @@ public class USDU {
       SourceUnavailableException {
 
     stem.revokePriv(getUSDUSubject(member), privilege, false);
+  }
+  
+  /**
+   * Revoke unresolvable member's privilege from attribute def.
+   * 
+   * @param member
+   * @param attributeDef
+   * @param privilege
+   * @throws IllegalArgumentException
+   * @throws InsufficientPrivilegeException
+   * @throws RevokePrivilegeException
+   * @throws SchemaException
+   * @throws SourceUnavailableException
+   */
+  public static void deleteUnresolvableMember(Member member, AttributeDef attributeDef, Privilege privilege)
+      throws IllegalArgumentException, InsufficientPrivilegeException, RevokePrivilegeException, SchemaException,
+      SourceUnavailableException {
+
+    attributeDef.getPrivilegeDelegate().revokePriv(getUSDUSubject(member), privilege, false);
   }
 
   /**

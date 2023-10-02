@@ -24,10 +24,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   private String membershipTableName;
 
 //  private String membershipUserColumn;
-  
-  private String membershipGroupForeignKeyColumn;
-  private String membershipEntityForeignKeyColumn;
-  
+    
 //  private String membershipUserValueFormat;
   
 //  private String membershipGroupColumn;
@@ -191,36 +188,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
 
 
 
-  
-  public String getMembershipGroupForeignKeyColumn() {
-    return membershipGroupForeignKeyColumn;
-  }
-
-
-
-
-  
-  public void setMembershipGroupForeignKeyColumn(String membershipGroupForeignKeyColumn) {
-    this.membershipGroupForeignKeyColumn = membershipGroupForeignKeyColumn;
-  }
-
-
-
-
-  
-  public String getMembershipEntityForeignKeyColumn() {
-    return membershipEntityForeignKeyColumn;
-  }
-
-
-
-
-  
-  public void setMembershipEntityForeignKeyColumn(String membershipEntityForeignKeyColumn) {
-    this.membershipEntityForeignKeyColumn = membershipEntityForeignKeyColumn;
-  }
-
-
 
 
   /**
@@ -298,9 +265,12 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     
     this.membershipTableName = this.retrieveConfigString("membershipTableName", false);
 
-    this.membershipGroupForeignKeyColumn = this.retrieveConfigString("membershipGroupForeignKeyColumn", false);
+    String membershipGroupForeignKeyColumn = this.retrieveConfigString("membershipGroupForeignKeyColumn", false);
     
-    this.membershipEntityForeignKeyColumn = this.retrieveConfigString("membershipEntityForeignKeyColumn", false);
+    String membershipEntityForeignKeyColumn = this.retrieveConfigString("membershipEntityForeignKeyColumn", false);
+
+    membershipGroupMatchingIdAttribute = GrouperUtil.defaultIfBlank(membershipGroupForeignKeyColumn, membershipGroupMatchingIdAttribute);
+    membershipEntityMatchingIdAttribute = GrouperUtil.defaultIfBlank(membershipEntityForeignKeyColumn, membershipEntityMatchingIdAttribute);
     
 //    this.membershipUserColumn = this.retrieveConfigString("membershipUserColumn", false);
 //    this.membershipUserValueFormat = this.retrieveConfigString("membershipUserValueFormat", true);
@@ -339,7 +309,9 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     
     this.useSeparateTableForEntityAttributes = GrouperUtil.booleanValue(this.retrieveConfigBoolean("useSeparateTableForEntityAttributes", false), false);
 
-    if (!StringUtils.isBlank(this.membershipTableName) && StringUtils.isBlank(this.getMembershipMatchingIdExpression())) {
+   
+    if (!StringUtils.isBlank(this.membershipTableName) && StringUtils.isBlank(this.getMembershipMatchingIdExpression())
+        && !StringUtils.isBlank(getMembershipGroupMatchingIdAttribute()) && !StringUtils.isBlank(getMembershipEntityMatchingIdAttribute())) {
       //setMembershipMatchingIdExpression("${new edu.internet2.middleware.grouperClient.collections.MultiKey(targetMembership.getProvisioningGroup().retrieveAttributeValueString('"+groupTableIdColumn+"'), targetMembership.getProvisioningEntity().retrieveAttributeValueString('"+entityTableIdColumn+"'))}");
       setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('"+getMembershipGroupMatchingIdAttribute()+"'), targetMembership.retrieveAttributeValueString('"+getMembershipEntityMatchingIdAttribute()+"'))}");
     }
@@ -374,87 +346,6 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     
   }
 
-  /**
-   * find the matching ID part for membership table that goes to the group
-   * @return the column which is the matching ID in memberships for group
-   */
-  public String getMembershipGroupMatchingIdAttribute() {
-    if (StringUtils.isBlank(this.membershipTableName)) {
-      return null;
-    }
-    if (!StringUtils.isBlank(membershipGroupMatchingIdAttribute)) {
-      return this.membershipGroupMatchingIdAttribute;
-    }
-
-    if (!StringUtils.isBlank(this.membershipGroupForeignKeyColumn)) {
-      membershipGroupMatchingIdAttribute = membershipGroupForeignKeyColumn;
-      return this.membershipGroupMatchingIdAttribute;
-    }
-
-    // "id", "idIndex", "idIndexString", "displayExtension", "displayName", "extension", "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3", "name", "description"
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.name", "group_name");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateFromGrouperProvisioningGroupField", "name");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
-    
-    for (String groupMapping : new String[] {"id", "idIndex", "idIndexString", "name", "displayName", "extension", "displayExtension", "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3"}) {
-      for (String name: getTargetMembershipAttributeNameToConfig().keySet()) {
-        
-        SqlGrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) this.getTargetMembershipAttributeNameToConfig().get(name);
-        
-        if (StringUtils.equals(groupMapping, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningGroupField())) {
-          membershipGroupMatchingIdAttribute = name;
-          return this.membershipGroupMatchingIdAttribute;
-        }
-        
-      }
-      
-    }
-    throw new RuntimeException("Cant find membership column to use for matching when it involves groups");
-  }
-
-  private String membershipEntityMatchingIdAttribute;
-  
-  private String membershipGroupMatchingIdAttribute;
-  
-  /**
-   * find the matching ID part for membership table that goes to the entity
-   * @return the column which is the matching ID in memberships for entity
-   */
-  public String getMembershipEntityMatchingIdAttribute() {
-    if (StringUtils.isBlank(this.membershipTableName)) {
-      return null;
-    }
-    if (!StringUtils.isBlank(membershipEntityMatchingIdAttribute)) {
-      return this.membershipEntityMatchingIdAttribute;
-    }
-    
-    if (!StringUtils.isBlank(this.membershipEntityForeignKeyColumn)) {
-      membershipEntityMatchingIdAttribute = membershipEntityForeignKeyColumn;
-      return this.membershipEntityMatchingIdAttribute;
-    }
-
-    // "id", "email", "loginid", "memberId", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "name", "subjectId", "subjectSourceId", "description", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2"
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.name", "subject_id");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
-    //  configureProvisionerSuffix(provisioningTestConfigInput, "targetMembershipAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
-
-    for (String entityMapping : new String[] {"memberId", "subjectId", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2", "email", "loginid", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3", "id", "idIndex"}) {
-      for (String name: getTargetMembershipAttributeNameToConfig().keySet()) {
-        
-        SqlGrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = (SqlGrouperProvisioningConfigurationAttribute) this.getTargetMembershipAttributeNameToConfig().get(name);
-        
-        if (StringUtils.equals(entityMapping, grouperProvisioningConfigurationAttribute.getTranslateFromGrouperProvisioningEntityField())) {
-          membershipEntityMatchingIdAttribute = name;
-          return this.membershipEntityMatchingIdAttribute;
-        }
-        
-      }
-      
-    }
-    throw new RuntimeException("Cant find membership column to use for matching when it involves entities");
-  }
-
-  
   public String getDbExternalSystemConfigId() {
     return dbExternalSystemConfigId;
   }

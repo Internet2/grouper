@@ -240,6 +240,8 @@ public class GrouperProvisioningLogic {
     
     this.identifyTargetValuesThatExistInGrouper();
     
+    this.getGrouperProvisioner().retrieveGrouperDao().fixGrouperTargetMembershipReferences();
+    
     if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedMemberships()) {
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
         if (provisioningMembershipWrapper.getProvisioningGroupWrapper() != null) {
