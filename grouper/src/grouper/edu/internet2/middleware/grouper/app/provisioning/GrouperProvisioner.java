@@ -52,7 +52,13 @@ public abstract class GrouperProvisioner {
   
   private ProvisioningStateGlobal provisioningStateGlobal = new ProvisioningStateGlobal();
   
+  private static boolean test_saveLastProvisionerInStaticVariable = false;
   
+  public static void setTest_saveLastProvisionerInStaticVariable(
+      boolean test_saveLastProvisionerInStaticVariable) {
+    GrouperProvisioner.test_saveLastProvisionerInStaticVariable = test_saveLastProvisionerInStaticVariable;
+  }
+
   public GrouperProvisioner() {
     this.provisioningStateGlobal.setGrouperProvisioner(this);
   }
@@ -649,12 +655,14 @@ public abstract class GrouperProvisioner {
     Class<GrouperProvisioner> provisionerClass = GrouperUtil.forName(provisionerClassName);
     GrouperProvisioner provisioner = GrouperUtil.newInstance(provisionerClass);
     provisioner.setConfigId(configId);
-    GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
     
     // dont waste memory
-    if (grouperContext != null && grouperContext.getGrouperEngine() == GrouperEngineBuiltin.JUNIT) {
+    if (test_saveLastProvisionerInStaticVariable) {
       internalLastProvisioner = provisioner;
+    } else {
+      internalLastProvisioner = null;
     }
+    
     return provisioner;
     
   }

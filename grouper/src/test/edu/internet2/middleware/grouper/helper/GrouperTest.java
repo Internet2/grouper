@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.syncToGrouper.SyncToGrouper;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -1122,6 +1123,8 @@ public class GrouperTest extends TestCase {
     
     //set this and leave it...
     GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
+    
+    GrouperProvisioner.setTest_saveLastProvisionerInStaticVariable(true);
     
     if (!promptedUserToSeeIfOk) {
       GrouperUtil.promptUserAboutDbChanges("delete all data in the database to run junit test(s)", true);
