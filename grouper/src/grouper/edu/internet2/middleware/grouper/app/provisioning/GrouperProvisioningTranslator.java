@@ -85,6 +85,10 @@ public class GrouperProvisioningTranslator {
       }
     }
     
+    // not null if group attributes
+    Set<ProvisioningGroupWrapper> groupAttributesTranslated = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes ? new HashSet<ProvisioningGroupWrapper>() : null;
+    Set<ProvisioningEntityWrapper> entityAttributesTranslated = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes ? new HashSet<ProvisioningEntityWrapper>() : null;
+    
     List<ProvisioningMembership> grouperTargetMemberships = new ArrayList<ProvisioningMembership>();
     List<ProvisioningMembership> grouperTargetMembershipsTranslated = new ArrayList<ProvisioningMembership>();
 
@@ -114,8 +118,13 @@ public class GrouperProvisioningTranslator {
         continue;
       }
 
-      provisioningGroupWrapper.getProvisioningStateGroup().setTranslatedMemberships(true);
-      provisioningEntityWrapper.getProvisioningStateEntity().setTranslatedMemberships(true);
+      if (groupAttributesTranslated != null) {
+        groupAttributesTranslated.add(provisioningGroupWrapper);
+      }
+      if (entityAttributesTranslated != null) {
+        entityAttributesTranslated.add(provisioningEntityWrapper);
+      }
+
       
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
       
@@ -383,6 +392,13 @@ public class GrouperProvisioningTranslator {
     }
     if (membershipsRemovedDueToEntityRemoved > 0) {
       GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "membershipsRemovedDueToEntityRemoved", membershipsRemovedDueToEntityRemoved);
+    }
+
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(groupAttributesTranslated)) {
+      provisioningGroupWrapper.getProvisioningStateGroup().setTranslatedMemberships(true);
+    }
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(entityAttributesTranslated)) {
+      provisioningEntityWrapper.getProvisioningStateEntity().setTranslatedMemberships(true);
     }
 
     return grouperTargetMemberships;
