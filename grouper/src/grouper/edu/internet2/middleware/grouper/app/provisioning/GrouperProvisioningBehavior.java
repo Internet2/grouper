@@ -630,6 +630,10 @@ public class GrouperProvisioningBehavior {
     return this.selectMembershipsForMembership;
   }
   
+  /**
+   * if selecting memberships in some form or another, could be group or entity attributes
+   * @return
+   */
   public boolean isSelectMembershipsInGeneral() {
     if (this.selectMembershipsInGeneral != null) {
       return selectMembershipsInGeneral;
@@ -648,7 +652,12 @@ public class GrouperProvisioningBehavior {
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
             .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)
         && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
-            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)) {
+            .getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithEntity(), false)
+        && !GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter()
+            .getGrouperProvisionerDaoCapabilities().isCanRetrieveMembershipsWithGroup(), false)
+        ) {
       this.selectMembershipsInGeneral = false;
       return this.selectMembershipsInGeneral;
     }

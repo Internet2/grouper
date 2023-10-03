@@ -148,8 +148,8 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
       return "Help Desk";
     } else if (roleNames.contains("Billing")) {
       return "Billing";
-    } else if (roleNames.contains("Phishing Manager")) {
-      return "Phishing Manager";
+//    } else if (roleNames.contains("Phishing Manager")) {
+//      return "Phishing Manager";
     } else if (roleNames.contains("Read-only")) {
       return "Read-only";
     }
@@ -256,6 +256,7 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsWithEntity(true);
   }
 
 

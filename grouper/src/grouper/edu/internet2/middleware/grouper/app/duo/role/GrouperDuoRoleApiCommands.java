@@ -19,6 +19,8 @@ import org.apache.commons.lang.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -27,19 +29,34 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperDuoRoleApiCommands {
   
   public static void main(String[] args) {
+
+    GrouperSession.startRootSession();
     
-    String configId = "duoTest";
-    
-    List<GrouperDuoRoleUser> duoUsers = retrieveDuoAdministrators(configId);
-    System.out.println("duo users size = "+duoUsers.size());
+//    String configId = "duoTest";
+//    
+//    GrouperHttpClientLog grouperHttpCallLog = new GrouperHttpClientLog();
+//    GrouperHttpClient.logStart(grouperHttpCallLog);
+
+//    List<GrouperDuoRoleUser> duoUsers = retrieveDuoAdministrators("duoTest");
+//    System.out.println("duo users size = "+duoUsers.size());
+
+//    GrouperDuoRoleUser grouperDuoRoleUser = new GrouperDuoRoleUser();
+//    grouperDuoRoleUser.setEmail("kwilso@isc.upenn.edu");
+//    grouperDuoRoleUser.setName("Kate Wilson");
+//    
+//    createDuoAdministrator("duoTest", grouperDuoRoleUser, "Help Desk");
+//    
+//    System.out.println(GrouperHttpClient.logEnd());
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_provisioner_full_duoAdminRoleTest");
     
 //    for (GrouperDuoRoleUser grouperDuoUser: duoUsers) {
 //      List<GrouperDuoRole> groupsByUser = retrieveDuoGroupsByUser(configId, grouperDuoUser.getId());
 //      System.out.println("for user: "+grouperDuoUser.getUserName()+ " found: "+groupsByUser.size()+ " groups");
 //    }
     
-    GrouperDuoRoleUser userByName = retrieveDuoAdministrator(configId, "mchyzer");
-    System.out.println("userByName: "+userByName);
+//    GrouperDuoRoleUser userByName = retrieveDuoAdministrator(configId, "mchyzer");
+//    System.out.println("userByName: "+userByName);
     
   }
 
@@ -292,6 +309,9 @@ public class GrouperDuoRoleApiCommands {
       Map<String, String> params = GrouperUtil.toMap("name", StringUtils.defaultString(grouperDuoUser.getName()),
           "email", StringUtils.defaultString(grouperDuoUser.getEmail()),
           "role", roleName);
+      if (grouperDuoUser.getSendEmail() == 1) {
+        params.put("send_email", "1");
+      }
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/admins",
           GrouperUtil.toSet(200), new int[] { -1 }, params, null, "v1");
