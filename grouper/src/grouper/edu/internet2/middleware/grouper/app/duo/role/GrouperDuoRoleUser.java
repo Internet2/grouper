@@ -1,16 +1,23 @@
 package edu.internet2.middleware.grouper.app.duo.role;
 
 import java.sql.Types;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import org.apache.commons.lang.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembershipWrapper;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChange;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -26,6 +33,21 @@ public class GrouperDuoRoleUser {
   private String role;
   
   private String id; // admin_id
+  
+  /** send_email */
+  private int sendEmail = 0;
+
+  
+  
+  
+  public int getSendEmail() {
+    return sendEmail;
+  }
+
+  
+  public void setSendEmail(int sendEmail) {
+    this.sendEmail = sendEmail;
+  }
 
   /**
    * @param targetEntity
@@ -45,12 +67,38 @@ public class GrouperDuoRoleUser {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {      
       grouperDuoUser.setEmail(targetEntity.getEmail());
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("role")) { 
-      Set<?> roles = targetEntity.retrieveAttributeValueSet("role");
-      if (GrouperUtil.length(roles) > 1) {
-        throw new RuntimeException("Only one role is allowed: "+targetEntity);
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("send_email")) {      
+      grouperDuoUser.setSendEmail(GrouperUtil.intValue(targetEntity.retrieveAttributeValue("send_email"), 0));
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("role")) {
+      Set<String> roles = new HashSet<String>(GrouperUtil.nonNull((Set<String>)(Object)targetEntity.retrieveAttributeValueSet("role")));
+      
+      // if this is a delete or update from something else, then remove it
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+        if (StringUtils.isNotBlank((String)provisioningObjectChange.getOldValue())) {
+          roles.remove((String)provisioningObjectChange.getOldValue());
+        }
       }
-      grouperDuoUser.setRole(GrouperUtil.length(roles) == 1? (String)roles.iterator().next(): null);
+      
+      // if it is known to be a delete, then remove it
+      Iterator<String> roleIterator = roles.iterator();
+      while (roleIterator.hasNext()) {
+        String role = roleIterator.next();
+        ProvisioningAttribute provisioningAttribute = targetEntity.getAttributes().get("role");
+        if (provisioningAttribute != null) {
+          ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(role);
+          if (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+            roleIterator.remove();
+          }
+        }
+      }
+      
+      // if there is no role then use the default value
+      if (roles.isEmpty() && GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        roles.add(GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get("role").getDefaultValue());
+      }
+      
+      grouperDuoUser.setRole(GrouperDuoRoleProvisioner.pickHighestPriorityRoleName(roles));
     }
     
     return grouperDuoUser;
@@ -118,6 +166,7 @@ public class GrouperDuoRoleUser {
     grouperDuoRoleUser.name = GrouperUtil.jsonJacksonGetString(entityNode, "name");
     grouperDuoRoleUser.email = GrouperUtil.jsonJacksonGetString(entityNode, "email");
     grouperDuoRoleUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "admin_id");
+    // ignore send_email
     
     return grouperDuoRoleUser;
   }

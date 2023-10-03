@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.duo.role;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeManipulation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
@@ -8,7 +10,8 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConf
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase; 
+import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
+import edu.internet2.middleware.grouper.util.GrouperUtil; 
 
 public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
   
@@ -47,9 +50,27 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
     return DuoRoleSyncObjectMetadata.class;
   }
 
-  @Override
-  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
-    return DuoRoleTranslator.class;
+  public static String pickHighestPriorityRoleName(Set<String> roleNames) {
+    roleNames = GrouperUtil.nonNull(roleNames);
+    if (roleNames.contains("Owner")) {
+      return "Owner";
+    } else if (roleNames.contains("Administrator")) {
+      return "Administrator";
+    } else if (roleNames.contains("Application Manager")) {
+      return "Application Manager";
+    } else if (roleNames.contains("User Manager")) {
+      return "User Manager";
+    } else if (roleNames.contains("Help Desk")) {
+      return "Help Desk";
+    } else if (roleNames.contains("Billing")) {
+      return "Billing";
+//    } else if (roleNames.contains("Phishing Manager")) {
+//      return "Phishing Manager";
+    } else if (roleNames.contains("Read-only")) {
+      return "Read-only";
+    }
+    
+    throw new RuntimeException("Invalid role names: " + GrouperUtil.toStringForLog(roleNames));
   }
   
   

@@ -1619,7 +1619,9 @@ public class GrouperProvisioningCompare {
     }
     this.grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().setProvisioningGroups(provisioningGroupsToDelete);
     
-    this.getGrouperProvisioner().getDebugMap().put("groupDeleteSkipsDueToUnmarkedProvisionable", groupDeleteSkipsDueToUnmarkedProvisionable);
+    if (groupDeleteSkipsDueToUnmarkedProvisionable > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("groupDeleteSkipsDueToUnmarkedProvisionable", groupDeleteSkipsDueToUnmarkedProvisionable);
+    }
     
     boolean behaviorIsUpdateGroups = (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isUpdateGroups() || 
         (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes &&
