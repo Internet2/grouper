@@ -134,30 +134,6 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
-  private String pickHighestPriorityRoleName(List<String> roleNames) {
-    
-    if (roleNames.contains("Owner")) {
-      return "Owner";
-    } else if (roleNames.contains("Administrator")) {
-      return "Administrator";
-    } else if (roleNames.contains("Application Manager")) {
-      return "Application Manager";
-    } else if (roleNames.contains("User Manager")) {
-      return "User Manager";
-    } else if (roleNames.contains("Help Desk")) {
-      return "Help Desk";
-    } else if (roleNames.contains("Billing")) {
-      return "Billing";
-//    } else if (roleNames.contains("Phishing Manager")) {
-//      return "Phishing Manager";
-    } else if (roleNames.contains("Read-only")) {
-      return "Read-only";
-    }
-    
-    
-    throw new RuntimeException("invalid role names");
-  }
-
   @Override
   public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
     long startNanos = System.nanoTime();
@@ -170,42 +146,27 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperDuoRoleUser grouperDuoUser = GrouperDuoRoleUser.fromProvisioningEntity(grouperTargetEntity, null);
       
       String memberId = grouperTargetEntity.getProvisioningEntityWrapper().getGrouperProvisioningEntity().getId();
-      
-      //TODO only find groups where the memberId is member of and group has provisioner enabled 
-      Set<Group> groups = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, false).getGroups();
-      List<String> groupIds = new ArrayList<String>();
-      for (Group group: groups) {
-        groupIds.add(group.getId());
-      }
-      List<ProvisioningGroup> provisioningGroups = this.getGrouperProvisioner().retrieveGrouperDao().retrieveGroups(false, groupIds);
-      
-      List<String> possibleRoleNames = new ArrayList<String>();
-      
-      for (ProvisioningGroup provisioningGroup: provisioningGroups) {
-        if (provisioningGroup.getAttributes() != null && provisioningGroup.getAttributes().containsKey("md_grouper_duoRoles")) {
-          Object val = provisioningGroup.getAttributes().get("md_grouper_duoRoles").getValue();
-          if (val != null) {
-            possibleRoleNames.add((String)val);
-          }
-        }
-      }
-      
-      if (possibleRoleNames.size() > 0) {
-        String roleNameToBeSet = pickHighestPriorityRoleName(possibleRoleNames);
-        GrouperDuoRoleUser createdDuoUser = GrouperDuoRoleApiCommands.createDuoAdministrator(
-            duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, roleNameToBeSet);
 
-        grouperTargetEntity.setId(createdDuoUser.getId());
-        grouperTargetEntity.setProvisioned(true);
+      Set<String> possibleRoleNames = (Set<String>)(Object)grouperTargetEntity.retrieveAttributeValueSet("role");
+      if (GrouperUtil.length(possibleRoleNames) == 0) {
+        possibleRoleNames = GrouperUtil.toSet("Read-only");
+      }
+      String roleNameToBeSet = GrouperDuoRoleProvisioner.pickHighestPriorityRoleName(possibleRoleNames);
+      GrouperDuoRoleUser createdDuoUser = GrouperDuoRoleApiCommands.createDuoAdministrator(
+          duoConfiguration.getDuoExternalSystemConfigId(), grouperDuoUser, roleNameToBeSet);
 
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
-          provisioningObjectChange.setProvisioned(true);
-        }
+      grouperTargetEntity.setId(createdDuoUser.getId());
+      grouperTargetEntity.setProvisioned(true);
+
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
       
       return new TargetDaoInsertEntityResponse();
     } catch (Exception e) {
       grouperTargetEntity.setProvisioned(false);
+      grouperTargetEntity.setException(e);
+
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(grouperTargetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(false);
       }
@@ -238,6 +199,8 @@ public class GrouperDuoRoleTargetDao extends GrouperProvisionerTargetDaoBase {
       return new TargetDaoDeleteEntityResponse();
     } catch (Exception e) {
       targetEntity.setProvisioned(false);
+      targetEntity.setException(e);
+
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(false);
       }

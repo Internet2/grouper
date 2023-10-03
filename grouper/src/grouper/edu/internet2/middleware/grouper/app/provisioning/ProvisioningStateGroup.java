@@ -203,4 +203,24 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
     this.groupRemovedDueToAttribute = groupRemovedDueToAttribute;
   }
 
+  /**
+   * if this object is for create, and we translate memberships, then dont do it again
+   */
+  private boolean translatedMemberships = false;
+
+  /**
+   * if this object is for create, and we translate memberships, then dont do it again
+   * @return
+   */
+  public boolean isTranslatedMemberships() {
+    return translatedMemberships;
+  }
+
+  /**
+   * if this object is for create, and we translate memberships, then dont do it again
+   * @param theTranslatedMemberships
+   */
+  public void setTranslatedMemberships(boolean theTranslatedMemberships) {
+    this.translatedMemberships = theTranslatedMemberships;
+  }
 }

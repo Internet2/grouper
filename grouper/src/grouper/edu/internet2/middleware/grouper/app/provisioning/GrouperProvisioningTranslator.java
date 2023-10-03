@@ -64,6 +64,10 @@ public class GrouperProvisioningTranslator {
       String groupMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGroupMembershipAttributeName();
       if (!StringUtils.isBlank(groupMembershipAttribute)) {
         for (ProvisioningGroup provisioningGroup : this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetGroups()) {
+          ProvisioningGroupWrapper provisioningGroupWrapper = provisioningGroup.getProvisioningGroupWrapper();
+          if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isTranslatedMemberships()) {
+            continue;
+          }
           provisioningGroup.clearAttribute(groupMembershipAttribute);
         }
       }
@@ -72,6 +76,10 @@ public class GrouperProvisioningTranslator {
       String entityMembershipAttribute = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
       if (!StringUtils.isBlank(entityMembershipAttribute)) {
         for (ProvisioningEntity provisioningEntity : this.grouperProvisioner.retrieveGrouperProvisioningData().retrieveGrouperTargetEntities()) {
+          ProvisioningEntityWrapper provisioningEntityWrapper = provisioningEntity.getProvisioningEntityWrapper();
+          if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isTranslatedMemberships()) {
+            continue;
+          }
           provisioningEntity.clearAttribute(entityMembershipAttribute);
         }
       }
@@ -93,6 +101,7 @@ public class GrouperProvisioningTranslator {
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
 
       ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningMembership.getProvisioningGroup().getProvisioningGroupWrapper();
+      
       ProvisioningEntityWrapper provisioningEntityWrapper = grouperProvisioningMembership.getProvisioningEntity().getProvisioningEntityWrapper();
       
       if (provisioningGroupWrapper.getProvisioningStateGroup().isGroupRemovedDueToAttribute()) {
@@ -104,6 +113,9 @@ public class GrouperProvisioningTranslator {
         membershipsRemovedDueToEntityRemoved++;
         continue;
       }
+
+      provisioningGroupWrapper.getProvisioningStateGroup().setTranslatedMemberships(true);
+      provisioningEntityWrapper.getProvisioningStateEntity().setTranslatedMemberships(true);
       
       ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
       
