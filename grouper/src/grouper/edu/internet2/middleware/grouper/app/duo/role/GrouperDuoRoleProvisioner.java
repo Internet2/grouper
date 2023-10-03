@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.app.duo.role;
 
-import java.util.Set;
+import java.util.Collection;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeManipulation;
@@ -9,7 +9,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil; 
 
@@ -50,7 +49,7 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
     return DuoRoleSyncObjectMetadata.class;
   }
 
-  public static String pickHighestPriorityRoleName(Set<String> roleNames) {
+  public static String pickHighestPriorityRoleName(Collection<String> roleNames) {
     roleNames = GrouperUtil.nonNull(roleNames);
     if (roleNames.contains("Owner")) {
       return "Owner";
