@@ -84,8 +84,16 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject));
       //System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', 'name==staff && dept==english')", subject));
       //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') || (entity.memberOf('test:testGroup2') && entity.memberOf('test:testGroup3'))", subject));
-      System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', \"affiliationCode=='staff' && affiliationOrg==1234\") "
-          + "|| (entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2'))", subject));
+      //System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', \"affiliationCode=='staff' && affiliationOrg==1234\") "
+      //    + "|| (entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2'))", subject));
+      
+      
+      //System.out.println(analyzeJexlScriptHtml("entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known && cp_org == 'Perelman School of Medicine' \") "
+      //    + "&& entity.memberOf('penn:ref:member') && !entity.memberOf('penn:ref:lockout') && entity.hasAttribute('cp_role', 'desktop-user')", subject));
+
+      System.out.println(analyzeJexlScriptHtml("entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known "
+          + "&& cp_org == 'Perelman School of Medicine' \") && (!entity.memberOf('penn:ref:member') "
+          + "|| entity.memberOf('penn:ref:lockout') ) && entity.hasAttribute('cp_role', 'desktop-user')", null));
       
       //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup')")));
       //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')")));
@@ -244,6 +252,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
     
     JexlEngine jexlEngine = new Engine();
+    
+    jexlStript = GrouperUtil.replace(jexlStript, "\n", " ");
+    jexlStript = GrouperUtil.replace(jexlStript, "\r", " ");
+    jexlStript = GrouperUtil.replace(jexlStript, "! ", " ");
     
     JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
 
@@ -581,6 +593,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     
     JexlEngine jexlEngine = new Engine();
     
+    jexlStript = GrouperUtil.replace(jexlStript, "\n", " ");
+    jexlStript = GrouperUtil.replace(jexlStript, "\r", " ");
+    jexlStript = GrouperUtil.replace(jexlStript, "! ", " ");
+
     JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
 
     ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
@@ -816,8 +832,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
         //System.out.println(script);
         
-        List<MultiKey> arguments = new ArrayList<MultiKey>();
-        String whereClause = convertJexlScriptToSqlWhereClause(script, arguments);
+        GrouperJexlScriptAnalysis analyzeJexlScript = analyzeJexlScript(script);
+        GrouperJexlScriptPart grouperJexlScriptPart = analyzeJexlScript.getGrouperJexlScriptParts().get(0);
+        List<MultiKey> arguments = grouperJexlScriptPart.getArguments();
+        String whereClause = grouperJexlScriptPart.getWhereClause().toString();
+
         GcDbAccess gcDbAccess = new GcDbAccess();
         int argumentIndex = 0;
         for (MultiKey argument : arguments) {

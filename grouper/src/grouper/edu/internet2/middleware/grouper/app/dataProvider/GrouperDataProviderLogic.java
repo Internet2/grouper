@@ -284,7 +284,8 @@ public class GrouperDataProviderLogic {
         
         String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
         
-        Subject subject = SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
+        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
         
         Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
 
