@@ -77,6 +77,8 @@ public class ConfigDatabaseLogic {
   public ConfigDatabaseLogic() {
   }
 
+  private static Boolean grouperApiJarsExist = null;
+  
   /**
    * true if table exists
    */
@@ -165,6 +167,20 @@ public class ConfigDatabaseLogic {
    */
   public static InputStream retrieveConfigInputStream(String mainConfigFileName) {
 
+    if (grouperApiJarsExist == null) {
+      try {
+        Class.forName("edu.internet2.middleware.grouper.Group");
+        grouperApiJarsExist = true;
+      } catch (ClassNotFoundException cnfe) {
+        grouperApiJarsExist = false;
+      }
+    }
+    
+    // if we arent running with grouper jars etc then we dont have database config
+    if (!grouperApiJarsExist) {
+      return null;
+    }
+    
     Map<String, String> configMap = retrieveConfigMap(mainConfigFileName);
     if (configMap == null) {
       configMap = new HashMap<String, String>();
