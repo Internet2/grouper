@@ -227,11 +227,15 @@ public class SqlProvisionerCommands {
    * @param tableName
    * @return the data
    */
-  public static List<Object[]> retrieveObjectsNoFilter(String dbExternalSystemConfigId, List<String> columnList, String tableName) {
+  public static List<Object[]> retrieveObjectsNoFilter(String dbExternalSystemConfigId, List<String> columnList, String tableName, String sqlDeletedColumn) {
 
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
 
-    StringBuilder sql = new StringBuilder("select " + GrouperUtil.join(columnList.iterator(), ", ") + " from " + tableName);
+    StringBuilder sql = new StringBuilder("select " + GrouperUtil.join(columnList.iterator(), ", ") + " from " + tableName );
+    
+    if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+      sql.append(" where "+sqlDeletedColumn + " = 'F' ");
+    }
 
     List<Object[]> overallResults = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
     return overallResults;
