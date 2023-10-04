@@ -426,6 +426,13 @@ public class UiV2Admin extends UiServiceLogicBase {
         GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
         GrouperPagingTag2.processRequest(request, guiPaging, null);
         guiPaging.setTotalRecordCount(guiDaemonJobs.size());
+        
+        // screen is too slow so let's fetch only 10 records
+        String pageSizeString = request.getParameter("pagingTagPageSize");
+        if (StringUtils.isBlank(pageSizeString) && guiPaging.getPageSize() > 10) {
+          guiPaging.setPageSize(10);
+        }
+        
         guiDaemonJobs = GrouperUtil.batchList(guiDaemonJobs, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
         
       } else {
@@ -433,6 +440,12 @@ public class UiV2Admin extends UiServiceLogicBase {
         GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
         GrouperPagingTag2.processRequest(request, guiPaging, null);
         guiPaging.setTotalRecordCount(allJobNamesAfterFilter.size());
+        
+        // screen is too slow so let's fetch only 10 records
+        String pageSizeString = request.getParameter("pagingTagPageSize");
+        if (StringUtils.isBlank(pageSizeString) && guiPaging.getPageSize() > 10) {
+          guiPaging.setPageSize(10);
+        }
         
         List<String> currentJobNames = GrouperUtil.batchList(allJobNamesAfterFilter, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
         

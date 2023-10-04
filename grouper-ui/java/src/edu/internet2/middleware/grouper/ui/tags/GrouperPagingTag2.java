@@ -268,6 +268,10 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
       LOG.error("Why is default page size not in page size list? " + defaultPageSize + ", " + pageSizesString);
     }
     
+    if (!pageSizesList.contains("10")) {
+      pageSizesList.add("10");
+    }
+    
     for (String pageSizeString : pageSizesList) {
 
       boolean selected = StringUtils.equals(pageSizeString, Integer.toString(this.guiPaging.getPageSize()));
