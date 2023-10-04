@@ -1160,13 +1160,15 @@ public class GrouperProvisioningCompare {
               for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
                 String membershipValue = GrouperUtil.stringValue(obj);
                 ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
-                if (!provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
+                if (provisioningMembershipWrapper != null && !provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
                   continue;
                 }
   
                 if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
                   this.membershipDeleteCount++;
-                  countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+                  if (provisioningMembershipWrapper != null) {
+                    countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+                  }
                   provisioningEntityWrapper.getGrouperTargetEntity().addInternal_objectChange(
                     new ProvisioningObjectChange(attributeForMemberships, 
                         ProvisioningObjectChangeAction.delete, membershipValue, null)
@@ -1447,12 +1449,14 @@ public class GrouperProvisioningCompare {
                   continue;
                 }
                 ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
-                if (!provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
+                if (provisioningMembershipWrapper != null && !provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
                   continue;
                 }
                 if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
                   this.membershipDeleteCount++;
-                  countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+                  if (provisioningMembershipWrapper != null) {                    
+                    countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
+                  }
                   provisioningGroupWrapper.getGrouperTargetGroup().addInternal_objectChange(
                     new ProvisioningObjectChange(attributeForMemberships, 
                         ProvisioningObjectChangeAction.delete, membershipValue, null)

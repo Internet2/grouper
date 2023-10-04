@@ -50,6 +50,11 @@ public class GrouperDuoRoleProvisioner extends GrouperProvisioner {
   }
 
   public static String pickHighestPriorityRoleName(Collection<String> roleNames) {
+    
+    if (GrouperUtil.length(roleNames) == 0 || (roleNames.size() == 1 && roleNames.iterator().next() == null)) {
+      return null;
+    }
+    
     roleNames = GrouperUtil.nonNull(roleNames);
     if (roleNames.contains("Owner")) {
       return "Owner";
