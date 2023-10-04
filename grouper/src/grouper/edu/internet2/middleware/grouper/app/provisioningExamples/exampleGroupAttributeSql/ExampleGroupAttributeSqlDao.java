@@ -69,8 +69,8 @@ public class ExampleGroupAttributeSqlDao extends SqlProvisioningDao {
     // uugid, displayname
     // administrators, contacts, members
     
-    List<Object[]> groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName);
-    List<Object[]> attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, groupTableAttributesColNamesList, groupAttributesTableName);
+    List<Object[]> groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null);
+    List<Object[]> attributeValuesSeparateTable = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, groupTableAttributesColNamesList, groupAttributesTableName, null);
 
     List<ProvisioningGroup> result = new ArrayList<ProvisioningGroup>();
     

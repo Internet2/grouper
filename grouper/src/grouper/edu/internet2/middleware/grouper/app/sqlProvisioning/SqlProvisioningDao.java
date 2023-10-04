@@ -73,6 +73,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     String membershipTableName = sqlProvisioningConfiguration.getMembershipTableName();
     
     List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+    
+    String sqlDeletedColumnName = sqlProvisioningConfiguration.getSqlDeletedColumnName();
 
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfigAttribute = sqlProvisioningConfiguration.getTargetMembershipAttributeNameToConfig();
     
@@ -89,7 +91,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     
     List<Object[]> membershipPrimaryAttributeValues = null;
 
-    membershipPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, membershipTablePrimaryColNamesList, membershipTableName);
+    membershipPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, membershipTablePrimaryColNamesList, membershipTableName, sqlDeletedColumnName);
 
     retrieveMembershipsAddRecord(result, membershipPrimaryAttributeValues, membershipTablePrimaryColNamesList);
             
@@ -1461,6 +1463,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     int groupTableIdColumnIndex = -1;
     
     String groupAttributesTableName  = sqlProvisioningConfiguration.getGroupAttributesTableName();
+    
+    String sqlDeletedColumnName = sqlProvisioningConfiguration.getSqlDeletedColumnName();
 
     String groupAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getGroupAttributesGroupForeignKeyColumn();
     
@@ -1518,7 +1522,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     List<Object[]> attributeValuesSeparateTable = null;
     
-    groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName);
+    groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, sqlDeletedColumnName);
         
     // look up attributes if we should and if we got results
     if (attributeTableAttributesNamesList.size() > 0 && GrouperUtil.length(groupPrimaryAttributeValues) > 0 ) {
@@ -1886,6 +1890,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     GrouperUtil.assertion(!StringUtils.isBlank(entityTableIdColumn), "Entity table ID column is required!");
 
     String entityAttributesTableName  = sqlProvisioningConfiguration.getEntityAttributesTableName();
+    
+    String sqlDeletedColumnName = sqlProvisioningConfiguration.getSqlDeletedColumnName();
 
     String entityAttributesEntityForeignKeyColumn = sqlProvisioningConfiguration.getEntityAttributesEntityForeignKeyColumn();
     
@@ -1948,7 +1954,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
     List<Object[]> attributeValuesSeparateTable = null;
     
-    entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName);
+    entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsNoFilter(dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, sqlDeletedColumnName);
     
     // look up attributes if we should and if we got results
     if (attributeTableAttributesNamesList.size() > 0 && GrouperUtil.length(entityPrimaryAttributeValues) > 0 ) {
