@@ -95,6 +95,7 @@ import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -1059,6 +1060,16 @@ public class UiV2GrouperLoader {
 
       } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
         
+        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+        if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+          return true;
+        }
+
         if (!hasError) {
           String constructScript = request.getParameter("constructScript");
           if (StringUtils.equals(constructScript, "pattern")) {
@@ -1565,6 +1576,17 @@ public class UiV2GrouperLoader {
 
           if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
 
+            final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+            GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+            if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+              return true;
+              
+            }
+
             GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
               
               @Override
@@ -1848,6 +1870,13 @@ public class UiV2GrouperLoader {
 
       if (!canEditLoader) {
         return;
+      }
+      
+      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+        return;
+        
       }
       
       editGrouperLoaderHelper(request, grouperLoaderContainer);
@@ -2289,6 +2318,17 @@ public class UiV2GrouperLoader {
       if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
 //        grouperLoaderContainer.setEditLoaderShowJexlScript(true);
         
+        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+        if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+          return;
+          
+        }
+
         {
           String grouperLoaderConstructScript = request.getParameter("constructScript");
           if (StringUtils.isNotBlank(grouperLoaderConstructScript)) {
