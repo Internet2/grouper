@@ -1172,6 +1172,10 @@ public class GrouperProvisioningBehavior {
    */
   public boolean isDeleteMembership(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
     
+    if (provisioningMembershipWrapper == null) {
+      return this.isDeleteMembershipsIfNotExistInGrouper();
+    }
+    
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()) {
       if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
         return provisioningMembershipWrapper.getProvisioningStateMembership().isValueExistsInGrouper();
