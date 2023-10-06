@@ -429,6 +429,7 @@ public class UiV2Membership {
     AuditType addGroupMembershipAuditType = AuditTypeFinder.find("membership", "addGroupMembership", true);
     AuditType updateGroupMembershipAuditType = AuditTypeFinder.find("membership", "updateGroupMembership", true);
     AuditType deleteGroupMembershipAuditType = AuditTypeFinder.find("membership", "deleteGroupMembership", true);
+    AuditType deleteGroupAuditType = AuditTypeFinder.find("group", "deleteGroup", true);
     
     int initialStatesCount = pitGroupsForTimelineStates.size();
     int traceAdditionalStatesCount = GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.membership.traceAdditionalStatesCount", 10);
@@ -540,42 +541,66 @@ public class UiV2Membership {
             userAuditQuery.setFromDate(fromDate);
             userAuditQuery.setToDate(toDate);
   
-            List<Criterion> memberIdCriterions = new ArrayList<Criterion>();
+            List<Criterion> extraCriterion = new ArrayList<Criterion>();
             
             for (AuditType auditType : GrouperUtil.toList(addGroupMembershipAuditType, updateGroupMembershipAuditType, deleteGroupMembershipAuditType)) {
               Criterion auditTypeCriterion = Restrictions.eq(AuditEntry.FIELD_AUDIT_TYPE_ID, auditType.getId());
               String auditEntryField = auditType.retrieveAuditEntryFieldForLabel("memberId");
               Criterion auditEntryFieldCriterion = Restrictions.in(auditEntryField, memberIdsForTimelineAuditQuery);
               Criterion andCriterion = HibUtils.listCrit(auditTypeCriterion, auditEntryFieldCriterion);
-              memberIdCriterions.add(andCriterion);
+              extraCriterion.add(andCriterion);
             }
             
-            userAuditQuery.setExtraCriterion(HibUtils.listCritOr(memberIdCriterions));
+            // add any deleted groups that were deleted during this timeframe
+            Set<String> deletedGroupIds = new LinkedHashSet<String>();
+            for (PITGroup pitGroup : pitGroupsForTimelineStates) {
+              if (!pitGroup.isActive()) {
+                if (pitGroup.getEndTime().getTime() >= fromDate.getTime() && pitGroup.getEndTime().getTime() <= toDate.getTime()) {
+                  deletedGroupIds.add(pitGroup.getSourceId());
+                }
+              }
+            }
+            
+            if (deletedGroupIds.size() > 0) {
+              Criterion auditTypeCriterion = Restrictions.eq(AuditEntry.FIELD_AUDIT_TYPE_ID, deleteGroupAuditType.getId());
+              String auditEntryField = deleteGroupAuditType.retrieveAuditEntryFieldForLabel("id");
+              Criterion auditEntryFieldCriterion = Restrictions.in(auditEntryField, deletedGroupIds);
+              Criterion andCriterion = HibUtils.listCrit(auditTypeCriterion, auditEntryFieldCriterion);
+              extraCriterion.add(andCriterion);
+            }
+            
+            userAuditQuery.setExtraCriterion(HibUtils.listCritOr(extraCriterion));
                   
             List<AuditEntry> userAuditEntries = userAuditQuery.execute();
             for (AuditEntry userAudit : userAuditEntries) {
   
               GuiAuditEntry guiUserAudit = new GuiAuditEntry(userAudit);
-              guiUserAudit.internal_setupMember();
-              guiUserAudit.internal_setupGroup();
               
-              if (guiUserAudit.getGuiGroup().getGroup() == null) {
-                continue;
+              if (userAudit.getAuditTypeId().equals(addGroupMembershipAuditType.getId()) ||
+                  userAudit.getAuditTypeId().equals(updateGroupMembershipAuditType.getId()) ||
+                  userAudit.getAuditTypeId().equals(deleteGroupMembershipAuditType.getId())) {
+                guiUserAudit.internal_setupMember();
               }
               
-              String userAuditGroupId = guiUserAudit.getGuiGroup().getGroup().getId();
+              guiUserAudit.internal_setupGroup();
               
-              if (!isWheelOrRoot && !guiUserAudit.getGuiGroup().getGroup().canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false)) {
+              Group group = guiUserAudit.getGuiGroup().getGroup();
+              
+              if (!isWheelOrRoot && (group == null || !group.canHavePrivilege(loggedInGrouperSession.getSubject(), "read", false))) {
                 // no access so return
                 continue;
               }
         
               eventsUserAudits.get(momentOfInterestTimestamp).add(guiUserAudit);
-              if (!foundGroupIdsForAdditionalStates.contains(userAuditGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
-                foundGroupIdsForAdditionalStates.add(userAuditGroupId);
-                Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(userAuditGroupId, false);
-                if (pitGroups.size() > 0) {
-                  pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+              
+              if (group != null) {
+                String userAuditGroupId = group.getId();
+                if (!foundGroupIdsForAdditionalStates.contains(userAuditGroupId) && pitGroupsForTimelineStatesWithAdditional.size() < maxStatesCount) {
+                  foundGroupIdsForAdditionalStates.add(userAuditGroupId);
+                  Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(userAuditGroupId, false);
+                  if (pitGroups.size() > 0) {
+                    pitGroupsForTimelineStatesWithAdditional.add(pitGroups.iterator().next());
+                  }
                 }
               }
             }
@@ -732,12 +757,15 @@ public class UiV2Membership {
         boolean isAddMembership = false;
         boolean isUpdateMembership = false;
         boolean isDeleteMembership = false;
+        boolean isDeleteGroup = false;
         if (guiUserAudit.getAuditEntry().getAuditType().equals(addGroupMembershipAuditType)) {
           isAddMembership = true;
         } else if (guiUserAudit.getAuditEntry().getAuditType().equals(deleteGroupMembershipAuditType)) {
           isDeleteMembership = true;
         } else if (guiUserAudit.getAuditEntry().getAuditType().equals(updateGroupMembershipAuditType)) {
           isUpdateMembership = true;
+        } else if (guiUserAudit.getAuditEntry().getAuditType().equals(deleteGroupAuditType)) {
+          isDeleteGroup = true;
         } else {
           continue;
         }
@@ -755,6 +783,8 @@ public class UiV2Membership {
           sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineUserAuditUpdateMembership"));
         } else if (isDeleteMembership) {
           sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineUserAuditDeleteMembership"));
+        } else if (isDeleteGroup) {
+          sortedEvents.get(timestamp).add(TextContainer.retrieveFromRequest().getText().get("membershipTraceTimelineUserAuditDeleteGroup"));
         }
       }
       
