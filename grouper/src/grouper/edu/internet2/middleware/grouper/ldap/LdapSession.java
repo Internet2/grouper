@@ -82,7 +82,7 @@ public interface LdapSession {
    * @return the list of results, never null
    */
   public abstract List<LdapEntry> list(final String ldapServerId, final String searchDn, 
-      final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames, Long sizeLimit);
+      final LdapSearchScope ldapSearchScope, final String filter, final String[] attributeNames, Integer sizeLimit);
   
   /**
    * Get the following entries.

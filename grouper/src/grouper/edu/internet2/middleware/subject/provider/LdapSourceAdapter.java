@@ -579,9 +579,9 @@ public class LdapSourceAdapter extends BaseSourceAdapter {
     try  {
 
       Integer resultSetLimit = resultSetLimit(firstPageOnly, this.getMaxPage(), this.maxResults);
-      Long sizeLimit = null;
+      Integer sizeLimit = null;
       if (resultSetLimit != null) {
-        sizeLimit = resultSetLimit.longValue() + 1;
+        sizeLimit = resultSetLimit + 1;
       }
 
       // get params
