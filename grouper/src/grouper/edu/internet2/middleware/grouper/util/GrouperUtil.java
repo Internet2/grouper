@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
 package edu.internet2.middleware.grouper.util;
 
 import java.beans.PropertyDescriptor;
@@ -129,7 +126,12 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
-import org.ldaptive.io.Hex;
+import org.ldaptive.dn.DefaultAttributeValueEscaper;
+import org.ldaptive.dn.DefaultRDnNormalizer;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.MinimalAttributeValueEscaper;
+import org.ldaptive.dn.RDn;
+import org.ldaptive.filter.FilterUtils;
 
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -142,9 +144,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.googlecode.ipv6.IPv6Address;
 import com.googlecode.ipv6.IPv6Network;
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.RDN;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -152,7 +151,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -1825,24 +1823,8 @@ public class GrouperUtil {
       return dn;
     }
 
-    DN theDn = null;
-    try {
-      theDn = new DN(dn);
-    } catch (LDAPException ldapException) {
-      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
-    }
-    
-    RDN[] rdns = theDn.getRDNs();
-    StringBuilder path = new StringBuilder();
-    for (int i=rdns.length-1;i>=0;i--) {
-      RDN rdn = rdns[i];
-      path.append(rdn.getAttributeValues()[0]);
-      if (i != 0) {
-        path.append(":");
-      }
-      
-    }
-    return path.toString();
+    Dn theDn = new Dn(dn);
+    return theDn.format(new DefaultRDnNormalizer(), ':', true);
   }
 
   /**
@@ -1857,14 +1839,8 @@ public class GrouperUtil {
     if (StringUtils.isBlank(dn)) {
       return dn;
     }
-    try {
-      DN theDn = new DN(dn);
-      RDN[] rdns = theDn.getRDNs();
-      RDN firstRdn = rdns[0];
-      return firstRdn.getAttributeValues()[0];
-    } catch (LDAPException ldapException) {
-      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
-    }
+    Dn theDn = new Dn(dn);
+    return theDn.getRDn().getNameValue().getStringValue();
   }
 
   /**
@@ -1884,23 +1860,21 @@ public class GrouperUtil {
 
     // This is wrapping the Value in quotes so the RDN class will consider
     // all the dn-relevant characters (eg: ,+;) as escaped
-    RDN rdn = new RDN(rdnAttribute, rdnValue);
-    return rdn.toMinimallyEncodedString();
+    return new RDn(rdnString).format(new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), s -> s, s -> s));
   }
 
   /**
    * This takes a string of value and makes sure that special, dn-relevant characters
    * are escaped, particularly commas, pluses, etc
-   * @param rdnString An RDN value: value
+   * @param rdnValue An RDN value: value
    * @return the escaped value
    */
   public static String ldapEscapeRdnValue(String rdnValue) {
-
     // This is wrapping the Value in quotes so the RDN class will consider
     // all the dn-relevant characters (eg: ,+;) as escaped
     //add a sample prefix, and then strip it off
-    RDN rdn = new RDN("cn", rdnValue);
-    return rdn.toMinimallyEncodedString().substring("cn=".length());
+    DefaultAttributeValueEscaper escaper = new DefaultAttributeValueEscaper();
+    return escaper.escape(rdnValue);
   }
 
   /**
@@ -1972,11 +1946,11 @@ public class GrouperUtil {
         result.append(',');
       }
       
-      RDN rdn;
+      RDn rdn;
       String piece;
       
       if (i==0 && rdnAttributeValue != null) {
-        piece = new String(rdnAttributeValue);
+        piece = rdnAttributeValue;
       } else {
         piece = namePieces.get(i);        
       }
@@ -1987,15 +1961,15 @@ public class GrouperUtil {
       }
 
       if (i==0) {
-        rdn = new RDN(rdnAttributeName, piece);
+        rdn = new RDn(rdnAttributeName, piece);
       } else {
-        rdn = new RDN(ouAttributeName, piece);
+        rdn = new RDn(ouAttributeName, piece);
       }
 
       if ( performRdnEscaping ) {
-        result.append(rdn.toMinimallyEncodedString());
+        result.append(rdn.format(new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), s -> s, s -> s)));
       } else {
-        result.append(rdn.toString());
+        result.append(rdn.format());
       }
     }
 
@@ -2004,53 +1978,7 @@ public class GrouperUtil {
   }
   
   public static String ldapFilterEscape(String s) {
-    // TODO replace with ldaptive 2.0 FilterUtils.escape after ldaptive upgrade
-    if (s == null) {
-      return s;
-    }
-    final StringBuilder sb = new StringBuilder(s.length());
-    final byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);
-    // CheckStyle:MagicNumber OFF
-    // optimize if ASCII
-    if (s.length() == utf8.length) {
-      for (byte b : utf8) {
-        if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
-          sb.append('\\').append(Hex.encode(new byte[] {b}));
-        } else {
-          sb.append((char) b);
-        }
-      }
-    } else {
-      int multiByte = 0;
-      for (byte b : utf8) {
-        if (multiByte > 0) {
-          sb.append('\\').append(Hex.encode(new byte[] {b}));
-          multiByte--;
-        } else if ((b & 0x7F) == b) {
-          if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
-            sb.append('\\').append(Hex.encode(new byte[] {b}));
-          } else {
-            sb.append((char) b);
-          }
-        } else {
-          // 2 byte character
-          if ((b & 0xE0) == 0xC0) {
-            multiByte = 1;
-            // 3 byte character
-          } else if ((b & 0xF0) == 0xE0) {
-            multiByte = 2;
-            // 4 byte character
-          } else if ((b & 0xF8) == 0xF0) {
-            multiByte = 3;
-          } else {
-            throw new IllegalStateException("Could not read UTF-8 string encoding");
-          }
-          sb.append('\\').append(Hex.encode(new byte[] {b}));
-        }
-      }
-    }
-    // CheckStyle:MagicNumber ON
-    return sb.toString();
+    return FilterUtils.escape(s);
   }
   
   /**
