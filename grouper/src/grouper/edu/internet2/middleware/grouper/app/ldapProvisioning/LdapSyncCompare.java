@@ -1,20 +1,19 @@
 package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.RDN;
+import org.ldaptive.dn.DefaultRDnNormalizer;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.MinimalAttributeValueEscaper;
+import org.ldaptive.dn.RDn;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningCompare;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningUpdatable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
 
 public class LdapSyncCompare extends GrouperProvisioningCompare {
 
@@ -53,14 +52,14 @@ public class LdapSyncCompare extends GrouperProvisioningCompare {
     
     try {
       dn1 = getMinimallyEncodedDNStringWithLowercaseAttributeNamesIgnoreBase((String)grouperValue, baseDnString);
-    } catch (LDAPException e) {
+    } catch (Exception e) {
       LOG.warn("Failed to parse DN: " + grouperValue, e);
       return originalCheck;
     }
     
     try {
       dn2 = getMinimallyEncodedDNStringWithLowercaseAttributeNamesIgnoreBase((String)targetValue, baseDnString);
-    } catch (LDAPException e) {
+    } catch (Exception e) {
       LOG.warn("Failed to parse DN: " + targetValue, e);
       return originalCheck;
     }
@@ -68,20 +67,20 @@ public class LdapSyncCompare extends GrouperProvisioningCompare {
     return GrouperUtil.equals(dn1, dn2);
   }
   
-  private static String getMinimallyEncodedDNStringWithLowercaseAttributeNamesIgnoreBase(String dnString, String baseDnString) throws LDAPException {
-    DN dn = new DN(dnString);
+  private static String getMinimallyEncodedDNStringWithLowercaseAttributeNamesIgnoreBase(String dnString, String baseDnString) {
+    Dn dn = new Dn(dnString);
     
-    List<RDN> rdns;
+    List<RDn> rdns;
     
     if (StringUtils.isEmpty(baseDnString)) {
-      rdns = Arrays.asList(dn.getRDNs());
+      rdns = dn.getRDns();
     } else {
-      rdns = new ArrayList<RDN>();
-      List<RDN> remainingRdns = new ArrayList<>(Arrays.asList(dn.getRDNs()));
-      String baseDnNormalizedString = new DN(baseDnString).toNormalizedString();
+      rdns = new ArrayList<>();
+      List<RDn> remainingRdns = dn.getRDns();
+      Dn baseDn = new Dn(baseDnString);
       
       while (remainingRdns.size() > 0) {
-        if (new DN(remainingRdns.toArray(new RDN[0])).toNormalizedString().equals(baseDnNormalizedString)) {
+        if (new Dn(remainingRdns).isSame(baseDn)) {
           // the rest is the base
           break;
         }
@@ -89,16 +88,7 @@ public class LdapSyncCompare extends GrouperProvisioningCompare {
       }
     }
     
-    for (RDN rdn : rdns) {
-      String[] oldAttributeNames = rdn.getAttributeNames();
-      String[] newAttributeNames = new String[oldAttributeNames.length];
-      for (int i = 0; i < oldAttributeNames.length; i++) {
-        newAttributeNames[i] = oldAttributeNames[i].toLowerCase();
-      }
-      
-      GrouperUtil.assignField(rdn, "attributeNames", newAttributeNames);      
-    }
-    
-    return new DN(rdns).toMinimallyEncodedString();
+    return new Dn(rdns).format(
+      new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), DefaultRDnNormalizer.LOWERCASE, s -> s));
   }
 }

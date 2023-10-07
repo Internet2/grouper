@@ -14,9 +14,9 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.ldaptive.LdapException;
 import org.ldaptive.ResultCode;
-
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPException;
+import org.ldaptive.dn.DefaultRDnNormalizer;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.MinimalAttributeValueEscaper;
 
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
@@ -45,10 +45,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntitiesRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntitiesResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
@@ -64,7 +60,6 @@ import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
 
 public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
@@ -1349,44 +1344,37 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     if (ldapSyncConfiguration.getGroupDnType() != LdapSyncGroupDnType.bushy) {
       return;
     }
-    
-    try {      
-      DN groupSearchBaseDn = new DN(ldapSyncConfiguration.getGroupSearchBaseDn());
-      
-      DN parentDn = new DN(groupDnString);
-      
-      while (true) {
-        parentDn = parentDn.getParent();
-        if (parentDn == null) {
+
+    Dn groupSearchBaseDn = new Dn(ldapSyncConfiguration.getGroupSearchBaseDn());
+
+    Dn parentDn = new Dn(groupDnString);
+
+    while (true) {
+      parentDn = parentDn.getParent();
+      if (parentDn == null || parentDn.isEmpty()) {
+        return;
+      }
+
+      if (parentDn.isSame(groupSearchBaseDn)) {
+        // we've clearly gone too far up
+        return;
+      }
+
+      String parentDnString = parentDn.format();
+      try {
+        List<LdapEntry> childEntries = ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString, "(objectClass=*)", LdapSearchScope.ONELEVEL_SCOPE, new ArrayList<>(), 1);
+
+        if (childEntries.size() > 0) {
+          // done
           return;
         }
-        
-        if (parentDn.equals(groupSearchBaseDn)) {
-          // we've clearly gone too far up
-          return;
-        }
-        
-        String parentDnString = parentDn.toString();
-        try {
-          List<LdapEntry> childEntries = ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString, "(objectClass=*)", LdapSearchScope.ONELEVEL_SCOPE, new ArrayList<String>(), 1L);
-          
-          if (childEntries.size() > 0) {
-            // done
-            return;
-          }
-          
-          ldapSyncDaoForLdap.delete(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString);
-        } catch (Exception e) {
-          if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
-            // dn doesn't exist.  continue going up.
-            continue;
-          } else {
-            throw e;
-          }
+
+        ldapSyncDaoForLdap.delete(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString);
+      } catch (Exception e) {
+        if (e.getCause() == null || !(e.getCause() instanceof LdapException) || ((LdapException) e.getCause()).getResultCode() != ResultCode.NO_SUCH_OBJECT) {
+          throw new RuntimeException(e);
         }
       }
-    } catch (LDAPException e) {
-      throw new RuntimeException(e);
     }
   }
   
@@ -1395,68 +1383,64 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     if (ldapSyncConfiguration.getGroupDnType() != LdapSyncGroupDnType.bushy) {
       return;
     }
-    
+
+    List<Dn> ldapDnsToCreate = new ArrayList<>();
+
+    Dn groupSearchBaseDn = new Dn(ldapSyncConfiguration.getGroupSearchBaseDn());
+
+    Dn groupDn = new Dn(groupDnString);
+    Dn parentDn = groupDn.getParent();
+    if (parentDn.isSame(groupSearchBaseDn)) {
+      throw new RuntimeException("Group's parent dn is the base dn!");
+    }
+
+    // see if the parent dn exists.  If it does, nothing to do here.
     try {
-      List<DN> ldapDnsToCreate = new ArrayList<DN>();
-      
-      DN groupSearchBaseDn = new DN(ldapSyncConfiguration.getGroupSearchBaseDn());
-      
-      DN groupDn = new DN(groupDnString);
-      DN parentDn = groupDn.getParent();
-      if (parentDn.equals(groupSearchBaseDn)) {
-        throw new RuntimeException("Group's parent dn is the base dn!");
+      ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDn.format(), "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<>());
+      return;
+    } catch (Exception e) {
+      if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
+        ldapDnsToCreate.add(parentDn);
+      } else {
+        throw e;
       }
-      
-      // see if the parent dn exists.  If it does, nothing to do here.
+    }
+
+    while (true) {
+      parentDn = parentDn.getParent();
+      if (parentDn == null || parentDn.isEmpty()) {
+        break;
+      }
+
+      if (parentDn.isSame(groupSearchBaseDn)) {
+        // we've clearly gone too far up
+        break;
+      }
+
+      String parentDnString = parentDn.format();
       try {
-        ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDn.toString(), "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>());
-        return;
+        ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString, "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<>());
+        break;
       } catch (Exception e) {
         if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
-          ldapDnsToCreate.add(parentDn);
+          ldapDnsToCreate.add(0, parentDn);
         } else {
           throw e;
         }
       }
-      
-      while (true) {
-        parentDn = parentDn.getParent();
-        if (parentDn == null) {
-          break;
-        }
-        
-        if (parentDn.equals(groupSearchBaseDn)) {
-          // we've clearly gone too far up
-          break;
-        }
-        
-        String parentDnString = parentDn.toString();
-        try {
-          ldapSyncDaoForLdap.search(ldapSyncConfiguration.getLdapExternalSystemConfigId(), parentDnString, "(objectClass=*)", LdapSearchScope.OBJECT_SCOPE, new ArrayList<String>());
-          break;
-        } catch (Exception e) {
-          if (e.getCause() != null && e.getCause() instanceof LdapException && ((LdapException)e.getCause()).getResultCode() == ResultCode.NO_SUCH_OBJECT) {
-            ldapDnsToCreate.add(0, parentDn);
-          } else {
-            throw e;
-          }
-        }
-      }
-      
-      // now create the DNs
-      for (DN ldapDnToCreate : ldapDnsToCreate) {
-        LdapEntry folderLdapEntry = new LdapEntry(ldapDnToCreate.toString());
-        folderLdapEntry.addAttribute(new LdapAttribute(ldapDnToCreate.getRDN().getAttributeNames()[0], ldapDnToCreate.getRDN().getAttributeValues()[0]));
-        
-        LdapAttribute objectClassLdapAttribute = new LdapAttribute("objectClass");
-        objectClassLdapAttribute.addStringValues(new ArrayList<String>(ldapSyncConfiguration.getFolderObjectClasses()));
-        
-        folderLdapEntry.addAttribute(objectClassLdapAttribute);
-        
-        ldapSyncDaoForLdap.create(ldapSyncConfiguration.getLdapExternalSystemConfigId(), folderLdapEntry);
-      }
-    } catch (LDAPException e) {
-      throw new RuntimeException(e);
+    }
+
+    // now create the DNs
+    for (Dn ldapDnToCreate : ldapDnsToCreate) {
+      LdapEntry folderLdapEntry = new LdapEntry(ldapDnToCreate.format());
+      folderLdapEntry.addAttribute(new LdapAttribute(ldapDnToCreate.getRDn().getNameValue().getName(), ldapDnToCreate.getRDn().getNameValue().getStringValue()));
+
+      LdapAttribute objectClassLdapAttribute = new LdapAttribute("objectClass");
+      objectClassLdapAttribute.addStringValues(new ArrayList<>(ldapSyncConfiguration.getFolderObjectClasses()));
+
+      folderLdapEntry.addAttribute(objectClassLdapAttribute);
+
+      ldapSyncDaoForLdap.create(ldapSyncConfiguration.getLdapExternalSystemConfigId(), folderLdapEntry);
     }
   }
 
@@ -1471,7 +1455,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     StringBuilder filterBuilder = new StringBuilder();
 
     // get the search attribute
-    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new ArrayList<GrouperProvisioningConfigurationAttribute>(ldapSyncConfiguration.getEntitySearchAttributes());
+    List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new ArrayList<>(ldapSyncConfiguration.getEntitySearchAttributes());
     
     // exclude ldap_dn as a search attribute
     Iterator<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributesIter = grouperProvisioningConfigurationAttributes.iterator();
@@ -1536,21 +1520,17 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     }
     
     try {
-      DN oldDn = new DN(oldDnString);
-      DN newDn = new DN(newDnString);
+      Dn oldDn = new Dn(oldDnString);
+      Dn newDn = new Dn(newDnString);
       
       // if the rdn is different, even case difference
-      if (!oldDn.getRDN().equals(newDn.getRDN())) {
+      if (!oldDn.getRDn().isSame(newDn.getRDn())) {
         return true;
       }
       
       // otherwise, we only care if the parent is actually different
-      if (!oldDn.getParent().toNormalizedString().equals(newDn.getParent().toNormalizedString())) {
-        return true;
-      }
-      
-      return false;
-    } catch (LDAPException e) {
+      return !oldDn.getParent().isSame(newDn.getParent());
+    } catch (Exception e) {
       LOG.warn("Error checking if DN move is applicable for oldDnString=" + oldDnString + ", newDnString=" + newDnString, e);
       
       // just try the move anyways?
@@ -1565,52 +1545,52 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     
     LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
 
-    try {      
-      DN groupSearchBaseDn = new DN(ldapSyncConfiguration.getGroupSearchBaseDn());
+    Dn groupSearchBaseDn = new Dn(ldapSyncConfiguration.getGroupSearchBaseDn());
+    Dn oldDn = new Dn(oldDnString);
+    Dn newDn = new Dn(newDnString);
 
-      String oldDnParentString = DN.getParent(oldDnString).toMinimallyEncodedString();
-      String newDnParentString = DN.getParent(newDnString).toMinimallyEncodedString();
+    String oldDnParentString = oldDn.getParent().format(
+      new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), s -> s, s -> s));
+    String newDnParentString = newDn.getParent().format(
+      new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), s -> s, s -> s));
 
-      if (oldDnParentString.equals(newDnParentString)) {
-        return;
-      }
-      
-      if (!oldDnParentString.equalsIgnoreCase(newDnParentString)) {
-        return;
-      }
-      
-      DN oldDnParent = new DN(oldDnParentString);
-      DN newDnParent = new DN(newDnParentString);
-      
-      if (groupSearchBaseDn.isDescendantOf(oldDnParent, true)) {
-        return;
+    if (oldDnParentString.equals(newDnParentString)) {
+      return;
+    }
+
+    if (!oldDnParentString.equalsIgnoreCase(newDnParentString)) {
+      return;
+    }
+
+    Dn oldDnParent = new Dn(oldDnParentString);
+    Dn newDnParent = new Dn(newDnParentString);
+
+    if (groupSearchBaseDn.isSame(oldDnParent) || groupSearchBaseDn.isDescendant(oldDnParent)) {
+      return;
+    }
+
+    while (true) {
+
+      String oldValue = oldDnParent.getRDn().getNameValue().getStringValue();
+      String newValue = newDnParent.getRDn().getNameValue().getStringValue();
+
+      if (oldValue.equalsIgnoreCase(newValue) && !oldValue.equals(newValue)) {
+        ldapSyncDaoForLdap.move(ldapSyncConfiguration.getLdapExternalSystemConfigId(), oldDnParentString, newDnParentString);
       }
 
-      while (true) {
-        
-        String oldValue = oldDnParent.getRDN().getAttributeValues()[0];
-        String newValue = newDnParent.getRDN().getAttributeValues()[0];
-        
-        if (oldValue.equalsIgnoreCase(newValue) && !oldValue.equals(newValue)) {
-          ldapSyncDaoForLdap.move(ldapSyncConfiguration.getLdapExternalSystemConfigId(), oldDnParentString, newDnParentString);
-        }
-        
-        oldDnParent = oldDnParent.getParent();
-        newDnParent = newDnParent.getParent();
-        
-        if (oldDnParent == null) {
-          break;
-        }
-        
-        if (groupSearchBaseDn.isDescendantOf(oldDnParent, true)) {
-          break;
-        }
-        
-        oldDnParentString = oldDnParent.toString();
-        newDnParentString = newDnParent.toString();
+      oldDnParent = oldDnParent.getParent();
+      newDnParent = newDnParent.getParent();
+
+      if (oldDnParent == null || oldDnParent.isEmpty()) {
+        break;
       }
-    } catch (LDAPException e) {
-      throw new RuntimeException(e);
+
+      if (groupSearchBaseDn.isSame(oldDnParent) || groupSearchBaseDn.isDescendant(oldDnParent)) {
+        break;
+      }
+
+      oldDnParentString = oldDnParent.format();
+      newDnParentString = newDnParent.format();
     }
   }
 
