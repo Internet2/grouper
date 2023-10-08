@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisionerActivity;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisionerConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisionerLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiProvisioningAssignment;
@@ -776,15 +777,23 @@ public class UiV2ProvisionerConfiguration {
         List<GcGrouperSyncMembership> activityForMembership = GrouperProvisioningService.retrieveRecentActivityForMembership(provisionerConfigId);
         provisionerConfigurationContainer.setActivityForMembership(activityForMembership);
         
+        List<GuiProvisionerActivity> provisionerActivity = GuiProvisionerActivity.convertFromGcGrouperSyncObjects(activityForGroup, activityForMember, activityForMembership);
+        provisionerConfigurationContainer.setProvisionerActivity(provisionerActivity);
       } else if (provisionerConfigObjectType.equals("group")) {
         List<GcGrouperSyncGroup> activityForGroup = GrouperProvisioningService.retrieveRecentActivityForGroup(provisionerConfigId);
         provisionerConfigurationContainer.setActivityForGroup(activityForGroup);
+        List<GuiProvisionerActivity> provisionerActivity = GuiProvisionerActivity.convertFromGcGrouperSyncObjects(activityForGroup, null, null);
+        provisionerConfigurationContainer.setProvisionerActivity(provisionerActivity);
       } else if (provisionerConfigObjectType.equals("entity")) {
         List<GcGrouperSyncMember> activityForMember = GrouperProvisioningService.retrieveRecentActivityForMember(provisionerConfigId);
         provisionerConfigurationContainer.setActivityForMember(activityForMember);
+        List<GuiProvisionerActivity> provisionerActivity = GuiProvisionerActivity.convertFromGcGrouperSyncObjects(null, activityForMember, null);
+        provisionerConfigurationContainer.setProvisionerActivity(provisionerActivity);
       } else if (provisionerConfigObjectType.equals("membership")) {
         List<GcGrouperSyncMembership> activityForMembership = GrouperProvisioningService.retrieveRecentActivityForMembership(provisionerConfigId);
         provisionerConfigurationContainer.setActivityForMembership(activityForMembership);
+        List<GuiProvisionerActivity> provisionerActivity = GuiProvisionerActivity.convertFromGcGrouperSyncObjects(null, null, activityForMembership);
+        provisionerConfigurationContainer.setProvisionerActivity(provisionerActivity);
       } else {
         throw new RuntimeException("invalid provisionerConfigObjectType: "+provisionerConfigObjectType);
       }

@@ -86,14 +86,9 @@
 	  </div>
 	</div>
 	
-	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'group' or grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == '' }">
-		<%@ include file="provisioningConfigActivityGroup.jsp"%>	
+	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'group' or 
+    grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'entity' or 
+    grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'membership' or 
+    grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == '' }">
+		<%@ include file="provisioningConfigActivity.jsp"%>	
 	</c:if>
-	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'entity' or grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == ''}">
-		<%@ include file="provisioningConfigActivityMember.jsp"%>	
-	</c:if>
-	<c:if test="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == 'membership' or grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigObjectType == ''}">
-		<%@ include file="provisioningConfigActivityMembership.jsp"%>	
-	</c:if>
-	
-	
