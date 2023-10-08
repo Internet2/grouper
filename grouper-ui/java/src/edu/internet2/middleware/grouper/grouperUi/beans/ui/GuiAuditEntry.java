@@ -34,10 +34,14 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDefName;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiEntity;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiMember;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPITGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiPrivilege;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -150,6 +154,12 @@ public class GuiAuditEntry {
    * gui group for the audit if applicable
    */
   private GuiGroup guiGroup;
+  
+  /**
+   * gui pit group for the audit if applicable
+   */
+  private GuiPITGroup guiPITGroup;
+
 
   /**
    * gui entity for the audit if applicable
@@ -215,6 +225,14 @@ public class GuiAuditEntry {
   }
 
   /**
+   * gui pit group for the audit if applicable
+   * @return the gui pit group
+   */
+  public GuiPITGroup getGuiPITGroup() {
+    return this.guiPITGroup;
+  }
+  
+  /**
    * gui group for the audit if applicable
    * @return the gui group
    */
@@ -228,6 +246,14 @@ public class GuiAuditEntry {
    */
   public void setGuiGroup(GuiGroup guiGroup1) {
     this.guiGroup = guiGroup1;
+  }
+  
+  /**
+   * gui pit group for the audit if applicable
+   * @param guiPITGroup1
+   */
+  public void setGuiPITGroup(GuiPITGroup guiPITGroup1) {
+    this.guiPITGroup = guiPITGroup1;
   }
 
   /**
@@ -1213,6 +1239,16 @@ public class GuiAuditEntry {
     GuiGroup guiGroup = new GuiGroup(group);
     this.setGuiGroup(guiGroup);
     
+    if (group == null) {
+      // set pit group if we're root
+      boolean isWheelOrRoot = PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject());
+      if (isWheelOrRoot) {
+        Set<PITGroup> pitGroups = GrouperDAOFactory.getFactory().getPITGroup().findBySourceId(groupId, false);
+        if (pitGroups.size() > 0) {
+          this.setGuiPITGroup(new GuiPITGroup(pitGroups.iterator().next()));
+        }
+      }
+    }
   }
 
   /**
@@ -1408,4 +1444,22 @@ public class GuiAuditEntry {
 	  return importTotalDeleted;
   }
 
+  /**
+   * @return link if available otherwise name
+   */
+  public String getGroupLinkOrName() {
+    Group group = this.guiGroup != null ? this.guiGroup.getGroup() : null;
+    PITGroup pitGroup = this.guiPITGroup != null ? this.guiPITGroup.getPITGroup() : null;
+    
+    if (group == null && pitGroup != null) {
+      return pitGroup.getName();
+    }
+    
+    // this includes if the group is actually null - will show as unknown in the UI
+    if (this.guiGroup != null) {
+      return this.guiGroup.getLink();
+    }
+    
+    return null;
+  }
 }
