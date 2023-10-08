@@ -36,7 +36,6 @@ public class ProvisioningStateBase {
    * when this action happened millis since 1970
    */
   private Long millisSince1970;
-
   
   /**
    * insert, update, or delete
@@ -284,6 +283,5 @@ public class ProvisioningStateBase {
   public void setUpdate(boolean update) {
     this.update = update;
   }
-  
-  
+
 }

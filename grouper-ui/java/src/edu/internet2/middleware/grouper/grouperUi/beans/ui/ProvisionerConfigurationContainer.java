@@ -84,6 +84,11 @@ public class ProvisionerConfigurationContainer {
   private List<GcGrouperSyncMembership> activityForMembership;
   
   /**
+   * total activity for one provisioner
+   */
+  private List<GuiProvisionerActivity> provisionerActivity;
+  
+  /**
    * current grouped config index we are looping through
    */
   private int index;
@@ -504,6 +509,16 @@ public class ProvisionerConfigurationContainer {
   
   public void setTotalProvisionableGroups(int totalProvisionableGroups) {
     this.totalProvisionableGroups = totalProvisionableGroups;
+  }
+
+  
+  public List<GuiProvisionerActivity> getProvisionerActivity() {
+    return provisionerActivity;
+  }
+
+  
+  public void setProvisionerActivity(List<GuiProvisionerActivity> provisionerActivity) {
+    this.provisionerActivity = provisionerActivity;
   }
   
   

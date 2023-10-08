@@ -23,6 +23,18 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  *
  */
 public class GrouperProvisioningData {
+  
+  /**
+   * If we have tried to select the provisioning object from grouper. The use is incremental pass2 selecting a group based on an entity recalc or an entity based on group recalc
+   * because you get memberships back and need to resolve the other side.
+   */
+  private Set<String> groupIdsSelectedFromGrouper = new HashSet<>();
+  
+  /**
+   * If we have tried to select the provisioning object from grouper. The use is incremental pass2 selecting a group based on an entity recalc or an entity based on group recalc
+   * because you get memberships back and need to resolve the other side.
+   */
+  private Set<String> memberIdsSelectedFromGrouper = new HashSet<>();
 
   /**
    * map of retrieved entity to target native entity, optional, only if the target native entity is needed later on
@@ -736,5 +748,22 @@ public class GrouperProvisioningData {
   public Set<Object> getMembershipValuesThatExistInGrouper() {
     return membershipValuesThatExistInGrouper;
   }
+
+  /**
+   * If we have tried to select the provisioning object from grouper. The use is incremental pass2 selecting a group based on an entity recalc or an entity based on group recalc
+   * because you get memberships back and need to resolve the other side.
+   */
+  public Set<String> getGroupIdsSelectedFromGrouper() {
+    return groupIdsSelectedFromGrouper;
+  }
+
+  /**
+   * If we have tried to select the provisioning object from grouper. The use is incremental pass2 selecting a group based on an entity recalc or an entity based on group recalc
+   * because you get memberships back and need to resolve the other side.
+   */
+  public Set<String> getMemberIdsSelectedFromGrouper() {
+    return memberIdsSelectedFromGrouper;
+  }
+  
 
 }

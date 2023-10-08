@@ -1162,7 +1162,7 @@ public class GrouperProvisioningGrouperDao {
   }
 
   
-  public GrouperProvisioningLists retrieveGrouperDataIncrementalGroupsEntities() {
+  public GrouperProvisioningLists retrieveGrouperDataIncrementalGroupsEntities(String logLabel) {
 
     GrouperProvisioningLists grouperProvisioningLists = new GrouperProvisioningLists();
     
@@ -1170,21 +1170,39 @@ public class GrouperProvisioningGrouperDao {
 
     Set<String> groupIdsToRetrieve = new HashSet<String>();
     Set<String> memberIdsToRetrieve = new HashSet<String>();
+    GrouperProvisioningData grouperProvisioningData = this.getGrouperProvisioner().retrieveGrouperProvisioningData();
     {
       long start = System.currentTimeMillis();
       
       //go from the actions that happened to what we need to retrieve from Grouper
       //retrieve everything whether recalc or not
       for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
-        groupIdsToRetrieve.add(provisioningGroupWrapper.getGroupId());
+        // for incremental pass 2, when we are retrieving groups that have not been retrieved yet.
+        if (!grouperProvisioningData.getGroupIdsSelectedFromGrouper().contains(provisioningGroupWrapper.getGroupId())) {
+          groupIdsToRetrieve.add(provisioningGroupWrapper.getGroupId());
+        }
       }
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
-        memberIdsToRetrieve.add(provisioningEntityWrapper.getMemberId());
+        // for incremental pass 2, when we are retrieving entities that have not been retrieved yet.
+        if (!grouperProvisioningData.getMemberIdsSelectedFromGrouper().contains(provisioningEntityWrapper.getMemberId())) {
+          memberIdsToRetrieve.add(provisioningEntityWrapper.getMemberId());
+        }
+        
       }
+      
+      
       for (ProvisioningMembershipWrapper provisioningMembershipWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
         if (provisioningMembershipWrapper.getGroupIdMemberId() != null) {
-          groupIdsToRetrieve.add((String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0));
-          memberIdsToRetrieve.add((String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(1));
+          String groupId = (String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0);
+          String memberId = (String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(1);
+          if (!grouperProvisioningData.getGroupIdsSelectedFromGrouper().contains(groupId)) {
+            groupIdsToRetrieve.add(groupId);
+          }
+          
+          if (!grouperProvisioningData.getMemberIdsSelectedFromGrouper().contains(memberId)) {
+            memberIdsToRetrieve.add(memberId);
+          }
+          
         }
       }
 
@@ -1192,14 +1210,16 @@ public class GrouperProvisioningGrouperDao {
     {
       long start = System.currentTimeMillis();
       grouperProvisioningLists.setProvisioningGroups(retrieveGroups(false, groupIdsToRetrieve));
-      debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
-      debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningLists.getProvisioningGroups()));
+      grouperProvisioningData.getGroupIdsSelectedFromGrouper().addAll(groupIdsToRetrieve);
+      debugMap.put("retrieveGrouperGroupsMillis_"+logLabel, System.currentTimeMillis() - start);
+      debugMap.put("grouperGroupCount_"+logLabel, GrouperUtil.length(grouperProvisioningLists.getProvisioningGroups()));
     }
     {
       long start = System.currentTimeMillis();
       grouperProvisioningLists.setProvisioningEntities(retrieveMembers(false, memberIdsToRetrieve));
-      debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
-      debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningLists.getProvisioningEntities()));
+      grouperProvisioningData.getMemberIdsSelectedFromGrouper().addAll(memberIdsToRetrieve);
+      debugMap.put("retrieveGrouperEntitiesMillis_"+logLabel, System.currentTimeMillis() - start);
+      debugMap.put("grouperEntityCount_"+logLabel, GrouperUtil.length(grouperProvisioningLists.getProvisioningEntities()));
     }
     return grouperProvisioningLists;
   }

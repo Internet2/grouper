@@ -926,7 +926,7 @@ public class GrouperProvisioningLogic {
             this.retrieveDataStartMillisSince1970 = start;
             // keep track of when this started so we can update when group syncs occurred
             debugMap.put("retrieveDataStartMillisSince1970", start);
-            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities();
+            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities("Pass1");
             long retrieveGrouperDataMillis = System.currentTimeMillis()-start;
             debugMap.put("retrieveGrouperGroupsEntitiesMillis", retrieveGrouperDataMillis);
           }
@@ -942,7 +942,11 @@ public class GrouperProvisioningLogic {
           debugMap.put("state", "retrieveIncrementalSyncMemberships");
           {
             
-            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMemberships(); 
+            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMemberships();
+
+            //for any groups or entities that  are pulled back in membership recalcs, we need to retrieve grouper data
+            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities("Pass2");
+            
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass2");
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass2");
   
@@ -2973,11 +2977,11 @@ public class GrouperProvisioningLogic {
 
   }
 
-  public void retrieveGrouperDataIncrementalGroupsEntities() {
+  public void retrieveGrouperDataIncrementalGroupsEntities(String logLabel) {
 
     // get all grouper data for the provisioner
     // and put in GrouperProvisioningDataGrouper
-    GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataIncrementalGroupsEntities();
+    GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataIncrementalGroupsEntities(logLabel);
 
     // put wrappers on the grouper objects and put in the grouper uuid maps in data object
     // put these wrapper in the GrouperProvisioningData and GrouperProvisioningDataIndex
