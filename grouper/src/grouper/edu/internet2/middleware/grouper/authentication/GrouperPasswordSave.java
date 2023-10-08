@@ -738,8 +738,14 @@ public class GrouperPasswordSave {
               throw new RuntimeException("Inserting grouperPassword settings but they already exist!");
             }
             
-            if (StringUtils.contains(username, ":") || StringUtils.contains(thePassword, ":")) {
-              throw new RuntimeException("username and password cannot both contain a colon due to http basic auth");
+            boolean splitOnFirstColon = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.authentication.splitBasicAuthOnFirstColon", false);
+            if (splitOnFirstColon && StringUtils.contains(username, ":")) {
+              throw new RuntimeException("username cannot contain a colon due to http basic auth and this grouper.properties setting grouper.authentication.splitBasicAuthOnFirstColon=true  "
+                  + "Note, if you change that setting, you might need to adjust existing users/passes.  Note: it is recommended to use the local entity uuid as the username if you are using local entities");
+            }
+            if (!splitOnFirstColon && StringUtils.contains(thePassword, ":")) {
+              throw new RuntimeException("password cannot contain a colon due to http basic auth and this grouper.properties setting grouper.authentication.splitBasicAuthOnFirstColon=false  "
+                  + "Note, if you change that setting, you might need to adjust existing users/passes.  Note: it is recommended to use the local entity uuid as the username if you are using local entities");
             }
             
             if (StringUtils.isBlank(memberIdWhoSetPassword)) {
