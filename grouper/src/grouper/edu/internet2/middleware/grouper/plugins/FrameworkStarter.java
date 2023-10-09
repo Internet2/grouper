@@ -1,9 +1,10 @@
 package edu.internet2.middleware.grouper.plugins;
 
-import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
+import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.osgi.framework.BundleContext;
 import org.osgi.framework.BundleException;
@@ -16,6 +17,7 @@ import java.io.IOException;
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Arrays;
 import java.util.Dictionary;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -30,6 +32,8 @@ import java.util.Set;
  * @author jj
  */
 public class FrameworkStarter {
+    private final static Log LOG = GrouperUtil.getLog(FrameworkStarter.class);
+
     private final static FrameworkStarter frameworkStarter = new FrameworkStarter();
 
     private Framework framework;
@@ -51,8 +55,15 @@ public class FrameworkStarter {
         // if it caches modules, they might not ever get reloaded
         configMap.put(Constants.FRAMEWORK_STORAGE_CLEAN, Constants.FRAMEWORK_STORAGE_CLEAN_ONFIRSTINIT);
 
-        //TODO: maybe make this more dynamic. currently we're very opinionated on what we export
-        configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.system.packages.extra","javax.servlet,javax.servlet.http"));
+        Set<String> frameworkSystemPackagesExtra = new HashSet<>();
+        // TODO: add any needed system packages here
+        if (null != GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.system.packages.extra")) {
+            LOG.warn("You are setting a value for `grouper.osgi.framework.system.packages.extra`. This generally not needed and should not be used unless there is a good reason to do so");
+            frameworkSystemPackagesExtra.addAll(Arrays.asList(GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.system.packages.extra", "").split(",")));
+        }
+        if (!frameworkSystemPackagesExtra.isEmpty()) {
+            configMap.put(Constants.FRAMEWORK_SYSTEMPACKAGES_EXTRA, String.join(",", frameworkSystemPackagesExtra));
+        }
 
         try {
             // set up cachedir
@@ -65,18 +76,18 @@ public class FrameworkStarter {
 
         // usually, this is a bad idea, but we have several classes that must be loaded from the framework classpath to work,
         // e.g., logging, configuration
-        String packagesForBootDelegationString;
+        Set<String> packagesForBootDelegation = new HashSet<>();
         if (null != GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.boot.delegation")) {
-            packagesForBootDelegationString = GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.boot.delegation");
+            LOG.warn("You are setting a value for `grouper.osgi.framework.boot.delegation`. This is generally not needed adn should not be used unless there is a good reason to do so");
+            packagesForBootDelegation.addAll(Arrays.asList(GrouperConfig.retrieveConfig().propertyValueString("grouper.osgi.framework.boot.delegation").split(",")));
         } else {
-            Set<String> packagesForBootDelegation = new HashSet<>();
-            packagesForBootDelegation.add(LogFactory.class.getPackage().getName());
-            packagesForBootDelegation.add(ConfigPropertiesCascadeBase.class.getPackage().getName());
-            // TODO: why oh why... need to fix this
-            packagesForBootDelegation.add(GrouperExternalSystem.class.getPackage().getName());
-            packagesForBootDelegationString = String.join(",", packagesForBootDelegation);
+            packagesForBootDelegation.add("org.osgi.*");
+            packagesForBootDelegation.add("javax.*");
+            packagesForBootDelegation.add("org.apache.commons.logging");
+            packagesForBootDelegation.add("edu.internet2.middleware.grouper.*");
+            packagesForBootDelegation.add("edu.internet2.middleware.grouperClient.*");
         }
-        configMap.put(Constants.FRAMEWORK_BOOTDELEGATION, packagesForBootDelegationString);
+        configMap.put(Constants.FRAMEWORK_BOOTDELEGATION, String.join(",", packagesForBootDelegation));
 
         try {
             FrameworkFactory frameworkFactory = ServiceLoader.load(FrameworkFactory.class).iterator().next();
