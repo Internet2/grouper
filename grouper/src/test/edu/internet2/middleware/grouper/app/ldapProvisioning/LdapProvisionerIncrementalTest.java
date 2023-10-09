@@ -63,7 +63,7 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerIncrementalTest("testIncremental1recalc"));    
+    TestRunner.run(new LdapProvisionerIncrementalTest("testIncrementalRegexRestriction"));    
   }
   
   @Override
@@ -534,6 +534,9 @@ public class LdapProvisionerIncrementalTest extends GrouperProvisioningBaseTest 
     assertEquals(0, ldapEntries.size());   
   }
   
+  /**
+   * this fails in the harness but succeeds individually, try it
+   */
   public void testIncrementalRegexRestriction() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
