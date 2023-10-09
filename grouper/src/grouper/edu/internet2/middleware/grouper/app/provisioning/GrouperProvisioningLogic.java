@@ -2795,6 +2795,7 @@ public class GrouperProvisioningLogic {
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
       }
       provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
+      provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
       
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
 
@@ -2872,6 +2873,7 @@ public class GrouperProvisioningLogic {
   
       }
       provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
+      provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
       provisioningEntityWrapper.setTargetNativeEntity(targetEntityToTargetNativeEntity.get(targetProvisioningEntity));
       
       GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
@@ -2945,6 +2947,7 @@ public class GrouperProvisioningLogic {
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
       }
       provisioningMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
+      provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
 
       if (gcGrouperSyncMembership != null && !gcGrouperSyncMembership.isInTarget()) {

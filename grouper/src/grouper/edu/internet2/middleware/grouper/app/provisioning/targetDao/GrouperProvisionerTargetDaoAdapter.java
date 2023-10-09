@@ -1299,6 +1299,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         provisioningGroupWrappersSuccessfullyRetrieved.add(targetGroup.getProvisioningGroupWrapper());
       }
     }
+    
+    for (ProvisioningGroup provisioningGroup : targetDaoRetrieveGroupsRequest.getTargetGroups()) {
+      if (provisioningGroup.getProvisioningGroupWrapper() != null) {        
+        provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().setSelectResultProcessed(true);
+      }
+    }
 
     // update the cache
     this.getGrouperProvisioner().retrieveGrouperProvisioningLinkLogic().updateGroupLink(provisioningGroupWrappersSuccessfullyRetrieved, false);
@@ -1831,7 +1837,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     for (ProvisioningEntity provisioningEntity :  GrouperUtil.nonNull(targetEntities)) {
       provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectAllMembershipResultProcessed(true);
     }
-
+    
     return targetDaoRetrieveMembershipsByEntitiesResponse;
   }
 
@@ -1999,6 +2005,19 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       retrieveMembershipsEntityAttributes(targetDaoRetrieveMembershipsResponse, targetEntities);
       
     }
+    
+    for (ProvisioningMembership provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+      if (provisioningMembership.getProvisioningMembershipWrapper() != null) {        
+        provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setSelectResultProcessed(true);
+      }
+    }
+    
+    for (ProvisioningMembership provisioningMembership : targetDaoRetrieveMembershipsResponse.getTargetMemberships()) {
+      if (provisioningMembership.getProvisioningMembershipWrapper() != null) {        
+        provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setSelectResultProcessed(true);
+      }
+    }
+    
     return targetDaoRetrieveMembershipsResponse;
 
   }
@@ -2651,6 +2670,12 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     for (ProvisioningEntity targetEntity : GrouperUtil.nonNull(targetDaoRetrieveEntitiesResponse.getTargetEntities())) { 
       if (targetEntity.getProvisioningEntityWrapper() != null) {
         provisioningEntityWrappersSuccessfullyRetrieved.add(targetEntity.getProvisioningEntityWrapper());
+      }
+    }
+    
+    for (ProvisioningEntity provisioningEntity : targetDaoRetrieveEntitiesRequest.getTargetEntities()) {
+      if (provisioningEntity.getProvisioningEntityWrapper() != null) {        
+        provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectResultProcessed(true);
       }
     }
 
