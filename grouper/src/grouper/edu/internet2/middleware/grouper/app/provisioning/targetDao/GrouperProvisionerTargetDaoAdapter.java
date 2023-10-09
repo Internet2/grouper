@@ -2006,7 +2006,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       
     }
     
-    for (ProvisioningMembership provisioningMembership : targetDaoRetrieveMembershipsRequest.getTargetMemberships()) {
+    for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetMemberships())) {
       if (provisioningMembership.getProvisioningMembershipWrapper() != null) {        
         provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setSelectResultProcessed(true);
       }
