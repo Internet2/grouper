@@ -112,7 +112,9 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
   }
   
   
-
+  /**
+   * this fails in harness but succeeds individually for some reason.  try it
+   */
   public void testIncrementalDoNotCreateUsers() {
   
     LdapProvisionerTestUtils.configureLdapProvisioner(

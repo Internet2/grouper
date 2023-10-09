@@ -54,7 +54,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFullOnlyDnOverrideFlat"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
   }
   
   @Override
@@ -1815,6 +1815,9 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     assertEquals(0, ldapEntries.size());
   }
   
+  /**
+   * this fails for some reason in harness but works individually, try it
+   */
   public void testIncrementalDnOverrideFlat() {
 
     LdapProvisionerTestUtils.configureLdapProvisioner(
