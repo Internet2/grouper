@@ -135,8 +135,14 @@ public enum GcTableSyncSubtype {
       
       captureCurrentMaxIncrementalIndexIfNeeded(debugMap, gcTableSync);
 
-      String sqlFrom = "select distinct \"" + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
-      String sqlTo = "select distinct \"" + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
+      String sqlFrom = "select distinct " + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql() 
+          + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() 
+          + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+          + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
+      String sqlTo = "select distinct " + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql()
+          + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName()
+          + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql()
+          + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
 
       GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
           gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName(), sqlTo, 
@@ -200,8 +206,8 @@ public enum GcTableSyncSubtype {
 
       captureCurrentMaxIncrementalIndexIfNeeded(debugMap, gcTableSync);
 
-      String sqlFrom = "select " + quoteStrings(gcTableSync.getDataBeanFrom().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress()) + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
-      String sqlTo = "select " + quoteStrings(gcTableSync.getDataBeanTo().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress()) + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
+      String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().quoteStrings(gcTableSync.getDataBeanFrom().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress()) + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
+      String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().quoteStrings(gcTableSync.getDataBeanTo().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress()) + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
 
       GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
           gcTableSync.getDataBeanFrom().getTableMetadata().columnListPrimaryKeyAndChangeFlagAndOptionalIncrementalProgress(), sqlTo, 
@@ -418,8 +424,14 @@ public enum GcTableSyncSubtype {
     @Override
     public void retrieveData(Map<String, Object> debugMap, GcTableSync gcTableSync) {
       
-      String sqlFrom = "select distinct \"" + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
-      String sqlTo = "select distinct \"" + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
+      String sqlFrom = "select distinct " + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+          + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() 
+          + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+          + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
+      String sqlTo = "select distinct "  + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql()
+          + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() 
+          + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql()
+          + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
   
       GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
           gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName(), sqlTo, 
@@ -567,13 +579,17 @@ public enum GcTableSyncSubtype {
       List<Object> groupingsBatch = GrouperClientUtils.batchList(groupings, groupingsBatchSize, currentBatchIndex);
       
       String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAllQuoted()  
-          + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName() + " where \"" 
+          + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName() + " where "
+          + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
           + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() 
-          + "\" in (" + GrouperClientUtils.appendQuestions(groupingsBatch.size()) + ")";
+          + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+          + " in (" + GrouperClientUtils.appendQuestions(groupingsBatch.size()) + ")";
       String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListAllQuoted() 
-          + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName() + " where \"" 
+          + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName() + " where "
+              + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql()
               + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() 
-              + "\" in (" + GrouperClientUtils.appendQuestions(groupingsBatch.size()) + ")";
+              + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql()
+              + " in (" + GrouperClientUtils.appendQuestions(groupingsBatch.size()) + ")";
 
       GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
           gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), sqlTo, 
@@ -769,33 +785,6 @@ public enum GcTableSyncSubtype {
     gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(false);
     debugMap.put("paused", false);
   }
-
-  /**
-   * input: a,b,c
-   * output: "a","b","c"
-   * @param columns
-   * @return
-   */
-  public static String quoteStrings(String columns) {
-    if (GrouperClientUtils.isBlank(columns)) {
-      return columns;
-    }
-    StringBuilder result = new StringBuilder();
-    boolean first = true;
-    for (String column : GrouperClientUtils.splitTrim(columns, ",")) {
-      if (!first) {
-        result.append(",");
-      }
-      if (column.startsWith("\"") && column.endsWith("\"")) {
-        result.append(column);
-      } else {
-        result.append("\"").append(column).append("\"");
-      }
-      
-      first = false;
-    }
-    return result.toString();
-  }
   
   /**
    * get incremental data either from FROM table or from real time table
@@ -843,10 +832,10 @@ public enum GcTableSyncSubtype {
     if (lastRetrieved != null) {
 
       String sqlGetIncrementals = "select " 
-          + quoteStrings(columnsToSelect)
+          + gcTableSyncTableBeanSelectFrom.getTableMetadata().quoteStrings(columnsToSelect)
           + " from " + gcTableSyncTableBeanSelectFrom.getTableMetadata().getTableName() 
-          + " where \"" + incrementalColumn.getColumnName()
-          + "\" > ?";
+          + " where " + gcTableSyncTableBeanSelectFrom.getTableMetadata().quoteForColumnsInSql() + incrementalColumn.getColumnName()
+          + gcTableSyncTableBeanSelectFrom.getTableMetadata().quoteForColumnsInSql() + " > ?";
   
       GcTableSyncTableData gcTableSyncTableData = runQuery(debugMap, gcTableSyncTableBeanSelectFrom, 
           sqlGetIncrementals, columnsToSelect, "incrementalChanges", new Object[] {lastRetrieved}, isFrom );
@@ -873,7 +862,9 @@ public enum GcTableSyncSubtype {
     
     if (hasProgressColumn) {
     
-      String maxSql = "select max( \"" + gcTableSync.getDataBeanRealTime().getTableMetadata().getIncrementalProgressColumn().getColumnName() + "\" ) "
+      String maxSql = "select max( " + gcTableSync.getDataBeanRealTime().getTableMetadata().quoteForColumnsInSql()
+          + gcTableSync.getDataBeanRealTime().getTableMetadata().getIncrementalProgressColumn().getColumnName()
+          + gcTableSync.getDataBeanRealTime().getTableMetadata().quoteForColumnsInSql() + " ) "
           + " from " + gcTableSync.getDataBeanRealTime().getTableMetadata().getTableName();
           
       GcDbAccess gcDbAccessMaxSql = new GcDbAccess().sql(maxSql)
@@ -911,7 +902,9 @@ public enum GcTableSyncSubtype {
 
     if (hasAllColumnsColumn) {
       
-      String maxSql = "select max( \"" + gcTableSync.getDataBeanFrom().getTableMetadata().getIncrementalAllCoumnsColumn().getColumnName() + "\" ) "
+      String maxSql = "select max( " + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+          + gcTableSync.getDataBeanFrom().getTableMetadata().getIncrementalAllCoumnsColumn().getColumnName()
+          + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql() + " ) "
           + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
           
       GcDbAccess gcDbAccessMaxSql = new GcDbAccess().sql(maxSql)
@@ -1553,12 +1546,20 @@ public enum GcTableSyncSubtype {
       if (GrouperClientUtils.length(groupingsBatch) > 0) {
         String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAllQuoted() 
             + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName()
-            + " where \"" + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" >= ? "
-            + " and \"" + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" <= ? ";
+            + " where " + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+            + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() 
+            + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql() + " >= ? "
+            + " and "  + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+            + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() 
+            + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql() + " <= ? ";
         String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListAllQuoted() 
             + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName()
-            + " where \"" + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" >= ? "
-            + " and \"" + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" <= ? ";
+            + " where " + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql() 
+            + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName()
+            + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql() + " >= ? "
+            + " and " + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql() 
+            + gcTableSync.getDataBeanTo().getTableMetadata().getGroupColumnMetadata().getColumnName()
+            + gcTableSync.getDataBeanTo().getTableMetadata().quoteForColumnsInSql() + " <= ? ";
   
         GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 
             gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), sqlTo, 
@@ -1594,8 +1595,10 @@ public enum GcTableSyncSubtype {
       if (GrouperClientUtils.length(groupingsToDelete) > 0) {
         //
         GcTableSyncTableMetadata gcTableSyncTableMetadata = gcTableSyncTableBeanTo.getTableMetadata();
-        sql = "delete from " + gcTableSyncTableMetadata.getTableName() + " where \""
-            + gcTableSyncTableMetadata.getGroupColumnMetadata().getColumnName() + "\" = ?";
+        sql = "delete from " + gcTableSyncTableMetadata.getTableName() + " where "
+            + gcTableSyncTableMetadata.quoteForColumnsInSql()
+            + gcTableSyncTableMetadata.getGroupColumnMetadata().getColumnName() 
+            + gcTableSyncTableMetadata.quoteForColumnsInSql() + " = ?";
     
         GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gcTableSyncTableMetadata.getConnectionName());
     
@@ -1979,8 +1982,12 @@ public enum GcTableSyncSubtype {
       if (GrouperClientUtils.length(groupingsBatch) > 0) {
         String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAllQuoted() 
             + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName()
-            + " where \"" + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" >= ? "
-            + " and \"" + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName() + "\" <= ? ";
+            + " where " + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+            + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName()
+            + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql() + " >= ? "
+            + " and " + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql()
+            + gcTableSync.getDataBeanFrom().getTableMetadata().getGroupColumnMetadata().getColumnName()
+            + gcTableSync.getDataBeanFrom().getTableMetadata().quoteForColumnsInSql() + " <= ? ";
   
         GcTableSyncTableData gcTableSyncTableDataFrom = runQuery(debugMap, gcTableSync.getDataBeanFrom(), sqlFrom, 
             gcTableSync.getDataBeanFrom().getTableMetadata().columnListAll(), 

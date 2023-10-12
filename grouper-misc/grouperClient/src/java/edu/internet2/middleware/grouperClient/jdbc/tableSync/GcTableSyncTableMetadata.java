@@ -38,12 +38,54 @@ public class GcTableSyncTableMetadata {
    */
   private String metadataQuery = null;
   
+  private boolean quotesInitted = false;
+  
+  /**
+   * dont refer to this directly, call method: quoteForColumnsInSql()
+   */
+  private String quoteForColumnsInSql = "XXX";
+
+  public String quoteForColumnsInSql() {
+    if (!quotesInitted) {
+      
+      quoteForColumnsInSql = GcDbAccess.quoteForColumnsInSql(this.connectionName);
+      quotesInitted = true;
+    }
+    return quoteForColumnsInSql;
+  }
+  
+  /**
+   * input: a,b,c
+   * output: "a","b","c"
+   * @param columns
+   * @return
+   */
+  public String quoteStrings(String columns) {
+    if (GrouperClientUtils.isBlank(columns)) {
+      return columns;
+    }
+    StringBuilder result = new StringBuilder();
+    boolean first = true;
+    for (String column : GrouperClientUtils.splitTrim(columns, ",")) {
+      if (!first) {
+        result.append(",");
+      }
+      if (column.startsWith("\"") && column.endsWith("\"")) {
+        result.append(column);
+      } else {
+        result.append(quoteForColumnsInSql()).append(column).append(quoteForColumnsInSql());
+      }
+      
+      first = false;
+    }
+    return result.toString();
+  }
   /**
    * append the primary key where clause
    * @param sql
    */
   public String queryWherePrimaryKey() {
-    
+
     if (GrouperClientUtils.length(this.getPrimaryKey()) == 0) {
       throw new RuntimeException("No primary key for '" + this.tableName + "'!");
     }
@@ -56,7 +98,7 @@ public class GcTableSyncTableMetadata {
         result.append(" and ");
       }
       
-      result.append(" \"").append(gcTableSyncColumnMetadata.getColumnName()).append("\" = ? ");
+      result.append(" ").append(quoteForColumnsInSql()).append(gcTableSyncColumnMetadata.getColumnName()).append(quoteForColumnsInSql()).append(" = ? ");
       
       first = false;
     }
@@ -82,7 +124,7 @@ public class GcTableSyncTableMetadata {
         result.append(" , ");
       }
       
-      result.append(" \"").append(gcTableSyncColumnMetadata.getColumnName()).append("\" = ? ");
+      result.append(" ").append(quoteForColumnsInSql()).append(gcTableSyncColumnMetadata.getColumnName()).append(quoteForColumnsInSql()).append(" = ? ");
       
       first = false;
     }
@@ -695,7 +737,7 @@ public class GcTableSyncTableMetadata {
       if (!first) {
         result.append(", ");
       }
-      result.append("\"").append(gcTableSyncColumnMetadata.getColumnName()).append("\"");
+      result.append(quoteForColumnsInSql()).append(gcTableSyncColumnMetadata.getColumnName()).append(quoteForColumnsInSql());
       
       first = false;
     }
