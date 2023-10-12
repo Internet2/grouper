@@ -2106,11 +2106,8 @@ public class GcDbAccess {
   public static Connection connectionGetFromPool(String connectionName, final String[] url)
       throws ClassNotFoundException, SQLException {
     
-    final String GROUPER_LOADER_DB_CLASSNAME = "edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb";
     try {
-      Class grouperLoaderDbClass = GrouperClientUtils.forName(GROUPER_LOADER_DB_CLASSNAME);
-      Constructor constructor = grouperLoaderDbClass.getConstructor(new Class[]{String.class});
-      Object grouperLoaderDbInstance = constructor.newInstance(connectionName);
+      Object grouperLoaderDbInstance = grouperLoaderDbInstance(connectionName);
       Connection connection = (Connection)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "connection");
       url[0] = (String)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "getUrl");
       return connection;
@@ -2121,6 +2118,45 @@ public class GcDbAccess {
     
   }
 
+  final static String GROUPER_LOADER_DB_CLASSNAME = "edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb";
+
+
+  /**
+   * get a connection from a grouper pool
+   * @param connectionName
+   * @param url
+   * @return the connection
+   * @throws ClassNotFoundException
+   * @throws SQLException
+   */
+  public static Object grouperLoaderDbInstance(String connectionName)
+      throws ClassNotFoundException {
+    
+    try {
+      Class grouperLoaderDbClass = GrouperClientUtils.forName(GROUPER_LOADER_DB_CLASSNAME);
+      Constructor constructor = grouperLoaderDbClass.getConstructor(new Class[]{String.class});
+      Object grouperLoaderDbInstance = constructor.newInstance(connectionName);
+      return grouperLoaderDbInstance;
+    } catch (Exception e) {
+      throw new RuntimeException("Error calling constructor and 'connection' on " + GROUPER_LOADER_DB_CLASSNAME, e);
+    }
+    
+  }
+
+  /**
+   * the quote or empty string if none
+   * @param connectionName
+   * @return
+   */
+  public static String quoteForColumnsInSql(String connectionName) {
+    try {
+      Object grouperLoaderDbInstance = grouperLoaderDbInstance(connectionName);
+      return (String)GrouperClientUtils.callMethod(grouperLoaderDbInstance, "getQuoteForColumnsInSql");
+      
+    } catch (Exception e) {
+      throw new RuntimeException("Error calling constructor and 'getQuoteForColumnsInSql' on " + GROUPER_LOADER_DB_CLASSNAME, e);
+    }
+  }
 
 
 

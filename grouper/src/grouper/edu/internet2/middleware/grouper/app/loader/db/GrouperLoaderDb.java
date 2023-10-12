@@ -42,6 +42,7 @@ import com.mchange.v2.c3p0.WrapperConnectionPoolDataSource;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -80,6 +81,12 @@ public class GrouperLoaderDb {
           }
           throw new RuntimeException("Not expecting config item: '" + configItemName + "'");
         }
+        if (StringUtils.equals("useQuotedColumnsInSql", configItemName)) {
+          return GrouperHibernateConfig.retrieveConfig().propertyValueString("grouperMainDbConnection.useQuotedColumnsInSql");
+        }
+        if (StringUtils.equals("quoteForColumnsInSql", configItemName)) {
+          return GrouperHibernateConfig.retrieveConfig().propertyValueString("grouperMainDbConnection.quoteForColumnsInSql");
+        }
         return GrouperHibernateConfig.retrieveConfig().propertyValueString("hibernate.c3p0." + configItemName);
       }
     },
@@ -106,6 +113,12 @@ public class GrouperLoaderDb {
           }
           throw new RuntimeException("Not expecting config item: '" + configItemName + "'");
         }
+        if (StringUtils.equals("useQuotedColumnsInSql", configItemName)) {
+          return GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + databaseKey + ".useQuotedColumnsInSql");
+        }
+        if (StringUtils.equals("quoteForColumnsInSql", configItemName)) {
+          return GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + databaseKey + ".quoteForColumnsInSql");
+        }
         return GrouperLoaderConfig.retrieveConfig().propertyValueString("db." + databaseKey + ".c3p0." + configItemName);
       }
     },
@@ -127,9 +140,15 @@ public class GrouperLoaderDb {
           if (StringUtils.equals("url", configItemName)) {
             return GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc." + databaseKey + ".url");
           }
-  
+
           if (StringUtils.equals("driver", configItemName)) {
             return GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + databaseKey + ".driver");
+          }
+          if (StringUtils.equals("useQuotedColumnsInSql", configItemName)) {
+            return GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + databaseKey + ".useQuotedColumnsInSql");
+          }
+          if (StringUtils.equals("quoteForColumnsInSql", configItemName)) {
+            return GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.jdbc." + databaseKey + ".quoteForColumnsInSql");
           }
           throw new RuntimeException("Not expecting config item: '" + configItemName + "'");
         }
@@ -162,6 +181,31 @@ public class GrouperLoaderDb {
   
   /** pool properties for all pools */
   private static Map<String, Map<String, Object>> allPoolProperties = Collections.synchronizedMap(new HashMap<String, Map<String, Object>>());
+
+  /** This defaults to true.  Turn this off if the database does not support or need or has a problem with quoted identifiers */
+  private boolean useQuotedColumnsInSql;
+
+  /** Quote to use for columns in SQL.  This defaults to backtic if mysql, and otherwise will be doublequote. */
+  private String quoteForColumnsInSql;
+
+  
+  
+  
+  
+  public boolean isUseQuotedColumnsInSql() {
+    return useQuotedColumnsInSql;
+  }
+
+  /**
+   * the quote to use or blank if not using quotes
+   * @return
+   */
+  public String getQuoteForColumnsInSql() {
+    if (quoteForColumnsInSql == null) {
+      this.initProperties();
+    }
+    return quoteForColumnsInSql;
+  }
 
   /**
    * logger 
@@ -401,6 +445,9 @@ public class GrouperLoaderDb {
     
   }
 
+  /**
+   * TODO should this init only if not initted?
+   */
   public void initProperties() {
     if (!StringUtils.isBlank(this.connectionName)) {
       
@@ -427,6 +474,17 @@ public class GrouperLoaderDb {
       this.pass = thePass;
 
       this.pass = Morph.decryptIfFile(this.pass);
+      
+      this.useQuotedColumnsInSql = GrouperUtil.booleanValue(databaseConfigType.configValue(this.connectionName, "useQuotedColumnsInSql"), true);
+      if (!this.useQuotedColumnsInSql) {
+        this.quoteForColumnsInSql = "";
+      } else {
+        this.quoteForColumnsInSql = databaseConfigType.configValue(this.connectionName, "quoteForColumnsInSql");
+        if (StringUtils.isBlank(this.quoteForColumnsInSql)) {
+          this.quoteForColumnsInSql = GrouperDdlUtils.isMysql(this.url) ? "`" : "\"";
+        }
+      }
+
     }
     
     if (StringUtils.isBlank(this.url)) {
@@ -437,6 +495,7 @@ public class GrouperLoaderDb {
       this.driver = GrouperClientUtils.convertUrlToDriverClassIfNeeded(this.url, this.driver);
     }
     GrouperUtil.forName(this.driver);
+    
   }
   
   public void setPoolProperties() {
@@ -444,6 +503,8 @@ public class GrouperLoaderDb {
     this.poolProperties.put("driver", this.driver);
     this.poolProperties.put("user", this.user);
     this.poolProperties.put("pass", this.pass);
+    this.poolProperties.put("quoteForColumnsInSql", this.quoteForColumnsInSql);
+    this.poolProperties.put("useQuotedColumnsInSql", this.useQuotedColumnsInSql);
     this.poolProperties.put("minSize", retrievePoolConfigOrDefaultInt("min_size"));
     this.poolProperties.put("maxSize", retrievePoolConfigOrDefaultInt("max_size"));
     this.poolProperties.put("timeout", retrievePoolConfigOrDefaultInt("timeout"));
