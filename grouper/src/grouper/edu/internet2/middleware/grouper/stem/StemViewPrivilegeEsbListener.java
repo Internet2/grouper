@@ -177,10 +177,14 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       // get distinct subjects
       for (EsbEventContainer esbEventContainer : this.eventsToProcess) {
         String stemName = null;
-        if (PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())
-            || PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        boolean isAccess = StringUtils.equalsIgnoreCase(PrivilegeType.ACCESS.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+        boolean isAttributeDef = StringUtils.equalsIgnoreCase(PrivilegeType.ATTRIBUTE_DEF.name(), esbEventContainer.getEsbEvent().getPrivilegeType())
+            || StringUtils.equalsIgnoreCase("attributeDef", esbEventContainer.getEsbEvent().getPrivilegeType());
+        boolean isNaming = StringUtils.equalsIgnoreCase(PrivilegeType.NAMING.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+        if (isAccess
+            || isAttributeDef) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
-        } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (isNaming) {
           stemName = esbEventContainer.getEsbEvent().getOwnerName();
         }
         String stemId = stemNameToStemId.get(stemName);
@@ -193,32 +197,32 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         Map<String, Set<String>> stemIdToMemberIdsSetToWorkWith = null;
         
         if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAccess) {
           
           stemIdToMemberIdsSetToWorkWith = stemIdToMemberIdsForGroupInsert;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-              && PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+              && isNaming) {
         
           stemIdToMemberIdsSetToWorkWith = stemIdToMemberIdsForStemInsert;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAttributeDef) {
 
           stemIdToMemberIdsSetToWorkWith = stemIdToMemberIdsForAttributeInsert;
 
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-              && PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+              && isAccess) {
             
           stemIdToMemberIdsSetToWorkWith = stemIdToMemberIdsForGroupDelete;
 
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isNaming) {
           
           stemIdToMemberIdsSetToWorkWith = stemIdToMemberIdsForStemDelete;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAttributeDef) {
           
           stemIdToMemberIdsSetToWorkWith = stemIdToMemberIdsForAttributeDelete;
 
@@ -316,10 +320,15 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       // get distinct subjects
       for (EsbEventContainer esbEventContainer : this.eventsToProcess) {
         String stemName = null;
-        if (PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())
-            || PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        boolean isAccess = StringUtils.equalsIgnoreCase(PrivilegeType.ACCESS.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+
+        boolean isAttributeDef = StringUtils.equalsIgnoreCase(PrivilegeType.ATTRIBUTE_DEF.name(), esbEventContainer.getEsbEvent().getPrivilegeType())
+            || StringUtils.equalsIgnoreCase("attributeDef", esbEventContainer.getEsbEvent().getPrivilegeType());
+        boolean isNaming = StringUtils.equalsIgnoreCase(PrivilegeType.NAMING.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+        if (isAccess
+            || isAttributeDef) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
-        } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (isNaming) {
           stemName = esbEventContainer.getEsbEvent().getOwnerName();
         }
         String stemId = stemNameToStemId.get(stemName);
@@ -332,32 +341,32 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         Map<String, Set<String>> memberIdToStemIdsSetToWorkWith = null;
         
         if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAccess) {
           
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForGroupInsert;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-              && PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+              && isNaming) {
         
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForStemInsert;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAttributeDef) {
 
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForAttributeInsert;
 
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-              && PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+              && isAccess) {
             
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForGroupDelete;
 
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isNaming) {
           
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForStemDelete;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAttributeDef) {
           
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForAttributeDelete;
 
@@ -445,10 +454,15 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         GrouperUtil.assertion(memberId != null, "Cant find memberId! " + sourceIdSubjectId);
         
         String stemName = null;
-        if (PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())
-            || PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        boolean isAccess = StringUtils.equalsIgnoreCase(PrivilegeType.ACCESS.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+
+        boolean isAttributeDef = StringUtils.equalsIgnoreCase(PrivilegeType.ATTRIBUTE_DEF.name(), esbEventContainer.getEsbEvent().getPrivilegeType())
+            || StringUtils.equalsIgnoreCase("attributeDef", esbEventContainer.getEsbEvent().getPrivilegeType());
+        boolean isNaming = StringUtils.equalsIgnoreCase(PrivilegeType.NAMING.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+        if (isAccess
+            || isAttributeDef) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
-        } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (isNaming) {
           stemName = esbEventContainer.getEsbEvent().getOwnerName();
         }
         String stemId = stemNameToStemId.get(stemName);
@@ -458,32 +472,32 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         Map<String, Set<String>> memberIdToStemIdsSetToWorkWith = null;
         
         if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAccess) {
           
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForGroupInsert;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-              && PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+              && isNaming) {
         
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForStemInsert;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_ADD || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAttributeDef) {
 
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForAttributeInsert;
 
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-              && PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+              && isAccess) {
             
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForGroupDelete;
 
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isNaming) {
           
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForStemDelete;
           
         } else if ((esbEventType == EsbEventType.PRIVILEGE_DELETE || esbEventType == EsbEventType.PRIVILEGE_UPDATE) 
-            && PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+            && isAttributeDef) {
           
           memberIdToStemIdsSetToWorkWith = memberIdToStemIdsForAttributeDelete;
 
@@ -647,13 +661,18 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         String stemName = null;
         String eventType = null;
 
-        if (PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        boolean isAccess = StringUtils.equalsIgnoreCase(PrivilegeType.ACCESS.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+
+        boolean isAttributeDef = StringUtils.equalsIgnoreCase(PrivilegeType.ATTRIBUTE_DEF.name(), esbEventContainer.getEsbEvent().getPrivilegeType())
+            || StringUtils.equalsIgnoreCase("attributeDef", esbEventContainer.getEsbEvent().getPrivilegeType());
+        boolean isNaming = StringUtils.equalsIgnoreCase(PrivilegeType.NAMING.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+        if (isAccess) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
           eventType = "G";
-        } else if (PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (isAttributeDef) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
           eventType = "A";
-        } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (isNaming) {
           stemName = esbEventContainer.getEsbEvent().getOwnerName();
           eventType = "S";
         }
@@ -727,14 +746,19 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
         
         String stemName = null;
         String eventType = null;
+        boolean isAccess = StringUtils.equalsIgnoreCase(PrivilegeType.ACCESS.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
 
-        if (PrivilegeType.ACCESS.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        boolean isAttributeDef = StringUtils.equalsIgnoreCase(PrivilegeType.ATTRIBUTE_DEF.name(), esbEventContainer.getEsbEvent().getPrivilegeType())
+            || StringUtils.equalsIgnoreCase("attributeDef", esbEventContainer.getEsbEvent().getPrivilegeType());
+        boolean isNaming = StringUtils.equalsIgnoreCase(PrivilegeType.NAMING.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+
+        if (isAccess) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
           eventType = "G";
-        } else if (PrivilegeType.ATTRIBUTE_DEF.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (isAttributeDef) {
           stemName = GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName());
           eventType = "A";
-        } else if (PrivilegeType.NAMING.name().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType())) {
+        } else if (isNaming) {
           stemName = esbEventContainer.getEsbEvent().getOwnerName();
           eventType = "S";
         }
@@ -795,13 +819,19 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       // get distinct subjects
       for (EsbEventContainer esbEventContainer : this.eventsToProcess) {
 
-        if (PrivilegeType.ACCESS.getPrivilegeName().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType().toLowerCase())
-            || PrivilegeType.ATTRIBUTE_DEF.getPrivilegeName().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType().toLowerCase())) {
-          stemNamesSet.add(GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName()));
-        } else if (PrivilegeType.NAMING.getPrivilegeName().toLowerCase().equals(esbEventContainer.getEsbEvent().getPrivilegeType().toLowerCase())) {
+        boolean isAccess = StringUtils.equalsIgnoreCase(PrivilegeType.ACCESS.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+
+        boolean isAttributeDef = StringUtils.equalsIgnoreCase(PrivilegeType.ATTRIBUTE_DEF.name(), esbEventContainer.getEsbEvent().getPrivilegeType())
+            || StringUtils.equalsIgnoreCase("attributeDef", esbEventContainer.getEsbEvent().getPrivilegeType());
+        boolean isNaming = StringUtils.equalsIgnoreCase(PrivilegeType.NAMING.name(), esbEventContainer.getEsbEvent().getPrivilegeType());
+
+        if (isAccess || isAttributeDef) {
+          stemNamesSet.add(GrouperUtil.parentStemNameFromName(esbEventContainer.getEsbEvent().getOwnerName(), false));
+        } else if (isNaming) {
           stemNamesSet.add(esbEventContainer.getEsbEvent().getOwnerName());
         } else {
-          throw new RuntimeException("Unexpected privilege type: " + esbEventContainer.getEsbEvent().getPrivilegeType());
+          // dont fail
+          LOG.error("Unexpected privilege type: " + esbEventContainer.getEsbEvent().getPrivilegeType());
         }
         
       }

@@ -64,7 +64,7 @@ public enum PrivilegeType {
     }
   },
 
-  /** access privileges are for groups */
+  /** access privileges are for groups.  Note: sometimes is attributeDef not attrDef */
   ATTRIBUTE_DEF("attrDef") {
     /**
      * retrieve a privilege with this name
