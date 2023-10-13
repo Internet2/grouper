@@ -538,6 +538,10 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
   public void storePrepare() {
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
     this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
+    if (this.errorMessage != null) {
+      this.errorMessage = errorMessage.replaceAll("\u0000", "");
+    }
+
     this.errorMessage = GrouperClientUtils.abbreviate(this.errorMessage, 3700);
   }
 
