@@ -1563,6 +1563,31 @@ public class UiV2Main extends UiServiceLogicBase {
   }
 
   /**
+   * index page of application
+   * @param request
+   * @param response
+   */
+  public void indexGshSimplifiedUi(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    //initialize the bean
+    GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      //just show a jsp
+      showJsp("/WEB-INF/grouperUi2/index/indexGshSimplifiedUi.jsp");
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    throw new ControllerDone();
+  }
+
+  /**
    * init stems user manages
    */
   public static void initStemsImanage() {

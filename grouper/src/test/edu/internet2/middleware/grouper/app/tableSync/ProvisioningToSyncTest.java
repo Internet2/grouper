@@ -1046,7 +1046,7 @@ public class ProvisioningToSyncTest extends GrouperTest {
       
       GcGrouperSyncLog gcGrouperSyncGroup7 = gcGrouperSync.getGcGrouperSyncLogDao().logCreateByOwnerId("ghi");
       assertNull(gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
-      assertEquals(1, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
+      assertEquals(2, gcGrouperSync.getGcGrouperSyncDao().storeAllObjects());
       assertNotNull(gcGrouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbById(gcGrouperSyncGroup7.getId()));
       
       gcGrouperSync.getGcGrouperSyncLogDao().logDelete(gcGrouperSyncGroup7);

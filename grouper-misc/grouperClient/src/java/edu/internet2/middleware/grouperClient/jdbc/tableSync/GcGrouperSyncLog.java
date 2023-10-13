@@ -626,6 +626,13 @@ public class GcGrouperSyncLog implements GcSqlAssignPrimaryKey, GcDbVersionable 
     }
     this.lastUpdated = new Timestamp(System.currentTimeMillis());
     this.connectionName = GcGrouperSync.defaultConnectionName(this.connectionName);
+    if (description != null) {
+      description = description.replaceAll("\u0000", "");
+    }
+    if (descriptionClob != null) {
+      descriptionClob = descriptionClob.replaceAll("\u0000", "");
+    }
+
   }
 
   /**
