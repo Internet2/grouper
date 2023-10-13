@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -86,69 +87,7 @@ public class UiV2Template {
    */
   public void newTemplate(final HttpServletRequest request, final HttpServletResponse response) {
 
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-
-    GrouperSession grouperSession = null;
-  
-	  Stem stem = null;
-	  Group group = null;
-	  
-	  try {
-	    grouperSession = GrouperSession.start(loggedInSubject);
-	    stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
-	    group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
-	    
-	    if (stem == null && group == null) {
-	      return;
-	    }
-	    
-	    setTemplateOptions();
-	    
-	    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
-	    
-	    String templateType = request.getParameter("templateType");
-	    
-	    if (StringUtils.isNotBlank(templateType)) {
-	      
-	      templateContainer.setTemplateType(templateType);
-	      
-	      GrouperTemplateLogicBase templateLogic = getTemplateLogic(request);
-	      
-	      if (templateLogic == null) {
-	        // must be gsh custom template
-	        Map<String, GuiGshTemplateInputConfig> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
-	        if (customTemplateInputs == null) {
-	          return;
-	        }
-	        
-	      } else {
-	        templateContainer.setTemplateLogic(templateLogic);
-	        templateLogic.initScreen();
-	      }
-	      
-	    }
-	    
-	    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-      
-	    if (stem != null) {
-	      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-	          "/WEB-INF/grouperUi2/stem/stemTemplate.jsp"));
-	      
-	      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemTemplate", 
-	          "/WEB-INF/grouperUi2/stem/stemNewTemplate.jsp"));
-	    } else {
-	      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-            "/WEB-INF/grouperUi2/group/groupTemplate.jsp"));
-        
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupTemplate", 
-            "/WEB-INF/grouperUi2/group/groupNewTemplate.jsp"));
-	    }
-	    
-      
-	    
-	  } finally {
-        GrouperSession.stopQuietly(grouperSession);
-	  }
+    newTemplateHelper(request, response, false);
 	  
   }
   
@@ -551,6 +490,7 @@ public class UiV2Template {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+      // running...
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
       
       customTemplateExecuteHelper(sessionId, uniqueId); 
@@ -597,6 +537,7 @@ public class UiV2Template {
     
     GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer().setGshTemplateExec(gshTemplateExec);
 
+    boolean simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + gshTemplateExec.getConfigId() + ".simplifiedUi", false);
 
     if (gshTemplateExec != null) {
       
@@ -700,7 +641,7 @@ public class UiV2Template {
           gshTemplateExec.getProgressBean().setProgressCompleteRecords(grouperGroovyRuntime.percentDone());
         }
         
-        //show the report screen
+        //show the report screen, running...
         guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
 
         for (GuiScreenAction guiScreenAction : guiScreenActions) {
@@ -714,7 +655,8 @@ public class UiV2Template {
       } else {
         // it is complete, leave it be
         gshExecThreadProgress.put(reportMultiKey, null);
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
+        String runTemplateHeaderText = simplifiedUi ? "" : GrouperTextContainer.textOrNull("gshTemplateScreenDecription");
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", runTemplateHeaderText));
 
         if (gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
 
@@ -751,7 +693,7 @@ public class UiV2Template {
             guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, 
               TextContainer.retrieveFromRequest().getText().get("stemTemplateCustomGshTemplateExecuteError")));
           }
-          guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("gshTemplateScreenDecription")));
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", runTemplateHeaderText));
           
         }  else {
           
@@ -1147,6 +1089,121 @@ public class UiV2Template {
    }
    
    return allChildren;
+    
+  }
+
+  /**
+   * Show fields for new template
+   * @param request
+   * @param response
+   * @param simplifiedRequest true if from simple request, false if not
+   */
+  private void newTemplateHelper(final HttpServletRequest request, final HttpServletResponse response, 
+      boolean simplifiedRequest) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+    Group group = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
+      
+      if (stem == null && group == null) {
+        return;
+      }
+      
+      setTemplateOptions();
+      
+      GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
+      templateContainer.setSimplifiedRequest(simplifiedRequest);
+      if (stem != null) {
+        templateContainer.setShowOnFolder(true);
+      }
+      if (group != null) {
+        templateContainer.setShowOnGroup(true);
+      }
+      
+      String templateType = request.getParameter("templateType");
+      
+      if (StringUtils.isNotBlank(templateType)) {
+        
+        templateContainer.setTemplateType(templateType);
+                
+        GrouperTemplateLogicBase templateLogic = getTemplateLogic(request);
+        
+        if (templateLogic == null) {
+          // must be gsh custom template
+          Map<String, GuiGshTemplateInputConfig> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
+          if (customTemplateInputs == null) {
+            return;
+          }
+          
+        } else {
+          templateContainer.setTemplateLogic(templateLogic);
+          templateLogic.initScreen();
+        }
+        
+      }
+      
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      if (simplifiedRequest) {
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#theTopContainer", 
+            "/WEB-INF/grouperUi2/gshTemplate/indexGshSimplifiedUiTopContainer.jsp"));
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+            "/WEB-INF/grouperUi2/gshTemplate/simplifiedNewTemplate.jsp"));
+      } else {
+      
+        if (!StringUtils.isBlank(templateType)) {
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean(
+              "grouperGshTemplate." + templateType + ".simplifiedUi", false)) {
+            String redirectUrl = "UiV2Main.indexGshSimplifiedUi?operation=UiV2Template.newTemplateSimplifiedUi&templateType=" 
+                + GrouperUtil.escapeUrlEncode(templateType);
+  
+            if (stem != null) {
+              redirectUrl += "&stemId=" + GrouperUtil.escapeUrlEncode(stem.getId());
+            } else if (group != null) {
+              redirectUrl += "&groupId=" + GrouperUtil.escapeUrlEncode(group.getId());
+            }
+            // GrouperUiFilter.retrieveServletContext() + "/grouperUi/app/" + 
+            guiResponseJs.addAction(GuiScreenAction.newScript(
+                "window.location = '" + redirectUrl + "'"));
+            return;
+          }
+        }
+
+        if (stem != null) {
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/stem/stemTemplate.jsp"));
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#stemTemplate", 
+              "/WEB-INF/grouperUi2/stem/stemNewTemplate.jsp"));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/group/groupTemplate.jsp"));
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#groupTemplate", 
+              "/WEB-INF/grouperUi2/group/groupNewTemplate.jsp"));
+        }
+      }      
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+
+  }
+  
+  /**
+   * Show fields for new template
+   * @param request
+   * @param response
+   */
+  public void newTemplateSimplifiedUi(final HttpServletRequest request, final HttpServletResponse response) {
+    newTemplateHelper(request, response, true);
     
   }
   

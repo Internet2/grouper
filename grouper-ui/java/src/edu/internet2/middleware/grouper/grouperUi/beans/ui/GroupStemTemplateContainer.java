@@ -35,6 +35,71 @@ import edu.internet2.middleware.subject.Subject;
 public class GroupStemTemplateContainer {
   
   /**
+   * if we are showing on group
+   */
+  private boolean showOnGroup;
+
+  /**
+   * if we are showing on folder
+   */
+  private boolean showOnFolder;
+  
+  /**
+   * if this is a simplified ui request from browser
+   */
+  private boolean simplifiedRequest;
+  
+  
+  
+  /**
+   * if we are showing on group
+   * @return
+   */
+  public boolean isShowOnGroup() {
+    return showOnGroup;
+  }
+
+  /**
+   * if we are showing on group
+   * @param showOnGroup
+   */
+  public void setShowOnGroup(boolean showOnGroup) {
+    this.showOnGroup = showOnGroup;
+  }
+
+  /**
+   * if we are showing on folder
+   * @return
+   */
+  public boolean isShowOnFolder() {
+    return showOnFolder;
+  }
+
+  /**
+   * if we are showing on folder
+   * @param showOnFolder
+   */
+  public void setShowOnFolder(boolean showOnFolder) {
+    this.showOnFolder = showOnFolder;
+  }
+
+  /**
+   * if this is a simplified ui request from browser
+   * @return
+   */
+  public boolean isSimplifiedRequest() {
+    return simplifiedRequest;
+  }
+
+  /**
+   * if this is a simplified ui request from browser
+   * @param simplifiedRequest
+   */
+  public void setSimplifiedRequest(boolean simplifiedRequest) {
+    this.simplifiedRequest = simplifiedRequest;
+  }
+
+  /**
    * template type eg: service
    */
   private String templateType;

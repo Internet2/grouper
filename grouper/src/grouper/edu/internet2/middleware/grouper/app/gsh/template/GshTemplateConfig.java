@@ -288,8 +288,18 @@ public class GshTemplateConfig {
     return runAsSpecifiedSubjectId;
   }
 
-
+  private boolean simplifiedUi;
   
+  public boolean isSimplifiedUi() {
+    return simplifiedUi;
+  }
+  
+  public void setSimplifiedUi(boolean simplifiedUi) {
+    this.simplifiedUi = simplifiedUi;
+  }
+
+
+
   public String getGshTemplate() {
     return gshTemplate;
   }
@@ -323,6 +333,8 @@ public class GshTemplateConfig {
         String configPrefix = "grouperGshTemplate."+configId+".";
         
         enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"enabled", true);
+
+        simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"simplifiedUi", false);
 
         useIndividualAudits = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"useIndividualAudits", true);
         
