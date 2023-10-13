@@ -164,6 +164,7 @@
         <postgresql.version>42.5.1</postgresql.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
         <ldaptive.version>2.2.1-SNAPSHOT</ldaptive.version>
+        <unboundid.version>6.0.10</unboundid.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.12.267</aws.java.sdk.sqs>
@@ -934,6 +935,12 @@
               <groupId>org.ldaptive</groupId>
               <artifactId>ldaptive</artifactId>
               <version>${ldaptive.version}</version>
+            </dependency>
+            <dependency>
+              <groupId>com.unboundid</groupId>
+              <artifactId>unboundid-ldapsdk</artifactId>
+                <version>${unboundid.version}</version>
+              <scope>test</scope>
             </dependency>
             <dependency>
 		          <groupId>org.jsoup</groupId>

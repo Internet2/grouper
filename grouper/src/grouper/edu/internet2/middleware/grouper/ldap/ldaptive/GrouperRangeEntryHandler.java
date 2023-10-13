@@ -56,4 +56,13 @@ public class GrouperRangeEntryHandler extends RangeEntryHandler {
       }
     }
   }
+
+  @Override
+  public boolean equals(final Object o)
+  {
+    if (o == this) {
+      return true;
+    }
+    return o instanceof GrouperRangeEntryHandler;
+  }
 }
