@@ -751,6 +751,22 @@ public class GrouperHttpClient {
       GrouperHttpClientSetupAuthorization grouperHttpClientSetupAuthorization) {
     this.grouperHttpClientSetupAuthorization = grouperHttpClientSetupAuthorization;
   }
+  
+  
+  /**
+   * implement this interface to customize to set custom condition on which you want to retry
+   */
+  private GrouperHttpThrottlingCallback grouperHttpThrottlingCallback = null;
+  
+  /**
+   * implement this interface to customize to set custom condition on which you want to retry
+   */
+  public void setThrottlingCallback(
+      GrouperHttpThrottlingCallback grouperHttpThrottlingCallback) {
+    this.grouperHttpThrottlingCallback = grouperHttpThrottlingCallback;
+  }
+  
+  
 
   /**
    * if there's a 429 or a connection timed out exception then delay for sometime and retry these many times.
@@ -829,7 +845,8 @@ public class GrouperHttpClient {
         }
         runtimeException = new RuntimeException("Error connecting to '" + this.url + "'", e);
       }
-      if (code == 429) {
+      if ( (code == 429 && this.grouperHttpThrottlingCallback == null) 
+          || (this.grouperHttpThrottlingCallback != null && this.grouperHttpThrottlingCallback.setupThrottlingCallback(this))) {
         retry = true;
       }
       

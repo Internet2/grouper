@@ -16,6 +16,7 @@ import java.util.TreeMap;
 import org.apache.commons.codec.digest.HmacAlgorithms;
 import org.apache.commons.codec.digest.HmacUtils;
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -24,10 +25,13 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientSetupAuthorization;
+import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperDuoApiCommands {
+  
+  private static final Log LOG = GrouperUtil.getLog(GrouperDuoApiCommands.class);
   
   public static void main(String[] args) {
     
@@ -348,6 +352,30 @@ public class GrouperDuoApiCommands {
         assignDateAndAuthorizationHeader(grouperHttpCall, httpMethodName, 
             adminDomainName, version, urlSuffix, PARAMS_LINE, configId);
         
+      }
+    });
+    
+    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
+      
+      @Override
+      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
+        if (httpClient.getResponseCode() == 400) {
+          String body = httpClient.getResponseBody();
+          try {
+            if (StringUtils.isNotBlank(body)) {
+              
+              // {"code":42901,"message":"Too Many Requests","stat":"FAIL"}
+              JsonNode node = GrouperUtil.jsonJacksonNode(body);
+              String errorCode = GrouperUtil.jsonJacksonGetString(node, "code");
+              return StringUtils.isNotBlank(errorCode) && errorCode.startsWith("429");
+              
+            }
+          } catch(Exception e) {
+            LOG.error("Error: ", e);
+          }
+        }
+        
+        return httpClient.getResponseCode() == 429;
       }
     });
     
