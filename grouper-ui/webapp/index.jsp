@@ -2,7 +2,6 @@
 <%@ include file="WEB-INF/grouperUi2/assetsJsp/commonTaglib.jsp"%>
 <html>
 <%
-  GrouperRequestContainer.retrieveFromRequestOrCreate();
   String location="grouperUi/app/UiV2Main.index?operation=UiV2Main.indexMain";
 %>
 

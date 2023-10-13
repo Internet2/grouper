@@ -38,6 +38,7 @@
         <module>../grouper-ws</module>
         <module>../grouper-misc/grouper-installer</module>
         <module>../grouper-misc/webapp</module>
+        <module>../grouper-misc/grouper-test-plugin</module>
     </modules>
 
     <properties>
@@ -95,7 +96,7 @@
         <c3p0.oracle.thin.extras.version>0.9.5</c3p0.oracle.thin.extras.version>
         <mchange.commons.version>0.2.15</mchange.commons.version>
         <cglib.version>3.3.0</cglib.version>
-        <felix.version>7.0.3</felix.version>
+        <felix.version>7.0.5</felix.version>
         <jamon.version>2.81</jamon.version>
         <xstream.version>1.4.20</xstream.version>
         <jsch.version>0.1.55</jsch.version>
@@ -195,6 +196,9 @@
         <!-- ddl utils -->
         <oro.version>2.0.8</oro.version>
         <dbcp.version>1.4</dbcp.version>
+
+        <!-- osgi -->
+        <osgi.version>8.0.0</osgi.version>
     </properties>
 
     <repositories>
@@ -342,11 +346,6 @@
                 <groupId>cglib</groupId>
                 <artifactId>cglib</artifactId>
                 <version>${cglib.version}</version>
-            </dependency>
-            <dependency>
-              <groupId>org.apache.felix</groupId>
-              <artifactId>org.apache.felix.framework</artifactId>
-              <version>${felix.version}</version>
             </dependency>
             <dependency>
                 <groupId>com.thoughtworks.xstream</groupId>
@@ -965,6 +964,18 @@
                 <version>${amqp-client.version}</version>
             </dependency>
 
+            <!-- osgi plugin dependencies -->
+            <dependency>
+                <groupId>org.osgi</groupId>
+                <artifactId>osgi.core</artifactId>
+                <version>${osgi.version}</version>
+            </dependency>
+            <dependency>
+                <groupId>org.apache.felix</groupId>
+                <artifactId>org.apache.felix.framework</artifactId>
+                <version>${felix.version}</version>
+            </dependency>
+            <!-- END osgi plugin dependencies -->
 
         </dependencies>
     </dependencyManagement>

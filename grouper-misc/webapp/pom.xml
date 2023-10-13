@@ -70,18 +70,9 @@
                 <artifactId>cargo-maven3-plugin</artifactId>
                 <version>1.10.9</version>
                 <configuration>
-                    <container>
-                        <timeout>3600000</timeout>
-                    </container>
                     <configuration>
                         <properties>
                             <cargo.servlet.port>8080</cargo.servlet.port>
-                            <cargo.start.jvmargs>
-                                -Xdebug
-                                -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
-                                -Xnoagent
-                                -Djava.compiler=NONE
-                            </cargo.start.jvmargs>
                         </properties>
                     </configuration>
                 </configuration>
@@ -99,6 +90,34 @@
                     </resource>
                 </resources>
             </build>
+        </profile>
+        <profile>
+            <id>debug</id>
+            <build>
+                <plugins>
+                <plugin>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-maven3-plugin</artifactId>
+                    <version>1.10.9</version>
+                    <configuration>
+                        <container>
+                            <timeout>3600000</timeout>
+                        </container>
+                        <configuration>
+                            <properties>
+                                <cargo.servlet.port>8080</cargo.servlet.port>
+                                <cargo.start.jvmargs>
+                                    -Xdebug
+                                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+                                    -Xnoagent
+                                    -Djava.compiler=NONE
+                                </cargo.start.jvmargs>
+                            </properties>
+                        </configuration>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
         </profile>
     </profiles>
 </project>

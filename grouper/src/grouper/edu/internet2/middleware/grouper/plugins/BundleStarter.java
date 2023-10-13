@@ -20,6 +20,8 @@ import java.util.regex.Pattern;
 
 public class BundleStarter {
     private static final Log LOG = GrouperUtil.getLog(BundleStarter.class);
+
+    public static final String GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR = "grouper.osgi.exceptionOnPluginLoadError";
     private final BundleContext bundleContext;
 
     private final String bundleDirWithLastSlash;
@@ -41,6 +43,11 @@ public class BundleStarter {
     public void start() {
         Map<String, Map<Class<?>, Set<String>>> pluginJarNameToInterfaceToImplementationClasses = new HashMap<String, Map<Class<?>, Set<String>>>();
 
+        if (!GrouperConfig.retrieveConfig().containsKey(GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR)) {
+            LOG.warn("You are currently using the default behavior for error handling on plugin load (log and continue). This behavior will change in the future. If you'd want to use future behavior, set `" + GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR + "=true` in `grouper.properties`");
+        }
+        boolean exceptionOnLoad = GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR, false);
+
         // TODO: deprecate
         {
             Pattern pattern = Pattern.compile("^grouperOsgiPlugin\\.([^.]+)\\.jarName$");
@@ -55,6 +62,9 @@ public class BundleStarter {
                         bundle.start();
                         installedBundles.put(configId, bundle);
                     } catch (BundleException e) {
+                        if (exceptionOnLoad) {
+                            throw new GrouperPluginException("Problem installing plugin: " + jarName, e);
+                        }
                         LOG.error("Problem installing plugin: " + jarName, e);
                     }
                 }
@@ -71,6 +81,9 @@ public class BundleStarter {
                     bundle.start();
                     installedBundles.put(configId, bundle);
                 } catch (BundleException e) {
+                    if (exceptionOnLoad) {
+                        throw new GrouperPluginException("Problem installing plugin: " + location, e);
+                    }
                     LOG.error("Problem installing plugin: " + location, e);
                 }
             }
