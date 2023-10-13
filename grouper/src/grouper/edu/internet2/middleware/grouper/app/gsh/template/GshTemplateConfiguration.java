@@ -319,10 +319,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     
     Set<String> folderUuidOrNamesToShowIn = GrouperUtil.toSet(folderUuidsOrNamesToShow);
     
-    Set<Stem> stems = new StemFinder()
-      .assignStemIds(folderUuidOrNamesToShowIn)
-      .assignStemNames(folderUuidOrNamesToShowIn)
-      .findStems();
+    Set<Stem> stems = new StemFinder().assignStemIds(folderUuidOrNamesToShowIn).findStems();
+    stems.addAll(new StemFinder().assignStemNames(folderUuidOrNamesToShowIn).findStems());
     
     GrouperConfigurationModuleAttribute folderShowOnDescendantsAttribute = attributes.get("folderShowOnDescendants");
     String folderShowOnDescendants = folderShowOnDescendantsAttribute.getValueOrExpressionEvaluation();
