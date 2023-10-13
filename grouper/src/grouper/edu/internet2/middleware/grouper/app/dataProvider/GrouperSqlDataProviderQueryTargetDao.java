@@ -27,4 +27,22 @@ public class GrouperSqlDataProviderQueryTargetDao extends GrouperDataProviderQue
     
     return rows;
   }
+  
+  @Override
+  public List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex) {
+    GrouperSqlDataProviderChangeLogQueryConfig grouperDataProviderChangeLogQueryConfig = (GrouperSqlDataProviderChangeLogQueryConfig)this.getGrouperDataProviderChangeLogQuery().retrieveGrouperDataProviderChangeLogQueryConfig();
+
+    List<Object[]> rows = GrouperUtil.nonNull(new GcDbAccess().connectionName(grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySqlConfigId()).sql(grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySqlQuery()).selectList(Object[].class));
+
+    GcTableSyncTableMetadata tableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromCacheOrDatabase(grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySqlConfigId(), grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySqlQuery());
+
+    this.getGrouperDataProviderChangeLogQuery().getGrouperDataProviderSync().getGrouperDataEngine().getQueryConfigIdToTableMetadata().put(grouperDataProviderChangeLogQueryConfig.getConfigId(), tableMetadata);
+    
+    List<GcTableSyncColumnMetadata> columnMetadatas = tableMetadata.getColumnMetadata();
+    for (GcTableSyncColumnMetadata columnMetadata : columnMetadatas ) {
+      lowerColumnNameToZeroIndex.put(columnMetadata.getColumnName().toLowerCase(), columnMetadata.getColumnIndexZeroIndexed());
+    }
+    
+    return rows;
+  }
 }

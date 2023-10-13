@@ -66,4 +66,9 @@ public class GrouperLdapDataProviderQueryTargetDao extends GrouperDataProviderQu
     
     return rows;
   }
+  
+  @Override
+  public List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex) {
+    throw new RuntimeException("Not implemented");
+  }
 }

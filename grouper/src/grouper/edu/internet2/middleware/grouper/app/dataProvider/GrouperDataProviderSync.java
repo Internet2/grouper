@@ -112,6 +112,45 @@ public class GrouperDataProviderSync {
     return this.grouperDataProviderQueries;
   }
 
+
+  private Set<GrouperDataProviderChangeLogQuery> grouperDataProviderChangeLogQueries = null;
+  
+  public Set<GrouperDataProviderChangeLogQuery> retrieveGrouperDataProviderChangeLogQueries() {
+    if (this.grouperDataProviderChangeLogQueries == null) {
+      this.grouperDataProviderChangeLogQueries = new LinkedHashSet<GrouperDataProviderChangeLogQuery>();
+      
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      Set<String> configIdsInConfig = GrouperUtil.nonNull(grouperConfig.propertyConfigIds(GrouperDataEngine.dataProviderChangeLogQueryPattern));
+      
+      for (String queryConfigId : configIdsInConfig) {
+        String providerConfigId = grouperConfig.propertyValueStringRequired("grouperDataProviderChangeLogQuery." + queryConfigId + ".providerConfigId");
+
+        if (!providerConfigId.equals(configId)) {
+          continue;
+        }
+        
+        String providerChangeLogQueryType = grouperConfig.propertyValueStringRequired("grouperDataProviderChangeLogQuery." + queryConfigId + ".providerChangeLogQueryType");
+        
+        GrouperDataProviderChangeLogQuery grouperDataProviderChangeLogQuery;
+        
+        if (providerChangeLogQueryType.equals("sql")) {
+          grouperDataProviderChangeLogQuery = new GrouperSqlDataProviderChangeLogQuery();
+        } else {
+          String className = grouperConfig.propertyValueStringRequired("grouperDataProviderChangeLogQuery." + queryConfigId + ".class");
+          @SuppressWarnings("unchecked")
+          Class<GrouperDataProviderChangeLogQuery> theClass = GrouperUtil.forName(className);
+          grouperDataProviderChangeLogQuery = GrouperUtil.newInstance(theClass);
+        }
+        
+        grouperDataProviderChangeLogQuery.setGrouperDataProviderSync(this);
+        grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderChangeLogQueryConfig().configureGenericSettings(queryConfigId, grouperConfig);
+        grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderChangeLogQueryConfig().configureSpecificSettings();        
+        this.grouperDataProviderChangeLogQueries.add(grouperDataProviderChangeLogQuery);
+      }
+    }
+    return this.grouperDataProviderChangeLogQueries;
+  }
+
   
   public String getConfigId() {
     return configId;

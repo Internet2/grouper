@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldStructure;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataMemberWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProvider;
+import edu.internet2.middleware.grouper.dataField.GrouperDataProviderChangeLogQueryConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderQueryConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderQueryFieldConfig;
@@ -623,6 +624,67 @@ public class GrouperDataProviderLogic {
    * 
    */
   public void syncIncremental() {
+
+    String dataProviderConfigId = grouperDataProviderSync.getConfigId();
     
+    if (grouperDataProviderSync.getGrouperDataEngine() == null) {
+      grouperDataProviderSync.setGrouperDataEngine(new GrouperDataEngine());
+    }
+    
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+    
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+
+    //GrouperDataEngine.syncDataProviders(grouperConfig);
+    //GrouperDataEngine.syncDataFields(grouperConfig);
+    //GrouperDataEngine.syncDataRows(grouperConfig);
+    //GrouperDataEngine.syncDataAliases(grouperConfig);
+
+    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
+
+    dataEngine.loadFieldsAndRows(grouperConfig);
+
+    // maybe things in DB arent in sync with the config yet
+    if (!dataEngine.getProviderConfigByConfigId().containsKey(dataProviderConfigId)) {
+      grouperDataProviderSync.getDebugMap().put("dataProviderConfigNotFound", dataProviderConfigId);
+      return;
+    }
+
+    
+    Map<String, Map<String, Integer>> changeLogQueryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
+
+    for (GrouperDataProviderChangeLogQuery grouperDataProviderChangeLogQuery : grouperDataProviderSync.retrieveGrouperDataProviderChangeLogQueries()) {
+      GrouperDataProviderChangeLogQueryConfig grouperDataProviderChangeLogQueryConfig = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderChangeLogQueryConfig();
+
+      Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
+      changeLogQueryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderChangeLogQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
+      
+      List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex);
+      
+      String subjectIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectIdAttribute().toLowerCase();
+      String sourceIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectSourceId();
+      Integer subjectIdZeroIndex = changeLogQueryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderChangeLogQueryConfig.getConfigId()).get(subjectIdAttribute);
+      
+      GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
+
+      for (Object[] row : rows) {
+        
+        String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
+        
+        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
+        
+        Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+
+        Long memberInternalId = member.getInternalId();
+        
+        GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
+        
+        if (grouperDataMemberWrapper == null) {
+          grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
+          dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
+        }    
+      }
+    }
   }
 }

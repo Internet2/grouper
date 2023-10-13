@@ -9,6 +9,7 @@ import java.util.Map;
 public abstract class GrouperDataProviderQueryTargetDao {
   
   private GrouperDataProviderQuery grouperDataProviderQuery;
+  private GrouperDataProviderChangeLogQuery grouperDataProviderChangeLogQuery;
 
   
   public GrouperDataProviderQuery getGrouperDataProviderQuery() {
@@ -19,6 +20,17 @@ public abstract class GrouperDataProviderQueryTargetDao {
   public void setGrouperDataProviderQuery(GrouperDataProviderQuery grouperDataProviderQuery) {
     this.grouperDataProviderQuery = grouperDataProviderQuery;
   }
+  
+  public GrouperDataProviderChangeLogQuery getGrouperDataProviderChangeLogQuery() {
+    return grouperDataProviderChangeLogQuery;
+  }
+
+  
+  public void setGrouperDataProviderChangeLogQuery(GrouperDataProviderChangeLogQuery grouperDataProviderChangeLogQuery) {
+    this.grouperDataProviderChangeLogQuery = grouperDataProviderChangeLogQuery;
+  }
 
   public abstract List<Object[]> selectData(Map<String, Integer> lowerColumnNameToZeroIndex);
+  
+  public abstract List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex);
 }
