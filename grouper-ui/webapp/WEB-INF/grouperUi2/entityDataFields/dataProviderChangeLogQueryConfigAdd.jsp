@@ -7,6 +7,9 @@
           <li><a href="#" onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['miscellaneousBreadcrumb'] }</a><span
             class="divider"><i class='fa fa-angle-right'></i></span></li>
             
+            <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataFieldsSummary');">${textContainer.text['miscellaneousEntityDataFieldsBreadcrumb'] }</a><span
+      class="divider"><i class='fa fa-angle-right'></i></span></li>
+            
             <li><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewEntityDataProviderChangeLogQueries');">${textContainer.text['miscellaneousDataProviderChangeLogQueriesBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
             
             <li class="active">${textContainer.text['miscellaneousDataProviderChangeLogQueryAddBreadcrumb'] }</li> 
