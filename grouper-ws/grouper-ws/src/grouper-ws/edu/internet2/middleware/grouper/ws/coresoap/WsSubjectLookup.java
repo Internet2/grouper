@@ -385,7 +385,7 @@ public class WsSubjectLookup implements GrouperWsToStringCompact {
         return;
       }
       
-      LOG.warn(this, snfe);
+      LOG.warn(this);
       this.subjectFindResult = SubjectFindResult.SUBJECT_NOT_FOUND;
       this.cause = snfe;
     }
