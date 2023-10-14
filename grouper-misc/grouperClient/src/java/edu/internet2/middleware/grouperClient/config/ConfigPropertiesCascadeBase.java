@@ -298,9 +298,8 @@ public abstract class ConfigPropertiesCascadeBase {
       }
     }
     
-    substituteLocalReferences(result);
+    substituteLocalReferencesAndUnicode(result);
 
-    
     return result;
     
   }
@@ -310,13 +309,14 @@ public abstract class ConfigPropertiesCascadeBase {
    * you can refer to other properties with $$propertyName$$
    * @param result
    */
-  protected void substituteLocalReferences(Properties result) {
+  protected void substituteLocalReferencesAndUnicode(Properties result) {
     
     //do the references
     
     for (Object propertyName : new LinkedHashSet<Object>(result.keySet())) {
       String value = result.getProperty((String)propertyName);
       String newValue = substituteLocalReferencesOneField(result, value);
+      newValue = substituteUnicode(newValue);
       
       //next run, dont do the ones that dont change...
       if (!GrouperClientUtils.equals(value, newValue)) {
@@ -450,6 +450,8 @@ public abstract class ConfigPropertiesCascadeBase {
         
         //process the EL
         String result = ConfigPropertiesCascadeUtils.substituteExpressionLanguage(elPropertyValueResult.getTheValue(), null, true, true, true, false);
+        
+        result = substituteUnicode(result);
         PropertyValueResult propertyValueResult = new PropertyValueResult(result, true);
         return propertyValueResult;
       }
@@ -485,6 +487,7 @@ public abstract class ConfigPropertiesCascadeBase {
     value = substituteCommonVars(value);
 
     value = substituteLocalReferencesOneField(this, value);
+    value = substituteUnicode(value);
     
     if (!required && ConfigPropertiesCascadeUtils.isBlank(value)) {
       return new PropertyValueResult(null, true);
@@ -1639,6 +1642,19 @@ public abstract class ConfigPropertiesCascadeBase {
       }
       value = newValue;
       
+    }
+
+    return value;
+  }
+  
+  public static String substituteUnicode(String value) {
+    if (value != null && value.contains("+")) {
+      value = GrouperClientUtils.replace(value, "U+0024", "$");
+      value = GrouperClientUtils.replace(value, "U+0020", " ");
+      value = GrouperClientUtils.replace(value, "U+007B", "{");
+      value = GrouperClientUtils.replace(value, "U+007D", "}");
+      value = GrouperClientUtils.replace(value, "U+000A", "\n");
+      value = GrouperClientUtils.replace(value, "U+002B", "+");
     }
     return value;
   }
