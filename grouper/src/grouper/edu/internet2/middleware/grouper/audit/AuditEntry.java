@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
@@ -975,6 +976,9 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
    * make sure this object will fit in the DB
    */
   public void truncate() {
+    
+    int maxLengthTruncateTextFields = GrouperConfig.retrieveConfig().propertyValueInt("audit.maxLengthTruncateTextFieldsIndexed", 4000);
+    
     this.actAsMemberId = GrouperUtil.truncateAscii(this.actAsMemberId, 128);
     this.auditTypeId = GrouperUtil.truncateAscii(this.auditTypeId, 128);
     this.contextId = GrouperUtil.truncateAscii(this.contextId, 128);
@@ -986,14 +990,14 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
     this.loggedInMemberId = GrouperUtil.truncateAscii(this.loggedInMemberId, 128);
     this.serverHost = GrouperUtil.truncateAscii(this.serverHost, 50);
     this.serverUserName = GrouperUtil.truncateAscii(this.serverUserName, 50);
-    this.string01 = GrouperUtil.truncateAscii(this.string01, 4000);
-    this.string02 = GrouperUtil.truncateAscii(this.string02, 4000);
-    this.string03 = GrouperUtil.truncateAscii(this.string03, 4000);
-    this.string04 = GrouperUtil.truncateAscii(this.string04, 4000);
-    this.string05 = GrouperUtil.truncateAscii(this.string05, 4000);
-    this.string06 = GrouperUtil.truncateAscii(this.string06, 4000);
-    this.string07 = GrouperUtil.truncateAscii(this.string07, 4000);
-    this.string08 = GrouperUtil.truncateAscii(this.string08, 4000);
+    this.string01 = GrouperUtil.truncateAscii(this.string01, maxLengthTruncateTextFields);
+    this.string02 = GrouperUtil.truncateAscii(this.string02, maxLengthTruncateTextFields);
+    this.string03 = GrouperUtil.truncateAscii(this.string03, maxLengthTruncateTextFields);
+    this.string04 = GrouperUtil.truncateAscii(this.string04, maxLengthTruncateTextFields);
+    this.string05 = GrouperUtil.truncateAscii(this.string05, maxLengthTruncateTextFields);
+    this.string06 = GrouperUtil.truncateAscii(this.string06, maxLengthTruncateTextFields);
+    this.string07 = GrouperUtil.truncateAscii(this.string07, maxLengthTruncateTextFields);
+    this.string08 = GrouperUtil.truncateAscii(this.string08, maxLengthTruncateTextFields);
     this.userIpAddress = GrouperUtil.truncateAscii(this.userIpAddress, 50);
   }
 
