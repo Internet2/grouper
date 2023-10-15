@@ -13,7 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public enum GshTemplateDropdownValueFormatType {
@@ -26,17 +26,20 @@ public enum GshTemplateDropdownValueFormatType {
             
       GcDbAccess gcDbAccess = new GcDbAccess().connectionName(gshTemplateInputConfig.getDropdownSqlDatabase());
       
-      String sql = gshTemplateInputConfig.getDropdownSqlValue();
+      String sqlQuery = gshTemplateInputConfig.getDropdownSqlValue();
       
-      MultiKey cacheKey = new MultiKey(new Object[] {sql});
+      MultiKey cacheKey = new MultiKey(new Object[] {sqlQuery});
       
-      if (sql.contains("$$subjectId$$")) {
+      if (sqlQuery.contains("$$subjectId$$")) {
+        int matches = StringUtils.countMatches(sqlQuery, "$$subjectId$$");
         Subject subject = gshTemplateInputConfig.getGshTemplateConfig().getCurrentUser();
         GrouperUtil.assertion(subject != null, "Current user is null!");
-        sql = GrouperUtil.replace(sql, "$$subjectId$$", "?");
-        gcDbAccess.addBindVar(subject.getId());
+        sqlQuery = GrouperUtil.replace(sqlQuery, "$$subjectId$$", "?");
+        for (int i=0;i<matches;i++) {
+          gcDbAccess.addBindVar(subject.getId());
+        }
         
-        cacheKey = new MultiKey(new Object[] {sql, subject.getId()});
+        cacheKey = new MultiKey(new Object[] {sqlQuery, subject.getId()});
       }
       
       int cacheForMinutes = gshTemplateInputConfig.getDropdownSqlCacheForMinutes();
@@ -56,7 +59,7 @@ public enum GshTemplateDropdownValueFormatType {
       }
 
       if (keysAndLabels == null) {
-        List<Object[]> keysAndLabelsQuery = gcDbAccess.sql(sql).selectList(Object[].class);
+        List<Object[]> keysAndLabelsQuery = gcDbAccess.sql(sqlQuery).selectList(Object[].class);
         
         keysAndLabels = new ArrayList<MultiKey>();
         
