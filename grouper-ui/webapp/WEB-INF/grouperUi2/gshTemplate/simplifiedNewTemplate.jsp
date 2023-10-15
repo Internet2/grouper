@@ -58,10 +58,10 @@
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
             <c:if test="${grouperRequestContainer.groupStemTemplateContainer.showOnFolder}">
-              onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&simplifiedUi=true', {formIds: 'newGroupTemplateFormId'}); return false;"
+              onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&simplifiedUi=true', {formIds: 'newGroupTemplateFormId'}); return false;"
             </c:if>
             <c:if test="${grouperRequestContainer.groupStemTemplateContainer.showOnGroup}">
-              onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&simplifiedUi=true', {formIds: 'newGroupTemplateFormId'}); return false;"
+              onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&simplifiedUi=true', {formIds: 'newGroupTemplateFormId'}); return false;"
             </c:if>
             >
           </c:if>
