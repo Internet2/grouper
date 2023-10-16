@@ -141,7 +141,7 @@ public class FrameworkStarter {
         configMap.put(Constants.FRAMEWORK_SECURITY, Constants.FRAMEWORK_SECURITY_OSGI);
 
         // setup trust repositories
-        // TODO: look into making this more dynamic. Currently, according to spec, the only required way of setting the trust stores is to set a property with comma separated list of keystores, with each implementation having the option to providing other mechanisms
+        // TODO: look into making this more dynamic. Currently, according to spec, the only required way of setting the trust stores is to set a property with java.io.File.pathSeparator (`:` on unix, `;` on windows) separated list of keystores, with each implementation having the option to providing other mechanisms
         Pattern pattern = Pattern.compile("^grouper\\.osgi\\.truststore\\.([^.]+)\\.certificate$");
         Set<String> trustCertificatesAliases = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
         if (GrouperConfig.retrieveConfig().propertyValueString(GROUPER_OSGI_FRAMEWORK_TRUST_REPOSITORIES) != null) {
