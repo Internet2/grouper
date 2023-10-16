@@ -82,7 +82,7 @@ public class FrameworkStarter {
         Set<String> frameworkSystemPackagesExtra = new HashSet<>();
         // TODO: add any needed system packages here
         if (null != GrouperConfig.retrieveConfig().propertyValueString(GROUPER_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA)) {
-            LOG.warn("You are setting a value for `grouper.osgi.framework.system.packages.extra`. This generally not needed and should not be used unless there is a good reason to do so");
+            LOG.warn("You are setting a value for `grouper.osgi.framework.system.packages.extra`. This generally is not needed and should not be used unless there is a good reason to do so");
             frameworkSystemPackagesExtra.addAll(Arrays.asList(GrouperConfig.retrieveConfig().propertyValueString(GROUPER_OSGI_FRAMEWORK_SYSTEM_PACKAGES_EXTRA, "").split(",")));
         }
         if (!frameworkSystemPackagesExtra.isEmpty()) {
