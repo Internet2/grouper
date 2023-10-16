@@ -44,7 +44,7 @@ public class BundleStarter {
         Map<String, Map<Class<?>, Set<String>>> pluginJarNameToInterfaceToImplementationClasses = new HashMap<String, Map<Class<?>, Set<String>>>();
 
         if (!GrouperConfig.retrieveConfig().containsKey(GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR)) {
-            LOG.warn("You are currently using the default behavior for error handling on plugin load (log and continue). This behavior will change in the future. If you'd want to use future behavior, set `" + GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR + "=true` in `grouper.properties`");
+            LOG.warn("DEPRECATION WARNING: You are currently using the default behavior for error handling on plugin load (log and continue). This behavior will change in the future. If you'd want to use future behavior, set `" + GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR + "=true` in `grouper.properties`");
         }
         boolean exceptionOnLoad = GrouperConfig.retrieveConfig().propertyValueBoolean(GROUPER_OSGI_EXCEPTION_ON_PLUGIN_LOAD_ERROR, false);
 
