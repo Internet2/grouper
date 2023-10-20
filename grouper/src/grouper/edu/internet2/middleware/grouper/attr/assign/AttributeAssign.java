@@ -1426,8 +1426,8 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
     
     // if the member is a group, check group status
     if (this.getOwnerMemberId() != null && (this.getOwnerMember().getSubjectSourceId().equals("g:gsa") || this.getOwnerMember().getSubjectSourceId().equals("grouperEntities"))) {
-      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getOwnerMember().getSubjectId(), true, null);
-      if (!memberGroup.isEnabled()) {
+      Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getOwnerMember().getSubjectId(), false, null);
+      if (memberGroup == null || !memberGroup.isEnabled()) {
         return false;
       }
     }
