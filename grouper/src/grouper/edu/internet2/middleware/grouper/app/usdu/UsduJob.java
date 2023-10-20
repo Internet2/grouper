@@ -225,8 +225,26 @@ public class UsduJob extends OtherJobBase {
           HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
         }
       }
+      
+      List<String> deletedGroupMemberIdsIncorrectSubjectResolutionAttributes = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllDeletedGroupMemberIdsIncorrectSubjectResolutionAttributes());
+      numberOfBatches = GrouperUtil.batchNumberOfBatches(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size(), batchSize);
+      for (int i = 0; i < numberOfBatches; i++) {
+        List<String> currentBatch = GrouperUtil.batchList(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes, batchSize, i);
+        List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
+        
+        for (Member member : currentMembers) {
+          member.setSubjectResolutionDeleted(true);
+          member.setSubjectResolutionResolvable(false);
+        }
+        
+        int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
+        for (int j = 0; j < numberOfUpdateBatches; j++) {
+          List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
+          HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
+        }
+      }
           
-      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.  ");
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.  Fixed subject resolution attributes for " + deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size() + " deleted groups.  ");
       
       int duplicateSubjectIdentifierIssuesCount = checkDuplicateSubjectIdentifiers(otherJobInput.getHib3GrouperLoaderLog());
       

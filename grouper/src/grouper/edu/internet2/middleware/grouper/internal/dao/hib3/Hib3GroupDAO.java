@@ -199,6 +199,15 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
 
             // delete group
             byObject.delete( _g );
+            
+            Member member = _g.toMember();
+            
+            if (member != null) {
+              member.setSubjectResolutionDeleted(true);
+              member.setSubjectResolutionResolvable(false);
+              member.store();
+            }
+            
             return null;
           }
     });

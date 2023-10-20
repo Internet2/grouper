@@ -385,6 +385,13 @@ public interface MemberDAO extends GrouperDAO {
   public Set<String> findAllMemberIdsNoLongerSubjectResolutionEligible();
   
   /**
+   * Returns member ids for deleted groups and local entities that are deleted but 
+   * still marked as resolvable or not deleted.
+   * @return set of member ids
+   */
+  public Set<String> findAllDeletedGroupMemberIdsIncorrectSubjectResolutionAttributes();
+  
+  /**
    * @return member
    */
   public Member findByIdIndex(Long idIndex, boolean exceptionIfNotFound) 
