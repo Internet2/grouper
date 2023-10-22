@@ -106,6 +106,19 @@ public class GcAssignAttributeDefActions {
     return this;
   }
 
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignAttributeDefActions assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** Attribute Definition to be modified **/
   private WsAttributeDefLookup wsAttributeDefLookup;
 
@@ -254,6 +267,8 @@ public class GcAssignAttributeDefActions {
       }
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+
+      grouperClientWs.assignContentType(this.contentType);
 
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);

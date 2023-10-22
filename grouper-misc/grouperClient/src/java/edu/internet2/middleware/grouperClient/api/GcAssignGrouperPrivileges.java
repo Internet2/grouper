@@ -312,6 +312,19 @@ public class GcAssignGrouperPrivileges {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignGrouperPrivileges assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** if we should replace all existing */
   private Boolean replaceAllExisting = null;
@@ -384,7 +397,9 @@ public class GcAssignGrouperPrivileges {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
+      grouperClientWs.assignContentType(this.contentType);
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);

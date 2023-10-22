@@ -126,7 +126,7 @@ public class GcAssignGrouperPrivilegesLite {
     this.allowed = isAllowed;
     return this;
   }
-  
+
   /** group name to assign privileges */
   private String groupName;
   
@@ -292,6 +292,19 @@ public class GcAssignGrouperPrivilegesLite {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignGrouperPrivilegesLite assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -354,7 +367,9 @@ public class GcAssignGrouperPrivilegesLite {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
+      grouperClientWs.assignContentType(this.contentType);
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);

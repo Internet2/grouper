@@ -131,7 +131,19 @@ public class GcGetAuditEntries {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetAuditEntries assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
 
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
@@ -413,7 +425,9 @@ public class GcGetAuditEntries {
       getAuditEntries.setPageLastCursorFieldType(this.pageLastCursorFieldType);
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
+      grouperClientWs.assignContentType(this.contentType);
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);

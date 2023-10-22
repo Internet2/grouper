@@ -154,6 +154,19 @@ public class GcGetSubjects {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetSubjects assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** if filtering by group, this is the group lookup */
   private WsGroupLookup wsGroupLookup;
@@ -347,7 +360,9 @@ public class GcGetSubjects {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
+      grouperClientWs.assignContentType(this.contentType);
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
