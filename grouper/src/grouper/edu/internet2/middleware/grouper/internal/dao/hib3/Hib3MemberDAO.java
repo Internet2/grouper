@@ -942,6 +942,9 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
         " or exists (select 1 from AttributeAssign as theAttributeAssign where theAttributeAssign.ownerMemberId = theMember.uuid"
         + " and theAttributeAssign.attributeDefNameId != :theAttributeDefNameId ))) ");
     
+    // we want to resolve all current groups to make sure attributes are correct
+    query.append("or ((theMember.subjectSourceIdDb = 'g:gsa' or theMember.subjectSourceIdDb = 'grouperEntities') and exists (select 1 from Group g where g.uuid=theMember.subjectIdDb)) ");
+    
     // dont worry about the unresolvable attributes
     byHqlStatic.setString("theAttributeDefNameId", UsduAttributeNames.retrieveAttributeDefNameBase().getId());
         
@@ -950,14 +953,25 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   }
   
   @Override
+  public Set<String> findAllDeletedGroupMemberIdsIncorrectSubjectResolutionAttributes() {
+    String sql = "select distinct theMember.uuid from Member as theMember "
+        + "where (subjectSourceIdDb = 'g:gsa' or subjectSourceIdDb = 'grouperEntities') "
+        + "and (subjectResolutionDeletedDb='F' or subjectResolutionResolvableDb='T')"
+        + "and not exists (select 1 from Group g where g.uuid=theMember.subjectIdDb)";
+
+    return HibernateSession.byHqlStatic().createQuery(sql).listSet(String.class);
+  }
+  
+  @Override
   public Set<String> findAllMemberIdsNoLongerSubjectResolutionEligible() {
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     
     StringBuilder query = new StringBuilder("select distinct theMember.uuid from Member as theMember where subjectResolutionEligibleDb='T' and not (");
    
-    // These two are added to the query in findAllMemberIdsForUnresolvableCheck since they aren't checked but they should remain subjectResolutionEligibleDb=T.
+    // This is added to the query in findAllMemberIdsForUnresolvableCheck since it isn't checked but it should remain subjectResolutionEligibleDb=T.
     // Otherwise, it's the opposite of findAllMemberIdsForUnresolvableCheck.
     query.append(" theMember.subjectSourceIdDb = 'g:isa' or ");
+    
     query.append(" ((theMember.subjectSourceIdDb = 'g:gsa' or theMember.subjectSourceIdDb = 'grouperEntities') and exists (select 1 from Group g where g.uuid=theMember.subjectIdDb)) or " );
 
     query.append(" (subjectResolutionDeletedDb='F' and subjectResolutionResolvableDb='F') or (");

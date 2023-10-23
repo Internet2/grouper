@@ -33,14 +33,48 @@ public class GrouperConfigHibernateTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperConfigHibernateTest("testSaveLessThan3000Value"));
+    TestRunner.run(new GrouperConfigHibernateTest("testEscapeDollar"));
   }
   
+  @Override
+  protected void setupConfigs() {
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("audit.maxLengthTruncateTextFieldsIndexed", "2675");
+  }
+
   /**
    * @param name
    */
   public GrouperConfigHibernateTest(String name) {
     super(name);
+  }
+  
+  public void testEscapeDollar() {
+
+    GrouperConfigHibernate grouperConfigHibernate = new GrouperConfigHibernate();
+    grouperConfigHibernate.setConfigComment("comment");
+    grouperConfigHibernate.setConfigEncrypted(false);
+    grouperConfigHibernate.setConfigFileHierarchy(ConfigFileHierarchy.INSTITUTION);
+    grouperConfigHibernate.setConfigFileName(ConfigFileName.GROUPER_PROPERTIES);
+    grouperConfigHibernate.setConfigKey("someKey");
+    
+//    value = GrouperClientUtils.replace(value, "U+0024", "$");
+//    value = GrouperClientUtils.replace(value, "U+0020", " ");
+//    value = GrouperClientUtils.replace(value, "U+007B", "{");
+//    value = GrouperClientUtils.replace(value, "U+007D", "}");
+//    value = GrouperClientUtils.replace(value, "U+000A", "\n");
+//    value = GrouperClientUtils.replace(value, "U+002B", "+");
+
+    
+    grouperConfigHibernate.setValueToSave("U+0024U+0020U+007BU+007DU+000AU+002B");
+    grouperConfigHibernate.saveOrUpdate(true);
+
+    GrouperConfigHibernate grouperConfigHibernate2 = GrouperDAOFactory.getFactory().getConfig().findById(grouperConfigHibernate.getId(), true);
+    
+    assertEquals("U+0024U+0020U+007BU+007DU+000AU+002B", grouperConfigHibernate2.retrieveValue());
+    assertEquals("U+0024U+0020U+007BU+007DU+000AU+002B", grouperConfigHibernate2.getConfigValueDb());
+    
+    String value = GrouperConfig.retrieveConfig().propertyValueString("someKey");
+    assertEquals("$ {}\n+", value);
   }
   
   public void testSaveLessThan3000Value() {
