@@ -522,11 +522,14 @@ public class GrouperZoomCommands {
       debugMap.put("configId", configId);
       
       Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
-      
+      Map<String, Map<String, Object>> resultInactive = new HashMap<String, Map<String, Object>>();
+      Map<String, Map<String, Object>> resultPending = new HashMap<String, Map<String, Object>>();
+
       int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("zoom." + configId + ".pageSizeUsers", 300);
 
+      // Get all users with the default active status
       for (int i=0;i<10000;i++) {
-        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1);
+        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1, "users?");
         
         result.putAll(tempResult);
 
@@ -535,7 +538,34 @@ public class GrouperZoomCommands {
           break;
         }
       }
+
+      // Get all users with status = inactive
+      for (int i=0;i<10000;i++) {
+        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1, "users?status=inactive&");
+        
+        resultInactive.putAll(tempResult);
+
+        // we are done when there are no reults or its less than the page size
+        if (tempResult.size() < pageSize) {
+          break;
+        }
+      }
+
+      // Get all users with status = pending
+      for (int i=0;i<10000;i++) {
+        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1, "users?status=pending&");
+        
+        resultPending.putAll(tempResult);
+
+        // we are done when there are no reults or its less than the page size
+        if (tempResult.size() < pageSize) {
+          break;
+        }
+      }
       
+      result.putAll(resultInactive);
+      result.putAll(resultPending);
+
       debugMap.put("count", result.size());
 
       return result;
@@ -550,6 +580,40 @@ public class GrouperZoomCommands {
       }
     }
     
+  }
+
+  /**
+   * 
+   * @param configId
+   * @param endpointString
+   * @return map key is email, and value with id(string), first_name(string), last_name(string), email(string)
+   * or null if not found
+   */
+  public static Map<String, Map<String, Object>> retrievePhoneUsers(String configId, String endpointString) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "retrievePhoneUsers");
+    try {
+      debugMap.put("configId", configId);
+      
+      Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+
+      result = retrievePhoneUsersHelper(configId, endpointString);
+      debugMap.put("count", result.size());
+
+      return result;
+
+    } catch (RuntimeException e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
 
   /**
@@ -1429,7 +1493,7 @@ public class GrouperZoomCommands {
    * personal_meeting_url(string), timezone(string), verified(int), group_ids (array[string]), account_id(string), status(string e.g. active)
    * or null if not found
    */
-  private static Map<String, Map<String, Object>> retrieveUsersHelper(String configId, int pageNumberOneIndexed) {
+  private static Map<String, Map<String, Object>> retrieveUsersHelper(String configId, int pageNumberOneIndexed, String endpointString) {
     
     long startedNanos = System.nanoTime();
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -1445,7 +1509,7 @@ public class GrouperZoomCommands {
       debugMap.put("pageSize", pageSize);
       //page_size, page_number
   
-      String url = endpoint + "users?page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
+      String url = endpoint + endpointString + "page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
       debugMap.put("url", url);
     
       GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
@@ -1543,6 +1607,95 @@ public class GrouperZoomCommands {
       }
     }
     
+  }
+
+
+  /**
+   * 
+   * @param configId
+   * @param endpointString
+   * @return map key is email, and value with id(string), first_name(string), last_name(string), email(string)
+   * or null if not found
+   */
+  private static Map<String, Map<String, Object>> retrievePhoneUsersHelper(String configId, String endpointString) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    String nextPageToken = "";
+    
+    debugMap.put("method", "retrievePhoneUsersHelper");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("zoom." + configId + ".pageSizeUsers", 300);
+      debugMap.put("pageSize", pageSize);
+
+      Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+
+      // as long as we get a value for nextPageToken, keep looping through pages
+      do {
+        String url = endpoint + endpointString + "?page_size=" + pageSize + "&next_page_token=" + nextPageToken;
+        debugMap.put("url", url);
+
+        GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+        grouperHttpClient.assignUrl(url);
+        grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
+        
+        grouperHttpClient.addHeader("Content-Type", "application/json");
+        grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+        
+        int code = -1;
+        String json = null;
+    
+        try {
+          grouperHttpClient.executeRequest();
+          code = grouperHttpClient.getResponseCode();
+          json = grouperHttpClient.getResponseBody();
+        } catch (Exception e) {
+          throw new RuntimeException("Error connecting to '" + url + "'", e);
+        }
+        debugMap.put("httpCode", code);
+        
+        if (code != 200) {
+          throw new RuntimeException("Cant get phone users from '" + url + "' " + json);
+        }
+        
+        JSONObject jsonObject = JSONObject.fromObject(json);
+        Map<String, Map<String, Object>> tempResult = new HashMap<String, Map<String, Object>>();
+        
+        int totalRecords = jsonObject.getInt("total_records");
+        nextPageToken = jsonObject.getString("next_page_token");
+        debugMap.put("totalRecords", totalRecords);
+        
+        JSONArray jsonArray = jsonObject.has("users") ? jsonObject.getJSONArray("users") : null;
+        if (jsonArray != null && jsonArray.size() >= 1) {
+          for (int i=0;i<jsonArray.size();i++) {
+            JSONObject jsonObjectUser = (JSONObject)jsonArray.get(i);
+            Map<String, Object> userMap = retrieveUserFromJsonObject(jsonObjectUser);
+            String email = (String)userMap.get("email");
+            if (!StringUtils.isBlank(email)) {
+              tempResult.put(email, userMap);
+            }
+          }
+        }
+        debugMap.put("count", tempResult.size());
+        
+        result.putAll(tempResult);
+
+      } while (nextPageToken != "");
+
+      return result;
+    } catch (RuntimeException e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
 
   /**
@@ -1931,6 +2084,144 @@ public class GrouperZoomCommands {
     }
 
     
+  }
+
+  /**
+   * @param configId
+   * @param email
+   * @param type 1 = no license, 2 = licensed
+   */
+  public static void userChangeType(String configId, String email, int type) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "userChangeType");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+      String url = endpoint + "users";
+      if (email.contains("/")) {
+        throw new RuntimeException("Invalid email: " + email);
+      }
+      url += "/" + email;
+      debugMap.put("url", url);
+  
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.patch);
+  
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+      
+      //  {
+      //    "action": "activate"
+      //  }  
+      
+      JSONObject jsonObject = new JSONObject();
+      jsonObject.put("type", type);
+      String jsonRequest = jsonObject.toString();
+      
+      grouperHttpClient.assignBody(jsonRequest);
+      
+      int code = -1;
+      if (type == 1 && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUserDelicencesInsteadOfDelicensing", false)) {
+        
+        debugMap.put("logUserDelicencesInsteadOfDelicensing", true);
+
+      } else {
+
+        try {
+          grouperHttpClient.executeRequest();
+          code = grouperHttpClient.getResponseCode();
+          // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+          
+        } catch (Exception e) {
+          throw new RuntimeException("Error connecting to '" + url + "'", e);
+        }
+    
+        debugMap.put("httpCode", code);
+        
+        if (code != 204) {
+          throw new RuntimeException("Cant update user type '" + url + "', '" + type + "' " + code);
+        }
+      }
+      
+    } catch (Exception e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
+    
+  }
+
+  /**
+   * @param configId
+   * @param email
+   * @param activate
+   */
+  public static void userChangePhoneLicense(String configId, String email, Boolean activate) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "userChangePhoneLicense");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+      String url = endpoint + "users";
+      if (email.contains("/")) {
+        throw new RuntimeException("Invalid email: " + email);
+      }
+      url += "/" + email + "/settings";
+      debugMap.put("url", url);
+  
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.patch);
+  
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+
+      JSONObject jsonObject = new JSONObject();
+      JSONObject jsonObjectInside = new JSONObject();
+      jsonObjectInside.put("zoom_phone", activate);
+      jsonObject.put("feature", jsonObjectInside);
+      String jsonRequest = jsonObject.toString();
+      
+      grouperHttpClient.assignBody(jsonRequest);
+      
+      int code = -1;
+      grouperHttpClient.executeRequest();
+      code = grouperHttpClient.getResponseCode();
+      debugMap.put("httpCode", code);
+
+      if (code != 204) {
+          throw new RuntimeException("Cant update user type '" + url + "', '" + code);
+      }
+      
+    } catch (Exception e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
 
   /**

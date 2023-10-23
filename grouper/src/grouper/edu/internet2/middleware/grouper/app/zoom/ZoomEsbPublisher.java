@@ -88,6 +88,7 @@ public class ZoomEsbPublisher extends EsbListenerBase {
       String roleFolderName = GrouperZoomLocalCommands.roleFolderNameToProvision(configId);
       String groupNameToDeleteUsers = GrouperZoomLocalCommands.groupNameToDeleteUsers(configId);
       String groupNameToDeactivateUsers = GrouperZoomLocalCommands.groupNameToDeactivateUsers(configId);
+      String groupNameToDelicenseUsers = GrouperZoomLocalCommands.groupNameToDelicenseUsers(configId);
       
       //not sure why there would be no events in there
       for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
@@ -250,6 +251,45 @@ public class ZoomEsbPublisher extends EsbListenerBase {
             
             if (GrouperZoomLocalCommands.removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser(configId)) {
               GrouperZoomLocalCommands.removeMembership(configId, groupNameToDeactivateUsers, email);
+            }
+            
+            hib3GrouperLoaderLog.addDeleteCount(1);
+            
+          } else if (!StringUtils.isBlank(groupNameToDelicenseUsers) && StringUtils.equals(groupNameToDelicenseUsers, esbEvent.getGroupName())) {
+
+            // is group in folder
+            boolean hasMembership = GrouperZoomLocalCommands.groupSourceIdSubjectIdToDelicense(configId, 
+                esbEvent.getSourceId(), esbEvent.getSubjectId());
+            debugMap.put("hasMembershipToDelicense", hasMembership);
+            
+            if (!hasMembership) {
+              continue;
+            }
+            
+            String email = esbEvent.subjectAttribute(GrouperZoomLocalCommands.subjectAttributeForZoomEmail(configId));
+            debugMap.put("email", email);
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            
+            Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
+            debugMap.put("userExists", user != null);
+            
+            if (user == null) {
+              continue;
+            }
+
+            final boolean userLicensed = StringUtils.equals("2", (String)user.get("type"));
+            debugMap.put("userLicensed", userLicensed);
+            
+            if (!userLicensed) {
+              continue;
+            }
+
+            GrouperZoomCommands.userChangeType(configId, email, 1); // "basic" license
+            
+            if (GrouperZoomLocalCommands.removeGrouperMembershipFromDelicensedGroupAfterDelicenseZoomUser(configId)) {
+              GrouperZoomLocalCommands.removeMembership(configId, groupNameToDelicenseUsers, email);
             }
             
             hib3GrouperLoaderLog.addDeleteCount(1);

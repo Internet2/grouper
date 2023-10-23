@@ -14,6 +14,7 @@ import java.util.Set;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -41,6 +42,9 @@ import edu.internet2.middleware.subject.SubjectNotFoundException;
  *
  */
 public class GrouperZoomLocalCommands {
+
+    /** logger */
+    private static final Log LOG = GrouperUtil.getLog(GrouperZoomLocalCommands.class);
 
   /**
    * configId of zoom external system to cache of sourceId, subjectId, to email
@@ -146,7 +150,25 @@ public class GrouperZoomLocalCommands {
    * @return the group name
    */
   public static boolean removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser(String configId) {
-    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser ", false);
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".removeGrouperMembershipFromDeactivatedGroupAfterDeactivateZoomUser", false);
+  }
+  
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static boolean removeGrouperMembershipFromDelicensedGroupAfterDelicenseZoomUser(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".removeGrouperMembershipFromDelicensedGroupAfterDelicenseZoomUser ", false);
+  }
+  
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static boolean removeGrouperMembershipFromDelicensedGroupAfterDelicensePhoneUser(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".removeGrouperMembershipFromDelicensedGroupAfterDelicensePhoneUser ", false);
   }
   
   /**
@@ -156,6 +178,33 @@ public class GrouperZoomLocalCommands {
    */
   public static String groupNameToDeactivateUsers(String configId) {
     return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".groupNameToDeactivateUsers");
+  }
+
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static String groupNameToReactivateUsers(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".groupNameToReactivateUsers");
+  }
+
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static String groupNameToDelicenseUsers(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".groupNameToDelicenseUsers");
+  }
+  
+  /**
+   * 
+   * @param configId 
+   * @return the group name
+   */
+  public static String groupNameToDelicensePhoneUsers(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".groupNameToDelicensePhoneUsers");
   }
   
   /**
@@ -617,6 +666,7 @@ public class GrouperZoomLocalCommands {
     }
 
     if (emailsNotInCache.size() > 0) {
+      @SuppressWarnings("unchecked")
       Map<String, MultiKey> emailToSourceIdSubjectIdFromSubjectApi =  (Map<String, MultiKey>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -625,8 +675,10 @@ public class GrouperZoomLocalCommands {
           
           for (String sourceId : configSourcesForSubjects(configId)) {
 
+            LOG.debug("searching  "+sourceId+" for "+emailsNotInCache.size()+" emails");
             Map<String, Subject> emailToSubject = SubjectFinder.findByIdentifiers(emailsNotInCache, sourceId);
-            
+            LOG.debug("found:  "+emailToSubject.size());
+
             for (String email : emailToSubject.keySet()) {
               
               Subject subject = emailToSubject.get(email);
@@ -652,6 +704,8 @@ public class GrouperZoomLocalCommands {
       
       String emailLookupQuery = GrouperLoaderConfig.retrieveConfig().propertyValueString("zoom." + configId + ".emailLookupQuery");
       
+      LOG.debug("still lacking "+emailsNotInCache.size()+" emails; emailLookupQuery = "+emailLookupQuery);
+
       if (!StringUtils.isBlank(emailLookupQuery)) {
       
         Map<String, MultiKey> emailToSourceIdSubjectId = new HashMap<String, MultiKey>();
@@ -911,41 +965,13 @@ public class GrouperZoomLocalCommands {
   public static boolean groupSourceIdSubjectIdToDelete(final String configId, 
       final String sourceIdParam, final String subjectIdParam) {
 
-    Set<String> sources = configSourcesForSubjects(configId);
-    
-    if (!sources.contains(sourceIdParam)) {
-      return false;
-    }
+    return hasMembership(configId, groupNameToDeleteUsers(configId), sourceIdParam, subjectIdParam);
 
-    final String groupName = groupNameToDeleteUsers(configId);
-    
-    if (StringUtils.isBlank(groupName) || !groupName.contains(":")) {
-      throw new RuntimeException("Invalid group name '" + groupName + "'");
-    }
-    
-    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        
-        Subject subject = SubjectFinder.findByIdAndSource(subjectIdParam, sourceIdParam, false);
-        if (subject == null) {
-          return false;
-        }
-        
-        Group group = GroupFinder.findByName(grouperSession, groupName, false);
-        if (group == null) {
-          return false;
-        }
-        
-        return group.hasMember(subject);
-        
-      }
-    });
   }
   
   
   /**
-   * see if subject should be deleted
+   * see if subject should be deactivated
    * @param configId
    * @param sourceIdParam 
    * @param subjectIdParam 
@@ -954,36 +980,22 @@ public class GrouperZoomLocalCommands {
   public static boolean groupSourceIdSubjectIdToDeactivate(final String configId, 
       final String sourceIdParam, final String subjectIdParam) {
 
-    Set<String> sources = configSourcesForSubjects(configId);
-    
-    if (!sources.contains(sourceIdParam)) {
-      return false;
-    }
+    return hasMembership(configId, groupNameToDeactivateUsers(configId), sourceIdParam, subjectIdParam);
+   
+  }
 
-    final String groupName = groupNameToDeactivateUsers(configId);
-    
-    if (StringUtils.isBlank(groupName) || !groupName.contains(":")) {
-      throw new RuntimeException("Invalid group name '" + groupName + "'");
-    }
-    
-    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-      
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        
-        Subject subject = SubjectFinder.findByIdAndSource(subjectIdParam, sourceIdParam, false);
-        if (subject == null) {
-          return false;
-        }
-        
-        Group group = GroupFinder.findByName(grouperSession, groupName, false);
-        if (group == null) {
-          return false;
-        }
-        
-        return group.hasMember(subject);
-        
-      }
-    });
+    /**
+   * see if subject should be delicensed
+   * @param configId
+   * @param sourceIdParam 
+   * @param subjectIdParam 
+   * @return true if membership exists
+   */
+  public static boolean groupSourceIdSubjectIdToDelicense(final String configId, 
+      final String sourceIdParam, final String subjectIdParam) {
+
+    return hasMembership(configId, groupNameToDelicenseUsers(configId), sourceIdParam, subjectIdParam);
+   
   }
   
   /**
@@ -1046,6 +1058,45 @@ public class GrouperZoomLocalCommands {
     Group group = GroupFinder.findByName(GrouperSession.staticGrouperSession(), groupSyncFolder + ":" + grouperGroupExtension, true);
     Subject subject = SubjectFinder.findByIdAndSource((String)sourceIdSubjectId.getKey(1), (String)sourceIdSubjectId.getKey(0), true);
     return group.addMember(subject, false);
+  }
+
+  /**
+   * 
+   * @param configId
+   * @param groupName
+   * @param sourceIdParam
+   * @param subjectIdParam
+   * @return true if subject is member of group
+   */
+  public static boolean hasMembership(String configId, String groupName, String sourceIdParam, String subjectIdParam) {
+    Set<String> sources = configSourcesForSubjects(configId);
+    
+    if (!sources.contains(sourceIdParam)) {
+      return false;
+    }
+    
+    if (StringUtils.isBlank(groupName) || !groupName.contains(":")) {
+      throw new RuntimeException("Invalid group name '" + groupName + "'");
+    }
+    
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Subject subject = SubjectFinder.findByIdAndSource(subjectIdParam, sourceIdParam, false);
+        if (subject == null) {
+          return false;
+        }
+        
+        Group group = GroupFinder.findByName(grouperSession, groupName, false);
+        if (group == null) {
+          return false;
+        }
+        
+        return group.hasMember(subject);
+        
+      }
+    });
   }
 
   /**
