@@ -93,6 +93,27 @@ public class GrouperDataRowDao {
    */
   public static void delete(GrouperDataRow grouperDataRow) {
     grouperDataRow.storePrepare();
+    
+    // delete aliases - done
+    // delete row assignments - done
+    // delete field row assignments - done
+    // delete data global assign - no config, no dao
+    
+    List<GrouperDataAlias> aliases = GrouperDataAliasDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
+    for (GrouperDataAlias grouperDataAlias: aliases) {
+      GrouperDataAliasDao.delete(grouperDataAlias);
+    }
+    
+    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
+    for (GrouperDataRowAssign grouperDataRowAssign: dataRowAssigns) {
+      GrouperDataRowAssignDao.delete(grouperDataRowAssign);
+    }
+    
+    List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: dataRowFieldAssigns) {
+      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign);
+    }
+    
     new GcDbAccess().deleteFromDatabase(grouperDataRow);
   }
 

@@ -54,6 +54,9 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
+import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
@@ -93,7 +96,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       System.out.println(analyzeJexlScriptHtml("entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known "
           + "&& cp_org == 'Perelman School of Medicine' \") && (!entity.memberOf('penn:ref:member') "
-          + "|| entity.memberOf('penn:ref:lockout') ) && entity.hasAttribute('cp_role', 'desktop-user')", null));
+          + "|| entity.memberOf('penn:ref:lockout') ) && entity.hasAttribute('cp_role', 'desktop-user')", null, null));
       
       //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup')")));
       //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')")));
@@ -148,7 +151,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
   }
 
-  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(String jexlScript, Subject subject) {
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(String jexlScript, Subject subject, Subject loggedInSubject) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
@@ -182,6 +185,28 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           if (grouperDataFieldWrapper == null) {
             throw new RuntimeException("Data field '" + attributeAlias + "' not found!");
           }
+          
+          GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+          
+          String grouperPrivacyRealmConfigId = grouperDataFieldConfig.getGrouperPrivacyRealmConfigId();
+          
+          GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+          String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
+          
+          Group group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return GroupFinder.findByName(grouperSession, viewersGroupName, true);
+            }
+          });
+          
+          if (!group.hasMember(loggedInSubject)) {
+            String errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute");
+            grouperJexlScriptAnalysis.setErrorMessage(errorMessage + " '"+attributeAlias + "'");
+            return grouperJexlScriptAnalysis;
+          }
+          
           GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
           gcDbAccess.addBindVar(grouperDataField.getInternalId());
           

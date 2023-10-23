@@ -30,6 +30,20 @@ public class GrouperDataRowFieldAssignDao {
     return grouperDataRowFieldAssigns;
   }
 
+  public static List<GrouperDataRowFieldAssign> selectByDataFieldInternalId(long dataFieldInternalId) {
+    return new GcDbAccess().sql("select * from grouper_data_row_field_assign where data_field_internal_id = ?")
+        .addBindVar(dataFieldInternalId)
+        .selectList(GrouperDataRowFieldAssign.class);
+
+  }
+  
+  public static List<GrouperDataRowFieldAssign> selectByDataRowInternalId(long dataRowInternalId) {
+    return new GcDbAccess().sql("select gdrfa.* from grouper_data_row_field_assign gdrfa join grouper_data_row_assign gdra on gdrfa.data_row_assign_internal_id = gdra.internal_id where gdra.data_row_internal_id = ?")
+        .addBindVar(dataRowInternalId)
+        .selectList(GrouperDataRowFieldAssign.class);
+
+  }
+  
   /**
    * delete all data if table is here
    */

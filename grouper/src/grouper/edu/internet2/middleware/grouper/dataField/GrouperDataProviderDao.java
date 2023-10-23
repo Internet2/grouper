@@ -80,9 +80,15 @@ public class GrouperDataProviderDao {
    * 
    * @param connectionName
    */
-  public static void delete(GrouperDataProvider grouperDataLoaderConfig) {
-    grouperDataLoaderConfig.storePrepare();
-    new GcDbAccess().deleteFromDatabase(grouperDataLoaderConfig);
+  public static void delete(GrouperDataProvider grouperDataProvider) {
+    grouperDataProvider.storePrepare();
+    
+    List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByProvider(grouperDataProvider.getInternalId());
+    for (GrouperDataGlobalAssign grouperDataRGlobalAssign: dataGlobalAssings) {
+      GrouperDataGlobalAssignDao.delete(grouperDataRGlobalAssign);
+    }
+    
+    new GcDbAccess().deleteFromDatabase(grouperDataProvider);
   }
 
   /**

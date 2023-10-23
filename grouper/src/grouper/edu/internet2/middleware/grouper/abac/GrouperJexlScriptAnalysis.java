@@ -3,8 +3,6 @@ package edu.internet2.middleware.grouper.abac;
 import java.util.ArrayList;
 import java.util.List;
 
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-
 public class GrouperJexlScriptAnalysis {
 
   public GrouperJexlScriptAnalysis() {
@@ -33,6 +31,19 @@ public class GrouperJexlScriptAnalysis {
     }
     return result.toString();
   }
+  
+  private String errorMessage;
 
+
+  
+  public String getErrorMessage() {
+    return errorMessage;
+  }
+
+  
+  public void setErrorMessage(String errorMessage) {
+    this.errorMessage = errorMessage;
+  }
+  
   
 }

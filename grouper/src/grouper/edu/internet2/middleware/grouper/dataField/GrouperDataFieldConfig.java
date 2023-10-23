@@ -29,6 +29,8 @@ public class GrouperDataFieldConfig {
     
     String fieldAliasesString = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldAliases");
     this.fieldAliases = GrouperUtil.splitTrimToSet(fieldAliasesString, ",");
+
+    this.grouperPrivacyRealmConfigId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldPrivacyRealm");
     
     String fieldDataStructureString = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldDataStructure", "attribute");
     GrouperDataFieldStructure grouperDataFieldStructure = GrouperDataFieldStructure.valueOfIgnoreCase(fieldDataStructureString, true);
@@ -52,6 +54,13 @@ public class GrouperDataFieldConfig {
   
   public void setConfigId(String configId) {
     this.configId = configId;
+  }
+  
+  private String grouperPrivacyRealmConfigId; 
+  
+  
+  public String getGrouperPrivacyRealmConfigId() {
+    return grouperPrivacyRealmConfigId;
   }
 
   /**

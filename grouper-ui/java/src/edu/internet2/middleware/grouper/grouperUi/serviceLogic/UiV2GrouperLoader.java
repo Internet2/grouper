@@ -1914,12 +1914,17 @@ public class UiV2GrouperLoader {
         }    
       }
       
-      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperLoaderJexlScript, subject);
+      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperLoaderJexlScript, subject, loggedInSubject);
       
       GuiSubject guiSubject = subject != null ? new GuiSubject(subject): null;
       
       grouperLoaderContainer.setGrouperJexlScriptAnalysis(jexlScriptAnalysis);
       grouperLoaderContainer.setGuiSubject(guiSubject);
+      
+      if (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage())) {        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperLoaderJexlScriptId", jexlScriptAnalysis.getErrorMessage()));
+        return;
+      }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));

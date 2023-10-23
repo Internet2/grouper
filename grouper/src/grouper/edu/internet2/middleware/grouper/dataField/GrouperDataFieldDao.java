@@ -89,6 +89,27 @@ public class GrouperDataFieldDao {
    */
   public static void delete(GrouperDataField grouperDataField) {
     grouperDataField.storePrepare();
+    
+    List<GrouperDataAlias> aliases = GrouperDataAliasDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
+    for (GrouperDataAlias grouperDataAlias: aliases) {      
+      GrouperDataAliasDao.delete(grouperDataAlias);
+    }
+    
+    List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
+    for (GrouperDataFieldAssign grouperDataFieldAssign: dataFieldAssigns) {
+      GrouperDataFieldAssignDao.delete(grouperDataFieldAssign);
+    }
+    
+    List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: dataRowFieldAssigns) {
+      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign);
+    }
+    
+    List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
+    for (GrouperDataGlobalAssign grouperDataRGlobalAssign: dataGlobalAssings) {
+      GrouperDataGlobalAssignDao.delete(grouperDataRGlobalAssign);
+    }
+    
     new GcDbAccess().deleteFromDatabase(grouperDataField);
   }
 

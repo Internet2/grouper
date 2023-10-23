@@ -29,6 +29,12 @@ public class GrouperDataRowAssignDao {
     return grouperDataRowAssigns;
   }
 
+  public static List<GrouperDataRowAssign> selectByDataRowInternalId(long dataRowInternalId) {
+    return new GcDbAccess().sql("select * from grouper_data_row_assign where data_row_internal_id = ?")
+        .addBindVar(dataRowInternalId)
+        .selectList(GrouperDataRowAssign.class);
+
+  }
 
   /**
    * delete all data if table is here

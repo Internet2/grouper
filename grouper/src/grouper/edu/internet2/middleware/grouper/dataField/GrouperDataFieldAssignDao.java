@@ -2,12 +2,9 @@ package edu.internet2.middleware.grouper.dataField;
 
 import java.util.List;
 
-import org.apache.commons.lang3.StringUtils;
-
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 /**
  * dao for data field assign
@@ -25,6 +22,13 @@ public class GrouperDataFieldAssignDao {
    */
   public static void reset() {
     new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GrouperDataFieldAssign.class)).executeSql();
+  }
+  
+  public static List<GrouperDataFieldAssign> selectByDataFieldInternalId(long dataFieldInternalId) {
+    return new GcDbAccess().sql("select * from grouper_data_field_assign where data_field_internal_id = ?")
+        .addBindVar(dataFieldInternalId)
+        .selectList(GrouperDataFieldAssign.class);
+
   }
 
   /**

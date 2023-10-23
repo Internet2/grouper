@@ -73,6 +73,17 @@ public class GrouperDataEngine {
    */
   private Map<String, GrouperDataFieldConfig> fieldConfigByAlias = new HashMap<String, GrouperDataFieldConfig>();
   
+  
+  private Map<String, GrouperPrivacyRealmConfig> privacyRealmConfigByConfigId = new HashMap<String, GrouperPrivacyRealmConfig>();
+  
+  
+  
+  
+  public Map<String, GrouperPrivacyRealmConfig> getPrivacyRealmConfigByConfigId() {
+    return privacyRealmConfigByConfigId;
+  }
+
+
   /**
    * lower alias to GrouperDataFieldConfig
    * @return field config
@@ -182,6 +193,27 @@ public class GrouperDataEngine {
       for (String alias : grouperDataFieldConfig.getFieldAliases()) {
         fieldConfigByAlias.put(alias.toLowerCase(), grouperDataFieldConfig);
       }
+    }
+    
+  }
+  
+  public void loadConfigPrivacyRealms(GrouperConfig grouperConfig) {
+    
+   /**
+    * # name of this privacy realm, not really used, just here to configure the realm
+      # {valueType: "string", required: true, regex: "^grouperPrivacyRealm\\.[^.]+\\.privacyRealmName$"}
+      # grouperPrivacyRealm.privacyRealmConfigId.privacyRealmName = 
+    */
+    if (grouperConfig == null) {
+      grouperConfig = GrouperConfig.retrieveConfig();
+    }
+    
+    Set<String> configIdsInConfig = GrouperUtil.nonNull(grouperConfig.propertyConfigIds(privacyRealmPattern));
+    
+    for (String configId : configIdsInConfig) {
+      GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = new GrouperPrivacyRealmConfig();
+      grouperPrivacyRealmConfig.readFromConfig(configId);
+      privacyRealmConfigByConfigId.put(configId, grouperPrivacyRealmConfig);
     }
     
   }
@@ -531,6 +563,7 @@ public class GrouperDataEngine {
     // load config from config file
     this.loadConfigFields(grouperConfig);
     this.loadConfigProviders(grouperConfig);
+    this.loadConfigPrivacyRealms(grouperConfig);
 
     this.loadConfigRows(grouperConfig);
 

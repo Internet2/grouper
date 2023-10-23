@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.Collection;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -28,6 +29,20 @@ public class GrouperDataAliasDao {
   public static List<GrouperDataAlias> selectAllRowAliases() {
     return new GcDbAccess().sql("select * from grouper_data_alias where alias_type = 'R'").selectList(GrouperDataAlias.class);
 
+  }
+
+  
+  public static List<GrouperDataAlias> selectByDataFieldInternalId(long dataFieldInternalId) {
+    return new GcDbAccess().sql("select * from grouper_data_alias where data_field_internal_id = ?")
+        .addBindVar(dataFieldInternalId)
+        .selectList(GrouperDataAlias.class);
+
+  }
+  
+  public static List<GrouperDataAlias> selectByDataRowInternalId(long dataRowInternalId) {
+    return new GcDbAccess().sql("select * from grouper_data_alias where data_row_internal_id = ?")
+        .addBindVar(dataRowInternalId)
+        .selectList(GrouperDataAlias.class);
   }
 
   /**
@@ -93,6 +108,13 @@ public class GrouperDataAliasDao {
   public static void delete(GrouperDataAlias grouperDataAlias) {
     grouperDataAlias.storePrepare();
     new GcDbAccess().deleteFromDatabase(grouperDataAlias);
+  }
+
+  public static void delete(Collection<GrouperDataAlias> grouperDataAliases) {
+    for (GrouperDataAlias grouperDataAlias: grouperDataAliases) {      
+      grouperDataAlias.storePrepare();
+    }
+    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataAliases);
   }
 
   /**
@@ -184,5 +206,4 @@ public class GrouperDataAliasDao {
     return internalId;
   }
   
-
 }
