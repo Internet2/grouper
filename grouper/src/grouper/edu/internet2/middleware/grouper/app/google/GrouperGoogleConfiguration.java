@@ -1,6 +1,10 @@
 package edu.internet2.middleware.grouper.app.google;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -211,6 +215,36 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   @Override
   public int getDaoSleepBeforeSelectAfterInsertMillis() {
     return GrouperUtil.intValue(this.retrieveConfigInt("sleepBeforeSelectAfterInsertMillis", false), 15000);
+  }
+  
+  @Override
+  public void configureAfterMetadata() {
+    super.configureAfterMetadata();
+    
+    for (String attributeName : new String[] {"whoCanAdd", "whoCanJoin",
+        "whoCanViewMembership", "whoCanViewGroup", "whoCanInvite",
+        "allowExternalMembers", "whoCanPostMessage", "allowWebPosting"}) {
+      
+      // if metadata exists
+      String metadataName = "md_grouper_" + attributeName;
+      if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
+        continue;
+      }
+      
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getTargetGroupAttributeNameToConfig().get(attributeName);
+      
+      if (grouperProvisioningConfigurationAttribute != null) {
+        continue;
+      }
+
+      // add an attribute
+      GrouperProvisioningConfigurationAttribute nameConfigurationAttribute = new GrouperProvisioningConfigurationAttribute();
+      nameConfigurationAttribute.setGrouperProvisioner(this.getGrouperProvisioner());
+      nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
+      nameConfigurationAttribute.setName(attributeName);
+      nameConfigurationAttribute.setConfigIndex(this.getTargetGroupAttributeNameToConfig().size());
+      this.getTargetGroupAttributeNameToConfig().put(attributeName, nameConfigurationAttribute);
+    }
   }
   
 }
