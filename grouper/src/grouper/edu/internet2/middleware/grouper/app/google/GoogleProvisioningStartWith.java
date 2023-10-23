@@ -112,6 +112,42 @@ public class GoogleProvisioningStartWith extends ProvisionerStartWithBase {
       
     }
     
+    {
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanAdd"), true)) {
+        provisionerSuffixToValue.put("whoCanAdd", "true");
+      }
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanJoin"), true)) {
+        provisionerSuffixToValue.put("whoCanJoin", "true");
+      }
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanViewMembership"), false)) {
+        provisionerSuffixToValue.put("whoCanViewMembership", "true");
+      }
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanViewGroup"), false)) {
+        provisionerSuffixToValue.put("whoCanViewGroup", "true");
+      }
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanInvite"), false)) {
+        provisionerSuffixToValue.put("whoCanInvite", "true");
+      }
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowExternalMembers"), false)) {
+        provisionerSuffixToValue.put("allowExternalMembers", "true");
+      }
+      
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanPostMessage"), false)) {
+        provisionerSuffixToValue.put("whoCanPostMessage", "true");
+      }
+
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowWebHosting"), false)) {
+        provisionerSuffixToValue.put("allowWebPosting", "true");
+      }
+      
+    }
+    
     if (GrouperUtil.booleanValue(startWithSuffixToValue.get("manageEntities"), false)) {
       provisionerSuffixToValue.put("makeChangesToEntities", "true");
     }

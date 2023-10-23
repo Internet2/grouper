@@ -1,38 +1,28 @@
-package edu.internet2.middleware.grouper.app.azure;
+package edu.internet2.middleware.grouper.app.google;
 
 import java.util.List;
-import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTranslator;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntityWrapper;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
-/**
- * @author shilen
- */
-public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
-
+public class GoogleProvisioningTranslator extends GrouperProvisioningTranslator {
+  
   @Override
   public List<ProvisioningGroup> translateGrouperToTargetGroups(List<ProvisioningGroup> grouperProvisioningGroups,
       boolean includeDelete, boolean forCreate) {
     
-    GrouperAzureConfiguration grouperAzureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     List<ProvisioningGroup> grouperTargetGroups = super.translateGrouperToTargetGroups(grouperProvisioningGroups, includeDelete, forCreate);
     
     for (ProvisioningGroup grouperProvisioningGroup : GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
-      for (String attributeName : new String[] { "assignableToRole", "azureGroupType", "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
-          "welcomeEmailDisabled", "resourceProvisioningOptionsTeam", "groupOwners"}) {
+      for (String attributeName : new String[] { "whoCanAdd", "whoCanJoin", "whoCanViewMembership", "whoCanViewGroup", "whoCanInvite", 
+          "allowExternalMembers", "whoCanPostMessage", "allowWebPosting"}) {
         String metadataName = "md_grouper_" + attributeName;
-        if (StringUtils.equals(attributeName, "assignableToRole")) {
-          attributeName = "isAssignableToRole";
-        }
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
           continue;
         }
@@ -65,5 +55,4 @@ public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
     
   }
 
-  
 }
