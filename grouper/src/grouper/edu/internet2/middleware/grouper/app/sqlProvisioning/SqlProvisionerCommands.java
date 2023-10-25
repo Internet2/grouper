@@ -40,7 +40,7 @@ public class SqlProvisionerCommands {
 
     List<Object[]> overallResults = new ArrayList<Object[]>();
     
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeValuesFilter, 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(attributeValuesFilter, 900, false);
 
     for (int i = 0; i < numberOfBatches; i++) {
       GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
@@ -107,21 +107,25 @@ public class SqlProvisionerCommands {
 
     boolean hasfilter0 = GrouperUtil.length(filterColumns0small) > 0;
     
-    if (hasfilter0 && GrouperUtil.length(filterColumns0small) == 0) {
+    if (hasfilter0 && GrouperUtil.length(filterValuesByColumn0small) == 0) {
       return overallResults;
     }
     
     boolean hasfilter1 = GrouperUtil.length(filterColumns1large) > 0;
 
-    if (hasfilter1 && GrouperUtil.length(filterColumns1large) == 0) {
+    if (hasfilter1 && GrouperUtil.length(filterValuesByColumn1large) == 0) {
       return overallResults;
+    }
+    
+    if (!hasfilter0 && !hasfilter1) {
+      throw new RuntimeException("Why is there no filter???");
     }
     
     int batchSize = 900;
     if (hasfilter1 && GrouperUtil.length(filterColumns1large) > 1) {
       batchSize = 900 / ((Object[])filterValuesByColumn1large.get(0)).length;
     }
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(filterValuesByColumn1large, batchSize);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(filterValuesByColumn1large, batchSize, true);
 
     for (int i = 0; i < numberOfBatches; i++) {
       
