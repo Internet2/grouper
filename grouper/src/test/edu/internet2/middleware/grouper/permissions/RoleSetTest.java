@@ -50,7 +50,7 @@ public class RoleSetTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RoleSetTest("testSetLogic"));
+    TestRunner.run(new RoleSetTest("testHibernate"));
   }
 
   /**
@@ -109,6 +109,9 @@ public class RoleSetTest extends GrouperTest {
     } catch (Exception e) {
       //thats good
     }
+    
+    // requery since the failure above could have incremented the hibernate version of the cached member object
+    role2 = GrouperDAOFactory.getFactory().getRole().findByName(role2.getName(), true);
     
     roleSet.delete();
     
