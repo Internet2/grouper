@@ -2015,7 +2015,7 @@ public class GrouperProvisioningLogic {
         } catch (RuntimeException re) {
           String logMessage = "error querying target: " + GrouperProvisioningLogic.this.getGrouperProvisioner().getConfigId();
           LOG.error(logMessage, re);
-          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERRROR: ").append(logMessage).append("\n\n");
+          GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningObjectLog().getObjectLog().append(new Timestamp(System.currentTimeMillis())).append(": ERROR: ").append(logMessage).append("\n\n");
           RUNTIME_EXCEPTION[0] = re;
         }
         
@@ -2294,7 +2294,7 @@ public class GrouperProvisioningLogic {
       
       //e.g test:testGroup -> [ description -> testDescription, suffix -> groupSuffix ]
       for (ProvisioningGroup provisioningGroup: provisioningGroups) {
-        Map<String, String> attributeNameToValue = groupSearchMatchingColumnToAttributes.get(provisioningGroup.getName());
+        Map<String, String> attributeNameToValue = GrouperUtil.nonNull(groupSearchMatchingColumnToAttributes.get(provisioningGroup.getName()));
         
         for (String attributeName: attributeNameToValue.keySet()) {
           provisioningGroup.assignAttributeValue("groupAttributeResolverSql__"+attributeName.toLowerCase(), attributeNameToValue.get(attributeName));
