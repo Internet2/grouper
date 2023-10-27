@@ -31,9 +31,11 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
+import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -264,6 +266,7 @@ public class GrouperGoogleApiCommands {
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, boolean useSettingsBearerToken) {
 
     GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
+    grouperHttpCall.assignDebugMap(debugMap);
     
     String bearerToken = null;
     String url =  null;
@@ -297,6 +300,21 @@ public class GrouperGoogleApiCommands {
     grouperHttpCall.addHeader("Content-Type", "application/json");
     grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
     grouperHttpCall.assignBody(body);
+    
+    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(120*1000L); // 2mins
+    
+    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
+      
+      @Override
+      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
+        boolean isThrottle = httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
+        if (isThrottle) {                
+          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+        }
+        return isThrottle;
+      }
+    });
+    
     grouperHttpCall.executeRequest();
     
     int code = -1;
@@ -661,13 +679,25 @@ public class GrouperGoogleApiCommands {
       String nextPageToken = null;
       boolean firstRequest = true;
       
-
+      
+      int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.googleConnector." + configId + ".pageSizeGroup", 200);
+      
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups?domain="+domain+"&maxResults=200&fields=nextPageToken,groups(id,email,name,description)";
-      String urlSuffixConstant = "/groups?domain="+domain+"&maxResults=200&fields=nextPageToken,groups(id,email,name,description)";
+      String urlSuffixConstant = "/groups?domain="+domain+"&maxResults="+pageSize+"&fields=nextPageToken,groups(id,email,name,description)";
       if (StringUtils.isNotBlank(fieldToSearchFor) && StringUtils.isNotBlank(fieldValue)) {
-        urlSuffixConstant = urlSuffixConstant +  "&query="+fieldToSearchFor+"='"+fieldValue+"'";
+        String urlEncoded = GrouperUtil.escapeUrlEncode(fieldToSearchFor+"='"+fieldValue+"'");
+        urlSuffixConstant = urlSuffixConstant +  "&query="+urlEncoded;
       }
+      
+      int maxCalls = Math.max(10000000/pageSize, 1);
+      int numberOfCalls = 0;
+      String previousPageToken = null;
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
+        
+        if (maxCalls-- < 0) {
+          throw new RuntimeException("Endless loop detected! total results so far: " + results.size()
+             + ", itemsPerPage: " + pageSize + ", numberOfCalls: " + numberOfCalls);
+        }
         
         firstRequest = false;
         
@@ -677,12 +707,17 @@ public class GrouperGoogleApiCommands {
         }
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+        numberOfCalls++;
         
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("groups");
         
         JsonNode nextPageTokenNode = jsonNode.get("nextPageToken");
         if (nextPageTokenNode != null && nextPageTokenNode.asText() != null) {
           nextPageToken = nextPageTokenNode.asText();
+        }
+        
+        if (groupsArray == null || groupsArray.size() == 0) {
+          break;
         }
 
         for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
@@ -697,6 +732,11 @@ public class GrouperGoogleApiCommands {
           
           results.add(grouperGoogleGroup);
         }
+        
+        if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
+          break;
+        }
+        previousPageToken = nextPageToken;
         
       }
       
@@ -728,14 +768,23 @@ public class GrouperGoogleApiCommands {
 
       String nextPageToken = null;
       boolean firstRequest = true;
+      
+      int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.googleConnector." + configId + ".pageSizeUser", 500);
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name)";
       
-      String urlSuffixConstant = "/users?domain="+domain+"&maxResults=500&fields=nextPageToken,users(id,primaryEmail,name,orgUnitPath)";
+      String urlSuffixConstant = "/users?domain="+domain+"&maxResults="+pageSize+"&fields=nextPageToken,users(id,primaryEmail,name,orgUnitPath)";
       
+      int maxCalls = Math.max(10000000/pageSize, 1);
+      int numberOfCalls = 0;
+      String previousPageToken = null;
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
-
         
+        if (maxCalls-- < 0) {
+          throw new RuntimeException("Endless loop detected! total results so far: " + results.size()
+             + ", itemsPerPage: " + pageSize + ", numberOfCalls: " + numberOfCalls);
+        }
+
         firstRequest = false;
         String urlSuffix = urlSuffixConstant;
         if (StringUtils.isNotBlank(nextPageToken)) {
@@ -746,6 +795,10 @@ public class GrouperGoogleApiCommands {
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("users");
         
+        if (usersArray == null || usersArray.size() == 0) {
+          break;
+        }
+
         JsonNode nextPageTokenNode = jsonNode.get("nextPageToken");
         if (nextPageTokenNode != null && nextPageTokenNode.asText() != null) {
           nextPageToken = nextPageTokenNode.asText();
@@ -758,6 +811,11 @@ public class GrouperGoogleApiCommands {
           GrouperGoogleUser grouperGoogleUser = GrouperGoogleUser.fromJson(userNode);
           results.add(grouperGoogleUser);
         }
+        
+        if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
+          break;
+        }
+        previousPageToken = nextPageToken;
         
       }
       
@@ -840,10 +898,22 @@ public class GrouperGoogleApiCommands {
       
       String nextPageToken = null;
       boolean firstRequest = true;
+      
+      int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.googleConnector." + configId + ".pageSizeMembership", 500);
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
-      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults=200&role=MEMBERS&fields=nextPageToken,members(id)";
+      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults="+pageSize+"&role=MEMBERS&fields=nextPageToken,members(id)";
+      
+      
+      int maxCalls = Math.max(10000000/pageSize, 1);
+      int numberOfCalls = 0;
+      String previousPageToken = null;
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
+        
+        if (maxCalls-- < 0) {
+          throw new RuntimeException("Endless loop detected! total results so far: " + memberIds.size()
+             + ", itemsPerPage: " + pageSize + ", numberOfCalls: " + numberOfCalls);
+        }
         
         firstRequest = false;
         String urlSuffix = urlSuffixConstant;
@@ -855,6 +925,10 @@ public class GrouperGoogleApiCommands {
         
         ArrayNode membersArray = (ArrayNode) jsonNode.get("members");
         
+        if (membersArray == null || membersArray.size() == 0) {
+          break;
+        }
+
         JsonNode nextPageTokenNode = jsonNode.get("nextPageToken");
         if (nextPageTokenNode != null && nextPageTokenNode.asText() != null) {
           nextPageToken = nextPageTokenNode.asText();
@@ -867,6 +941,11 @@ public class GrouperGoogleApiCommands {
           
           memberIds.add(memberId);
         }
+        
+        if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
+          break;
+        }
+        previousPageToken = nextPageToken;
         
       }
       
