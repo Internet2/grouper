@@ -39,9 +39,13 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.attr.AttributeDefName;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstance;
+import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataInstanceFinder;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -233,6 +237,32 @@ public class GrouperDaemonDeleteOldRecords {
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldInstrumentationDataCount", records);
    
         jobMessage.append("Deleted " + records + " instrumentation records older than " + daysToKeepLogs + " days old. (" + calendar.getTimeInMillis() + ").  ");
+        
+        // remove instances that haven't had activity in a while
+        long instrumentationInstanceDeletes = 0;
+        int daysToKeepInactiveInstances = GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.retainInactiveInstances.days", 365);
+
+        if (daysToKeepInactiveInstances != -1) {
+          Date deleteDate = new Date(System.currentTimeMillis() - (daysToKeepInactiveInstances * 24 * 60 * 60 * 1000L));
+  
+          List<InstrumentationDataInstance> instances = InstrumentationDataInstanceFinder.findAll(false);
+          for (InstrumentationDataInstance instance : instances) {
+            if (instance.getLastUpdate() == null || instance.getLastUpdate().before(deleteDate)) {
+              String instanceDefNameName = InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCES_FOLDER + ":" + instance.getUuid();
+              AttributeDefName instanceDefName = AttributeDefNameFinder.findByName(instanceDefNameName, true);
+              if (instanceDefName.getCreatedOn() == null) {
+                LOG.warn("Attribute def name " + instanceDefName.getName() + " doesn't have a created on value!");
+              } else {
+                if (instanceDefName.getCreatedOn().before(deleteDate)) {
+                  instanceDefName.delete();
+                  instrumentationInstanceDeletes++;
+                }
+              }
+            }
+          }
+  
+          jobMessage.append("Deleted " + instrumentationInstanceDeletes + " instrumentation instances older than " + daysToKeepInactiveInstances + " days old.  ");
+        }
       } else {
         jobMessage.append("Configured to not delete old instrumentation data.  ");
       }
