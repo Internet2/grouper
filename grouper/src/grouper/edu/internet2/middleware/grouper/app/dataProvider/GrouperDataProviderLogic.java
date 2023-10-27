@@ -50,9 +50,14 @@ import edu.internet2.middleware.subject.Subject;
 public class GrouperDataProviderLogic {
   
   private GrouperDataProviderSync grouperDataProviderSync;
+  private GrouperDataProvider grouperDataProvider;
 
   public void setGrouperDataProviderSync(GrouperDataProviderSync grouperDataProviderSync) {
     this.grouperDataProviderSync = grouperDataProviderSync;
+  }
+  
+  public void setGrouperDataProvider(GrouperDataProvider grouperDataProvider) {
+    this.grouperDataProvider = grouperDataProvider;
   }
 
   /**
@@ -75,7 +80,8 @@ public class GrouperDataProviderLogic {
     GrouperDataEngine.syncDataAliases(grouperConfig);
 
     GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
-
+    setGrouperDataProvider(grouperDataProvider);
+    
     dataEngine.loadFieldsAndRows(grouperConfig);
 
     // maybe things in DB arent in sync with the config yet
@@ -99,64 +105,246 @@ public class GrouperDataProviderLogic {
     {
       // get field assignments in the database for this provider
       List<GrouperDataFieldAssign> grouperDataFieldAssigns = GrouperDataFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId());
-  
-      for (GrouperDataFieldAssign grouperDataFieldAssign : grouperDataFieldAssigns) {
-        GrouperDataFieldAssignWrapper grouperDataFieldAssignWrapper = new GrouperDataFieldAssignWrapper(dataEngine, grouperDataFieldAssign);
-        
-        dataEngine.getGrouperDataProviderIndex().getFieldAssignWrapperByInternalId().put(grouperDataFieldAssign.getInternalId(), grouperDataFieldAssignWrapper);
-        
-        grouperDataFieldAssignWrapper.setGrouperDataFieldWrapper(dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(grouperDataFieldAssign.getDataFieldInternalId()));
-
-        grouperDataFieldAssignWrapper.setMemberWrapper(dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(grouperDataFieldAssign.getMemberInternalId()));
-
-        if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
-          // TODO fix race conditions here
-          String textValue = dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().get(grouperDataFieldAssign.getValueDictionaryInternalId());
-          GrouperUtil.assertion(!StringUtils.isBlank(textValue), "Cant find text: " + grouperDataFieldAssign.getValueDictionaryInternalId());
-          grouperDataFieldAssignWrapper.setTextValue(textValue);
-        }
-      }
+      processDataFieldAssignWrappers(grouperDataFieldAssigns);
     }
     
     {
       // get row assignments in the database for this provider
       List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperUtil.nonNull(GrouperDataRowAssignDao.selectByProvider(grouperDataProvider.getInternalId()));
-      
-      for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
-        GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = new GrouperDataRowAssignWrapper(dataEngine, grouperDataRowAssign);
-        
-        dataEngine.getGrouperDataProviderIndex().getRowAssignWrapperByInternalId().put(grouperDataRowAssign.getInternalId(), grouperDataRowAssignWrapper);
-        
-        grouperDataRowAssignWrapper.setGrouperDataRowWrapper(dataEngine.getGrouperDataProviderIndex().getRowWrapperByInternalId().get(grouperDataRowAssign.getDataRowInternalId()));
-
-        grouperDataRowAssignWrapper.setMemberWrapper(dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(grouperDataRowAssign.getMemberInternalId()));
-        
-      }
+      processDataRowAssignWrappers(grouperDataRowAssigns);
     }    
 
     {
       List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperUtil.nonNull(GrouperDataRowFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId()));
-  
-      for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssigns) {
-  
-        GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper = new GrouperDataRowFieldAssignWrapper(dataEngine, grouperDataRowFieldAssign);
+      processDataRowFieldAssignWrappers(grouperDataRowFieldAssigns);
+    }
+    
+    indexDataByMember();
+    
+    
+    
+    // from db
+    // wrapper object for attributes, rows, and columns
+    // map by user to objects
+    
+    // remove attributes not there
+    // remove attributes not assigned
+    // add row composite key attributes (to config)
+    // match rows
+    
+    Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
+
+    for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
+      GrouperDataProviderQueryConfig grouperDataProviderQueryConfig = grouperDataProviderQuery.retrieveGrouperDataProviderQueryConfig();
+
+      Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
+      queryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
+      
+      List<Object[]> rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectData(lowerColumnNameToZeroIndex);
+      
+      String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute().toLowerCase();
+      String sourceIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
+      Integer subjectIdZeroIndex = queryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderQueryConfig.getConfigId()).get(subjectIdAttribute);
+      
+      GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
+
+      for (Object[] row : rows) {
         
-        dataEngine.getGrouperDataProviderIndex().getRowFieldAssignWrapperByInternalId().put(grouperDataRowFieldAssign.getInternalId(), grouperDataRowFieldAssignWrapper);
-  
-        grouperDataRowFieldAssignWrapper.setGrouperDataFieldWrapper(dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(grouperDataRowFieldAssign.getDataFieldInternalId()));
+        String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
         
-        if (grouperDataRowFieldAssign.getValueDictionaryInternalId() != null) {
-          // TODO fix race conditions here
-          String textValue = dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().get(grouperDataRowFieldAssign.getValueDictionaryInternalId());
-          GrouperUtil.assertion(!StringUtils.isBlank(textValue), "Cant find text: " + grouperDataRowFieldAssign.getValueDictionaryInternalId());
-          grouperDataRowFieldAssignWrapper.setTextValue(textValue);
+        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
+        
+        Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+
+        Long memberInternalId = member.getInternalId();
+        
+        GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
+        
+        if (grouperDataMemberWrapper == null) {
+          grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
+          dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
         }
-  
-        grouperDataRowFieldAssignWrapper.setGrouperDataRowAssignWrapper(dataEngine.getGrouperDataProviderIndex().getRowAssignWrapperByInternalId().get(grouperDataRowFieldAssign.getDataRowAssignInternalId()));
+
+        List<Object[]> userRowsforQuery = grouperDataMemberWrapper.getQueryConfigIdToRowData().get(grouperDataProviderQueryConfig.getConfigId());
+        if (userRowsforQuery == null) {
+          userRowsforQuery = new ArrayList<Object[]>();
+          grouperDataMemberWrapper.getQueryConfigIdToRowData().put(grouperDataProviderQueryConfig.getConfigId(), userRowsforQuery);
+        }
         
+        userRowsforQuery.add(row);
+      }
+      
+    }
+    
+    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);
+  }
+  
+  /**
+   * 
+   */
+  public void syncIncremental() {
+
+    String dataProviderConfigId = grouperDataProviderSync.getConfigId();
+    
+    if (grouperDataProviderSync.getGrouperDataEngine() == null) {
+      grouperDataProviderSync.setGrouperDataEngine(new GrouperDataEngine());
+    }
+    
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+    
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+
+    //GrouperDataEngine.syncDataProviders(grouperConfig);
+    //GrouperDataEngine.syncDataFields(grouperConfig);
+    //GrouperDataEngine.syncDataRows(grouperConfig);
+    //GrouperDataEngine.syncDataAliases(grouperConfig);
+
+    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
+    setGrouperDataProvider(grouperDataProvider);
+
+    dataEngine.loadFieldsAndRows(grouperConfig);
+
+    // maybe things in DB arent in sync with the config yet
+    if (!dataEngine.getProviderConfigByConfigId().containsKey(dataProviderConfigId)) {
+      grouperDataProviderSync.getDebugMap().put("dataProviderConfigNotFound", dataProviderConfigId);
+      return;
+    }
+
+    
+    Map<String, Map<String, Integer>> changeLogQueryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
+
+    for (GrouperDataProviderChangeLogQuery grouperDataProviderChangeLogQuery : grouperDataProviderSync.retrieveGrouperDataProviderChangeLogQueries()) {
+      GrouperDataProviderChangeLogQueryConfig grouperDataProviderChangeLogQueryConfig = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderChangeLogQueryConfig();
+
+      Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
+      changeLogQueryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderChangeLogQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
+      
+      List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex);
+      
+      String subjectIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectIdAttribute().toLowerCase();
+      String sourceIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectSourceId();
+      Integer subjectIdZeroIndex = changeLogQueryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderChangeLogQueryConfig.getConfigId()).get(subjectIdAttribute);
+      
+      GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
+
+      if (rows.size() == 0) {
+        return;
+      }
+      
+      for (Object[] row : rows) {
+        
+        String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
+        
+        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
+        
+        Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+
+        Long memberInternalId = member.getInternalId();
+        
+        GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
+        
+        if (grouperDataMemberWrapper == null) {
+          grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
+          dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
+        }    
       }
     }
     
+    Set<Long> memberInternalIds = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().keySet();
+    
+    // get all dictionary text for field and row assignments for this data provider for the members of interest
+    dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().putAll(GrouperDictionaryDao.selectByDataProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
+    
+    {
+      // get field assignments in the database for this provider
+      List<GrouperDataFieldAssign> grouperDataFieldAssigns = GrouperDataFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds);
+      processDataFieldAssignWrappers(grouperDataFieldAssigns);
+    }
+    
+    {
+      // get row assignments in the database for this provider
+      List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperUtil.nonNull(GrouperDataRowAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
+      processDataRowAssignWrappers(grouperDataRowAssigns);
+    }
+    
+    {
+      List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperUtil.nonNull(GrouperDataRowFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
+      processDataRowFieldAssignWrappers(grouperDataRowFieldAssigns);
+    }
+    
+    indexDataByMember();
+    
+    // TODO run the full queries that limit to member
+    
+    // TODO run calculateAndStoreChanges
+    
+    // TODO delete from change log table
+  }
+  
+  private void processDataFieldAssignWrappers(List<GrouperDataFieldAssign> grouperDataFieldAssigns) {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+
+    for (GrouperDataFieldAssign grouperDataFieldAssign : grouperDataFieldAssigns) {
+      GrouperDataFieldAssignWrapper grouperDataFieldAssignWrapper = new GrouperDataFieldAssignWrapper(dataEngine, grouperDataFieldAssign);
+      
+      dataEngine.getGrouperDataProviderIndex().getFieldAssignWrapperByInternalId().put(grouperDataFieldAssign.getInternalId(), grouperDataFieldAssignWrapper);
+      
+      grouperDataFieldAssignWrapper.setGrouperDataFieldWrapper(dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(grouperDataFieldAssign.getDataFieldInternalId()));
+
+      grouperDataFieldAssignWrapper.setMemberWrapper(dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(grouperDataFieldAssign.getMemberInternalId()));
+
+      if (grouperDataFieldAssign.getValueDictionaryInternalId() != null) {
+        // TODO fix race conditions here
+        String textValue = dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().get(grouperDataFieldAssign.getValueDictionaryInternalId());
+        GrouperUtil.assertion(!StringUtils.isBlank(textValue), "Cant find text: " + grouperDataFieldAssign.getValueDictionaryInternalId());
+        grouperDataFieldAssignWrapper.setTextValue(textValue);
+      }
+    }
+  }
+  
+  private void processDataRowAssignWrappers(List<GrouperDataRowAssign> grouperDataRowAssigns) {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+
+    for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
+      GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = new GrouperDataRowAssignWrapper(dataEngine, grouperDataRowAssign);
+      
+      dataEngine.getGrouperDataProviderIndex().getRowAssignWrapperByInternalId().put(grouperDataRowAssign.getInternalId(), grouperDataRowAssignWrapper);
+      
+      grouperDataRowAssignWrapper.setGrouperDataRowWrapper(dataEngine.getGrouperDataProviderIndex().getRowWrapperByInternalId().get(grouperDataRowAssign.getDataRowInternalId()));
+
+      grouperDataRowAssignWrapper.setMemberWrapper(dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(grouperDataRowAssign.getMemberInternalId()));
+      
+    }
+  }
+  
+  private void processDataRowFieldAssignWrappers(List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns) {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssigns) {
+      
+      GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper = new GrouperDataRowFieldAssignWrapper(dataEngine, grouperDataRowFieldAssign);
+      
+      dataEngine.getGrouperDataProviderIndex().getRowFieldAssignWrapperByInternalId().put(grouperDataRowFieldAssign.getInternalId(), grouperDataRowFieldAssignWrapper);
+
+      grouperDataRowFieldAssignWrapper.setGrouperDataFieldWrapper(dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(grouperDataRowFieldAssign.getDataFieldInternalId()));
+      
+      if (grouperDataRowFieldAssign.getValueDictionaryInternalId() != null) {
+        // TODO fix race conditions here
+        String textValue = dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().get(grouperDataRowFieldAssign.getValueDictionaryInternalId());
+        GrouperUtil.assertion(!StringUtils.isBlank(textValue), "Cant find text: " + grouperDataRowFieldAssign.getValueDictionaryInternalId());
+        grouperDataRowFieldAssignWrapper.setTextValue(textValue);
+      }
+
+      grouperDataRowFieldAssignWrapper.setGrouperDataRowAssignWrapper(dataEngine.getGrouperDataProviderIndex().getRowAssignWrapperByInternalId().get(grouperDataRowFieldAssign.getDataRowAssignInternalId()));
+      
+    }
+  }
+  
+  private void indexDataByMember() {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+
     // index attribute assignments by person
     for (GrouperDataFieldAssignWrapper grouperDataFieldAssignWrapper  : dataEngine.getGrouperDataProviderIndex().getFieldAssignWrapperByInternalId().values()) {
       
@@ -253,63 +441,11 @@ public class GrouperDataProviderLogic {
         }
       }
     }
-    
-    
-    
-    // from db
-    // wrapper object for attributes, rows, and columns
-    // map by user to objects
-    
-    // remove attributes not there
-    // remove attributes not assigned
-    // add row composite key attributes (to config)
-    // match rows
-    
-    Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
+  }
+  
+  private void calculateAndStoreChanges(Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex) {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
 
-    for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
-      GrouperDataProviderQueryConfig grouperDataProviderQueryConfig = grouperDataProviderQuery.retrieveGrouperDataProviderQueryConfig();
-
-      Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
-      queryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
-      
-      List<Object[]> rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectData(lowerColumnNameToZeroIndex);
-      
-      String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute().toLowerCase();
-      String sourceIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
-      Integer subjectIdZeroIndex = queryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderQueryConfig.getConfigId()).get(subjectIdAttribute);
-      
-      GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
-
-      for (Object[] row : rows) {
-        
-        String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
-        
-        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
-            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
-        
-        Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-
-        Long memberInternalId = member.getInternalId();
-        
-        GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
-        
-        if (grouperDataMemberWrapper == null) {
-          grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
-          dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
-        }
-
-        List<Object[]> userRowsforQuery = grouperDataMemberWrapper.getQueryConfigIdToRowData().get(grouperDataProviderQueryConfig.getConfigId());
-        if (userRowsforQuery == null) {
-          userRowsforQuery = new ArrayList<Object[]>();
-          grouperDataMemberWrapper.getQueryConfigIdToRowData().put(grouperDataProviderQueryConfig.getConfigId(), userRowsforQuery);
-        }
-        
-        userRowsforQuery.add(row);
-      }
-      
-    }
-    
     // go through each user, index and convert the data
     for (GrouperDataMemberWrapper grouperDataMemberWrapper : dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().values()) {
       
@@ -503,187 +639,116 @@ public class GrouperDataProviderLogic {
 
             for (String rowKeyFieldConfigId : grouperDataRowConfig.getRowKeyFieldConfigIds()) {
 
-                GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(rowKeyFieldConfigId);
-                GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(rowKeyFieldConfigId).getGrouperDataField();
-                List<Object> values = providerDataFieldInternalIdToValues.get(grouperDataField.getInternalId());
+              GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(rowKeyFieldConfigId);
+              GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(rowKeyFieldConfigId).getGrouperDataField();
+              List<Object> values = providerDataFieldInternalIdToValues.get(grouperDataField.getInternalId());
 
-                if (GrouperUtil.length(values) != 1) {
-                  throw new RuntimeException("Provider row field key must have one value: " + grouperDataRowConfig.getConfigId() 
-                    + ", field: " + grouperDataFieldConfig.getConfigId() + ", " + GrouperUtil.stringValue(values));
-                }
-
-                keyValues[i] = grouperDataFieldConfig.getFieldDataType().convertValue(values.iterator().next());
-
-                GrouperUtil.assertion(keyValues[i] != null && keyValues[i] != Void.TYPE, 
-                    "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
-                    + ", rowAssignId: " + grouperDataRow.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
-                i++;
+              if (GrouperUtil.length(values) != 1) {
+                throw new RuntimeException("Provider row field key must have one value: " + grouperDataRowConfig.getConfigId() 
+                + ", field: " + grouperDataFieldConfig.getConfigId() + ", " + GrouperUtil.stringValue(values));
               }
-              MultiKey rowKey = new MultiKey(keyValues);
-              providerDataRowKeyToDataFieldInternalIdsAndValues.put(rowKey, providerDataFieldInternalIdToValues);
+
+              keyValues[i] = grouperDataFieldConfig.getFieldDataType().convertValue(values.iterator().next());
+
+              GrouperUtil.assertion(keyValues[i] != null && keyValues[i] != Void.TYPE, 
+                  "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
+                  + ", rowAssignId: " + grouperDataRow.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
+              i++;
             }
-          
-            Set<MultiKey> rowKeyFieldsToDeletes = new HashSet<>(grouperDataRowKeyToRowAssignWrapper.keySet());
-            rowKeyFieldsToDeletes.removeAll(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
-            
-            for (MultiKey rowKeyFieldsToDelete : rowKeyFieldsToDeletes) {
-              GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = grouperDataRowKeyToRowAssignWrapper.get(rowKeyFieldsToDelete);
-              for (List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers : grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().values()) {
-                for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
-                  GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign());
-                }
+            MultiKey rowKey = new MultiKey(keyValues);
+            providerDataRowKeyToDataFieldInternalIdsAndValues.put(rowKey, providerDataFieldInternalIdToValues);
+          }
+
+          Set<MultiKey> rowKeyFieldsToDeletes = new HashSet<>(grouperDataRowKeyToRowAssignWrapper.keySet());
+          rowKeyFieldsToDeletes.removeAll(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
+
+          for (MultiKey rowKeyFieldsToDelete : rowKeyFieldsToDeletes) {
+            GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = grouperDataRowKeyToRowAssignWrapper.get(rowKeyFieldsToDelete);
+            for (List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers : grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().values()) {
+              for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
+                GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign());
               }
-              
-              GrouperDataRowAssignDao.delete(grouperDataRowAssignWrapper.getGrouperDataRowAssign());
-              grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
             }
 
-            Set<MultiKey> rowKeyFieldsToInserts = new HashSet<>(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
-            rowKeyFieldsToInserts.removeAll(grouperDataRowKeyToRowAssignWrapper.keySet());
-    
-            
-            for (MultiKey rowKeyFieldsToInsert : rowKeyFieldsToInserts) {
-              GrouperDataRowAssign grouperDataRowAssign = new GrouperDataRowAssign();
-              grouperDataRowAssign.setDataRowInternalId(dataRowInternalId);
-              grouperDataRowAssign.setDataProviderInternalId(grouperDataProvider.getInternalId());
-              grouperDataRowAssign.setMemberInternalId(grouperDataMemberWrapper.getInternalId());
-              GrouperDataRowAssignDao.store(grouperDataRowAssign);
-              
-              Map<Long, List<Object>> dataFieldInternalIdToValues = providerDataRowKeyToDataFieldInternalIdsAndValues.get(rowKeyFieldsToInsert);
-              for (Long dataFieldInternalId : GrouperUtil.nonNull(dataFieldInternalIdToValues.keySet())) {
+            GrouperDataRowAssignDao.delete(grouperDataRowAssignWrapper.getGrouperDataRowAssign());
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
+          }
+
+          Set<MultiKey> rowKeyFieldsToInserts = new HashSet<>(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
+          rowKeyFieldsToInserts.removeAll(grouperDataRowKeyToRowAssignWrapper.keySet());
+
+
+          for (MultiKey rowKeyFieldsToInsert : rowKeyFieldsToInserts) {
+            GrouperDataRowAssign grouperDataRowAssign = new GrouperDataRowAssign();
+            grouperDataRowAssign.setDataRowInternalId(dataRowInternalId);
+            grouperDataRowAssign.setDataProviderInternalId(grouperDataProvider.getInternalId());
+            grouperDataRowAssign.setMemberInternalId(grouperDataMemberWrapper.getInternalId());
+            GrouperDataRowAssignDao.store(grouperDataRowAssign);
+
+            Map<Long, List<Object>> dataFieldInternalIdToValues = providerDataRowKeyToDataFieldInternalIdsAndValues.get(rowKeyFieldsToInsert);
+            for (Long dataFieldInternalId : GrouperUtil.nonNull(dataFieldInternalIdToValues.keySet())) {
+
+              GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(dataFieldInternalId).getGrouperDataField();
+              GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(grouperDataField.getConfigId());
+
+              List<Object> values = dataFieldInternalIdToValues.get(dataFieldInternalId);
+              for (Object value : values) {
+                GrouperDataRowFieldAssign grouperDataRowFieldAssign = new GrouperDataRowFieldAssign();
+                grouperDataRowFieldAssign.setDataFieldInternalId(dataFieldInternalId);
+                grouperDataRowFieldAssign.setDataRowAssignInternalId(grouperDataRowAssign.getInternalId());
+                grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, value);
+
+                GrouperDataRowFieldAssignDao.store(grouperDataRowFieldAssign);
+
+              }
+            }
+
+            grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+          }
+
+          // do the updates
+          for (MultiKey grouperDataRowKey : grouperDataRowKeyToRowAssignWrapper.keySet()) {
+            if (providerDataRowKeyToDataFieldInternalIdsAndValues.containsKey(grouperDataRowKey)) {
+              GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = grouperDataRowKeyToRowAssignWrapper.get(grouperDataRowKey);
+              Map<Long, List<Object>> providerDataFieldInternalIdsAndValues = providerDataRowKeyToDataFieldInternalIdsAndValues.get(grouperDataRowKey);
+
+              for (Long dataFieldInternalId : GrouperUtil.nonNull(providerDataFieldInternalIdsAndValues.keySet())) {
 
                 GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(dataFieldInternalId).getGrouperDataField();
                 GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(grouperDataField.getConfigId());
 
-                List<Object> values = dataFieldInternalIdToValues.get(dataFieldInternalId);
-                for (Object value : values) {
-                  GrouperDataRowFieldAssign grouperDataRowFieldAssign = new GrouperDataRowFieldAssign();
-                  grouperDataRowFieldAssign.setDataFieldInternalId(dataFieldInternalId);
-                  grouperDataRowFieldAssign.setDataRowAssignInternalId(grouperDataRowAssign.getInternalId());
-                  grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, value);
-
-                  GrouperDataRowFieldAssignDao.store(grouperDataRowFieldAssign);
-                  
-                }
-              }
-              
-              grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
-            }
-
-            // do the updates
-            for (MultiKey grouperDataRowKey : grouperDataRowKeyToRowAssignWrapper.keySet()) {
-              if (providerDataRowKeyToDataFieldInternalIdsAndValues.containsKey(grouperDataRowKey)) {
-                GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = grouperDataRowKeyToRowAssignWrapper.get(grouperDataRowKey);
-                Map<Long, List<Object>> providerDataFieldInternalIdsAndValues = providerDataRowKeyToDataFieldInternalIdsAndValues.get(grouperDataRowKey);
-                
-                for (Long dataFieldInternalId : GrouperUtil.nonNull(providerDataFieldInternalIdsAndValues.keySet())) {
-
-                  GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(dataFieldInternalId).getGrouperDataField();
-                  GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(grouperDataField.getConfigId());
-
-                  List<Object> providerValues = providerDataFieldInternalIdsAndValues.get(dataFieldInternalId);
-                  List<Object> grouperValuesConverted = new ArrayList<Object>();
-                  List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = GrouperUtil.nonNull(grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().get(dataFieldInternalId));
-                  for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
-                    Object grouperValueConverted = grouperDataFieldConfig.getFieldDataType().convertValue(
-                        grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getValueInteger(),
-                        grouperDataRowFieldAssignWrapper.getTextValue());
-                    if (providerValues.contains(grouperValueConverted)) {
-                      grouperValuesConverted.add(grouperValueConverted);
-                    } else {
-                      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign());
-                      grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
-                    }
+                List<Object> providerValues = providerDataFieldInternalIdsAndValues.get(dataFieldInternalId);
+                List<Object> grouperValuesConverted = new ArrayList<Object>();
+                List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = GrouperUtil.nonNull(grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().get(dataFieldInternalId));
+                for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
+                  Object grouperValueConverted = grouperDataFieldConfig.getFieldDataType().convertValue(
+                      grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getValueInteger(),
+                      grouperDataRowFieldAssignWrapper.getTextValue());
+                  if (providerValues.contains(grouperValueConverted)) {
+                    grouperValuesConverted.add(grouperValueConverted);
+                  } else {
+                    GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign());
+                    grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
                   }
-                  
-                  Set<Object> valuesToAdd = new HashSet<Object>(providerValues);
-                  valuesToAdd.removeAll(grouperValuesConverted);
-                  
-                  for (Object valueToAdd : valuesToAdd) {
-                    if (valueToAdd != null && valueToAdd != Void.TYPE) {
-                      GrouperDataRowFieldAssign grouperDataRowFieldAssign = new GrouperDataRowFieldAssign();
-                      grouperDataRowFieldAssign.setDataFieldInternalId(dataFieldInternalId);
-                      grouperDataRowFieldAssign.setDataRowAssignInternalId(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getInternalId());
-                      grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, valueToAdd);
-                      GrouperDataRowFieldAssignDao.store(grouperDataRowFieldAssign);
-                      grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
-                    }
+                }
+
+                Set<Object> valuesToAdd = new HashSet<Object>(providerValues);
+                valuesToAdd.removeAll(grouperValuesConverted);
+
+                for (Object valueToAdd : valuesToAdd) {
+                  if (valueToAdd != null && valueToAdd != Void.TYPE) {
+                    GrouperDataRowFieldAssign grouperDataRowFieldAssign = new GrouperDataRowFieldAssign();
+                    grouperDataRowFieldAssign.setDataFieldInternalId(dataFieldInternalId);
+                    grouperDataRowFieldAssign.setDataRowAssignInternalId(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getInternalId());
+                    grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, valueToAdd);
+                    GrouperDataRowFieldAssignDao.store(grouperDataRowFieldAssign);
+                    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
                   }
                 }
               }
             }
           }
-
-          
         }
-    }
-    
-  }
-  
-  /**
-   * 
-   */
-  public void syncIncremental() {
-
-    String dataProviderConfigId = grouperDataProviderSync.getConfigId();
-    
-    if (grouperDataProviderSync.getGrouperDataEngine() == null) {
-      grouperDataProviderSync.setGrouperDataEngine(new GrouperDataEngine());
-    }
-    
-    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
-    
-    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-
-    //GrouperDataEngine.syncDataProviders(grouperConfig);
-    //GrouperDataEngine.syncDataFields(grouperConfig);
-    //GrouperDataEngine.syncDataRows(grouperConfig);
-    //GrouperDataEngine.syncDataAliases(grouperConfig);
-
-    GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
-
-    dataEngine.loadFieldsAndRows(grouperConfig);
-
-    // maybe things in DB arent in sync with the config yet
-    if (!dataEngine.getProviderConfigByConfigId().containsKey(dataProviderConfigId)) {
-      grouperDataProviderSync.getDebugMap().put("dataProviderConfigNotFound", dataProviderConfigId);
-      return;
-    }
-
-    
-    Map<String, Map<String, Integer>> changeLogQueryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
-
-    for (GrouperDataProviderChangeLogQuery grouperDataProviderChangeLogQuery : grouperDataProviderSync.retrieveGrouperDataProviderChangeLogQueries()) {
-      GrouperDataProviderChangeLogQueryConfig grouperDataProviderChangeLogQueryConfig = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderChangeLogQueryConfig();
-
-      Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
-      changeLogQueryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderChangeLogQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
-      
-      List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex);
-      
-      String subjectIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectIdAttribute().toLowerCase();
-      String sourceIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectSourceId();
-      Integer subjectIdZeroIndex = changeLogQueryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderChangeLogQueryConfig.getConfigId()).get(subjectIdAttribute);
-      
-      GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
-
-      for (Object[] row : rows) {
-        
-        String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
-        
-        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
-            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
-        
-        Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-
-        Long memberInternalId = member.getInternalId();
-        
-        GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
-        
-        if (grouperDataMemberWrapper == null) {
-          grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
-          dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
-        }    
       }
     }
   }

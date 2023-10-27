@@ -1,10 +1,13 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * dao for data field assign
@@ -26,6 +29,42 @@ public class GrouperDataRowAssignDao {
     List<GrouperDataRowAssign> grouperDataRowAssigns = new GcDbAccess()
         .sql("select * from grouper_data_row_assign where data_provider_internal_id = ? ")
         .addBindVar(dataProviderInternalId).selectList(GrouperDataRowAssign.class);
+    return grouperDataRowAssigns;
+  }
+  
+  public static List<GrouperDataRowAssign> selectByProviderAndMembers(Long dataProviderInternalId, Set<Long> memberInternalIds) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException();
+    }
+    
+    List<GrouperDataRowAssign> grouperDataRowAssigns = new ArrayList<GrouperDataRowAssign>();
+
+    if (memberInternalIds.size() == 0) {
+      return grouperDataRowAssigns;
+    }
+
+    int batchSize = 200;
+    List<Long> memberInternalIdsList = new ArrayList<Long>(memberInternalIds);
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberInternalIdsList.size(), batchSize, true);
+    for (int i=0;i<numberOfBatches;i++) {
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      List<Long> batchMemberInternalIds = GrouperUtil.batchList(memberInternalIdsList, batchSize, i);
+
+      StringBuilder sql = new StringBuilder("select * from grouper_data_row_assign where data_provider_internal_id = ? and member_internal_id in (");
+      gcDbAccess.addBindVar(dataProviderInternalId);
+      GrouperClientUtils.appendQuestions(sql, GrouperUtil.length(batchMemberInternalIds));
+      for (Long memberId : batchMemberInternalIds) {
+        gcDbAccess.addBindVar(memberId);
+      }
+
+      sql.append(")");
+
+      List<GrouperDataRowAssign> currGrouperDataRowAssigns = gcDbAccess.sql(sql.toString()).selectList(GrouperDataRowAssign.class);
+      grouperDataRowAssigns.addAll(currGrouperDataRowAssigns);
+    }
+   
     return grouperDataRowAssigns;
   }
 

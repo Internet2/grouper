@@ -1,8 +1,10 @@
 package edu.internet2.middleware.grouper.dictionary;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -11,6 +13,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * dao for dictionaries
@@ -52,6 +55,62 @@ public class GrouperDictionaryDao {
     return result;
   }
 
+  /**
+   * get dictionary items by data provider and members for field and row assignments
+   * @param dataProviderInternalId
+   * @param memberInternalIds
+   * @return internal id to value
+   */
+  public static Map<Long, String> selectByDataProviderAndMembers(Long dataProviderInternalId, Set<Long> memberInternalIds) {
+
+    if (dataProviderInternalId == null) {
+      throw new NullPointerException();
+    }
+    
+    Map<Long, String> result = new HashMap<Long, String>();
+
+    if (memberInternalIds.size() == 0) {
+      return result;
+    }
+    
+    int batchSize = 200;
+    List<Long> memberInternalIdsList = new ArrayList<Long>(memberInternalIds);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberInternalIdsList.size(), batchSize, true);
+    for (int i=0;i<numberOfBatches;i++) {
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      List<Long> batchMemberInternalIds = GrouperUtil.batchList(memberInternalIdsList, batchSize, i);
+
+      StringBuilder sql = new StringBuilder("select gd.internal_id, gd.the_text from grouper_dictionary gd where gd.internal_id in ( "
+              + " select gdfa.value_dictionary_internal_id from grouper_data_field_assign gdfa where data_provider_internal_id = ? and member_internal_id in (");
+      gcDbAccess.addBindVar(dataProviderInternalId);
+      GrouperClientUtils.appendQuestions(sql, GrouperUtil.length(batchMemberInternalIds));
+      for (Long memberId : batchMemberInternalIds) {
+        gcDbAccess.addBindVar(memberId);
+      }
+      
+      sql.append(") ) "
+              + " union select gd.internal_id, gd.the_text from grouper_dictionary gd where gd.internal_id in ( "
+              + " select gdrfa.value_dictionary_internal_id from grouper_data_row_field_assign gdrfa where exists "
+              + " (select 1 from grouper_data_row_assign gdra where gdrfa.data_row_assign_internal_id = gdra.internal_id and gdra.data_provider_internal_id = ? and gdra.member_internal_id in (");
+      gcDbAccess.addBindVar(dataProviderInternalId);
+      GrouperClientUtils.appendQuestions(sql, GrouperUtil.length(batchMemberInternalIds));
+      for (Long memberId : batchMemberInternalIds) {
+        gcDbAccess.addBindVar(memberId);
+      }
+      
+      sql.append(") ))");
+      
+      List<Object[]> internalIdAndTexts = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] internalIdAndText : GrouperUtil.nonNull(internalIdAndTexts)) {
+        result.put(GrouperUtil.longObjectValue(internalIdAndText[0], false), (String)internalIdAndText[1]);
+      }
+    }
+    
+    return result;
+  }
+  
   /**
    * @param grouperDictionary
    * @param connectionName
