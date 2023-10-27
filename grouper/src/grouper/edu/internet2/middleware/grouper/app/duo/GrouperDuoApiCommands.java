@@ -367,7 +367,11 @@ public class GrouperDuoApiCommands {
               // {"code":42901,"message":"Too Many Requests","stat":"FAIL"}
               JsonNode node = GrouperUtil.jsonJacksonNode(body);
               String errorCode = GrouperUtil.jsonJacksonGetString(node, "code");
-              return StringUtils.isNotBlank(errorCode) && errorCode.startsWith("429");
+              boolean isThrottle = StringUtils.isNotBlank(errorCode) && errorCode.startsWith("429");
+              if (isThrottle) {                
+                GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+              }
+              return isThrottle;
               
             }
           } catch(Exception e) {
@@ -375,7 +379,11 @@ public class GrouperDuoApiCommands {
           }
         }
         
-        return httpClient.getResponseCode() == 429;
+        boolean isThrottle = httpClient.getResponseCode() == 429;
+        if (isThrottle) {                
+          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+        }
+        return isThrottle;
       }
     });
     

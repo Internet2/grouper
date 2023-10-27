@@ -853,6 +853,11 @@ public class GrouperHttpClient {
       if (i <= retryForThrottlingOrNetworkIssues && retry) {
         GrouperUtil.sleep(retryForThrottlingOrNetworkIssuesSleepMillis + (i * retryForThrottlingOrNetworkIssuesBackOffMillis)); // 1 min -> 2 mins -> 3 mins ->>>>
         retryForThrottlingTimesItWasRetried++;
+        
+        if (this.debugMapForCaller != null) {
+          GrouperClientUtils.debugMapIncrementLogEntry(this.debugMapForCaller, "httpClient_ThrottleCount", 1);
+        }
+        
         continue;
       }
       
