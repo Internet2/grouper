@@ -723,7 +723,7 @@ public class LoaderLdapUtils {
   }
   
   public static String runScriptStatic(String jexlScript, Map<String, Object> elVariableMap) {
-    return GrouperUtil.substituteExpressionLanguage(jexlScript, elVariableMap, false, false, false);
+    return GrouperUtil.substituteExpressionLanguage(jexlScript, elVariableMap, true, false, false);
   }
   
   
