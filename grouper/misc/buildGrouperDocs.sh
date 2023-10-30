@@ -13,10 +13,13 @@
 #       - if Maven fails to download the necessary plugin libraries, try copying it
 #         from /opt/maven/conf/settings.xml.grouper to $HOME/.m2/settings.xml
 
-MVN=/opt/maven/bin/mvn
+#MVN=/opt/maven/bin/mvn
+MVN=/opt/apache-maven-3.6.3/bin/mvn
 GP=/var/grouper-docs/git/grouper
 SITE=/tmp/groupersite
 CURRENT_BRANCH=GROUPER_5_BRANCH
+#CURRENT_BRANCH=GROUPER_RELEASE_5.4.0
+export JAVA_HOME=/usr/lib/jvm/java-17-amazon-corretto
 
 echo $(date) "Starting build"
 
@@ -31,6 +34,9 @@ echo $(date) "Checked out branch '$CURRENT_BRANCH' (exit $?)"
 
 cd $GP/grouper-parent
 rm -rf $SITE
+
+# Without installing packages, complains "Failure to find edu.internet2.middleware.grouper:grouperClient:jar:tests:5.0.0-SNAPSHOT in https://oss.sonatype.org/content/repositories/releases/"
+$MVN install
 $MVN clean site site-deploy -Dlicense.skip=true -DskipTests=true
 
 echo $(date) "Built site (exit $?)"
@@ -49,4 +55,3 @@ date >> /var/grouper-docs/var/grouper-docs.WRI
 # Verify with http://software.internet2.edu/grouper/doc/
 
 exit 0
-
