@@ -5,8 +5,7 @@ import java.sql.Types;
 import java.util.Set;
 import java.util.regex.Matcher;
 
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -15,6 +14,8 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -258,7 +259,13 @@ public class GrouperScim2Group {
    * @param created
    */
   public void setCreatedJson(String created) {
-    this.created = GrouperUtil.timestampIsoUtcSecondsConvertFromString(created);
+    try {
+      this.created = GrouperUtil.timestampIsoUtcSecondsConvertFromString(created);
+    } catch (RuntimeException e) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Error with created: '" + created + "'", e);
+      }
+    }
   }
 
   /**
@@ -290,12 +297,21 @@ public class GrouperScim2Group {
    * @param lastModified
    */
   public void setLastModifiedJson(String lastModified) {
-    this.lastModified = GrouperUtil.timestampIsoUtcSecondsConvertFromString(lastModified);
+    try {
+      this.lastModified = GrouperUtil.timestampIsoUtcSecondsConvertFromString(lastModified);
+    } catch (RuntimeException re) {
+      if (LOG.isDebugEnabled()) {
+        LOG.debug("Error with created: '" + lastModified + "'", re);
+      }
+    }      
   }
 
   private String id;
 
   private String displayName;
+
+  /** logger */
+  private static final Log LOG = GrouperUtil.getLog(GrouperScim2Group.class);
   
   public String getId() {
     return id;
