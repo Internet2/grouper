@@ -287,6 +287,8 @@ public class GshTemplateExec {
       return this.gshTemplateExecOutput;
     }
     
+    gshTemplateRuntime.setTemplateConfigId(configId);
+
     if (currentUser == null) {
       throw new RuntimeException("currentUser cannot be null");
     }

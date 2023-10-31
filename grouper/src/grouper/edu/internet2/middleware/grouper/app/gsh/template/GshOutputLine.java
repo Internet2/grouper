@@ -46,5 +46,9 @@ public class GshOutputLine {
     return text;
   }
   
+  @Override
+  public String toString() {
+    return this.messageType + ": " + this.text;
+  }
   
 }

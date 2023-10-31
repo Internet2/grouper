@@ -960,6 +960,21 @@ public class GrouperProvisioningLogic {
             // keep track of when this started so we can update when group syncs occurred
             debugMap.put("retrieveDataStartMillisSince1970", start);
             this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalMemberships();
+            
+            // for things that dont have sync memberships, but do have memberships, get those
+            //for any groups or entities that  are pulled back in membership recalcs, we need to retrieve grouper data
+            this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities("Pass3");
+            
+            enhanceEntityAttributesWithSqlResolver(false);
+            
+            enhanceEntityAttributesWithLdapResolver(false);
+            
+            enhanceGroupAttributesWithSqlResolver(false);
+            
+
+            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass3");
+            this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass3");
+
             long retrieveGrouperDataMillis = System.currentTimeMillis()-start;
             debugMap.put("retrieveGrouperMembershipsMillis", retrieveGrouperDataMillis);
           } finally {
@@ -2056,7 +2071,7 @@ public class GrouperProvisioningLogic {
     
     enhanceEntityAttributesWithSqlResolver(true);
     
-    enhanceEntityAttributesWithLdapResolver(); //TODO pass true like others 
+    enhanceEntityAttributesWithLdapResolver(true);
     
     enhanceGroupAttributesWithSqlResolver(true);
     
@@ -2523,7 +2538,7 @@ public class GrouperProvisioningLogic {
         
   }
   
-  public void enhanceEntityAttributesWithLdapResolver() {
+  public void enhanceEntityAttributesWithLdapResolver(boolean isFullSync) {
     
     GrouperProvisioningConfiguration provisioningConfiguration = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration();
     
@@ -2604,7 +2619,8 @@ public class GrouperProvisioningLogic {
     
     LdapSearchScope ldapSearchScope = LdapSearchScope.valueOfIgnoreCase(searchScope, true);
     
-    if (!filterAllLdapOnFull) {
+    if ( (isFullSync && !filterAllLdapOnFull) || !isFullSync) {
+
       
       if (provisioningEntities.size() == 0) {
         return;
@@ -2618,18 +2634,17 @@ public class GrouperProvisioningLogic {
         
         List<ProvisioningEntity> currentBatchProvisioningEntities = GrouperUtil.batchList(provisioningEntities, 900, i);
         
-        String filter = null;
+        StringBuilder filter = new StringBuilder();
         if (StringUtils.isNotBlank(filterPart)) {
-          filter = "(&";
+          filter.append("(&");
           filterPart = filterPart.trim();
           if (filterPart.startsWith("(")) {
-            filter += filterPart;
+            filter.append(filterPart);
           } else {
-            filter += "(" + filterPart + ")";
+            filter.append("(" + filterPart + ")");
           }
-        } else {
-          filter = "(|";
         }
+        filter.append("(|");
         
         
         for (int j=0; j<currentBatchProvisioningEntities.size(); j++) {
@@ -2650,11 +2665,13 @@ public class GrouperProvisioningLogic {
               throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId' or 'subjectIdentifier0'");
           }
           
-          filter += "("+subjectSearchMatchingAttribute+"="+subjectMatchingIdentifier+")";  
+          filter.append("("+subjectSearchMatchingAttribute+"="+subjectMatchingIdentifier+")");  
         }
-        
-        filter += ")";
-        ldapEntries.addAll(LdapSessionUtils.ldapSession().list(ldapConfigId, baseDn, ldapSearchScope, filter, ldapAttributesArray, null));
+        filter.append(")");
+        if (StringUtils.isNotBlank(filterPart)) {
+          filter.append(")");
+        }
+        ldapEntries.addAll(LdapSessionUtils.ldapSession().list(ldapConfigId, baseDn, ldapSearchScope, filter.toString(), ldapAttributesArray, null));
       
       }
     } else {
@@ -2735,28 +2752,35 @@ public class GrouperProvisioningLogic {
             continue;
           }
           
-          LdapAttribute attribute = ldapEntry.getAttribute(ldapAttributeName);
-          if (attribute != null) {
+          if (StringUtils.equalsIgnoreCase("ldap_dn", ldapAttributeName)) {
             
-            if (multiValuedAttributesSet.contains(attribute.getName())) {
+            provisioningEntity.assignAttributeValue("entityAttributeResolverLdap__ldap_dn", ldapEntry.getDn());
+            
+          } else {
+
+            LdapAttribute attribute = ldapEntry.getAttribute(ldapAttributeName);
+            if (attribute != null) {
               
-              for ( String attributeValue: GrouperUtil.nonNull(attribute.getStringValues())) {
-                provisioningEntity.addAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), attributeValue);
-              }
-              
-            } else {
-              
-              if (GrouperUtil.length(attribute.getStringValues()) == 0) {
-                continue;
-              }
-              
-              if (GrouperUtil.length(attribute.getStringValues()) == 1) {
-                provisioningEntity.assignAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), attribute.getStringValues().iterator().next());
+              if (multiValuedAttributesSet.contains(attribute.getName())) {
+                
+                for ( String attributeValue: GrouperUtil.nonNull(attribute.getStringValues())) {
+                  provisioningEntity.addAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), attributeValue);
+                }
+                
               } else {
                 
-                String concatenatedAttributeValues = GrouperUtil.join(attribute.getStringValues().iterator(), ",");
-                provisioningEntity.assignAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), concatenatedAttributeValues);
+                if (GrouperUtil.length(attribute.getStringValues()) == 0) {
+                  continue;
+                }
                 
+                if (GrouperUtil.length(attribute.getStringValues()) == 1) {
+                  provisioningEntity.assignAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), attribute.getStringValues().iterator().next());
+                } else {
+                  
+                  String concatenatedAttributeValues = GrouperUtil.join(attribute.getStringValues().iterator(), ",");
+                  provisioningEntity.assignAttributeValue("entityAttributeResolverLdap__"+attribute.getName().toLowerCase(), concatenatedAttributeValues);
+                  
+                }
               }
             }
           }
@@ -3003,12 +3027,6 @@ public class GrouperProvisioningLogic {
     // incrementals need to consult sync objects to know what to delete
     this.calculateProvisioningGroupsToDelete();
     this.calculateProvisioningEntitiesToDelete();
-    
-    enhanceEntityAttributesWithSqlResolver(false);
-    
-    // enhanceEntityAttributesWithLdapResolver(); //TODO pass false like others 
-    
-    enhanceGroupAttributesWithSqlResolver(false);
     
   }
 
