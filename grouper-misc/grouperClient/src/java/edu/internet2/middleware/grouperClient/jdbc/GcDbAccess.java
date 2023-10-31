@@ -24,7 +24,6 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -623,7 +622,7 @@ public class GcDbAccess {
 
   public void deleteFromDatabaseMultiple(Collection<? extends Object> objects){
     
-    for(Object o: GrouperUtil.nonNull(objects)) {      
+    for(Object o: GrouperClientUtils.nonNull(objects)) {      
       deleteFromDatabase(o);
     }
   }
