@@ -24,5 +24,9 @@ public class GshValidationLine {
     return text;
   }
   
-  
+
+  @Override
+  public String toString() {
+    return this.inputName + ": " + this.text;
+  }
 }

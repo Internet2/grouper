@@ -289,8 +289,11 @@ public class LdapProvisionerTestUtils {
    */
   public static void configureLdapProvisioner(LdapProvisionerTestConfigInput provisioningTestConfigInput) {
     
-    
-    if (StringUtils.equals("gettesPosix", provisioningTestConfigInput.getProvisioningStrategy())) {
+    if (StringUtils.equals("configureEntityLinkLdap", provisioningTestConfigInput.getProvisioningStrategy())) {
+      
+      configureEntityLinkLdap(provisioningTestConfigInput); 
+      
+    } else if (StringUtils.equals("gettesPosix", provisioningTestConfigInput.getProvisioningStrategy())) {
       
       configureGettesPosix(provisioningTestConfigInput);  
 
@@ -344,6 +347,74 @@ public class LdapProvisionerTestUtils {
   
   }
 
+  private static void configureEntityLinkLdap(LdapProvisionerTestConfigInput provisioningTestConfigInput) {
+    configureProvisionerSuffix(provisioningTestConfigInput, "addDisabledFullSyncDaemon", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "addDisabledIncrementalSyncDaemon", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "allowLdapGroupDnOverride", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "class", LdapSync.class.getName());
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0entityAttribute", "dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.attributes", "ldap_dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.baseDN", "ou=people,dc=example,dc=edu");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.entityAttributesNotInSubjectSource", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.filterPart", "objectClass=eduPerson");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.ldapConfigId", "personLdap");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.ldapMappingEntityAttribute", "subjectId");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.ldapMappingType", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.ldapMatchingSearchAttribute", "uid");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.resolveAttributesWithLDAP", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityResolver.searchScope", "SUBTREE_SCOPE");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0groupAttribute", "ldap_dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache0type", "groupAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupDnType", "flat");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "cn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeName", "member");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMembershipAttributeValue", "entityAttributeValueCache0");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupRdnAttribute", "cn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupSearchBaseDn", "ou=groups,dc=example,dc=edu");
+    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "ldapExternalSystemConfigId", "personLdap");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "4");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "groupAttributes");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllGroups", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "startWith", "this is start with read only");
+    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "personLdapSource");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpression", "${grouperProvisioningEntity.retrieveAttributeValueString('entityAttributeResolverLdap__ldap_dn')}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.translateExpressionType", "translationScript");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "ldap_dn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.name", "cn");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateExpressionType", "grouperProvisioningGroupField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.1.translateFromGrouperProvisioningGroupField", "name");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.multiValued", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "objectClass");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAdvancedAttribute", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAttributeValueSettings", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "staticValues");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromStaticValues", "top,groupOfNames");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.defaultValue", "<emptyString>");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "member");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAdvancedAttribute", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeValueSettings", "true");
+
+  }
+  
   private static void configureGettesPosix(
       LdapProvisionerTestConfigInput provisioningTestConfigInput) {
     
