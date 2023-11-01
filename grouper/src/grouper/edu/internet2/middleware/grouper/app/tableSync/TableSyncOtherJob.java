@@ -97,28 +97,30 @@ public class TableSyncOtherJob extends OtherJobBase {
     hib3GrouperLoaderLog.setMillisGetData((int)gcTableSyncOutput.getMillisGetData());
     hib3GrouperLoaderLog.setMillisLoadData((int)gcTableSyncOutput.getMillisLoadData());
     GrouperLoaderStatus statusEnum = hib3GrouperLoaderLog.getStatusEnum();
-    if (statusEnum == null || !statusEnum.isError()) {
-      GcGrouperSyncLogState status = gcTableSync.getGcGrouperSyncLog().getStatus();
-      if (status != null) {
-        switch (status) {
-          case CONFIG_ERROR:
-            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-            break;
-          case ERROR:
-            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-            break;
-          case ERROR_FAILSAFE:
-            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR_FAILSAFE.name());
-            break;
-          case INTERRUPTED:
-            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.WARNING.name());
-            break;
-          case SUCCESS:
-            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-            break;
-          case WARNING:
-            hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.WARNING.name());
-            break;
+    if (gcTableSync.getGcGrouperSyncLog() != null) {
+      if (statusEnum == null || !statusEnum.isError()) {
+        GcGrouperSyncLogState status = gcTableSync.getGcGrouperSyncLog().getStatus();
+        if (status != null) {
+          switch (status) {
+            case CONFIG_ERROR:
+              hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
+              break;
+            case ERROR:
+              hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+              break;
+            case ERROR_FAILSAFE:
+              hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR_FAILSAFE.name());
+              break;
+            case INTERRUPTED:
+              hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.WARNING.name());
+              break;
+            case SUCCESS:
+              hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+              break;
+            case WARNING:
+              hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.WARNING.name());
+              break;
+          }
         }
       }
     }
