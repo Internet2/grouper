@@ -195,6 +195,10 @@ public class Authentication {
             user = unescapeColons(user);
             password = unescapeColons(password);
 
+            if (StringUtils.isBlank(password)) {
+              return false;
+            }
+            
             MultiKey cacheKey = null;
             
             if (authenticationCache != null) {
@@ -216,12 +220,20 @@ public class Authentication {
               
               String encryptedPassword = Morph.encrypt(generatedHash);
                   
+              if (StringUtils.isBlank(grouperPassword.getThePassword())) {
+                return false;
+              }
+              
               correctPassword = StringUtils.equals(encryptedPassword, grouperPassword.getThePassword());
             } else {
               String configKey = "grouperPasswordConfigOverride_" + application.name() + "_" + user+ "_pass";
               String configPassword = GrouperHibernateConfig.retrieveConfig().propertyValueString(configKey);
               configPassword = Morph.decryptIfFile(configPassword);
 
+              if (StringUtils.isBlank(configPassword)) {
+                return false;
+              }
+              
               // if its encrypted, decrypt it
               try {
                 configPassword = Morph.decrypt(configPassword);
