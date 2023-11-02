@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.app.oidc.OidcGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixExternalSystem;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -103,6 +104,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNamesList.add(SftpGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(SmtpGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(SqsGrouperExternalSystem.class.getName());
+    //externalTypeClassNamesList.add(TeamDynamixExternalSystem.class.getName());
     externalTypeClassNamesList.add(WsBearerTokenExternalSystem.class.getName());
     
     String extraExternalSystemRegex = "^grouperExtraExternalSystem\\.([^.]+)\\.class$";

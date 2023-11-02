@@ -7,6 +7,9 @@ import java.util.List;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCache;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCacheSource;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCacheType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeTranslationType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeValueType;
@@ -80,8 +83,12 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       this.midPointListOfTargets = this.retrieveConfigString("midPointListOfTargets", false);
     }
     
+    setOperateOnGrouperMemberships(true);
+    setOperateOnGrouperEntities(true);
+    setOperateOnGrouperGroups(true);
+
     setMembershipTableName(this.midPointTablesPrefix + "_mp_memberships");
-    
+
     setSqlLastModifiedColumnType("long");
     setSqlLastModifiedColumnName("last_modified");
     setSqlDeletedColumnName("deleted");
@@ -296,6 +303,15 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       
       getTargetMembershipAttributeNameToConfig().put(attributeConfig.getName(), attributeConfig);
       
+      this.setGroupAttributeValueCacheHas(true);
+      GrouperProvisioningConfigurationAttributeDbCache[] groupAttributeDbCaches = this.getGroupAttributeDbCaches();
+      if (groupAttributeDbCaches[0] == null) {
+        groupAttributeDbCaches[0] = new GrouperProvisioningConfigurationAttributeDbCache(this.getGrouperProvisioner(), 0, "group");
+        groupAttributeDbCaches[0].setAttributeName("group_id_index");
+        groupAttributeDbCaches[0].setSource(GrouperProvisioningConfigurationAttributeDbCacheSource.target);
+        groupAttributeDbCaches[0].setType(GrouperProvisioningConfigurationAttributeDbCacheType.attribute);
+      }
+      
     }
     
     // subject_id_index - membership attribute
@@ -369,7 +385,16 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       this.setEntitySearchAttributes(entitySearchAttributes);
       this.setEntityMatchingAttributes(entityMatchingAttributes);
       this.setEntityMatchingAttributeSameAsSearchAttribute(true);
-      
+
+      this.setEntityAttributeValueCacheHas(true);
+      GrouperProvisioningConfigurationAttributeDbCache[] entityAttributeDbCaches = this.getEntityAttributeDbCaches();
+      if (entityAttributeDbCaches[0] == null) {
+        entityAttributeDbCaches[0] = new GrouperProvisioningConfigurationAttributeDbCache(this.getGrouperProvisioner(), 0, "entity");
+        entityAttributeDbCaches[0].setAttributeName("subject_id_index");
+        entityAttributeDbCaches[0].setSource(GrouperProvisioningConfigurationAttributeDbCacheSource.target);
+        entityAttributeDbCaches[0].setType(GrouperProvisioningConfigurationAttributeDbCacheType.attribute);
+      }
+            
     }
     
     // subject_id - subject attribute
