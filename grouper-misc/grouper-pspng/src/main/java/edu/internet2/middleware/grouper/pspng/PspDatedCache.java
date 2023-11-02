@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.pspng;
 
 import edu.internet2.middleware.grouper.cache.GrouperCache;
-import net.sf.ehcache.Statistics;
+
 import org.joda.time.DateTime;
 
 import java.util.Date;
@@ -65,6 +65,6 @@ public class PspDatedCache<K, V> {
     return cache.containsKey(key);
   }
 
-  public Statistics getStats() { return cache.getStats(); }
+  //public StatisticsGateway getStats() { return cache.getStats(); }
 
 }

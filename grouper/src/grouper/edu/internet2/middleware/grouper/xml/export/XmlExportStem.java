@@ -581,7 +581,7 @@ public class XmlExportStem {
       queryBuilder.append(
           " from Stem as theStem where ");
       xmlExportMain.appendHqlStemLikeOrObjectEquals(queryBuilder, "theStem", "nameDb", true);
-      queryBuilder.append(" ) ) ");
+      queryBuilder.append(" ");
     }
     if (includeOrderBy) {
       queryBuilder.append(" order by theStem.nameDb");

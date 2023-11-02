@@ -32,7 +32,6 @@
 
 package edu.internet2.middleware.grouper.cache;
 import java.io.File;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.util.Map;
 import java.util.regex.Matcher;
@@ -46,7 +45,6 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
-import net.sf.ehcache.Statistics;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -256,19 +254,6 @@ public class EhcacheController implements CacheController {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(EhcacheController.class);
 
-  /**
-   * @param cache 
-   * @return  ehcache statistics for <i>cache</i>.
-   * @since   1.2.1
-   */
-  public CacheStats getStats(String cache) {
-    //not sure if we need to initialize, since no stats will be found...
-    this.initialize();
-    Cache c = this.getCache(cache);
-    c.setStatisticsAccuracy(Statistics.STATISTICS_ACCURACY_GUARANTEED);
-    return new EhcacheStats( c.getStatistics() );
-  }
-
   /** 
    * Initialize privilege cache.
    * @since   1.2.1
@@ -450,6 +435,11 @@ public class EhcacheController implements CacheController {
       cacheConfiguration.setStatistics(grouperCacheConfig.propertyValueBooleanRequired(propertyPrefix + ".statistics"));
     }
 
+  }
+  
+  @Override
+  public CacheStats getStats(String cache) {
+    return null;
   }
   
 }

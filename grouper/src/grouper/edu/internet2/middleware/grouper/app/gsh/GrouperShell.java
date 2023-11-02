@@ -49,6 +49,7 @@ import edu.internet2.middleware.grouper.app.gsh.jline.WindowsTerminal;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateReturnException;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.cache.EhcacheController;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -157,43 +158,55 @@ public class GrouperShell {
    * @since 0.0.1
    */
   public static void main(String args[]) {
-    //set this and leave it...
-    @SuppressWarnings("unused")
-    GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
-        GrouperEngineBuiltin.GSH, false, true);
+    boolean wasSpecialCase = false;
     
-    boolean wasSpecialCase = handleSpecialCase(args);
-    if(wasSpecialCase) {
-    	return;
-    }
-	  runFromGsh = true;
-	
-    GrouperStartup.runFromMain = true;
-    GrouperStartup.startup();
-    GrouperStartup.waitForGrouperStartup();
-
-    //turn on logging
-    Log bshLogger = LogFactory.getLog("bsh");
-    if (bshLogger.isTraceEnabled()) {
-      Interpreter.TRACE = true;
-    }
-    if (bshLogger.isDebugEnabled()) {
-      Interpreter.DEBUG = true;
-    }
-    exitOnFailure = true;
     try {
-      grouperShellHelper(args, null);
-    }
-    catch (GrouperShellException eGS) {
-      eGS.printStackTrace();
-      LOG.error("GSH is exiting: " + eGS.getMessage(), eGS);
-      System.exit(1);
-    } catch (UnsatisfiedLinkError e) {
-      if (e.getMessage() != null && e.getMessage().contains("jansi")) {
-        System.err.println("\n\n\nUnable to start GSH.  Your tmpdir " + System.getProperty("java.io.tmpdir") + " may have the noexec flag set.  If so, set this environment variable: export GSH_JVMARGS=\"-Dlibrary.jansi.path=/some/other/temp/path/with/exec\"\n\n\n");
-      }
+      //set this and leave it...
+      @SuppressWarnings("unused")
+      GrouperContext grouperContext = GrouperContext.createNewDefaultContext(
+          GrouperEngineBuiltin.GSH, false, true);
       
-      throw new RuntimeException(e);
+      wasSpecialCase = handleSpecialCase(args);
+      if(wasSpecialCase) {
+      	return;
+      }
+  	  runFromGsh = true;
+  	
+      GrouperStartup.runFromMain = true;
+      GrouperStartup.startup();
+      GrouperStartup.waitForGrouperStartup();
+  
+      //turn on logging
+      Log bshLogger = LogFactory.getLog("bsh");
+      if (bshLogger.isTraceEnabled()) {
+        Interpreter.TRACE = true;
+      }
+      if (bshLogger.isDebugEnabled()) {
+        Interpreter.DEBUG = true;
+      }
+      exitOnFailure = true;
+      try {
+        grouperShellHelper(args, null);
+      }
+      catch (GrouperShellException eGS) {
+        eGS.printStackTrace();
+        LOG.error("GSH is exiting: " + eGS.getMessage(), eGS);
+        System.exit(1);
+      } catch (UnsatisfiedLinkError e) {
+        if (e.getMessage() != null && e.getMessage().contains("jansi")) {
+          System.err.println("\n\n\nUnable to start GSH.  Your tmpdir " + System.getProperty("java.io.tmpdir") + " may have the noexec flag set.  If so, set this environment variable: export GSH_JVMARGS=\"-Dlibrary.jansi.path=/some/other/temp/path/with/exec\"\n\n\n");
+        }
+        
+        throw new RuntimeException(e);
+      }
+    } finally {
+      if (!wasSpecialCase) {
+        try {
+          EhcacheController.ehcacheController().stop();
+        } catch (Exception e) {
+          LOG.error("error stopping ehcache controller");
+        }
+      }
     }
     System.exit(0);
   } // public static void main(args)
@@ -249,6 +262,12 @@ private static boolean handleSpecialCase(String[] args) {
 	      } catch (Exception e) {
 	        LOG.error("error shutting down loader", e);
 	      }
+	      
+        try {
+          EhcacheController.ehcacheController().stop();
+        } catch (Exception e) {
+          LOG.error("error stopping ehcache controller");
+        }
 	    }
 	  }
 	  
