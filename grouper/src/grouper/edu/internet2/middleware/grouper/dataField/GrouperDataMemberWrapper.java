@@ -42,6 +42,8 @@ public class GrouperDataMemberWrapper {
   }
 
   private GrouperDataEngine grouperDataEngine;
+  
+  private Member member;
 
   
   public GrouperDataEngine getGrouperDataEngine() {
@@ -109,4 +111,12 @@ public class GrouperDataMemberWrapper {
   }
 
   
+  public Member getMember() {
+    return member;
+  }
+
+  
+  public void setMember(Member member) {
+    this.member = member;
+  }
 }

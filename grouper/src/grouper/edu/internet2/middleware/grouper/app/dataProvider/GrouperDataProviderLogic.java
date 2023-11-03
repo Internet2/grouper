@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.dataProvider;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
@@ -133,49 +134,8 @@ public class GrouperDataProviderLogic {
     // match rows
     
     Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
-
-    for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
-      GrouperDataProviderQueryConfig grouperDataProviderQueryConfig = grouperDataProviderQuery.retrieveGrouperDataProviderQueryConfig();
-
-      Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
-      queryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
-      
-      List<Object[]> rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectData(lowerColumnNameToZeroIndex);
-      
-      String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute().toLowerCase();
-      String sourceIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
-      Integer subjectIdZeroIndex = queryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderQueryConfig.getConfigId()).get(subjectIdAttribute);
-      
-      GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
-
-      for (Object[] row : rows) {
-        
-        String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
-        
-        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
-            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
-        
-        Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
-
-        Long memberInternalId = member.getInternalId();
-        
-        GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
-        
-        if (grouperDataMemberWrapper == null) {
-          grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
-          dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
-        }
-
-        List<Object[]> userRowsforQuery = grouperDataMemberWrapper.getQueryConfigIdToRowData().get(grouperDataProviderQueryConfig.getConfigId());
-        if (userRowsforQuery == null) {
-          userRowsforQuery = new ArrayList<Object[]>();
-          grouperDataMemberWrapper.getQueryConfigIdToRowData().put(grouperDataProviderQueryConfig.getConfigId(), userRowsforQuery);
-        }
-        
-        userRowsforQuery.add(row);
-      }
-      
-    }
+    
+    retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, true);
     
     calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);
   }
@@ -195,12 +155,18 @@ public class GrouperDataProviderLogic {
     
     GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
 
-    //GrouperDataEngine.syncDataProviders(grouperConfig);
-    //GrouperDataEngine.syncDataFields(grouperConfig);
-    //GrouperDataEngine.syncDataRows(grouperConfig);
-    //GrouperDataEngine.syncDataAliases(grouperConfig);
-
     GrouperDataProvider grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
+    
+    // what are the cases where we'd want to refresh this?
+    if (grouperDataProvider == null) {
+      GrouperDataEngine.syncDataProviders(grouperConfig);
+      GrouperDataEngine.syncDataFields(grouperConfig);
+      GrouperDataEngine.syncDataRows(grouperConfig);
+      GrouperDataEngine.syncDataAliases(grouperConfig);     
+      
+      grouperDataProvider = GrouperDataProviderDao.selectByText(dataProviderConfigId);
+    }
+    
     setGrouperDataProvider(grouperDataProvider);
 
     dataEngine.loadFieldsAndRows(grouperConfig);
@@ -222,22 +188,33 @@ public class GrouperDataProviderLogic {
       
       List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex);
       
+      if (rows.size() == 0) {
+        return;
+      }
+      
       String subjectIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectIdAttribute().toLowerCase();
       String sourceIdAttribute = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectSourceId();
+      String subjectIdType = grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySubjectIdType();
       Integer subjectIdZeroIndex = changeLogQueryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderChangeLogQueryConfig.getConfigId()).get(subjectIdAttribute);
       
       GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
 
-      if (rows.size() == 0) {
-        return;
+      if (!"subjectId".equals(subjectIdType) && !"subjectIdentifier".equals(subjectIdType)) {
+        throw new RuntimeException("Unexpected providerChangeLogQuerySubjectIdType: " + subjectIdType);
       }
       
       for (Object[] row : rows) {
         
         String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
         
-        Subject subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
-            : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);
+        Subject subject;
+        if (subjectIdType.equals("subjectId")) {
+          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+              : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);          
+        } else {
+          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findByIdentifier(subjectId, true)
+              : SubjectFinder.findByIdentifierAndSource(subjectId, sourceIdAttribute, true);  
+        }
         
         Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
 
@@ -249,6 +226,8 @@ public class GrouperDataProviderLogic {
           grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
           dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
         }    
+        
+        grouperDataMemberWrapper.setMember(member);
       }
     }
     
@@ -276,11 +255,13 @@ public class GrouperDataProviderLogic {
     
     indexDataByMember();
     
-    // TODO run the full queries that limit to member
+    Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
     
-    // TODO run calculateAndStoreChanges
+    retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, false);
     
-    // TODO delete from change log table
+    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);
+    
+    // TODO delete from change log table - how are we doing this without a table name?
   }
   
   private void processDataFieldAssignWrappers(List<GrouperDataFieldAssign> grouperDataFieldAssigns) {
@@ -440,6 +421,82 @@ public class GrouperDataProviderLogic {
           valueToFieldAssignWrapper.put(value, dataFieldAssignWrapper);
         }
       }
+    }
+  }
+  
+  private void retrieveSourceData(Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex, boolean isFullSync) {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+
+    for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
+      GrouperDataProviderQueryConfig grouperDataProviderQueryConfig = grouperDataProviderQuery.retrieveGrouperDataProviderQueryConfig();
+
+      Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
+      queryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
+      
+      List<Object[]> rows;
+
+      if (isFullSync) {
+        rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectData(lowerColumnNameToZeroIndex);
+      } else {
+        Collection<GrouperDataMemberWrapper> grouperDataMemberWrappers = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().values();
+        Set<Member> members = new HashSet<Member>();
+        for (GrouperDataMemberWrapper grouperDataMemberWrapper : grouperDataMemberWrappers) {
+          if (grouperDataMemberWrapper.getMember() != null) {
+            members.add(grouperDataMemberWrapper.getMember());
+          }
+        }
+        
+        rows = grouperDataProviderQuery.retrieveGrouperDataProviderQueryTargetDao().selectDataByMembers(lowerColumnNameToZeroIndex, members);
+      }
+      
+      String subjectIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectIdAttribute().toLowerCase();
+      String sourceIdAttribute = grouperDataProviderQueryConfig.getProviderQuerySubjectSourceId();
+      String subjectIdType = grouperDataProviderQueryConfig.getProviderQuerySubjectIdType();
+      Integer subjectIdZeroIndex = queryConfigIdToLowerColumnNameToZeroIndex.get(grouperDataProviderQueryConfig.getConfigId()).get(subjectIdAttribute);
+      
+      GrouperUtil.assertion(subjectIdZeroIndex != null, "Cannot find subject id attribute column: " + subjectIdAttribute);
+
+      if (!"subjectId".equals(subjectIdType) && !"subjectIdentifier".equals(subjectIdType)) {
+        throw new RuntimeException("Unexpected providerQuerySubjectIdType: " + subjectIdType);
+      }
+      
+      // TODO add batching?
+      // TODO for incremental, we probably don't need to look up again
+      for (Object[] row : rows) {
+        
+        String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
+        
+        Subject subject;
+        if (subjectIdType.equals("subjectId")) {
+          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+              : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);          
+        } else {
+          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findByIdentifier(subjectId, true)
+              : SubjectFinder.findByIdentifierAndSource(subjectId, sourceIdAttribute, true);  
+        }
+        
+        Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
+
+        Long memberInternalId = member.getInternalId();
+        
+        GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
+        
+        if (grouperDataMemberWrapper == null) {
+          grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
+          dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
+        }
+        
+        grouperDataMemberWrapper.setMember(member);
+
+        List<Object[]> userRowsforQuery = grouperDataMemberWrapper.getQueryConfigIdToRowData().get(grouperDataProviderQueryConfig.getConfigId());
+        if (userRowsforQuery == null) {
+          userRowsforQuery = new ArrayList<Object[]>();
+          grouperDataMemberWrapper.getQueryConfigIdToRowData().put(grouperDataProviderQueryConfig.getConfigId(), userRowsforQuery);
+        }
+        
+        userRowsforQuery.add(row);
+      }
+      
     }
   }
   

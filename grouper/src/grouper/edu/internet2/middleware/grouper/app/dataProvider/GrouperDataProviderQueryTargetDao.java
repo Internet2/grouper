@@ -2,6 +2,9 @@ package edu.internet2.middleware.grouper.app.dataProvider;
 
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.Member;
 
 /**
  * 
@@ -31,6 +34,8 @@ public abstract class GrouperDataProviderQueryTargetDao {
   }
 
   public abstract List<Object[]> selectData(Map<String, Integer> lowerColumnNameToZeroIndex);
+  
+  public abstract List<Object[]> selectDataByMembers(Map<String, Integer> lowerColumnNameToZeroIndex, Set<Member> members);
   
   public abstract List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex);
 }
