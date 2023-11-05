@@ -184,13 +184,14 @@ public class GrouperProvisioningLogicIncremental {
     }
     
     Iterator<ProvisioningMembershipWrapper> iteratorMemberships = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()).iterator();
-
+   
     while (iteratorMemberships.hasNext()) {
       ProvisioningMembershipWrapper provisioningMembershipWrapper = iteratorMemberships.next();
       if (provisioningMembershipWrapper.getGroupIdMemberId() == null) {
         continue;
       }
       String groupId = (String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0);
+      
       if (!validGroupIds.contains(groupId)) {
         iteratorMemberships.remove();
         this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
@@ -1094,6 +1095,10 @@ public class GrouperProvisioningLogicIncremental {
 
   public void incrementalCheckChangeLog() {
     
+    int recalcEntityDueToGroupMembershipChange = 0;
+    
+    Set<String> groupIdsUsedInEntityTranslation = GrouperUtil.nonNull(GrouperProvisioningTranslator.retrieveMembershipGroupIdsForProvisionerConfigId(this.grouperProvisioner.getConfigId()));
+    
     // see if we are getting memberships or privs
     GrouperProvisioningMembershipFieldType membershipFieldType = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
 
@@ -1253,11 +1258,19 @@ public class GrouperProvisioningLogicIncremental {
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(esbEvent.getMemberId(), this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc()
               , this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntityMembershipsForRecalc(), createdOnMillis, null);
           
-        } else { 
+        } else {
           
-          this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(esbEvent.getGroupId(), esbEvent.getMemberId(),
-              false, createdOnMillis, grouperIncrementalDataAction);
+          if (groupIdsUsedInEntityTranslation.contains(esbEvent.getGroupId())) {
+            recalcEntityDueToGroupMembershipChange++;
+            this.grouperProvisioner.retrieveGrouperProvisioningData()
+              .addIncrementalEntity(esbEvent.getMemberId(), true, false, 
+                  createdOnMillis, null);
+          }
+            
         }
+          
+        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(esbEvent.getGroupId(), esbEvent.getMemberId(),
+            false, createdOnMillis, grouperIncrementalDataAction);
         
         changeLogCount++;
       }
