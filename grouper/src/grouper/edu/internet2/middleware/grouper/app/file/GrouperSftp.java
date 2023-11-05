@@ -344,7 +344,8 @@ public class GrouperSftp {
         throw new RuntimeException("error", fse);
       }
     }
-
+    SftpFileSystemConfigBuilder.getInstance().setPreferredAuthentications(options,
+        !StringUtils.isBlank(keyPath) ? "publickey" : "password");
 
     return options;
   }

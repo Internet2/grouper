@@ -109,7 +109,9 @@ public abstract class ProvisionerStartWithBase extends GrouperConfigurationModul
    * @param suffixesUserJustChanged - what the user edited since the last submit to the server
    * @return - suffix to value of things that should change on the screen
    */
-  public abstract Map<String, String> screenRedraw(Map<String, String> suffixToValue, Set<String> suffixesUserJustChanged);
+  public Map<String, String> screenRedraw(Map<String, String> suffixToValue, Set<String> suffixesUserJustChanged) {
+    return null;
+  }
   
   public abstract Class<? extends ProvisioningConfiguration> getProvisioningConfiguration();
   

@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <blockquote>
  * <pre>
  * new AttributeAssignToGroupSave().assignAttributeDefName(attributeDefName).assignGroup(group).assignSaveMode(SaveMode.DELETE).save();
+ * new AttributeAssignToGroupSave().assignNameOfAttributeDefName("a:b:c").assignGroupName("a:b:c").save();
  * </pre>
  * </blockquote>
  * </p>

@@ -1,8 +1,5 @@
 package edu.internet2.middleware.grouper.app.midpointProvisioning;
 
-import java.util.List;
-import java.util.Map;
-
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
@@ -36,25 +33,6 @@ public class MidPointProvisionerConfiguration extends ProvisioningConfiguration 
   @Override
   public String getPropertyValueThatIdentifiesThisConfig() {
     return MidPointProvisioner.class.getName();
-  }
-
-
-  private void assignCacheConfig() {
-        
-  }
-  
-  @Override
-  public void insertConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
-    assignCacheConfig();
-    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
-  }
-
-  @Override
-  public void editConfig(boolean fromUi, StringBuilder message,
-      List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
-    assignCacheConfig();
-    super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay, actionsPerformed);
   }
 
 }

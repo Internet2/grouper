@@ -6,6 +6,16 @@ import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateRuntime {
   
+  private String templateConfigId;
+  
+  public String getTemplateConfigId() {
+    return templateConfigId;
+  }
+  
+  public void setTemplateConfigId(String templateConfigId) {
+    this.templateConfigId = templateConfigId;
+  }
+
   private Subject currentSubject;
   
   private static ThreadLocal<GshTemplateRuntime> threadLocalGshTemplateRuntime = new InheritableThreadLocal<GshTemplateRuntime>();
