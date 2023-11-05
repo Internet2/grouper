@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:titleFromKeyAndText('groupMovePageTitle', grouperRequestContainer.groupContainer.guiGroup.group.name)}
 
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />

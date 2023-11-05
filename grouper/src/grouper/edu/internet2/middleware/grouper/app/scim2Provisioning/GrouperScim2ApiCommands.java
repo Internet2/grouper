@@ -223,9 +223,9 @@ public class GrouperScim2ApiCommands {
 
       ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
       
-      if (fieldsToUpdate.containsKey("active")) {
-        throw new UnsupportedOperationException("active field cannnot be modified");
-      }
+//      if (fieldsToUpdate.containsKey("active")) {
+//        throw new UnsupportedOperationException("active field cannnot be modified");
+//      }
 
       if (fieldsToUpdate.containsKey("emailValue") || fieldsToUpdate.containsKey("emailType")) {
         

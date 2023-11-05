@@ -251,7 +251,9 @@ public class GrouperScim2User {
     ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode result = objectMapper.createObjectNode();
   
-    GrouperUtil.jsonJacksonAssignBoolean(result, "active", true);
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
+    }
     
 //    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
 //      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);

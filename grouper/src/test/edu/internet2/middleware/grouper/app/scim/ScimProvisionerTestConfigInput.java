@@ -341,4 +341,15 @@ public class ScimProvisionerTestConfigInput {
     return this;
   }
   
+  private boolean useActiveOnUser = false;
+
+  public boolean isUseActiveOnUser() {
+    return useActiveOnUser;
+  }
+  
+  public ScimProvisionerTestConfigInput assignUseActiveOnUser(boolean b) {
+    this.useActiveOnUser  = b;
+    return this;
+  }
+  
 }

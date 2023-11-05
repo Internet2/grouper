@@ -1031,6 +1031,35 @@
       &lt;img alt="${grouper:capitalizeFully('some string')}" ...
     </example>
   </function>
+  
+   <function>
+    <description>
+      Change the title of the page. Use the externalized prefix. Pass in the externalized key of the title suffix.
+    </description>
+    <name>title</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String title(java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:title('page.title.externalized.key')}
+    </example>
+  </function>
+  
+  <function>
+    <description>
+      Change the title of the page. Use the key and the text provided. 
+    </description>
+    <name>titleFromKeyAndText</name>
+    <function-class>edu.internet2.middleware.grouper.ui.tags.GrouperUiFunctions
+    </function-class>
+    <function-signature>String titleFromKeyAndText(java.lang.String, java.lang.String)
+    </function-signature>
+    <example>
+      ${grouper:titleFromKeyAndText('page.title.externalized.key', grouperRequestContainer.groupContainer.guiGroup.group.displayExtension)}
+    </example>
+  </function>
+  
   <function>
     <description>
       Prints out a message from the nav bundle. String is the key, then boolean

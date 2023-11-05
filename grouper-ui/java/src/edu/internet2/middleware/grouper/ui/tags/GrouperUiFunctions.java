@@ -124,6 +124,27 @@ public class GrouperUiFunctions {
   public static String capitalizeFully(String string) {
     return WordUtils.capitalizeFully(string);
   }
+  
+  public static String title(String externalizedPageTitleSuffix) {
+    
+    return "<script language=\"javascript\"> $(document).attr(\"title\", \""
+        + TextContainer.retrieveFromRequest().getTextEscapeXml().get("browserTitlePrefix")
+        + " "
+        + TextContainer.retrieveFromRequest().getTextEscapeXml().get(externalizedPageTitleSuffix)
+        +"\"); </script>";
+  }
+  
+  public static String titleFromKeyAndText(String externalizedPageTitleSuffix, String textToShowAsSuffix) {
+    
+    return "<script language=\"javascript\"> $(document).attr(\"title\", \""
+        + TextContainer.retrieveFromRequest().getTextEscapeXml().get("browserTitlePrefix")
+        + " "
+        + TextContainer.retrieveFromRequest().getTextEscapeXml().get(externalizedPageTitleSuffix)
+        +": "
+        + GrouperUtil.escapeHtml(textToShowAsSuffix, true)
+        +"\"); </script>";
+    
+  }
 
   /**
    * Escapes URL
