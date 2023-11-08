@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+${grouper:titleFromKeyAndText('groupPrivilegesPageTitle', grouperRequestContainer.subjectContainer.guiSubject.subject.name)}
+
             <%@ include file="subjectHeader.jsp" %>
 
             <div class="row-fluid">

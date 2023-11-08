@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+${grouper:titleFromKeyAndText('subjectVisualizationPageTitle', grouperRequestContainer.subjectContainer.guiSubject.subject.name)}
+
             <!-- start subject/subjectVisualization.jsp -->
 
             <%-- show the add member button for privileges --%>

@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+${grouper:titleFromKeyAndText('stemPrivilegesPageTitle', grouperRequestContainer.subjectContainer.guiSubject.subject.name)}
+
             <!-- start subject/thisSubjectsStemPrivileges.jsp -->
 
             <%-- show the add member button for privileges --%>
