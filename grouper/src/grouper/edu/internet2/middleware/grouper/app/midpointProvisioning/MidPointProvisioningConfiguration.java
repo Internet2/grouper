@@ -307,7 +307,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
       GrouperProvisioningConfigurationAttributeDbCache[] groupAttributeDbCaches = this.getGroupAttributeDbCaches();
       if (groupAttributeDbCaches[0] == null) {
         groupAttributeDbCaches[0] = new GrouperProvisioningConfigurationAttributeDbCache(this.getGrouperProvisioner(), 0, "group");
-        groupAttributeDbCaches[0].setAttributeName("group_id_index");
+        groupAttributeDbCaches[0].setAttributeName("id_index");
         groupAttributeDbCaches[0].setSource(GrouperProvisioningConfigurationAttributeDbCacheSource.target);
         groupAttributeDbCaches[0].setType(GrouperProvisioningConfigurationAttributeDbCacheType.attribute);
       }
