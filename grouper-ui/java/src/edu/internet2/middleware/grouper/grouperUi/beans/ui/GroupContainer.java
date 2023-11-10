@@ -15,6 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.sql.Timestamp;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -261,7 +263,7 @@ public class GroupContainer {
                 }
                 
                 groupTypeForEdit.setFormElementType("CHECKBOX");
-              } else if (attributeDef.isAssignToGroup() && attributeDef.getValueType() == AttributeDefValueType.string) {
+              } else if (attributeDef.isAssignToGroup()) {
                 
                 if (!StringUtils.equals("create", mode)) {
                   Set<AttributeAssign> attributeAssignments = GroupContainer.this.getGuiGroup().getGroup().getAttributeDelegate().retrieveAssignments(attributeDefName);
@@ -271,8 +273,20 @@ public class GroupContainer {
                   }
                   
                   if (attributeAssignments.size() > 0) {
-                    String valueString = attributeAssignments.iterator().next().getValueDelegate().retrieveValueString();
-                    groupTypeForEdit.setValue(valueString);
+                    
+                    if (attributeDef.getValueType() == AttributeDefValueType.timestamp) {
+                      Timestamp timestamp = attributeAssignments.iterator().next().getValueDelegate().retrieveValueTimestamp();
+                      if (timestamp != null) {
+                        SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
+                        groupTypeForEdit.setValue(simpleDateFormat.format(timestamp)); 
+                      }
+                      
+                    } else {
+                      String valueString = attributeAssignments.iterator().next().getValueDelegate().retrieveValueString();
+                      groupTypeForEdit.setValue(valueString);
+                    }
+                    
+                    
                   }
                 }
                 
