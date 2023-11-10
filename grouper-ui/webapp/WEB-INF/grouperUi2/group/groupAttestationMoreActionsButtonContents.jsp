@@ -15,7 +15,7 @@
                               >${textContainer.text['groupAttestationMoreActionsViewAttestation'] }</a></li>
                         </c:if>
 
-                        <c:if test="${grouperRequestContainer.attestationContainer.canWriteAttestation}" >
+                        <c:if test="${grouperRequestContainer.attestationContainer.canEditAttestation}" >
 	                        <li><a href="#" onclick="return guiV2link('operation=UiV2Attestation.editGroupAttestation&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
 	                            >${textContainer.text['groupAttestationMoreActionsEditAttestation'] }</a></li>
                         </c:if>

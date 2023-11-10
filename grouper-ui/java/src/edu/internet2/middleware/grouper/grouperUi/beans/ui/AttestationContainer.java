@@ -1076,6 +1076,31 @@ public class AttestationContainer {
     return false;
   }
   
+  
+  /**
+   * 
+   * @return true if can edit
+   */
+  public boolean isCanEditAttestation() {
+    
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    
+    if (guiGroup != null) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
+        return true;
+      }
+    }
+    
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    
+    if (guiStem != null) {
+      if (GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().isCanAdminPrivileges()) {
+        return true;
+      }
+    }
+    return false;
+  }
+  
   /**
    * 
    * @return true if can write
