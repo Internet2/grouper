@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.dataProvider;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -37,5 +38,11 @@ public abstract class GrouperDataProviderQueryTargetDao {
   
   public abstract List<Object[]> selectDataByMembers(Map<String, Integer> lowerColumnNameToZeroIndex, Set<Member> members);
   
-  public abstract List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex);
+  /**
+   * @param lowerColumnNameToZeroIndex
+   * @param changesFromTimestamp get changes after this timestamp, could be null
+   * @param changesToTimestamp get changes to and including this timestamp
+   * @return
+   */
+  public abstract List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex, Timestamp changesFromTimestamp, Timestamp changesToTimestamp);
 }

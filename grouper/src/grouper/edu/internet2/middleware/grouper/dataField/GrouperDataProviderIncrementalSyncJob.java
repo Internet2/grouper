@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.sql.Timestamp;
 import java.util.Map;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -10,6 +11,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSync;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSyncType;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -38,7 +40,7 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
         String jobName = otherJobInput.getJobName();
         String daemonName = jobName.substring(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX.length(), jobName.length());
         String key = "otherJob."+daemonName+".dataProviderConfigId";
-        String dataProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueString(key);
+        String dataProviderConfigId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(key);
         
         try {
           Map<String, Object> debugMap = loadIncremental(dataProviderConfigId, otherJobInput.getHib3GrouperLoaderLog());
@@ -63,7 +65,7 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
    * @param dataProviderConfigId
    * @param hib3GrouperLoaderLog
    */
-  public static Map<String, Object> loadIncremental(String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  private Map<String, Object> loadIncremental(String dataProviderConfigId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
 
     final GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync(dataProviderConfigId);
     grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
@@ -78,6 +80,9 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
     gcGrouperSync.getGcGrouperSyncDao().store();
     GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("incremental");
     
+    grouperDataProviderSync.setGcGrouperSync(gcGrouperSync);
+    grouperDataProviderSync.setGcGrouperSyncJob(gcGrouperSyncJob);
+    
     gcGrouperSyncJob.waitForRelatedJobsToFinishThenRun(true);
     
     GcGrouperSyncHeartbeat gcGrouperSyncHeartbeat = new GcGrouperSyncHeartbeat();
@@ -86,17 +91,21 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
     gcGrouperSyncHeartbeat.addHeartbeatLogic(new Runnable() {
       @Override
       public void run() {
-        
+        hib3GrouperLoaderLog.store();
       }
     });
     if (!gcGrouperSyncHeartbeat.isStarted()) {
       gcGrouperSyncHeartbeat.runHeartbeatThread();
     }
 
+    gcGrouperSyncJob.setLastSyncStart(new Timestamp(System.currentTimeMillis()));
     RuntimeException runtimeException = null;
     
     try {
       grouperDataProviderSync.runSync(GrouperDataProviderSyncType.incrementalSyncChangeLog);
+      
+      // set only if success - used by incremental to determine where the next run should start
+      gcGrouperSyncJob.setLastSyncTimestamp(gcGrouperSyncJob.getLastSyncStart());
     } catch (RuntimeException re) {
       runtimeException = re;
     } finally {
@@ -128,5 +137,31 @@ public class GrouperDataProviderIncrementalSyncJob extends OtherJobBase {
     }
     
     return grouperDataProviderSync.getDebugMap();
+  }
+  
+  /**
+   * run standalone
+   * @param jobName
+   */
+  public static void runDaemonStandalone(String jobName) {
+    
+    if (!jobName.startsWith(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX)) {
+      throw new RuntimeException("Unexpected jobName=" + jobName);
+    }
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+
+    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+    hib3GrouperLoaderLog.setJobName(jobName);
+    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+    hib3GrouperLoaderLog.store();
+
+    OtherJobInput otherJobInput = new OtherJobInput();
+    otherJobInput.setJobName(jobName);
+    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+    otherJobInput.setGrouperSession(grouperSession);
+    new GrouperDataProviderIncrementalSyncJob().run(otherJobInput);
   }
 }

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.dataProvider;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -43,6 +44,7 @@ import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -177,6 +179,17 @@ public class GrouperDataProviderLogic {
       return;
     }
 
+    Timestamp changesFromTimestamp = grouperDataProviderSync.getGcGrouperSyncJob().getLastSyncTimestamp(); // start time of the last success
+    Timestamp changesToTimestamp = grouperDataProviderSync.getGcGrouperSyncJob().getLastSyncStart();
+    
+    {
+      GcGrouperSyncJob gcGrouperSyncFullJob = grouperDataProviderSync.getGcGrouperSync().getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("full");
+      if (gcGrouperSyncFullJob != null && gcGrouperSyncFullJob.getLastSyncTimestamp() != null) {
+        if (changesFromTimestamp == null || gcGrouperSyncFullJob.getLastSyncTimestamp().getTime() > changesFromTimestamp.getTime()) {
+          changesFromTimestamp = gcGrouperSyncFullJob.getLastSyncTimestamp();
+        }
+      }
+    }
     
     Map<String, Map<String, Integer>> changeLogQueryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
 
@@ -186,7 +199,7 @@ public class GrouperDataProviderLogic {
       Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
       changeLogQueryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderChangeLogQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
       
-      List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex);
+      List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex, changesFromTimestamp, changesToTimestamp);
       
       if (rows.size() == 0) {
         return;
@@ -259,9 +272,7 @@ public class GrouperDataProviderLogic {
     
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, false);
     
-    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);
-    
-    // TODO delete from change log table - how are we doing this without a table name?
+    calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);    
   }
   
   private void processDataFieldAssignWrappers(List<GrouperDataFieldAssign> grouperDataFieldAssigns) {

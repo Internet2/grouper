@@ -1,8 +1,10 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.sql.Timestamp;
 import java.sql.Types;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.Group;
@@ -10,12 +12,12 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
+import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderChangeLogQuery;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSync;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderSyncType;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestUtils;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
@@ -35,6 +37,9 @@ import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.config.SubjectConfig;
@@ -49,7 +54,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataProviderTest("testLdapProviderIncremental"));
+    TestRunner.run(new GrouperDataProviderTest("testFullJobDates"));
   }
 
   public void setUp() {
@@ -107,6 +112,173 @@ public class GrouperDataProviderTest extends GrouperTest {
     internal_testLdapProvider(GrouperDataProviderSyncType.incrementalSyncChangeLog);
   }
   
+  public void testFullJobDates() {
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+    
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_idm");
+    GcGrouperSyncJob gcGrouperSyncFullJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("full");
+    assertNotNull(gcGrouperSyncFullJob.getLastSyncStart());
+    assertNotNull(gcGrouperSyncFullJob.getLastSyncTimestamp());
+    assertTrue(gcGrouperSyncFullJob.getLastSyncStart().getTime() == gcGrouperSyncFullJob.getLastSyncTimestamp().getTime());
+    
+    // force a failure - want to make sure lastSyncTimestamp doesn't get updated.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAttr.providerQueryType").value("bogus").store();
+
+    try {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+      fail("Was trying to force an exception but there was no exception!");
+    } catch (Exception e) {
+      // good
+    }
+    
+    gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_idm");
+    GcGrouperSyncJob gcGrouperSyncFullJob2 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("full");
+    assertTrue(gcGrouperSyncFullJob2.getLastSyncStart().getTime() > gcGrouperSyncFullJob.getLastSyncStart().getTime());
+    assertTrue(gcGrouperSyncFullJob2.getLastSyncTimestamp().getTime() == gcGrouperSyncFullJob.getLastSyncTimestamp().getTime());    
+  }
+  
+  public void testIncrementalJobDates() {
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderIncrementalSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+    
+    GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_idm");
+    GcGrouperSyncJob gcGrouperSyncIncrementalJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("incremental");
+    assertNotNull(gcGrouperSyncIncrementalJob.getLastSyncStart());
+    assertNotNull(gcGrouperSyncIncrementalJob.getLastSyncTimestamp());
+    assertTrue(gcGrouperSyncIncrementalJob.getLastSyncStart().getTime() == gcGrouperSyncIncrementalJob.getLastSyncTimestamp().getTime());
+    
+    // force a failure - want to make sure lastSyncTimestamp doesn't get updated.
+    try {
+      Thread.sleep(100);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryType").value("bogus").store();
+
+    try {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+      fail("Was trying to force an exception but there was no exception!");
+    } catch (Exception e) {
+      // good
+    }
+    
+    gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName("dataProvider_idm");
+    GcGrouperSyncJob gcGrouperSyncIncrementalJob2 = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveOrCreateBySyncType("incremental");
+    assertTrue(gcGrouperSyncIncrementalJob2.getLastSyncStart().getTime() > gcGrouperSyncIncrementalJob.getLastSyncStart().getTime());
+    assertTrue(gcGrouperSyncIncrementalJob2.getLastSyncTimestamp().getTime() == gcGrouperSyncIncrementalJob.getLastSyncTimestamp().getTime());    
+  }
+  
+  public void testIncrementalChangeLogDates() {
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderIncrementalSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
+
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProvider.idm.name").value("idm").store();
+    
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerConfigId").value("idm").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryType").value("sql").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySqlConfigId").value("grouper").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySqlQuery").value("select id, subject_id, create_timestamp1 from testgrouper_dp_changelog").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryPrimaryKeyAttribute").value("id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryTimestampAttribute").value("create_timestamp1").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectIdAttribute").value("subject_id").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectIdType").value("subjectId").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectSourceId").value("jdbc").store();
+    
+    List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+    
+    Date date1 = new Date();
+    try {
+      Thread.sleep(2);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    Date date2 = new Date();
+    try {
+      Thread.sleep(2);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    Date date3 = new Date();
+    try {
+      Thread.sleep(2);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+    Date date4 = new Date();
+    try {
+      Thread.sleep(2);
+    } catch (InterruptedException e) {
+      // ignore
+    }
+
+    batchBindVarsChangeLog.add(GrouperUtil.toList(1, "user1", date1, null));
+    batchBindVarsChangeLog.add(GrouperUtil.toList(2, "user2", date2, null));
+    batchBindVarsChangeLog.add(GrouperUtil.toList(3, "user3", date3, null));
+    batchBindVarsChangeLog.add(GrouperUtil.toList(4, "user4", date4, null));
+    
+    new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1, create_timestamp2) values (?, ?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
+    
+    GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
+    grouperDataProviderSync.setGrouperDataEngine(new GrouperDataEngine());
+    GrouperDataProviderChangeLogQuery changeLogQuery = grouperDataProviderSync.retrieveGrouperDataProviderChangeLogQueries().iterator().next();
+    List<Object[]> rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), null, new Timestamp(System.currentTimeMillis()));
+    assertEquals(4, rows.size());
+    
+    rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), null, new Timestamp(date3.getTime()));
+    assertEquals(3, rows.size());
+    
+    rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), null, new Timestamp(date3.getTime() - 1L));
+    assertEquals(2, rows.size());
+    
+    rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), new Timestamp(date2.getTime()), new Timestamp(System.currentTimeMillis()));
+    assertEquals(2, rows.size());
+    
+    // now use the integer field instead of date
+    new GcDbAccess().sql("delete from testgrouper_dp_changelog").executeSql();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySqlQuery").value("select id, subject_id, create_timestamp2 from testgrouper_dp_changelog").store();
+    new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQueryTimestampAttribute").value("create_timestamp2").store();
+    
+    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
+    grouperDataProviderSync.setGrouperDataEngine(new GrouperDataEngine());
+    changeLogQuery = grouperDataProviderSync.retrieveGrouperDataProviderChangeLogQueries().iterator().next();
+    
+    batchBindVarsChangeLog.clear();
+    batchBindVarsChangeLog.add(GrouperUtil.toList(1, "user1", null, date1.getTime()));
+    batchBindVarsChangeLog.add(GrouperUtil.toList(2, "user2", null, date2.getTime()));
+    batchBindVarsChangeLog.add(GrouperUtil.toList(3, "user3", null, date3.getTime()));
+    batchBindVarsChangeLog.add(GrouperUtil.toList(4, "user4", null, date4.getTime()));
+    
+    new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1, create_timestamp2) values (?, ?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
+    
+    rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), null, new Timestamp(System.currentTimeMillis()));
+    assertEquals(4, rows.size());
+    
+    rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), null, new Timestamp(date3.getTime()));
+    assertEquals(3, rows.size());
+    
+    rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), null, new Timestamp(date3.getTime() - 1L));
+    assertEquals(2, rows.size());
+    
+    rows = changeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(new HashMap<>(), new Timestamp(date2.getTime()), new Timestamp(System.currentTimeMillis()));
+    assertEquals(2, rows.size());
+  }
+  
   /**
    * 
    */
@@ -149,6 +321,13 @@ public class GrouperDataProviderTest extends GrouperTest {
 
     new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values (?, ?, ?, ?)")
       .batchBindVars(batchBindVars).executeBatchSql();
+
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    } else {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderIncrementalSyncJob").store();
+    }
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
@@ -259,10 +438,11 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectSourceId").value("jdbc").store();
     
     // load data
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(7, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
 
@@ -288,9 +468,7 @@ public class GrouperDataProviderTest extends GrouperTest {
       
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
       
-      grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-      grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-      grouperDataProviderSync.runSync(syncType);      
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");  
     }
     
     // check synced data
@@ -407,9 +585,11 @@ public class GrouperDataProviderTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
     }
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -447,9 +627,11 @@ public class GrouperDataProviderTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
     }
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -486,9 +668,11 @@ public class GrouperDataProviderTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
     }
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -525,9 +709,11 @@ public class GrouperDataProviderTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
     }
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
     
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -564,9 +750,11 @@ public class GrouperDataProviderTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
     }
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -603,9 +791,11 @@ public class GrouperDataProviderTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
     }
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -635,9 +825,11 @@ public class GrouperDataProviderTest extends GrouperTest {
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();   
     }
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -704,6 +896,9 @@ public class GrouperDataProviderTest extends GrouperTest {
     batchBindVars.add(GrouperUtil.toList("id.test.subject.2", "staff", "F", "span"));
     batchBindVars.add(GrouperUtil.toList("id.test.subject.3", "fac", "T", "engl"));
     batchBindVars.add(GrouperUtil.toList("id.test.subject.3", "emer", "T", "math"));
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("idm").store();
 
     new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values (?, ?, ?, ?)")
       .batchBindVars(batchBindVars).executeBatchSql();
@@ -806,10 +1001,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderQuery.idmAffiliations.providerQueryDataField.2.providerDataFieldAttribute").value("org").store();
         
     // load data
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
 
     assertEquals(7, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
 
@@ -925,10 +1117,8 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GcDbAccess().sql("update testgrouper_field_attr set two_step_enrolled='T' where subject_id='id.test.subject.0'").executeBatchSql();
     new GcDbAccess().sql("update testgrouper_field_attr_multi set attribute_value='999' where subject_id='id.test.subject.0' and attribute_value='234'").executeBatchSql();
     new GcDbAccess().sql("update testgrouper_field_row_affil set affiliation_code='faculty' where subject_id='id.test.subject.0' and affiliation_code='staff'").executeBatchSql();
-    
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -958,9 +1148,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - update another field in row data
     new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='id.test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -989,9 +1177,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - null a field
     new GcDbAccess().sql("update testgrouper_field_row_affil set org=null where subject_id='id.test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -1020,9 +1206,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - bring value back from null
     new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='id.test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
     
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -1051,9 +1235,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // make some updates in db - update a boolean
     new GcDbAccess().sql("update testgrouper_field_row_affil set active='F' where subject_id='id.test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -1082,9 +1264,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // delete a row
     new GcDbAccess().sql("delete from testgrouper_field_row_affil where subject_id='id.test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -1106,9 +1286,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     // add row back
     new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values('id.test.subject.0', 'faculty', 'F', 'english')").executeBatchSql();
     
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("idm");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(GrouperDataProviderSyncType.fullSyncFull);
+    GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -1146,6 +1324,13 @@ public class GrouperDataProviderTest extends GrouperTest {
     LdapProvisionerTestUtils.stopAndRemoveLdapContainer();
     LdapProvisionerTestUtils.startLdapContainer();
     LdapProvisionerTestUtils.setupSubjectSource();
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob").store();
+    } else {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.class").value("edu.internet2.middleware.grouper.dataField.GrouperDataProviderIncrementalSyncJob").store();
+    }
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("otherJob.dataProvider1.dataProviderConfigId").value("ldap").store();
 
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmName").value("public").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.public.privacyRealmPublic").value("true").store();
@@ -1189,10 +1374,11 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectSourceId").value("personLdapSource").store();
     
     // load data
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    GrouperDataProviderSync grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("ldap");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
 
@@ -1215,9 +1401,7 @@ public class GrouperDataProviderTest extends GrouperTest {
       
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
       
-      grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("ldap");
-      grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-      grouperDataProviderSync.runSync(syncType);      
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1"); 
     }
     
     // check synced data
@@ -1275,9 +1459,11 @@ public class GrouperDataProviderTest extends GrouperTest {
     }
     
     // load data updates
-    grouperDataProviderSync = GrouperDataProviderSync.retrieveDataProviderSync("ldap");
-    grouperDataProviderSync.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    grouperDataProviderSync.runSync(syncType);
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
 
     assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
 
@@ -1428,7 +1614,7 @@ public class GrouperDataProviderTest extends GrouperTest {
           
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "id", Types.BIGINT, "20", true, true);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "subject_id", Types.VARCHAR, "40", false, true);
-          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "create_timestamp1", Types.DATE, null, false, false);
+          GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "create_timestamp1", Types.TIMESTAMP, null, false, false);
           GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "create_timestamp2", Types.BIGINT, "20", false, false);
         }
         

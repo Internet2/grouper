@@ -13,6 +13,8 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 
 /**
  * 
@@ -38,6 +40,10 @@ public class GrouperDataProviderSync {
    * loader log
    */
   private Hib3GrouperLoaderLog hib3GrouperLoaderLog;
+  
+  private GcGrouperSync gcGrouperSync;
+  
+  private GcGrouperSyncJob gcGrouperSyncJob;
   
   
   /**
@@ -202,5 +208,25 @@ public class GrouperDataProviderSync {
   
   public void setGrouperDataEngine(GrouperDataEngine grouperDataEngine) {
     this.grouperDataEngine = grouperDataEngine;
+  }
+
+  
+  public GcGrouperSync getGcGrouperSync() {
+    return gcGrouperSync;
+  }
+
+  
+  public void setGcGrouperSync(GcGrouperSync gcGrouperSync) {
+    this.gcGrouperSync = gcGrouperSync;
+  }
+
+  
+  public GcGrouperSyncJob getGcGrouperSyncJob() {
+    return gcGrouperSyncJob;
+  }
+
+  
+  public void setGcGrouperSyncJob(GcGrouperSyncJob gcGrouperSyncJob) {
+    this.gcGrouperSyncJob = gcGrouperSyncJob;
   }
 }

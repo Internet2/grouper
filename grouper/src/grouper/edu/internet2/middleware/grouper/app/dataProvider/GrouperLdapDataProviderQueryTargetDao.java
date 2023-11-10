@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.dataProvider;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
@@ -86,7 +87,7 @@ public class GrouperLdapDataProviderQueryTargetDao extends GrouperDataProviderQu
   }
   
   @Override
-  public List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex) {
+  public List<Object[]> selectChangeLogData(Map<String, Integer> lowerColumnNameToZeroIndex, Timestamp changesFromTimestamp, Timestamp changesToTimestamp) {
     throw new RuntimeException("Not implemented");
   }
   
