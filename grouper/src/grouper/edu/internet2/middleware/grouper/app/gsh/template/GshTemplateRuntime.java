@@ -6,6 +6,27 @@ import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateRuntime {
   
+  /**
+   * set this from script
+   */
+  private GshTemplateV2 gshTemplateV2;
+
+  /**
+   * set this from script
+   * @param gshTemplateV2
+   */
+  public void assignGshTemplateV2(GshTemplateV2 gshTemplateV2) {
+    this.gshTemplateV2 = gshTemplateV2;
+  }
+  
+  /**
+   * set this from script
+   * @return
+   */
+  public GshTemplateV2 getGshTemplateV2() {
+    return gshTemplateV2;
+  }
+
   private String templateConfigId;
   
   public String getTemplateConfigId() {

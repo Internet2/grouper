@@ -22,6 +22,7 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
               
 			<div class="row-fluid">
 			  
+          <p class="lead" id="templateHeader"></p>
 			    <c:choose>
 			      <c:when test="${fn:length(grouperRequestContainer.gshTemplateContainer.guiGshTemplateConfigurations) > 0}">
 			        
@@ -61,11 +62,11 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
 			                           <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
 			                             
 			                             <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.enabled == true}">
-					                      <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.disableGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableDisableActionOption'] }</a></li>
+					                      <li><a href="#" onclick="ajax('../app/UiV2GshTemplateConfig.disableGshTemplate?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;">${textContainer.text['gshTemplatesTableDisableActionOption'] }</a></li>
 					                     </c:if>
 					                     
 					                     <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.enabled == false}">
-					                      <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.enableGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEnableActionOption'] }</a></li>
+					                      <li><a href="#" onclick="ajax('../app/UiV2GshTemplateConfig.enableGshTemplate?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;">${textContainer.text['gshTemplatesTableEnableActionOption'] }</a></li>
 					                     </c:if>
                                
                                <li><a href="#" onclick="return guiV2link('operation=UiV2GshTemplateConfig.editGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableEditDetailsActionOption'] }</a></li>
@@ -76,10 +77,12 @@ ${grouper:title('gshTemplateConfigsPageTitle')}
                                <c:if test="${guiGshTemplateConfiguration.gshTemplateConfiguration.defaultRunButtonType == 'folder'}">
                                 <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&stemId=${guiGshTemplateConfiguration.gshTemplateConfiguration.folderId}&templateType=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');">${textContainer.text['gshTemplatesTableRunTemplateActionOption'] }</a></li>
                                </c:if>
+                               <li><a href="#" onclick="ajax('../app/UiV2Template.test?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;"
+                                    >${textContainer.text['gshTemplatesTableTestActionOption'] }</a></li>
                                
                                
 <li>&nbsp;</li>			                             
-			                             <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['gshTemplatesConfirmDeleteConfig']}')) { return guiV2link('operation=UiV2GshTemplateConfig.deleteGshTemplate&gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}');}">${textContainer.text['gshTemplatesTableDeleteDetailsActionOption'] }</a></li>
+			                             <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['gshTemplatesConfirmDeleteConfig']}')) { ajax('../app/UiV2GshTemplateConfig.deleteGshTemplate?gshTemplateConfigId=${guiGshTemplateConfiguration.gshTemplateConfiguration.configId}'); return false;}">${textContainer.text['gshTemplatesTableDeleteDetailsActionOption'] }</a></li>
 			                           </ul>
 			                         </div>
 			                   </td>

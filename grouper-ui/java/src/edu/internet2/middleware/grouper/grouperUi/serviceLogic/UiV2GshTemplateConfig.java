@@ -348,8 +348,8 @@ public class UiV2GshTemplateConfig {
       gshTemplateConfiguration.setConfigId(gshTemplateConfigId);
       
       gshTemplateConfiguration.deleteConfig(true);
-      
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2GshTemplateConfig.viewGshTemplates')"));
+
+      viewGshTemplates(request, response);
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("gshTemplateConfigDeleteSuccess")));

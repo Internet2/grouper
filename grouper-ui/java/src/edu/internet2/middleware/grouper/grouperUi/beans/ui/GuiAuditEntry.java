@@ -1143,6 +1143,9 @@ public class GuiAuditEntry {
         case GSH_TEMPLATE_EXEC:
           return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_EXEC");
           
+        case GSH_TEMPLATE_TEST:
+          return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_TEST");
+          
         case GSH_TEMPLATE_UPDATE:
           return TextContainer.retrieveFromRequest().getText().get("audits_GSH_TEMPLATE_UPDATE");
           
