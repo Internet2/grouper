@@ -4168,18 +4168,6 @@ public class UiV2GrouperLoader {
       final StringBuilder loaderReport, final LdapSearchScope ldapSearchScopeEnum, final long groupsLikeCount) {
     final String groupName = group.getName();
   
-    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-        "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
-    
-    String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(groupName) + ":") : "";
-    if (!StringUtils.isBlank(groupParentFolderNameTemp) && !groupParentFolderNameTemp.endsWith(":")) {
-      groupParentFolderNameTemp += ":";
-    }
-    final String groupParentFolderName = groupParentFolderNameTemp;
-  
-    loaderReport.append("<font color='blue'>NOTE:</font> groupParentFolderName: " 
-        + ("".equals(groupParentFolderName) ? "Root" : groupParentFolderName) 
-        + "\n");
   
     final int[] subObjectOverallCount = new int[]{0};
   
@@ -4228,6 +4216,8 @@ public class UiV2GrouperLoader {
       int subObjectCount = 0;
 
       boolean firstObject = true;
+      
+      Boolean groupParentFolderNameIsRoot = null;
 
       for (LdapEntry entry : searchResults) {
 
@@ -4242,12 +4232,10 @@ public class UiV2GrouperLoader {
 
         String baseDn = GrouperLoaderConfig.parseLdapBaseDnFromUrlConfig(grouperLoaderContainer.getLdapServerId());
 
-        String loaderGroupName = defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+        String groupParentFolderName = (GrouperUtil.parentStemNameFromName(groupName, true) + ":");
+        
+        String loaderGroupName = groupParentFolderName + defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
             baseDn, grouperLoaderContainer.getLdapSearchDn());
-
-        if (firstObject) {
-          loaderReport.append("<font color='blue'>NOTE:</font> Original group name: '" + loaderGroupName + "'\n");
-        }
 
         if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())
             || !StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDisplayNameExpression())
@@ -4283,20 +4271,32 @@ public class UiV2GrouperLoader {
             try {
               elGroupName = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupNameExpression(),
                   envVars);
+              
               if (firstObject) {
                 loaderReport.append("<font color='green'>SUCCESS:</font> Evaluated group name expression: '" 
                     + grouperLoaderContainer.getLdapGroupNameExpression() + "' to value '" + elGroupName + "'\n");
               }
+              
+              if (groupParentFolderNameIsRoot == null) {
+                groupParentFolderNameIsRoot = GrouperLoaderResultset.groupParentFolderNameIsRoot(groupName, elGroupName);
+              }
+              
+              groupParentFolderName = groupParentFolderNameIsRoot ? "" : (GrouperUtil.parentStemNameFromName(groupName, true) + ":");
+              
+              if (firstObject) {
+                loaderReport.append("<font color='blue'>NOTE:</font> groupParentFolderName: " 
+                    + ("".equals(groupParentFolderName) ? "Root" : groupParentFolderName) 
+                    + "\n");
+              }
+              
             } catch (Exception e) {
               loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group name expression: '" 
                   + grouperLoaderContainer.getLdapGroupNameExpression() + "'\n");
               loaderReport.append(ExceptionUtils.getFullStackTrace(e) + "\n");
               return;
             }
+            
             loaderGroupName = groupParentFolderName + elGroupName;
-            if (firstObject) {
-              loaderReport.append("<font color='blue'>NOTE:</font> Final group name: '" + loaderGroupName + "'\n");
-            }
           }
           if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupDisplayNameExpression())) {
             String elGroupDisplayName = null;
@@ -4331,7 +4331,11 @@ public class UiV2GrouperLoader {
             }
           }
         }
-
+        
+        if (firstObject) {
+          loaderReport.append("<font color='blue'>NOTE:</font> Final group name: '" + loaderGroupName + "'\n");
+        }
+        
         result.put(loaderGroupName, valueResults);
 
         LdapAttribute subjectAttribute = entry.getAttribute(grouperLoaderContainer.getLdapSubjectAttributeName());
@@ -4406,19 +4410,6 @@ public class UiV2GrouperLoader {
       final StringBuilder loaderReport, final LdapSearchScope ldapSearchScopeEnum, final long groupsLikeCount) {
 
     final String overallGroupName = group.getName();
-
-    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-        "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
-
-    String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(overallGroupName) + ":") : "";
-    if (!StringUtils.isBlank(groupParentFolderNameTemp) && !groupParentFolderNameTemp.endsWith(":")) {
-      groupParentFolderNameTemp += ":";
-    }
-    final String groupParentFolderName = groupParentFolderNameTemp;
-    
-    loaderReport.append("<font color='blue'>NOTE:</font> groupParentFolderName: " 
-        + ("".equals(groupParentFolderName) ? "Root" : groupParentFolderName) 
-        + "\n");
 
     @SuppressWarnings("unused")
     final int[] subObjectOverallCount = new int[]{0};
@@ -4565,6 +4556,7 @@ public class UiV2GrouperLoader {
           return;
         }
 
+        Boolean groupParentFolderNameIsRoot = null;
         // loop over attribute names that indicate group membership
         for (String attribute: groupAttributeNameArray) {
 
@@ -4634,9 +4626,10 @@ public class UiV2GrouperLoader {
 
                   String defaultFolder = defaultLdapFolder();
 
-                  groupName = defaultFolder + attributeValue;
-
-
+                  String groupParentFolderName = (GrouperUtil.parentStemNameFromName(overallGroupName, true) + ":");
+                  
+                  groupName = groupParentFolderName + defaultFolder + attributeValue;
+                  
                   String loaderGroupDisplayName = null;
                   String loaderGroupDescription = null;
 
@@ -4672,15 +4665,27 @@ public class UiV2GrouperLoader {
 
                     if (!StringUtils.isBlank(grouperLoaderContainer.getLdapGroupNameExpression())) {
                       try {
-
                         groupName = LoaderLdapUtils.substituteEl(grouperLoaderContainer.getLdapGroupNameExpression(),
                             envVars);
+                        
                         if (subObjectCount == 1) {
                           loaderReport.append("<font color='green'>SUCCESS:</font> Group name: '" 
                               + groupName + "' evaluated from '" + grouperLoaderContainer.getLdapGroupNameExpression() + "'\n");
-                          loaderReport.append("<font color='green'>SUCCESS:</font> Final group name: '" 
-                              + groupParentFolderName + groupName + "'\n");
-                        } 
+                        }
+                        
+                        if (groupParentFolderNameIsRoot == null) {
+                          groupParentFolderNameIsRoot = GrouperLoaderResultset.groupParentFolderNameIsRoot(overallGroupName, groupName);
+                        }
+                        
+                        groupParentFolderName = groupParentFolderNameIsRoot ? "" : (GrouperUtil.parentStemNameFromName(overallGroupName, true) + ":");
+                       
+                        if (subObjectCount == 1) {
+                          loaderReport.append("<font color='blue'>NOTE:</font> groupParentFolderName: " 
+                              + ("".equals(groupParentFolderName) ? "Root" : groupParentFolderName) 
+                              + "\n");
+                        }
+                        groupName = groupParentFolderName + groupName;
+                      
                       } catch (Exception e) {
                         loaderReport.append("<font color='red'>ERROR:</font> Error evaluating group name expression: '" 
                             + grouperLoaderContainer.getLdapGroupNameExpression() + "'\n");
@@ -4725,7 +4730,10 @@ public class UiV2GrouperLoader {
                     }
                   }
 
-                  groupName = groupParentFolderName + groupName;
+                  if (subObjectCount == 1) {
+                    loaderReport.append("<font color='green'>SUCCESS:</font> Final group name: '" 
+                        + groupName + "'\n");
+                  } 
                   
                   if (!StringUtils.isBlank(loaderGroupDisplayName)) {
                     groupNameToDisplayName.put(groupName, loaderGroupDisplayName);
