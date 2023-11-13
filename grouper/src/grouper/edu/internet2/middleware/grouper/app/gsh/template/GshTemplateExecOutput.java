@@ -3,6 +3,11 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+/**
+ * run a template
+ * @author mchyzer
+ *
+ */
 public class GshTemplateExecOutput {
   
   private GshTemplateOutput gshTemplateOutput;

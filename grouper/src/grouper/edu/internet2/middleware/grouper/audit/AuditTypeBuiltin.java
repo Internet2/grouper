@@ -709,6 +709,11 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   GSH_TEMPLATE_EXEC(new AuditType("gshTemplate", "gshTemplateExec", null, "gshTemplateConfigId", "status")),
   
   /**
+   * gsh template execute
+   */
+  GSH_TEMPLATE_TEST(new AuditType("gshTemplate", "gshTemplateTest", null, "gshTemplateConfigId", "status")),
+  
+  /**
    * add gsh template
    */
   GSH_TEMPLATE_ADD(new AuditType("gshTemplate", "gshTemplateAdd", null, "gshTemplateConfigId")),

@@ -3272,6 +3272,19 @@ public class GrouperUtil {
    * @param object
    * @return the string value
    */
+  public static String toStringForLogHtml(Object object) {
+    String result = toStringForLog(object);
+    result = escapeHtml(result, true);
+    result = replace(result, "\n", "<br />\n");
+    return result;
+  }
+
+  /**
+   * print out various types of objects
+   *
+   * @param object
+   * @return the string value
+   */
   public static String toStringForLog(Object object, boolean newLines) {
     StringBuilder result = new StringBuilder();
     toStringForLogHelper(object, -1, result, newLines);
@@ -11063,6 +11076,25 @@ public class GrouperUtil {
     return true;
   }
   
+  /**
+   * <p>A way to get the entire nested stack-trace of an throwable.</p>
+   *
+   * @param throwable  the <code>Throwable</code> to be examined
+   * @return the nested stack trace, with the root cause first
+   * @since 2.0
+   */
+  public static String getFullStackTraceHtml(Throwable throwable) {
+    
+    if (throwable == null) {
+      return "";
+    }
+    
+    String stackHtml = getFullStackTrace(throwable);
+    stackHtml = replace(escapeHtml(stackHtml, true), "\n", "<br />");
+    return stackHtml;
+    
+  }
+
   /**
    * <p>A way to get the entire nested stack-trace of an throwable.</p>
    *

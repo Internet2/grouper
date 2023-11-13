@@ -84,16 +84,6 @@ public class GshTemplateExec {
   }
 
   /**
-   * pass in so you have a reference
-   * @param grouperGroovyRuntime
-   */
-  public GshTemplateExec assignGrouperGroovyRuntime(GrouperGroovyRuntime grouperGroovyRuntime) {
-    this.grouperGroovyRuntime = grouperGroovyRuntime;
-    return this;
-  }
-
-
-  /**
    * have a progress bean to be able to communicate progress to the UI
    */
   private ProgressBean progressBean = new ProgressBean();
@@ -266,6 +256,10 @@ public class GshTemplateExec {
     return gshTemplateExecOutput;
   }
 
+  private static Map<String, GshTemplateV2> configIdToGshTemplateV2 = new HashMap<>();
+  
+  private static Map<String, String> configIdToGshTemplateV2source = new HashMap<>();
+  
   /**
    * execute the gsh template
    * @return
@@ -326,7 +320,7 @@ public class GshTemplateExec {
         
         gshTemplateRuntime.setCurrentSubject(currentUser);
         templateConfig.setCurrentUser(currentUser);
-        if (!new GshTemplateValidationService().validate(templateConfig, THIS, gshTemplateExecOutput)) {
+        if (!new GshTemplateValidationService().validate(templateConfig, THIS, gshTemplateExecOutput.getGshTemplateOutput())) {
           return null;
         }
         
@@ -358,24 +352,35 @@ public class GshTemplateExec {
     } else {
       this.gshTemplateExecOutput.setValid(true);
     }
-    
+
     StringBuilder scriptToRun = new StringBuilder();
     
     if (templateConfig.isGshLightweight()) {
       scriptToRun.append("import edu.internet2.middleware.grouper.app.gsh.template.*;\n");
       scriptToRun.append("import edu.internet2.middleware.subject.*;\n");
     }
+    
+    boolean templateVersionV1 = StringUtils.equals("V1", templateConfig.getTemplateVersion());
+    boolean templateVersionV2 = StringUtils.equals("V2", templateConfig.getTemplateVersion());
+    GshTemplateV2 gshTemplateV2 = executeForTemplateV2instance();
 
-    scriptToRun.append("GshTemplateOutput gsh_builtin_gshTemplateOutput = GshTemplateOutput.retrieveGshTemplateOutput();\n");
-    
-    scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
-    
-    scriptToRun.append("GrouperSession gsh_builtin_grouperSession = grouperGroovyRuntime.getGrouperSession();\n");
-    
-    scriptToRun.append("Subject gsh_builtin_subject = gsh_builtin_gshTemplateRuntime.getCurrentSubject();\n");
-    
-    scriptToRun.append("String gsh_builtin_subjectId = gsh_builtin_gshTemplateRuntime.getCurrentSubject().getId();\n");
+    GshTemplateV2input gshTemplateV2input = new GshTemplateV2input();
+    gshTemplateV2input.setGsh_builtin_gshTemplateRuntime(gshTemplateRuntime);
 
+    GshTemplateV2output gshTemplateV2output = new GshTemplateV2output();
+    gshTemplateV2output.setGsh_builtin_gshTemplateOutput(gshTemplateOutput);
+
+    if (templateVersionV1) {
+      scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
+
+      scriptToRun.append("GshTemplateOutput gsh_builtin_gshTemplateOutput = GshTemplateOutput.retrieveGshTemplateOutput();\n");
+      
+      scriptToRun.append("GrouperSession gsh_builtin_grouperSession = grouperGroovyRuntime.getGrouperSession();\n");
+      
+      scriptToRun.append("Subject gsh_builtin_subject = gsh_builtin_gshTemplateRuntime.getCurrentSubject();\n");
+      
+      scriptToRun.append("String gsh_builtin_subjectId = gsh_builtin_gshTemplateRuntime.getCurrentSubject().getId();\n");
+    }
 
     if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
       gshTemplateRuntime.setOwnerStemName(ownerStemName);
@@ -384,9 +389,21 @@ public class GshTemplateExec {
     } else {
       throw new RuntimeException("Invalid gsh template owner type "+this.gshTemplateOwnerType);
     }
-    scriptToRun.append("String gsh_builtin_ownerStemName = gsh_builtin_gshTemplateRuntime.getOwnerStemName();\n");
-    scriptToRun.append("String gsh_builtin_ownerGroupName = gsh_builtin_gshTemplateRuntime.getOwnerGroupName();\n");
     
+    if (templateVersionV1) {
+      scriptToRun.append("String gsh_builtin_ownerStemName = gsh_builtin_gshTemplateRuntime.getOwnerStemName();\n");
+      scriptToRun.append("String gsh_builtin_ownerGroupName = gsh_builtin_gshTemplateRuntime.getOwnerGroupName();\n");
+    }
+    
+    if (templateVersionV2) {
+
+      gshTemplateV2input.setGsh_builtin_ownerStemName(gshTemplateRuntime.getOwnerStemName());
+      gshTemplateV2input.setGsh_builtin_ownerGroupName(gshTemplateRuntime.getOwnerGroupName());
+
+      gshTemplateV2input.setGsh_builtin_subject(gshTemplateRuntime.getCurrentSubject());
+      gshTemplateV2input.setGsh_builtin_subjectId(gshTemplateRuntime.getCurrentSubject().getId());
+
+    }
     Map<String, GshTemplateInput> gshTemplateInputsMap = new HashMap<String, GshTemplateInput>();
     
     for (GshTemplateInput gshTemplateInput: gshTemplateInputs) {
@@ -410,10 +427,14 @@ public class GshTemplateExec {
         valueFromUser = gshTemplateInput.getValueString();
       }
       
-      String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(grouperGroovyInput, inputConfig, valueFromUser);
-      
-      scriptToRun.append(gshVariable);
-      
+      if (templateVersionV1) {
+        String gshVariable = inputConfig.getGshTemplateInputType().generateGshVariable(grouperGroovyInput, inputConfig, valueFromUser);
+        scriptToRun.append(gshVariable);
+      }
+      if (templateVersionV2) {
+        Object realValue = inputConfig.getGshTemplateInputType().convertToType(valueFromUser);
+        gshTemplateV2input.getGsh_builtin_inputs().put(inputConfig.getName(), realValue);
+      }
     }
     
     scriptToRun.append(templateConfig.getGshTemplate());
@@ -427,6 +448,10 @@ public class GshTemplateExec {
       GshTemplateRuntime.assignThreadLocalGshTemplateRuntime(gshTemplateRuntime);
       
       grouperSession = GrouperSession.start(grouperSessionSubject, false);
+      if (templateVersionV2) {
+        gshTemplateV2input.setGsh_builtin_grouperSession(grouperSession);
+      }
+      
       GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
         
         @Override
@@ -457,8 +482,18 @@ public class GshTemplateExec {
               GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
               gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
 
-              GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+              // if v2, only run the script if it is new in cache or changed
+              if (templateVersionV1) {
+                GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+                if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+                  success[0] = false;
+                }
+              }
+              if (templateVersionV2) {
 
+                gshTemplateV2.gshRunLogic(gshTemplateV2input, gshTemplateV2output);
+              }
+              
               for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
                 if (StringUtils.equals("error", gshOutputLine.getMessageType())) {
                   success[0] = false;
@@ -469,7 +504,7 @@ public class GshTemplateExec {
                 success[0] = false;
               }
               
-              if ( (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) && templateConfig.isRunGshInTransaction()) {
+              if (success[0] == false && templateConfig.isRunGshInTransaction()) {
                 hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
               }
               
@@ -541,6 +576,108 @@ public class GshTemplateExec {
     }
     
     return this.gshTemplateExecOutput;
+  }
+
+  /**
+   * execute the gsh template (calls newInstance).
+   * @return
+   */
+  public GshTemplateV2 executeForTemplateV2instance() {
+    
+    if (this.gshTemplateExecOutput == null) {
+      this.gshTemplateExecOutput = new GshTemplateExecOutput();
+    }
+    
+    GrouperUtil.assertion(StringUtils.isNotBlank(configId), "Config ID null");
+
+    GshTemplateConfig templateConfig = new GshTemplateConfig(configId);
+    
+    final GshTemplateExec THIS = this;
+    
+    GshTemplateV2[] gshTemplateV2 = new GshTemplateV2[] {null};
+
+    boolean unassignTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime() == null;
+    if (GshTemplateRuntime.retrieveGshTemplateRuntime() == null) {
+      GshTemplateRuntime.assignThreadLocalGshTemplateRuntime(new GshTemplateRuntime());
+    }
+    GshTemplateRuntime gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();
+    gshTemplateRuntime.setTemplateConfigId(configId);
+    
+    try {     
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Subject callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          templateConfig.populateConfiguration();
+
+          StringBuilder scriptToRun = new StringBuilder();
+          
+          scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
+          
+          boolean templateVersionV2 = StringUtils.equals("V2", templateConfig.getTemplateVersion());
+          
+          GrouperUtil.assertion(templateVersionV2, "GSH template must be template type V2!");
+          GrouperUtil.assertion(!templateConfig.isGshLightweight(), "V2 GSH template must not be 'lightweight'!");
+          
+          gshTemplateV2[0] = configIdToGshTemplateV2.get(configId);
+          String cachedSource = configIdToGshTemplateV2source.get(configId);
+          boolean needsNewV2template = gshTemplateV2[0] == null || !StringUtils.equals(cachedSource, templateConfig.getGshTemplate());
+        
+          if (needsNewV2template) {
+            GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
+          
+            // keep a handle of the runtime
+            if (GshTemplateExec.this.grouperGroovyRuntime == null) {
+              GshTemplateExec.this.grouperGroovyRuntime = new GrouperGroovyRuntime();
+            }
+            grouperGroovyInput.assignGrouperGroovyRuntime(GshTemplateExec.this.grouperGroovyRuntime);
+            
+            scriptToRun.append(templateConfig.getGshTemplate());
+            
+            GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+            grouperGroovyInput.assignScript(scriptToRun.toString());
+
+            gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
+            GrouperGroovysh.runScript(grouperGroovyInput, grouperGroovyResult);
+            
+            if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+              throw new RuntimeException("Error getting gsh template v2 instance: " + grouperGroovyResult.getResultCode() 
+                + ", " + grouperGroovyResult.getOutString(), grouperGroovyResult.getException());
+            }
+            
+            gshTemplateV2[0] = gshTemplateRuntime.getGshTemplateV2();
+            
+            if (gshTemplateV2[0] == null) {
+              throw new RuntimeException("The script did not set the template! gsh_builtin_gshTemplateRuntime.assignGshTemplateV2(gshTemplateV2);");
+            }
+            
+            configIdToGshTemplateV2.put(configId, gshTemplateV2[0]);
+            configIdToGshTemplateV2source.put(configId, templateConfig.getGshTemplate());
+            if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+              GshTemplateExec.this.gshTemplateExecOutput.setGshScriptOutput(grouperGroovyResult.fullOutput());
+              GshTemplateExec.this.gshTemplateExecOutput.setException(grouperGroovyResult.getException());
+              
+              if (GshTemplateExec.this.gshTemplateExecOutput.getException() != null) {
+  //              GshTemplateExec.this.gshTemplateExecOutput.setSuccess(false);
+  //              LOG.error("Error with GSH template configId: " + configId + ", " + GshTemplateExec.this.gshTemplateExecOutput.getException());
+                throw new RuntimeException(GshTemplateExec.this.gshTemplateExecOutput.getException());
+              }
+  
+            }
+          }
+          return null;
+        }
+      });
+              
+    } finally {
+      if (unassignTemplateRuntime) {
+        GshTemplateRuntime.removeThreadLocalGshTemplateRuntime();
+      }
+    }
+    return GrouperUtil.newInstance(gshTemplateV2[0].getClass());
+    
   }
 
   

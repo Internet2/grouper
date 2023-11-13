@@ -37,7 +37,7 @@ public enum GshTemplateInputType {
     }
     
     @Override
-    public Integer converToType(String valueFromUser) {
+    public Integer convertToType(String valueFromUser) {
       return GrouperUtil.intObjectValue(valueFromUser, true);
     }
     
@@ -63,7 +63,7 @@ public enum GshTemplateInputType {
     }
     
     @Override
-    public String converToType(String valueFromUser) {
+    public String convertToType(String valueFromUser) {
       return valueFromUser;
     }
     
@@ -97,7 +97,7 @@ public enum GshTemplateInputType {
     }
     
     @Override
-    public Boolean converToType(String valueFromUser) {
+    public Boolean convertToType(String valueFromUser) {
       return GrouperUtil.booleanObjectValue(valueFromUser);
     }
     
@@ -119,7 +119,7 @@ public enum GshTemplateInputType {
 
   public abstract boolean canConvertToCorrectType(String valueFromUser);
   
-  public abstract Object converToType(String valueFromUser);
+  public abstract Object convertToType(String valueFromUser);
 
 }
 

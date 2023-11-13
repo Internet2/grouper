@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
-import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -33,9 +32,11 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecTestOutput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateTestExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -55,6 +56,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.ServiceAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
@@ -78,7 +81,7 @@ public class UiV2Template {
    * keep an expirable cache of import progress for 5 hours (longest an import is expected).  This has multikey of session id and some random uuid
    * uniquely identifies this import as opposed to other imports in other tabs.  This cannot have any request objects or j2ee objects
    */
-  private static ExpirableCache<MultiKey, GshTemplateExec> gshExecThreadProgress = new ExpirableCache<MultiKey, GshTemplateExec>(300);
+  private static ExpirableCache<MultiKey, Object> gshExecThreadProgress = new ExpirableCache<MultiKey, Object>(300);
 
   /**
    * Show fields for new template
@@ -207,7 +210,7 @@ public class UiV2Template {
       
       guiGshTemplateInputConfig.setValue(value);
       
-      variableMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getGshTemplateInputType().converToType(value));
+      variableMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getGshTemplateInputType().convertToType(value));
       guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), guiGshTemplateInputConfig);
       
     }
@@ -408,7 +411,7 @@ public class UiV2Template {
 
     MultiKey reportMultiKey = new MultiKey(sessionId, uniqueImportId);
     
-    GshTemplateExec gshTemplateExec = gshExecThreadProgress.get(reportMultiKey);
+    GshTemplateExec gshTemplateExec = (GshTemplateExec)gshExecThreadProgress.get(reportMultiKey);
     
     GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer().setGshTemplateExec(gshTemplateExec);
 
@@ -426,6 +429,7 @@ public class UiV2Template {
             TextContainer.retrieveFromRequest().getText().get("gshTemplateError")));
         // it has an exception, leave it be
         gshExecThreadProgress.put(reportMultiKey, null);
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", ""));
         return;
       }
 
@@ -889,6 +893,100 @@ public class UiV2Template {
   }
   
   /**
+   * test gsh template
+   * @param request
+   * @param response
+   */
+  public void test(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      GshTemplateContainer gshTemplateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer();
+      
+      String templateType = request.getParameter("gshTemplateConfigId");
+      
+      if (StringUtils.isBlank(templateType)) {
+        throw new RuntimeException("gshTemplateConfigId cannot be blank.");
+      }
+      
+      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+        throw new RuntimeException("User is not an admin! " + SubjectHelper.getPretty(loggedInSubject));
+      }
+      
+      GshTemplateTestExec exec = new GshTemplateTestExec();
+      
+      exec.assignConfigId(templateType);
+            
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
+      gshTemplateConfig.populateConfiguration();
+      
+      String sessionId = request.getSession().getId();
+      
+      // uniquely identifies this task as opposed to other tasks in other tabs
+      String uniqueId = GrouperUuid.getUuid();
+
+      gshTemplateContainer.setUniqueId(uniqueId);
+
+      MultiKey reportMultiKey = new MultiKey(sessionId, uniqueId);
+      
+      gshExecThreadProgress.put(reportMultiKey, exec);
+
+      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("gshTemplateExec") {
+
+        @Override
+        public Void callLogic() {
+          try {
+
+            exec.getProgressBean().setStartedMillis(System.currentTimeMillis());
+
+            exec.executeTests();
+
+          } catch (RuntimeException re) {
+            exec.getProgressBean().setHasException(true);
+            exec.getProgressBean().setException(re);
+            // log this since the thread will just end and will never get logged
+            LOG.error("error", re);
+          } finally {
+            // we done
+            exec.getProgressBean().setComplete(true);
+          }
+          return null;
+        }
+      };      
+      
+      // see if running in thread
+      boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.gshExec.useThread", true);
+
+      if (useThreads) {
+        
+        GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+        
+        int waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.gshExec.progressStartsInSeconds", 5);
+
+        GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
+        
+      } else {
+        grouperCallable.callLogic();
+      }
+  
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      // running...
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateTestSubheading")));
+      
+      customTemplateTestExecuteHelper(sessionId, uniqueId); 
+                  
+    } finally {
+      GrouperSession.stopQuietly(grouperSession); 
+    }
+  }
+
+  /**
    * Find all template types and set them in container
    */
   private void setTemplateOptions() {
@@ -1080,6 +1178,161 @@ public class UiV2Template {
   public void newTemplateSimplifiedUi(final HttpServletRequest request, final HttpServletResponse response) {
     newTemplateHelper(request, response, true);
     
+  }
+
+  /**
+   * get the status of a report
+   * @param request
+   * @param response
+   */
+  private void customTemplateTestExecuteHelper(String sessionId, String uniqueImportId) {
+    
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    MultiKey reportMultiKey = new MultiKey(sessionId, uniqueImportId);
+    
+    GshTemplateTestExec gshTemplateTestExec = (GshTemplateTestExec)gshExecThreadProgress.get(reportMultiKey);
+    
+    GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer().setGshTemplateTestExec(gshTemplateTestExec);
+  
+    if (gshTemplateTestExec != null) {
+      
+      // endless loop?
+      if (gshTemplateTestExec.getProgressBean().isThisLastStatus()) {
+        return;
+      }
+      
+      if (gshTemplateTestExec.getProgressBean().isHasException()) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("gshTemplateError") + ", " 
+              + (gshTemplateTestExec.getProgressBean() != null ?
+                  GrouperUtil.getFullStackTraceHtml(gshTemplateTestExec.getProgressBean().getException()) : "")));
+        // it has an exception, leave it be
+        gshExecThreadProgress.put(reportMultiKey, null);
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", ""));
+        return;
+      }
+  
+      GshTemplateExecTestOutput gshTemplateExecTestOutput = gshTemplateTestExec.getGshTemplateExecTestOutput();
+      String templateType = gshTemplateTestExec.getConfigId();
+      
+      List<GuiScreenAction> guiScreenActions = new ArrayList<GuiScreenAction>();
+      
+      if (gshTemplateExecTestOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+        
+        for (GshValidationLine gshValidationLIne: gshTemplateExecTestOutput.getGshTemplateOutput().getValidationLines()) {
+          if (StringUtils.isNotBlank(gshValidationLIne.getInputName())) {
+            
+            guiScreenActions.add(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshValidationLIne.getInputName()+"_id", 
+                gshValidationLIne.getText()));
+          } else {
+            guiScreenActions.add(GuiScreenAction.newMessageAppend(GuiMessageType.error, gshValidationLIne.getText()));
+          }
+        }
+      }
+      
+      for (GshOutputLine outputLine: gshTemplateExecTestOutput.getGshTemplateOutput().getOutputLines()) {
+        
+        GuiMessageType guiMessageType = GuiMessageType.valueOf(GrouperUtil.defaultIfBlank(GrouperUtil.defaultString(outputLine.getMessageType()).toLowerCase(), "success"));
+        
+        guiScreenActions.add(GuiScreenAction.newMessageAppend(guiMessageType, outputLine.getText()));
+      }
+            
+      // consolidate messages
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + templateType + ".consolidateOutput", true)) {
+        for (GuiMessageType guiMessageType : GuiMessageType.values() ) {
+          
+          StringBuilder newMessageForType = new StringBuilder();
+          
+          Iterator<GuiScreenAction> iterator = guiScreenActions.iterator();
+          
+          // see if there is at least one message of this type
+          while (iterator.hasNext()) {
+            GuiScreenAction guiScreenAction = iterator.next();
+            
+            if (!StringUtils.isBlank(guiScreenAction.getValidationMessage())) {
+              continue;
+            }
+            
+            if (StringUtils.equalsIgnoreCase(guiMessageType.name(), guiScreenAction.getMessageType())) {
+              
+              String message = GrouperUtil.trimToEmpty(StringUtils.defaultString(guiScreenAction.getMessage()));
+              if (!StringUtils.isBlank(message)) {
+                if (newMessageForType.length() > 0) {
+                  newMessageForType.append("<br />");
+                }
+                
+                newMessageForType.append(message);
+              }
+              iterator.remove();
+            }
+          }
+          if (newMessageForType.length() > 0) {
+            guiScreenActions.add(GuiScreenAction.newMessageAppend(guiMessageType, newMessageForType.toString()));
+          }
+        }
+      }
+  
+      if (!gshTemplateTestExec.getProgressBean().isComplete()) {
+                
+        //show the report screen, running...
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateTestSubheading")));
+  
+        for (GuiScreenAction guiScreenAction : guiScreenActions) {
+          guiResponseJs.addAction(guiScreenAction);
+        }
+  
+        int progressRefreshSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.gshTemplate.progressRefreshSeconds", 5);
+        progressRefreshSeconds = Math.max(progressRefreshSeconds, 1);
+        progressRefreshSeconds *= 1000;
+        guiResponseJs.addAction(GuiScreenAction.newScript("setTimeout(function() {ajax('../app/UiV2Template.customTemplateTestExecuteStatus?uniqueId=" + uniqueImportId + "')}, " + progressRefreshSeconds + ")"));
+      } else {
+        // it is complete, leave it be
+        gshExecThreadProgress.put(reportMultiKey, null);
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", ""));
+  
+        if (gshTemplateExecTestOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
+  
+          for (GuiScreenAction guiScreenAction : guiScreenActions) {
+            guiResponseJs.addAction(guiScreenAction);
+          }
+  
+          return;
+        }
+  
+        
+        for (GuiScreenAction guiScreenAction : guiScreenActions) {
+          guiResponseJs.addAction(guiScreenAction);
+        }
+        if (GrouperUtil.length(guiScreenActions) == 0) {
+          throw new RuntimeException("Why no test output???");
+        }        
+        
+      }
+    }
+  
+  
+  }
+
+  /**
+   * get the status of a report
+   * @param request
+   * @param response
+   */
+  public void customTemplateTestExecuteStatus(HttpServletRequest request, HttpServletResponse response) {
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+  
+    GrouperSession grouperSession = null;
+  
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      String sessionId = request.getSession().getId();
+      String uniqueId = request.getParameter("uniqueId");
+      customTemplateTestExecuteHelper(sessionId, uniqueId);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
   
   

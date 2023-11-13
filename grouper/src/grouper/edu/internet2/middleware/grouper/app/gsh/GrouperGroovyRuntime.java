@@ -5,6 +5,11 @@ import java.util.Map;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 
+/**
+ * runtime during GSH script
+ * @author mchyzer
+ *
+ */
 public class GrouperGroovyRuntime {
 
   private int resultCode = 0;
