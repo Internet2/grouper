@@ -2661,8 +2661,12 @@ public class GrouperProvisioningLogic {
               subjectMatchingIdentifier = provisioningEntity.getSubjectId();
           } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier0")) {
             subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier1")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier1");
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier2")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier2");
           } else {
-              throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId' or 'subjectIdentifier0'");
+              throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId', 'subjectIdentifier0', 'subjectIdentifier1', or 'subjectIdentifier2'");
           }
           
           filter.append("("+subjectSearchMatchingAttribute+"="+subjectMatchingIdentifier+")");  
@@ -2728,11 +2732,14 @@ public class GrouperProvisioningLogic {
         subjectMatchingIdentifier = GrouperUtil.stringValue(object);
       } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectId")) {
           subjectMatchingIdentifier = provisioningEntity.getSubjectId();
-      } 
-      else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier0")) {
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier0")) {
         subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier1")) {
+        subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier1");
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier2")) {
+        subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier2");
       } else {
-          throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId' or 'subjectIdentifier0'");
+          throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId', 'subjectIdentifier0', 'subjectIdentifier1', or 'subjectIdentifier2'");
       }
         
       MultiKey identifier = null;
