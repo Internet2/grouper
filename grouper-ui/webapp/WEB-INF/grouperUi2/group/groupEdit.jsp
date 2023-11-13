@@ -90,10 +90,21 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                       <label for="${groupTypeForEdit.attributeName}Id" class="control-label">
                         ${grouper:escapeHtml(groupTypeForEdit.label)}</label>
                       <div class="controls">
+                        
                         <c:if test="${groupTypeForEdit.formElementType == 'TEXTFIELD'}">
-                          <input type="text" name="${groupTypeForEdit.configId}__name"
-                              value="${grouper:escapeHtml(groupTypeForEdit.value)}"
-                              id="${groupTypeForEdit.configId}__id">
+                          <c:choose>
+                            <c:when test="${groupTypeForEdit.attributeDefName.attributeDef.valueType == 'timestamp'}">
+                              <input type="text" name="${groupTypeForEdit.configId}__name"
+                                placeholder="${textContainer.text['groupCreateDatePlaceholder'] }"
+                                value="${grouper:escapeHtml(groupTypeForEdit.value)}"
+                                id="${groupTypeForEdit.configId}__id">
+                            </c:when>
+                            <c:otherwise>
+                             <input type="text" name="${groupTypeForEdit.configId}__name"
+                                value="${grouper:escapeHtml(groupTypeForEdit.value)}"
+                                id="${groupTypeForEdit.configId}__id">
+                            </c:otherwise>
+                          </c:choose>
                         </c:if>
                         
                         <c:if test="${groupTypeForEdit.formElementType == 'CHECKBOX'}">

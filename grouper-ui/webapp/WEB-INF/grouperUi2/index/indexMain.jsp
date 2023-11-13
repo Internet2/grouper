@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+${grouper:title('grouperHomePageTitle')}
+
               <!-- indexMain.jsp -->
               <div class="bread-header-container">
                 <ul class="breadcrumb">
