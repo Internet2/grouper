@@ -248,7 +248,7 @@ public class WsAddMemberResult implements ResultMetadataHolder {
   public void assignResultCodeException(Exception e, WsSubjectLookup wsSubjectLookup1) {
     this.assignResultCode(WsAddMemberResultCode.EXCEPTION);
     this.getResultMetadata().setResultMessage(ExceptionUtils.getFullStackTrace(e));
-    LOG.error(wsSubjectLookup1 + ", " + e, e);
+    LOG.error(wsSubjectLookup1 + ", " + e.getMessage());
   }
 
   /**
