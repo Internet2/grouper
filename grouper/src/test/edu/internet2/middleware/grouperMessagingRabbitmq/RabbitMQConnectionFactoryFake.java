@@ -6,6 +6,7 @@ import java.util.Arrays;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.TimeoutException;
 
 import com.rabbitmq.client.AMQP.Basic.RecoverOk;
@@ -18,24 +19,30 @@ import com.rabbitmq.client.AMQP.Exchange.UnbindOk;
 import com.rabbitmq.client.AMQP.Queue.PurgeOk;
 import com.rabbitmq.client.AMQP.Tx.CommitOk;
 import com.rabbitmq.client.AMQP.Tx.RollbackOk;
+import com.rabbitmq.client.BlockedCallback;
 import com.rabbitmq.client.BlockedListener;
 import com.rabbitmq.client.BuiltinExchangeType;
+import com.rabbitmq.client.CancelCallback;
 import com.rabbitmq.client.Channel;
 import com.rabbitmq.client.Command;
+import com.rabbitmq.client.ConfirmCallback;
 import com.rabbitmq.client.ConfirmListener;
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.Consumer;
+import com.rabbitmq.client.ConsumerShutdownSignalCallback;
+import com.rabbitmq.client.DeliverCallback;
 import com.rabbitmq.client.ExceptionHandler;
-import com.rabbitmq.client.FlowListener;
 import com.rabbitmq.client.GetResponse;
 import com.rabbitmq.client.Method;
+import com.rabbitmq.client.ReturnCallback;
 import com.rabbitmq.client.ReturnListener;
 import com.rabbitmq.client.ShutdownListener;
 import com.rabbitmq.client.ShutdownSignalException;
+import com.rabbitmq.client.UnblockedCallback;
 
 public enum RabbitMQConnectionFactoryFake implements RabbitMQConnectionFactory {
   
-  INSTANACE {
+  INSTANCE {
     
     @Override
     public Connection getConnection(String messagingSystemName) {
@@ -227,6 +234,13 @@ class FakeConnection implements com.rabbitmq.client.Connection {
     // TODO Auto-generated method stub
     
   }
+
+  @Override
+  public BlockedListener addBlockedListener(BlockedCallback blockedCallback,
+      UnblockedCallback unblockedCallback) {
+    // TODO Auto-generated method stub
+    return null;
+  }
   
 }
 
@@ -276,12 +290,6 @@ class FakeChannel implements Channel {
 
   @Override
   public void addConfirmListener(ConfirmListener arg0) {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void addFlowListener(FlowListener arg0) {
     // TODO Auto-generated method stub
     
   }
@@ -411,12 +419,6 @@ class FakeChannel implements Channel {
 
   @Override
   public void clearConfirmListeners() {
-    // TODO Auto-generated method stub
-    
-  }
-
-  @Override
-  public void clearFlowListeners() {
     // TODO Auto-generated method stub
     
   }
@@ -571,11 +573,6 @@ class FakeChannel implements Channel {
   }
 
   @Override
-  public boolean flowBlocked() {
-    return false;
-  }
-
-  @Override
   public int getChannelNumber() {
     return 0;
   }
@@ -674,11 +671,6 @@ class FakeChannel implements Channel {
   }
 
   @Override
-  public boolean removeFlowListener(FlowListener arg0) {
-    return false;
-  }
-
-  @Override
   public boolean removeReturnListener(ReturnListener arg0) {
     return false;
   }
@@ -721,5 +713,142 @@ class FakeChannel implements Channel {
 
   @Override
   public void waitForConfirmsOrDie(long arg0) throws IOException, InterruptedException, TimeoutException {}
+
+  @Override
+  public ReturnListener addReturnListener(ReturnCallback returnCallback) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public ConfirmListener addConfirmListener(ConfirmCallback ackCallback,
+      ConfirmCallback nackCallback) {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, DeliverCallback deliverCallback,
+      CancelCallback cancelCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, DeliverCallback deliverCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, DeliverCallback deliverCallback,
+      CancelCallback cancelCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck,
+      DeliverCallback deliverCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, Map<String, Object> arguments,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, Map<String, Object> arguments,
+      DeliverCallback deliverCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, Map<String, Object> arguments,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, String consumerTag,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, String consumerTag,
+      DeliverCallback deliverCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, String consumerTag,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, String consumerTag,
+      boolean noLocal, boolean exclusive, Map<String, Object> arguments,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, String consumerTag,
+      boolean noLocal, boolean exclusive, Map<String, Object> arguments,
+      DeliverCallback deliverCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public String basicConsume(String queue, boolean autoAck, String consumerTag,
+      boolean noLocal, boolean exclusive, Map<String, Object> arguments,
+      DeliverCallback deliverCallback, CancelCallback cancelCallback,
+      ConsumerShutdownSignalCallback shutdownSignalCallback) throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
+
+  @Override
+  public CompletableFuture<Command> asyncCompletableRpc(Method method)
+      throws IOException {
+    // TODO Auto-generated method stub
+    return null;
+  }
   
 }

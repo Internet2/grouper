@@ -34,7 +34,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     
     final String messageSystemName = "rabbitmq";
     final String testMessageBody = "this is test message body for queue";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem(RabbitMQConnectionFactoryFake.INSTANACE);
+    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem(RabbitMQConnectionFactoryFake.INSTANCE);
     
     GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
     GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
@@ -65,7 +65,7 @@ public class GrouperMessagingRabbitmqSystemTest extends TestCase {
     
     final String messageSystemName = "rabbitmq";
     final String testMessageBody = "this is test message body for topic";
-    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem(RabbitMQConnectionFactoryFake.INSTANACE);
+    final GrouperMessagingRabbitmqSystem system = new GrouperMessagingRabbitmqSystem(RabbitMQConnectionFactoryFake.INSTANCE);
     
     GrouperMessageSendParam sendParam = new GrouperMessageSendParam();
     GrouperMessageQueueParam queueParam = new GrouperMessageQueueParam();
