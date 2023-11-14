@@ -173,7 +173,7 @@
         <httpmime>4.5.13</httpmime>
         <geronimo-jms.version>1.1</geronimo-jms.version>
         <qpid-jms-client.version>0.61.0</qpid-jms-client.version>
-        <amqp-client.version>4.12.0</amqp-client.version>
+        <amqp-client.version>5.20.0</amqp-client.version>
         
         <!-- note, jackson version is also in grouper pom -->
         <jackson.annotations>2.14.0</jackson.annotations>
