@@ -127,6 +127,19 @@ public class GcAssignAttributeDefNameInheritance {
     return this;
   }
 
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignAttributeDefNameInheritance assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   //--attributeDefNameName=attributeDefNameName0 
   //--relatedAttributeDefNameNames=relatedName0,relatedName1 
   //--assign=T|F [--replaceAllExisting=T|F] 
@@ -293,6 +306,8 @@ public class GcAssignAttributeDefNameInheritance {
       }
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+
+      grouperClientWs.assignContentType(this.contentType);
 
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);

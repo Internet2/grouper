@@ -126,6 +126,19 @@ public class GcAttributeDefSave {
     return this;
   }
 
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAttributeDefSave assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** attributeDefs to save */
   private List<WsAttributeDefToSave> attributeDefsToSave = new ArrayList<WsAttributeDefToSave>();
 
@@ -220,6 +233,8 @@ public class GcAttributeDefSave {
       }
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+
+      grouperClientWs.assignContentType(this.contentType);
 
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);

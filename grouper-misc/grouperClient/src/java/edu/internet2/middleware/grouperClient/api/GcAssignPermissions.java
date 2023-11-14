@@ -185,7 +185,20 @@ public class GcAssignPermissions {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignPermissions assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** group names to query */
   private Set<String> roleNames = new LinkedHashSet<String>();
   
@@ -489,6 +502,8 @@ public class GcAssignPermissions {
       }
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+
+      grouperClientWs.assignContentType(this.contentType);
 
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
