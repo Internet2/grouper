@@ -1,5 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-${grouper:titleFromKeyAndText('stemMovePageTitle', grouperRequestContainer.stemContainer.guiStem.stem.name)}
+${grouper:titleFromKeyAndText('stemMovePageTitle', grouperRequestContainer.stemContainer.guiStem.stem.displayName)}
 
 
             <%-- for the new group or new stem button --%>
