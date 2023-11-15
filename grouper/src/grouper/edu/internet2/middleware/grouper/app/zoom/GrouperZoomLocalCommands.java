@@ -183,6 +183,15 @@ public class GrouperZoomLocalCommands {
   /**
    * 
    * @param configId 
+   * @return true if reactivated users should be licensed
+   */
+  public static boolean licenseReactivatedUsers(String configId) {
+    return GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".licenseReactivatedUsers", true);
+  }
+        
+  /**
+   * 
+   * @param configId 
    * @return the group name
    */
   public static String groupNameToReactivateUsers(String configId) {

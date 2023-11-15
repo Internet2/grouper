@@ -2789,6 +2789,11 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * convert a json node to acutal json
+   * @param jsonNode
+   * @return
+   */
   public static String jsonJacksonToString(JsonNode jsonNode) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();

@@ -265,9 +265,11 @@ public class GrouperZoomFullSync extends OtherJobBase {
           }
           
           debugMap.put("userReactivateCount", 0);
+          debugMap.put("userAddLicenseCount", 0);
           String groupNameToReactivateUsers = GrouperZoomLocalCommands.groupNameToReactivateUsers(configId);
           if (!StringUtils.isBlank(groupNameToReactivateUsers)) {
             int userReactivateCount = 0;
+            int userAddLicenseCount = 0;
 
             Set<String> emails = GrouperZoomLocalCommands.groupEmailsFromGroup(configId, groupNameToReactivateUsers);
 
@@ -280,9 +282,18 @@ public class GrouperZoomFullSync extends OtherJobBase {
               }
 
               GrouperZoomCommands.userChangeStatus(configId, email, true);
+              
+              if (GrouperZoomLocalCommands.licenseReactivatedUsers(configId)) {
+                if (user == null || (user.get("type") != null && ( (Integer)user.get("type") ).intValue() == 2 )) {
+                  continue;
+                }
+                GrouperZoomCommands.userChangeType(configId, email, 2);
+                userAddLicenseCount++;
+              }
 
               userReactivateCount++;
             }
+            debugMap.put("userAddLicenseCount", userAddLicenseCount);
             debugMap.put("userReactivateCount", userReactivateCount);
           }
 
@@ -324,7 +335,7 @@ public class GrouperZoomFullSync extends OtherJobBase {
 
               Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
               
-              if (user == null || user.get("type") == null || ( (Integer)user.get("type") ) != 2 ) {
+              if (user == null || user.get("type") == null || ( (Integer)user.get("type") ).intValue() != 2 ) {
                 continue;
               }
 
