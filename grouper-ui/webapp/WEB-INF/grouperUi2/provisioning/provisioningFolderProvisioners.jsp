@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-${grouper:titleFromKeyAndText('stemProvisioningPageTitle', grouperRequestContainer.stemContainer.guiStem.stem.name)}
+${grouper:titleFromKeyAndText('stemProvisioningPageTitle', grouperRequestContainer.stemContainer.guiStem.stem.displayName)}
 
 <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
 
