@@ -17,12 +17,9 @@ package edu.internet2.middleware.grouper.ldap.ldaptive;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.ldaptive.Connection;
+import org.ldaptive.LdapEntry;
 import org.ldaptive.LdapURL;
-import org.ldaptive.SearchEntry;
-import org.ldaptive.SearchRequest;
 import org.ldaptive.ad.handler.RangeEntryHandler;
-import org.ldaptive.handler.HandlerResult;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -34,31 +31,38 @@ public class GrouperRangeEntryHandler extends RangeEntryHandler {
   private static final Log LOG = GrouperUtil.getLog(GrouperRangeEntryHandler.class);
   
   @Override
-  public HandlerResult<SearchEntry> handle(final Connection conn, final SearchRequest request, final SearchEntry entry) {
+  public void handleEntry(final LdapEntry entry) {
     if (entry != null) {
 
       try {
         
-        String dn = handleDn(conn, request, entry);
+        String dn = handleDn(entry);
         entry.setDn(dn);
 
-        LdapURL ldapURL = new LdapURL(conn.getConnectionConfig().getLdapUrl());
-        String baseDn = ldapURL != null && ldapURL.getEntry() != null ? ldapURL.getEntry().getBaseDn() : null;
+        LdapURL ldapURL = getConnection().getLdapURL();
+        String baseDn = ldapURL != null ? ldapURL.getBaseDn() : null;
         
-        if (!StringUtils.isBlank(baseDn) && !ldapURL.getEntry().isDefaultBaseDn() && dn.toLowerCase().endsWith(baseDn.toLowerCase())) {
+        if (!StringUtils.isBlank(baseDn) && !ldapURL.isDefaultBaseDn() && dn.toLowerCase().endsWith(baseDn.toLowerCase())) {
           String dnWithoutSuffix = dn.substring(0, dn.length() - baseDn.length());
           dnWithoutSuffix = dnWithoutSuffix.trim().replaceAll(",$", "");
           entry.setDn(dnWithoutSuffix);
         }
         
-        handleAttributes(conn, request, entry);
+        handleAttributes(entry);
         entry.setDn(dn);
       } catch (Exception e) {
         // shouldn't we abort if there's an error here or we'll return partial results??
         LOG.error("Error running search handler for entry=" + entry.getDn(), e);
-        return new HandlerResult<SearchEntry>(null, true);
       }
     }
-    return new HandlerResult<SearchEntry>(entry);
+  }
+
+  @Override
+  public boolean equals(final Object o)
+  {
+    if (o == this) {
+      return true;
+    }
+    return o instanceof GrouperRangeEntryHandler;
   }
 }

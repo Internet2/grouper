@@ -52,7 +52,7 @@ public abstract class LdapSyncDao {
    * @param sizeLimit
    * @return the data
    */
-  public abstract List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Long sizeLimit);
+  public abstract List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Integer sizeLimit);
   
   
   /**

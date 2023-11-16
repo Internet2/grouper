@@ -163,7 +163,8 @@
         <p6spy.version>3.6.0</p6spy.version>
         <postgresql.version>42.5.1</postgresql.version>
         <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
-        <ldaptive.version>1.2.4</ldaptive.version>
+        <ldaptive.version>2.2.1-SNAPSHOT</ldaptive.version>
+        <unboundid.version>6.0.10</unboundid.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.12.267</aws.java.sdk.sqs>
@@ -218,6 +219,11 @@
         <repository>
             <id>central</id>
             <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <!-- TODO remove this after ldaptive v2 migration -->
+        <repository>
+            <id>ldaptive-snapshots</id>
+            <url>https://raw.github.com/vt-middleware/maven-repo/master</url>
         </repository>
     </repositories>
 
@@ -931,9 +937,10 @@
               <version>${ldaptive.version}</version>
             </dependency>
             <dependency>
-              <groupId>org.ldaptive</groupId>
-              <artifactId>ldaptive-unboundid</artifactId>
-              <version>${ldaptive.version}</version>
+              <groupId>com.unboundid</groupId>
+              <artifactId>unboundid-ldapsdk</artifactId>
+                <version>${unboundid.version}</version>
+              <scope>test</scope>
             </dependency>
             <dependency>
 		          <groupId>org.jsoup</groupId>

@@ -373,8 +373,9 @@
             <artifactId>ldaptive</artifactId>
         </dependency>
         <dependency>
-          <groupId>org.ldaptive</groupId>
-          <artifactId>ldaptive-unboundid</artifactId>
+            <groupId>com.unboundid</groupId>
+            <artifactId>unboundid-ldapsdk</artifactId>
+            <scope>test</scope>
         </dependency>
         <dependency>
             <groupId>net.redhogs.cronparser</groupId>
