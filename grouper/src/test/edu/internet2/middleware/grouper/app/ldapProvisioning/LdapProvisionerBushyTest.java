@@ -104,6 +104,7 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
         .assignGroupAttributeCount(6)
         .assignEntityAttributeCount(2)
         .assignGroupDnTypeBushy(true)
+        .addExtraConfig("logCommandsAlways", "true")
         .assignTranslateFromGrouperProvisioningGroupField("extension")
         .assignGroupDeleteType("deleteGroupsIfNotExistInGrouper")
         .assignUpdateGroupsAndDn(true));

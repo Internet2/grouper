@@ -42,80 +42,75 @@ import org.junit.Test;
  */
 public class LdaptiveSessionImplTest {
 
-  private static final String TEST_LDAP_PROPERTIES = """
-    ldap.testLDAP.url = ldap://localhost:%PORT%
-    ldap.testLDAP.tls = false
-    ldap.testLDAP.sizeLimit = 10
-    ldap.testLDAP.timeLimit = PT5S
-    ldap.testLDAP.connectTimeout = PT3S
-    ldap.testLDAP.responseTimeout = PT3S
-    ldap.testLDAP.minPoolSize = 2
-    ldap.testLDAP.maxPoolSize = 5
-    ldap.testLDAP.blockWaitTime = PT1S
-    ldap.testLDAP.pruneTimerPeriod = 420000
-    """;
+  private static final String TEST_LDAP_PROPERTIES = "ldap.testLDAP.url = ldap://localhost:%PORT%\n"
+      + "ldap.testLDAP.tls = false\n"
+      + "ldap.testLDAP.sizeLimit = 10\n"
+      + "ldap.testLDAP.timeLimit = PT5S\n"
+      + "ldap.testLDAP.connectTimeout = PT3S\n"
+      + "ldap.testLDAP.responseTimeout = PT3S\n"
+      + "ldap.testLDAP.minPoolSize = 2\n"
+      + "ldap.testLDAP.maxPoolSize = 5\n"
+      + "ldap.testLDAP.blockWaitTime = PT1S\n"
+      + "ldap.testLDAP.pruneTimerPeriod = 420000";
 
-  private static final String TEST_LDAP_LDIF = """
-    dn: dc=internet2,dc=edu
-    dc: internet2
-    objectClass: dcObject
-    objectClass: organization
-    o: Internet2
-      
-    dn: ou=people,dc=internet2,dc=edu
-    ou: people
-    description: All people in organization
-    objectclass: organizationalunit
-      
-    dn: uid=bbacharach,ou=people,dc=internet2,dc=edu
-    objectclass: inetOrgPerson
-    cn: Burt Bacharach
-    givenName: Burt
-    sn: Bacharach
-    uid: bbacharach
-    uidNumber: 1001
-    userPassword: p@ssw0rd1
-    mail: bbacharach@internet2.edu
-    mail: burt.bacharach@internet2.edu
-    telephoneNumber: 8169894342
-
-    dn: uid=dwarwick,ou=people,dc=internet2,dc=edu
-    objectclass: inetOrgPerson
-    cn: Dionne Warwick
-    givenName: Dionne
-    sn: Warwick
-    uid: dwarwick
-    uidNumber: 1002
-    userPassword: p@ssw0rd2
-    mail: dwarwick@internet2.edu
-    mail: dionne.warwick@internet2.edu
-    telephoneNumber: 8169894343
-
-    dn: uid=bmanilow,ou=people,dc=internet2,dc=edu
-    objectclass: inetOrgPerson
-    cn: Barry Manilow
-    givenName: Barry
-    sn: Manilow
-    uid: bmanilow
-    uidNumber: 1003
-    userPassword: p@ssw0rd3
-    mail: bmanilow@internet2.edu
-    mail: barry.manilow@internet2.edu
-    telephoneNumber: 8169894344
-
-    dn: uid=gpitney,ou=people,dc=internet2,dc=edu
-    objectclass: inetOrgPerson
-    cn: Gene Pitney
-    givenName: Gene
-    sn: Pitney
-    uid: gpitney
-    uidNumber: 1004
-    userPassword: p@ssw0rd4
-    mail: gpitney@internet2.edu
-    mail: gene.pitney@internet2.edu
-    telephoneNumber: 8169894345
-
-    """;
+  private static final String TEST_LDAP_LDIF =   "dn: dc=internet2,dc=edu\n"
+      + "dc: internet2\n"
+      + "objectClass: dcObject\n"
+      + "objectClass: organization\n"
+      + "o: Internet2\n"
+      + "  \n"
+      + "dn: ou=people,dc=internet2,dc=edu\n"
+      + "ou: people\n"
+      + "description: All people in organization\n"
+      + "objectclass: organizationalunit\n"
+      + "  \n"
+      + "dn: uid=bbacharach,ou=people,dc=internet2,dc=edu\n"
+      + "objectclass: inetOrgPerson\n"
+      + "cn: Burt Bacharach\n"
+      + "givenName: Burt\n"
+      + "sn: Bacharach\n"
+      + "uid: bbacharach\n"
+      + "uidNumber: 1001\n"
+      + "userPassword: p@ssw0rd1\n"
+      + "mail: bbacharach@internet2.edu\n"
+      + "mail: burt.bacharach@internet2.edu\n"
+      + "telephoneNumber: 8169894342\n"
+      + "\n"
+      + "dn: uid=dwarwick,ou=people,dc=internet2,dc=edu\n"
+      + "objectclass: inetOrgPerson\n"
+      + "cn: Dionne Warwick\n"
+      + "givenName: Dionne\n"
+      + "sn: Warwick\n"
+      + "uid: dwarwick\n"
+      + "uidNumber: 1002\n"
+      + "userPassword: p@ssw0rd2\n"
+      + "mail: dwarwick@internet2.edu\n"
+      + "mail: dionne.warwick@internet2.edu\n"
+      + "telephoneNumber: 8169894343\n"
+      + "\n"
+      + "dn: uid=bmanilow,ou=people,dc=internet2,dc=edu\n"
+      + "objectclass: inetOrgPerson\n"
+      + "cn: Barry Manilow\n"
+      + "givenName: Barry\n"
+      + "sn: Manilow\n"
+      + "uid: bmanilow\n"
+      + "uidNumber: 1003\n"
+      + "userPassword: p@ssw0rd3\n"
+      + "mail: bmanilow@internet2.edu\n"
+      + "mail: barry.manilow@internet2.edu\n"
+      + "telephoneNumber: 8169894344\n"
+      + "\n"
+      + "dn: uid=gpitney,ou=people,dc=internet2,dc=edu\n"
+      + "objectclass: inetOrgPerson\n"
+      + "cn: Gene Pitney\n"
+      + "givenName: Gene\n"
+      + "sn: Pitney\n"
+      + "uid: gpitney\n"
+      + "uidNumber: 1004\n"
+      + "userPassword: p@ssw0rd4\n"
+      + "mail: gpitney@internet2.edu\n"
+      + "mail: gene.pitney@internet2.edu\n"
+      + "telephoneNumber: 8169894345\n";
 
   /** Properties configuration id used for testing. */
   private static final String SERVER_ID = "testLDAP";

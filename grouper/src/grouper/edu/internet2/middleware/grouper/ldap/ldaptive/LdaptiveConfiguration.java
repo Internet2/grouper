@@ -173,24 +173,35 @@ final class LdaptiveConfiguration {
 
         // map old property names to current names
         switch (propNameTail) {
-          case "url" -> propNameTail = "ldapUrl";
-          case "tls" ->
+          case "url":
+            propNameTail = "ldapUrl";
+            break;
+          case "tls":
             // tls (vtldap) ==> useStartTls
             propNameTail = "useStartTLS";
-          case "user" ->
+            break;
+          case "user":
             // user (vtldap) ==> bindDn
             propNameTail = "bindDn";
-          case "pass" ->
+            break;
+          case "pass":
             // pass (vtldap) ==> bindCredential
             propNameTail = "bindCredential";
-          case "countLimit" ->
+            break;
+          case "countLimit":
             // countLimit (vtldap) ==> sizeLimit
             propNameTail = "sizeLimit";
-          case "timeout" ->
+            break;
+          case "timeout":
             // timeout (vtldap) ==> connectTimeout
             propNameTail = "connectTimeout";
-          case "pruneTimerPeriod" -> propNameTail = "prunePeriod";
-          case "expirationTime" -> propNameTail = "idleTime";
+            break;
+          case "pruneTimerPeriod":
+            propNameTail = "prunePeriod";
+            break;
+          case "expirationTime":
+            propNameTail = "idleTime";
+            break;
         }
 
         // convert properties to ldaptive domain
@@ -426,7 +437,8 @@ final class LdaptiveConfiguration {
       if (o == this) {
         return true;
       }
-      if (o instanceof Config other) {
+      if (o instanceof Config) {
+        Config other = (Config)o;
         return properties.equals(other.properties) &&
           Arrays.equals(ldapEntryHandlers, other.ldapEntryHandlers) &&
           Arrays.equals(searchResultHandlers, other.searchResultHandlers);
