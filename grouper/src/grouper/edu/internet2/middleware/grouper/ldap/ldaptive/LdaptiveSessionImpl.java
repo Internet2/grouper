@@ -470,6 +470,7 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
+      search.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
       LdapEntryHandler[] entryHandlers = LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers();
       if (entryHandlers != null) {
         search.setEntryHandlers(entryHandlers);
@@ -743,7 +744,7 @@ public class LdaptiveSessionImpl implements LdapSession {
         // Note that this implementation does not support moving entries to a new location in the DIT
         ModifyDnOperation modifyDn = new ModifyDnOperation(ldap);
         modifyDn.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
-        ModifyDnRequest modifyDnRequest = new ModifyDnRequest(oldDn, new Dn(newDn).getRDn().format(), true);
+        ModifyDnRequest modifyDnRequest = new ModifyDnRequest(oldDn, new Dn(newDn).getRDn().format(null), true);
 
         /* No support for following referrals on modify dn
         if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
