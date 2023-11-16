@@ -193,7 +193,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
           String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
           
-          Group group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          Group group = StringUtils.isBlank(viewersGroupName) ? null : (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -201,7 +201,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             }
           });
           
-          if (!group.hasMember(loggedInSubject)) {
+          if (group != null && !group.hasMember(loggedInSubject)) {
             String errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute");
             grouperJexlScriptAnalysis.setErrorMessage(errorMessage + " '"+attributeAlias + "'");
             return grouperJexlScriptAnalysis;
