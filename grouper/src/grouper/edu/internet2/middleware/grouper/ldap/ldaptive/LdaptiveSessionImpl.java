@@ -455,13 +455,14 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     
     SearchResponse response;
+    LdapConfiguration ldapConfig = LdapConfiguration.getConfig(ldapServerId);
 
-    Integer pageSize = LdapConfiguration.getConfig(ldapServerId).getPageSize();
+    Integer pageSize = ldapConfig.getPageSize();
     if (pageSize != null) {
       if (pageSize < 0) {
         pageSize = null;
       }
-    } else if (LdapConfiguration.getConfig(ldapServerId).isActiveDirectory()) {
+    } else if (ldapConfig.isActiveDirectory()) {
       pageSize = getDefaultActiveDirectoryPageSize(ldapServerId, ldap);
     }
     
@@ -470,8 +471,11 @@ public class LdaptiveSessionImpl implements LdapSession {
     }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
-      search.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
+      search.setThrowCondition(result -> 
+        !result.getResultCode().equals(ResultCode.SUCCESS) && 
+        !ldapConfig.getSearchIgnoreResultCodes().contains(result.getResultCode()));
       LdapEntryHandler[] entryHandlers = LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers();
+
       if (entryHandlers != null) {
         search.setEntryHandlers(entryHandlers);
       }
@@ -499,7 +503,13 @@ public class LdaptiveSessionImpl implements LdapSession {
     try {
       LdapEntry rootLdapEntry;
 
+      LdapConfiguration ldapConfig = LdapConfiguration.getConfig(ldapServerId);
+
       SearchOperation search = new SearchOperation(ldap);
+      search.setThrowCondition(result -> 
+        !result.getResultCode().equals(ResultCode.SUCCESS) && 
+        !ldapConfig.getSearchIgnoreResultCodes().contains(result.getResultCode()));
+      
       if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
         search.setSearchResultHandlers(new FollowSearchReferralHandler(), new FollowSearchResultReferenceHandler());
       }
@@ -733,18 +743,22 @@ public class LdaptiveSessionImpl implements LdapSession {
         throw new RuntimeException("No newDn!");
       }
 
-      if (!new Dn(oldDn).getParent().isSame(new Dn(newDn).getParent())) {
-        throw new RuntimeException("oldDn and newDn must have the same parent DN");
-      }
+      //if (!new Dn(oldDn).getParent().isSame(new Dn(newDn).getParent())) {
+      //  throw new RuntimeException("oldDn and newDn must have the same parent DN");
+      //}
 
       return (Boolean)callbackLdapSession(ldapServerId, ldapHandlerBean -> {
 
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
 
-        // Note that this implementation does not support moving entries to a new location in the DIT
+        String parentDnIfDifferent = null;
+        if (!new Dn(oldDn).getParent().isSame(new Dn(newDn).getParent())) {
+          parentDnIfDifferent = new Dn(newDn).getParent().format(null);
+        }
+        
         ModifyDnOperation modifyDn = new ModifyDnOperation(ldap);
         modifyDn.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
-        ModifyDnRequest modifyDnRequest = new ModifyDnRequest(oldDn, new Dn(newDn).getRDn().format(null), true);
+        ModifyDnRequest modifyDnRequest = new ModifyDnRequest(oldDn, new Dn(newDn).getRDn().format(null), true, parentDnIfDifferent);
 
         /* No support for following referrals on modify dn
         if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
