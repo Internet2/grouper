@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.ldap.ldaptive;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
@@ -914,6 +915,26 @@ public class LdaptiveSessionImpl implements LdapSession {
           poolsNeedingCleanup.add(pool);
           LdapConfiguration.removeConfig(ldapServerId);
           LdaptiveConfiguration.removeConfig(ldapServerId);
+        }
+      }
+    }
+  }
+  
+  /**
+   * Used by unit tests
+   */
+  public static void internal_closeAllPools() {
+    
+    if (poolMap != null) {
+      for (String id : new HashSet<String>(poolMap.keySet())) {
+        PooledConnectionFactory pool = poolMap.get(id);
+        
+        try {
+          pool.close();
+        } catch (Exception e) {
+          LOG.warn("Error closing pool " + id, e);
+        } finally {
+          poolMap.remove(id);
         }
       }
     }

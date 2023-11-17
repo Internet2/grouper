@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveSessionImpl;
 import edu.internet2.middleware.grouper.util.CommandLineExec;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
@@ -31,11 +32,11 @@ public class LdapProvisionerTestUtils {
     System.exit(0);
   }
   
-  
   private static String dockerPath = null;
 
   public static void stopAndRemoveLdapContainer() {
-
+    LdaptiveSessionImpl.internal_closeAllPools();
+    
     String dockerProcesses = new CommandLineExec().assignCommand(getDockerPath() + " ps -a")
         .assignErrorOnNonZero(true).execute().getStdout().getAllLines();
     
@@ -84,7 +85,7 @@ public class LdapProvisionerTestUtils {
     // abstract ldap class logs the errors, so just sleep 10 to wait until testing
     int ldapSleepMillisOnTestStartup = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.ldapSleepMillisOnTestStartup", 14000);
     GrouperUtil.sleep(ldapSleepMillisOnTestStartup);
-    
+        
     RuntimeException lastException = null;
     for (int i = 0; i < 100; i++) {
       lastException = null;
