@@ -581,8 +581,8 @@
                     <include>grouperUtf8.txt</include>
                     <include>grouperRulesEmailTemplates/*.txt</include>
                     <include>**/*.base.properties</include>
-                    <!-- other options, may decide to include later
                     <include>ddl/*.sql</include>
+                    <!-- other options, may decide to include later
                     <include>*.example.properties</include>
                     <include>groovysh.profile</include>
                     <include>GSHFileLoad.properties</include>
