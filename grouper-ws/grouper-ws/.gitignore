@@ -1,6 +1,6 @@
 build
 build.properties
-conf/grouper-ws.properties
+src/main/resources/grouper-ws.properties
 /grouperClientFailoverState.bin
 webapp/WEB-INF/classes
 webapp/WEB-INF/lib

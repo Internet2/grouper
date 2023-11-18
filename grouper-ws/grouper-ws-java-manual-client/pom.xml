@@ -58,11 +58,11 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src/java-manual-client</sourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
 
         <resources>
             <resource>
-                <directory>conf</directory>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
     </build>

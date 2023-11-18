@@ -213,12 +213,12 @@
 
     </dependencies>
     <build>
-        <sourceDirectory>src/grouper-ws</sourceDirectory>
-        <testSourceDirectory>src/test</testSourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         
         <resources>
             <resource>
-                <directory>conf</directory>
+                <directory>src/main/resources</directory>
                 <includes>
                     <!--include>grouper-ws.base.properties</include-->
                     <include>jaas.conf</include>
@@ -227,9 +227,6 @@
             </resource>
         </resources>
         <testResources>
-            <testResource>
-                <directory>confForTest</directory>
-            </testResource>
             <!--
             <testResource>
                 <directory>../../grouper/confForTest</directory>
@@ -250,13 +247,13 @@
                         <goals><goal>add-source</goal></goals>
                         <configuration>
                             <sources>
-                                <source>src/grouper-ws_v1_6</source>
-                                <source>src/grouper-ws_v2_0</source>
-                                <source>src/grouper-ws_v2_1</source>
-                                <source>src/grouper-ws_v2_2</source>
-                                <source>src/grouper-ws_v2_3</source>
-                                <source>src/grouper-ws_v2_4</source>
-                                <source>src/grouper-ws_v2_5</source>
+                                <source>src/main/grouper-ws_v1_6</source>
+                                <source>src/main/grouper-ws_v2_0</source>
+                                <source>src/main/grouper-ws_v2_1</source>
+                                <source>src/main/grouper-ws_v2_2</source>
+                                <source>src/main/grouper-ws_v2_3</source>
+                                <source>src/main/grouper-ws_v2_4</source>
+                                <source>src/main/grouper-ws_v2_5</source>
                             </sources>
                         </configuration>
                     </execution>
