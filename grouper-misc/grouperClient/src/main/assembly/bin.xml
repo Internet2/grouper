@@ -35,21 +35,16 @@
     </fileSets>
 
     <files>
-		<file>
-            <source>conf/grouper.client.base.properties</source>
+        <file>
+            <source>${basedir}/src/main/resources/grouper.client.base.properties</source>
             <outputDirectory>/</outputDirectory>
         </file>
         <file>
-            <source>conf/grouper.client.usage.example.txt</source>
+            <source>${basedir}/src/main/resources/grouper.client.usage.txt</source>
             <outputDirectory>/</outputDirectory>
         </file>
         <file>
-            <source>conf/grouper.client.usage.example.txt</source>
-            <outputDirectory>/</outputDirectory>
-            <destName>grouper.client.usage.txt</destName>
-        </file>       
-        <file>
-            <source>misc/BINARY-README.txt</source>
+            <source>${basedir}/src/main/resources/BINARY-README.txt</source>
             <outputDirectory>/</outputDirectory>
         </file>
     </files>
