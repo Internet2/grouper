@@ -34,9 +34,9 @@
 
     <property name="cvs.branch" value="HEAD" />
     
-    <property name="main.sourceDir" value="src/java" />
-    <property name="main.sourceExtDir" value="src/ext" />
-    <property name="main.sourceExtMoreDir" value="src/extMore" />
+    <property name="main.sourceDir" value="src/main/java" />
+    <property name="main.sourceExtDir" value="src/main/ext" />
+    <property name="main.sourceExtMoreDir" value="src/main/extMore" />
 
     <property name="main.confDir" value="conf" />
 

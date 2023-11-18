@@ -87,30 +87,42 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src/java</sourceDirectory>
-        <!-- <testSourceDirectory>src/test</testSourceDirectory> -->
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         <resources>
             <resource>
-                <directory>conf</directory>
+                <directory>src/main/resources</directory>
                 <includes>
-                    <include>*example*</include>
                     <include>grouper.client.base.properties</include>
                     <include>grouper.client.usage.txt</include>
                     <include>morphString.base.properties</include>
-                </includes>
-            </resource>
-            <resource>
-                <directory>misc/META-INF</directory>
-                <targetPath>META-INF</targetPath>
-                <includes>
-                    <include>LICENSE.txt</include>
+                    <include>META-INF/LICENSE.txt</include>
                 </includes>
             </resource>
         </resources>
+        <testResources>
+            <testResource>
+                <directory>src/test/resources</directory>
+            </testResource>
+        </testResources>
         <plugins>
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>build-helper-maven-plugin</artifactId>
+                <executions>
+                    <execution>
+                        <phase>generate-sources</phase>
+                        <goals>
+                            <goal>add-source</goal>
+                        </goals>
+                        <configuration>
+                            <sources>
+                                <source>src/main/ext</source>
+                                <source>src/main/extMore</source>
+                            </sources>
+                        </configuration>
+                    </execution>
+                </executions>
             </plugin>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>

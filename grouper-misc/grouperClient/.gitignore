@@ -1,8 +1,8 @@
 build
-conf/grouper.client.properties*
-conf/grouper.client.usage.txt
-conf/morphString.properties
-conf/spy.properties
+src/main/resources/grouper.client.properties*
+#src/main/resources/grouper.client.usage.txt
+src/main/resources/morphString.properties
+src/main/resources/spy.properties
 
 dist
 doc
@@ -14,5 +14,5 @@ javadoc
 .classpath
 .project
 /bin/
-src/java/edu/internet2/middleware/grouperClient/GrouperClientRun.java
+src/main/java/edu/internet2/middleware/grouperClient/GrouperClientRun.java
 /grouperClient_test/
