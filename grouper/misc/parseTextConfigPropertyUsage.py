@@ -127,7 +127,7 @@ for dir in projects:
 
 print()
 
-baseFile = 'grouper/conf/grouperText/grouper.textNg.en.us.base.properties'
+baseFile = 'grouper/src/main/resources/grouperText/grouper.textNg.en.us.base.properties'
 print("Base file: %s" % baseFile)
 props = importProperties(baseDir + os.path.sep + baseFile)
 unused = list(set(props) - set(configRefs.keys()))

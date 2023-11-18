@@ -36,11 +36,11 @@
     <url>https://spaces.internet2.edu/display/Grouper/Grouper+Installer</url>
 
     <build>
-    <sourceDirectory>src/java</sourceDirectory>
-    <testSourceDirectory>src/test</testSourceDirectory>
+    <sourceDirectory>src/main/java</sourceDirectory>
+    <testSourceDirectory>src/test/java</testSourceDirectory>
     <resources>
         <resource>
-            <directory>conf</directory>
+            <directory>src/main/resources</directory>
             <includes>
                     <include>**/*</include>
             </includes>
@@ -48,7 +48,7 @@
     </resources>
     <testResources>
         <testResource>
-            <directory>testFiles</directory>
+            <directory>src/test/resources</directory>
             <includes>
                 <include>**/*</include>
             </includes>
@@ -64,7 +64,7 @@
                     <goals><goal>add-source</goal></goals>
                     <configuration>
                         <sources>
-                            <source>src/java/ext</source>
+                            <source>src/main/ext</source>
                         </sources>
                     </configuration>
                 </execution>
