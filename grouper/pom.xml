@@ -570,12 +570,12 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>src/grouper</sourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
         <testSourceDirectory>src/test</testSourceDirectory>
 
         <resources>
             <resource>
-                <directory>conf</directory>
+                <directory>src/main/resources</directory>
                 <includes>
                     <include>grouperUtf8.txt</include>
                     <include>grouperRulesEmailTemplates/*.txt</include>
@@ -590,7 +590,7 @@
                 </includes>
             </resource>
             <resource>
-                <directory>src/grouper</directory>
+                <directory>src/main/java</directory>
                 <includes>
                     <include>**/*.hbm.xml</include>
                     <include>**/*.gsh</include>

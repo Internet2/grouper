@@ -134,7 +134,7 @@
                 <configuration>
                     <additionalClasspathElements>
                         <additionalClasspathElement>${basedir}/../../grouper/confForTest</additionalClasspathElement>
-                        <additionalClasspathElement>${basedir}/../../grouper/conf</additionalClasspathElement>
+                        <additionalClasspathElement>${basedir}/../../grouper/src/main/resources</additionalClasspathElement>
                     </additionalClasspathElements>
                 </configuration>
             </plugin>
