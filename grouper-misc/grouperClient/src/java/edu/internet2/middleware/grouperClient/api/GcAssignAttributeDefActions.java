@@ -268,8 +268,6 @@ public class GcAssignAttributeDefActions {
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
@@ -278,7 +276,7 @@ public class GcAssignAttributeDefActions {
       wsAttributeDefAssignActionResults = (WsAttributeDefAssignActionResults)
           grouperClientWs.executeService("attributeDefActions",
               assignAttributeDefActionRequest, "assignActionsToAttributeDef",
-              this.clientVersion, false);
+              this.clientVersion, this.contentType, false);
 
       String attributeDefNameSaveResultMessage = "";
 

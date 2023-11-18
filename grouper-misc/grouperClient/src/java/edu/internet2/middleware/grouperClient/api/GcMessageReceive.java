@@ -282,15 +282,14 @@ public class GcMessageReceive {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsMessageResults = (WsMessageResults)
-        grouperClientWs.executeService("messaging", messageReceiveRequest, "receive messages", this.clientVersion, false);
+          grouperClientWs.executeService("messaging", messageReceiveRequest, "receive messages",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsMessageResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsMessageResults, null, resultMessage);

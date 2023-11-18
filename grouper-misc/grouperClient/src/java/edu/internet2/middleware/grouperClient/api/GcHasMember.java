@@ -440,8 +440,6 @@ public class GcHasMember {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
@@ -451,7 +449,8 @@ public class GcHasMember {
       //MCH lets switch this to not send group name, so we can do id or name
       String urlSuffix = "groups";
       wsHasMemberResults = (WsHasMemberResults)
-        grouperClientWs.executeService(urlSuffix, hasMember, "hasMember", this.clientVersion, true);
+          grouperClientWs.executeService(urlSuffix, hasMember, "hasMember",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsHasMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsHasMemberResults, wsHasMemberResults.getResults(), resultMessage);

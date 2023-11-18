@@ -267,15 +267,14 @@ public class GcFindGroups {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsFindGroupsResults = (WsFindGroupsResults)
-        grouperClientWs.executeService("groups", findGroups, "findGroups", this.clientVersion, true);
+          grouperClientWs.executeService("groups", findGroups, "findGroups",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsFindGroupsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsFindGroupsResults, null, resultMessage);

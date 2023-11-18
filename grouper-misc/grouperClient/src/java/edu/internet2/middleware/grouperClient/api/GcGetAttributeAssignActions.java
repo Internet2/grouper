@@ -184,8 +184,6 @@ public class GcGetAttributeAssignActions {
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
@@ -193,8 +191,8 @@ public class GcGetAttributeAssignActions {
       //kick off the web service
       wsGetAttributeAssignActionsResults = (WsGetAttributeAssignActionsResults)
           grouperClientWs.executeService("attributeAssignActions",
-              getAttributeAssignActions, "getAttributeAssignActions", this.clientVersion,
-              true);
+              getAttributeAssignActions, "getAttributeAssignActions",
+              this.clientVersion, this.contentType, true);
 
       String resultMessage = wsGetAttributeAssignActionsResults.getResultMetadata()
           .getResultMessage();

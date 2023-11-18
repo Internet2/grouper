@@ -1028,15 +1028,10 @@ public class GrouperClient {
           grouperClientWs.assignWsPass(new Crypto(encryptKey).decrypt(GrouperClientUtils.readFileIntoString(new File(wsPassFileEncrypted))));
         }
       }
-
-
-      if (GrouperClientUtils.isNotBlank(contentType)) {
-        grouperClientWs.assignContentType(contentType);
-      }
       
       try {
         //assume the url suffix is already escaped...
-        String results = (String)grouperClientWs.executeService(urlSuffix, fileContents, labelForLog, clientVersion, readOnly);
+        String results = (String)grouperClientWs.executeService(urlSuffix, fileContents, labelForLog, clientVersion, contentType, readOnly);
 
         if (indentOutput) {
           results = GrouperClientUtils.indent(results, false);

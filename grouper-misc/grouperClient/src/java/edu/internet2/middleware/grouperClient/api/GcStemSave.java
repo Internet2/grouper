@@ -233,15 +233,14 @@ public class GcStemSave {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsStemSaveResults = (WsStemSaveResults)
-        grouperClientWs.executeService("stems", stemSave, "stemSave", this.clientVersion, false);
+          grouperClientWs.executeService("stems", stemSave, "stemSave",
+              this.clientVersion, this.contentType, false);
       
       String stemSaveResultMessage = "";
       
