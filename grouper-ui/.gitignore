@@ -11,7 +11,7 @@ webapp/WEB-INF/lib/*.jar
 /.project
 /.classpath
 /bin/
-conf/penn*
-conf/grouperText/grouper.text.en.us.properties
+src/main/resources/penn*
+src/main/resources/grouperText/grouper.text.en.us.properties
 webapp/grouperExternal/public/penn
 java/src/Test*
