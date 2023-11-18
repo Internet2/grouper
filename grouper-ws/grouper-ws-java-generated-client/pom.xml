@@ -121,11 +121,11 @@
     </dependencies>
     
     <build>
-        <sourceDirectory>src</sourceDirectory>
-        <testSourceDirectory>test</testSourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
         <resources>
             <resource>
-                <directory>conf</directory>
+                <directory>src/test/resources</directory>
             </resource>
         </resources>
     </build>
