@@ -9075,6 +9075,13 @@ public class GrouperInstaller {
 
     fileNamesTried.add(file.getAbsolutePath());
 
+    file = new File(this.upgradeExistingApplicationDirectoryString + "src" + File.separator + "main" + File.separator + "resources" + File.separator + resourceName);
+    if (file.exists()) {
+      return file;
+    }
+
+    fileNamesTried.add(file.getAbsolutePath());
+
     //these could be in this location
     if (GrouperInstallerUtils.equals("nav.properties", resourceName) 
         || GrouperInstallerUtils.equals("media.properties", resourceName)) {
@@ -10930,13 +10937,13 @@ public class GrouperInstaller {
     
     try {
       for (File file: projectsToGetConfFrom) {
-        File confDir = new File(file.getAbsolutePath()+File.separator+"conf");
+        File confDir = new File(file.getAbsolutePath() + File.separator + "src" + File.separator + "main" + File.separator + "resources");
         if (confDir.exists()) {
           GrouperInstallerUtils.copyDirectory(confDir, classesDir, null, true);
         }
       }
     } catch (Exception e) {
-      throw new RuntimeException("Could not copy files from conf directory to classes directory", e);
+      throw new RuntimeException("Could not copy files from src/main/resources directory to classes directory", e);
     }
     
     // now copy all misc/*.example.properties into classes directory and rename them to not have example in the filename

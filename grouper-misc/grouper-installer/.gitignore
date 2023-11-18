@@ -1,6 +1,6 @@
 /bin
-/conf/grouper.installer.properties
-/conf/grouper.installer.properties.*
+/src/main/resources/grouper.installer.properties
+/src/main/resources/grouper.installer.properties.*
 /container
 /dist
 /target
