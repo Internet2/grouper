@@ -635,15 +635,20 @@ public class GcGetPermissionAssignments {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetPermissionAssignmentsResults = (WsGetPermissionAssignmentsResults)
-        grouperClientWs.executeService("permissionAssignments", 
-            getPermissionAssignments, "getPermissionAssignments", this.clientVersion, true);
+          grouperClientWs.executeService("permissionAssignments",
+              getPermissionAssignments, "getPermissionAssignments",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetPermissionAssignmentsResults, null, resultMessage);

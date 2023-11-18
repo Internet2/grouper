@@ -300,7 +300,9 @@ public class GcAssignAttributeDefNameInheritance {
       
       //kick off the web service
       wsAssignAttributeDefNameInheritanceResults = (WsAssignAttributeDefNameInheritanceResults)
-        grouperClientWs.executeService("attributeDefNames", assignAttributeDefNameInheritance, "assignAttributeDefNameInheritance", this.clientVersion, false);
+          grouperClientWs.executeService("attributeDefNames",
+              assignAttributeDefNameInheritance, "assignAttributeDefNameInheritance",
+              this.clientVersion, this.contentType, false);
       
       String attributeDefNameSaveResultMessage = "";
       

@@ -233,7 +233,9 @@ public class GcAttributeDefNameDelete {
             
       //kick off the web service
       wsAttributeDefNameDeleteResults = (WsAttributeDefNameDeleteResults)
-        grouperClientWs.executeService("attributeDefNames", attributeDefNameDelete, "attributeDefNameDelete", this.clientVersion, false);
+          grouperClientWs.executeService("attributeDefNames",
+              attributeDefNameDelete, "attributeDefNameDelete",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAttributeDefNameDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAttributeDefNameDeleteResults, wsAttributeDefNameDeleteResults.getResults(), resultMessage);

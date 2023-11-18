@@ -243,14 +243,15 @@ public class GcGroupDelete {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGroupDeleteResults = (WsGroupDeleteResults)
-        grouperClientWs.executeService("groups", groupDelete, "groupDelete", this.clientVersion, false);
+          grouperClientWs.executeService("groups", groupDelete, "groupDelete",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsGroupDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGroupDeleteResults, wsGroupDeleteResults.getResults(), resultMessage);

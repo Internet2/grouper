@@ -235,14 +235,19 @@ public class GcFindStems {
       findStems.setWsStemLookups(GrouperClientUtils.toArray(stemLookups, WsStemLookup.class));
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsFindStemsResults = (WsFindStemsResults)
-        grouperClientWs.executeService("stems", findStems, "findStems", this.clientVersion, true);
+          grouperClientWs.executeService("stems", findStems, "findStems",
+              this.clientVersion,this.contentType, true);
       
       String resultMessage = wsFindStemsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsFindStemsResults, null, resultMessage);

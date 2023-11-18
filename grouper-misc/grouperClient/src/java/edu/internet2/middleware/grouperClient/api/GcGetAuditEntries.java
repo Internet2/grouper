@@ -413,14 +413,19 @@ public class GcGetAuditEntries {
       getAuditEntries.setPageLastCursorFieldType(this.pageLastCursorFieldType);
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetAuditEntriesResults = (WsGetAuditEntriesResults)
-        grouperClientWs.executeService("audits", getAuditEntries, "getAuditEntries", this.clientVersion, true);
+          grouperClientWs.executeService("audits", getAuditEntries, "getAuditEntries",
+          this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetAuditEntriesResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetAuditEntriesResults, null, resultMessage);

@@ -354,15 +354,20 @@ public class GcAssignGrouperPrivilegesLite {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAssignGrouperPrivilegesLiteResult = (WsAssignGrouperPrivilegesLiteResult)
-        grouperClientWs.executeService("grouperPrivileges", wsAssignGrouperPrivilegesLite, 
-            "assignGrouperPrivilegesLite", this.clientVersion, false);
+          grouperClientWs.executeService("grouperPrivileges",
+              wsAssignGrouperPrivilegesLite, "assignGrouperPrivilegesLite",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAssignGrouperPrivilegesLiteResult.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignGrouperPrivilegesLiteResult, null, resultMessage);

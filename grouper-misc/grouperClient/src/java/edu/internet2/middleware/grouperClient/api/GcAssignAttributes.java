@@ -612,14 +612,19 @@ public class GcAssignAttributes {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAssignAttributesResults = (WsAssignAttributesResults)
-        grouperClientWs.executeService("attributeAssignments", assignAttributes, "assignAttributes", this.clientVersion, false);
+          grouperClientWs.executeService("attributeAssignments", assignAttributes, "assignAttributes",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAssignAttributesResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignAttributesResults, null, resultMessage);

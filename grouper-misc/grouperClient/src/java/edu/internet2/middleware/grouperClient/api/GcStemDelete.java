@@ -237,14 +237,19 @@ public class GcStemDelete {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsStemDeleteResults = (WsStemDeleteResults)
-        grouperClientWs.executeService("stems", stemDelete, "stemDelete", this.clientVersion, false);
+          grouperClientWs.executeService("stems", stemDelete, "stemDelete",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsStemDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsStemDeleteResults, wsStemDeleteResults.getResults(), resultMessage);

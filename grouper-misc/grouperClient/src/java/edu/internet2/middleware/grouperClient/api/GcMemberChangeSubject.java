@@ -297,14 +297,19 @@ public class GcMemberChangeSubject {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsMemberChangeSubjectResults = (WsMemberChangeSubjectResults)
-        grouperClientWs.executeService("members", memberChangeSubject, "memberChangeSubject", this.clientVersion, false);
+          grouperClientWs.executeService("members", memberChangeSubject, "memberChangeSubject",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsMemberChangeSubjectResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsMemberChangeSubjectResults, wsMemberChangeSubjectResults.getResults(),resultMessage);

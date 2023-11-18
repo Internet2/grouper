@@ -97,11 +97,6 @@ public class GrouperClientWs {
   private String resultCode = null;
   
   /**
-   * content type
-   */
-  private String contentType = null;
-  
-  /**
    * result marshaled from WS
    */
   private Object result = null;
@@ -126,7 +121,6 @@ public class GrouperClientWs {
    * @param grouperClientWs
    */
   public void copyFrom(GrouperClientWs grouperClientWs) {
-    this.contentType = grouperClientWs.contentType;
     this.method = grouperClientWs.method;
     this.response = grouperClientWs.response;
     //dont copy result
@@ -138,16 +132,6 @@ public class GrouperClientWs {
    * logger
    */
   private static Log LOG = GrouperClientUtils.retrieveLog(GrouperClientWs.class);
-
-  /**
-   * assign the content type, defaults to xml
-   * @param theContentType
-   * @return this for chaining
-   */
-  public GrouperClientWs assignContentType(String theContentType) {
-    this.contentType = theContentType;
-    return this;
-  }
 
   /**
    * 
@@ -560,7 +544,7 @@ public class GrouperClientWs {
    * @return the response object
    */
   public Object executeService(final String urlSuffix, final Object toSend, 
-      final String labelForLog, final String clientVersion, final boolean readOnly)  {
+      final String labelForLog, final String clientVersion, final String contentType, final boolean readOnly)  {
 
     GrouperClientWs grouperClientWs = null;
 
@@ -588,7 +572,7 @@ public class GrouperClientWs {
           
           //if not last connection then throw exception if not success.  If last connection then return the object
           return executeServiceHelper(failoverLogicBean.getConnectionName(), 
-              urlSuffix, toSend, labelForLog, clientVersion, !failoverLogicBean.isLastConnection(), null);
+              urlSuffix, toSend, labelForLog, clientVersion, contentType, !failoverLogicBean.isLastConnection(), null);
         }
       });
       
@@ -602,7 +586,7 @@ public class GrouperClientWs {
       }
 
       grouperClientWs = executeServiceHelper(this.wsEndpoint, 
-          urlSuffix, toSend, labelForLog, clientVersion, false, this);
+          urlSuffix, toSend, labelForLog, clientVersion, contentType, false, this);
     }
 
     if (grouperClientWs != null) {
@@ -620,7 +604,8 @@ public class GrouperClientWs {
    * @param urlSuffix e.g. groups/aStem:aGroup/members
    * @param toSend is the bean which will transform into XML, or just a string of XML to send...
    * @param labelForLog label if the request is logged to file
-   * @param clientVersion 
+   * @param clientVersion
+   * @param contentType
    * @param exceptionOnNonSuccess if non success should exception be thrown
    * @return the response object
    * @throws UnsupportedEncodingException
@@ -628,7 +613,7 @@ public class GrouperClientWs {
    * @throws IOException
    */
   private static GrouperClientWs executeServiceHelper(String url, String urlSuffix, Object toSend, String labelForLog, 
-      String clientVersion, boolean exceptionOnNonSuccess, GrouperClientWs originalGrouperClientWs)  {
+      String clientVersion, String contentType, boolean exceptionOnNonSuccess, GrouperClientWs originalGrouperClientWs)  {
     
     GrouperClientWs grouperClientWs = new GrouperClientWs();
 
@@ -665,7 +650,7 @@ public class GrouperClientWs {
     
     //make sure right content type is in request (e.g. application/xhtml+xml
     grouperClientWs.method = grouperClientWs.postMethod(url, urlSuffix, 
-        toSend, requestFile, responseCode, clientVersion);
+        toSend, requestFile, responseCode, clientVersion, contentType);
 
     //make sure a request came back
     Header successHeader = grouperClientWs.method.getResponseHeader("X-Grouper-success");
@@ -971,10 +956,10 @@ public class GrouperClientWs {
    * @throws IOException 
    */
   private PostMethod postMethod(String url, 
-      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion)  {
+      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion, String contentType)  {
     
     try {
-      String theContentType = GrouperClientUtils.defaultIfBlank(this.contentType, "application/json");
+      String theContentType = GrouperClientUtils.defaultIfBlank(contentType, "application/json");
       
       HttpClient httpClient = httpClient();
   

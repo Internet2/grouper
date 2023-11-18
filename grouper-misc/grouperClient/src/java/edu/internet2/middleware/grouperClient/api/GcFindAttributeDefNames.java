@@ -520,14 +520,20 @@ public class GcFindAttributeDefNames {
       findAttributeDefNames.setPageLastCursorFieldType(this.pageLastCursorFieldType);
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsFindAttributeDefNamesResults = (WsFindAttributeDefNamesResults)
-        grouperClientWs.executeService("attributeDefNames", findAttributeDefNames, "findAttributeDefNames", this.clientVersion, true);
+          grouperClientWs.executeService("attributeDefNames",
+              findAttributeDefNames, "findAttributeDefNames",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsFindAttributeDefNamesResults, null, resultMessage);

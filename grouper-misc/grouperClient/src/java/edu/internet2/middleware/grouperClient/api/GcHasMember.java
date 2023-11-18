@@ -426,7 +426,11 @@ public class GcHasMember {
       hasMember.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
@@ -436,7 +440,8 @@ public class GcHasMember {
       //MCH lets switch this to not send group name, so we can do id or name
       String urlSuffix = "groups";
       wsHasMemberResults = (WsHasMemberResults)
-        grouperClientWs.executeService(urlSuffix, hasMember, "hasMember", this.clientVersion, true);
+          grouperClientWs.executeService(urlSuffix, hasMember, "hasMember",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsHasMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsHasMemberResults, wsHasMemberResults.getResults(), resultMessage);

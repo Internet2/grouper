@@ -226,7 +226,9 @@ public class GcAttributeDefNameSave {
       
       //kick off the web service
       wsAttributeDefNameSaveResults = (WsAttributeDefNameSaveResults)
-        grouperClientWs.executeService("attributeDefNames", attributeDefNameSave, "attributeDefNameSave", this.clientVersion, false);
+        grouperClientWs.executeService("attributeDefNames",
+            attributeDefNameSave, "attributeDefNameSave",
+            this.clientVersion, this.contentType, false);
       
       String attributeDefNameSaveResultMessage = "";
       

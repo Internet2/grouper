@@ -178,8 +178,8 @@ public class GcGetAttributeAssignActions {
       //kick off the web service
       wsGetAttributeAssignActionsResults = (WsGetAttributeAssignActionsResults)
           grouperClientWs.executeService("attributeAssignActions",
-              getAttributeAssignActions, "getAttributeAssignActions", this.clientVersion,
-              true);
+              getAttributeAssignActions, "getAttributeAssignActions",
+              this.clientVersion, this.contentType, true);
 
       String resultMessage = wsGetAttributeAssignActionsResults.getResultMetadata()
           .getResultMessage();

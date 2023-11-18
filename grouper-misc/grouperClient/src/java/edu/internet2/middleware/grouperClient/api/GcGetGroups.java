@@ -513,14 +513,19 @@ public class GcGetGroups {
       getGroups.setPageLastCursorFieldType(this.pageLastCursorFieldType);
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetGroupsResults = (WsGetGroupsResults)
-        grouperClientWs.executeService("subjects", getGroups, "getGroups", this.clientVersion, true);
+          grouperClientWs.executeService("subjects", getGroups, "getGroups",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetGroupsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetGroupsResults, null, resultMessage);

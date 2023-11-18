@@ -263,7 +263,7 @@ public class GcAssignAttributeDefActions {
       wsAttributeDefAssignActionResults = (WsAttributeDefAssignActionResults)
           grouperClientWs.executeService("attributeDefActions",
               assignAttributeDefActionRequest, "assignActionsToAttributeDef",
-              this.clientVersion, false);
+              this.clientVersion, this.contentType, false);
 
       String attributeDefNameSaveResultMessage = "";
 

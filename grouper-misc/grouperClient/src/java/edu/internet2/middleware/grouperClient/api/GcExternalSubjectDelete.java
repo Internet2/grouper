@@ -235,15 +235,20 @@ public class GcExternalSubjectDelete {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
+<<<<<<< GROUPER_5_BRANCH
       
+=======
+
+>>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsExternalSubjectDeleteResults = (WsExternalSubjectDeleteResults)
-        grouperClientWs.executeService("externalSubjects", externalSubjectDelete, 
-            "externalSubjectDelete", this.clientVersion, false);
+          grouperClientWs.executeService("externalSubjects",
+              externalSubjectDelete, "externalSubjectDelete",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsExternalSubjectDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsExternalSubjectDeleteResults, wsExternalSubjectDeleteResults.getResults(), resultMessage);

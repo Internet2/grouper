@@ -428,7 +428,7 @@ public class GcFindAttributeDefs {
       //kick off the web service
       wsFindAttributeDefsResults = (WsFindAttributeDefsResults) grouperClientWs
           .executeService("attributeDefs", findAttributeDefs, "findAttributeDefs",
-              this.clientVersion, true);
+              this.clientVersion, this.contentType, true);
 
       String resultMessage = wsFindAttributeDefsResults.getResultMetadata()
           .getResultMessage();
