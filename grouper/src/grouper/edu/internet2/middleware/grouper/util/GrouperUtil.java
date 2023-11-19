@@ -131,9 +131,16 @@ import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
 import org.ldaptive.io.Hex;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -152,7 +159,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -2474,23 +2481,35 @@ public class GrouperUtil {
 
 //    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );
 //    String json = jsonObject.toString();
-
-    JsonConfig jsonConfig = new JsonConfig();
-    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
-       public boolean apply( Object source, String name, Object value ) {
-         //json-lib cannot handle maps where the key is not a string
-         if( value != null && value instanceof Map ){
-           Map map = (Map)value;
-           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
-             return true;
+    
+    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+    String json;
+    if (useLegacy) {
+      JsonConfig jsonConfig = new JsonConfig();
+      jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+         public boolean apply( Object source, String name, Object value ) {
+           //json-lib cannot handle maps where the key is not a string
+           if( value != null && value instanceof Map ){
+             Map map = (Map)value;
+             if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+               return true;
+             }
            }
+           return value == null;
          }
-         return value == null;
-       }
-    });
-    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
-    String json = jsonObject.toString();
-
+      });
+      JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
+      json = jsonObject.toString();
+    } else {
+      ObjectMapper objectMapper = new ObjectMapper();
+      objectMapper.setSerializationInclusion(Include.NON_NULL);
+      try {
+        json = objectMapper.writeValueAsString(object);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    
     if (!includeObjectNameWrapper) {
       return json;
     }
@@ -2768,8 +2787,6 @@ public class GrouperUtil {
     return arrayNode;
   }
   
- 
-  
   public static JsonNode jsonJacksonNode(String json) {
     try {
       ObjectMapper objectMapper = new ObjectMapper();
@@ -2815,38 +2832,48 @@ public class GrouperUtil {
    * @return the string of json
    */
   public static String jsonConvertToNoWrap(Object object) {
-	  //TODO call the other jsonConvertTo() method
-	    if (object == null) {
-	      throw new NullPointerException();
-	    }
-
-	    JsonConfig jsonConfig = new JsonConfig();
-	    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
-	       public boolean apply( Object source, String name, Object value ) {
-	         //json-lib cannot handle maps where the key is not a string
-	         if( value != null && value instanceof Map ){
-	           Map map = (Map)value;
-	           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
-	             return true;
-	           }
-	         }
-           if ("source".equals(name) && source instanceof Subject) {
-             return true;
+    //TODO call the other jsonConvertTo() method
+      if (object == null) {
+        throw new NullPointerException();
+      }
+      
+      boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+      String json;
+      if (useLegacy) {
+        JsonConfig jsonConfig = new JsonConfig();
+        jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+           public boolean apply( Object source, String name, Object value ) {
+             //json-lib cannot handle maps where the key is not a string
+             if( value != null && value instanceof Map ){
+               Map map = (Map)value;
+               if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+                 return true;
+               }
+             }
+             if ("source".equals(name) && source instanceof Subject) {
+               return true;
+             }
+             if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+               return true;
+             }
+             if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+               return true;
+             }
+             return value == null;
            }
-	         if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
-	           return true;
-	         }
-           if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
-             return true;
-           }
-           return value == null;
-	       }
-	    });
-	    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
-	    String json = jsonObject.toString();
-
-	    return json;
-	  }
+        });
+        JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
+        json = jsonObject.toString();
+        return json;
+      }
+      
+      ObjectMapper objectMapper = new ObjectMapper();
+      try {
+        return objectMapper.writeValueAsString(object);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
 
   /**
    * convert an object to json.  note this wraps the gson with the object simple name so it can be revived
@@ -2921,11 +2948,34 @@ public class GrouperUtil {
     if (theClass == null) {
       throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
     }
+    
+    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+    if (useLegacy) {
 //    Gson gson = new GsonBuilder().create();
 //    Object object = gson.fromJson(jsonBody, theClass);
     JSONObject jsonObject = JSONObject.fromObject( jsonBody );
     Object object = JSONObject.toBean( jsonObject, theClass );
-
+    return object;
+    }
+    
+    SimpleModule simpleModule = new SimpleModule();
+    simpleModule.addKeyDeserializer(AttributeAssign.class, new GrouperCustomDeserializer());
+    
+    ObjectMapper mapper = new ObjectMapper();
+//    mapper.registerModule(simpleModule);
+    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
+    mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
+    mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
+    
+    Object object;
+    try {
+      object = mapper.readValue(jsonBody, theClass);
+    } catch (JsonMappingException e) {
+      throw new RuntimeException(e);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    
     return object;
   }
   /**
@@ -2936,11 +2986,55 @@ public class GrouperUtil {
    * @return the object
    * 
    */
-  public static <T> T jsonConvertFrom (String json, Class<T> theClass) {
-	  	JSONObject jsonObject = JSONObject.fromObject( json );
-	    Object object = JSONObject.toBean( jsonObject, theClass );
-	    return (T)object;
+  public static <T> T jsonConvertFrom(String json, Class<T> theClass) {
+
+    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+    
+    if (useLegacy) {
+      JSONObject jsonObject = JSONObject.fromObject( json );
+      Object object = JSONObject.toBean( jsonObject, theClass );
+      return (T)object;
+    }
+    ObjectMapper mapper = new ObjectMapper();
+    T val;
+    try {
+      val = mapper.readValue(json, theClass);
+    } catch (JsonMappingException e) {
+      throw new RuntimeException(e);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    return val;
   }
+  
+  /**
+   * convert a jsonNode into POJO.
+   * @param jsonNode 
+   * @param theClass is the class that the object should be coverted into.
+   * Note: only the top level object needs to be registered
+   * @return the object
+   * 
+   */
+  public static <T> T jsonConvertFrom(JsonNode jsonNode, Class<T> theClass) {
+    ObjectMapper mapper = new ObjectMapper();
+    T convertValue = mapper.convertValue(jsonNode, theClass);
+    return convertValue;
+  }
+  
+  
+  /**
+   * convert a POJO into ObjectNode
+   * @param object 
+   * Note: only the top level object needs to be registered
+   * @return ObjectNode
+   * 
+   */
+  public static ObjectNode jsonConvertFromObjectToObjectNode(Object object) {
+    ObjectMapper mapper = new ObjectMapper();
+    ObjectNode valueToTree = mapper.valueToTree(object);
+    return valueToTree;
+  }
+  
   
   /**
    * get the extension from name.  if name is a:b:c, name is c
