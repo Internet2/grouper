@@ -178,12 +178,12 @@
     </dependencies>
 
     <build>
-        <sourceDirectory>java/src</sourceDirectory>
-        <testSourceDirectory>java/test</testSourceDirectory>
+        <sourceDirectory>src/main/java</sourceDirectory>
+        <testSourceDirectory>src/test/java</testSourceDirectory>
 
         <resources>
             <resource>
-                <directory>conf</directory>
+                <directory>src/main/resources</directory>
             </resource>
         </resources>
 		
