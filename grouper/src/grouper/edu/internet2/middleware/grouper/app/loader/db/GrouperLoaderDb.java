@@ -241,7 +241,13 @@ public class GrouperLoaderDb {
         PoolBackedDataSource poolBackedDataSource = (PoolBackedDataSource)dataSourceObject;
         wrapperConnectionPoolDataSource = (WrapperConnectionPoolDataSource)poolBackedDataSource.getConnectionPoolDataSource();
       }
+      if (wrapperConnectionPoolDataSource == null) {
+        continue;
+      }
       DriverManagerDataSource driverManagerDataSource = (DriverManagerDataSource)wrapperConnectionPoolDataSource.getNestedDataSource();
+      if (driverManagerDataSource == null) {
+        continue;
+      }
       String c3p0jdbcUrl = driverManagerDataSource.getJdbcUrl();
       String c3p0user = driverManagerDataSource.getUser();
       if (LOG.isDebugEnabled()) {
