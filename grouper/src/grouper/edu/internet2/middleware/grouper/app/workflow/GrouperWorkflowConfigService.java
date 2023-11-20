@@ -192,7 +192,7 @@ public class GrouperWorkflowConfigService {
     
     AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_APPROVALS, true);
     try {
-      String approvals = GrouperWorkflowSettings.objectMapper.writeValueAsString(grouperWorkflowConfig.getWorkflowApprovalStates());
+      String approvals = GrouperUtil.objectMapper.writeValueAsString(grouperWorkflowConfig.getWorkflowApprovalStates());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), approvals);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow approval states to json string");
@@ -215,7 +215,7 @@ public class GrouperWorkflowConfigService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GROUPER_WORKFLOW_CONFIG_PARAMS, true);
     try {      
-      String configParams = GrouperWorkflowSettings.objectMapper.writeValueAsString(grouperWorkflowConfig.getConfigParams());
+      String configParams = GrouperUtil.objectMapper.writeValueAsString(grouperWorkflowConfig.getConfigParams());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), configParams);
     } catch (Exception e) {
       throw new RuntimeException("could not convert config params to json string");

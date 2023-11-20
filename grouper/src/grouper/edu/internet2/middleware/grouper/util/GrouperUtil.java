@@ -136,9 +136,11 @@ import org.ldaptive.filter.FilterUtils;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
 import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -156,7 +158,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -438,6 +439,19 @@ public class GrouperUtil {
     } finally {
       GrouperShutdown.shutdown();
     }
+  }
+
+  /**
+   * Object mapper to serialize and deserialize json string and beans
+   */
+  public static final ObjectMapper objectMapper = new ObjectMapper(); 
+  
+  static {
+    objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+    objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+    objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
+    
+    objectMapper.setSerializationInclusion(Include.NON_NULL);
   }
 
   /**
@@ -2428,8 +2442,6 @@ public class GrouperUtil {
       JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
       json = jsonObject.toString();
     } else {
-      ObjectMapper objectMapper = new ObjectMapper();
-      objectMapper.setSerializationInclusion(Include.NON_NULL);
       try {
         json = objectMapper.writeValueAsString(object);
       } catch (JsonProcessingException e) {
@@ -2512,7 +2524,6 @@ public class GrouperUtil {
    */
   public static void jsonJacksonAssignStringArray(ObjectNode objectNode, String fieldName, Collection<String> values) {
     if (values != null) {
-      ObjectMapper objectMapper = new ObjectMapper();
       ArrayNode valuesJson = objectMapper.createArrayNode();
       for (String value : values) {
         valuesJson.add(value);
@@ -2703,13 +2714,11 @@ public class GrouperUtil {
 
 
   public static ObjectNode jsonJacksonNode() {
-    ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode objectNode = objectMapper.createObjectNode();
     return objectNode;
   }
 
   public static ArrayNode jsonJacksonArrayNode() {
-    ObjectMapper objectMapper = new ObjectMapper();
     ArrayNode arrayNode = objectMapper.createArrayNode();
     return arrayNode;
   }
@@ -2718,10 +2727,6 @@ public class GrouperUtil {
   
   public static JsonNode jsonJacksonNode(String json) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      
-      objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-      objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
       
       //read JSON like DOM Parser
       JsonNode rootNode = objectMapper.readTree(json);
@@ -2742,7 +2747,6 @@ public class GrouperUtil {
    */
   public static String jsonJacksonToString(JsonNode jsonNode) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
       String json = objectMapper.writeValueAsString(jsonNode);
       return json;
     } catch (Exception e) {
@@ -2796,7 +2800,6 @@ public class GrouperUtil {
         return json;
       }
       
-      ObjectMapper objectMapper = new ObjectMapper();
       try {
         return objectMapper.writeValueAsString(object);
       } catch (JsonProcessingException e) {
@@ -2887,18 +2890,9 @@ public class GrouperUtil {
     return object;
     }
     
-    SimpleModule simpleModule = new SimpleModule();
-    simpleModule.addKeyDeserializer(AttributeAssign.class, new GrouperCustomDeserializer());
-    
-    ObjectMapper mapper = new ObjectMapper();
-//    mapper.registerModule(simpleModule);
-    mapper.configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
-    mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, false);
-    mapper.configure(DeserializationFeature.FAIL_ON_NULL_CREATOR_PROPERTIES, false);
-    
     Object object;
     try {
-      object = mapper.readValue(jsonBody, theClass);
+      object = objectMapper.readValue(jsonBody, theClass);
     } catch (JsonMappingException e) {
       throw new RuntimeException(e);
     } catch (JsonProcessingException e) {
@@ -2924,10 +2918,9 @@ public class GrouperUtil {
       Object object = JSONObject.toBean( jsonObject, theClass );
       return (T)object;
     }
-    ObjectMapper mapper = new ObjectMapper();
     T val;
     try {
-      val = mapper.readValue(json, theClass);
+      val = objectMapper.readValue(json, theClass);
     } catch (JsonMappingException e) {
       throw new RuntimeException(e);
     } catch (JsonProcessingException e) {
@@ -2945,8 +2938,7 @@ public class GrouperUtil {
    * 
    */
   public static <T> T jsonConvertFrom(JsonNode jsonNode, Class<T> theClass) {
-    ObjectMapper mapper = new ObjectMapper();
-    T convertValue = mapper.convertValue(jsonNode, theClass);
+    T convertValue = objectMapper.convertValue(jsonNode, theClass);
     return convertValue;
   }
   
@@ -2959,8 +2951,7 @@ public class GrouperUtil {
    * 
    */
   public static ObjectNode jsonConvertFromObjectToObjectNode(Object object) {
-    ObjectMapper mapper = new ObjectMapper();
-    ObjectNode valueToTree = mapper.valueToTree(object);
+    ObjectNode valueToTree = objectMapper.valueToTree(object);
     return valueToTree;
   }
   

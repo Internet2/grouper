@@ -36,6 +36,9 @@ import java.util.logging.SimpleFormatter;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+
 import edu.internet2.middleware.grouperClient.ws.WsRestClassLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
@@ -109,6 +112,16 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     System.out.println(wsRestAddMemberRequest.getWsGroupLookup().getGroupName()); 
     System.out.println(wsRestAddMemberRequest.getSubjectLookups()[0].getSubjectId());
   }
+  
+  private static final ObjectMapper mapper = new ObjectMapper();
+  
+  static {
+    mapper.setSerializationInclusion(Include.NON_NULL);
+    //TODO when jackson is upgraded in the grouper client, put these lines back
+//    mapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+//    mapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+//    mapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
+  }
 
   /**
    * convert object to json, optionally include object name wrapper
@@ -118,8 +131,6 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
    */
   public static String jsonConvertTo(Object object, boolean includeObjectNameWrapper) {
     
-    ObjectMapper mapper = new ObjectMapper();
-    mapper.setSerializationInclusion(Include.NON_NULL);
     try {
       String result = mapper.writeValueAsString(object);
       
@@ -193,7 +204,6 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
       throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
     }
 
-    ObjectMapper mapper = new ObjectMapper();
     try {
       return mapper.readValue(jsonBody, theClass);
     } catch(Exception e) {

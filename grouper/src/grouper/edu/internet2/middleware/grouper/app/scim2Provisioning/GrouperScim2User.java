@@ -248,8 +248,7 @@ public class GrouperScim2User {
     //    "userType":"userTyp"
     // }
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
   
     if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
       GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);

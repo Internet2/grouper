@@ -11,13 +11,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperWorkflowSettings {
   
-  public final static ObjectMapper objectMapper = new ObjectMapper();
-  
   public final static String DEFAULT_WORKFLOW_CONFIG_TYPE = "grouper";
-  
-  static {
-    objectMapper.setSerializationInclusion(Include.NON_NULL);
-  }
   
   /**
    * @return the stem name with no last colon

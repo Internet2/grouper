@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.HashMap;
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 /**
  * @author shilen
  */
@@ -151,7 +153,7 @@ public class GrouperProvisioningObjectAttributes {
 
     if (metadataNameValues == null) {
       try {
-        this.metadataNameValues = GrouperProvisioningSettings.objectMapper.readValue(provisioningMetadataJson, Map.class);
+        this.metadataNameValues = GrouperUtil.objectMapper.readValue(provisioningMetadataJson, Map.class);
       } catch(Exception e) {
         throw new RuntimeException("could not convert json string " + provisioningMetadataJson + " to Map object", e);
       }

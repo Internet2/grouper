@@ -16,12 +16,6 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 public class GrouperProvisioningSettings {
   
-  public final static ObjectMapper objectMapper = new ObjectMapper();
-  
-  static {
-    objectMapper.setSerializationInclusion(Include.NON_NULL);
-  }
-  
   private static final Pattern grouperProvisioningTargetKey = Pattern.compile("^provisioner\\.(\\w+)\\.class$");
   
   private static ExpirableCache<Boolean, Map<String, GrouperProvisioningTarget>> __targetsCacheInternal;

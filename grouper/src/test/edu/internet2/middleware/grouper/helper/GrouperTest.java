@@ -168,8 +168,7 @@ public class GrouperTest extends GrouperTestBase {
    */
   private static boolean promptedUserToSeeIfOk = false;
   
-  // @since   1.2.0
-  protected void setUp () {
+  public static void shutdownDelayThreadInterrupt() {
     
     try {
       if (shutdownDelayThread.isAlive()) {
@@ -178,8 +177,14 @@ public class GrouperTest extends GrouperTestBase {
     } catch (Throwable e) {
       //ignore
     }
+  }
+  
+  // @since   1.2.0
+  protected void setUp () {
     
     LOG.debug("setUp");
+    
+    shutdownDelayThreadInterrupt();
 
     GrouperCacheUtils.clearAllCaches();
     SourceManager.clearAllSources();

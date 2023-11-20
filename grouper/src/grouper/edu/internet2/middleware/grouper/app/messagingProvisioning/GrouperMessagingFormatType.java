@@ -12,8 +12,7 @@ public enum GrouperMessagingFormatType {
 
     @Override
     public ObjectNode toEntityJson(GrouperMessagingEntity grouperMessagingEntity) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      ObjectNode result = objectMapper.createObjectNode();
+      ObjectNode result = GrouperUtil.jsonJacksonNode();
     
       GrouperUtil.jsonJacksonAssignString(result, "id", grouperMessagingEntity.getId());
       GrouperUtil.jsonJacksonAssignString(result, "subjectId", grouperMessagingEntity.getSubjectId());
@@ -25,8 +24,7 @@ public enum GrouperMessagingFormatType {
 
     @Override
     public ObjectNode toGroupJson(GrouperMessagingGroup grouperMessagingGroup) {
-      ObjectMapper objectMapper = new ObjectMapper();
-      ObjectNode result = objectMapper.createObjectNode();
+      ObjectNode result = GrouperUtil.jsonJacksonNode();
       GrouperUtil.jsonJacksonAssignString(result, "id", grouperMessagingGroup.getId());
       GrouperUtil.jsonJacksonAssignString(result, "description", grouperMessagingGroup.getDescription());
       GrouperUtil.jsonJacksonAssignString(result, "displayExtension", grouperMessagingGroup.getDisplayExtension());
@@ -42,8 +40,7 @@ public enum GrouperMessagingFormatType {
     @Override
     public ObjectNode toMembershipJson(GrouperMessagingMembership grouperMessagingMembership) {
       
-      ObjectMapper objectMapper = new ObjectMapper();
-      ObjectNode result = objectMapper.createObjectNode();
+      ObjectNode result = GrouperUtil.jsonJacksonNode();
       
       GrouperUtil.jsonJacksonAssignString(result, "id", grouperMessagingMembership.getId());
       GrouperUtil.jsonJacksonAssignString(result, "fieldId", grouperMessagingMembership.getFieldId());

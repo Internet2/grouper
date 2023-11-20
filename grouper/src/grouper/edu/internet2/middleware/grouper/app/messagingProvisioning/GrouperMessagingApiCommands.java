@@ -22,13 +22,11 @@ public class GrouperMessagingApiCommands {
     message.put("changeOccurred", true);
     message.put("createdOnMicros", System.currentTimeMillis() * 1000);
     
-    
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode wrapper = objectMapper.createObjectNode();
+    ObjectNode wrapper = GrouperUtil.jsonJacksonNode();
     
     wrapper.put("encrypted", false);
     
-    ArrayNode messagesNode = objectMapper.createArrayNode();
+    ArrayNode messagesNode = GrouperUtil.jsonJacksonArrayNode();
     messagesNode.add(message);
     
     wrapper.set("esbEvent", messagesNode);

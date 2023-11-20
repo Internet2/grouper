@@ -543,7 +543,7 @@ public class GrouperProvisioningService {
 //      GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = GrouperProvisioningObjectMetadata.buildGrouperProvisioningObjectMetadataFromJsonString(provisioningObjectMetadataJson.getValueString());
 //      result.setGrouperProvisioningObjectMetadata(grouperProvisioningObjectMetadata);
       try {
-        Map<String, Object> metadataNameValues = GrouperProvisioningSettings.objectMapper
+        Map<String, Object> metadataNameValues = GrouperUtil.objectMapper
             .readValue(provisioningObjectMetadataJson.getValueString(), Map.class);
         result.setMetadataNameValues(metadataNameValues);
       } catch(Exception e) {
@@ -608,7 +608,7 @@ public class GrouperProvisioningService {
     if (metadataNameValues != null) {
       attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
       try {
-        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        String metadataItemsAsString = GrouperUtil.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
@@ -639,7 +639,7 @@ public class GrouperProvisioningService {
     if (metadataNameValues != null) {
       attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
       try {
-        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        String metadataItemsAsString = GrouperUtil.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
@@ -696,7 +696,7 @@ public class GrouperProvisioningService {
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
     if (metadataNameValues != null && metadataNameValues.size() > 0) {
       try {
-        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        String metadataItemsAsString = GrouperUtil.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
