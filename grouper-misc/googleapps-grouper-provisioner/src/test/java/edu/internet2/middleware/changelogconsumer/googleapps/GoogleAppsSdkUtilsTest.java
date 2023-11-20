@@ -15,17 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.admin.directory.Directory;
-import com.google.api.services.admin.directory.model.*;
-
-import com.google.api.services.groupssettings.Groupssettings;
-import com.google.api.services.groupssettings.model.Groups;
-import org.junit.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -35,8 +26,24 @@ import java.security.SecureRandom;
 import java.util.List;
 import java.util.Properties;
 
-import static org.junit.Assert.*;
-import static org.junit.Assert.assertEquals;
+import org.junit.After;
+import org.junit.AfterClass;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.directory.Directory;
+import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.Member;
+import com.google.api.services.directory.model.User;
+import com.google.api.services.directory.model.UserName;
+import com.google.api.services.groupssettings.Groupssettings;
+import com.google.api.services.groupssettings.model.Groups;
 
 /**
  * These tests are intended to be run sequentially. At some point they maybe set up to run independently.
@@ -51,7 +58,7 @@ public class GoogleAppsSdkUtilsTest {
 
     /** Global instance of the HTTP transport & JSON Factory. */
     private static HttpTransport httpTransport;
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     /** Shared Instances of the client*/
     private static Directory directoryClient = null;

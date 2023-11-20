@@ -15,6 +15,21 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
+import java.io.IOException;
+import java.math.BigInteger;
+import java.net.InetSocketAddress;
+import java.net.Proxy;
+import java.security.GeneralSecurityException;
+import java.security.SecureRandom;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import com.google.api.client.googleapis.GoogleUtils;
 import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
 import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
@@ -22,20 +37,25 @@ import com.google.api.client.googleapis.json.GoogleJsonResponseException;
 import com.google.api.client.http.HttpTransport;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.admin.directory.Directory;
-import com.google.api.services.admin.directory.model.Group;
-import com.google.api.services.admin.directory.model.Member;
-import com.google.api.services.admin.directory.model.User;
-import com.google.api.services.admin.directory.model.UserName;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.directory.Directory;
+import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.Member;
+import com.google.api.services.directory.model.User;
+import com.google.api.services.directory.model.UserName;
 import com.google.api.services.groupssettings.Groupssettings;
 import com.google.api.services.groupssettings.model.Groups;
+
 import edu.internet2.middleware.changelogconsumer.googleapps.cache.Cache;
 import edu.internet2.middleware.changelogconsumer.googleapps.cache.GoogleCacheManager;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.AddressFormatter;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.GoogleAppsSyncProperties;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.RecentlyManipulatedObjectsList;
-import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
@@ -50,20 +70,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeUtils;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import org.apache.commons.lang.StringUtils;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
-import java.io.IOException;
-import java.math.BigInteger;
-import java.net.InetSocketAddress;
-import java.net.Proxy;
-import java.security.GeneralSecurityException;
-import java.security.SecureRandom;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Set;
 
 /**
  * Contains methods used by both the ChangeLogConsumer and the FullSync classes.
@@ -79,7 +85,7 @@ public class GoogleGrouperConnector {
 
     private static final Logger LOG = LoggerFactory.getLogger(GoogleGrouperConnector.class);
     /** Global instance of the JSON factory. */
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     private Directory directoryClient;
     private Groupssettings groupssettingsClient;

@@ -15,32 +15,11 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
-import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
-import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
-import com.google.api.client.http.HttpTransport;
-import com.google.api.client.json.JsonFactory;
-import com.google.api.client.json.jackson2.JacksonFactory;
-import com.google.api.services.admin.directory.Directory;
-import com.google.api.services.admin.directory.model.Group;
-import com.google.api.services.admin.directory.model.Member;
-import com.google.api.services.admin.directory.model.User;
-import com.google.api.services.admin.directory.model.UserName;
-import edu.internet2.middleware.changelogconsumer.googleapps.cache.GoogleCacheManager;
-import edu.internet2.middleware.changelogconsumer.googleapps.utils.AddressFormatter;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
-import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
-import org.junit.After;
-import org.junit.Before;
-import org.junit.BeforeClass;
-import org.junit.Test;
-import org.junit.runner.RunWith;
-import org.powermock.core.classloader.annotations.PowerMockIgnore;
-import org.powermock.core.classloader.annotations.PrepareForTest;
-import org.powermock.modules.junit4.PowerMockRunner;
+import static junit.framework.Assert.assertNotNull;
+import static junit.framework.Assert.assertTrue;
+import static org.junit.Assert.assertEquals;
+import static org.mockito.Mockito.when;
+import static org.powermock.api.mockito.PowerMockito.mock;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -52,11 +31,34 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Properties;
 
-import static junit.framework.Assert.assertNotNull;
-import static junit.framework.Assert.assertTrue;
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.when;
-import static org.powermock.api.mockito.PowerMockito.mock;
+import org.junit.After;
+import org.junit.Before;
+import org.junit.BeforeClass;
+import org.junit.Test;
+import org.junit.runner.RunWith;
+import org.powermock.core.classloader.annotations.PowerMockIgnore;
+import org.powermock.core.classloader.annotations.PrepareForTest;
+import org.powermock.modules.junit4.PowerMockRunner;
+
+import com.google.api.client.googleapis.auth.oauth2.GoogleCredential;
+import com.google.api.client.googleapis.javanet.GoogleNetHttpTransport;
+import com.google.api.client.http.HttpTransport;
+import com.google.api.client.json.JsonFactory;
+import com.google.api.client.json.gson.GsonFactory;
+import com.google.api.services.directory.Directory;
+import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.Member;
+import com.google.api.services.directory.model.User;
+import com.google.api.services.directory.model.UserName;
+
+import edu.internet2.middleware.changelogconsumer.googleapps.cache.GoogleCacheManager;
+import edu.internet2.middleware.changelogconsumer.googleapps.utils.AddressFormatter;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
+import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.provider.SubjectTypeEnum;
 
 @RunWith(PowerMockRunner.class)
 @PowerMockIgnore({"javax.net.ssl.*", "org.apache.log4j.*", " org.apache.logging.log4j.*"})
@@ -79,7 +81,7 @@ public class GoogleAppsChangeLogConsumerTest {
     private static HttpTransport httpTransport;
 
     /** Global instance of the JSON factory. */
-    private static final JsonFactory JSON_FACTORY = JacksonFactory.getDefaultInstance();
+    private static final JsonFactory JSON_FACTORY = GsonFactory.getDefaultInstance();
 
     private static Directory directory = null;
 

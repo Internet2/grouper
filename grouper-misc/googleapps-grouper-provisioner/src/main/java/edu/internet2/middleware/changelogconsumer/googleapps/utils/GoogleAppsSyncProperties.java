@@ -15,7 +15,7 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps.utils;
 
-import com.google.api.services.admin.directory.DirectoryScopes;
+import com.google.api.services.directory.DirectoryScopes;
 import com.google.api.services.groupssettings.model.Groups;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;

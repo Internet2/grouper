@@ -15,8 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
-import com.google.api.services.admin.directory.model.Group;
-import com.google.api.services.admin.directory.model.User;
+import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.User;
 import edu.internet2.middleware.changelogconsumer.googleapps.cache.GoogleCacheManager;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.GoogleAppsSyncProperties;
 import edu.internet2.middleware.grouper.*;

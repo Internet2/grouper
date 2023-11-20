@@ -15,8 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps.cache;
 
-import com.google.api.services.admin.directory.model.Group;
-import com.google.api.services.admin.directory.model.User;
+import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.User;
 import edu.internet2.middleware.subject.Subject;
 import org.joda.time.DateTime;
 

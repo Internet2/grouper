@@ -15,8 +15,8 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps.cache;
 
-import com.google.api.services.admin.directory.model.Group;
-import com.google.api.services.admin.directory.model.User;
+import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.User;
 
 /**
  * ObjectCache stores objects retrieved from Google to save on the number of API round trips required.

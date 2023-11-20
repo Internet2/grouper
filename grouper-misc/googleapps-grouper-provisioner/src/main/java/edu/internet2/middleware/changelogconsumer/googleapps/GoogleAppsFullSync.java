@@ -15,9 +15,9 @@
  ******************************************************************************/
 package edu.internet2.middleware.changelogconsumer.googleapps;
 
-import com.google.api.services.admin.directory.model.Group;
-import com.google.api.services.admin.directory.model.Member;
-import com.google.api.services.admin.directory.model.User;
+import com.google.api.services.directory.model.Group;
+import com.google.api.services.directory.model.Member;
+import com.google.api.services.directory.model.User;
 import edu.internet2.middleware.changelogconsumer.googleapps.cache.GoogleCacheManager;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.ComparableGroupItem;
 import edu.internet2.middleware.changelogconsumer.googleapps.utils.ComparableMemberItem;
