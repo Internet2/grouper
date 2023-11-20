@@ -140,8 +140,7 @@ public class GrouperDigitalMarketplaceUser {
     * @param fieldNamesToSet
     */
    public ObjectNode toJson(Set<String> fieldNamesToSet) {
-     ObjectMapper objectMapper = new ObjectMapper();
-     ObjectNode result = objectMapper.createObjectNode();
+     ObjectNode result = GrouperUtil.jsonJacksonNode();
    
      if (fieldNamesToSet == null || fieldNamesToSet.contains("loginName")) {      
        GrouperUtil.jsonJacksonAssignString(result, "loginName", this.loginName);

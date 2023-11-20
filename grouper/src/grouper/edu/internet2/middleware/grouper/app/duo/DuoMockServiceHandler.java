@@ -1250,8 +1250,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
    */
   private static ObjectNode toUserJson(GrouperDuoUser grouperDuoUser) {
     
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
     
     ObjectNode aliasesObjectNode = result.putObject("aliases");
     
@@ -1348,8 +1347,7 @@ public class DuoMockServiceHandler extends MockServiceHandler {
    * @return the group
    */
   private static ObjectNode toGroupJson(GrouperDuoGroup grouperDuoGroup) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
 
     result.put("desc", grouperDuoGroup.getDesc());
     result.put("name", grouperDuoGroup.getName());

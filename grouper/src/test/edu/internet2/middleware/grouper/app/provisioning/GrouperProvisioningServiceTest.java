@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -927,7 +928,7 @@ public class GrouperProvisioningServiceTest extends GrouperProvisioningBaseTest 
     
     Map<String, Object> metadata;
     try {
-      metadata = GrouperProvisioningSettings.objectMapper.readValue(group0SyncGroup.getMetadataJson(), Map.class);
+      metadata = GrouperUtil.objectMapper.readValue(group0SyncGroup.getMetadataJson(), Map.class);
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

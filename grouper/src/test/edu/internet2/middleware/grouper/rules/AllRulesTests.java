@@ -44,7 +44,6 @@ public class AllRulesTests {
     //$JUnit-BEGIN$
     suite.addTestSuite(RuleApiTest.class);
     suite.addTestSuite(RuleTest.class);
-    suite.addTestSuite(RuleDefinitionTest.class);
     suite.addTestSuite(RuleHookTest.class);
     suite.addTestSuite(RuleNameChangeTest.class);
     //$JUnit-END$

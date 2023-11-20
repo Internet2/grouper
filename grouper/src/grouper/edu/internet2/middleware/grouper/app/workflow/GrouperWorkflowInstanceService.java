@@ -177,7 +177,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_FILE_INFO, true);
     try {
-      String fileInfo = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceFilesInfo());
+      String fileInfo = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceFilesInfo());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), fileInfo);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance file info to json string");
@@ -197,7 +197,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_LOG, true);
     try {
-      String logEntries = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceLogEntries());
+      String logEntries = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceLogEntries());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), logEntries);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance log entries to json string");
@@ -205,7 +205,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_0, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue0());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue0());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -213,7 +213,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_1, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue1());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue1());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -221,7 +221,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_2, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue2());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue2());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -229,7 +229,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_3, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue3());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue3());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -237,7 +237,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_4, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue4());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue4());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -245,7 +245,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_5, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue5());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue5());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -253,7 +253,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_6, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue6());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue6());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -261,7 +261,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_7, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue7());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue7());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -269,7 +269,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_8, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue8());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue8());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");
@@ -277,7 +277,7 @@ public class GrouperWorkflowInstanceService {
     
     attributeDefName = AttributeDefNameFinder.findByName(workflowStemName()+":"+GrouperWorkflowInstanceAttributeNames.GROUPER_WORKFLOW_INSTANCE_PARAM_VALUE_9, true);
     try {
-      String paramValue = GrouperWorkflowSettings.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue9());
+      String paramValue = GrouperUtil.objectMapper.writeValueAsString(workflowInstance.getGrouperWorkflowInstanceParamValue9());
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), paramValue);
     } catch (Exception e) {
       throw new RuntimeException("could not convert workflow instance param value to json string");

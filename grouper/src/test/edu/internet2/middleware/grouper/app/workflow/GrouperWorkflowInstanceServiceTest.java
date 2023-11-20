@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 
@@ -250,7 +251,7 @@ private GrouperSession grouperSession;
     logEntries.getLogEntries().add(logEntry);
     
     try {      
-      String logEntriesString = GrouperWorkflowSettings.objectMapper.writeValueAsString(logEntries);
+      String logEntriesString = GrouperUtil.objectMapper.writeValueAsString(logEntries);
       attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), logEntriesString);
     } catch (Exception e) {
       throw new RuntimeException(e);

@@ -339,9 +339,8 @@ public class GrouperDigitalMarketplaceCommands {
           grouperHttpClient.addHeader("Content-Type", "application/json");
           grouperHttpClient.addHeader("X-Requested-By", username);
           
-          ObjectMapper objectMapper = new ObjectMapper();
+          ObjectNode jsonObject = GrouperUtil.jsonJacksonNode();
           
-          ObjectNode jsonObject = objectMapper.createObjectNode();
           jsonObject.put("id", username);
           jsonObject.put("password", wsPass);
           
@@ -651,10 +650,9 @@ public class GrouperDigitalMarketplaceCommands {
 
         removeNonExistentGroups(groups, debugMap);
 
-        ObjectMapper objectMapper = new ObjectMapper();
+        ObjectNode userWithGroupsJson = GrouperUtil.jsonJacksonNode();
         
-        ObjectNode userWithGroupsJson = objectMapper.createObjectNode();
-        ArrayNode groupsJson = objectMapper.createArrayNode();
+        ArrayNode groupsJson = GrouperUtil.jsonJacksonArrayNode();
 
         for (int i=0;i<groups.size();i++) {
           groupsJson.add(groups.get(i).asText());
@@ -831,9 +829,8 @@ public class GrouperDigitalMarketplaceCommands {
         
         groups.remove(groupIndex);
 
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode userWithGroupsJson = objectMapper.createObjectNode();
-        ArrayNode groupsJson = objectMapper.createArrayNode();
+        ObjectNode userWithGroupsJson = GrouperUtil.jsonJacksonNode();
+        ArrayNode groupsJson = GrouperUtil.jsonJacksonArrayNode();
 
         for (int i=0;i<groups.size();i++) {
           groupsJson.add(groups.get(i));
@@ -900,8 +897,8 @@ public class GrouperDigitalMarketplaceCommands {
         //    "status": "Current", "tags" : ["virtualmarketplace"]
         //  }          
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode groupJsonObject = objectMapper.createObjectNode();
+        
+        ObjectNode groupJsonObject = GrouperUtil.jsonJacksonNode();
 
         groupJsonObject.put("resourceType", "com.bmc.arsys.rx.services.group.domain.RegularGroup");
         groupJsonObject.put("groupName", groupName);
@@ -914,7 +911,7 @@ public class GrouperDigitalMarketplaceCommands {
           groupJsonObject.put("comments", comments);
         }
         groupJsonObject.put("status", "Current");
-        ArrayNode tagsArray = objectMapper.createArrayNode();
+        ArrayNode tagsArray = GrouperUtil.jsonJacksonArrayNode();
         tagsArray.add("virtualmarketplace");
         groupJsonObject.put("tags", tagsArray );
         

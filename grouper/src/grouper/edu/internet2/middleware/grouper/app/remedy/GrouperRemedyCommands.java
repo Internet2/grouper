@@ -754,9 +754,7 @@ public class GrouperRemedyCommands {
         ((ObjectNode)valuesJsonNode).put("Status", "Enabled");
         String peoplePermissionGroupId = GrouperUtil.jsonJacksonGetString(valuesJsonNode, "People Permission Group ID");
         
-        ObjectMapper objectMapper = new ObjectMapper();
-        
-        ObjectNode newContainer = objectMapper.createObjectNode();
+        ObjectNode newContainer = GrouperUtil.jsonJacksonNode();
         newContainer.set("values", valuesJsonNode);
 
         debugMap.put("peoplePermissionGroupId", peoplePermissionGroupId);
@@ -778,9 +776,9 @@ public class GrouperRemedyCommands {
       //  }
 
       //put it back
-      ObjectMapper objectMapper = new ObjectMapper();
-      ObjectNode jsonObject = objectMapper.createObjectNode();
-      ObjectNode valuesObject = objectMapper.createObjectNode();
+      
+      ObjectNode jsonObject = GrouperUtil.jsonJacksonNode();
+      ObjectNode valuesObject = GrouperUtil.jsonJacksonNode();
       valuesObject.put("Permission Group ID", grouperRemedyGroup.getPermissionGroupId());
       valuesObject.put("Permission Group", grouperRemedyGroup.getPermissionGroup());
       valuesObject.put("Person ID", grouperRemedyUser.getPersonId());
@@ -851,8 +849,7 @@ public class GrouperRemedyCommands {
         ((ObjectNode)valuesJsonNode).put("Status", "Delete");
         String peoplePermissionGroupId = GrouperUtil.jsonJacksonGetString(valuesJsonNode, "People Permission Group ID");
         debugMap.put("peoplePermissionGroupId", peoplePermissionGroupId);
-        ObjectMapper objectMapper = new ObjectMapper();
-        ObjectNode newContainer = objectMapper.createObjectNode();
+        ObjectNode newContainer = GrouperUtil.jsonJacksonNode();
         newContainer.set("values", valuesJsonNode);
         executePutPostMethod(debugMap, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups/" + peoplePermissionGroupId, null, newContainer.toString(), true);
         

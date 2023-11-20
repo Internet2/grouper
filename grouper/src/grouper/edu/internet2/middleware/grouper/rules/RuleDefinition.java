@@ -24,8 +24,6 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
@@ -201,7 +199,6 @@ public class RuleDefinition {
   /**
    * keep a reference to this to get back to the owner etc
    */
-  @JsonIgnore
   private AttributeAssign attributeAssignType;
   
   

@@ -149,8 +149,7 @@ public class GrouperRemedyGroup {
    * @return the group
    */
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("Permission Group")) {      
       result.put("Permission Group", this.permissionGroup);
