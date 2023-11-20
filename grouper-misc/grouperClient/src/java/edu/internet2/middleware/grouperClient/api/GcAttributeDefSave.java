@@ -234,16 +234,14 @@ public class GcAttributeDefSave {
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
-      wsAttributeDefSaveResults = (WsAttributeDefSaveResults) grouperClientWs
-          .executeService("attributeDefs", attributeDefSave, "attributeDefSave",
-              this.clientVersion, false);
+      wsAttributeDefSaveResults = (WsAttributeDefSaveResults)
+          grouperClientWs.executeService("attributeDefs", attributeDefSave, "attributeDefSave",
+              this.clientVersion, this.contentType, false);
 
       String attributeDefSaveResultMessage = "";
 

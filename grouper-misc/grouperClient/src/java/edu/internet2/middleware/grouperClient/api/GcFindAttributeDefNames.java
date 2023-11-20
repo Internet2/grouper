@@ -533,15 +533,15 @@ public class GcFindAttributeDefNames {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsFindAttributeDefNamesResults = (WsFindAttributeDefNamesResults)
-        grouperClientWs.executeService("attributeDefNames", findAttributeDefNames, "findAttributeDefNames", this.clientVersion, true);
+          grouperClientWs.executeService("attributeDefNames",
+              findAttributeDefNames, "findAttributeDefNames",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsFindAttributeDefNamesResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsFindAttributeDefNamesResults, null, resultMessage);

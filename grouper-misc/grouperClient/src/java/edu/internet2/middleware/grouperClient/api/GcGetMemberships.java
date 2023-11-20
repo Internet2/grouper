@@ -941,15 +941,14 @@ public class GcGetMemberships {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetMembershipsResults = (WsGetMembershipsResults)
-        grouperClientWs.executeService("memberships", getMemberships, "getMemberships", this.clientVersion, true);
+          grouperClientWs.executeService("memberships", getMemberships, "getMemberships",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetMembershipsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetMembershipsResults, null, resultMessage);

@@ -526,15 +526,14 @@ public class GcGetGroups {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetGroupsResults = (WsGetGroupsResults)
-        grouperClientWs.executeService("subjects", getGroups, "getGroups", this.clientVersion, true);
+          grouperClientWs.executeService("subjects", getGroups, "getGroups",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetGroupsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetGroupsResults, null, resultMessage);

@@ -291,15 +291,15 @@ public class GcAssignAttributesBatch {
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAssignAttributesBatchResults = (WsAssignAttributesBatchResults)
-        grouperClientWs.executeService("attributeAssignments", assignAttributesBatch, "assignAttributesBatch", this.clientVersion, false);
+          grouperClientWs.executeService("attributeAssignments",
+              assignAttributesBatch, "assignAttributesBatch",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAssignAttributesBatchResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignAttributesBatchResults, null, resultMessage);

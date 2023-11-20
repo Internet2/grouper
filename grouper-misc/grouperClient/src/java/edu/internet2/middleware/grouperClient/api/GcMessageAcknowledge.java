@@ -285,15 +285,14 @@ public class GcMessageAcknowledge {
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAcknowlesgeMessageResults = (WsMessageAcknowledgeResults)
-        grouperClientWs.executeService("messaging", messageAcknowledgeRequest, "acknowledge messages", this.clientVersion, false);
+          grouperClientWs.executeService("messaging", messageAcknowledgeRequest, "acknowledge messages",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAcknowlesgeMessageResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAcknowlesgeMessageResults, null, resultMessage);

@@ -503,16 +503,15 @@ public class GcAssignPermissions {
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
 
-      grouperClientWs.assignContentType(this.contentType);
-
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAssignPermissionsResults = (WsAssignPermissionsResults)
-        grouperClientWs.executeService("permissionAssignments", 
-            assignPermissions, "getPermissionAssignments", this.clientVersion, false);
+          grouperClientWs.executeService("permissionAssignments",
+              assignPermissions, "getPermissionAssignments",
+              this.clientVersion, this.contentType, false);
 
       String resultMessage = wsAssignPermissionsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignPermissionsResults, null, resultMessage);
