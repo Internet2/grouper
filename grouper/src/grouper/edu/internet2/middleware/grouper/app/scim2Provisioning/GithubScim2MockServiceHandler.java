@@ -13,6 +13,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -155,26 +156,8 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
   }
 
   public boolean checkAuthorization(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-    String bearerToken = mockServiceRequest.getHttpServletRequest().getHeader("Authorization");
-    if (!bearerToken.startsWith("Bearer ")) {
-      throw new RuntimeException("Authorization token must start with 'Bearer '");
-    }
-    String authorizationToken = GrouperUtil.prefixOrSuffix(bearerToken, "Bearer ", false);
-    
-    ConfigPropertiesCascadeBase.clearCache();
-    
-    Pattern clientIdPattern = Pattern.compile("^grouper\\.wsBearerToken\\.([^.]+)\\.accessTokenPassword$");
-    String configId = null;
-    for (String propertyName : GrouperLoaderConfig.retrieveConfig().propertyNames()) {
-      
-      Matcher matcher = clientIdPattern.matcher(propertyName);
-      if (matcher.matches()) {
-        if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(propertyName), authorizationToken)) {
-          configId = matcher.group(1);
-          break;
-        }
-      }
-    }
+
+    String configId = WsBearerTokenExternalSystem.authenticateMockUser(mockServiceRequest.getHttpServletRequest());
     
     if (StringUtils.isBlank(configId)) {
       

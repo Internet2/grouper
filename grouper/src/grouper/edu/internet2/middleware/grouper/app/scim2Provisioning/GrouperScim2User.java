@@ -673,7 +673,7 @@ public class GrouperScim2User {
   }
 
   public String getActiveDb() {
-    return active == null ? null : (active ? "T" : "F");
+    return (active == null || active) ? "T" : "F";
   }
   public void setActiveDb(String theActive) {
     this.active = GrouperUtil.booleanObjectValue(theActive);
