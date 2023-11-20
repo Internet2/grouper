@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFull
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.AwsScim2MockServiceHandler;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2ApiCommands;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
@@ -55,7 +56,8 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
   
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAwsProvisionerTest("testAWSIncrementalSyncProvisionWithActiveAttributeOnUser"));
+    AwsScim2MockServiceHandler.ensureScimMockTables();
+    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncProvisionGroupAndThenDeleteTheGroupBasic"));
 
   }
   
@@ -197,8 +199,16 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
       fail("There are " + errorLines.size() + " errors in report: " + errorLines);
     }
   }
-  
+
   public void testAWSFullSyncProvisionGroupAndThenDeleteTheGroup() {
+    helperAWSFullSyncProvisionGroupAndThenDeleteTheGroup(true);
+  }
+
+  public void testAWSFullSyncProvisionGroupAndThenDeleteTheGroupBasic() {
+    helperAWSFullSyncProvisionGroupAndThenDeleteTheGroup(false);
+  }
+
+  public void helperAWSFullSyncProvisionGroupAndThenDeleteTheGroup(boolean bearer) {
     
     if (!tomcatRunTests()) {
       return;
@@ -206,14 +216,17 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
 
     ScimProvisionerTestUtils.setupAwsExternalSystem();
 
+    String awsConfigId = bearer ? "awsConfigId" : "awsConfigIdBasic";
+    
     ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
       .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
-      .assignBearerTokenExternalSystemConfigId("awsConfigId")
+      .assignBearerTokenExternalSystemConfigId(awsConfigId)
       .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
       .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
       .assignMembershipDeleteType("deleteMembershipsIfGrouperDeleted")
       .assignScimType("AWS")
       .assignGroupAttributeCount(2)
+      .assignBearer(bearer)
     );
 
 
@@ -226,7 +239,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("awsConfigId", null);
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers(awsConfigId, null);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
