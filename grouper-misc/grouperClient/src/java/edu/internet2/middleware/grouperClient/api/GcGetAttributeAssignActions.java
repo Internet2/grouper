@@ -62,6 +62,19 @@ public class GcGetAttributeAssignActions {
     return this;
   }
 
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
 

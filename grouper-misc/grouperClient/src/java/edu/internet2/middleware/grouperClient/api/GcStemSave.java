@@ -127,6 +127,19 @@ public class GcStemSave {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcStemSave assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** stems to save */
   private List<WsStemToSave> stemsToSave = new ArrayList<WsStemToSave>();
@@ -219,11 +232,7 @@ public class GcStemSave {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-<<<<<<< GROUPER_5_BRANCH
-      
-=======
 
->>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);

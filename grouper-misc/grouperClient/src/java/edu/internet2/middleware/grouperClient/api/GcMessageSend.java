@@ -251,7 +251,20 @@ public class GcMessageSend {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcMessageSend assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
    * exception will be thrown
@@ -280,11 +293,7 @@ public class GcMessageSend {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-<<<<<<< GROUPER_5_BRANCH
-      
-=======
 
->>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);

@@ -128,6 +128,19 @@ public class GcAttributeDefNameSave {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAttributeDefNameSave assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** attributeDefNames to save */
   private List<WsAttributeDefNameToSave> attributeDefNamesToSave = new ArrayList<WsAttributeDefNameToSave>();

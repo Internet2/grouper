@@ -151,7 +151,20 @@ public class GcAssignAttributesBatch {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignAttributesBatch assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
 
@@ -277,11 +290,7 @@ public class GcAssignAttributesBatch {
       assignAttributesBatch.setTxType(this.txType == null ? null : this.txType.name());
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-<<<<<<< GROUPER_5_BRANCH
-      
-=======
 
->>>>>>> d7fb526 Fixes assignContentType
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
