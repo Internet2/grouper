@@ -917,6 +917,9 @@ public class LdaptiveSessionImpl implements LdapSession {
       String nameInNamespace = searchResult.getDn();
       
       edu.internet2.middleware.grouper.ldap.LdapEntry entry = new edu.internet2.middleware.grouper.ldap.LdapEntry(nameInNamespace);
+      if (attributeNames == null) {
+        attributeNames = searchResult.getAttributeNames();
+      }
       for (String attributeName : attributeNames) {
         edu.internet2.middleware.grouper.ldap.LdapAttribute attribute = new edu.internet2.middleware.grouper.ldap.LdapAttribute(attributeName);
         
