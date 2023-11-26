@@ -892,7 +892,7 @@ public class UiV2ProvisionerConfiguration {
         throw new RuntimeException("Not allowed!!!!!");
       }
       
-      MultiKey totalCountAndListOfGroups = GrouperProvisioningService.retrieveGroupsProvisionable(provisionerConfigId);
+      MultiKey totalCountAndListOfGroups = GrouperProvisioningService.retrieveGroupsProvisionable(provisionerConfigId, 1000);
       
       int totalGroups = (Integer)totalCountAndListOfGroups.getKey(0);
       List<GcGrouperSyncGroup> grouperSyncGroups = (List<GcGrouperSyncGroup>)totalCountAndListOfGroups.getKey(1);
