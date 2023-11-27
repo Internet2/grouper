@@ -563,7 +563,23 @@ public class LdaptiveSessionImpl implements LdapSession {
       String nameInNamespace = searchResult.getDn();
       
       edu.internet2.middleware.grouper.ldap.LdapEntry entry = new edu.internet2.middleware.grouper.ldap.LdapEntry(nameInNamespace);
+
+      boolean useAttributeNamesFromResult = false;
+      
       if (attributeNames == null) {
+        useAttributeNamesFromResult = true;
+      } else {
+        // ReturnAttribute could be all user or all operational or both
+        for (String attributeName : attributeNames) {
+          if (StringUtils.equals("*", attributeName)) {
+            useAttributeNamesFromResult = true;
+          } else if (StringUtils.equals("+", attributeName)) {
+            useAttributeNamesFromResult = true;
+          }
+        }
+      }
+
+      if (useAttributeNamesFromResult) {
         attributeNames = searchResult.getAttributeNames();
       }
       for (String attributeName : attributeNames) {
