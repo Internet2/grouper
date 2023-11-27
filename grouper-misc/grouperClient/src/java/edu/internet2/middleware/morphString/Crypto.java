@@ -27,7 +27,7 @@ import javax.crypto.SecretKey;
 import javax.crypto.spec.SecretKeySpec;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 
 /**

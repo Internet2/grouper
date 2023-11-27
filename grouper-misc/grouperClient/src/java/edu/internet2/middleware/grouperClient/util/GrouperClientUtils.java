@@ -41,33 +41,33 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGroupLookup;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
-import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.annotation.JsonInclude.Include;
-import edu.internet2.middleware.grouperClientExt.com.fasterxml.jackson.databind.ObjectMapper;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.digest.DigestUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Credentials;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.UsernamePasswordCredentials;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.auth.AuthScope;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.DeleteMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.GetMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PostMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PutMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.StringRequestEntity;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.DefaultHttpParams;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.params.HttpMethodParams;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.Expression;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlContext;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlEngine;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.JexlException;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.MapContext;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringStyle;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.impl.Jdk14Logger;
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.digest.DigestUtils;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.DeleteMethod;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.PutMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.params.DefaultHttpParams;
+import org.apache.commons.httpclient.params.HttpMethodParams;
+import org.apache.commons.jexl2.Expression;
+import org.apache.commons.jexl2.JexlContext;
+import org.apache.commons.jexl2.JexlEngine;
+import org.apache.commons.jexl2.JexlException;
+import org.apache.commons.jexl2.MapContext;
+import org.apache.commons.lang3.builder.ToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.impl.Jdk14Logger;
 import edu.internet2.middleware.morphString.Crypto;
 import edu.internet2.middleware.morphString.MorphStringConfig;
 
@@ -587,7 +587,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     }
     
     /**
-     * @see edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.MapContext#get(java.lang.String)
+     * @see org.apache.commons.jexl2.MapContext#get(java.lang.String)
      */
     @Override
     public Object get(String name) {
@@ -602,7 +602,7 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
     }
   
     /**
-     * @see edu.internet2.middleware.grouperClientExt.org.apache.commons.jexl2.MapContext#has(java.lang.String)
+     * @see org.apache.commons.jexl2.MapContext#has(java.lang.String)
      */
     @Override
     public boolean has(String name) {

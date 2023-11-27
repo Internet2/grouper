@@ -85,9 +85,9 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethodBase;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.httpclient.HttpMethodBase;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 

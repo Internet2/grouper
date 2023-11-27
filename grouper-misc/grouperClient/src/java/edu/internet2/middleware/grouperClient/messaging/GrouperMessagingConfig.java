@@ -6,7 +6,7 @@ package edu.internet2.middleware.grouperClient.messaging;
 
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 
 /**

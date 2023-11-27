@@ -19,9 +19,9 @@
  */
 package edu.internet2.middleware.grouperClient.util;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * indent json, assumes the input is not yet indented.  Also, this is only for
