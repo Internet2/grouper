@@ -5,8 +5,8 @@ import java.util.Collections;
 import java.util.List;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * heartbeat and other logic for sync jobs

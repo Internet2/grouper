@@ -40,7 +40,7 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubjectLookup;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 import edu.internet2.middleware.morphString.Crypto;
 
 

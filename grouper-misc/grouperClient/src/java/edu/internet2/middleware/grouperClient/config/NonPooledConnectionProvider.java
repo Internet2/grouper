@@ -27,9 +27,9 @@ import java.util.Properties;
 import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionBean;
 import edu.internet2.middleware.grouperClient.jdbc.GcJdbcConnectionProvider;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 

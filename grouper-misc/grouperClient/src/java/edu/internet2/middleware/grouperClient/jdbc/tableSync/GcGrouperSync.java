@@ -19,8 +19,8 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.logging.Log;
 
 
 /**

@@ -45,7 +45,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache.ExpirableCacheUnit;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 
 /**

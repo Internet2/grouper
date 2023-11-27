@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Comparator;
 
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.text.WordUtils;
+import org.apache.commons.lang3.text.WordUtils;
 
 /**
  * 

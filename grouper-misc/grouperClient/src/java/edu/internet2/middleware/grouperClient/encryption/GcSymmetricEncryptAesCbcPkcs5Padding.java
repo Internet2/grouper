@@ -21,7 +21,7 @@ import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 /**
  * AES/ECB/PKCS5Padding
