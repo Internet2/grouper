@@ -453,7 +453,14 @@ public class GrouperScim2ApiCommands {
 
     try {
 
-      JsonNode jsonToSend = grouperScimUser.toJson(fieldsToUpdate);
+      ObjectNode jsonToSend = grouperScimUser.toJson(fieldsToUpdate);
+      
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:User");
+        jsonToSend.set("schemas", schemasNode);
+      }
+
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Users",
@@ -675,7 +682,14 @@ public class GrouperScim2ApiCommands {
 
     try {
 
-      JsonNode jsonToSend = grouperScimGroup.toJson(fieldsToUpdate);
+      ObjectNode jsonToSend = grouperScimGroup.toJson(fieldsToUpdate);
+      
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:Group");
+        jsonToSend.set("schemas", schemasNode);
+      }
+
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Groups",
