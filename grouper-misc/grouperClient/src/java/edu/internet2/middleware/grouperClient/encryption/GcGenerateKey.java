@@ -18,7 +18,7 @@ package edu.internet2.middleware.grouperClient.encryption;
 import javax.crypto.KeyGenerator;
 import javax.crypto.SecretKey;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64;
 
 
 /**
