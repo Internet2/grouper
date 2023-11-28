@@ -19,7 +19,7 @@
  */
 package edu.internet2.middleware.grouperInstaller.util;
 
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 
 /**

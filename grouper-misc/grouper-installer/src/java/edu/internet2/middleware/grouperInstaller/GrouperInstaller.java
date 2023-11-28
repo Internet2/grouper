@@ -76,12 +76,12 @@ import edu.internet2.middleware.grouperInstaller.morphString.Crypto;
 import edu.internet2.middleware.grouperInstaller.util.GiDbUtils;
 import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils;
 import edu.internet2.middleware.grouperInstaller.util.GrouperInstallerUtils.CommandResult;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveEntry;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.compress.utils.IOUtils;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.compress.archivers.tar.TarArchiveEntry;
+import org.apache.commons.compress.archivers.tar.TarArchiveInputStream;
+import org.apache.commons.compress.compressors.gzip.GzipCompressorInputStream;
+import org.apache.commons.compress.utils.IOUtils;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 /**
  * Install grouper
