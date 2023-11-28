@@ -596,6 +596,10 @@ public class GrouperBoxApiCommands {
     String fieldsToSelectSingleString = GrouperUtil.join(fieldsToSelect.iterator(), ",");
     
     String requestUrl =  "/groups?limit="+limit+"&fields=" + fieldsToSelectSingleString;
+    
+    if (!StringUtils.isBlank(filterTerm)) {
+      requestUrl += "&filter_term=" + GrouperUtil.escapeUrlEncode(filterTerm);
+    }
 
     try {
       
@@ -609,7 +613,8 @@ public class GrouperBoxApiCommands {
         
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("entries");
         
-        for (int i = 0; i < (groupsArray == null ? 0 : groupsArray.size()); i++) {
+        int groupsArraySize = groupsArray == null ? 0 : groupsArray.size();
+        for (int i = 0; i < groupsArraySize; i++) {
           JsonNode groupNode = groupsArray.get(i);
           GrouperBoxGroup grouperBoxGroup = GrouperBoxGroup.fromJson(groupNode);
           if (grouperBoxGroup != null) {
@@ -620,10 +625,13 @@ public class GrouperBoxApiCommands {
         long totalGroups = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count");
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = results.size();
-        if (Long.valueOf(results.size()).compareTo(totalGroups) == 0) {
+        if (Long.valueOf(results.size()).compareTo(totalGroups) == 0 || groupsArraySize == 0) {
           allGroupsFetched = true;
         } else {
           requestUrl =  "/groups?offset="+newOffset+"&limit="+limit+"&fields=" + fieldsToSelectSingleString;
+          if (!StringUtils.isBlank(filterTerm)) {
+            requestUrl += "&filter_term=" + GrouperUtil.escapeUrlEncode(filterTerm);
+          }
         }
       }
 
@@ -722,6 +730,10 @@ public class GrouperBoxApiCommands {
     String fieldsToSelectSingleString = GrouperUtil.join(fieldsToSelect.iterator(), ",");
     
     String requestUrl =  "/users?limit="+limit+"&fields=" + fieldsToSelectSingleString;
+    
+    if (!StringUtils.isBlank(filterTerm)) {
+      requestUrl += "&filter_term=" + GrouperUtil.escapeUrlEncode(filterTerm);
+    }
 
     try {
       
@@ -735,7 +747,8 @@ public class GrouperBoxApiCommands {
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("entries");
         
-        for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
+        int usersArraySize = usersArray == null ? 0 : usersArray.size();
+        for (int i = 0; i < usersArraySize; i++) {
           JsonNode userNode = usersArray.get(i);
           GrouperBoxUser grouperBoxUser = GrouperBoxUser.fromJson(userNode);
           if (grouperBoxUser != null) {
@@ -746,10 +759,14 @@ public class GrouperBoxApiCommands {
         long totalUsers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count");
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = results.size();
-        if (Long.valueOf(results.size()).compareTo(totalUsers) == 0) {
+        if (Long.valueOf(results.size()).compareTo(totalUsers) == 0 || usersArraySize == 0) {
           allUsersFetched = true;
         } else {
           requestUrl =  "/users?offset="+newOffset+"&limit="+limit+"&fields=" + fieldsToSelectSingleString;
+          if (!StringUtils.isBlank(filterTerm)) {
+            requestUrl += "&filter_term=" + GrouperUtil.escapeUrlEncode(filterTerm);
+          }
+
         }
       }
 
@@ -847,7 +864,8 @@ public class GrouperBoxApiCommands {
         
         ArrayNode entries = (ArrayNode) jsonNode.get("entries");
         
-        for (int i = 0; i < (entries == null ? 0 : entries.size()); i++) {
+        int entriesSize = entries == null ? 0 : entries.size();
+        for (int i = 0; i < entriesSize; i++) {
           JsonNode singleEntry = entries.get(i);
           
           String membershipId = GrouperUtil.jsonJacksonGetString(singleEntry, "id");
@@ -859,7 +877,7 @@ public class GrouperBoxApiCommands {
         long totalMembers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count");
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = memberIdToMembershipId.size();
-        if (Long.valueOf(memberIdToMembershipId.size()).compareTo(totalMembers) == 0) {
+        if (Long.valueOf(memberIdToMembershipId.size()).compareTo(totalMembers) == 0 || entriesSize == 0) {
           allMembersFetched = true;
         } else {
           urlSuffix =  "/groups/"+groupId+"/memberships?limit=1000&offset="+newOffset;
