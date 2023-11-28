@@ -34,7 +34,7 @@ import edu.internet2.middleware.grouperInstaller.driverShim.MySqlShim;
 import edu.internet2.middleware.grouperInstaller.driverShim.OracleShim;
 import edu.internet2.middleware.grouperInstaller.driverShim.PostgresShim;
 import edu.internet2.middleware.grouperInstaller.driverShim.SqlServerShim;
-import edu.internet2.middleware.grouperInstallerExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 
 /**
