@@ -27,7 +27,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -36,6 +39,7 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ByteArrayEntity;
@@ -47,14 +51,20 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicHeaderElementIterator;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
+import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -93,6 +103,29 @@ public class GrouperHttpClient {
   }
   
 
+  public static void shutdown() {
+    for (CloseableHttpClient closeableHttpClient : customTrustStoreClient.values()) {
+      try{
+        closeableHttpClient.close();
+      } catch (Throwable e){
+      }
+    }
+    customTrustStoreClient.clear();
+    for (CloseableHttpClient closeableHttpClient : trustAllClients.values()) {
+      try{
+        closeableHttpClient.close();
+      } catch (Throwable e){
+      }
+    }
+    trustAllClients.clear();
+    for (CloseableHttpClient closeableHttpClient : clients.values()) {
+      try{
+        closeableHttpClient.close();
+      } catch (Throwable e){
+      }
+    }
+    clients.clear();
+  }
   /**
    * 
    */
@@ -722,8 +755,11 @@ public class GrouperHttpClient {
               } 
               );
 
-          closeableHttpClient = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
-          customTrustStoreClient.put(clientKey, closeableHttpClient);
+          closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
+          boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+          if (httpClientReuse) {
+            customTrustStoreClient.put(clientKey, closeableHttpClient);
+          }
           
         }
       }
@@ -1150,10 +1186,13 @@ public class GrouperHttpClient {
     } finally{
 
       // dont close this, just close the methods.  the client is reused
-      //  try{
-      //    closeableHttpClient.close();
-      //  } catch (Exception e){
-      //  }
+      boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+      if (!httpClientReuse) {
+        try{
+          closeableHttpClient.close();
+        } catch (Throwable e){
+        }
+      }
       // do the logging
       try {
         GrouperHttpClientLog grouperHttpCallLog = threadLocalLog.get();
@@ -1230,6 +1269,45 @@ public class GrouperHttpClient {
 
   private static Map<Integer, CloseableHttpClient> clients = new HashMap<>();
   
+  private static HttpClientBuilder httpClientBuilderDecorate(HttpClientBuilder httpClientBuilder) {
+    
+    // https://www.baeldung.com/httpclient-connection-management
+    PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+    int httpClientMaxTotalPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("httpClientMaxTotalPoolSize", 100);
+    int httpClientDefaultMaxPerRoute = GrouperConfig.retrieveConfig().propertyValueInt("httpClientDefaultMaxPerRoute", 30);
+    
+    connManager.setMaxTotal(httpClientMaxTotalPoolSize);
+    connManager.setDefaultMaxPerRoute(httpClientDefaultMaxPerRoute);
+    httpClientBuilder.setConnectionManager(connManager);
+    
+    // use the timeout of server, or if not found, use 5 seconds
+    final ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
+
+      @Override
+      public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+        Args.notNull(response, "HTTP response");  
+        
+        HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+        while (it.hasNext()) {
+          HeaderElement he = it.nextElement();
+          String param = he.getName();
+          String value = he.getValue();
+          if (value != null && param.equalsIgnoreCase("timeout")) {
+            try {
+                return Long.parseLong(value) * 1000;
+            } catch(NumberFormatException ignore) {
+            }
+          }
+        }        
+        return 5000;
+
+      }  
+    };
+    
+    httpClientBuilder.setKeepAliveStrategy(myStrategy);
+    return httpClientBuilder;
+  }
+  
   private static CloseableHttpClient getClient(int retries) {
     
     CloseableHttpClient closeableHttpClient = clients.get(retries);
@@ -1238,8 +1316,11 @@ public class GrouperHttpClient {
       synchronized (GrouperHttpClient.class) {
         closeableHttpClient = clients.get(retries);
         if (closeableHttpClient == null) {
-          closeableHttpClient = HttpClientBuilder.create().setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).useSystemProperties().build();
-          clients.put(retries, closeableHttpClient);
+          closeableHttpClient = httpClientBuilderDecorate(HttpClientBuilder.create()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).useSystemProperties().build();
+          boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+          if (httpClientReuse) {
+            clients.put(retries, closeableHttpClient);
+          }
         }        
       }
     }
@@ -1270,11 +1351,14 @@ public class GrouperHttpClient {
           try {
             builder.loadTrustMaterial(null, trustStrategy);
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            closeableHttpClient = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
+            closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
-          trustAllClients.put(retries, closeableHttpClient);
+          boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+          if (httpClientReuse) {
+            trustAllClients.put(retries, closeableHttpClient);
+          }
         }
       }
     }
