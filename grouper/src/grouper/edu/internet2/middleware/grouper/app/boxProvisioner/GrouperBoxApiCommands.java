@@ -18,6 +18,7 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
@@ -611,6 +612,12 @@ public class GrouperBoxApiCommands {
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, requestUrl, returnCode);
         
+        if (!jsonNode.has("total_count")) {
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperBoxTreatEmptyRequestAsFailure", false)) {
+            throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
+          }
+        }
+
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("entries");
         
         int groupsArraySize = groupsArray == null ? 0 : groupsArray.size();
@@ -622,7 +629,7 @@ public class GrouperBoxApiCommands {
           }
         }
 
-        long totalGroups = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count");
+        long totalGroups = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = results.size();
         if (Long.valueOf(results.size()).compareTo(totalGroups) == 0 || groupsArraySize == 0) {
@@ -745,6 +752,12 @@ public class GrouperBoxApiCommands {
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, requestUrl, returnCode);
         
+        if (!jsonNode.has("total_count")) {
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperBoxTreatEmptyRequestAsFailure", false)) {
+            throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
+          }
+        }
+        
         ArrayNode usersArray = (ArrayNode) jsonNode.get("entries");
         
         int usersArraySize = usersArray == null ? 0 : usersArray.size();
@@ -756,7 +769,7 @@ public class GrouperBoxApiCommands {
           }
         }
 
-        long totalUsers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count");
+        long totalUsers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = results.size();
         if (Long.valueOf(results.size()).compareTo(totalUsers) == 0 || usersArraySize == 0) {
@@ -862,6 +875,12 @@ public class GrouperBoxApiCommands {
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
         
+        if (!jsonNode.has("total_count")) {
+          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperBoxTreatEmptyRequestAsFailure", false)) {
+            throw new RuntimeException("Invalid response, requestUri: " + urlSuffix + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
+          }
+        }
+
         ArrayNode entries = (ArrayNode) jsonNode.get("entries");
         
         int entriesSize = entries == null ? 0 : entries.size();
@@ -874,7 +893,7 @@ public class GrouperBoxApiCommands {
           memberIdToMembershipId.put(userId, membershipId);
         }
 
-        long totalMembers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count");
+        long totalMembers = GrouperUtil.jsonJacksonGetLong(jsonNode, "total_count", 0L);
 //        long offset = GrouperUtil.jsonJacksonGetLong(jsonNode, "offset");
         long newOffset = memberIdToMembershipId.size();
         if (Long.valueOf(memberIdToMembershipId.size()).compareTo(totalMembers) == 0 || entriesSize == 0) {
