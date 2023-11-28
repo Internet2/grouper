@@ -55,6 +55,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -680,6 +681,8 @@ public class GrouperHttpClient {
     return "Basic " + basicBase64;
   }
 
+  private static Map<MultiKey, CloseableHttpClient> customTrustStoreClient = new HashMap<>();
+  
   /**
    * Get a custom ClosableHttpClient that uses a truststore with the truststore and password information in grouperHttpCall.
    * 
@@ -687,29 +690,45 @@ public class GrouperHttpClient {
    * @return A ClosableHttpClient with the custom truststore.
    * @throws Exception If there's a problem setting up the truststore or sslfactory
    */
-  private CloseableHttpClient getCustomTrustStoreClient() throws Exception {
-    // Trust own CA and all self-signed certs
-    SSLContext sslcontext = SSLContexts.custom()
-        .loadTrustMaterial(this.trustStore,
-            this.trustStorePassword == null ? "".toCharArray() : this.trustStorePassword.toCharArray(),
-                new TrustSelfSignedStrategy())
-        .build();
+  private static CloseableHttpClient getCustomTrustStoreClient(File trustStore, String password, int retries) throws Exception {
+    
+    MultiKey clientKey = new MultiKey(trustStore, retries);
+    
+    CloseableHttpClient closeableHttpClient = customTrustStoreClient.get(clientKey);
+    
+    if (closeableHttpClient == null) {
+      synchronized (GrouperHttpClient.class) {
+        closeableHttpClient = customTrustStoreClient.get(clientKey);
+        
+        if (closeableHttpClient == null) {
+          // Trust own CA and all self-signed certs
+          SSLContext sslcontext = SSLContexts.custom()
+              .loadTrustMaterial(trustStore,
+                  password == null ? "".toCharArray() : password.toCharArray(),
+                      new TrustSelfSignedStrategy())
+              .build();
 
-    // Allow TLSv1* protocol only
-    SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-        sslcontext,
-        new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" },
-        null,
-        new HostnameVerifier() {
-          // Trust all of the hostnames
-          @Override
-          public boolean verify(String hostname, SSLSession session) {
-            return true;
-          }
-        } 
-        );
+          // Allow TLSv1* protocol only
+          SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+              sslcontext,
+              new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" },
+              null,
+              new HostnameVerifier() {
+                // Trust all of the hostnames
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                  return true;
+                }
+              } 
+              );
 
-    return HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
+          closeableHttpClient = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
+          customTrustStoreClient.put(clientKey, closeableHttpClient);
+          
+        }
+      }
+    }
+    return closeableHttpClient;
   }
   
   /**
@@ -895,31 +914,16 @@ public class GrouperHttpClient {
     // See if we trust all.
     if (this.trust){
 
-      TrustStrategy trustStrategy = new TrustStrategy() {
-        @Override
-        public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-          return true;
-        }
-      };
-
-      // Trust all, ONLY use for connections you are sure of.
-      SSLContextBuilder builder = new SSLContextBuilder();
-      try {
-        builder.loadTrustMaterial(null, trustStrategy);
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        closeableHttpClient = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      } 
+      closeableHttpClient = getTrustAllClient(this.retries); 
       // Check for custom truststore
     } else if(this.trustStore != null) {
       try {
-        closeableHttpClient = this.getCustomTrustStoreClient();
+        closeableHttpClient = this.getCustomTrustStoreClient(this.trustStore, this.trustStorePassword, this.retries);
       } catch (Exception e) {
         throw new RuntimeException("Error getting custom truststore ClosableHttpClient", e);
       }
     } else {
-      closeableHttpClient = HttpClientBuilder.create().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).useSystemProperties().build();
+      closeableHttpClient = getClient(this.retries);
     }
     
     HttpRequestBase httpRequestBase = null;
@@ -1100,6 +1104,7 @@ public class GrouperHttpClient {
         } finally {
           IOUtils.closeQuietly(fileOutputStream);
           IOUtils.closeQuietly(inputStream);
+          httpRequestBase.releaseConnection();
           EntityUtils.consumeQuietly(closeableHttpResponse.getEntity());
           closeableHttpResponse.close();
         }
@@ -1143,10 +1148,12 @@ public class GrouperHttpClient {
     } catch (Exception e){
       throw new RuntimeException(e);
     } finally{
-      try{
-        closeableHttpClient.close();
-      } catch (Exception e){
-      }
+
+      // dont close this, just close the methods.  the client is reused
+      //  try{
+      //    closeableHttpClient.close();
+      //  } catch (Exception e){
+      //  }
       // do the logging
       try {
         GrouperHttpClientLog grouperHttpCallLog = threadLocalLog.get();
@@ -1219,6 +1226,59 @@ public class GrouperHttpClient {
         LOG.error("error in http logging", e);
       }
     }
+  }
+
+  private static Map<Integer, CloseableHttpClient> clients = new HashMap<>();
+  
+  private static CloseableHttpClient getClient(int retries) {
+    
+    CloseableHttpClient closeableHttpClient = clients.get(retries);
+    
+    if (closeableHttpClient == null) {
+      synchronized (GrouperHttpClient.class) {
+        closeableHttpClient = clients.get(retries);
+        if (closeableHttpClient == null) {
+          closeableHttpClient = HttpClientBuilder.create().setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).useSystemProperties().build();
+          clients.put(retries, closeableHttpClient);
+        }        
+      }
+    }
+    
+    return closeableHttpClient;
+  }
+
+  private static Map<Integer, CloseableHttpClient> trustAllClients = new HashMap<>();
+  
+  private static CloseableHttpClient getTrustAllClient(int retries) {
+    CloseableHttpClient closeableHttpClient = trustAllClients.get(retries);
+    
+    if (closeableHttpClient == null) {
+      
+      synchronized (GrouperHttpClient.class) {
+        closeableHttpClient = trustAllClients.get(retries);
+        
+        if (closeableHttpClient == null) {
+          TrustStrategy trustStrategy = new TrustStrategy() {
+            @Override
+            public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+              return true;
+            }
+          };
+      
+          // Trust all, ONLY use for connections you are sure of.
+          SSLContextBuilder builder = new SSLContextBuilder();
+          try {
+            builder.loadTrustMaterial(null, trustStrategy);
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            closeableHttpClient = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+          trustAllClients.put(retries, closeableHttpClient);
+        }
+      }
+    }
+    return closeableHttpClient;
   }
 
   private static ThreadLocal<GrouperHttpClientLog> threadLocalLog = new InheritableThreadLocal<GrouperHttpClientLog>();
