@@ -14,6 +14,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.Map;
 import java.util.Set;
 
@@ -251,7 +252,12 @@ public class GrouperHttpClient {
   /**
    * Response headers.
    */
-  private Map<String, String> responseHeaders = new HashMap<String, String>();
+  private Map<String, String> responseHeaders = new LinkedHashMap<String, String>();
+  
+  /**
+   * Response headers lower case.
+   */
+  private Map<String, String> responseHeadersLower = new LinkedHashMap<String, String>();
   
   /** 
    * Any parameters to add to the URL.
@@ -578,6 +584,14 @@ public class GrouperHttpClient {
     return this.responseHeaders;
   }
 
+  /**
+   * Any headers (lower case) sent back in the resopnse.
+   * @return the responseHeadersLower
+   */
+  public Map<String, String> getResponseHeadersLower() {
+    return this.responseHeadersLower;
+  }
+
 
   
   /**
@@ -586,6 +600,10 @@ public class GrouperHttpClient {
    */
   public GrouperHttpClient assignResponseHeaders(Map<String, String> _responseHeaders) {
     this.responseHeaders = _responseHeaders;
+    this.responseHeadersLower = _responseHeaders == null ? null : new LinkedHashMap<>();
+    for (String name : GrouperUtil.nonNull(_responseHeaders).keySet()) {
+      this.responseHeadersLower.put(name.toLowerCase(), _responseHeaders.get(name));
+    }
     return this;
   }
 
@@ -906,7 +924,28 @@ public class GrouperHttpClient {
       }
       
       if (i <= retryForThrottlingOrNetworkIssues && retry) {
-        GrouperUtil.sleep(retryForThrottlingOrNetworkIssuesSleepMillis + (i * retryForThrottlingOrNetworkIssuesBackOffMillis)); // 1 min -> 2 mins -> 3 mins ->>>>
+
+        // if the seconds are in the header, use that perhaps
+        String retryAfterString = this.getResponseHeadersLower().get("retry-after");
+        
+        long sleepMillis = -1;
+        try {
+          if (!StringUtils.isBlank(retryAfterString)) {
+            sleepMillis = (GrouperUtil.longValue(retryAfterString) * 1000) + 5000;
+          } 
+        } catch (Throwable e) {
+          // ignore, this might be a date format...
+        }
+        
+        // 1 min -> 2 mins -> 3 mins ->>>>
+        long sleepMillisCalculated = retryForThrottlingOrNetworkIssuesSleepMillis + (i * retryForThrottlingOrNetworkIssuesBackOffMillis);
+        if (sleepMillis == -1) {
+          sleepMillis = sleepMillisCalculated;
+        } else {
+          // dont sleep more than 20 minutes...
+          sleepMillis = Math.min(sleepMillis, 20 * 60 * 1000);
+        }
+        GrouperUtil.sleep(sleepMillis); 
         retryForThrottlingTimesItWasRetried++;
         
         if (this.debugMapForCaller != null) {
@@ -1103,6 +1142,7 @@ public class GrouperHttpClient {
       if (closeableHttpResponse.getAllHeaders() != null){
         for (Header header : closeableHttpResponse.getAllHeaders()){
           this.getResponseHeaders().put(header.getName(), header.getValue());
+          this.getResponseHeadersLower().put(header.getName().toLowerCase(), header.getValue());
         }
       }
 
