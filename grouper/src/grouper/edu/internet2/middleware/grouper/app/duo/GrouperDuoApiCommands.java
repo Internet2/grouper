@@ -370,8 +370,8 @@ public class GrouperDuoApiCommands {
               boolean isThrottle = StringUtils.isNotBlank(errorCode) && errorCode.startsWith("429");
               if (isThrottle) {                
                 GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+                return isThrottle;
               }
-              return isThrottle;
               
             }
           } catch(Exception e) {

@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -204,6 +205,38 @@ public class GrouperBoxApiCommands {
     grouperHttpCall.addHeader("Content-Type", "application/json");
     grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
     grouperHttpCall.assignBody(body);
+    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
+      
+      @Override
+      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
+        String body = httpClient.getResponseBody();
+        try {
+          if (StringUtils.isNotBlank(body) && body.contains("error") && body.contains("429")) {
+            
+            // {"type":"error","status":429,"code":"rate_limit_exceeded",
+            // "help_url":"http://developers.box.com/docs/#errors",
+            // "message":"Request rate limit exceeded, please try again later",
+            // "request_id":"j09ok2hkbixiyeko"}
+            JsonNode node = GrouperUtil.jsonJacksonNode(body);
+            Integer status = GrouperUtil.jsonJacksonGetInteger(node, "status");
+            boolean isThrottle = status != null && status == 429;
+            if (isThrottle) {                
+              GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+              return isThrottle;
+            }
+            
+          }
+        } catch(Exception e) {
+          LOG.error("Error: " + debugMap.get("url") + ", " + grouperHttpCall.getResponseCode() + ", " + body, e);
+        }
+      
+        boolean isThrottle = grouperHttpCall.getResponseCode() == 429;
+        if (isThrottle) {                
+          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+        }
+        return isThrottle;
+        }
+    });
     grouperHttpCall.executeRequest();
     
     int code = -1;
@@ -213,24 +246,6 @@ public class GrouperBoxApiCommands {
       code = grouperHttpCall.getResponseCode();
       returnCode[0] = code;
       json = grouperHttpCall.getResponseBody();
-      
-      if (code == 429) {
-        Long secondsToSleep = Long.valueOf(grouperHttpCall.getResponseHeaders().get("retry-after"));
-        
-        GrouperUtil.sleep(secondsToSleep * 1000);
-        GrouperUtil.mapAddValue(debugMap, "boxThrottleSleepSeconds", secondsToSleep);
-        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "boxThrottleSleepSeconds", secondsToSleep);
-        }
-        
-        GrouperUtil.mapAddValue(debugMap, "boxThrottleCount", 1);
-        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "boxThrottleCount", 1);
-        }
-        
-        return executeMethod(debugMap, httpMethodName, configId, urlSuffix, allowedReturnCodes, 
-            returnCode, body);
-      }
       
       
     } catch (Exception e) {
@@ -249,6 +264,14 @@ public class GrouperBoxApiCommands {
 
     try {
       JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
+      
+      String type = GrouperUtil.jsonJacksonGetString(rootNode, "type");
+      if (StringUtils.equals(type, "error")) {
+        throw new RuntimeException(
+            "Error, http response code: " + code
+                + ", url: '" + debugMap.get("url") + "', " + json);
+      }
+      
       return rootNode;
     } catch (Exception e) {
       throw new RuntimeException("Error parsing response: '" + json + "'", e);
@@ -613,9 +636,7 @@ public class GrouperBoxApiCommands {
         JsonNode jsonNode = executeGetMethod(debugMap, configId, requestUrl, returnCode);
         
         if (!jsonNode.has("total_count")) {
-          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperBoxTreatEmptyRequestAsFailure", false)) {
-            throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
-          }
+          throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
         }
 
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("entries");
@@ -753,9 +774,7 @@ public class GrouperBoxApiCommands {
         JsonNode jsonNode = executeGetMethod(debugMap, configId, requestUrl, returnCode);
         
         if (!jsonNode.has("total_count")) {
-          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperBoxTreatEmptyRequestAsFailure", false)) {
-            throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
-          }
+          throw new RuntimeException("Invalid response, requestUri: " + requestUrl + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
         }
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("entries");
@@ -876,9 +895,7 @@ public class GrouperBoxApiCommands {
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
         
         if (!jsonNode.has("total_count")) {
-          if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperBoxTreatEmptyRequestAsFailure", false)) {
-            throw new RuntimeException("Invalid response, requestUri: " + urlSuffix + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
-          }
+          throw new RuntimeException("Invalid response, requestUri: " + urlSuffix + "  : http response code: " + returnCode[0] + ", " + GrouperUtil.jsonJacksonToString(jsonNode));
         }
 
         ArrayNode entries = (ArrayNode) jsonNode.get("entries");
