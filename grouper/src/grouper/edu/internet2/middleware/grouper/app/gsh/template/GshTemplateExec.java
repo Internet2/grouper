@@ -362,7 +362,7 @@ public class GshTemplateExec {
     
     boolean templateVersionV1 = StringUtils.equals("V1", templateConfig.getTemplateVersion());
     boolean templateVersionV2 = StringUtils.equals("V2", templateConfig.getTemplateVersion());
-    GshTemplateV2 gshTemplateV2 = executeForTemplateV2instance();
+    GshTemplateV2 gshTemplateV2 = templateVersionV1 ? null : executeForTemplateV2instance();
 
     GshTemplateV2input gshTemplateV2input = new GshTemplateV2input();
     gshTemplateV2input.setGsh_builtin_gshTemplateRuntime(gshTemplateRuntime);
