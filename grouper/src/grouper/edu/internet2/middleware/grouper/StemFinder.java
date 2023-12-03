@@ -1091,6 +1091,39 @@ public class StemFinder {
   }
 
   /**
+   * Find stem by name.
+   * <pre class="eg">
+   *   Stem stem = StemFinder.findByName(s, name, false);
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Find stem with this name.
+   * @param exceptionIfNotFound
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByName(String name, boolean exceptionIfNotFound)
+      throws StemNotFoundException {
+    return findByName(GrouperSession.staticGrouperSession(), name, exceptionIfNotFound, null);
+  }
+
+  /**
+   * Find stem by name.
+   * <pre class="eg">
+   *   Stem stem = StemFinder.findByName(s, name, false);
+   * </pre>
+   * @param   s     Search within this {@link GrouperSession} context
+   * @param   name  Find stem with this name.
+   * @param exceptionIfNotFound
+   * @param queryOptions
+   * @return  A {@link Stem} object
+   * @throws  StemNotFoundException
+   */
+  public static Stem findByName(String name, boolean exceptionIfNotFound, QueryOptions queryOptions)
+      throws StemNotFoundException {
+    return findByName(GrouperSession.staticGrouperSession(), name, exceptionIfNotFound, queryOptions);
+  }
+
+  /**
    * see if this is cacheable
    * @param id
    * @param queryOptions 

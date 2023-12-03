@@ -57,6 +57,7 @@ public class GrouperZoomFullSync extends OtherJobBase {
    * @param configId
    * @return map with groupCount, groupAddCount, membershipAddCount, membershipDeleteCount, membershipTotalCount
    */
+  @SuppressWarnings("unchecked")
   public static Map<String, Object> fullSync(final String configId) {
     return (Map<String, Object>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
@@ -71,6 +72,9 @@ public class GrouperZoomFullSync extends OtherJobBase {
           debugMap.put("groupAddCount", 0);
           debugMap.put("userDeleteCount", 0);
           debugMap.put("userDeactivateCount", 0);
+          debugMap.put("userReactivateCount", 0);
+          debugMap.put("userDelicenseCount", 0);
+          debugMap.put("userPhoneDelicenseCount", 0);
           debugMap.put("membershipAddCount", 0);
           debugMap.put("membershipDeleteCount", 0);
           debugMap.put("membershipTotalCount", 0);
@@ -260,6 +264,39 @@ public class GrouperZoomFullSync extends OtherJobBase {
             debugMap.put("userDeleteCount", userDeleteCount);
           }
           
+          debugMap.put("userReactivateCount", 0);
+          debugMap.put("userAddLicenseCount", 0);
+          String groupNameToReactivateUsers = GrouperZoomLocalCommands.groupNameToReactivateUsers(configId);
+          if (!StringUtils.isBlank(groupNameToReactivateUsers)) {
+            int userReactivateCount = 0;
+            int userAddLicenseCount = 0;
+
+            Set<String> emails = GrouperZoomLocalCommands.groupEmailsFromGroup(configId, groupNameToReactivateUsers);
+
+            for (String email : GrouperUtil.nonNull(emails)) {
+
+              Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
+
+              if (user == null) {
+                continue;
+              }
+
+              GrouperZoomCommands.userChangeStatus(configId, email, true);
+              
+              if (GrouperZoomLocalCommands.licenseReactivatedUsers(configId)) {
+                if (user == null || (user.get("type") != null && ( (Integer)user.get("type") ).intValue() == 2 )) {
+                  continue;
+                }
+                GrouperZoomCommands.userChangeType(configId, email, 2);
+                userAddLicenseCount++;
+              }
+
+              userReactivateCount++;
+            }
+            debugMap.put("userAddLicenseCount", userAddLicenseCount);
+            debugMap.put("userReactivateCount", userReactivateCount);
+          }
+
           debugMap.put("userDeactivateCount", 0);
           String groupNameToDeactivateUsers = GrouperZoomLocalCommands.groupNameToDeactivateUsers(configId);
           if (!StringUtils.isBlank(groupNameToDeactivateUsers)) {
@@ -285,6 +322,60 @@ public class GrouperZoomFullSync extends OtherJobBase {
               
             }
             debugMap.put("userDeactivateCount", userDeactivateCount);
+          }
+
+          debugMap.put("userDelicenseCount", 0);
+          String groupNameToDelicenseUsers = GrouperZoomLocalCommands.groupNameToDelicenseUsers(configId);
+          if (!StringUtils.isBlank(groupNameToDelicenseUsers)) {
+            int userDelicenseCount = 0;
+
+            Set<String> emails = GrouperZoomLocalCommands.groupEmailsFromGroup(configId, groupNameToDelicenseUsers);
+            
+            for (String email : GrouperUtil.nonNull(emails)) {
+
+              Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
+              
+              if (user == null || user.get("type") == null || ( (Integer)user.get("type") ).intValue() != 2 ) {
+                continue;
+              }
+
+              GrouperZoomCommands.userChangeType(configId, email, 1);
+              
+              if (GrouperZoomLocalCommands.removeGrouperMembershipFromDelicensedGroupAfterDelicenseZoomUser(configId)) {
+                GrouperZoomLocalCommands.removeMembership(configId, groupNameToDelicenseUsers, email);
+              }
+              
+              userDelicenseCount++;
+              
+            }
+            debugMap.put("userDelicenseCount", userDelicenseCount);
+          }
+
+          debugMap.put("userPhoneDelicenseCount", 0);
+          String groupNameToDelicensePhoneUsers = GrouperZoomLocalCommands.groupNameToDelicensePhoneUsers(configId);
+          if (!StringUtils.isBlank(groupNameToDelicensePhoneUsers)) {
+            int userPhoneDelicenseCount = 0;
+
+            Set<String> emails = GrouperZoomLocalCommands.groupEmailsFromGroup(configId, groupNameToDelicensePhoneUsers);
+            
+            for (String email : GrouperUtil.nonNull(emails)) {
+
+              Map<String, Object> user = GrouperZoomCommands.retrieveUser(configId, email);
+              
+              if (user == null) {
+                continue;
+              }
+
+              GrouperZoomCommands.userChangePhoneLicense(configId, email, false);
+              
+              if (GrouperZoomLocalCommands.removeGrouperMembershipFromDelicensedGroupAfterDelicensePhoneUser(configId)) {
+                GrouperZoomLocalCommands.removeMembership(configId, groupNameToDelicensePhoneUsers, email);
+              }
+              
+              userPhoneDelicenseCount++;
+              
+            }
+            debugMap.put("userPhoneDelicenseCount", userPhoneDelicenseCount);
           }
           
         } catch (RuntimeException e) {

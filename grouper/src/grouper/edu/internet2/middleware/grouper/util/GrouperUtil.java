@@ -13,9 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-/**
- *
- */
 package edu.internet2.middleware.grouper.util;
 
 import java.beans.PropertyDescriptor;
@@ -129,11 +126,23 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.cfg.Configuration;
 import org.hibernate.resource.transaction.spi.TransactionStatus;
-import org.ldaptive.io.Hex;
+import org.ldaptive.dn.DefaultAttributeValueEscaper;
+import org.ldaptive.dn.DefaultRDnNormalizer;
+import org.ldaptive.dn.Dn;
+import org.ldaptive.dn.MinimalAttributeValueEscaper;
+import org.ldaptive.dn.RDn;
+import org.ldaptive.filter.FilterUtils;
 
+import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.DeserializationContext;
+import com.fasterxml.jackson.databind.DeserializationFeature;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -142,9 +151,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 import com.googlecode.ipv6.IPv6Address;
 import com.googlecode.ipv6.IPv6Network;
-import com.unboundid.ldap.sdk.DN;
-import com.unboundid.ldap.sdk.LDAPException;
-import com.unboundid.ldap.sdk.RDN;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -152,7 +158,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
-import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -434,6 +439,19 @@ public class GrouperUtil {
     } finally {
       GrouperShutdown.shutdown();
     }
+  }
+
+  /**
+   * Object mapper to serialize and deserialize json string and beans
+   */
+  public static final ObjectMapper objectMapper = new ObjectMapper(); 
+  
+  static {
+    objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
+    objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
+    objectMapper.configure(DeserializationFeature.FAIL_ON_IGNORED_PROPERTIES, true);
+    
+    objectMapper.setSerializationInclusion(Include.NON_NULL);
   }
 
   /**
@@ -1825,24 +1843,8 @@ public class GrouperUtil {
       return dn;
     }
 
-    DN theDn = null;
-    try {
-      theDn = new DN(dn);
-    } catch (LDAPException ldapException) {
-      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
-    }
-    
-    RDN[] rdns = theDn.getRDNs();
-    StringBuilder path = new StringBuilder();
-    for (int i=rdns.length-1;i>=0;i--) {
-      RDN rdn = rdns[i];
-      path.append(rdn.getAttributeValues()[0]);
-      if (i != 0) {
-        path.append(":");
-      }
-      
-    }
-    return path.toString();
+    Dn theDn = new Dn(dn);
+    return theDn.format(new DefaultRDnNormalizer(), ':', true);
   }
 
   /**
@@ -1857,14 +1859,8 @@ public class GrouperUtil {
     if (StringUtils.isBlank(dn)) {
       return dn;
     }
-    try {
-      DN theDn = new DN(dn);
-      RDN[] rdns = theDn.getRDNs();
-      RDN firstRdn = rdns[0];
-      return firstRdn.getAttributeValues()[0];
-    } catch (LDAPException ldapException) {
-      throw new RuntimeException("Cant parse DN: '" + dn + "'", ldapException);
-    }
+    Dn theDn = new Dn(dn);
+    return theDn.getRDn().getNameValue().getStringValue();
   }
 
   /**
@@ -1884,23 +1880,21 @@ public class GrouperUtil {
 
     // This is wrapping the Value in quotes so the RDN class will consider
     // all the dn-relevant characters (eg: ,+;) as escaped
-    RDN rdn = new RDN(rdnAttribute, rdnValue);
-    return rdn.toMinimallyEncodedString();
+    return new RDn(rdnString).format(new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), s -> s, s -> s));
   }
 
   /**
    * This takes a string of value and makes sure that special, dn-relevant characters
    * are escaped, particularly commas, pluses, etc
-   * @param rdnString An RDN value: value
+   * @param rdnValue An RDN value: value
    * @return the escaped value
    */
   public static String ldapEscapeRdnValue(String rdnValue) {
-
     // This is wrapping the Value in quotes so the RDN class will consider
     // all the dn-relevant characters (eg: ,+;) as escaped
     //add a sample prefix, and then strip it off
-    RDN rdn = new RDN("cn", rdnValue);
-    return rdn.toMinimallyEncodedString().substring("cn=".length());
+    DefaultAttributeValueEscaper escaper = new DefaultAttributeValueEscaper();
+    return escaper.escape(rdnValue);
   }
 
   /**
@@ -1972,11 +1966,11 @@ public class GrouperUtil {
         result.append(',');
       }
       
-      RDN rdn;
+      RDn rdn;
       String piece;
       
       if (i==0 && rdnAttributeValue != null) {
-        piece = new String(rdnAttributeValue);
+        piece = rdnAttributeValue;
       } else {
         piece = namePieces.get(i);        
       }
@@ -1987,15 +1981,15 @@ public class GrouperUtil {
       }
 
       if (i==0) {
-        rdn = new RDN(rdnAttributeName, piece);
+        rdn = new RDn(rdnAttributeName, piece);
       } else {
-        rdn = new RDN(ouAttributeName, piece);
+        rdn = new RDn(ouAttributeName, piece);
       }
 
       if ( performRdnEscaping ) {
-        result.append(rdn.toMinimallyEncodedString());
+        result.append(rdn.format(new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), s -> s, s -> s)));
       } else {
-        result.append(rdn.toString());
+        result.append(rdn.format());
       }
     }
 
@@ -2004,53 +1998,7 @@ public class GrouperUtil {
   }
   
   public static String ldapFilterEscape(String s) {
-    // TODO replace with ldaptive 2.0 FilterUtils.escape after ldaptive upgrade
-    if (s == null) {
-      return s;
-    }
-    final StringBuilder sb = new StringBuilder(s.length());
-    final byte[] utf8 = s.getBytes(StandardCharsets.UTF_8);
-    // CheckStyle:MagicNumber OFF
-    // optimize if ASCII
-    if (s.length() == utf8.length) {
-      for (byte b : utf8) {
-        if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
-          sb.append('\\').append(Hex.encode(new byte[] {b}));
-        } else {
-          sb.append((char) b);
-        }
-      }
-    } else {
-      int multiByte = 0;
-      for (byte b : utf8) {
-        if (multiByte > 0) {
-          sb.append('\\').append(Hex.encode(new byte[] {b}));
-          multiByte--;
-        } else if ((b & 0x7F) == b) {
-          if (b <= 0x1F || b == 0x28 || b == 0x29 || b == 0x2A || b == 0x5C || b == 0x7F) {
-            sb.append('\\').append(Hex.encode(new byte[] {b}));
-          } else {
-            sb.append((char) b);
-          }
-        } else {
-          // 2 byte character
-          if ((b & 0xE0) == 0xC0) {
-            multiByte = 1;
-            // 3 byte character
-          } else if ((b & 0xF0) == 0xE0) {
-            multiByte = 2;
-            // 4 byte character
-          } else if ((b & 0xF8) == 0xF0) {
-            multiByte = 3;
-          } else {
-            throw new IllegalStateException("Could not read UTF-8 string encoding");
-          }
-          sb.append('\\').append(Hex.encode(new byte[] {b}));
-        }
-      }
-    }
-    // CheckStyle:MagicNumber ON
-    return sb.toString();
+    return FilterUtils.escape(s);
   }
   
   /**
@@ -2474,23 +2422,33 @@ public class GrouperUtil {
 
 //    JSONObject jsonObject = net.sf.json.JSONObject.fromObject( object );
 //    String json = jsonObject.toString();
-
-    JsonConfig jsonConfig = new JsonConfig();
-    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
-       public boolean apply( Object source, String name, Object value ) {
-         //json-lib cannot handle maps where the key is not a string
-         if( value != null && value instanceof Map ){
-           Map map = (Map)value;
-           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
-             return true;
+    
+    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+    String json;
+    if (useLegacy) {
+      JsonConfig jsonConfig = new JsonConfig();
+      jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+         public boolean apply( Object source, String name, Object value ) {
+           //json-lib cannot handle maps where the key is not a string
+           if( value != null && value instanceof Map ){
+             Map map = (Map)value;
+             if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+               return true;
+             }
            }
+           return value == null;
          }
-         return value == null;
-       }
-    });
-    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
-    String json = jsonObject.toString();
-
+      });
+      JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
+      json = jsonObject.toString();
+    } else {
+      try {
+        json = objectMapper.writeValueAsString(object);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
+    
     if (!includeObjectNameWrapper) {
       return json;
     }
@@ -2566,7 +2524,6 @@ public class GrouperUtil {
    */
   public static void jsonJacksonAssignStringArray(ObjectNode objectNode, String fieldName, Collection<String> values) {
     if (values != null) {
-      ObjectMapper objectMapper = new ObjectMapper();
       ArrayNode valuesJson = objectMapper.createArrayNode();
       for (String value : values) {
         valuesJson.add(value);
@@ -2757,13 +2714,11 @@ public class GrouperUtil {
 
 
   public static ObjectNode jsonJacksonNode() {
-    ObjectMapper objectMapper = new ObjectMapper();
     ObjectNode objectNode = objectMapper.createObjectNode();
     return objectNode;
   }
 
   public static ArrayNode jsonJacksonArrayNode() {
-    ObjectMapper objectMapper = new ObjectMapper();
     ArrayNode arrayNode = objectMapper.createArrayNode();
     return arrayNode;
   }
@@ -2772,10 +2727,6 @@ public class GrouperUtil {
   
   public static JsonNode jsonJacksonNode(String json) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
-      
-      objectMapper.configure(Feature.ALLOW_UNQUOTED_FIELD_NAMES, true);
-      objectMapper.configure(Feature.ALLOW_SINGLE_QUOTES, true);
       
       //read JSON like DOM Parser
       JsonNode rootNode = objectMapper.readTree(json);
@@ -2789,9 +2740,13 @@ public class GrouperUtil {
     }
   }
 
+  /**
+   * convert a json node to acutal json
+   * @param jsonNode
+   * @return
+   */
   public static String jsonJacksonToString(JsonNode jsonNode) {
     try {
-      ObjectMapper objectMapper = new ObjectMapper();
       String json = objectMapper.writeValueAsString(jsonNode);
       return json;
     } catch (Exception e) {
@@ -2810,38 +2765,47 @@ public class GrouperUtil {
    * @return the string of json
    */
   public static String jsonConvertToNoWrap(Object object) {
-	  //TODO call the other jsonConvertTo() method
-	    if (object == null) {
-	      throw new NullPointerException();
-	    }
-
-	    JsonConfig jsonConfig = new JsonConfig();
-	    jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
-	       public boolean apply( Object source, String name, Object value ) {
-	         //json-lib cannot handle maps where the key is not a string
-	         if( value != null && value instanceof Map ){
-	           Map map = (Map)value;
-	           if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
-	             return true;
-	           }
-	         }
-           if ("source".equals(name) && source instanceof Subject) {
-             return true;
+    //TODO call the other jsonConvertTo() method
+      if (object == null) {
+        throw new NullPointerException();
+      }
+      
+      boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+      String json;
+      if (useLegacy) {
+        JsonConfig jsonConfig = new JsonConfig();
+        jsonConfig.setJsonPropertyFilter( new PropertyFilter(){
+           public boolean apply( Object source, String name, Object value ) {
+             //json-lib cannot handle maps where the key is not a string
+             if( value != null && value instanceof Map ){
+               Map map = (Map)value;
+               if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
+                 return true;
+               }
+             }
+             if ("source".equals(name) && source instanceof Subject) {
+               return true;
+             }
+             if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+               return true;
+             }
+             if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
+               return true;
+             }
+             return value == null;
            }
-	         if ("subject".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
-	           return true;
-	         }
-           if ("member".equals(name) && source != null && source.getClass().getName().equals("edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject")) {
-             return true;
-           }
-           return value == null;
-	       }
-	    });
-	    JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
-	    String json = jsonObject.toString();
-
-	    return json;
-	  }
+        });
+        JSONObject jsonObject = JSONObject.fromObject( object, jsonConfig );
+        json = jsonObject.toString();
+        return json;
+      }
+      
+      try {
+        return objectMapper.writeValueAsString(object);
+      } catch (JsonProcessingException e) {
+        throw new RuntimeException(e);
+      }
+    }
 
   /**
    * convert an object to json.  note this wraps the gson with the object simple name so it can be revived
@@ -2916,11 +2880,25 @@ public class GrouperUtil {
     if (theClass == null) {
       throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
     }
+    
+    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+    if (useLegacy) {
 //    Gson gson = new GsonBuilder().create();
 //    Object object = gson.fromJson(jsonBody, theClass);
     JSONObject jsonObject = JSONObject.fromObject( jsonBody );
     Object object = JSONObject.toBean( jsonObject, theClass );
-
+    return object;
+    }
+    
+    Object object;
+    try {
+      object = objectMapper.readValue(jsonBody, theClass);
+    } catch (JsonMappingException e) {
+      throw new RuntimeException(e);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    
     return object;
   }
   /**
@@ -2931,11 +2909,52 @@ public class GrouperUtil {
    * @return the object
    * 
    */
-  public static <T> T jsonConvertFrom (String json, Class<T> theClass) {
-	  	JSONObject jsonObject = JSONObject.fromObject( json );
-	    Object object = JSONObject.toBean( jsonObject, theClass );
-	    return (T)object;
+  public static <T> T jsonConvertFrom(String json, Class<T> theClass) {
+
+    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+    
+    if (useLegacy) {
+      JSONObject jsonObject = JSONObject.fromObject( json );
+      Object object = JSONObject.toBean( jsonObject, theClass );
+      return (T)object;
+    }
+    T val;
+    try {
+      val = objectMapper.readValue(json, theClass);
+    } catch (JsonMappingException e) {
+      throw new RuntimeException(e);
+    } catch (JsonProcessingException e) {
+      throw new RuntimeException(e);
+    }
+    return val;
   }
+  
+  /**
+   * convert a jsonNode into POJO.
+   * @param jsonNode 
+   * @param theClass is the class that the object should be coverted into.
+   * Note: only the top level object needs to be registered
+   * @return the object
+   * 
+   */
+  public static <T> T jsonConvertFrom(JsonNode jsonNode, Class<T> theClass) {
+    T convertValue = objectMapper.convertValue(jsonNode, theClass);
+    return convertValue;
+  }
+  
+  
+  /**
+   * convert a POJO into ObjectNode
+   * @param object 
+   * Note: only the top level object needs to be registered
+   * @return ObjectNode
+   * 
+   */
+  public static ObjectNode jsonConvertFromObjectToObjectNode(Object object) {
+    ObjectNode valueToTree = objectMapper.valueToTree(object);
+    return valueToTree;
+  }
+  
   
   /**
    * get the extension from name.  if name is a:b:c, name is c
@@ -3264,6 +3283,19 @@ public class GrouperUtil {
     StringBuilder result = new StringBuilder();
     toStringForLogHelper(object, -1, result, true);
     return result.toString();
+  }
+
+  /**
+   * print out various types of objects
+   *
+   * @param object
+   * @return the string value
+   */
+  public static String toStringForLogHtml(Object object) {
+    String result = toStringForLog(object);
+    result = escapeHtml(result, true);
+    result = replace(result, "\n", "<br />\n");
+    return result;
   }
 
   /**
@@ -11063,6 +11095,25 @@ public class GrouperUtil {
     return true;
   }
   
+  /**
+   * <p>A way to get the entire nested stack-trace of an throwable.</p>
+   *
+   * @param throwable  the <code>Throwable</code> to be examined
+   * @return the nested stack trace, with the root cause first
+   * @since 2.0
+   */
+  public static String getFullStackTraceHtml(Throwable throwable) {
+    
+    if (throwable == null) {
+      return "";
+    }
+    
+    String stackHtml = getFullStackTrace(throwable);
+    stackHtml = replace(escapeHtml(stackHtml, true), "\n", "<br />");
+    return stackHtml;
+    
+  }
+
   /**
    * <p>A way to get the entire nested stack-trace of an throwable.</p>
    *

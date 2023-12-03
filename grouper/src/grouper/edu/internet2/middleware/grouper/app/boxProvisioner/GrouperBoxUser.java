@@ -395,7 +395,7 @@ public class GrouperBoxUser {
    */
   public static GrouperBoxUser fromJson(JsonNode entityNode) {
 
-    if (entityNode == null || !entityNode.has("name")) { 
+    if (entityNode == null || !entityNode.has("id")) { 
       return null;
     }
 
@@ -461,8 +461,7 @@ public class GrouperBoxUser {
    * @return the group
    */
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       result.put("id", this.id);

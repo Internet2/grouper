@@ -518,8 +518,7 @@ public class GrouperGoogleGroup {
    */
   public ObjectNode toJsonGroupOnly(Set<String> fieldNamesToSet) {
     
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       result.put("id", this.id);
@@ -544,8 +543,7 @@ public class GrouperGoogleGroup {
    */
   public ObjectNode toJsonGroupSettings(Set<String> fieldNamesToSet) {
     
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanAdd")) {      
       result.put("whoCanAdd", this.whoCanAdd);

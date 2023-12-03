@@ -27,7 +27,10 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.http.Header;
+import org.apache.http.HeaderElement;
+import org.apache.http.HeaderElementIterator;
 import org.apache.http.HttpHost;
+import org.apache.http.HttpResponse;
 import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
@@ -36,6 +39,7 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.conn.ConnectionKeepAliveStrategy;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ByteArrayEntity;
@@ -47,14 +51,21 @@ import org.apache.http.impl.client.CloseableHttpClient;
 import org.apache.http.impl.client.DefaultHttpRequestRetryHandler;
 import org.apache.http.impl.client.HttpClientBuilder;
 import org.apache.http.impl.client.HttpClients;
+import org.apache.http.impl.conn.PoolingHttpClientConnectionManager;
+import org.apache.http.message.BasicHeaderElementIterator;
 import org.apache.http.message.BasicNameValuePair;
+import org.apache.http.protocol.HTTP;
+import org.apache.http.protocol.HttpContext;
 import org.apache.http.ssl.SSLContextBuilder;
 import org.apache.http.ssl.SSLContexts;
 import org.apache.http.ssl.TrustStrategy;
+import org.apache.http.util.Args;
 import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -92,6 +103,29 @@ public class GrouperHttpClient {
   }
   
 
+  public static void shutdown() {
+    for (CloseableHttpClient closeableHttpClient : customTrustStoreClient.values()) {
+      try{
+        closeableHttpClient.close();
+      } catch (Throwable e){
+      }
+    }
+    customTrustStoreClient.clear();
+    for (CloseableHttpClient closeableHttpClient : trustAllClients.values()) {
+      try{
+        closeableHttpClient.close();
+      } catch (Throwable e){
+      }
+    }
+    trustAllClients.clear();
+    for (CloseableHttpClient closeableHttpClient : clients.values()) {
+      try{
+        closeableHttpClient.close();
+      } catch (Throwable e){
+      }
+    }
+    clients.clear();
+  }
   /**
    * 
    */
@@ -680,6 +714,8 @@ public class GrouperHttpClient {
     return "Basic " + basicBase64;
   }
 
+  private static Map<MultiKey, CloseableHttpClient> customTrustStoreClient = new HashMap<>();
+  
   /**
    * Get a custom ClosableHttpClient that uses a truststore with the truststore and password information in grouperHttpCall.
    * 
@@ -687,29 +723,48 @@ public class GrouperHttpClient {
    * @return A ClosableHttpClient with the custom truststore.
    * @throws Exception If there's a problem setting up the truststore or sslfactory
    */
-  private CloseableHttpClient getCustomTrustStoreClient() throws Exception {
-    // Trust own CA and all self-signed certs
-    SSLContext sslcontext = SSLContexts.custom()
-        .loadTrustMaterial(this.trustStore,
-            this.trustStorePassword == null ? "".toCharArray() : this.trustStorePassword.toCharArray(),
-                new TrustSelfSignedStrategy())
-        .build();
+  private static CloseableHttpClient getCustomTrustStoreClient(File trustStore, String password, int retries) throws Exception {
+    
+    MultiKey clientKey = new MultiKey(trustStore, retries);
+    
+    CloseableHttpClient closeableHttpClient = customTrustStoreClient.get(clientKey);
+    
+    if (closeableHttpClient == null) {
+      synchronized (GrouperHttpClient.class) {
+        closeableHttpClient = customTrustStoreClient.get(clientKey);
+        
+        if (closeableHttpClient == null) {
+          // Trust own CA and all self-signed certs
+          SSLContext sslcontext = SSLContexts.custom()
+              .loadTrustMaterial(trustStore,
+                  password == null ? "".toCharArray() : password.toCharArray(),
+                      new TrustSelfSignedStrategy())
+              .build();
 
-    // Allow TLSv1* protocol only
-    SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
-        sslcontext,
-        new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" },
-        null,
-        new HostnameVerifier() {
-          // Trust all of the hostnames
-          @Override
-          public boolean verify(String hostname, SSLSession session) {
-            return true;
+          // Allow TLSv1* protocol only
+          SSLConnectionSocketFactory sslConnectionSocketFactory = new SSLConnectionSocketFactory(
+              sslcontext,
+              new String[] { "TLSv1", "TLSv1.1", "TLSv1.2" },
+              null,
+              new HostnameVerifier() {
+                // Trust all of the hostnames
+                @Override
+                public boolean verify(String hostname, SSLSession session) {
+                  return true;
+                }
+              } 
+              );
+
+          closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
+          boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+          if (httpClientReuse) {
+            customTrustStoreClient.put(clientKey, closeableHttpClient);
           }
-        } 
-        );
-
-    return HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
+          
+        }
+      }
+    }
+    return closeableHttpClient;
   }
   
   /**
@@ -895,31 +950,16 @@ public class GrouperHttpClient {
     // See if we trust all.
     if (this.trust){
 
-      TrustStrategy trustStrategy = new TrustStrategy() {
-        @Override
-        public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
-          return true;
-        }
-      };
-
-      // Trust all, ONLY use for connections you are sure of.
-      SSLContextBuilder builder = new SSLContextBuilder();
-      try {
-        builder.loadTrustMaterial(null, trustStrategy);
-        SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-        closeableHttpClient = HttpClients.custom().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      } 
+      closeableHttpClient = getTrustAllClient(this.retries); 
       // Check for custom truststore
     } else if(this.trustStore != null) {
       try {
-        closeableHttpClient = this.getCustomTrustStoreClient();
+        closeableHttpClient = this.getCustomTrustStoreClient(this.trustStore, this.trustStorePassword, this.retries);
       } catch (Exception e) {
         throw new RuntimeException("Error getting custom truststore ClosableHttpClient", e);
       }
     } else {
-      closeableHttpClient = HttpClientBuilder.create().setRetryHandler(new DefaultHttpRequestRetryHandler(this.retries, false)).useSystemProperties().build();
+      closeableHttpClient = getClient(this.retries);
     }
     
     HttpRequestBase httpRequestBase = null;
@@ -1100,6 +1140,7 @@ public class GrouperHttpClient {
         } finally {
           IOUtils.closeQuietly(fileOutputStream);
           IOUtils.closeQuietly(inputStream);
+          httpRequestBase.releaseConnection();
           EntityUtils.consumeQuietly(closeableHttpResponse.getEntity());
           closeableHttpResponse.close();
         }
@@ -1143,9 +1184,14 @@ public class GrouperHttpClient {
     } catch (Exception e){
       throw new RuntimeException(e);
     } finally{
-      try{
-        closeableHttpClient.close();
-      } catch (Exception e){
+
+      // dont close this, just close the methods.  the client is reused
+      boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+      if (!httpClientReuse) {
+        try{
+          closeableHttpClient.close();
+        } catch (Throwable e){
+        }
       }
       // do the logging
       try {
@@ -1219,6 +1265,104 @@ public class GrouperHttpClient {
         LOG.error("error in http logging", e);
       }
     }
+  }
+
+  private static Map<Integer, CloseableHttpClient> clients = new HashMap<>();
+  
+  private static HttpClientBuilder httpClientBuilderDecorate(HttpClientBuilder httpClientBuilder) {
+    
+    // https://www.baeldung.com/httpclient-connection-management
+    PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+    int httpClientMaxTotalPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("httpClientMaxTotalPoolSize", 100);
+    int httpClientDefaultMaxPerRoute = GrouperConfig.retrieveConfig().propertyValueInt("httpClientDefaultMaxPerRoute", 30);
+    
+    connManager.setMaxTotal(httpClientMaxTotalPoolSize);
+    connManager.setDefaultMaxPerRoute(httpClientDefaultMaxPerRoute);
+    httpClientBuilder.setConnectionManager(connManager);
+    
+    // use the timeout of server, or if not found, use 5 seconds
+    final ConnectionKeepAliveStrategy myStrategy = new ConnectionKeepAliveStrategy() {
+
+      @Override
+      public long getKeepAliveDuration(HttpResponse response, HttpContext context) {
+        Args.notNull(response, "HTTP response");  
+        
+        HeaderElementIterator it = new BasicHeaderElementIterator(response.headerIterator(HTTP.CONN_KEEP_ALIVE));
+        while (it.hasNext()) {
+          HeaderElement he = it.nextElement();
+          String param = he.getName();
+          String value = he.getValue();
+          if (value != null && param.equalsIgnoreCase("timeout")) {
+            try {
+                return Long.parseLong(value) * 1000;
+            } catch(NumberFormatException ignore) {
+            }
+          }
+        }        
+        return 5000;
+
+      }  
+    };
+    
+    httpClientBuilder.setKeepAliveStrategy(myStrategy);
+    return httpClientBuilder;
+  }
+  
+  private static CloseableHttpClient getClient(int retries) {
+    
+    CloseableHttpClient closeableHttpClient = clients.get(retries);
+    
+    if (closeableHttpClient == null) {
+      synchronized (GrouperHttpClient.class) {
+        closeableHttpClient = clients.get(retries);
+        if (closeableHttpClient == null) {
+          closeableHttpClient = httpClientBuilderDecorate(HttpClientBuilder.create()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).useSystemProperties().build();
+          boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+          if (httpClientReuse) {
+            clients.put(retries, closeableHttpClient);
+          }
+        }        
+      }
+    }
+    
+    return closeableHttpClient;
+  }
+
+  private static Map<Integer, CloseableHttpClient> trustAllClients = new HashMap<>();
+  
+  private static CloseableHttpClient getTrustAllClient(int retries) {
+    CloseableHttpClient closeableHttpClient = trustAllClients.get(retries);
+    
+    if (closeableHttpClient == null) {
+      
+      synchronized (GrouperHttpClient.class) {
+        closeableHttpClient = trustAllClients.get(retries);
+        
+        if (closeableHttpClient == null) {
+          TrustStrategy trustStrategy = new TrustStrategy() {
+            @Override
+            public boolean isTrusted(X509Certificate[] arg0, String arg1) throws CertificateException {
+              return true;
+            }
+          };
+      
+          // Trust all, ONLY use for connections you are sure of.
+          SSLContextBuilder builder = new SSLContextBuilder();
+          try {
+            builder.loadTrustMaterial(null, trustStrategy);
+            SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
+            closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          }
+          boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
+          if (httpClientReuse) {
+            trustAllClients.put(retries, closeableHttpClient);
+          }
+        }
+      }
+    }
+    return closeableHttpClient;
   }
 
   private static ThreadLocal<GrouperHttpClientLog> threadLocalLog = new InheritableThreadLocal<GrouperHttpClientLog>();

@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import edu.internet2.middleware.grouper.util.GrouperUtil;
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 
 public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
@@ -10,6 +11,14 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
   
   public ProvisioningStateEntity getProvisioningStateEntity() {
     return provisioningStateEntity;
+  }
+  
+  public boolean isInGroup(String groupName) {
+    if (StringUtils.isBlank(this.getMemberId())) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
+        .isInGroup(groupName, this.getMemberId());
   }
 
   /**

@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
@@ -19,7 +20,6 @@ import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateConfig {
@@ -70,6 +70,17 @@ public class GshTemplateConfig {
   
   private GshTemplateFolderShowType gshTemplateFolderShowType;
   
+  /** V1 or V2 */
+  private String templateVersion;
+  
+  /**
+   * V1 or V2
+   * @return
+   */
+  public String getTemplateVersion() {
+    return templateVersion;
+  }
+
   private Set<Stem> foldersToShow = new HashSet<Stem>();
   
   private Stem folderForGroupsInFolder;
@@ -333,6 +344,8 @@ public class GshTemplateConfig {
         String configPrefix = "grouperGshTemplate."+configId+".";
         
         enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"enabled", true);
+
+        templateVersion = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"templateVersion", "V1");
 
         simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"simplifiedUi", false);
 
@@ -714,6 +727,17 @@ public class GshTemplateConfig {
    */
   public Subject getCurrentUser() {
     return currentUser;
+  }
+
+
+
+  public GshTemplateInputConfig retrieveGshTemplateInputConfig(String gshInputName) {
+    for (GshTemplateInputConfig gshTemplateInputConfig : GrouperUtil.nonNull(this.getGshTemplateInputConfigs())) {
+      if (StringUtils.equals(gshInputName, gshTemplateInputConfig.getName())) {
+        return gshTemplateInputConfig;
+      }
+    }
+    throw new RuntimeException("Cannot find config for input: '" + gshInputName + "'");
   }
 
 }

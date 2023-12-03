@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
@@ -543,7 +544,7 @@ public class GrouperProvisioningService {
 //      GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadata = GrouperProvisioningObjectMetadata.buildGrouperProvisioningObjectMetadataFromJsonString(provisioningObjectMetadataJson.getValueString());
 //      result.setGrouperProvisioningObjectMetadata(grouperProvisioningObjectMetadata);
       try {
-        Map<String, Object> metadataNameValues = GrouperProvisioningSettings.objectMapper
+        Map<String, Object> metadataNameValues = GrouperUtil.objectMapper
             .readValue(provisioningObjectMetadataJson.getValueString(), Map.class);
         result.setMetadataNameValues(metadataNameValues);
       } catch(Exception e) {
@@ -608,7 +609,7 @@ public class GrouperProvisioningService {
     if (metadataNameValues != null) {
       attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
       try {
-        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        String metadataItemsAsString = GrouperUtil.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
@@ -639,7 +640,7 @@ public class GrouperProvisioningService {
     if (metadataNameValues != null) {
       attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
       try {
-        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        String metadataItemsAsString = GrouperUtil.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
@@ -696,7 +697,7 @@ public class GrouperProvisioningService {
     attributeDefName = AttributeDefNameFinder.findByName(provisioningConfigStemName()+":"+PROVISIONING_METADATA_JSON, true);
     if (metadataNameValues != null && metadataNameValues.size() > 0) {
       try {
-        String metadataItemsAsString = GrouperProvisioningSettings.objectMapper.writeValueAsString(metadataNameValues);
+        String metadataItemsAsString = GrouperUtil.objectMapper.writeValueAsString(metadataNameValues);
         attributeAssign.getAttributeValueDelegate().assignValue(attributeDefName.getName(), metadataItemsAsString);
       } catch (JsonProcessingException e) {
         throw new RuntimeException("could not convert map into json string", e);
@@ -1037,14 +1038,26 @@ public class GrouperProvisioningService {
     
     return rows;
   }
-  
+
+  /**
+   * retrieve 100 groups that are provisionable for <pre>provisionerName</pre>
+   * @param provisionerName
+   * @deprecated use retrieveGroupsProvisionable(String provisionerName, int limit)
+   * @return
+   */
+  @Deprecated
+  public static MultiKey retrieveGroupsProvisionable(String provisionerName) {
+    return retrieveGroupsProvisionable(provisionerName, 1000);
+  }
+
   
   /**
    * retrieve groups that are provisionable for <pre>provisionerName</pre>
    * @param provisionerName
-   * @return
+   * @param limit pass in limit of groups or null for all
+   * @return total record count and list of gc grouper sync groups
    */
-  public static MultiKey retrieveGroupsProvisionable(String provisionerName) {
+  public static MultiKey retrieveGroupsProvisionable(String provisionerName, Integer limit) {
     
     List<GcGrouperSyncGroup> gcGrouperSyncGroups = new ArrayList<GcGrouperSyncGroup>();
     
@@ -1054,18 +1067,23 @@ public class GrouperProvisioningService {
       return null;
     }
     
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+
     QueryOptions queryOptions = new QueryOptions();
-    queryOptions.paging(QueryPaging.page(1000, 1, true));
-    queryOptions.sortAsc("groupName");
+    if (limit != null && limit > 0) {
+      queryOptions.paging(QueryPaging.page(limit, 1, true));
+      queryOptions.sortAsc("groupName");
+      byHqlStatic.options(queryOptions);
+    }
     
-    List<GcGrouperSyncGroup> gcGrouperSyncGroupsInTargetStart = HibernateSession.byHqlStatic().options(queryOptions)
+    List<GcGrouperSyncGroup> gcGrouperSyncGroupsInTargetStart = byHqlStatic
       .createQuery("from GcGrouperSyncGroup where grouperSyncId = :theGrouperSyncId and provisionableDb = 'T' ")
       .setString("theGrouperSyncId", gcGrouperSync.getId())
       .list(GcGrouperSyncGroup.class);
     
     gcGrouperSyncGroups.addAll(gcGrouperSyncGroupsInTargetStart);
     
-    int totalCount = queryOptions.getQueryPaging().getTotalRecordCount();
+    int totalCount = (limit != null && limit > 0) ? queryOptions.getQueryPaging().getTotalRecordCount() : gcGrouperSyncGroups.size();
     
     return new MultiKey(totalCount, gcGrouperSyncGroups);
   }

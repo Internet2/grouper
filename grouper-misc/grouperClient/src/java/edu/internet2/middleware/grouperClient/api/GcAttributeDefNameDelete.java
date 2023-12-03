@@ -198,6 +198,19 @@ public class GcAttributeDefNameDelete {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAttributeDefNameDelete assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -233,7 +246,9 @@ public class GcAttributeDefNameDelete {
             
       //kick off the web service
       wsAttributeDefNameDeleteResults = (WsAttributeDefNameDeleteResults)
-        grouperClientWs.executeService("attributeDefNames", attributeDefNameDelete, "attributeDefNameDelete", this.clientVersion, false);
+          grouperClientWs.executeService("attributeDefNames",
+              attributeDefNameDelete, "attributeDefNameDelete",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAttributeDefNameDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAttributeDefNameDeleteResults, wsAttributeDefNameDeleteResults.getResults(), resultMessage);

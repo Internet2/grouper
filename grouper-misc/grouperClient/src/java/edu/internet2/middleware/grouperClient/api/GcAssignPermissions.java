@@ -185,7 +185,20 @@ public class GcAssignPermissions {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignPermissions assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** group names to query */
   private Set<String> roleNames = new LinkedHashSet<String>();
   
@@ -496,8 +509,9 @@ public class GcAssignPermissions {
       
       //kick off the web service
       wsAssignPermissionsResults = (WsAssignPermissionsResults)
-        grouperClientWs.executeService("permissionAssignments", 
-            assignPermissions, "getPermissionAssignments", this.clientVersion, false);
+          grouperClientWs.executeService("permissionAssignments",
+              assignPermissions, "getPermissionAssignments",
+              this.clientVersion, this.contentType, false);
 
       String resultMessage = wsAssignPermissionsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignPermissionsResults, null, resultMessage);

@@ -33,10 +33,14 @@ import java.util.Set;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.userData.UserDataList;
+import edu.internet2.middleware.grouper.userData.UserDataObject;
 import edu.internet2.middleware.grouper.util.versioningV1.BeanA;
 import edu.internet2.middleware.grouper.util.versioningV1.BeanB;
 import edu.internet2.middleware.subject.Source;
@@ -58,7 +62,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testParentStemNameFromName"));
+    TestRunner.run(new GrouperUtilTest("testJson"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     
@@ -1253,6 +1257,56 @@ public class GrouperUtilTest extends GrouperTest {
     networkIpStrings = "2001:db8:3333:4444:CCCC:DDDD:EEEE:FFFF";
     ipOnNetworks = GrouperUtil.ipOnNetworks(ipString, networkIpStrings);
     assertTrue(ipOnNetworks);
+    
+  }
+  
+  /**
+   * test json
+   */
+  public void testJson() {
+    
+    UserDataList userDataList = new UserDataList();
+    
+    userDataList.addUserDataObject(new UserDataObject("uuid1", 1231234L), 100);
+    userDataList.addUserDataObject(new UserDataObject("uuid2", 1231238L), 100);
+    
+    boolean[] useLegacyForConvertToStrings = new boolean[] {true, false};
+    boolean[] useLegacyForConvertToBeans = new boolean[] {true, false};
+    
+    
+    for (boolean useLegacyForConvertToString: useLegacyForConvertToStrings) {
+      
+      for (boolean useLegacyForConvertToBean: useLegacyForConvertToBeans) {
+       
+        GrouperConfig.retrieveConfig().propertiesThreadLocalOverrideMap().put("grouper.json.serialize.deserialize.useLegacy", useLegacyForConvertToString+"");
+        
+        String json = GrouperUtil.jsonConvertTo(userDataList);
+        json = GrouperUtil.indent(json, true);
+        
+        System.out.println(json);
+        
+        GrouperConfig.retrieveConfig().propertiesThreadLocalOverrideMap().put("grouper.json.serialize.deserialize.useLegacy", useLegacyForConvertToBean+"");
+        
+        Map<String, Class<?>> conversionMap = new HashMap<String, Class<?>>();
+        conversionMap.put(UserDataList.class.getSimpleName(), UserDataList.class);
+        
+        UserDataList userDataList2 = (UserDataList) GrouperUtil.jsonConvertFrom(conversionMap, json);
+        
+        assertEquals(userDataList.getList().length, userDataList2.getList().length);
+        assertEquals(userDataList2.getList().length, 2);
+        
+        for (int i=0; i<2; i++) {
+          
+          UserDataObject userDataObject = userDataList.getList()[i];
+          UserDataObject userDataObject2 = userDataList2.getList()[i];
+          
+          assertEquals(userDataObject.getUuid(), userDataObject2.getUuid());
+          assertEquals(userDataObject.getTimestamp(), userDataObject2.getTimestamp());
+        }
+        
+      }
+      
+    }
     
   }
   

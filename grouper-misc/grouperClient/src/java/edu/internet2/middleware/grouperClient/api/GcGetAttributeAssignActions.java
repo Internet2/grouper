@@ -62,6 +62,19 @@ public class GcGetAttributeAssignActions {
     return this;
   }
 
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignActions assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
 
@@ -178,8 +191,8 @@ public class GcGetAttributeAssignActions {
       //kick off the web service
       wsGetAttributeAssignActionsResults = (WsGetAttributeAssignActionsResults)
           grouperClientWs.executeService("attributeAssignActions",
-              getAttributeAssignActions, "getAttributeAssignActions", this.clientVersion,
-              true);
+              getAttributeAssignActions, "getAttributeAssignActions",
+              this.clientVersion, this.contentType, true);
 
       String resultMessage = wsGetAttributeAssignActionsResults.getResultMetadata()
           .getResultMessage();

@@ -15,10 +15,16 @@
  */
 package edu.internet2.middleware.grouper.ldap;
 
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
+import org.apache.commons.lang3.StringUtils;
+import org.ldaptive.ResultCode;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * @author shilen
@@ -32,6 +38,7 @@ public class LdapConfiguration {
   private int queryBatchSize;
   private int updateBatchSize;
   private Integer pageSize;
+  private Set<ResultCode> searchIgnoreResultCodes = new HashSet<ResultCode>();
   
   /**
    * @param ldapServerId
@@ -53,6 +60,14 @@ public class LdapConfiguration {
     
     if (this.updateBatchSize < 1) {
       this.updateBatchSize = 1;
+    }
+    
+    String searchIgnoreResultCodesString = GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".searchIgnoreResultCodes", "TIME_LIMIT_EXCEEDED, SIZE_LIMIT_EXCEEDED, PARTIAL_RESULTS");
+    if (!StringUtils.isBlank(searchIgnoreResultCodesString)) {
+      for (String resultCodeString : GrouperUtil.splitTrimToSet(searchIgnoreResultCodesString, ",")) {
+        ResultCode resultCode = ResultCode.valueOf(resultCodeString);
+        searchIgnoreResultCodes.add(resultCode);
+      }
     }
   }
   
@@ -124,5 +139,10 @@ public class LdapConfiguration {
    */
   public void setPageSize(Integer pageSize) {
     this.pageSize = pageSize;
+  }
+
+  
+  public Set<ResultCode> getSearchIgnoreResultCodes() {
+    return searchIgnoreResultCodes;
   }
 }

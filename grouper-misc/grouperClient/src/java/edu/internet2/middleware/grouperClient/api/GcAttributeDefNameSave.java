@@ -128,6 +128,19 @@ public class GcAttributeDefNameSave {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAttributeDefNameSave assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** attributeDefNames to save */
   private List<WsAttributeDefNameToSave> attributeDefNamesToSave = new ArrayList<WsAttributeDefNameToSave>();
@@ -226,7 +239,9 @@ public class GcAttributeDefNameSave {
       
       //kick off the web service
       wsAttributeDefNameSaveResults = (WsAttributeDefNameSaveResults)
-        grouperClientWs.executeService("attributeDefNames", attributeDefNameSave, "attributeDefNameSave", this.clientVersion, false);
+        grouperClientWs.executeService("attributeDefNames",
+            attributeDefNameSave, "attributeDefNameSave",
+            this.clientVersion, this.contentType, false);
       
       String attributeDefNameSaveResultMessage = "";
       

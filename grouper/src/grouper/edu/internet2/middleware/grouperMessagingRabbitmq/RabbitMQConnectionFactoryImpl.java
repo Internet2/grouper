@@ -11,16 +11,17 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.TrustManager;
 import javax.net.ssl.TrustManagerFactory;
 
+import org.apache.commons.logging.Log;
+
 import com.rabbitmq.client.Connection;
 import com.rabbitmq.client.ConnectionFactory;
+import com.rabbitmq.client.TrustEverythingTrustManager;
 
-import com.rabbitmq.client.NullTrustManager;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 
 public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
   
@@ -97,7 +98,7 @@ public enum RabbitMQConnectionFactoryImpl implements RabbitMQConnectionFactory {
                 tmf.init(tks);
                 c.init(null, tmf.getTrustManagers(), null);
               } else {
-                c.init(null, new TrustManager[]{new NullTrustManager()}, null);
+                c.init(null, new TrustManager[]{new TrustEverythingTrustManager()}, null);
               }
               factory.useSslProtocol(c);
             }

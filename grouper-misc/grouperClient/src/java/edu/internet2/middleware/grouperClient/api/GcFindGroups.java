@@ -141,7 +141,19 @@ public class GcFindGroups {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcFindGroups assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
 
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
@@ -252,17 +264,17 @@ public class GcFindGroups {
         groupLookups.add(new WsGroupLookup(null, null, groupIdIndex.toString()));
       }
       findGroups.setWsGroupLookups(GrouperClientUtils.toArray(groupLookups, WsGroupLookup.class));
-
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsFindGroupsResults = (WsFindGroupsResults)
-        grouperClientWs.executeService("groups", findGroups, "findGroups", this.clientVersion, true);
+          grouperClientWs.executeService("groups", findGroups, "findGroups",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsFindGroupsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsFindGroupsResults, null, resultMessage);

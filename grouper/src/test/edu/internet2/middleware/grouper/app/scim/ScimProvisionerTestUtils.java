@@ -35,6 +35,13 @@ public class ScimProvisionerTestUtils {
       
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.accessTokenPassword").value("abcdef").store();
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword").value("abcdef").store();
+
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/awsScim/v2/").store();
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.httpAuthnType").value("basicAuth").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.basicAuthUser").value("ghijkl").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigIdBasic.basicAuthPassword").value("mnopqr").store();
+
     }
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.awsConfigId.testUrlSuffix").value("/Users?count=0").store();
@@ -242,6 +249,7 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "name");
     }
 
+    int totalEntityAttributesSoFar = 3; 
     if (provisioningTestConfigInput.isUseEmails()) {
       
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "emailValue");
@@ -252,6 +260,7 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpressionType", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpression", "${grouperProvisioningEntity.email + '2'}");
       
+      totalEntityAttributesSoFar = 5;
     } else {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", provisioningTestConfigInput.getEntityAttribute4name());
       if (StringUtils.equals(provisioningTestConfigInput.getEntityAttribute4name(), "displayName")) {
@@ -263,7 +272,17 @@ public class ScimProvisionerTestUtils {
       } else {
         throw new RuntimeException("Not value entityAttribute4Name: '" + provisioningTestConfigInput.getEntityAttribute4name() + "'");
       }
+      totalEntityAttributesSoFar = 4;
     }
+    
+    if (provisioningTestConfigInput.isUseActiveOnUser()) {
+      int attributeIndex = totalEntityAttributesSoFar + 1;
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".name", "active");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".translateExpressionType", "translationScript");
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".translateExpression", "${provisioningEntityWrapper.isInGroup('test2:testGroup2')}");
+      
+    }
+    
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "displayName");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");

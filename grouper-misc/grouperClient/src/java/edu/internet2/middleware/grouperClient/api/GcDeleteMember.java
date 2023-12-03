@@ -128,7 +128,19 @@ public class GcDeleteMember {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcDeleteMember assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
 
   /** group name to delete member from */
   private String groupName;
@@ -356,7 +368,7 @@ public class GcDeleteMember {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
@@ -364,7 +376,8 @@ public class GcDeleteMember {
       //kick off the web service
       String urlSuffix = "groups";
       wsDeleteMemberResults = (WsDeleteMemberResults)
-        grouperClientWs.executeService(urlSuffix, deleteMember, "deleteMember", this.clientVersion, false);
+          grouperClientWs.executeService(urlSuffix, deleteMember, "deleteMember",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsDeleteMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsDeleteMemberResults, wsDeleteMemberResults.getResults(), resultMessage);

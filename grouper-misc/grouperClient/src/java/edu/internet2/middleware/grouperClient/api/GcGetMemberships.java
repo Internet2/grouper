@@ -144,6 +144,19 @@ public class GcGetMemberships {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetMemberships assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * assign stem to limit memberships
@@ -926,17 +939,16 @@ public class GcGetMemberships {
       getMemberships.setPageLastCursorFieldForMember(this.pageLastCursorFieldForMember);
       getMemberships.setPageLastCursorFieldTypeForMember(this.pageLastCursorFieldTypeForMember);
       
-      
-      
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetMembershipsResults = (WsGetMembershipsResults)
-        grouperClientWs.executeService("memberships", getMemberships, "getMemberships", this.clientVersion, true);
+          grouperClientWs.executeService("memberships", getMemberships, "getMemberships",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetMembershipsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetMembershipsResults, null, resultMessage);

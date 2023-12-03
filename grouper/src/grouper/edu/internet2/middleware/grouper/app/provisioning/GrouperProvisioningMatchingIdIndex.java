@@ -260,7 +260,8 @@ public class GrouperProvisioningMatchingIdIndex {
     while (iterator.hasNext()) {
       ProvisioningGroupWrapper newGroupWrapper = iterator.next();
       // see if this is a new one
-      if (newGroupWrapper.getTargetProvisioningGroup() != null && newGroupWrapper.getGrouperTargetGroup() == null) {
+      if (newGroupWrapper.getTargetProvisioningGroup() != null && newGroupWrapper.getGrouperTargetGroup() == null
+          && GrouperUtil.length(newGroupWrapper.getTargetProvisioningGroup().getMatchingIdAttributeNameToValues()) > 0) {
         if (foundMatchOfMatchingAttributeToWrapper.containsKey(newGroupWrapper.getTargetProvisioningGroup().getMatchingIdAttributeNameToValues().iterator().next())) {
           iterator.remove();
           // note: no need to remove from indexes...
@@ -448,7 +449,8 @@ public class GrouperProvisioningMatchingIdIndex {
     while (iterator.hasNext()) {
       ProvisioningMembershipWrapper newMembershipWrapper = iterator.next();
       // see if this is a new one
-      if (newMembershipWrapper.getTargetProvisioningMembership() != null && newMembershipWrapper.getGrouperTargetMembership() == null) {
+      if (newMembershipWrapper.getTargetProvisioningMembership() != null && newMembershipWrapper.getGrouperTargetMembership() == null
+          && GrouperUtil.length(newMembershipWrapper.getTargetProvisioningMembership().getMatchingIdAttributeNameToValues()) > 0) {
         if (foundMatchOfMatchingAttributeToWrapper.containsKey(newMembershipWrapper.getTargetProvisioningMembership().getMatchingIdAttributeNameToValues().iterator().next())) {
           iterator.remove();
           // note: no need to remove from indexes...

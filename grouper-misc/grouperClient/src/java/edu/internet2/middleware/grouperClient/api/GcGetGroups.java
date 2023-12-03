@@ -132,7 +132,19 @@ public class GcGetGroups {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetGroups assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
 
   /** subject lookups */
   private List<WsSubjectLookup> subjectLookups = new ArrayList<WsSubjectLookup>();
@@ -513,14 +525,15 @@ public class GcGetGroups {
       getGroups.setPageLastCursorFieldType(this.pageLastCursorFieldType);
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetGroupsResults = (WsGetGroupsResults)
-        grouperClientWs.executeService("subjects", getGroups, "getGroups", this.clientVersion, true);
+          grouperClientWs.executeService("subjects", getGroups, "getGroups",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetGroupsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetGroupsResults, null, resultMessage);

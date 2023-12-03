@@ -203,7 +203,7 @@ public class GcAssignAttributes {
     this.actions.add(action);
     return this;
   }
-  
+
   /**
    * assign client version
    * @param theClientVersion
@@ -211,6 +211,19 @@ public class GcAssignAttributes {
    */
   public GcAssignAttributes assignClientVersion(String theClientVersion) {
     this.clientVersion = theClientVersion;
+    return this;
+  }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignAttributes assignContentType(String theContentType) {
+    this.contentType = theContentType;
     return this;
   }
   
@@ -612,14 +625,15 @@ public class GcAssignAttributes {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAssignAttributesResults = (WsAssignAttributesResults)
-        grouperClientWs.executeService("attributeAssignments", assignAttributes, "assignAttributes", this.clientVersion, false);
+          grouperClientWs.executeService("attributeAssignments", assignAttributes, "assignAttributes",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAssignAttributesResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignAttributesResults, null, resultMessage);

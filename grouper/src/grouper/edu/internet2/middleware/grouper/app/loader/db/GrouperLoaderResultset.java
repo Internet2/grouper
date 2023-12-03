@@ -38,6 +38,9 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperShell;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -697,15 +700,6 @@ public class GrouperLoaderResultset {
           + hib3GrouperLoaderLog.getJobName());
     }
 
-    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-        "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
-    
-    String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(groupName) + ":") : "";
-    if (!StringUtils.isBlank(groupParentFolderNameTemp) && !groupParentFolderNameTemp.endsWith(":")) {
-      groupParentFolderNameTemp += ":";
-    }
-    final String groupParentFolderName = groupParentFolderNameTemp;
-
     Map<String, List<String>> resultMap = new HashMap<String, List<String>>();
 
     try {
@@ -727,6 +721,7 @@ public class GrouperLoaderResultset {
       List<LdapEntry> searchResults = LdapSessionUtils.ldapSession().list(ldapServerId, searchDn, ldapSearchScopeEnum, filter, attributeArray, null);
 
       int subObjectCount = 0;
+      Boolean groupParentFolderNameIsRoot = null;
       for (LdapEntry searchResult : searchResults) {
 
         List<String> valueResults = new ArrayList<String>();
@@ -735,8 +730,10 @@ public class GrouperLoaderResultset {
         String baseDn = GrouperLoaderConfig.parseLdapBaseDnFromUrlConfig(ldapServerId);
 
         String defaultFolder = defaultLdapFolder();
-
-        String loaderGroupName = defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
+        
+        String groupParentFolderName = (GrouperUtil.parentStemNameFromName(groupName, true) + ":");
+        
+        String loaderGroupName = groupParentFolderName + defaultFolder + LoaderLdapElUtils.convertDnToSubPath(nameInNamespace, 
             baseDn, searchDn);
 
         String loaderGroupDisplayName = null;
@@ -769,9 +766,17 @@ public class GrouperLoaderResultset {
             }
           }
           envVars.put("groupAttributes", groupAttributes);
+          
           if (!StringUtils.isBlank(groupNameExpression)) {
             String elGroupName = LoaderLdapUtils.substituteEl(groupNameExpression,
                 envVars);
+            
+            if (groupParentFolderNameIsRoot == null) {
+              groupParentFolderNameIsRoot = groupParentFolderNameIsRoot(groupName, elGroupName);
+            }
+            
+            groupParentFolderName = groupParentFolderNameIsRoot ? "" : (GrouperUtil.parentStemNameFromName(groupName, true) + ":");
+            
             loaderGroupName = groupParentFolderName + elGroupName;
           }
           if (!StringUtils.isBlank(groupDisplayNameExpression)) {
@@ -993,15 +998,6 @@ public class GrouperLoaderResultset {
       modifiedFilter = "(&" + filter + "(" + subjectAttributeName + "=" + LoaderLdapUtils.escapeSearchFilter(subjectIdIfIncremental) + "))";
     }
 
-    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
-        "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
-
-    String groupParentFolderNameTemp = requireTopStemAsStemFromConfigGroup ? (GrouperUtil.parentStemNameFromName(overallGroupName) + ":") : "";
-    if (!StringUtils.isBlank(groupParentFolderNameTemp) && !groupParentFolderNameTemp.endsWith(":")) {
-      groupParentFolderNameTemp += ":";
-    }
-    final String groupParentFolderName = groupParentFolderNameTemp;
-    
     Map<String, List<String>> resultMap = new HashMap<String, List<String>>();
     try {
       
@@ -1097,7 +1093,7 @@ public class GrouperLoaderResultset {
         if (StringUtils.isBlank(groupAttributeName)) {
           throw new RuntimeException("LDAP_GROUPS_FROM_ATTRIBUTES loader type requires group attribute name");
         }
-
+        Boolean groupParentFolderNameIsRoot = null; 
         // loop over attribute names that indicate group membership
         for (String attribute: groupAttributeNameArray) {
 
@@ -1153,7 +1149,9 @@ public class GrouperLoaderResultset {
 
                   String defaultFolder = defaultLdapFolder();
 
-                  groupName = defaultFolder + attributeValue;
+                  String groupParentFolderName = (GrouperUtil.parentStemNameFromName(overallGroupName, true) + ":");
+                  
+                  groupName = groupParentFolderName + defaultFolder + attributeValue;
 
 
                   String loaderGroupDisplayName = null;
@@ -1193,6 +1191,14 @@ public class GrouperLoaderResultset {
                       groupName = LoaderLdapUtils.substituteEl(groupNameExpression,
                           envVars);
                     }
+                    if (groupParentFolderNameIsRoot == null) {
+                      groupParentFolderNameIsRoot = groupParentFolderNameIsRoot(overallGroupName, groupName);
+                    }
+                    
+                    groupParentFolderName = groupParentFolderNameIsRoot ? "" : (GrouperUtil.parentStemNameFromName(overallGroupName, true) + ":");
+                    
+                    groupName = groupParentFolderName + groupName;
+                    
                     if (!StringUtils.isBlank(groupDisplayNameExpression)) {
                       String elGroupDisplayName = LoaderLdapUtils.substituteEl(groupDisplayNameExpression,
                           envVars);
@@ -1204,8 +1210,8 @@ public class GrouperLoaderResultset {
                       loaderGroupDescription = elGroupDescription;
                     }
                   }
-
-                  groupName = groupParentFolderName + groupName;
+                  
+                 
 
                   if (!StringUtils.isBlank(loaderGroupDisplayName)) {
                     groupNameToDisplayName.put(groupName, loaderGroupDisplayName);
@@ -1272,6 +1278,48 @@ public class GrouperLoaderResultset {
     }
     
     return resultMap;
+  }
+
+  /**
+   * This is going to end with a colon.
+   * @param requireTopStemAsStemFromConfigGroup
+   * @param overallGroupName
+   * @param groupName
+   * @return
+   */
+  public static boolean groupParentFolderNameIsRoot(String overallGroupName, String groupName) {
+    
+    boolean requireTopStemAsStemFromConfigGroup = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+        "loader.ldap.requireTopStemAsStemFromConfigGroup", true);
+    
+    if (!requireTopStemAsStemFromConfigGroup) {
+      return true;
+    }
+    
+//    if the parent of the final group name exists then use the final group name
+        
+    String parentOfOverallGroupName = GrouperUtil.parentStemNameFromName(overallGroupName, true);
+    
+    String groupNameIfNotUsingRoot = parentOfOverallGroupName + ":" + groupName;
+    
+    String parentNameOfGroupNameIfNotUsingRoot = GrouperUtil.parentStemNameFromName(groupNameIfNotUsingRoot, true);
+    Stem parentOfGroupNameIfNotUsingRoot = StemFinder.findByName(GrouperSession.staticGrouperSession(), parentNameOfGroupNameIfNotUsingRoot, false);
+    
+    if (parentOfGroupNameIfNotUsingRoot != null) {
+      return false;
+    }
+//    if not, then if the parent of the parent of the group exists then use that as the final group name
+    // and this is the result of the loader job, if the parent folder of the parent folder of the group exists then use the original group name. 
+    
+    String grandParentNameOfGroupName = GrouperUtil.parentStemNameFromName(groupName, true);
+    grandParentNameOfGroupName = grandParentNameOfGroupName == null ? null : GrouperUtil.parentStemNameFromName(grandParentNameOfGroupName, true);
+    
+    Stem grandParentOfGroupName = grandParentNameOfGroupName == null ? null:  StemFinder.findByName(GrouperSession.staticGrouperSession(), grandParentNameOfGroupName, false);
+    if (grandParentOfGroupName != null) {
+      return true;
+    }
+    
+    return false;
   }
 
   /**

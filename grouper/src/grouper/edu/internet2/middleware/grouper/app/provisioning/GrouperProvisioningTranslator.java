@@ -14,17 +14,27 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MembershipFinder;
+import edu.internet2.middleware.grouper.membership.MembershipResult;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 
 /**
  * @author shilen
  */
 public class GrouperProvisioningTranslator {
+  
+  
+  private static Map<String, ExpirableCache<String, Boolean>> provisionerConfigIdToGroupName = new HashMap<>(); 
+  
+  private static Map<String, ExpirableCache<String, Boolean>> provisionerConfigIdToGroupId = new HashMap<>(); 
 
   /**
    * reference back up to the provisioner
@@ -38,6 +48,96 @@ public class GrouperProvisioningTranslator {
   public GrouperProvisioner getGrouperProvisioner() {
     return this.grouperProvisioner;
   }
+  
+  /**
+   * Any group id that's been used, for e.g. in the entity translation that needs to trigger an entity recalc if
+   * a user is added or removed from the group. This is cached for 2 days.
+   * @param provisionerConfigId
+   * @return
+   */
+  public static Set<String> retrieveMembershipGroupIdsForProvisionerConfigId(String provisionerConfigId) {
+     ExpirableCache<String,Boolean> cache = provisionerConfigIdToGroupId.get(provisionerConfigId);
+     return cache == null ? new HashSet<String>() : cache.keySet();
+  }
+  
+  /**
+   * Any group name that's been used, for e.g. in the entity translation that needs to trigger an entity recalc if
+   * a user is added or removed from the group. This is cached for 2 days.
+   * @param provisionerConfigId
+   * @return
+   */
+  public static Set<String> retrieveMembershipGroupNamesForProvisionerConfigId(String provisionerConfigId) {
+    ExpirableCache<String,Boolean> cache = provisionerConfigIdToGroupName.get(provisionerConfigId);
+    return cache == null ? new HashSet<String>() : cache.keySet();
+ }
+
+  /**
+   * In a provisioning run, all the members of the group that are used for entity translations (for e.g.
+   *  a user is active in the target). This is initialized for all members of the group for full sync
+   *  or for applicable for incremental sync
+   */
+  private Map<String, Set<String>> groupNameToMemberIds = new HashMap<>(); 
+  
+  public boolean isInGroup(String groupName, String memberId) {
+    Set<String> groupMemberships = initGroupMemberships(groupName);
+    return groupMemberships.contains(memberId);
+  }
+  
+  public synchronized Set<String> initGroupMemberships(String groupName) {
+    
+    String provisionerConfigId = grouperProvisioner.getConfigId();
+    ExpirableCache<String,Boolean> cacheByName = provisionerConfigIdToGroupName.get(provisionerConfigId);
+    ExpirableCache<String,Boolean> cacheById = provisionerConfigIdToGroupId.get(provisionerConfigId);
+    if (cacheByName == null) {
+      cacheByName = new ExpirableCache<>(60 * 24 * 2); // 2 days
+      provisionerConfigIdToGroupName.put(provisionerConfigId, cacheByName);
+      
+      cacheById = new ExpirableCache<>(60 * 24 * 2); // 2 days
+      provisionerConfigIdToGroupId.put(provisionerConfigId, cacheById);
+    }
+    
+    Set<String> memberIds = groupNameToMemberIds.get(groupName);
+    if (memberIds != null) {
+      return memberIds;
+    }
+    
+    memberIds = new HashSet<>();
+    Group group = GroupFinder.findByName(groupName, true);
+    cacheByName.put(groupName, true);
+    cacheById.put(group.getId(), true);
+    
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
+      
+      Set<Member> members = group.getMembers();
+      
+      for (Member member: GrouperUtil.nonNull(members)) {
+        memberIds.add(member.getId());
+      }
+     
+    } else {
+      
+      MembershipFinder membershipFinder = new MembershipFinder();
+      membershipFinder.addGroup(groupName);
+      
+      Set<ProvisioningEntityWrapper> entityWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers();
+      
+      for (ProvisioningEntityWrapper provisioningEntityWrapper: entityWrappers) {
+        membershipFinder.addMemberId(provisioningEntityWrapper.getMemberId());
+      }
+      
+      membershipFinder.assignField(Group.getDefaultList());
+      
+      MembershipResult membershipResult = membershipFinder.findMembershipResult();
+      Set<Member> members = membershipResult.members();
+      for (Member member: GrouperUtil.nonNull(members)) {
+        memberIds.add(member.getId());
+      }
+    }
+    
+    groupNameToMemberIds.put(groupName, memberIds);
+    return memberIds;
+    
+  } 
 
   /**
    * reference back up to the provisioner

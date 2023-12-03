@@ -173,8 +173,7 @@ public class GrouperScim2Group {
     //    "displayName": "Group Bar"
     //  }
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
   
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       GrouperUtil.jsonJacksonAssignString(result, "id", this.id);

@@ -242,7 +242,20 @@ public class GcMessageAcknowledge {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcMessageAcknowledge assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
    * exception will be thrown
@@ -271,14 +284,15 @@ public class GcMessageAcknowledge {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAcknowlesgeMessageResults = (WsMessageAcknowledgeResults)
-        grouperClientWs.executeService("messaging", messageAcknowledgeRequest, "acknowledge messages", this.clientVersion, false);
+          grouperClientWs.executeService("messaging", messageAcknowledgeRequest, "acknowledge messages",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAcknowlesgeMessageResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAcknowlesgeMessageResults, null, resultMessage);

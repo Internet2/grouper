@@ -19,12 +19,15 @@
  */
 package edu.internet2.middleware.grouper.ui.tags;
 
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
 
-import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang.WordUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -40,9 +43,11 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.ui.util.MapBundleWrapper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.GrouperUiApiTextConfig;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 
@@ -123,6 +128,82 @@ public class GrouperUiFunctions {
    */
   public static String capitalizeFully(String string) {
     return WordUtils.capitalizeFully(string);
+  }
+  
+  public static String title(String externalizedPageTitleSuffix) {
+    return titleFromKeyAndText(externalizedPageTitleSuffix, null);
+  }
+  
+  public static String titleFromKeyAndText(String externalizedPageTitleSuffix, String textToShowAsSuffix) {
+    
+    GrouperUiApiTextConfig grouperUiApiTextConfig = GrouperUiApiTextConfig.retrieveTextConfig();
+    String browserTitlePrefix = !StringUtils.isBlank(grouperUiApiTextConfig.propertyValueString("browserTitlePrefix")) ? 
+        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getTextEscapeXml().get("browserTitlePrefix")) : "";
+    String browserTitleSuffix = !StringUtils.isBlank(grouperUiApiTextConfig.propertyValueString("browserTitleSuffix")) ? 
+        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getTextEscapeXml().get("browserTitleSuffix")) : "";
+    
+    externalizedPageTitleSuffix = !StringUtils.isBlank(grouperUiApiTextConfig.propertyValueString(externalizedPageTitleSuffix)) ? 
+        StringUtils.trimToEmpty(TextContainer.retrieveFromRequest().getTextEscapeXml().get(externalizedPageTitleSuffix)) : "";
+
+    StringBuilder title = new StringBuilder();
+
+    boolean hasBrowserTitlePrefix = !StringUtils.isBlank(browserTitlePrefix);
+    boolean hasBrowserTitleSuffix = !StringUtils.isBlank(browserTitleSuffix);
+    boolean hasExternalizedPageTitleSuffix = !StringUtils.isBlank(externalizedPageTitleSuffix);
+    boolean hasTextToShowAsSuffix = !StringUtils.isBlank(textToShowAsSuffix);
+
+    if (hasBrowserTitlePrefix) {
+      title.append(browserTitlePrefix).append(" ");
+    }
+    
+    if (hasExternalizedPageTitleSuffix) {
+      title.append(externalizedPageTitleSuffix);
+      if (hasTextToShowAsSuffix) {
+        title.append(": ");
+      }
+    }
+
+    if (hasTextToShowAsSuffix) {
+      textToShowAsSuffix = GrouperUtil.escapeHtml(textToShowAsSuffix, true);
+      
+      if (StringUtils.countMatches(textToShowAsSuffix, ':') > 2 && textToShowAsSuffix.length() > 30) {
+        List<String> findParentStemNames = new ArrayList<String>(GrouperUtil.findParentStemNames(textToShowAsSuffix));
+        findParentStemNames.add(GrouperUtil.extensionFromName(textToShowAsSuffix));
+        StringBuilder textToShowAsSuffixBuilder = new StringBuilder();
+        for (int i=findParentStemNames.size()-1;i>=0;i--) {
+          if (textToShowAsSuffixBuilder.length() > 0) {
+            textToShowAsSuffixBuilder.insert(0, ':');
+          }
+          String parentStemExtension = findParentStemNames.get(i);
+          textToShowAsSuffixBuilder.insert(0, parentStemExtension);
+          if (i == 0) {
+            break;
+          }
+          if (textToShowAsSuffixBuilder.length() + 1 + findParentStemNames.get(i-1).length() > 30) {
+            break;
+          }
+        }
+        textToShowAsSuffix = textToShowAsSuffixBuilder.toString();
+      }
+      
+      title.append(textToShowAsSuffix);
+    }
+
+    if (hasBrowserTitleSuffix) {
+      if (!browserTitleSuffix.startsWith(",") && !browserTitleSuffix.startsWith(".") && !browserTitleSuffix.startsWith(";")
+          && !browserTitleSuffix.startsWith(":")) {
+        title.append(" ");
+      }
+      title.append(browserTitleSuffix);
+    }
+    if (title.charAt(0) == ',' || title.charAt(0) == '.' || title.charAt(0) == ';' || title.charAt(0) == ',' || title.charAt(0) == ':') {
+      title.deleteCharAt(0);
+    }
+    String theTitle = title.toString().trim();
+    
+    return "<script language=\"javascript\"> $(document).attr(\"title\", \""
+        + theTitle +"\"); </script>";
+    
   }
 
   /**

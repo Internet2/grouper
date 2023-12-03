@@ -391,6 +391,19 @@ public class GcGetAttributeAssignments {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetAttributeAssignments assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** group names to query */
   private Set<String> ownerGroupNames = new LinkedHashSet<String>();
@@ -823,15 +836,16 @@ public class GcGetAttributeAssignments {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetAttributeAssignmentsResults = (WsGetAttributeAssignmentsResults)
-        grouperClientWs.executeService("attributeAssignments", 
-            getAttributeAssignments, "getAttributeAssignments", this.clientVersion, true);
+          grouperClientWs.executeService("attributeAssignments",
+              getAttributeAssignments, "getAttributeAssignments",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetAttributeAssignmentsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetAttributeAssignmentsResults, null, resultMessage);

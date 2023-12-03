@@ -36,6 +36,7 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.externalSystem.GrouperExternalSystem;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -45,6 +46,15 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
 
 public class BoxGrouperExternalSystem extends GrouperExternalSystem {
+  
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    
+    BoxGrouperExternalSystem boxGrouperExternalSystem = new BoxGrouperExternalSystem();
+    boxGrouperExternalSystem.setConfigId("boxNonProd");
+    List<String> test = boxGrouperExternalSystem.test();
+    System.out.println(GrouperUtil.toStringForLog(test));
+  }
   
   /**
    * cache of config key to expires on and encrypted bearer token

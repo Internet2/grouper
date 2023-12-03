@@ -16,6 +16,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.azure.GrouperAzureLog;
+import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -223,9 +224,9 @@ public class GrouperScim2ApiCommands {
 
       ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
       
-      if (fieldsToUpdate.containsKey("active")) {
-        throw new UnsupportedOperationException("active field cannnot be modified");
-      }
+//      if (fieldsToUpdate.containsKey("active")) {
+//        throw new UnsupportedOperationException("active field cannnot be modified");
+//      }
 
       if (fieldsToUpdate.containsKey("emailValue") || fieldsToUpdate.containsKey("emailType")) {
         
@@ -352,9 +353,6 @@ public class GrouperScim2ApiCommands {
     String endpoint = GrouperLoaderConfig.retrieveConfig()
         .propertyValueStringRequired(
             "grouper.wsBearerToken." + configId + ".endpoint");
-    String bearerToken = GrouperLoaderConfig.retrieveConfig()
-        .propertyValueStringRequired(
-            "grouper.wsBearerToken." + configId + ".accessTokenPassword");
     String url = GrouperUtil.stripLastSlashIfExists(endpoint);
 
     // in a nextLink, url is specified, so it might not have a prefix of the resourceEndpoint
@@ -369,17 +367,12 @@ public class GrouperScim2ApiCommands {
     grouperHttpClient.assignUrl(url);
     grouperHttpClient.assignGrouperHttpMethod(grouperHttpMethod);
 
-    grouperHttpClient.addHeader("Authorization", "Bearer " + bearerToken);
+    WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpClient, configId);
+    
     if (StringUtils.isNotBlank(acceptHeader)) {
       grouperHttpClient.addHeader("Accept", acceptHeader);
     }
     
-    String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".proxyUrl");
-    String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".proxyType");
-    
-    grouperHttpClient.assignProxyUrl(proxyUrl);
-    grouperHttpClient.assignProxyType(proxyType);
-
     return grouperHttpClient;
   }
 
@@ -460,7 +453,14 @@ public class GrouperScim2ApiCommands {
 
     try {
 
-      JsonNode jsonToSend = grouperScimUser.toJson(fieldsToUpdate);
+      ObjectNode jsonToSend = grouperScimUser.toJson(fieldsToUpdate);
+      
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:User");
+        jsonToSend.set("schemas", schemasNode);
+      }
+
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Users",
@@ -682,7 +682,14 @@ public class GrouperScim2ApiCommands {
 
     try {
 
-      JsonNode jsonToSend = grouperScimGroup.toJson(fieldsToUpdate);
+      ObjectNode jsonToSend = grouperScimGroup.toJson(fieldsToUpdate);
+      
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:Group");
+        jsonToSend.set("schemas", schemasNode);
+      }
+
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Groups",

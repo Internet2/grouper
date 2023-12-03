@@ -38,7 +38,6 @@
 package edu.internet2.middleware.grouper.ldap;
 
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import javax.net.ssl.SSLSocketFactory;
 import javax.net.ssl.TrustManager;
@@ -92,8 +91,16 @@ public class LdapPEMSocketFactory {
    public SSLSocketFactory getSocketFactory() {
        return socketFactory;
    }
-      
-   protected void initSocketFactory() {
+
+  public TrustManager[] getTrustManagers() {
+    return trustManagers;
+  }
+
+  public KeyManager[] getKeyManagers() {
+    return keyManagers;
+  }
+
+  protected void initSocketFactory() {
        try {
            SSLContext sc = SSLContext.getInstance("TLS");
            sc.init(keyManagers, trustManagers, new java.security.SecureRandom());

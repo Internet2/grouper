@@ -21,6 +21,8 @@ import org.apache.commons.logging.Log;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
 import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.azure.AzureMockServiceHandler;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -30,8 +32,6 @@ import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 
 /**
@@ -45,74 +45,84 @@ public class GrouperZoomCommands {
 //    System.out.println(retrieveBearerTokenFromCacheOrFresh("pennZoomProd"));
 //    System.out.println(retrieveBearerTokenFromCacheOrFresh("pennZoomProd"));
     
+    boolean first = true;
     final String configId = "pennZoomProd";
-    
+//    
 //    Map<String, Map<String, Object>> accounts = retrieveAccounts(configId);
 //    
 //    for (Map<String, Object> account : GrouperUtil.nonNull(accounts).values()) {
 //      String accountId = (String)account.get("id");
 //      String accountName = (String)account.get("account_name");
+//      System.out.println(accountId + ": " + accountName);
 //      
-//      Map<String, Map<String, Object>> users = retrieveSubaccountUsers(configId, accountId);
-//      
-//      System.out.println(accountName + ": " + GrouperUtil.length(users));
-//      for (String email : GrouperUtil.nonNull(users).keySet()) {
-//        System.out.println("    - " + email);
+//      if (first == true) {
+//        Map<String, Map<String, Object>> users = retrieveSubaccountUsers(configId, accountId);
+//        
+//        System.out.println(accountName + ": " + GrouperUtil.length(users));
+//        for (String email : GrouperUtil.nonNull(users).keySet()) {
+//          System.out.println("    - " + email);
+//        }
 //      }
-//      
+//      first = false;
 //    }
 
     
 //    test_printUsersPerSubaccount(configId);
     
-    Map<String, Map<String, Object>> groups = retrieveGroups(configId);
-    for (Map<String, Object> group: groups.values()) {
-      System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
-      
-//      List<Map<String, Object>> members = retrieveGroupMemberships(configId, (String)group.get("id"));
-//      for (Map<String, Object> member: members) {
-//        System.out.println("Member: " + member.get("id") + ", " + member.get("email") + ", " + member.get("first_name")
-//            + ", " + member.get("last_name") + ", " + member.get("type") + ", " + member.get("primary_group"));
+//    Map<String, Map<String, Object>> groups = retrieveGroups(configId);
+//    for (Map<String, Object> group: groups.values()) {
+//      System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
+//      if (first == true) {
+//        List<Map<String, Object>> members = retrieveGroupMemberships(configId, (String)group.get("id"));
+//        for (Map<String, Object> member: members) {
+//          System.out.println("Member: " + member.get("id") + ", " + member.get("email") + ", " + member.get("first_name")
+//              + ", " + member.get("last_name") + ", " + member.get("type") + ", " + member.get("primary_group"));
+//        }
 //      }
-    }
+//      first = false;
+//    }
 
 //    Map<String, Map<String, Object>> roles = retrieveRoles(configId);
-//    for (Map<String, Object> group: roles.values()) {
-//      System.out.println("Role: " + group.get("id") + ", name: " + group.get("name") + ", description: " + group.get("description") + ", " + group.get("total_members"));
+//    for (Map<String, Object> role: roles.values()) {
+//      System.out.println("Role: " + role.get("id") + ", name: " + role.get("name") + ", description: " + role.get("description") + ", " + role.get("total_members"));
 //    }
 
     
-//    addRoleMembership(configId, "1", "odJa54jyRpK4MC6gfpgInA");
-//      removeRoleMembership(configId, "1", "5R-cXZBgQPKkWU2grrJUiw");
+//    removeRoleMembership(configId, "2", "OvqgrwGqS1idoyTQnHg6bQ");
+//    addRoleMembership(configId, "RFxtuFQxVRT65srojB-sgGA", "OvqgrwGqS1idoyTQnHg6bQ");
+//    removeRoleMembership(configId, "RFxtuFQxVRT65srojB-sgGA", "OvqgrwGqS1idoyTQnHg6bQ");
+//    addRoleMembership(configId, "2", "OvqgrwGqS1idoyTQnHg6bQ");
   
-//    GrouperZoomCommands.userChangeStatus(configId, "mchyzer@upenn.edu", false);
+    GrouperZoomCommands.userChangeStatus(configId, "kwilso@upenn.edu", false);
+    GrouperZoomCommands.userChangeStatus(configId, "kwilso@upenn.edu", true);
     
 //    Map<String, Map<String, Object>> roles = retrieveRoles(configId);
 //    for (Map<String, Object> role: roles.values()) {
 //      System.out.println("Role: " + role.get("id") + ", name: " + role.get("name") + ", description: " + role.get("description") + ", " + role.get("total_members"));
 //
-//      List<Map<String, Object>> members = retrieveRoleMemberships(configId, (String)role.get("id"));
-//      for (Map<String, Object> member: members) {
-//        System.out.println("Member: " + member.get("id") + ", " + member.get("email") + ", " + member.get("first_name")
-//            + ", " + member.get("last_name") + ", " + member.get("type") + ", " + member.get("department"));
+//      if (first) {
+//        List<Map<String, Object>> members = retrieveRoleMemberships(configId, (String)role.get("id"));
+//        for (Map<String, Object> member: members) {
+//          System.out.println("Member: " + member.get("id") + ", " + member.get("email") + ", " + member.get("first_name")
+//              + ", " + member.get("last_name") + ", " + member.get("type") + ", " + member.get("department"));
+//        }
 //      }
+//      first = false;
 //    }
 
-//    Map<String, Object> group = createGroup(configId, "pennGeneral");
+//    Map<String, Object> group = createGroup(configId, "Test6");
 //    System.out.println("Group: " + group.get("id") + ", " + group.get("name") + ", " + group.get("total_members"));
+//    addGroupMembership(configId, (String)group.get("id"), "ZelEDQlNRSWau5tOzYZQYA");
+//    removeGroupMembership(configId, (String)group.get("id2"), "ZelEDQlNRSWau5tOzYZQYA");
+//    deleteGroup(configId, (String)group.get("id"));
 
-//    deleteGroup(configId, "j1FjzLFpS2Cd2KWzGehyNQ");
-
-//    addGroupMembership(configId, "pE3vVI9RQeeImJL3bbmSNA", "ZelEDQlNRSWau5tOzYZQYA");
-
-//    removeGroupMembership(configId, "pE3vVI9RQeeImJL3bbmSNA", "ZelEDQlNRSWau5tOzYZQYA");
 
 //  * @return map with id(string), first_name(string), last_name(string), email(string), type(int), role_name(string), 
 //  * personal_meeting_url(string), timezone(string), verified(int e.g. 1), group_ids (array[string]), account_id(string), status(string e.g. active)
 
-//    deleteUser(configId, "mchyzer@upenn.edu");
+//    Map<String, Object> createUser = createUser(configId, "abc123@upenn.edu", "ABC", "123", 2);
+//    deleteUser(configId, "abc123@upenn.edu");
     
-//    Map<String, Object> createUser = createUser(configId, "mchyzer@upenn.edu", "Chris", "Hyzer", 2);
 //    
 //    System.out.println("Member: " + createUser.get("id") + ", " + createUser.get("email") + ", " + createUser.get("first_name")
 //      + ", " + createUser.get("last_name") + ", " + createUser.get("type"));
@@ -130,6 +140,8 @@ public class GrouperZoomCommands {
 //        System.out.println(GrouperUtil.mapToString(account));
 //      }
 
+    System.out.println("Done");
+    System.exit(0);
   }
 
   /**
@@ -391,7 +403,7 @@ public class GrouperZoomCommands {
       if (code != 200) {
         throw new RuntimeException("Cant get user from '" + url + "' " + json);
       }
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
 
       Map<String, Object> result = retrieveUserFromJsonObject(jsonObject);
       
@@ -424,7 +436,7 @@ public class GrouperZoomCommands {
    * @param jsonObject
    * @return map
    */
-  public static Map<String, Object> retrieveUserFromJsonObject(JSONObject jsonObject) {
+  public static Map<String, Object> retrieveUserFromJsonObject(JsonNode jsonObject) {
     
     //  {
     //    "id": "z8dsdsdsdsdCfp8uQ",
@@ -457,50 +469,50 @@ public class GrouperZoomCommands {
     //}      
     Map<String, Object> result = new HashMap<String, Object>();
     
-    if (jsonObject.containsKey("id")) {
-      result.put("id", jsonObject.getString("id"));
+    if (jsonObject.has("id")) {
+      result.put("id", GrouperUtil.jsonJacksonGetString(jsonObject, "id"));
     }
-    if (jsonObject.containsKey("first_name")) {
-      result.put("first_name", jsonObject.getString("first_name"));
+    if (jsonObject.has("first_name")) {
+      result.put("first_name", GrouperUtil.jsonJacksonGetString(jsonObject, "first_name"));
     }
-    if (jsonObject.containsKey("last_name")) {
-      result.put("last_name", jsonObject.getString("last_name"));
+    if (jsonObject.has("last_name")) {
+      result.put("last_name", GrouperUtil.jsonJacksonGetString(jsonObject, "last_name"));
     }
-    if (jsonObject.containsKey("email")) {
-      result.put("email", jsonObject.getString("email"));
+    if (jsonObject.has("email")) {
+      result.put("email", GrouperUtil.jsonJacksonGetString(jsonObject, "email"));
     }
-    if (jsonObject.containsKey("type")) {
-      result.put("type", jsonObject.getInt("type"));
+    if (jsonObject.has("type")) {
+      result.put("type", GrouperUtil.jsonJacksonGetInteger(jsonObject, "type"));
     }
-    if (jsonObject.containsKey("role_name")) {
-      result.put("role_name", jsonObject.getString("role_name"));
+    if (jsonObject.has("role_name")) {
+      result.put("role_name", GrouperUtil.jsonJacksonGetString(jsonObject, "role_name"));
     }
-    if (jsonObject.containsKey("personal_meeting_url")) {
-      result.put("personal_meeting_url", jsonObject.getString("personal_meeting_url"));
+    if (jsonObject.has("personal_meeting_url")) {
+      result.put("personal_meeting_url", GrouperUtil.jsonJacksonGetString(jsonObject, "personal_meeting_url"));
     }
-    if (jsonObject.containsKey("timezone")) {
-      result.put("timezone", jsonObject.getString("timezone"));
+    if (jsonObject.has("timezone")) {
+      result.put("timezone", GrouperUtil.jsonJacksonGetString(jsonObject, "timezone"));
     }
-    if (jsonObject.containsKey("verified")) {
-      result.put("verified", jsonObject.getInt("verified"));
+    if (jsonObject.has("verified")) {
+      result.put("verified", GrouperUtil.jsonJacksonGetInteger(jsonObject, "verified"));
     }
-    if (jsonObject.containsKey("created_at")) {
-      result.put("created_at", jsonObject.getString("created_at"));
+    if (jsonObject.has("created_at")) {
+      result.put("created_at", GrouperUtil.jsonJacksonGetString(jsonObject, "created_at"));
     }
-    if (jsonObject.containsKey("last_login_time")) {
-      result.put("last_login_time", jsonObject.getString("last_login_time"));
+    if (jsonObject.has("last_login_time")) {
+      result.put("last_login_time", GrouperUtil.jsonJacksonGetString(jsonObject, "last_login_time"));
     }
-    JSONArray groupIdsJsonArray = jsonObject.containsKey("group_ids") ? jsonObject.getJSONArray("group_ids") : null;
+    ArrayNode groupIdsJsonArray = jsonObject.has("group_ids") ? (ArrayNode)jsonObject.get("group_ids") : null;
     String[] groupIdsArray = new String[groupIdsJsonArray == null ? 0 : groupIdsJsonArray.size()];
     for (int i=0;i<(groupIdsJsonArray == null ? 0 : groupIdsJsonArray.size());i++) {
-      groupIdsArray[i] = groupIdsJsonArray.getString(i);
+      groupIdsArray[i] = groupIdsJsonArray.get(i).asText();
     }
     result.put("group_ids", groupIdsArray);
-    if (jsonObject.containsKey("account_id")) {
-      result.put("account_id", jsonObject.getString("account_id"));
+    if (jsonObject.has("account_id")) {
+      result.put("account_id", GrouperUtil.jsonJacksonGetString(jsonObject, "account_id"));
     }
-    if (jsonObject.containsKey("status")) {
-      result.put("status", jsonObject.getString("status"));
+    if (jsonObject.has("status")) {
+      result.put("status", GrouperUtil.jsonJacksonGetString(jsonObject, "status"));
     }
     return result;
   }
@@ -522,11 +534,14 @@ public class GrouperZoomCommands {
       debugMap.put("configId", configId);
       
       Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
-      
+      Map<String, Map<String, Object>> resultInactive = new HashMap<String, Map<String, Object>>();
+      Map<String, Map<String, Object>> resultPending = new HashMap<String, Map<String, Object>>();
+
       int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("zoom." + configId + ".pageSizeUsers", 300);
 
+      // Get all users with the default active status
       for (int i=0;i<10000;i++) {
-        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1);
+        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1, "users?");
         
         result.putAll(tempResult);
 
@@ -535,7 +550,34 @@ public class GrouperZoomCommands {
           break;
         }
       }
+
+      // Get all users with status = inactive
+      for (int i=0;i<10000;i++) {
+        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1, "users?status=inactive&");
+        
+        resultInactive.putAll(tempResult);
+
+        // we are done when there are no reults or its less than the page size
+        if (tempResult.size() < pageSize) {
+          break;
+        }
+      }
+
+      // Get all users with status = pending
+      for (int i=0;i<10000;i++) {
+        Map<String, Map<String, Object>> tempResult = retrieveUsersHelper(configId, i+1, "users?status=pending&");
+        
+        resultPending.putAll(tempResult);
+
+        // we are done when there are no reults or its less than the page size
+        if (tempResult.size() < pageSize) {
+          break;
+        }
+      }
       
+      result.putAll(resultInactive);
+      result.putAll(resultPending);
+
       debugMap.put("count", result.size());
 
       return result;
@@ -550,6 +592,40 @@ public class GrouperZoomCommands {
       }
     }
     
+  }
+
+  /**
+   * 
+   * @param configId
+   * @param endpointString
+   * @return map key is email, and value with id(string), first_name(string), last_name(string), email(string)
+   * or null if not found
+   */
+  public static Map<String, Map<String, Object>> retrievePhoneUsers(String configId, String endpointString) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "retrievePhoneUsers");
+    try {
+      debugMap.put("configId", configId);
+      
+      Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+
+      result = retrievePhoneUsersHelper(configId, endpointString);
+      debugMap.put("count", result.size());
+
+      return result;
+
+    } catch (RuntimeException e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
 
   /**
@@ -596,7 +672,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant get roles from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "total_records": 3,
@@ -624,17 +700,17 @@ public class GrouperZoomCommands {
       
       Map<String, Map<String, Object>> result = new TreeMap<String, Map<String, Object>>();
       
-      JSONArray jsonArray = jsonObject.has("roles") ? jsonObject.getJSONArray("roles") : null;
+      ArrayNode jsonArray = jsonObject.has("roles") ? (ArrayNode)jsonObject.get("roles") : null;
       if (jsonArray != null && jsonArray.size() >= 1) {
         for (int i=0;i<jsonArray.size();i++) {
-          JSONObject jsonObjectGroup = (JSONObject)jsonArray.get(i);
+          JsonNode jsonObjectGroup = (JsonNode)jsonArray.get(i);
           Map<String, Object> groupMap = new HashMap<String, Object>();
-          groupMap.put("id", jsonObjectGroup.getString("id"));
-          final String name = jsonObjectGroup.getString("name");
+          groupMap.put("id", GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "id"));
+          final String name = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "name");
           groupMap.put("name", name);
-          final String description = jsonObjectGroup.getString("description");
+          final String description = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "description");
           groupMap.put("description", description);
-          groupMap.put("total_members", jsonObjectGroup.getInt("total_members"));
+          groupMap.put("total_members", GrouperUtil.jsonJacksonGetInteger(jsonObjectGroup, "total_members"));
           result.put(name, groupMap);
         }
       }
@@ -768,7 +844,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant get group memberships from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "members": [
@@ -789,8 +865,8 @@ public class GrouperZoomCommands {
       
       List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
       
-      int pageNumberReturned = jsonObject.getInt("page_number");
-      int totalRecords = jsonObject.getInt("total_records");
+      int pageNumberReturned = GrouperUtil.jsonJacksonGetInteger(jsonObject, "page_number");
+      int totalRecords = GrouperUtil.jsonJacksonGetInteger(jsonObject, "total_records");
       debugMap.put("totalRecords", totalRecords);
       
       // if we are over the number of pages, then dont return any members to notify caller we are done paging
@@ -800,17 +876,17 @@ public class GrouperZoomCommands {
         return result;
       }
       
-      JSONArray jsonArray = jsonObject.has("members") ? jsonObject.getJSONArray("members") : null;
+      ArrayNode jsonArray = jsonObject.has("members") ? (ArrayNode)jsonObject.get("members") : null;
       if (jsonArray != null && jsonArray.size() >= 1) {
         for (int i=0;i<jsonArray.size();i++) {
-          JSONObject jsonObjectMember = (JSONObject)jsonArray.get(i);
+          JsonNode jsonObjectMember = (JsonNode)jsonArray.get(i);
           Map<String, Object> memberMap = new HashMap<String, Object>();
-          memberMap.put("id", jsonObjectMember.getString("id"));
-          memberMap.put("email", jsonObjectMember.getString("email"));
-          memberMap.put("first_name", jsonObjectMember.getString("first_name"));
-          memberMap.put("last_name", jsonObjectMember.getString("last_name"));
-          memberMap.put("type", jsonObjectMember.getInt("type"));
-          memberMap.put("primary_group", jsonObjectMember.getBoolean("primary_group"));
+          memberMap.put("id", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "id"));
+          memberMap.put("email", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "email"));
+          memberMap.put("first_name", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "first_name"));
+          memberMap.put("last_name", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "last_name"));
+          memberMap.put("type", GrouperUtil.jsonJacksonGetInteger(jsonObjectMember, "type"));
+          memberMap.put("primary_group", GrouperUtil.jsonJacksonGetBoolean(jsonObjectMember, "primary_group"));
           result.add(memberMap);
         }
       }
@@ -860,34 +936,36 @@ public class GrouperZoomCommands {
       //    "name": "myawesomegroup"
       //  }
     
-      JSONObject jsonObject = new JSONObject();
-      jsonObject.put("name", name);
-      String jsonRequest = jsonObject.toString();
-      grouperHttpClient.assignBody(jsonRequest);        
-
-      int code = -1;
-      String json = null;
+      JsonNode jsonNode = null;
+      {
+        ObjectNode jsonObject = GrouperUtil.jsonJacksonNode();
+        GrouperUtil.jsonJacksonAssignString(jsonObject, "name", name);
+        String jsonRequest = GrouperUtil.jsonJacksonToString(jsonObject);
+        grouperHttpClient.assignBody(jsonRequest);        
   
-      try {
-        grouperHttpClient.executeRequest();
-        code = grouperHttpClient.getResponseCode();
-        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+        int code = -1;
+        String json = null;
+    
+        try {
+          grouperHttpClient.executeRequest();
+          code = grouperHttpClient.getResponseCode();
+          // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+          
+          json = grouperHttpClient.getResponseBody();
+  
         
-        json = grouperHttpClient.getResponseBody();
-
-      
-      } catch (Exception e) {
-        throw new RuntimeException("Error connecting to '" + url + "'", e);
-      }
-  
-      debugMap.put("httpCode", code);
-      
-      if (code != 201) {
-        throw new RuntimeException("Cant create group '" + url + "', '" + name + "' " + json);
-      }
-      
-      jsonObject = JSONObject.fromObject(json);
-      
+        } catch (Exception e) {
+          throw new RuntimeException("Error connecting to '" + url + "'", e);
+        }
+    
+        debugMap.put("httpCode", code);
+        
+        if (code != 201) {
+          throw new RuntimeException("Cant create group '" + url + "', '" + name + "' " + json);
+        }
+        
+        jsonNode = GrouperUtil.jsonJacksonNode(json);
+      }      
       //  {
       //    "id": "string",
       //    "name": "string",
@@ -896,9 +974,9 @@ public class GrouperZoomCommands {
 
       Map<String, Object> result = new HashMap<String, Object>();
       
-      result.put("id", jsonObject.getString("id"));
-      result.put("name", jsonObject.getString("name"));
-      result.put("total_members", jsonObject.getInt("total_members"));
+      result.put("id", GrouperUtil.jsonJacksonGetString(jsonNode, "id"));
+      result.put("name", GrouperUtil.jsonJacksonGetString(jsonNode, "name"));
+      result.put("total_members", GrouperUtil.jsonJacksonGetInteger(jsonNode, "total_members"));
       debugMap.put("id", result.size());
 
       return result;
@@ -943,7 +1021,7 @@ public class GrouperZoomCommands {
   
       GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
       grouperHttpClient.assignUrl(url);
-      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
   
       grouperHttpClient.addHeader("Content-Type", "application/json");
       grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
@@ -957,13 +1035,14 @@ public class GrouperZoomCommands {
       //    ]
       //  }  
       
-      JSONObject jsonObject = new JSONObject();
-      JSONArray jsonArray = new JSONArray();
-      JSONObject member = new JSONObject();
-      member.put("id", memberId);
+      ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+      ArrayNode jsonArray = GrouperUtil.jsonJacksonArrayNode();
+      ObjectNode member = GrouperUtil.jsonJacksonNode();
+      GrouperUtil.jsonJacksonAssignString(member, "id", memberId);
       jsonArray.add(member);
-      jsonObject.put("members", jsonArray);
-      String jsonRequest = jsonObject.toString();
+
+      objectNode.set("members", jsonArray);
+      String jsonRequest = GrouperUtil.jsonJacksonToString(objectNode);
       
       grouperHttpClient.assignBody(jsonRequest);
       
@@ -976,7 +1055,6 @@ public class GrouperZoomCommands {
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
         
         // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
-        
       } catch (Exception e) {
         throw new RuntimeException("Error connecting to '" + url + "'", e);
       }
@@ -1170,16 +1248,16 @@ public class GrouperZoomCommands {
       //    "name": "myawesomegroup"
       //  }
   
-      JSONObject jsonObject = new JSONObject();
+      ObjectNode jsonObject = GrouperUtil.jsonJacksonNode();
       jsonObject.put("action", "create");
-      JSONObject userInfoJsonObject = new JSONObject();
+      ObjectNode userInfoJsonObject = GrouperUtil.jsonJacksonNode();
       userInfoJsonObject.put("email", email);
       userInfoJsonObject.put("type", type);
       userInfoJsonObject.put("first_name", firstName);
       userInfoJsonObject.put("last_name", lastName);
-      jsonObject.put("user_info", userInfoJsonObject);
+      jsonObject.set("user_info", userInfoJsonObject);
       
-      String jsonRequest = jsonObject.toString();
+      String jsonRequest = GrouperUtil.jsonJacksonToString(jsonObject);
       
       grouperHttpClient.assignBody(jsonRequest);
       
@@ -1202,7 +1280,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant create user '" + url + "', '" + email + "' " + json);
       }
       
-      jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonNode = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "id": "string",
@@ -1214,12 +1292,12 @@ public class GrouperZoomCommands {
   
       Map<String, Object> result = new HashMap<String, Object>();
       
-      result.put("id", jsonObject.getString("id"));
-      result.put("first_name", jsonObject.getString("first_name"));
-      result.put("last_name", jsonObject.getString("last_name"));
-      result.put("email", jsonObject.getString("email"));
-      result.put("type", jsonObject.getInt("type"));
-      debugMap.put("id", result.size());
+      result.put("id", GrouperUtil.jsonJacksonGetString(jsonNode, "id"));
+      result.put("first_name", GrouperUtil.jsonJacksonGetString(jsonNode, "first_name"));
+      result.put("last_name", GrouperUtil.jsonJacksonGetString(jsonNode, "last_name"));
+      result.put("email", GrouperUtil.jsonJacksonGetString(jsonNode, "email"));
+      result.put("type", GrouperUtil.jsonJacksonGetInteger(jsonNode, "type"));
+      debugMap.put("size", result.size());
   
       return result;
   
@@ -1351,7 +1429,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant get roles from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "members": [
@@ -1372,8 +1450,8 @@ public class GrouperZoomCommands {
       
       List<Map<String, Object>> result = new ArrayList<Map<String, Object>>();
       
-      int pageNumberReturned = jsonObject.getInt("page_number");
-      int totalRecords = jsonObject.getInt("total_records");
+      int pageNumberReturned = GrouperUtil.jsonJacksonGetInteger(jsonObject, "page_number");
+      int totalRecords = GrouperUtil.jsonJacksonGetInteger(jsonObject, "total_records");
       debugMap.put("totalRecords", totalRecords);
       
       // if we are over the number of pages, then dont return any members to notify caller we are done paging
@@ -1383,24 +1461,24 @@ public class GrouperZoomCommands {
         return result;
       }
       
-      JSONArray jsonArray = jsonObject.has("members") ? jsonObject.getJSONArray("members") : null;
+      ArrayNode jsonArray = jsonObject.has("members") ? (ArrayNode)jsonObject.get("members") : null;
       if (jsonArray != null && jsonArray.size() >= 1) {
         for (int i=0;i<jsonArray.size();i++) {
-          JSONObject jsonObjectMember = (JSONObject)jsonArray.get(i);
+          JsonNode jsonObjectMember = (JsonNode)jsonArray.get(i);
           Map<String, Object> memberMap = new HashMap<String, Object>();
-          memberMap.put("id", jsonObjectMember.getString("id"));
-          memberMap.put("email", jsonObjectMember.getString("email"));
-          if (jsonObjectMember.containsKey("first_name")) {
-            memberMap.put("first_name", jsonObjectMember.getString("first_name"));
+          memberMap.put("id", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "id"));
+          memberMap.put("email", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "email"));
+          if (jsonObjectMember.has("first_name")) {
+            memberMap.put("first_name", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "first_name"));
           }
-          if (jsonObjectMember.containsKey("last_name")) {
-            memberMap.put("last_name", jsonObjectMember.getString("last_name"));
+          if (jsonObjectMember.has("last_name")) {
+            memberMap.put("last_name", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "last_name"));
           }
-          if (jsonObjectMember.containsKey("type")) {
-            memberMap.put("type", jsonObjectMember.getInt("type"));
+          if (jsonObjectMember.has("type")) {
+            memberMap.put("type", GrouperUtil.jsonJacksonGetInteger(jsonObjectMember, "type"));
           }
-          if (jsonObjectMember.containsKey("department")) {
-            memberMap.put("department", jsonObjectMember.getString("department"));
+          if (jsonObjectMember.has("department")) {
+            memberMap.put("department", GrouperUtil.jsonJacksonGetString(jsonObjectMember, "department"));
           }
           result.add(memberMap);
         }
@@ -1429,7 +1507,7 @@ public class GrouperZoomCommands {
    * personal_meeting_url(string), timezone(string), verified(int), group_ids (array[string]), account_id(string), status(string e.g. active)
    * or null if not found
    */
-  private static Map<String, Map<String, Object>> retrieveUsersHelper(String configId, int pageNumberOneIndexed) {
+  private static Map<String, Map<String, Object>> retrieveUsersHelper(String configId, int pageNumberOneIndexed, String endpointString) {
     
     long startedNanos = System.nanoTime();
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -1445,7 +1523,7 @@ public class GrouperZoomCommands {
       debugMap.put("pageSize", pageSize);
       //page_size, page_number
   
-      String url = endpoint + "users?page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
+      String url = endpoint + endpointString + "page_size=" + pageSize + "&page_number=" + pageNumberOneIndexed;
       debugMap.put("url", url);
     
       GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
@@ -1475,7 +1553,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant get users from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "users": [
@@ -1507,8 +1585,8 @@ public class GrouperZoomCommands {
       
       Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
       
-      int pageNumberReturned = jsonObject.getInt("page_number");
-      int totalRecords = jsonObject.getInt("total_records");
+      int pageNumberReturned = GrouperUtil.jsonJacksonGetInteger(jsonObject, "page_number");
+      int totalRecords = GrouperUtil.jsonJacksonGetInteger(jsonObject, "total_records");
       debugMap.put("totalRecords", totalRecords);
       
       // if we are over the number of pages, then dont return any members to notify caller we are done paging
@@ -1518,10 +1596,10 @@ public class GrouperZoomCommands {
         return result;
       }
       
-      JSONArray jsonArray = jsonObject.has("users") ? jsonObject.getJSONArray("users") : null;
+      ArrayNode jsonArray = jsonObject.has("users") ? (ArrayNode)jsonObject.get("users") : null;
       if (jsonArray != null && jsonArray.size() >= 1) {
         for (int i=0;i<jsonArray.size();i++) {
-          JSONObject jsonObjectUser = (JSONObject)jsonArray.get(i);
+          JsonNode jsonObjectUser = (JsonNode)jsonArray.get(i);
           Map<String, Object> userMap = retrieveUserFromJsonObject(jsonObjectUser);
           String email = (String)userMap.get("email");
           if (!StringUtils.isBlank(email)) {
@@ -1543,6 +1621,95 @@ public class GrouperZoomCommands {
       }
     }
     
+  }
+
+
+  /**
+   * 
+   * @param configId
+   * @param endpointString
+   * @return map key is email, and value with id(string), first_name(string), last_name(string), email(string)
+   * or null if not found
+   */
+  private static Map<String, Map<String, Object>> retrievePhoneUsersHelper(String configId, String endpointString) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    String nextPageToken = "";
+    
+    debugMap.put("method", "retrievePhoneUsersHelper");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+
+      int pageSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("zoom." + configId + ".pageSizeUsers", 300);
+      debugMap.put("pageSize", pageSize);
+
+      Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
+
+      // as long as we get a value for nextPageToken, keep looping through pages
+      do {
+        String url = endpoint + endpointString + "?page_size=" + pageSize + "&next_page_token=" + nextPageToken;
+        debugMap.put("url", url);
+
+        GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+        grouperHttpClient.assignUrl(url);
+        grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.get);
+        
+        grouperHttpClient.addHeader("Content-Type", "application/json");
+        grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+        
+        int code = -1;
+        String json = null;
+    
+        try {
+          grouperHttpClient.executeRequest();
+          code = grouperHttpClient.getResponseCode();
+          json = grouperHttpClient.getResponseBody();
+        } catch (Exception e) {
+          throw new RuntimeException("Error connecting to '" + url + "'", e);
+        }
+        debugMap.put("httpCode", code);
+        
+        if (code != 200) {
+          throw new RuntimeException("Cant get phone users from '" + url + "' " + json);
+        }
+        
+        JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
+        Map<String, Map<String, Object>> tempResult = new HashMap<String, Map<String, Object>>();
+        
+        int totalRecords = GrouperUtil.jsonJacksonGetInteger(jsonObject, "total_records");
+        nextPageToken = GrouperUtil.jsonJacksonGetString(jsonObject, "next_page_token");
+        debugMap.put("totalRecords", totalRecords);
+        
+        ArrayNode jsonArray = jsonObject.has("users") ? (ArrayNode)jsonObject.get("users") : null;
+        if (jsonArray != null && jsonArray.size() >= 1) {
+          for (int i=0;i<jsonArray.size();i++) {
+            JsonNode jsonObjectUser = (JsonNode)jsonArray.get(i);
+            Map<String, Object> userMap = retrieveUserFromJsonObject(jsonObjectUser);
+            String email = (String)userMap.get("email");
+            if (!StringUtils.isBlank(email)) {
+              tempResult.put(email, userMap);
+            }
+          }
+        }
+        debugMap.put("count", tempResult.size());
+        
+        result.putAll(tempResult);
+
+      } while (nextPageToken != "");
+
+      return result;
+    } catch (RuntimeException e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
 
   /**
@@ -1589,7 +1756,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant get groups from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //    {
       //      "total_records":34,
@@ -1605,15 +1772,15 @@ public class GrouperZoomCommands {
       
       Map<String, Map<String, Object>> result = new TreeMap<String, Map<String, Object>>();
       
-      JSONArray jsonArray = jsonObject.has("groups") ? jsonObject.getJSONArray("groups") : null;
+      ArrayNode jsonArray = jsonObject.has("groups") ? (ArrayNode)jsonObject.get("groups") : null;
       if (jsonArray != null && jsonArray.size() >= 1) {
         for (int i=0;i<jsonArray.size();i++) {
-          JSONObject jsonObjectGroup = (JSONObject)jsonArray.get(i);
+          JsonNode jsonObjectGroup = (JsonNode)jsonArray.get(i);
           Map<String, Object> groupMap = new HashMap<String, Object>();
-          groupMap.put("id", jsonObjectGroup.getString("id"));
-          final String name = jsonObjectGroup.getString("name");
+          groupMap.put("id", GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "id"));
+          final String name = GrouperUtil.jsonJacksonGetString(jsonObjectGroup, "name");
           groupMap.put("name", name);
-          groupMap.put("total_members", jsonObjectGroup.getInt("total_members"));
+          groupMap.put("total_members", GrouperUtil.jsonJacksonGetInteger(jsonObjectGroup, "total_members"));
           result.put(name, groupMap);
         }
       }
@@ -1740,14 +1907,15 @@ public class GrouperZoomCommands {
       //    ]
       //  }  
       
-      JSONObject jsonObject = new JSONObject();
-      JSONArray jsonArray = new JSONArray();
-      JSONObject member = new JSONObject();
-      member.put("id", memberId);
+      ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+      ArrayNode jsonArray = GrouperUtil.jsonJacksonArrayNode();
+      ObjectNode member = GrouperUtil.jsonJacksonNode();
+      GrouperUtil.jsonJacksonAssignString(member, "id", memberId);
       jsonArray.add(member);
-      jsonObject.put("members", jsonArray);
-      String jsonRequest = jsonObject.toString();
-      
+
+      objectNode.set("members", jsonArray);
+      String jsonRequest = GrouperUtil.jsonJacksonToString(objectNode);
+
       grouperHttpClient.assignBody(jsonRequest);
       
       int code = -1;
@@ -1764,8 +1932,9 @@ public class GrouperZoomCommands {
   
       debugMap.put("httpCode", code);
       
+      // sometimes this returns a 400...  maybe if the user already has the role?
       if (code != 201) {
-        throw new RuntimeException("Cant add member '" + url + "', '" + memberId + "' " + json);
+        throw new RuntimeException("Cant add member '" + url + "', '" + memberId + "' " + json + ", " + code);
       }
         
     } catch (Exception e) {
@@ -1888,9 +2057,9 @@ public class GrouperZoomCommands {
       //    "action": "activate"
       //  }  
       
-      JSONObject jsonObject = new JSONObject();
+      ObjectNode jsonObject = GrouperUtil.jsonJacksonNode();
       jsonObject.put("action", activate ? "activate" : "deactivate");
-      String jsonRequest = jsonObject.toString();
+      String jsonRequest = GrouperUtil.jsonJacksonToString(jsonObject);
       
       grouperHttpClient.assignBody(jsonRequest);
       
@@ -1931,6 +2100,144 @@ public class GrouperZoomCommands {
     }
 
     
+  }
+
+  /**
+   * @param configId
+   * @param email
+   * @param type 1 = basic, 2 = licensed, 3 on prem, 99 none
+   */
+  public static void userChangeType(String configId, String email, int type) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "userChangeType");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+      String url = endpoint + "users";
+      if (email.contains("/")) {
+        throw new RuntimeException("Invalid email: " + email);
+      }
+      url += "/" + email;
+      debugMap.put("url", url);
+  
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.patch);
+  
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+      
+      //  {
+      //    "action": "activate"
+      //  }  
+      
+      ObjectNode jsonObject = GrouperUtil.jsonJacksonNode();
+      jsonObject.put("type", type);
+      String jsonRequest = GrouperUtil.jsonJacksonToString(jsonObject);
+      
+      grouperHttpClient.assignBody(jsonRequest);
+      
+      int code = -1;
+      if (type == 1 && GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("zoom." + configId + ".logUserDelicencesInsteadOfDelicensing", false)) {
+        
+        debugMap.put("logUserDelicencesInsteadOfDelicensing", true);
+
+      } else {
+
+        try {
+          grouperHttpClient.executeRequest();
+          code = grouperHttpClient.getResponseCode();
+          // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+          
+        } catch (Exception e) {
+          throw new RuntimeException("Error connecting to '" + url + "'", e);
+        }
+    
+        debugMap.put("httpCode", code);
+        
+        if (code != 204) {
+          throw new RuntimeException("Cant update user type '" + url + "', '" + type + "' " + code);
+        }
+      }
+      
+    } catch (Exception e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
+
+    
+  }
+
+  /**
+   * @param configId
+   * @param email
+   * @param activate
+   */
+  public static void userChangePhoneLicense(String configId, String email, Boolean activate) {
+    
+    long startedNanos = System.nanoTime();
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+    
+    debugMap.put("method", "userChangePhoneLicense");
+    try {
+      String jwt = retrieveBearerTokenFromCacheOrFresh(configId);
+      String endpoint = endpoint(configId);
+      debugMap.put("configId", configId);
+      String url = endpoint + "users";
+      if (email.contains("/")) {
+        throw new RuntimeException("Invalid email: " + email);
+      }
+      url += "/" + email + "/settings";
+      debugMap.put("url", url);
+  
+      GrouperHttpClient grouperHttpClient = grouperHttpClient(configId);
+      grouperHttpClient.assignUrl(url);
+      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.patch);
+  
+      grouperHttpClient.addHeader("Content-Type", "application/json");
+      grouperHttpClient.addHeader("Authorization", "Bearer " + jwt);
+
+      ObjectNode jsonObject = GrouperUtil.jsonJacksonNode();
+      ObjectNode jsonObjectInside = GrouperUtil.jsonJacksonNode();
+      jsonObjectInside.put("zoom_phone", activate);
+      jsonObject.set("feature", jsonObjectInside);
+      String jsonRequest = GrouperUtil.jsonJacksonToString(jsonObject);
+      
+      grouperHttpClient.assignBody(jsonRequest);
+      
+      int code = -1;
+      grouperHttpClient.executeRequest();
+      code = grouperHttpClient.getResponseCode();
+      debugMap.put("httpCode", code);
+
+      if (code != 204) {
+          throw new RuntimeException("Cant update user type '" + url + "', '" + code);
+      }
+      
+    } catch (Exception e) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(e));
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      throw new RuntimeException(e);
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime() - startedNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
   }
 
   /**
@@ -1985,7 +2292,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant get accounts from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "page_count": "integer",
@@ -2008,38 +2315,38 @@ public class GrouperZoomCommands {
 
       Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
       
-      JSONArray jsonArray = jsonObject.has("accounts") ? jsonObject.getJSONArray("accounts") : null;
+      ArrayNode jsonArray = jsonObject.has("accounts") ? (ArrayNode)jsonObject.get("accounts") : null;
       if (jsonArray != null && jsonArray.size() >= 1) {
         for (int i=0;i<jsonArray.size();i++) {
-          JSONObject jsonObjectAccount = (JSONObject)jsonArray.get(i);
+          JsonNode jsonObjectAccount = (JsonNode)jsonArray.get(i);
           Map<String, Object> accountMap = new HashMap<String, Object>();
           
-          if (jsonObjectAccount.containsKey("id")) {
-            accountMap.put("id", jsonObjectAccount.getString("id"));
+          if (jsonObjectAccount.has("id")) {
+            accountMap.put("id", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "id"));
           }
-          if (jsonObjectAccount.containsKey("account_name")) {
-            accountMap.put("account_name", jsonObjectAccount.getString("account_name"));
+          if (jsonObjectAccount.has("account_name")) {
+            accountMap.put("account_name", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "account_name"));
           }
-          if (jsonObjectAccount.containsKey("owner_email")) {
-            accountMap.put("owner_email", jsonObjectAccount.getString("owner_email"));
+          if (jsonObjectAccount.has("owner_email")) {
+            accountMap.put("owner_email", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "owner_email"));
           }
-          if (jsonObjectAccount.containsKey("account_type")) {
-            accountMap.put("account_type", jsonObjectAccount.getString("account_type"));
+          if (jsonObjectAccount.has("account_type")) {
+            accountMap.put("account_type", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "account_type"));
           }
-          if (jsonObjectAccount.containsKey("seats")) {
-            accountMap.put("seats", jsonObjectAccount.getString("seats"));
+          if (jsonObjectAccount.has("seats")) {
+            accountMap.put("seats", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "seats"));
           }
-          if (jsonObjectAccount.containsKey("subscription_start_time")) {
-            accountMap.put("subscription_start_time", jsonObjectAccount.getString("subscription_start_time"));
+          if (jsonObjectAccount.has("subscription_start_time")) {
+            accountMap.put("subscription_start_time", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "subscription_start_time"));
           }
-          if (jsonObjectAccount.containsKey("subscription_end_time")) {
-            accountMap.put("subscription_end_time", jsonObjectAccount.getString("subscription_end_time"));
+          if (jsonObjectAccount.has("subscription_end_time")) {
+            accountMap.put("subscription_end_time", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "subscription_end_time"));
           }
-          if (jsonObjectAccount.containsKey("created_at")) {
-            accountMap.put("created_at", jsonObjectAccount.getString("created_at"));
+          if (jsonObjectAccount.has("created_at")) {
+            accountMap.put("created_at", GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "created_at"));
           }
               
-          result.put(jsonObjectAccount.getString("id"), jsonObjectAccount);
+          result.put(GrouperUtil.jsonJacksonGetString(jsonObjectAccount, "id"), accountMap);
         }
       }
       debugMap.put("count", result.size());
@@ -2162,7 +2469,7 @@ public class GrouperZoomCommands {
         throw new RuntimeException("Cant get users from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "users": [
@@ -2194,8 +2501,8 @@ public class GrouperZoomCommands {
       
       Map<String, Map<String, Object>> result = new HashMap<String, Map<String, Object>>();
       
-      int pageNumberReturned = jsonObject.getInt("page_number");
-      int totalRecords = jsonObject.getInt("total_records");
+      int pageNumberReturned = GrouperUtil.jsonJacksonGetInteger(jsonObject, "page_number");
+      int totalRecords = GrouperUtil.jsonJacksonGetInteger(jsonObject, "total_records");
       debugMap.put("totalRecords", totalRecords);
       
       // if we are over the number of pages, then dont return any members to notify caller we are done paging
@@ -2205,10 +2512,10 @@ public class GrouperZoomCommands {
         return result;
       }
       
-      JSONArray jsonArray = jsonObject.has("users") ? jsonObject.getJSONArray("users") : null;
+      ArrayNode jsonArray = jsonObject.has("users") ? (ArrayNode)jsonObject.get("users") : null;
       if (jsonArray != null && jsonArray.size() >= 1) {
         for (int i=0;i<jsonArray.size();i++) {
-          JSONObject jsonObjectUser = (JSONObject)jsonArray.get(i);
+          JsonNode jsonObjectUser = (JsonNode)jsonArray.get(i);
           Map<String, Object> userMap = retrieveUserFromJsonObject(jsonObjectUser);
           String email = (String)userMap.get("email");
           if (!StringUtils.isBlank(email)) {

@@ -126,6 +126,19 @@ public class GcExternalSubjectSave {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcExternalSubjectSave assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** external subjects to save */
   private List<WsExternalSubjectToSave> externalSubjectsToSave = new ArrayList<WsExternalSubjectToSave>();
@@ -217,15 +230,16 @@ public class GcExternalSubjectSave {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsExternalSubjectSaveResults = (WsExternalSubjectSaveResults)
-        grouperClientWs.executeService("externalSubjects", externalSubjectSave, "externalSubjectSave", 
-            this.clientVersion, false);
+          grouperClientWs.executeService("externalSubjects",
+              externalSubjectSave, "externalSubjectSave",
+              this.clientVersion, this.contentType, false);
       
       String groupSaveResultMessage = "";
       

@@ -127,7 +127,19 @@ public class GcFindExternalSubjects {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcFindExternalSubjects assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
 
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
@@ -203,16 +215,17 @@ public class GcFindExternalSubjects {
       }
       findExternalSubjects.setWsExternalSubjectLookups(GrouperClientUtils.toArray(externalSubjectLookups, WsExternalSubjectLookup.class));
 
-      
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsFindExternalSubjectsResults = (WsFindExternalSubjectsResults)
-        grouperClientWs.executeService("externalSubjects", findExternalSubjects, "findExternalSubjects", this.clientVersion, true);
+          grouperClientWs.executeService("externalSubjects",
+              findExternalSubjects, "findExternalSubjects",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsFindExternalSubjectsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsFindExternalSubjectsResults, null, resultMessage);

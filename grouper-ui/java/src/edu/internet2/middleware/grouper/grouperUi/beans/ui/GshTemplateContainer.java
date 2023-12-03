@@ -6,12 +6,28 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfiguration;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateTestExec;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateContainer {
   
+  /**
+   * have a progress bean to be able to communicate progress to the UI
+   * @return the progressBean
+   */
+  public ProgressBean getProgressBean() {
+    if (this.gshTemplateExec != null && this.gshTemplateExec.getProgressBean() != null) {
+      return this.gshTemplateExec.getProgressBean();
+    }
+    if (this.gshTemplateTestExec != null && this.gshTemplateTestExec.getProgressBean() != null) {
+      return this.gshTemplateTestExec.getProgressBean();
+    }
+    return null;
+  }
+
   /**
    * exec that is running
    */
@@ -31,6 +47,27 @@ public class GshTemplateContainer {
    */
   public void setGshTemplateExec(GshTemplateExec gshTemplateExec) {
     this.gshTemplateExec = gshTemplateExec;
+  }
+
+  /**
+   * exec that is running
+   */
+  private GshTemplateTestExec gshTemplateTestExec;
+  
+  /**
+   * exec that is running
+   * @return
+   */
+  public GshTemplateTestExec getGshTemplateTestExec() {
+    return gshTemplateTestExec;
+  }
+
+  /**
+   * exec that is running
+   * @param gshTemplateExec
+   */
+  public void setGshTemplateTestExec(GshTemplateTestExec gshTemplateTestExec) {
+    this.gshTemplateTestExec = gshTemplateTestExec;
   }
 
   /**

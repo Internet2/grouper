@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+${grouper:titleFromKeyAndText('stemAuditsPageTitle', grouperRequestContainer.stemContainer.guiStem.stem.displayName)}
 
             <!-- start stem/stemViewAudits.jsp -->
             <%-- for the new group or new stem button --%>

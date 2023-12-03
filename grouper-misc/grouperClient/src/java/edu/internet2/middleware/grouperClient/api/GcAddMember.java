@@ -122,7 +122,7 @@ public class GcAddMember {
   
   /** group uuid to add member to */
   private String groupUuid;
-  
+
   /** date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS */
   private Timestamp disabledTime;
   
@@ -144,7 +144,7 @@ public class GcAddMember {
   public void assignEnabledTime(Timestamp theEnabledTime) {
     this.enabledTime = theEnabledTime;
   }
-  
+
   
   /**
    * set the group name
@@ -371,6 +371,19 @@ public class GcAddMember {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAddMember assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -433,7 +446,7 @@ public class GcAddMember {
       addMember.setEnabledTime(GrouperClientUtils.dateToString(this.enabledTime));
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
@@ -444,7 +457,8 @@ public class GcAddMember {
       //    + GrouperClientUtils.escapeUrlEncode(this.groupName) + "/members";
       String urlSuffix = "groups";
       wsAddMemberResults = (WsAddMemberResults)
-        grouperClientWs.executeService(urlSuffix, addMember, "addMember", this.clientVersion, false);
+          grouperClientWs.executeService(urlSuffix, addMember, "addMember",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAddMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAddMemberResults, wsAddMemberResults.getResults(), resultMessage);

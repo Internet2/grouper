@@ -81,7 +81,7 @@
         <skipTests>true</skipTests>
 
         <!-- Dependency Versions -->
-        <json.version>20140107</json.version>
+        <json.version>20231013</json.version>
         <charon.version>2.1.3</charon.version>
         <wink.client.version>1.4</wink.client.version>
         <log4j.version>2.17.1</log4j.version>
@@ -162,8 +162,9 @@
         <jline.version>2.14.5</jline.version>
         <p6spy.version>3.6.0</p6spy.version>
         <postgresql.version>42.5.1</postgresql.version>
-        <mysql.connector.java.version>8.0.28</mysql.connector.java.version>
-        <ldaptive.version>1.2.4</ldaptive.version>
+        <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
+        <ldaptive.version>2.2.1-SNAPSHOT</ldaptive.version>
+        <unboundid.version>6.0.10</unboundid.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.12.267</aws.java.sdk.sqs>
@@ -173,7 +174,7 @@
         <httpmime>4.5.13</httpmime>
         <geronimo-jms.version>1.1</geronimo-jms.version>
         <qpid-jms-client.version>0.61.0</qpid-jms-client.version>
-        <amqp-client.version>4.12.0</amqp-client.version>
+        <amqp-client.version>5.20.0</amqp-client.version>
         
         <!-- note, jackson version is also in grouper pom -->
         <jackson.annotations>2.14.0</jackson.annotations>
@@ -190,7 +191,7 @@
         <jsp.version>2.3.2-b02</jsp.version>
         <xercesimpl.version>2.12.2</xercesimpl.version>
         <okhttp.version>3.14.7</okhttp.version>
-        <nimbus.oauth2.oidc.sdk>9.43.1</nimbus.oauth2.oidc.sdk>
+        <nimbus.oauth2.oidc.sdk>11.6</nimbus.oauth2.oidc.sdk>
         
         <!-- ddl utils -->
         <oro.version>2.0.8</oro.version>
@@ -218,6 +219,11 @@
         <repository>
             <id>central</id>
             <url>https://repo1.maven.org/maven2</url>
+        </repository>
+        <!-- TODO remove this after ldaptive v2 migration -->
+        <repository>
+            <id>ldaptive-snapshots</id>
+            <url>https://raw.github.com/vt-middleware/maven-repo/master</url>
         </repository>
     </repositories>
 
@@ -931,9 +937,10 @@
               <version>${ldaptive.version}</version>
             </dependency>
             <dependency>
-              <groupId>org.ldaptive</groupId>
-              <artifactId>ldaptive-unboundid</artifactId>
-              <version>${ldaptive.version}</version>
+              <groupId>com.unboundid</groupId>
+              <artifactId>unboundid-ldapsdk</artifactId>
+                <version>${unboundid.version}</version>
+              <scope>test</scope>
             </dependency>
             <dependency>
 		          <groupId>org.jsoup</groupId>

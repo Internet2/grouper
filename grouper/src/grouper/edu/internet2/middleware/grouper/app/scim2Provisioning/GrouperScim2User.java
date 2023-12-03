@@ -248,10 +248,11 @@ public class GrouperScim2User {
     //    "userType":"userTyp"
     // }
 
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
   
-    GrouperUtil.jsonJacksonAssignBoolean(result, "active", true);
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
+    }
     
 //    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
 //      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
@@ -672,7 +673,7 @@ public class GrouperScim2User {
   }
 
   public String getActiveDb() {
-    return active == null ? null : (active ? "T" : "F");
+    return (active == null || active) ? "T" : "F";
   }
   public void setActiveDb(String theActive) {
     this.active = GrouperUtil.booleanObjectValue(theActive);

@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.abac;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -50,18 +49,13 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssign;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
-import edu.internet2.middleware.grouper.dataField.GrouperDataFieldStructure;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
-import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -200,7 +194,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           if (StringUtils.equals(highestLevelAccess, "read")) {
             String warningMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy");
             grouperJexlScriptAnalysis.setWarningMessage(warningMessage + " '"+attributeAlias + "'");
-          } else if (StringUtils.isBlank(highestLevelAccess)) {
+          } else if (StringUtils.equals(highestLevelAccess, "view")) {
             String errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute");
             grouperJexlScriptAnalysis.setErrorMessage(errorMessage + " '"+attributeAlias + "'");
             return grouperJexlScriptAnalysis;

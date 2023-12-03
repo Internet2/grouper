@@ -118,7 +118,7 @@ public class GrouperWorkflowApprovalStates {
   public static String getDefaultApprovalStatesString(String groupId) {
     GrouperWorkflowApprovalStates defaultApprovalStates = getDefaultApprovalStates(groupId);
     try {      
-      return GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(defaultApprovalStates);
+      return GrouperUtil.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(defaultApprovalStates);
     } catch(Exception e) {
       throw new RuntimeException("Could not convert default approval states json into string");
     }
@@ -132,7 +132,7 @@ public class GrouperWorkflowApprovalStates {
   public static GrouperWorkflowApprovalStates buildApprovalStatesFromJsonString(
       String workflowApprovalStates) {
     try {
-      GrouperWorkflowApprovalStates approvalStates = GrouperWorkflowSettings.objectMapper
+      GrouperWorkflowApprovalStates approvalStates = GrouperUtil.objectMapper
           .readValue(workflowApprovalStates, GrouperWorkflowApprovalStates.class);
       return approvalStates;
     } catch (Exception e) {

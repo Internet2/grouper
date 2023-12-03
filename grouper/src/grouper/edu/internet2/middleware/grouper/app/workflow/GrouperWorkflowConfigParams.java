@@ -64,7 +64,7 @@ public class GrouperWorkflowConfigParams {
   public static GrouperWorkflowConfigParams buildParamsFromJsonString(String params) {
 
     try {
-      GrouperWorkflowConfigParams configParams = GrouperWorkflowSettings.objectMapper
+      GrouperWorkflowConfigParams configParams = GrouperUtil.objectMapper
           .readValue(params, GrouperWorkflowConfigParams.class);
       return configParams;
     } catch (Exception e) {
@@ -105,7 +105,7 @@ public class GrouperWorkflowConfigParams {
   public static String getDefaultConfigParamsString() {
     GrouperWorkflowConfigParams defaultConfigParams = getDefaultConfigParams();
     try {      
-      return GrouperWorkflowSettings.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(defaultConfigParams);
+      return GrouperUtil.objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(defaultConfigParams);
     } catch(Exception e) {
       throw new RuntimeException("Could not convert default config params json into string");
     }

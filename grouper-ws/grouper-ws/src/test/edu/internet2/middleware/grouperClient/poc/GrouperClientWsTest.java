@@ -118,7 +118,7 @@ public class GrouperClientWsTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperClientWsTest("testAddMember"));
+    TestRunner.run(new GrouperClientWsTest("testFindAttributeDefNamesServiceRole"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveLookupNameSame"));
     //TestRunner.run(new GrouperClientWsTest("testGroupSaveNoLookup"));
 
@@ -133,6 +133,7 @@ public class GrouperClientWsTest extends GrouperTest {
 
     // dont do this, it deletes types
     // super.setUp();
+    GrouperTest.shutdownDelayThreadInterrupt();
     GrouperCacheUtils.clearAllCaches();
 
     String wsUserLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired(
@@ -274,6 +275,8 @@ public class GrouperClientWsTest extends GrouperTest {
     grouperPasswordSave.assignUsername(userName).assignPassword(password).assignEntityType("username");
     grouperPasswordSave.assignApplication(GrouperPassword.Application.WS);
     new Authentication().assignUserPassword(grouperPasswordSave);
+    
+    GrouperTest.testing = true;
   }
 
   /**

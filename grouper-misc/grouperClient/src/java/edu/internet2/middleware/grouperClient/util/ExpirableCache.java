@@ -17,8 +17,10 @@ package edu.internet2.middleware.grouperClient.util;
 
 import java.io.Serializable;
 import java.lang.ref.WeakReference;
+import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Map;
 import java.util.Set;
@@ -351,6 +353,27 @@ public class ExpirableCache<K,V> implements Serializable {
     this.checkForEvictions(true);
     return this.getHelper(key);
   }
+  
+  
+  /**
+   * get all keys
+   * this will check for eviction, and evict if evictable
+   * @param key
+   * @return the value or null if not there or evicted
+   */
+  public synchronized Set<K> keySet() {
+    this.checkForEvictions(true);
+    Set<K> keysToReturn = new HashSet<>();
+    
+    for (K key: this.cache.keySet()) {
+      if (this.getHelper(key) != null) {
+        keysToReturn.add(key);
+      }
+    }
+    return keysToReturn;
+  }
+  
+  
   /**
    * get a value or null if not there or expired
    * this will check for eviction, and evict if evictable

@@ -157,8 +157,7 @@ public void setPassword(String password) {
   * @return the group
   */
  public ObjectNode toJson(Set<String> fieldNamesToSet) {
-   ObjectMapper objectMapper = new ObjectMapper();
-   ObjectNode result = objectMapper.createObjectNode();
+   ObjectNode result = GrouperUtil.jsonJacksonNode();
  
    if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {      
      GrouperUtil.jsonJacksonAssignString(result, "primaryEmail", this.primaryEmail);

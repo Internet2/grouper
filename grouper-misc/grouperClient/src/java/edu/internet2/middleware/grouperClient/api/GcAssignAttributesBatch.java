@@ -151,7 +151,20 @@ public class GcAssignAttributesBatch {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcAssignAttributesBatch assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** params */
   private List<WsParam> params = new ArrayList<WsParam>();
 
@@ -277,14 +290,16 @@ public class GcAssignAttributesBatch {
       assignAttributesBatch.setTxType(this.txType == null ? null : this.txType.name());
 
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsAssignAttributesBatchResults = (WsAssignAttributesBatchResults)
-        grouperClientWs.executeService("attributeAssignments", assignAttributesBatch, "assignAttributesBatch", this.clientVersion, false);
+          grouperClientWs.executeService("attributeAssignments",
+              assignAttributesBatch, "assignAttributesBatch",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsAssignAttributesBatchResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsAssignAttributesBatchResults, null, resultMessage);

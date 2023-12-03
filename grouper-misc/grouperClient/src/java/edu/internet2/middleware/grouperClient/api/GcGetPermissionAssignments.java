@@ -301,7 +301,20 @@ public class GcGetPermissionAssignments {
     this.clientVersion = theClientVersion;
     return this;
   }
-  
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetPermissionAssignments assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
+
   /** group names to query */
   private Set<String> roleNames = new LinkedHashSet<String>();
   
@@ -635,15 +648,16 @@ public class GcGetPermissionAssignments {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetPermissionAssignmentsResults = (WsGetPermissionAssignmentsResults)
-        grouperClientWs.executeService("permissionAssignments", 
-            getPermissionAssignments, "getPermissionAssignments", this.clientVersion, true);
+          grouperClientWs.executeService("permissionAssignments",
+              getPermissionAssignments, "getPermissionAssignments",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetPermissionAssignmentsResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetPermissionAssignmentsResults, null, resultMessage);

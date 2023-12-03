@@ -623,8 +623,7 @@ public class DuoRoleMockServiceHandler extends MockServiceHandler {
    */
   private static ObjectNode toUserJson(GrouperDuoRoleUser grouperDuoRoleUser) {
     
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
   
     GrouperUtil.jsonJacksonAssignString(result, "email", grouperDuoRoleUser.getEmail());
     GrouperUtil.jsonJacksonAssignString(result, "name", grouperDuoRoleUser.getName());

@@ -276,6 +276,19 @@ public class GcGetGrouperPrivilegesLite {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcGetGrouperPrivilegesLite assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -333,15 +346,16 @@ public class GcGetGrouperPrivilegesLite {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsGetGrouperPrivilegesLiteResult = (WsGetGrouperPrivilegesLiteResult)
-        grouperClientWs.executeService("grouperPrivileges", 
-            wsGetGrouperPrivilegesLite, "getGrouperPrivilegesLite", this.clientVersion, true);
+          grouperClientWs.executeService("grouperPrivileges",
+              wsGetGrouperPrivilegesLite, "getGrouperPrivilegesLite",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsGetGrouperPrivilegesLiteResult.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsGetGrouperPrivilegesLiteResult, null, resultMessage);

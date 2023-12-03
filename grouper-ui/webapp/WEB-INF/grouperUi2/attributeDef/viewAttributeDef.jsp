@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+${grouper:titleFromKeyAndText('viewAttributeDefPageTitle', grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.name)}
+
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.attributeDefContainer.guiAttributeDef.attributeDef.stemId}" />
 

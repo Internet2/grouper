@@ -207,6 +207,19 @@ public class GcExternalSubjectDelete {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcExternalSubjectDelete assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -235,15 +248,16 @@ public class GcExternalSubjectDelete {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsExternalSubjectDeleteResults = (WsExternalSubjectDeleteResults)
-        grouperClientWs.executeService("externalSubjects", externalSubjectDelete, 
-            "externalSubjectDelete", this.clientVersion, false);
+          grouperClientWs.executeService("externalSubjects",
+              externalSubjectDelete, "externalSubjectDelete",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsExternalSubjectDeleteResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsExternalSubjectDeleteResults, wsExternalSubjectDeleteResults.getResults(), resultMessage);

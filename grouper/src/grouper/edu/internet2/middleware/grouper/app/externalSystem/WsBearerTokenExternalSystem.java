@@ -6,17 +6,152 @@ import java.util.Map;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.j2ee.Authentication;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 
 public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
 
+  public static String authenticateMockUser(HttpServletRequest httpServletRequest) {
+
+    ConfigPropertiesCascadeBase.clearCache();
+
+    Pattern clientIdPattern = Pattern.compile("^grouper\\.wsBearerToken\\.([^.]+)\\.endpoint$");
+    for (String configId : GrouperLoaderConfig.retrieveConfig().propertyConfigIds(clientIdPattern)) {
+      
+      String httpAuthnType = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueString(
+              "grouper.wsBearerToken." + configId + ".httpAuthnType", "bearerToken");
+
+      if (StringUtils.equals(httpAuthnType, "bearerToken")) {
+
+        String bearerTokenConfig = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueStringRequired(
+                "grouper.wsBearerToken." + configId + ".accessTokenPassword");
+
+        boolean prependBearerTokenPrefix = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueBoolean(
+                "grouper.wsBearerToken." + configId + ".prependBearerTokenPrefix", true);
+        
+        bearerTokenConfig = prependBearerTokenPrefix ? ("Bearer " + bearerTokenConfig) : bearerTokenConfig;
+
+        String httpHeader = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueString(
+                "grouper.wsBearerToken." + configId + ".httpHeader", "Authorization");
+
+        String bearerTokenSent = httpServletRequest.getHeader(httpHeader);
+
+        if (StringUtils.equals(bearerTokenSent, bearerTokenConfig)) {
+          return configId;
+        }
+
+      } else if (StringUtils.equals(httpAuthnType, "basicAuth")) {
+        
+        String userFromConfig = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueStringRequired("grouper.wsBearerToken." + configId + ".basicAuthUser");
+        
+        String passwordFromConfig = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueString("grouper.wsBearerToken." + configId + ".basicAuthPassword");
+        
+        passwordFromConfig = StringUtils.defaultString(passwordFromConfig);
+
+        String authorizationHeader = httpServletRequest.getHeader("Authorization");
+        
+        String userSent = Authentication.retrieveUsername(authorizationHeader);
+        String passwordSent = Authentication.retrievePassword(authorizationHeader);
+        
+        if (StringUtils.equals(userSent, userFromConfig) && StringUtils.equals(passwordSent, passwordFromConfig)) {
+          return configId;
+        }
+        
+      } else {
+        throw new RuntimeException("Invalid authentication type: grouper-loader.properties: 'grouper.wsBearerToken." + configId + ".httpAuthnType' = '" + httpAuthnType + "'");
+      }
+
+    }
+    return null;
+  }
+  
+  public static void attachAuthenticationToHttpClient(GrouperHttpClient grouperHttpClient, String externalSystemConfigId) {
+    //  # Authentication type.
+    //  # {valueType: "string", defaultValue: "bearerToken", regex: "^grouper\\.myWsBearerToken\\.([^.]+)\\.httpAuthnType$", formElement: "dropdown", optionValues: ["bearerToken", "basicAuth"]}
+    //  # grouper.wsBearerToken.myWsBearerToken.httpAuthnType = 
+    //
+    //  # Basic auth user
+    //  # {valueType: "string", required: true, regex: "^grouper\\.myWsBearerToken\\.([^.]+)\\.basicAuthUser$", formElement: "dropdown", optionValues: ["bearerToken", "basicAuth"], showEl: "${httpAuthnType == 'basicAuth'}}
+    //  # grouper.wsBearerToken.myWsBearerToken.basicAuthUser = 
+    //
+    //  # Basic auth password
+    //  # {valueType: "string", regex: "^grouper\\.myWsBearerToken\\.([^.]+)\\.basicAuthPass$", showEl: "${httpAuthnType == 'basicAuth'}}
+    //  # grouper.wsBearerToken.myWsBearerToken.basicAuthPassword = 
+    //
+    //  # Bearer token secret, e.g. AWS access token
+    //  # {valueType: "password", sensitive: true, required: true, regex: "^grouper\\.myWsBearerToken\\.([^.]+)\\.accessTokenPassword$", showEl: "${httpAuthnType == null || httpAuthnType == 'bearerToken'}"}
+    //  # grouper.wsBearerToken.myWsBearerToken.accessTokenPassword =
+    //
+    //  # Include Bearer: prefix on access token.  If you want to change the prefix, just prefix the access token password and set this to false
+    //  # {valueType: "boolean", defaultValue: "true", regex: "^grouper\\.myWsBearerToken\\.([^.]+)\\.accessTokenPassword$", showEl: "${httpAuthnType == null || httpAuthnType == 'bearerToken'}"}
+    //  # grouper.wsBearerToken.myWsBearerToken.prependBearerTokenPrefix =
+    //
+    //  # HTTP header to put the authentication in.  Default is the standard Authorization header
+    //  # {valueType: "string", defaultValue: "Authorization", regex: "^grouper\\.myWsBearerToken\\.([^.]+)\\.httpHeader$", showEl: "${httpAuthnType == null || httpAuthnType == 'bearerToken'}"}
+    //  # grouper.wsBearerToken.myWsBearerToken.httpHeader =
+
+    String httpAuthnType = GrouperLoaderConfig.retrieveConfig()
+        .propertyValueString(
+            "grouper.wsBearerToken." + externalSystemConfigId + ".httpAuthnType", "bearerToken");
+
+    if (StringUtils.equals(httpAuthnType, "bearerToken")) {
+      String bearerToken = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueStringRequired(
+              "grouper.wsBearerToken." + externalSystemConfigId + ".accessTokenPassword");
+
+      boolean prependBearerTokenPrefix = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueBoolean(
+              "grouper.wsBearerToken." + externalSystemConfigId + ".prependBearerTokenPrefix", true);
+      
+      String headerValue = prependBearerTokenPrefix ? ("Bearer " + bearerToken) : bearerToken;
+
+      String httpHeader = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueString(
+              "grouper.wsBearerToken." + externalSystemConfigId + ".httpHeader", "Authorization");
+
+      grouperHttpClient.addHeader(httpHeader, headerValue);
+    } else if (StringUtils.equals(httpAuthnType, "basicAuth")) {
+      
+      String user = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueStringRequired("grouper.wsBearerToken." + externalSystemConfigId + ".basicAuthUser");
+      
+      String password = GrouperLoaderConfig.retrieveConfig()
+          .propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".basicAuthPassword");
+      
+      password = StringUtils.defaultString(password);
+      
+      grouperHttpClient.assignUser(user);
+      grouperHttpClient.assignPassword(password);
+      
+    } else {
+      throw new RuntimeException("Invalid authentication type: grouper-loader.properties: 'grouper.wsBearerToken." + externalSystemConfigId + ".httpAuthnType' = '" + httpAuthnType + "'");
+    }
+    
+    String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".proxyUrl");
+    String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + externalSystemConfigId + ".proxyType");
+    
+    grouperHttpClient.assignProxyUrl(proxyUrl);
+    grouperHttpClient.assignProxyType(proxyType);
+
+
+  }
+  
   @Override
   public ConfigFileName getConfigFileName() {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
@@ -107,13 +242,8 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       final String url = GrouperUtil.stripLastSlashIfExists(endpoint) + "/" + GrouperUtil.stripFirstSlashIfExists(testUrlSuffix);
       grouperHttpClient.assignUrl(url);
       grouperHttpClient.assignGrouperHttpMethod(testHttpMethod);
-      grouperHttpClient.addHeader("Authorization", "Bearer " + accessTokenPassword);
-      
-      String proxyUrl = config.propertyValueString(configPrefix + "proxyUrl");
-      String proxyType = config.propertyValueString(configPrefix + "proxyType");
-      
-      grouperHttpClient.assignProxyUrl(proxyUrl);
-      grouperHttpClient.assignProxyType(proxyType);
+
+      attachAuthenticationToHttpClient(grouperHttpClient, this.getConfigId());
 
       int code = -1;
       String response = null;

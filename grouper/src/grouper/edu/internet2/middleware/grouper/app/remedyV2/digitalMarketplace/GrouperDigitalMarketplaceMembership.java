@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
@@ -90,10 +91,8 @@ public class GrouperDigitalMarketplaceMembership {
    * @return the group
    */
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
-    ObjectMapper objectMapper = new ObjectMapper();
-    ObjectNode result = objectMapper.createObjectNode();
+    ObjectNode result = GrouperUtil.jsonJacksonNode();
     
-
     if (fieldNamesToSet == null || fieldNamesToSet.contains("groupName")) {      
       result.put("groupName", this.groupName);
     }

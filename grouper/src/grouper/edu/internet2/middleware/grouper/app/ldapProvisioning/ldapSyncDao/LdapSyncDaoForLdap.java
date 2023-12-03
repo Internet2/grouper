@@ -18,7 +18,7 @@ public class LdapSyncDaoForLdap extends LdapSyncDao {
   }
   
   @Override
-  public List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Long sizeLimit) {
+  public List<LdapEntry> search(String ldapPoolName, String baseDn, String filter, LdapSearchScope ldapSearchScope, List<String> attributeNames, Integer sizeLimit) {
     LdapSession ldapSession = LdapSessionUtils.ldapSession();
     List<LdapEntry> result = ldapSession.list(ldapPoolName, baseDn, ldapSearchScope, filter, attributeNames.toArray(new String[] {}), sizeLimit);
     return result;    

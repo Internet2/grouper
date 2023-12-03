@@ -1,5 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+${grouper:titleFromKeyAndText('subjectProvisioningPageTitle', grouperRequestContainer.subjectContainer.guiSubject.subject.displayName)}
+
             <%-- show the add member button for privileges --%>
             <c:set target="${grouperRequestContainer.stemContainer}" property="showAddMember" value="true" />
             

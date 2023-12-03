@@ -1,5 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
+${grouper:titleFromKeyAndText('groupStemPrivilegesPageTitle', grouperRequestContainer.groupContainer.guiGroup.group.displayName)}
             <!-- start group/thisGroupsStemPrivileges.jsp -->
             
             <%-- for the new group or new stem button --%>

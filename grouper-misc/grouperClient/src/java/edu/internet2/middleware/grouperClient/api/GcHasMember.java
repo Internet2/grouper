@@ -129,6 +129,19 @@ public class GcHasMember {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcHasMember assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /** group name to add member to */
   private String groupName;
@@ -426,7 +439,7 @@ public class GcHasMember {
       hasMember.setPointInTimeTo(GrouperClientUtils.dateToString(this.pointInTimeTo));
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
@@ -436,7 +449,8 @@ public class GcHasMember {
       //MCH lets switch this to not send group name, so we can do id or name
       String urlSuffix = "groups";
       wsHasMemberResults = (WsHasMemberResults)
-        grouperClientWs.executeService(urlSuffix, hasMember, "hasMember", this.clientVersion, true);
+          grouperClientWs.executeService(urlSuffix, hasMember, "hasMember",
+              this.clientVersion, this.contentType, true);
       
       String resultMessage = wsHasMemberResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsHasMemberResults, wsHasMemberResults.getResults(), resultMessage);

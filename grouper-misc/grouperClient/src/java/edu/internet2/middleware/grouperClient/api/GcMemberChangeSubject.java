@@ -255,6 +255,19 @@ public class GcMemberChangeSubject {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcMemberChangeSubject assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -297,14 +310,15 @@ public class GcMemberChangeSubject {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsMemberChangeSubjectResults = (WsMemberChangeSubjectResults)
-        grouperClientWs.executeService("members", memberChangeSubject, "memberChangeSubject", this.clientVersion, false);
+          grouperClientWs.executeService("members", memberChangeSubject, "memberChangeSubject",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsMemberChangeSubjectResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsMemberChangeSubjectResults, wsMemberChangeSubjectResults.getResults(),resultMessage);

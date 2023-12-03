@@ -1,5 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-
+${grouper:titleFromKeyAndText('groupPrivilegesPageTitle', grouperRequestContainer.groupContainer.guiGroup.group.displayName)}
 
             <script>
             $( document ).ready(function() {

@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.misc;
 
 import edu.internet2.middleware.grouper.cache.EhcacheController;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 
 /**
  * called when grouper is shutting down
@@ -23,5 +24,7 @@ public class GrouperShutdown {
     
     // this has a daemon thread
     EhcacheController.ehcacheController().stop();
+    
+    GrouperHttpClient.shutdown();
   }
 }

@@ -239,6 +239,19 @@ public class GcMessageReceive {
     this.clientVersion = theClientVersion;
     return this;
   }
+
+  /** content type for post request */
+  private String contentType;
+
+  /**
+   * content type for post request
+   * @param theContentType
+   * @return this for chaining
+   */
+  public GcMessageReceive assignContentType(String theContentType) {
+    this.contentType = theContentType;
+    return this;
+  }
   
   /**
    * execute the call and return the results.  If there is a problem calling the service, an
@@ -268,14 +281,15 @@ public class GcMessageReceive {
       }
       
       GrouperClientWs grouperClientWs = new GrouperClientWs();
-      
+
       grouperClientWs.assignWsUser(this.wsUser);
       grouperClientWs.assignWsPass(this.wsPass);
       grouperClientWs.assignWsEndpoint(this.wsEndpoint);
       
       //kick off the web service
       wsMessageResults = (WsMessageResults)
-        grouperClientWs.executeService("messaging", messageReceiveRequest, "receive messages", this.clientVersion, false);
+          grouperClientWs.executeService("messaging", messageReceiveRequest, "receive messages",
+              this.clientVersion, this.contentType, false);
       
       String resultMessage = wsMessageResults.getResultMetadata().getResultMessage();
       grouperClientWs.handleFailure(wsMessageResults, null, resultMessage);
