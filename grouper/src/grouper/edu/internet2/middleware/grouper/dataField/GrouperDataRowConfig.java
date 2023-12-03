@@ -31,8 +31,13 @@ public class GrouperDataRowConfig {
     String rowAliasesString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".rowAliases");
     this.rowAliases = GrouperUtil.splitTrimToSet(rowAliasesString, ",");
     
-    //TODO String rowPrivacyRealmString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".rowPrivacyRealm");
-    //this.privacyRealmName = rowPrivacyRealmString;
+    this.descriptionHtml = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".descriptionHtml");
+    this.dataOwnerHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataRow." + configId + ".dataOwnerHtml");
+    this.howToGetAccessHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataRow." + configId + ".howToGetAccessHtml");
+    this.zeroToManyExamplesHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataRow." + configId + ".zeroToManyExamplesHtml");
+    
+    String rowPrivacyRealmString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".rowPrivacyRealm");
+    this.privacyRealmName = rowPrivacyRealmString;
 
     int rowNumberOfDataFields = GrouperConfig.retrieveConfig().propertyValueIntRequired("grouperDataRow." + configId + ".rowNumberOfDataFields");
     for (int i=0;i<rowNumberOfDataFields;i++) {
@@ -134,9 +139,31 @@ public class GrouperDataRowConfig {
    * grouperDataRow.dataRowConfigId.rowPrivacyRealm = 
    */
   private String privacyRealmName = null;
+  
+  /**
+   * # Description html
+   * # {valueType: "string", required: true, regex: "^dataRowConfigId\\.[^.]+\\.descriptionHtml$", formElement: "textarea"}
+   */
+  private String descriptionHtml;
+  
+  /**
+   * # Data owner html
+   * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.dataOwnerHtml$", formElement: "textarea"}
+   */
+  private String dataOwnerHtml;
+  
+  /**
+   * # How to get access html
+   * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.howToGetAccessHtml$", formElement: "textarea"}
+   */
+  private String howToGetAccessHtml;
+  
+  /**
+   * # Zero to many examples html
+   * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.zeroToManyExamplesHtml$", formElement: "textarea"}
+   */
+  private String zeroToManyExamplesHtml;
 
-  
-  
   /**
    * privacy realm for people who can see or use this data row
    * {valueType: "string", order: 2000, subSection: "dataRowConfig", required: true, regex: "^grouperDataRow\\.[^.]+\\.rowPrivacyRealm$", formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealm"}
@@ -177,5 +204,44 @@ public class GrouperDataRowConfig {
     this.rowAliases = fieldAliases;
   }
 
+  
+  public String getDescriptionHtml() {
+    return descriptionHtml;
+  }
 
+  
+  public void setDescriptionHtml(String descriptionHtml) {
+    this.descriptionHtml = descriptionHtml;
+  }
+
+  
+  public String getDataOwnerHtml() {
+    return dataOwnerHtml;
+  }
+
+  
+  public void setDataOwnerHtml(String dataOwnerHtml) {
+    this.dataOwnerHtml = dataOwnerHtml;
+  }
+
+  
+  public String getHowToGetAccessHtml() {
+    return howToGetAccessHtml;
+  }
+
+  
+  public void setHowToGetAccessHtml(String howToGetAccessHtml) {
+    this.howToGetAccessHtml = howToGetAccessHtml;
+  }
+
+  
+  public String getZeroToManyExamplesHtml() {
+    return zeroToManyExamplesHtml;
+  }
+
+  
+  public void setZeroToManyExamplesHtml(String zeroToManyExamplesHtml) {
+    this.zeroToManyExamplesHtml = zeroToManyExamplesHtml;
+  }
+  
 }

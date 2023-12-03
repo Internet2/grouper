@@ -50,15 +50,18 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssign;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldStructure;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldType;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -150,7 +153,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       GrouperShutdown.shutdown();
     }
   }
-
+  
   public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(String jexlScript, Subject subject, Subject loggedInSubject) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
@@ -191,17 +194,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           String grouperPrivacyRealmConfigId = grouperDataFieldConfig.getGrouperPrivacyRealmConfigId();
           
           GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
-          String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
           
-          Group group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-            
-            @Override
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return GroupFinder.findByName(grouperSession, viewersGroupName, true);
-            }
-          });
+          String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
           
-          if (!group.hasMember(loggedInSubject)) {
+          if (StringUtils.equals(highestLevelAccess, "read")) {
+            String warningMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy");
+            grouperJexlScriptAnalysis.setWarningMessage(warningMessage + " '"+attributeAlias + "'");
+          } else if (StringUtils.isBlank(highestLevelAccess)) {
             String errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute");
             grouperJexlScriptAnalysis.setErrorMessage(errorMessage + " '"+attributeAlias + "'");
             return grouperJexlScriptAnalysis;

@@ -14,6 +14,10 @@ public class GrouperPrivacyRealmConfig {
   
   private String privacyRealmViewersGroupName;
   
+  private String privacyRealmUpdatersGroupName;
+
+  private String privacyRealmReadersGroupName;
+  
   private String configId;
   
   public void readFromConfig(String configId) {
@@ -29,6 +33,10 @@ public class GrouperPrivacyRealmConfig {
     this.privacyRealmSysadminsCanView = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperPrivacyRealm." + configId + ".privacyRealmSysadminsCanView", true);
 
     this.privacyRealmViewersGroupName = GrouperConfig.retrieveConfig().propertyValueString("grouperPrivacyRealm." + configId + ".privacyRealmViewersGroupName");
+    
+    this.privacyRealmUpdatersGroupName = GrouperConfig.retrieveConfig().propertyValueString("grouperPrivacyRealm." + configId + ".privacyRealmUpdatersGroupName");
+
+    this.privacyRealmReadersGroupName = GrouperConfig.retrieveConfig().propertyValueString("grouperPrivacyRealm." + configId + ".privacyRealmReadersGroupName");
     
   }
   
@@ -61,5 +69,21 @@ public class GrouperPrivacyRealmConfig {
   public String getPrivacyRealmViewersGroupName() {
     return privacyRealmViewersGroupName;
   }
+
+
+  
+  public String getPrivacyRealmUpdatersGroupName() {
+    return privacyRealmUpdatersGroupName;
+  }
+
+
+  
+  public String getPrivacyRealmReadersGroupName() {
+    return privacyRealmReadersGroupName;
+  }
+  
+  
+  
+  
   
 }

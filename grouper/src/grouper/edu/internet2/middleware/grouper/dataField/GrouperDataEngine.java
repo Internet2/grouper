@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -8,18 +9,32 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.subject.Subject;
 
 public class GrouperDataEngine {
 
   private Map<String, Object> debugMap = new LinkedHashMap<>();
   
+  private static final ExpirableCache<MultiKey, String> highestLevelAccessForPrivacyRealmSubject = new ExpirableCache<MultiKey, String>(2);
   
   
+  protected static void clearHighestLevelCache() {
+    highestLevelAccessForPrivacyRealmSubject.clear();
+  }
   
   public Map<String, Object> getDebugMap() {
     return debugMap;
@@ -623,4 +638,120 @@ public class GrouperDataEngine {
   }
   
   
+  public static String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject loggedInSubject) {
+    
+    MultiKey multiKey = new MultiKey(grouperPrivacyRealmConfig.getConfigId(), loggedInSubject.getId());
+    if (highestLevelAccessForPrivacyRealmSubject.get(multiKey) != null) {
+      return highestLevelAccessForPrivacyRealmSubject.get(multiKey);
+    }
+    
+    String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
+    String updatersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmUpdatersGroupName();
+    String readersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmReadersGroupName();
+    boolean canSysadminsAccess = grouperPrivacyRealmConfig.isPrivacyRealmSysadminsCanView();
+    
+    String highestLevelAccess = "";
+    if (canSysadminsAccess) {
+       if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+         highestLevelAccess = "update";
+       } else if (PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+         highestLevelAccess = "read";
+       } else if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(loggedInSubject)) {
+         highestLevelAccess = "view";
+       } 
+    }
+    
+    if (!highestLevelAccess.equals("update")) {
+      //we need to check access only if it's not highest otherwise what's the point. 
+      // user already has the max access
+      
+      if (StringUtils.isNotBlank(updatersGroupName)) {
+        Group updaterGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return GroupFinder.findByName(grouperSession, updatersGroupName, true);
+          }
+        });
+        
+        if (updaterGroup.hasMember(loggedInSubject)) {
+          highestLevelAccess = "update";
+        }
+      }
+      
+      if ((highestLevelAccess.equals("") || highestLevelAccess.equals("view")) && StringUtils.isNotBlank(readersGroupName)) {
+        Group readerGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return GroupFinder.findByName(grouperSession, readersGroupName, true);
+          }
+        });
+        
+        if (readerGroup.hasMember(loggedInSubject)) {
+          highestLevelAccess = "read";
+        }
+      }
+      
+      if (highestLevelAccess.equals("") && StringUtils.isNotBlank(viewersGroupName)) {
+        Group viewerGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            return GroupFinder.findByName(grouperSession, viewersGroupName, true);
+          }
+        });
+        
+        if (viewerGroup.hasMember(loggedInSubject)) {
+          highestLevelAccess = "view";
+        }
+      }
+      
+    }
+    
+    highestLevelAccessForPrivacyRealmSubject.put(multiKey, highestLevelAccess);
+    return highestLevelAccess;
+  }
+  
+  public List<GrouperDataFieldConfig> retrieveGrouperDataFieldsForDataFieldAndDictionary(Subject loggedInSubject) {
+    
+    List<GrouperDataFieldConfig> result = new ArrayList<>();
+    
+    for (String configId : fieldConfigByConfigId.keySet()) {
+      
+      GrouperDataFieldConfig dataFieldConfig = fieldConfigByConfigId.get(configId);
+      
+      GrouperDataFieldStructure fieldDataStructure = dataFieldConfig.getFieldDataStructure();
+      if (fieldDataStructure == null || fieldDataStructure != GrouperDataFieldStructure.rowColumn) {
+        
+        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+        String highestLevelAccess = calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        if (StringUtils.isNotBlank(highestLevelAccess)) {
+          result.add(dataFieldConfig);
+        }
+      }
+    }
+    return result;
+  }
+
+  
+  public List<GrouperDataRowConfig> retrieveGrouperDataRowsForDataFieldAndDictionary(Subject loggedInSubject) {
+    
+    List<GrouperDataRowConfig> result = new ArrayList<>();
+    
+    for (String configId : rowConfigByConfigId.keySet()) {
+      
+      GrouperDataRowConfig dataRowConfig = rowConfigByConfigId.get(configId);
+      
+      String grouperPrivacyRealmConfigId = dataRowConfig.getPrivacyRealmName();
+      GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+      String highestLevelAccess = calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+      if (StringUtils.isNotBlank(highestLevelAccess)) {
+        result.add(dataRowConfig);
+      }
+    }
+    return result;
+  }
+
 }

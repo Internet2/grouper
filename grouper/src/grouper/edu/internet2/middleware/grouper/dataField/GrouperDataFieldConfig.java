@@ -42,6 +42,11 @@ public class GrouperDataFieldConfig {
 
     this.fieldMultiValued = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataField." + configId + ".fieldMultiValued", false);
     
+    this.descriptionHtml = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataField." + configId + ".descriptionHtml");
+    this.dataOwnerHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".dataOwnerHtml");
+    this.howToGetAccessHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".howToGetAccessHtml");
+    this.zeroToManyExamplesHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".zeroToManyExamplesHtml");
+    
   }
   
   private String configId;
@@ -90,6 +95,30 @@ public class GrouperDataFieldConfig {
    * # grouperDataField.dataFieldConfigId.fieldDataStructure = 
    */
   private GrouperDataFieldStructure fieldDataStructure;
+  
+  /**
+   * # Description html
+   * # {valueType: "string", required: true, regex: "^dataRowConfigId\\.[^.]+\\.descriptionHtml$", formElement: "textarea"}
+   */
+  private String descriptionHtml;
+  
+  /**
+   * # Data owner html
+   * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.dataOwnerHtml$", formElement: "textarea"}
+   */
+  private String dataOwnerHtml;
+  
+  /**
+   * # How to get access html
+   * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.howToGetAccessHtml$", formElement: "textarea"}
+   */
+  private String howToGetAccessHtml;
+  
+  /**
+   * # Zero to many examples html
+   * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.zeroToManyExamplesHtml$", formElement: "textarea"}
+   */
+  private String zeroToManyExamplesHtml;
 
   /**
    * aliases that this field is referred to as
@@ -171,5 +200,44 @@ public class GrouperDataFieldConfig {
     this.fieldDataStructure = fieldDataStructure;
   }
 
+  
+  public String getDescriptionHtml() {
+    return descriptionHtml;
+  }
+
+  
+  public void setDescriptionHtml(String descriptionHtml) {
+    this.descriptionHtml = descriptionHtml;
+  }
+
+  
+  public String getDataOwnerHtml() {
+    return dataOwnerHtml;
+  }
+
+  
+  public void setDataOwnerHtml(String dataOwnerHtml) {
+    this.dataOwnerHtml = dataOwnerHtml;
+  }
+
+  
+  public String getHowToGetAccessHtml() {
+    return howToGetAccessHtml;
+  }
+
+  
+  public void setHowToGetAccessHtml(String howToGetAccessHtml) {
+    this.howToGetAccessHtml = howToGetAccessHtml;
+  }
+
+  
+  public String getZeroToManyExamplesHtml() {
+    return zeroToManyExamplesHtml;
+  }
+
+  
+  public void setZeroToManyExamplesHtml(String zeroToManyExamplesHtml) {
+    this.zeroToManyExamplesHtml = zeroToManyExamplesHtml;
+  }
 
 }
