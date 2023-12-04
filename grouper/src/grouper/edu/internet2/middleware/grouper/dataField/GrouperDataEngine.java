@@ -640,7 +640,7 @@ public class GrouperDataEngine {
   
   public static String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject loggedInSubject) {
     
-    MultiKey multiKey = new MultiKey(grouperPrivacyRealmConfig.getConfigId(), loggedInSubject.getId());
+    MultiKey multiKey = new MultiKey(grouperPrivacyRealmConfig.getConfigId(), loggedInSubject.getId(), loggedInSubject.getSourceId());
     if (highestLevelAccessForPrivacyRealmSubject.get(multiKey) != null) {
       return highestLevelAccessForPrivacyRealmSubject.get(multiKey);
     }

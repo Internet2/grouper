@@ -1153,6 +1153,7 @@ public class UiV2GrouperLoader {
           GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
           
           grouperDataEngine.loadFieldsAndRows(grouperConfig);
+          
 
           String errorMessage = GrouperAbac.validScript(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), grouperDataEngine);
           if (!StringUtils.isBlank(errorMessage)) {
@@ -1160,6 +1161,11 @@ public class UiV2GrouperLoader {
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptInvalid")
                 + "<br />" + StringUtils.replace(GrouperUtil.xmlEscape(errorMessage), "\n", "<br />")));
             hasError = true;
+          }
+          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject);
+          if (jexlScriptAnalysis != null && 
+              (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
+            throw new RuntimeException("not allowed");
           }
         }
 
