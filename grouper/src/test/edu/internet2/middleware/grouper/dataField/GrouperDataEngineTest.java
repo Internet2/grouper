@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
+import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
@@ -65,9 +66,11 @@ public class GrouperDataEngineTest extends GrouperTest {
     GrouperDataEngine.clearHighestLevelCache();
     Group sysadminViewersGroup = new GroupSave(grouperSession).assignName("test:sysadminViewersGroup").assignCreateParentStemsIfNotExist(true).save();
     
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.group", sysadminViewersGroup.getName());
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.configId.privacyRealmSysadminsCanView").value("true").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("groups.wheel.viewonly.group").value(sysadminViewersGroup.getName()).store();
     sysadminViewersGroup.addMember(SubjectTestHelper.SUBJ0);
+    privacyRealmConfig.readFromConfig("configId");
     
     highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("update", highestLevelAccess); // highest level access should still be update because 
@@ -76,7 +79,9 @@ public class GrouperDataEngineTest extends GrouperTest {
     Group sysadminReadersGroup = new GroupSave(grouperSession).assignName("test:sysadminReadersGroup").assignCreateParentStemsIfNotExist(true).save();
     
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.configId.privacyRealmSysadminsCanView").value("true").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("groups.wheel.readonly.group").value(sysadminReadersGroup.getName()).store();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.group", sysadminReadersGroup.getName());
+    
     sysadminReadersGroup.addMember(SubjectTestHelper.SUBJ0);
     
     highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
@@ -86,11 +91,28 @@ public class GrouperDataEngineTest extends GrouperTest {
     Group sysadminGroup = new GroupSave(grouperSession).assignName("test:sysadminGroup").assignCreateParentStemsIfNotExist(true).save();
     
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperPrivacyRealm.configId.privacyRealmSysadminsCanView").value("true").store();
-    new GrouperDbConfig().configFileName("grouper.properties").propertyName("groups.wheel.group").value(sysadminGroup.getName()).store();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", sysadminGroup.getName());
     sysadminGroup.addMember(SubjectTestHelper.SUBJ0);
     
     highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ0);
     assertEquals("update", highestLevelAccess); // highest level access should still be update
+    
+    //let's start with a new user subj1 and add them to only sysadmin viewers group
+    GrouperDataEngine.clearHighestLevelCache();
+    sysadminViewersGroup.addMember(SubjectTestHelper.SUBJ1);
+    highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ1);
+    assertEquals("view", highestLevelAccess);
+    
+    GrouperDataEngine.clearHighestLevelCache();
+    sysadminReadersGroup.addMember(SubjectTestHelper.SUBJ1);
+    highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ1);
+    assertEquals("read", highestLevelAccess);
+    
+    GrouperDataEngine.clearHighestLevelCache();
+    sysadminGroup.addMember(SubjectTestHelper.SUBJ1);
+    highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(privacyRealmConfig, SubjectTestHelper.SUBJ1);
+    assertEquals("update", highestLevelAccess);
     
   }
 
