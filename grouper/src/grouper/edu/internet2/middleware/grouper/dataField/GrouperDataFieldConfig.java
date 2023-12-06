@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.dataField;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -31,6 +32,8 @@ public class GrouperDataFieldConfig {
     this.fieldAliases = GrouperUtil.splitTrimToSet(fieldAliasesString, ",");
 
     this.grouperPrivacyRealmConfigId = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldPrivacyRealm");
+
+    this.fieldDataAssignableTo = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldDataAssignableTo");
     
     String fieldDataStructureString = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".fieldDataStructure", "attribute");
     GrouperDataFieldStructure grouperDataFieldStructure = GrouperDataFieldStructure.valueOfIgnoreCase(fieldDataStructureString, true);
@@ -56,14 +59,24 @@ public class GrouperDataFieldConfig {
     return configId;
   }
 
-  
   public void setConfigId(String configId) {
     this.configId = configId;
   }
   
   private String grouperPrivacyRealmConfigId; 
   
+  private String fieldDataAssignableTo;
   
+  
+  public String getFieldDataAssignableTo() {
+    return fieldDataAssignableTo;
+  }
+
+  
+  public void setFieldDataAssignableTo(String fieldDataAssignableTo) {
+    this.fieldDataAssignableTo = fieldDataAssignableTo;
+  }
+
   public String getGrouperPrivacyRealmConfigId() {
     return grouperPrivacyRealmConfigId;
   }
@@ -73,7 +86,7 @@ public class GrouperDataFieldConfig {
    * {valueType: "string", required: true, multiple: true, regex: "^grouperDataField\\.[^.]+\\.fieldAliases$"}
    * grouperDataField.dataFieldConfigId.fieldAliases = 
    */
-  private Set<String> fieldAliases = new HashSet<>();
+  private Set<String> fieldAliases = new TreeSet<>();
   
   /**
    * # if this field can have multiple values

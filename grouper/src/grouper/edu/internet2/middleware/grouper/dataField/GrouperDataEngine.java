@@ -638,9 +638,9 @@ public class GrouperDataEngine {
   }
   
   
-  public static String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject loggedInSubject) {
+  public static String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject subject) {
     
-    MultiKey multiKey = new MultiKey(grouperPrivacyRealmConfig.getConfigId(), loggedInSubject.getId(), loggedInSubject.getSourceId());
+    MultiKey multiKey = new MultiKey(grouperPrivacyRealmConfig.getConfigId(), subject.getId(), subject.getSourceId());
     if (highestLevelAccessForPrivacyRealmSubject.get(multiKey) != null) {
       return highestLevelAccessForPrivacyRealmSubject.get(multiKey);
     }
@@ -652,11 +652,11 @@ public class GrouperDataEngine {
     
     String highestLevelAccess = "";
     if (canSysadminsAccess) {
-       if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+       if (PrivilegeHelper.isWheelOrRoot(subject)) {
          highestLevelAccess = "update";
-       } else if (PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+       } else if (PrivilegeHelper.isWheelOrRootOrReadonlyRoot(subject)) {
          highestLevelAccess = "read";
-       } else if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(loggedInSubject)) {
+       } else if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(subject)) {
          highestLevelAccess = "view";
        } 
     }
@@ -674,7 +674,7 @@ public class GrouperDataEngine {
           }
         });
         
-        if (updaterGroup.hasMember(loggedInSubject)) {
+        if (updaterGroup.hasMember(subject)) {
           highestLevelAccess = "update";
         }
       }
@@ -688,7 +688,7 @@ public class GrouperDataEngine {
           }
         });
         
-        if (readerGroup.hasMember(loggedInSubject)) {
+        if (readerGroup.hasMember(subject)) {
           highestLevelAccess = "read";
         }
       }
@@ -702,7 +702,7 @@ public class GrouperDataEngine {
           }
         });
         
-        if (viewerGroup.hasMember(loggedInSubject)) {
+        if (viewerGroup.hasMember(subject)) {
           highestLevelAccess = "view";
         }
       }
@@ -713,25 +713,36 @@ public class GrouperDataEngine {
     return highestLevelAccess;
   }
   
-  public List<GrouperDataFieldConfig> retrieveGrouperDataFieldsForDataFieldAndDictionary(Subject loggedInSubject) {
+  public MultiKey retrieveGrouperDataFieldsForDataFieldAndDictionary(Subject subject, String fieldDataAssignableToArg) {
     
-    List<GrouperDataFieldConfig> result = new ArrayList<>();
-    
+    List<GrouperDataFieldConfig> dataFieldConfigs = new ArrayList<>();
+    boolean hasAccess = true;
+
     for (String configId : fieldConfigByConfigId.keySet()) {
       
       GrouperDataFieldConfig dataFieldConfig = fieldConfigByConfigId.get(configId);
       
+      String fieldDataAssignableTo = GrouperUtil.defaultIfBlank(dataFieldConfig.getFieldDataAssignableTo(), "individuals");
+      
+      if (!StringUtils.equals(fieldDataAssignableToArg, fieldDataAssignableTo)) {
+        continue;
+      }
+      
       GrouperDataFieldStructure fieldDataStructure = dataFieldConfig.getFieldDataStructure();
+      
       if (fieldDataStructure == null || fieldDataStructure != GrouperDataFieldStructure.rowColumn) {
         
         String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
         GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
-        String highestLevelAccess = calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        String highestLevelAccess = calculateHighestLevelAccess(grouperPrivacyRealmConfig, subject);
         if (StringUtils.isNotBlank(highestLevelAccess)) {
-          result.add(dataFieldConfig);
+          dataFieldConfigs.add(dataFieldConfig);
+        } else {
+          hasAccess = false;
         }
       }
     }
+    MultiKey result = new MultiKey(dataFieldConfigs, hasAccess);
     return result;
   }
 

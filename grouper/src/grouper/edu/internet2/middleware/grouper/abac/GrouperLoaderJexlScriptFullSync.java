@@ -194,7 +194,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           if (StringUtils.equals(highestLevelAccess, "read")) {
             String warningMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy");
             grouperJexlScriptAnalysis.setWarningMessage(warningMessage + " '"+attributeAlias + "'");
-          } else if (StringUtils.equals(highestLevelAccess, "view")) {
+          } else if (StringUtils.equals(highestLevelAccess, "") || StringUtils.equals(highestLevelAccess, "view")) {
             String errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute");
             grouperJexlScriptAnalysis.setErrorMessage(errorMessage + " '"+attributeAlias + "'");
             return grouperJexlScriptAnalysis;

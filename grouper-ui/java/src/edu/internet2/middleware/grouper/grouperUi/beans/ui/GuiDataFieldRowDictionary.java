@@ -16,6 +16,10 @@ public class GuiDataFieldRowDictionary {
   private String howToGetAccess;
   
   private String examples;
+  
+  private String valueType;
+  
+  private boolean multiValued;
 
   
   public String getDataFieldAliases() {
@@ -86,8 +90,22 @@ public class GuiDataFieldRowDictionary {
   public void setExamples(String examples) {
     this.examples = examples;
   }
+
+  public String getValueType() {
+    return valueType;
+  }
+
+  public void setValueType(String valueType) {
+    this.valueType = valueType;
+  }
   
+  public boolean isMultiValued() {
+    return multiValued;
+  }
   
-  
+  public void setMultiValued(boolean multiValued) {
+    this.multiValued = multiValued;
+  }
+
 
 }

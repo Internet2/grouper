@@ -20,38 +20,40 @@
 </div>
 
 <div class="row-fluid">
-      
+     
+     <c:set var="j" value="0" />
      <c:forEach items="${grouperRequestContainer.entityDataFieldsContainer.guiDataFieldRowDictionaryTables}" var="guiDataFieldRowDictionaryTable">
       
-      <c:if test="${!grouper:isBlank(guiDataFieldRowDictionaryTable.dataRowAlias)}">
-        
-         <div class="row-fluid">
-            <div class="span12">
-                <div class="control-group">
-                  <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryHeaderDataFieldAliases'] }: </label>
-                  <span>${guiDataFieldRowDictionaryTable.dataRowAlias}</span>
-                </div>
-                
-                <div class="control-group">
-                  <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryHeaderDescription'] }: </label>
-                  <span>${guiDataFieldRowDictionaryTable.description}</span>
-                </div>
-                
-                <div class="control-group">
-                  <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryHeaderDataOwner'] }: </label>
-                  <span>${guiDataFieldRowDictionaryTable.dataOwner}</span>
-                </div>
-                
-                <div class="control-group">
-                  <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryHeaderHowToGetAccess']}: </label>
-                  <span>${guiDataFieldRowDictionaryTable.howToGetAccess}</span>
-                </div>
-                
-           </div>
-         </div>
-        
-      </c:if>
+      <div class="row-fluid">
+         <div class="span12">
+            <div class="control-group">
+              <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryTableTitle'] }: </label>
+              <span>${guiDataFieldRowDictionaryTable.title}</span>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryTableDescription'] }: </label>
+              <span>${guiDataFieldRowDictionaryTable.description}</span>
+            </div>
+            
+            <div class="control-group">
+              <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation'] }: </label>
+              <span>${guiDataFieldRowDictionaryTable.documentation}</span>
+            </div>
+        </div>
+      </div>
       
+      <c:choose>
+        <c:when test="${guiDataFieldRowDictionaryTable.canAccess == false}">
+          ${textContainer.text['entityDataFieldRowDictionaryTableNoViewAccess']}
+        </c:when>
+
+        <c:when test="${guiDataFieldRowDictionaryTable.guiDataFieldRowDictionary.size() == 0}">
+          ${textContainer.text['entityDataFieldRowDictionaryTableNoData']}
+        </c:when>
+
+        <c:otherwise>
+        
       <table
         class="table table-hover table-bordered table-striped table-condensed data-table">
         <thead>
@@ -62,7 +64,7 @@
             <th>${textContainer.text['entityDataFieldRowDictionaryHeaderDataType']}</th>
             <th>${textContainer.text['entityDataFieldRowDictionaryHeaderDataOwner']}</th>
             <th>${textContainer.text['entityDataFieldRowDictionaryHeaderHowToGetAccess']}</th>
-            <th>${textContainer.text['entityDataFieldRowDictionaryHeaderExamples']}</th>
+            <th></th>
           </tr>
         </thead>
         <tbody>
@@ -95,14 +97,40 @@
               </td>
               
               <td style="white-space: nowrap;">
-                ${guiDataFieldRowDictionary.examples}
+                <c:if test="${guiDataFieldRowDictionaryTable.dataField}">
+                  <p>             
+                    <a href="#" onclick="$('#about-datafield-${j}-${i}').slideToggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryHeaderAboutDataField']}</a>
+                  </p>
+                  <div class="row-fluid" id="about-datafield-${j}-${i}" style="display: none;">
+                     <div class="span12">
+                        <div class="control-group">
+                          <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryValueType'] }: </label>
+                          <span>${guiDataFieldRowDictionary.valueType}</span>
+                        </div>
+                        
+                        <div class="control-group">
+                          <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryValueTypeMultivalued'] }: </label>
+                          <span>${guiDataFieldRowDictionary.multiValued}</span>
+                        </div>
+                    </div>
+                  </div>
+                </c:if>
+                <a href="#" onclick="$('#examples-${j}-${i}').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryHeaderExamples']}</a>
+                <div id="examples-${j}-${i}" style="display: none;">                
+                  ${guiDataFieldRowDictionary.examples}
+                </div>
               </td>
               </tr>
-              
+              <c:set var="i" value="${i+1}" />
          </c:forEach>
               
         </tbody>
-      </table>
-
+       </table>
+        </c:otherwise>
+        
+      </c:choose>
+      
+      <hr style="border: 1px solid black;">
+      <c:set var="j" value="${j+1}" />
      </c:forEach>
 </div>

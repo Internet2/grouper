@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.dataField;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
+import java.util.TreeSet;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -131,7 +132,7 @@ public class GrouperDataRowConfig {
    * {valueType: "string", order: 1000, subSection: "dataRowConfig", required: true, multiple: true, regex: "^grouperDataRow\\.[^.]+\\.rowAliases$"}
    * grouperDataRow.dataRowConfigId.rowAliases = 
    */
-  private Set<String> rowAliases = new HashSet<>();
+  private Set<String> rowAliases = new TreeSet<>();
   
   /**
    * privacy realm for people who can see or use this data row
