@@ -541,7 +541,7 @@ public class GshTemplateExec {
             
           }
           
-          if (success[0] == false || GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
+          if (success[0] == false || (templateVersionV1 && GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0)) {
             GshTemplateExec.this.gshTemplateExecOutput.setSuccess(false);
           } else {
             if (gshTemplateOutput.isError()) {
