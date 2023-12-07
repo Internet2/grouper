@@ -16,6 +16,11 @@
         <h4>${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</h4>
       </div>
     </div>
+    
+    <div class="row-fluid">
+      <div class="span9"> <p>${textContainer.text['dataFieldDictionaryPageDescription'] }</p></div>
+    </div>
+    
   </div>
 </div>
 
@@ -27,19 +32,22 @@
       <div class="row-fluid">
          <div class="span12">
             <div class="control-group">
-              <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryTableTitle'] }: </label>
-              <span>${guiDataFieldRowDictionaryTable.title}</span>
+              <h4>${guiDataFieldRowDictionaryTable.title}</h4>
             </div>
             
             <div class="control-group">
-              <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryTableDescription'] }: </label>
               <span>${guiDataFieldRowDictionaryTable.description}</span>
             </div>
             
-            <div class="control-group">
-              <label class="control-label" style="padding-top: 0px; display: inline;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation'] }: </label>
-              <span>${guiDataFieldRowDictionaryTable.documentation}</span>
-            </div>
+            <c:if test="${!grouper:isBlank(guiDataFieldRowDictionaryTable.documentation)}">
+              <div class="control-group">
+                 <p>             
+                    <a href="#" onclick="$('#documentation-${j}').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</a>
+                 </p>
+                <span id="documentation-${j}" style="display: none;">${guiDataFieldRowDictionaryTable.documentation}</span>
+              </div>
+            </c:if>
+            
         </div>
       </div>
       

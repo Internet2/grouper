@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.EntityDataFieldsService;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
@@ -2187,11 +2188,11 @@ public class UiV2EntityDataFields {
       }
       
       guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
-      guiDataFieldRowDictionaryTable.setTitle("Data fields assigned to entities");
-      guiDataFieldRowDictionaryTable.setDescription("These data fields are assigned directly to users in the system. They can be referenced by any of the aliases.");
-      guiDataFieldRowDictionaryTable.setDocumentation("Use this in an ABAC scripted group, e.g. ${entity.hasAttribute('aliasName')}");
-      result.add(guiDataFieldRowDictionaryTable);
+      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsTitle"));
+      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsDescription"));
+      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsDocumentation"));
       
+      result.add(guiDataFieldRowDictionaryTable);
       
       List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
       
@@ -2283,9 +2284,11 @@ public class UiV2EntityDataFields {
         fieldConfigItems.add(guiDataFieldRowDictionary);
       }
       guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
-      guiDataFieldRowDictionaryTable.setTitle("Global data fields");
-      guiDataFieldRowDictionaryTable.setDescription("These data fields are not assigned directly to users e.g. current term");
-      guiDataFieldRowDictionaryTable.setDocumentation("Use this in an ABAC scripted group");
+      
+      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalTitle"));
+      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalDescription"));
+      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalDocumentation"));
+      
       result.add(guiDataFieldRowDictionaryTable);
       
       fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "groups");
@@ -2319,9 +2322,11 @@ public class UiV2EntityDataFields {
         fieldConfigItems.add(guiDataFieldRowDictionary);
       }
       guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
-      guiDataFieldRowDictionaryTable.setTitle("Data fields assigned to groups");
-      guiDataFieldRowDictionaryTable.setDescription("These data fields are assigned to groups. e.g. a course group that is associated with a certain campus.");
-      guiDataFieldRowDictionaryTable.setDocumentation("Use this in an ABAC scripted group");
+      
+      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsTitle"));
+      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsDescription"));
+      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsDocumentation"));
+      
       result.add(guiDataFieldRowDictionaryTable);
       
       entityDataFieldsContainer.setGuiDataFieldRowDictionaryTables(result);
