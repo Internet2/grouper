@@ -25,7 +25,6 @@ import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.logging.Log;
 
 
@@ -37,7 +36,7 @@ public class MembershipFullRefreshJob implements Job, StatefulJob {
   /**
    * logger
    */
-  private static Log log = GrouperClientUtils.retrieveLog(MembershipFullRefreshJob.class);
+  private static Log log = GrouperUtil.getLog(MembershipFullRefreshJob.class);
 
   /**
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
