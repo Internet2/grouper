@@ -7,9 +7,9 @@ package edu.internet2.middleware.grouperClientExt.xmpp;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.encryption.GcEncryptionInterface;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.util.JsonUtils;
 
 
 /**
@@ -23,7 +23,7 @@ public class GcDecodeEsbEvents {
    * @return esb events
    */
   public static EsbEvents decodeEsbEvents(String json) {
-    EsbEvents esbEvents = (EsbEvents)JsonUtils.jsonConvertFrom(json, EsbEvents.class);
+    EsbEvents esbEvents = GrouperUtil.jsonConvertFrom(json, EsbEvents.class);
     return esbEvents;
   }
 

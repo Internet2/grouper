@@ -46,9 +46,6 @@ import edu.internet2.middleware.grouper.util.versioningV1.BeanB;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
 
 
 /**
@@ -62,7 +59,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testJson"));
+    TestRunner.run(new GrouperUtilTest("testConvertJson"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     
@@ -976,31 +973,12 @@ public class GrouperUtilTest extends GrouperTest {
     assertEquals("\n\nExpected:\n" + expected + "\n\nresult:\n" + indented + "\n\n", expected, indented);
   }
   
-  private static JsonConfig jsonConfig = new JsonConfig();  
-  
-  static {
-  
-    jsonConfig.setJsonPropertyFilter( new PropertyFilter() {
-      
-      public boolean apply(Object source, String name, Object value) {
-        if( value != null && value instanceof Map ){
-          Map map = (Map)value;
-          if (map.size() > 0 && !(map.keySet().iterator().next() instanceof String)) {
-            return true;
-          }
-        }  
-        return false;
-      }
-    });
-  }
-  
   /**
    * 
    */
   public void testConvertJson() {
     Source isa = SourceManager.getInstance().getSource("g:isa");
-    JSONObject jsonObject = net.sf.json.JSONObject.fromObject(isa, jsonConfig);  
-    String json = jsonObject.toString();
+    String json = GrouperUtil.jsonConvertTo(isa, false);
     System.out.println(json);
   }
   

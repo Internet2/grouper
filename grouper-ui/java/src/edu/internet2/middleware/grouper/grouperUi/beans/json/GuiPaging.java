@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -31,6 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 @SuppressWarnings("serial")
 public class GuiPaging implements Serializable {
 
+  
   /** page size */
   private int pageSize;
   
@@ -48,7 +50,26 @@ public class GuiPaging implements Serializable {
    * text to display after the page count (e.g. Showing 1-2 of 3 <here>)
    */
   private String textAfterPageCount;
-  
+
+  /** constant for field name for: pageNumber */
+  public static final String FIELD_PAGE_NUMBER = "pageNumber";
+
+  /** constant for field name for: pageSize */
+  public static final String FIELD_PAGE_SIZE = "pageSize";
+
+  /** constant for field name for: textAfterPageCount */
+  public static final String FIELD_TEXT_AFTER_PAGE_COUNT = "textAfterPageCount";
+
+  /** constant for field name for: textAfterPageCount */
+  public static final String TOTAL_RECORD_COUNT = "textAfterPageCount";
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_PAGE_NUMBER, FIELD_PAGE_SIZE, FIELD_TEXT_AFTER_PAGE_COUNT, TOTAL_RECORD_COUNT);
+
+
   /**
    * query paging bean
    * @return query paging bean
@@ -168,5 +189,13 @@ public class GuiPaging implements Serializable {
    */
   public void setTextAfterPageCount(String textAfterPageCount) {
     this.textAfterPageCount = textAfterPageCount;
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public GuiPaging clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
 }

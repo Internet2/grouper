@@ -1435,7 +1435,8 @@ public class RelationGraph {
       String prov_to = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":pspng:provision_to";
       provisionToPspngAttributeDefName = AttributeDefNameFinder.findByNameAsRoot(prov_to, true);
     } catch (AttributeDefNameNotFoundException e) {
-      LOG.warn("Unable to retrieve PSPNG provision_to attribute; results will not include provisioning relationships", e);
+      // this is not auto created
+      LOG.info("Unable to retrieve PSPNG provision_to attribute; results will not include provisioning relationships", e);
     }
 
     try {

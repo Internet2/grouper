@@ -1236,9 +1236,8 @@ public class GrouperHttpClient {
       // do the logging
       try {
         GrouperHttpClientLog grouperHttpCallLog = threadLocalLog.get();
-        if (grouperHttpCallLog != null) {
-          
-          StringBuilder theLog = grouperHttpCallLog.getLog();
+        if (grouperHttpCallLog != null || LOG.isDebugEnabled()) {
+          StringBuilder theLog = new StringBuilder();
           theLog.append("HTTP method: ").append(this.grouperHttpMethod).append("\n");
           if (!this.getDoNotLogHeaders().contains("URL") && !this.getDoNotLogHeaders().contains("*")) {
             theLog.append("HTTP URL: ").append(this.url).append("\n");
@@ -1300,6 +1299,13 @@ public class GrouperHttpClient {
               .append(this.responseFile == null ? "null" : this.responseFile.length()).append("\n");
           }
           
+          if (LOG.isDebugEnabled()) {
+            LOG.debug(theLog.toString());
+          }
+          if (grouperHttpCallLog != null) {
+            grouperHttpCallLog.getLog().append(theLog.toString());
+          }
+
         }
       } catch (Exception e) {
         LOG.error("error in http logging", e);

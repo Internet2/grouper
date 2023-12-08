@@ -40,7 +40,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Junction;
 import org.hibernate.criterion.Restrictions;
@@ -48,6 +47,8 @@ import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.matchers.GroupMatcher;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -90,8 +91,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
 
 /**
  * main logic for ui
@@ -979,7 +978,7 @@ public class UiV2Admin extends UiServiceLogicBase {
 
     List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byCriteriaStatic().options(queryOptions).list(Hib3GrouperLoaderLog.class, allCriteria);
 
-    JSONArray ganttJobs = new JSONArray();
+    ArrayNode ganttJobs = GrouperUtil.jsonJacksonArrayNode();
 
     //add to the ordered array based on the first occurrence of the task, so it will be ordered by start time
     Set<String> ganttJobNameSet = new HashSet<>();
@@ -1041,7 +1040,7 @@ public class UiV2Admin extends UiServiceLogicBase {
 
       ganttJob.put("tooltip", tooltipBuilder.toString());
 
-      ganttJobs.add(ganttJob);
+      ganttJobs.addPOJO(ganttJob);
       if (!ganttJobNameSet.contains(jobShortName)) {
         ganttJobNameList.add(jobShortName);
       }
@@ -1061,14 +1060,11 @@ public class UiV2Admin extends UiServiceLogicBase {
 
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", "/WEB-INF/grouperUi2/admin/adminJobHistoryChart.jsp"));
 
-    JSONArray jsonGanttTasks = JSONArray.fromObject(ganttJobs);
-    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryTasks", jsonGanttTasks.toString()));
+    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryTasks", ganttJobs));
 
-    JSONArray jsonGanttTaskNames = JSONArray.fromObject(ganttJobNameList);
-    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryTaskNames", jsonGanttTaskNames.toString()));
+    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryTaskNames", ganttJobNameList));
 
-    JSONObject jsonJobHistorySettings = JSONObject.fromObject(jobHistorySettings);
-    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryChartSettings", jsonJobHistorySettings.toString()));
+    guiResponseJs.addAction(GuiScreenAction.newAssign("jobHistoryChartSettings", jobHistorySettings));
 
     guiResponseJs.addAction(GuiScreenAction.newScript("jobHistoryChartInit()"));
 

@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.ws.poc;
 
+import com.fasterxml.jackson.annotation.JacksonAnnotation;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
  * poc class for groups
@@ -28,7 +30,7 @@ public class XstreamPocGroup {
   /**
    * 
    */
-  @SuppressWarnings("unused")
+  @JsonIgnore
   private String somethingNotMarshaled = "whatever";
   
   /**
@@ -42,6 +44,7 @@ public class XstreamPocGroup {
   /**
    * dont marhsal this
    */
+  @JsonIgnore
   private transient int dontSerializeInt;
   
   /**

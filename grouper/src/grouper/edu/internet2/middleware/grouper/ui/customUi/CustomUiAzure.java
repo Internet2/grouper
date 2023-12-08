@@ -12,6 +12,9 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -25,9 +28,6 @@ import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.morphString.Morph;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectUtils;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONNull;
-import net.sf.json.JSONObject;
 
 
 /**
@@ -117,9 +117,9 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
         throw new RuntimeException("Cant get access token from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
-      long expiresOn = GrouperUtil.longValue(jsonObject.getString("expires_on"));
-      String accessToken = jsonObject.getString("access_token");
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
+      long expiresOn = GrouperUtil.jsonJacksonGetLong(jsonObject, "expires_on");
+      String accessToken = GrouperUtil.jsonJacksonGetString(jsonObject, "access_token");
   
       expiresOnAndEncryptedBearerToken = new MultiKey(expiresOn, Morph.encrypt(accessToken));
       configKeyToExpiresOnAndBearerToken.put(configId, expiresOnAndEncryptedBearerToken);
@@ -223,11 +223,11 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
         throw new RuntimeException("Cant get group from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
-      JSONArray jsonArray = jsonObject.has("value") ? jsonObject.getJSONArray("value") : null;
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
+      ArrayNode jsonArray = GrouperUtil.jsonJacksonGetArrayNode(jsonObject, "value");
       if (jsonArray != null && jsonArray.size() >= 1) {
-        jsonObject = (JSONObject)jsonArray.get(0);
-        return azureGroupId.equals(jsonObject.getString("id"));
+        jsonObject = jsonArray.get(0);
+        return azureGroupId.equals(GrouperUtil.jsonJacksonGetString(jsonObject, "id"));
       }
   
       return false;
@@ -364,7 +364,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
         throw new RuntimeException("Cant get user license details from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "@odata.context":"https://graph.microsoft.com/beta/$metadata#users('sabinic%40upenn.edu')/licenseDetails",
@@ -398,16 +398,16 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       // } 
       Set<String> servicePlansSet = new TreeSet<String>();
       result.put("servicePlans", servicePlansSet);
-      JSONArray valueArray = jsonObject.containsKey("value") ? jsonObject.getJSONArray("value") : new JSONArray();
-      for (int i=0;i<valueArray.size();i++) {
-        jsonObject = valueArray.getJSONObject(i);
+      ArrayNode valueArray = GrouperUtil.jsonJacksonGetArrayNode(jsonObject, "value");
+      for (int i=0;valueArray != null && i<valueArray.size();i++) {
+        jsonObject = valueArray.get(i);
       
-        JSONArray servicePlansJsonArray = (jsonObject != null && jsonObject.containsKey("servicePlans")) ? jsonObject.getJSONArray("servicePlans") : new JSONArray();
+        ArrayNode servicePlansJsonArray = GrouperUtil.jsonJacksonGetArrayNode(jsonObject, "servicePlans");
         
-        for (int j=0;j<servicePlansJsonArray.size();j++) {
-          JSONObject servicePlan = servicePlansJsonArray.getJSONObject(j);
-          if ("Success".equals(servicePlan.getString("provisioningStatus"))) {
-            servicePlansSet.add(servicePlan.getString("servicePlanName"));
+        for (int j=0;servicePlansJsonArray != null && j<servicePlansJsonArray.size();j++) {
+          JsonNode servicePlan = servicePlansJsonArray.get(j);
+          if ("Success".equals(GrouperUtil.jsonJacksonGetString(servicePlan, "provisioningStatus"))) {
+            servicePlansSet.add(GrouperUtil.jsonJacksonGetString(servicePlan, "servicePlanName"));
           }
         }
     
@@ -517,12 +517,12 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
         throw new RuntimeException("Cant get user from '" + url + "' " + json);
       }
       
-      JSONObject jsonObject = JSONObject.fromObject(json);
+      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
       
       //  {
       //    "@odata.context":"https://graph.microsoft.com/v1.0/$metadata#users(accountEnabled,assignedPlans,mail,onPremisesImmutableId,onPremisesLastSyncDateTime,onPremisesSamAccountName,proxyAddresses,showInAddressList,userPrincipalName,userType,provisionedPlans)/$entity",
       //    "accountEnabled":true,
-      result.put("accountEnabled",(jsonObject.containsKey("accountEnabled") && !(jsonObject.get("accountEnabled") instanceof JSONNull)) ? jsonObject.getBoolean("accountEnabled") : false );
+      result.put("accountEnabled",GrouperUtil.jsonJacksonGetBoolean(jsonObject, "accountEnabled", false));
       
       //    "assignedPlans":[
       //       {
@@ -551,16 +551,16 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
 //      }
 
       //    "mail":"mchyzer@isc.upenn.edu",
-      result.put("mail", jsonObject.getString("mail"));
+      result.put("mail", GrouperUtil.jsonJacksonGetString(jsonObject, "mail"));
 
       //    "onPremisesImmutableId":"10021368",
-      result.put("onPremisesImmutableId", jsonObject.getString("onPremisesImmutableId"));
+      result.put("onPremisesImmutableId", GrouperUtil.jsonJacksonGetString(jsonObject, "onPremisesImmutableId"));
 
       //    "onPremisesLastSyncDateTime":"2020-04-03T15:52:41Z",
-      result.put("onPremisesLastSyncDateTime", jsonObject.getString("onPremisesLastSyncDateTime"));
+      result.put("onPremisesLastSyncDateTime", GrouperUtil.jsonJacksonGetString(jsonObject, "onPremisesLastSyncDateTime"));
 
       //    "onPremisesSamAccountName":"mchyzer",
-      result.put("onPremisesSamAccountName", jsonObject.getString("onPremisesSamAccountName"));
+      result.put("onPremisesSamAccountName", GrouperUtil.jsonJacksonGetString(jsonObject, "onPremisesSamAccountName"));
 
       //    "proxyAddresses":[
       //       "SMTP:mchyzer@isc.upenn.edu",
@@ -569,10 +569,10 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       {
         Set<String> proxyAddressesSet = new TreeSet<String>();
         result.put("proxyAddresses", proxyAddressesSet);
-        JSONArray proxyAddressesJsonArray = jsonObject.containsKey("proxyAddresses") ? jsonObject.getJSONArray("proxyAddresses") : new JSONArray();
+        ArrayNode proxyAddressesJsonArray = GrouperUtil.jsonJacksonGetArrayNode(jsonObject, "proxyAddresses");
         
-        for (int i=0;i<proxyAddressesJsonArray.size();i++) {
-          String listing = proxyAddressesJsonArray.getString(i);
+        for (int i=0;proxyAddressesJsonArray != null && i<proxyAddressesJsonArray.size();i++) {
+          String listing = GrouperUtil.jsonJacksonGetString(proxyAddressesJsonArray, i);
           // might be upper or lower
           if (listing.toLowerCase().startsWith("smtp:")) {
             listing = listing.substring("smtp:".length(), listing.length());
@@ -584,15 +584,15 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       
 
       //    "showInAddressList":true,
-      result.put("showInAddressList", (jsonObject.containsKey("showInAddressList") && !(jsonObject.get("showInAddressList") instanceof JSONNull)) ? jsonObject.getBoolean("showInAddressList") : false);
+      result.put("showInAddressList", GrouperUtil.jsonJacksonGetBoolean(jsonObject, "showInAddressList", false));
 
       //   userType,provisionedPlans
 
       //    "userPrincipalName":"mchyzer@upenn.edu",
-      result.put("userPrincipalName", jsonObject.getString("userPrincipalName"));
+      result.put("userPrincipalName", GrouperUtil.jsonJacksonGetString(jsonObject, "userPrincipalName"));
 
       //    "userType":"Member",
-      result.put("userType", jsonObject.getString("userType"));
+      result.put("userType", GrouperUtil.jsonJacksonGetString(jsonObject, "userType"));
 
       //    "provisionedPlans":[
       //       {
@@ -728,11 +728,11 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
         }
       } else {
         
-        JSONObject jsonObject = JSONObject.fromObject(json);
-        JSONArray jsonArray = jsonObject.has("value") ? jsonObject.getJSONArray("value") : null;
+        JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
+        ArrayNode jsonArray = GrouperUtil.jsonJacksonGetArrayNode(jsonObject, "value");
         if (jsonArray != null && jsonArray.size() == 1) {
-          jsonObject = (JSONObject)jsonArray.get(0);
-          return jsonObject.getString("id");
+          jsonObject = jsonArray.get(0);
+          return GrouperUtil.jsonJacksonGetString(jsonObject, "id");
         }
       }
   

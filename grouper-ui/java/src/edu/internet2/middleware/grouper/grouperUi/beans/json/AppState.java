@@ -18,22 +18,47 @@ package edu.internet2.middleware.grouper.grouperUi.beans.json;
 import java.io.Serializable;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 
 import javax.servlet.http.HttpServletRequest;
-
-import net.sf.ezmorph.bean.BeanMorpher;
-import net.sf.json.util.JSONUtils;
 
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
  * AppState object comes from javascript on ajax requests
  */
 @SuppressWarnings("serial")
 public class AppState implements Serializable {
+
+  /** constant for field name for: hideShows */
+  public static final String FIELD_HIDE_SHOWS = "hideShows";
+
+  /** constant for field name for: initted */
+  public static final String FIELD_INITTED = "initted";
+
+  /** constant for field name for: inittedSimpleMembershipUpdate */
+  public static final String FIELD_INITTED_SIMPLE_MEMBERSHIP_UPDATE = "inittedSimpleMembershipUpdate";
+
+  /** constant for field name for: pagers */
+  public static final String FIELD_PAGERS = "pagers";
+
+  /** constant for field name for: urlArgObjects */
+  public static final String FIELD_URL_ARG_OBJECTS = "urlArgObjects";
+
+  /** constant for field name for: urlInCache */
+  public static final String FIELD_URL_IN_CACHE = "urlInCache";
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_HIDE_SHOWS, FIELD_INITTED, FIELD_INITTED_SIMPLE_MEMBERSHIP_UPDATE, 
+      FIELD_PAGERS, FIELD_URL_ARG_OBJECTS, FIELD_URL_IN_CACHE);
+
 
   /** if simple membership update is initted */
   private boolean inittedSimpleMembershipUpdate;
@@ -146,16 +171,15 @@ public class AppState implements Serializable {
     {
       //save screen state of all the hide shows which are in session
       Map<String, GuiHideShow> appStateHideShows = this.getHideShows();
-      
-      BeanMorpher beanMorpher = new BeanMorpher(GuiHideShow.class, JSONUtils.getMorpherRegistry());
-      
+            
       if (appStateHideShows != null) {
         Map<String, GuiHideShow> newAppStateHideShows = new LinkedHashMap<String, GuiHideShow>();
         
         for (String hideShowName : appStateHideShows.keySet()) {
           
-          //morph this
-          GuiHideShow appStateHideShow = (GuiHideShow)beanMorpher.morph(appStateHideShows.get(hideShowName));
+          //clone this
+          GuiHideShow guiHideShow1 = appStateHideShows.get(hideShowName);
+          GuiHideShow appStateHideShow = guiHideShow1.clone();
           newAppStateHideShows.put(hideShowName, appStateHideShow);
         }
   
@@ -179,15 +203,14 @@ public class AppState implements Serializable {
       //convert pagers to real object model
       Map<String, GuiPaging> appStatePagers = this.getPagers();
       
-      BeanMorpher beanMorpher = new BeanMorpher(GuiPaging.class, JSONUtils.getMorpherRegistry());
-      
       if (appStatePagers != null) {
         Map<String, GuiPaging> newAppStatePagers = new LinkedHashMap<String, GuiPaging>();
         
         for (String pagerName : appStatePagers.keySet()) {
           
           //morph this
-          GuiPaging appStateHideShow = (GuiPaging)beanMorpher.morph(appStatePagers.get(pagerName));
+          GuiPaging guiPaging1 = appStatePagers.get(pagerName);
+          GuiPaging appStateHideShow = guiPaging1.clone();
           newAppStatePagers.put(pagerName, appStateHideShow);
         }
   
@@ -244,7 +267,14 @@ public class AppState implements Serializable {
     return this.hideShows;
   }
 
-  
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public AppState clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
+  }
+
   /**
    * <pre>
    * hide shows, the name, and if showing, text, etc.  Anything with class:
