@@ -25,8 +25,8 @@ import org.apache.activemq.security.SecurityContext;
 import edu.internet2.middleware.grouperActivemq.permissions.GrouperActivemqPermissionAction;
 import edu.internet2.middleware.grouperActivemq.permissions.GrouperActivemqPermissionsEngine;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 /**
  * my broker

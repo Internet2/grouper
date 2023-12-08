@@ -38,9 +38,9 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 
 
 public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
@@ -261,7 +261,7 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
            
     private AmazonSQS getAmazonSqsClient(String messagingSystemName) {
       
-      if (edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils.isBlank(messagingSystemName)) {
+      if (org.apache.commons.lang3.StringUtils.isBlank(messagingSystemName)) {
         throw new IllegalArgumentException("messagingSystemName is required.");
       }
       

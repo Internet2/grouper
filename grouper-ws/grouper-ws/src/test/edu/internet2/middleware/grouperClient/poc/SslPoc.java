@@ -20,9 +20,9 @@
 package edu.internet2.middleware.grouperClient.poc;
 
 import edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.GetMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.protocol.Protocol;
 
 
 /**

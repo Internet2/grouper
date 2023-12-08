@@ -20,7 +20,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import junit.textui.TestRunner;
 
 public class ProvisionableStemFinderTest extends GrouperTest {

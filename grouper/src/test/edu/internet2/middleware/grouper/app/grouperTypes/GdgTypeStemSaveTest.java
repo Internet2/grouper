@@ -22,7 +22,7 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import junit.textui.TestRunner;
 
 public class GdgTypeStemSaveTest extends GrouperTest {

@@ -32,7 +32,7 @@
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.introspection;
 
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlInfo;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 /**
  * An uberspect that controls usage of properties, methods and contructors through a sandbox.

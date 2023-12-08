@@ -50,7 +50,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobSta
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 import junit.textui.TestRunner;
 
 /**

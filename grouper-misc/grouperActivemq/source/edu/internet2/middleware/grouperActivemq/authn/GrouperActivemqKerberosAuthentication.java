@@ -24,13 +24,13 @@ import java.io.File;
 import javax.security.auth.login.LoginContext;
 import javax.security.auth.login.LoginException;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouperActivemq.config.GrouperActivemqConfig;
 import edu.internet2.middleware.grouperActivemq.utils.GrouperActivemqUtils;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.LogFactory;
 
 
 /**

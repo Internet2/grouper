@@ -49,7 +49,7 @@ import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.inte
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.EnumerationIterator;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.Introspector;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 /**
  * Implementation of Uberspect to provide the default introspective

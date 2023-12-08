@@ -20,12 +20,12 @@
 package edu.internet2.middleware.grouperClient.poc;
 
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.Credentials;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.UsernamePasswordCredentials;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.auth.AuthScope;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.GetMethod;
+import org.apache.commons.httpclient.Credentials;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.HttpMethod;
+import org.apache.commons.httpclient.UsernamePasswordCredentials;
+import org.apache.commons.httpclient.auth.AuthScope;
+import org.apache.commons.httpclient.methods.GetMethod;
 
 
 /**

@@ -31,7 +31,7 @@
  */
 package edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;

@@ -38,7 +38,7 @@ import java.lang.reflect.Method;
 
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.IntrospectorBase;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.internal.introspection.MethodKey;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 /**
  *  Default introspection services.

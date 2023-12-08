@@ -50,9 +50,9 @@ import javax.script.SimpleBindings;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlContext;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.JexlEngine;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.Script;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.LogFactory;
+import org.apache.commons.logging.LogFactory;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 /**
  * Implements the Jexl ScriptEngine for JSF-223.

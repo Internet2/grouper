@@ -2,10 +2,10 @@ package edu.internet2.middleware.grouper.app.provisioning;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.HashCodeBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ReflectionToStringBuilder;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.ToStringStyle;
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+import org.apache.commons.lang3.builder.ReflectionToStringBuilder;
+import org.apache.commons.lang3.builder.ToStringStyle;
 
 /**
  * bean to hold a provisioning validation problem.

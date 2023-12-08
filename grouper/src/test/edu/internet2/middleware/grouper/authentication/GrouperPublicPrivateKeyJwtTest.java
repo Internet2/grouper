@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SessionHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
 

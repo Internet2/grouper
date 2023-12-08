@@ -98,7 +98,7 @@ import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.pars
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.Node;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.ParserVisitor;
 import edu.internet2.middleware.grouperActivemqExt.org.apache.commons.jexl2.parser.SimpleNode;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.logging.Log;
 
 /**
  * An interpreter of JEXL syntax.

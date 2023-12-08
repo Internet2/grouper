@@ -22,7 +22,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
+import org.apache.commons.codec.binary.Base64;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperPublicPrivateKeyJwt {

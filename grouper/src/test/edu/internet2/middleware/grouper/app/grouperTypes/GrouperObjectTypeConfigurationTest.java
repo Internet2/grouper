@@ -22,7 +22,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.session.GrouperSessionResult;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.BooleanUtils;
 
 public class GrouperObjectTypeConfigurationTest extends GrouperTest {
   
