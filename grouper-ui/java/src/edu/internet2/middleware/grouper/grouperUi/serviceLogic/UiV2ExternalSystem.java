@@ -23,7 +23,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGrouperExternalSys
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.exception.ExceptionUtils;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2ExternalSystem {

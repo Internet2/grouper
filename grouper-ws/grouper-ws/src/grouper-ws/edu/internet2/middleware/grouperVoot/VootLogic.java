@@ -47,7 +47,7 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperVoot.beans.VootGroup;
 import edu.internet2.middleware.grouperVoot.beans.VootPerson;
 import edu.internet2.middleware.grouperVoot.messages.VootGetGroupsResponse;

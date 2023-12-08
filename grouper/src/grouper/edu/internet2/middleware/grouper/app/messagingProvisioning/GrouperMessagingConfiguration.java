@@ -6,7 +6,7 @@ import java.util.Map;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class GrouperMessagingConfiguration extends GrouperProvisioningConfiguration {
 

@@ -7,7 +7,7 @@ import java.util.Date;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 /**
  * bean that represents metadata attributes on member 

@@ -16,3 +16,4 @@ javadoc
 /bin/
 src/java/edu/internet2/middleware/grouperClient/GrouperClientRun.java
 /grouperClient_test/
+/dependency-reduced-pom.xml

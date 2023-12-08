@@ -57,7 +57,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncOutput;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncSubtype;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.RandomStringUtils;
 import junit.textui.TestRunner;
 
 

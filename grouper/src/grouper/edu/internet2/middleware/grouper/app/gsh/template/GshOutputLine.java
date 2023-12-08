@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class GshOutputLine {
 

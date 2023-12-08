@@ -39,8 +39,8 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.codec.binary.Base64;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
 
 /**
  * utility methods for grouper that are safe to use in expression language.  Generally these are static methods.

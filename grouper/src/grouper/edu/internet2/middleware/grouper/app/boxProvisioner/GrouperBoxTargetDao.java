@@ -44,7 +44,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
   

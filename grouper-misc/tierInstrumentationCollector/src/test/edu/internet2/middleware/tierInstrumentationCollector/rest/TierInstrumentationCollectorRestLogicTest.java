@@ -2,9 +2,9 @@ package edu.internet2.middleware.tierInstrumentationCollector.rest;
 
 import java.util.HashMap;
 
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.HttpClient;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.PostMethod;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.httpclient.methods.StringRequestEntity;
+import org.apache.commons.httpclient.HttpClient;
+import org.apache.commons.httpclient.methods.PostMethod;
+import org.apache.commons.httpclient.methods.StringRequestEntity;
 import edu.internet2.middleware.tierInstrumentationCollector.corebeans.TicResponseBeanBase;
 import junit.framework.TestCase;
 import junit.textui.TestRunner;

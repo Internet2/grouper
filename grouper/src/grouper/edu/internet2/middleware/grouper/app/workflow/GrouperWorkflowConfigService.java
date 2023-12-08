@@ -14,7 +14,7 @@ import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfi
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.GROUPER_WORKFLOW_CONFIG_VIEWERS_GROUP_ID;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowConfigAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.workflow.GrouperWorkflowSettings.workflowStemName;
-import static edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
+import static org.apache.commons.lang3.BooleanUtils.toStringTrueFalse;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -36,8 +36,8 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.BooleanUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 public class GrouperWorkflowConfigService {

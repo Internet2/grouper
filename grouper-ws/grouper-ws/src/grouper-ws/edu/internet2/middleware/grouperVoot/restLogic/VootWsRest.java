@@ -29,7 +29,7 @@ import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.rest.GrouperRestInvalidRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouperVoot.VootLogic;
 import edu.internet2.middleware.grouperVoot.VootRestHttpMethod;
 import edu.internet2.middleware.grouperVoot.beans.VootGroup;

@@ -7,7 +7,7 @@ import java.util.List;
 
 import edu.internet2.middleware.grouper.cfg.dbConfig.OptionValueDriver;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 public class SqlGlobalAttributeResolverOptionValueDriver implements OptionValueDriver {
 
