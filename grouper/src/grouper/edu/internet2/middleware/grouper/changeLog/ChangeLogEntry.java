@@ -22,17 +22,18 @@ package edu.internet2.middleware.grouper.changeLog;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.Collection;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Set;
 
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -1031,17 +1032,18 @@ public class ChangeLogEntry extends GrouperAPI {
     if (StringUtils.isBlank(json)) {
       return null;
     }
-    JSONObject jsonObject = (JSONObject) JSONSerializer.toJSON( json );
-    JSONArray jsonArray = jsonObject.getJSONArray("event");
-    if (jsonArray == null) {
+    JsonNode jsonNode = GrouperUtil.jsonJacksonNode(json);
+    ArrayNode arrayNode = jsonNode.has("event") ? (ArrayNode)jsonNode.get("event") : null;
+
+    if (arrayNode == null) {
       return null;
     }
-    if (jsonArray.size() == 0) {
+    if (arrayNode.size() == 0) {
       return null;
     }
     Set<ChangeLogEntry> result = new LinkedHashSet<ChangeLogEntry>();
-    for (int i=0;i<jsonArray.size();i++) {
-      JSONObject currentEvent = jsonArray.getJSONObject(i);
+    for (int i=0;i<arrayNode.size();i++) {
+      JsonNode currentEvent = arrayNode.get(i);
       ChangeLogEntry currentEntry = new ChangeLogEntry();
       currentEntry.fromJsonHelper(currentEvent);
       result.add(currentEntry);
@@ -1053,40 +1055,34 @@ public class ChangeLogEntry extends GrouperAPI {
    * convert to one json object
    * @param jsonObject
    */
-  public void fromJsonHelper(JSONObject jsonObject) {
+  public void fromJsonHelper(JsonNode jsonObject) {
     
-    this.changeLogTypeId = jsonObject.getString("changeLogTypeId");
-    if (jsonObject.containsKey("contextId")) {
-      this.contextId = jsonObject.getString("contextId");
-    }
-    if (jsonObject.containsKey("createdOnDb")) {
-      this.createdOnDb = jsonObject.getLong("createdOnDb");
-    }
-    if (jsonObject.containsKey("changeLogEntryId")) {
-      this.id = jsonObject.getString("changeLogEntryId");
-    }
-    if (jsonObject.containsKey("sequenceNumber")) {
-      this.sequenceNumber = jsonObject.getLong("sequenceNumber");
-    }
-    if (jsonObject.containsKey("changeLogTypeCategory")) {
-      if (!StringUtils.equals(this.getChangeLogType().getChangeLogCategory(), jsonObject.getString("changeLogTypeCategory"))) {
+    this.changeLogTypeId = GrouperUtil.jsonJacksonGetString(jsonObject, "changeLogTypeId");
+    this.contextId = GrouperUtil.jsonJacksonGetString(jsonObject, "contextId");
+    this.createdOnDb = GrouperUtil.jsonJacksonGetLong(jsonObject, "createdOnDb");
+    this.id = GrouperUtil.jsonJacksonGetString(jsonObject, "changeLogEntryId");
+    this.sequenceNumber = GrouperUtil.jsonJacksonGetLong(jsonObject, "sequenceNumber");
+    if (jsonObject.has("changeLogTypeCategory")) {
+      if (!StringUtils.equals(this.getChangeLogType().getChangeLogCategory(), GrouperUtil.jsonJacksonGetString(jsonObject, "changeLogTypeCategory"))) {
         throw new RuntimeException("Wrong category: expecting: " 
-            + this.getChangeLogType().getChangeLogCategory() + ", but was: " + jsonObject.getString("changeLogTypeCategory"));
+            + this.getChangeLogType().getChangeLogCategory() + ", but was: " + GrouperUtil.jsonJacksonGetString(jsonObject, "changeLogTypeCategory"));
       }
     }
-    if (jsonObject.containsKey("changeLogTypeAction")) {
-      if (!StringUtils.equals(this.getChangeLogType().getActionName(), jsonObject.getString("changeLogTypeAction"))) {
+    if (jsonObject.has("changeLogTypeAction")) {
+      if (!StringUtils.equals(this.getChangeLogType().getActionName(), GrouperUtil.jsonJacksonGetString(jsonObject, "changeLogTypeAction"))) {
         throw new RuntimeException("Wrong action: expecting: " 
-            + this.getChangeLogType().getActionName() + ", but was: " + jsonObject.getString("changeLogTypeAction"));
+            + this.getChangeLogType().getActionName() + ", but was: " + GrouperUtil.jsonJacksonGetString(jsonObject, "changeLogTypeAction"));
       }
     }
     ChangeLogType changeLogType = this.getChangeLogType();
     
-    for (String key : (Set<String>)(Object)jsonObject.keySet()) {
+    Iterator<String> fieldNamesIterator = jsonObject.fieldNames();
+    while (fieldNamesIterator.hasNext()) {
+      String key = fieldNamesIterator.next();
       if (key.startsWith("field_")) {
 
         //get string value
-        String value = jsonObject.getString(key);
+        String value = GrouperUtil.jsonJacksonGetString(jsonObject, key);
         String fieldName = key.substring("field_".length());
         this.assignStringValue(changeLogType, fieldName, value);
 
@@ -1099,14 +1095,14 @@ public class ChangeLogEntry extends GrouperAPI {
    * @return json
    */
   public String toJson(boolean includeContainer) {
-    JSONObject event = new JSONObject();
-    event.element("changeLogTypeId", this.changeLogTypeId);
-    event.element("contextId", this.contextId);
-    event.element("createdOnDb", this.createdOnDb);
-    event.element("changeLogEntryId", this.id);
-    event.element("sequenceNumber", this.sequenceNumber);
-    event.element("changeLogTypeCategory", this.getChangeLogType().getChangeLogCategory());
-    event.element("changeLogTypeAction", this.getChangeLogType().getActionName());
+    ObjectNode event = GrouperUtil.jsonJacksonNode();
+    GrouperUtil.jsonJacksonAssignString(event, "changeLogTypeId", this.changeLogTypeId);
+    GrouperUtil.jsonJacksonAssignString(event, "contextId", this.contextId);
+    GrouperUtil.jsonJacksonAssignLong(event, "createdOnDb", this.createdOnDb);
+    GrouperUtil.jsonJacksonAssignString(event, "changeLogEntryId", this.id);
+    GrouperUtil.jsonJacksonAssignLong(event, "sequenceNumber", this.sequenceNumber);
+    GrouperUtil.jsonJacksonAssignString(event, "changeLogTypeCategory", this.getChangeLogType().getChangeLogCategory());
+    GrouperUtil.jsonJacksonAssignString(event, "changeLogTypeAction", this.getChangeLogType().getActionName());
     this.toJsonHelper(event, this.getChangeLogType().getLabelString01());
     this.toJsonHelper(event, this.getChangeLogType().getLabelString02());
     this.toJsonHelper(event, this.getChangeLogType().getLabelString03());
@@ -1120,8 +1116,8 @@ public class ChangeLogEntry extends GrouperAPI {
     this.toJsonHelper(event, this.getChangeLogType().getLabelString11());
     this.toJsonHelper(event, this.getChangeLogType().getLabelString12());
     if (includeContainer) {
-      JSONObject container = new JSONObject();
-      container.element("event", GrouperUtil.toSet(event));
+      ObjectNode container = GrouperUtil.jsonJacksonNode();
+      GrouperUtil.jsonJacksonAssignObjectNodeArray(container, "event", GrouperUtil.toSet(event));
       return container.toString();
     }
     return event.toString();
@@ -1132,14 +1128,14 @@ public class ChangeLogEntry extends GrouperAPI {
    * @param event
    * @param labelString
    */
-  private void toJsonHelper(JSONObject event, String labelString) {
+  private void toJsonHelper(ObjectNode event, String labelString) {
     if (StringUtils.isBlank(labelString)) {
       return;
     }
     //even if null, put it in there?  i guess not
-    Object fieldValue = this.retrieveValueForLabel(labelString);
+    String fieldValue = this.retrieveValueForLabel(labelString);
     if (fieldValue != null) {
-      event.element("field_" + labelString, fieldValue);
+      GrouperUtil.jsonJacksonAssignString(event, "field_" + labelString, fieldValue);
     }
   }
   

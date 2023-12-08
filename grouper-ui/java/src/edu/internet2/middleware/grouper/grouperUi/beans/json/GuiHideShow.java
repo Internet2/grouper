@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.json;
 
 import java.io.Serializable;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.grouperUi.beans.SessionContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -125,6 +126,21 @@ public class GuiHideShow implements Serializable {
   /** text when hidden */
   private String textWhenHidden;
 
+  /** constant for field name for: hideShows */
+  public static final String FIELD_SHOWING = "showing";
+
+  /** constant for field name for: textWhenHidden */
+  public static final String FIELD_TEXT_WHEN_HIDDEN = "textWhenHidden";
+
+  /** constant for field name for: textWhenShowing */
+  public static final String FIELD_TEXT_WHEN_SHOWING = "textWhenShowing";
+
+  /**
+   * fields which are included in clone method
+   */
+  private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
+      FIELD_SHOWING, FIELD_TEXT_WHEN_HIDDEN, FIELD_TEXT_WHEN_SHOWING);
+
   
   /**
    * if showing
@@ -177,6 +193,14 @@ public class GuiHideShow implements Serializable {
    */
   public void setTextWhenHidden(String testWhenHidden1) {
     this.textWhenHidden = testWhenHidden1;
+  }
+
+  /**
+   * deep clone the fields in this object
+   */
+  @Override
+  public GuiHideShow clone() {
+    return GrouperUtil.clone(this, CLONE_FIELDS);
   }
   
   

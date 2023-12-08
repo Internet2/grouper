@@ -21,6 +21,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.json;
 import java.io.Serializable;
 import java.util.List;
 
+import com.fasterxml.jackson.annotation.JsonRawValue;
+
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -113,7 +115,7 @@ public class GuiScreenAction implements Serializable {
   /** the place in object model to assign */
   private String assignmentName;
   
-  /** the object to assign */
+  /** the object to assign, this is an object */
   private Object assignmentObject;
 
   /** alert to show on screen */
@@ -474,10 +476,12 @@ public class GuiScreenAction implements Serializable {
    */
   public static GuiScreenAction newAssign(String theAssignmentName, Object theAssignmentObject) {
     GuiScreenAction guiScreenAction = new GuiScreenAction();
-    guiScreenAction.setAssignmentName(theAssignmentName);
     guiScreenAction.setAssignmentObject(theAssignmentObject);
+    guiScreenAction.setAssignmentName(theAssignmentName);
+
     return guiScreenAction;
   }
+  
   
   /**
    * construct with the name and object

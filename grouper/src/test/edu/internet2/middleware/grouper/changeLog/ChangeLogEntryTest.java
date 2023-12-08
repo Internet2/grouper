@@ -58,6 +58,7 @@ public class ChangeLogEntryTest extends GrouperTest {
         ChangeLogLabels.GROUP_ADD.displayName.name(), "displayName",
         ChangeLogLabels.GROUP_ADD.description.name(), "description");
     String json = changeLogEntry.toJson(true);
+    System.out.println(json);
     ChangeLogEntry newEntry = ChangeLogEntry.fromJsonToCollection(json).iterator().next();
     assertEquals(changeLogEntry.retrieveValueForLabel("name"), newEntry.retrieveValueForLabel("name"));
     String newJson = newEntry.toJson(true);

@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.app.tableSync;
 
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
-import net.sf.json.JSONObject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 public class ProvisioningSampleListener extends EsbListenerBase {
@@ -14,8 +14,7 @@ public class ProvisioningSampleListener extends EsbListenerBase {
   @Override
   public boolean dispatchEvent(String eventJsonString, String consumerName) {
     
-    @SuppressWarnings("unused")
-    JSONObject jsonObject = JSONObject.fromObject( eventJsonString );
+    GrouperUtil.jsonJacksonNode(eventJsonString);
     
     messageCount++;
     return true;

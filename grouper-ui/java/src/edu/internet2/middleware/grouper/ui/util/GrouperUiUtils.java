@@ -55,12 +55,13 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpSession;
 import javax.servlet.jsp.jstl.fmt.LocalizationContext;
 
-import net.sf.json.JSONArray;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.collections.set.ListOrderedSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import com.fasterxml.jackson.databind.node.ArrayNode;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -2012,10 +2013,12 @@ public class GrouperUiUtils {
 
     Collections.reverse(ids);
 
-    JSONArray jsonArray = new JSONArray();
-    jsonArray.addAll(ids);
+    ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+    for (String id : ids) {
+      arrayNode.add(id);
+    }
 
-    return jsonArray.toString();
+    return GrouperUtil.jsonJacksonToString(arrayNode);
   }
 
   /**

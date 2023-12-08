@@ -14,8 +14,11 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.Server;
 import org.mortbay.jetty.nio.SelectChannelConnector;
 
+import com.fasterxml.jackson.databind.node.ArrayNode;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageAcknowledgeResult;
@@ -24,12 +27,16 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessageReceiveRes
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendParam;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageSendResult;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
-import net.sf.json.JSONObject;
+import junit.textui.TestRunner;
 
 /**
  * @author vsachdeva
  */
 public class MessageConsumerDaemonTest extends GrouperTest {
+  
+  public static void main(String[] args) {
+    TestRunner.run(new MessageConsumerDaemonTest("testProcessMessagesHappyPath"));
+  }
   
   private boolean webServiceCalled;
   private boolean replyToSendCalled;
@@ -118,7 +125,7 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     
     assertTrue(replyToSendCalled);
     assertTrue(webServiceCalled);
-    assertEquals(JSONObject.fromObject(replyToBody).getString("result"), "{\"success\":true}");
+    assertEquals(GrouperUtil.jsonConvertTo(GrouperUtil.jsonJacksonNode(replyToBody).get("result"), false), "{\"success\":true}");
   }
   
   public void testProcessMessagesInvalidInputMessages() throws Exception {
@@ -139,9 +146,12 @@ public class MessageConsumerDaemonTest extends GrouperTest {
     
     assertTrue(replyToSendCalled);
     assertFalse(webServiceCalled);
-    assertEquals(JSONObject.fromObject(replyToBody).getJSONArray("errors").size(), 2);
-    assertEquals(JSONObject.fromObject(replyToBody).getJSONArray("errors").getString(0), "grouperHeader.messageVersion is required.");
-    assertEquals(JSONObject.fromObject(replyToBody).getJSONArray("errors").getString(1), "grouperHeader.httpPath is required.");
+    
+    ArrayNode arrayNode = GrouperUtil.jsonJacksonGetArrayNode(GrouperUtil.jsonJacksonNode(replyToBody), "errors");
+    
+    assertEquals(arrayNode.size(), 2);
+    assertEquals(GrouperUtil.jsonJacksonGetString(arrayNode, 0), "grouperHeader.messageVersion is required.");
+    assertEquals(GrouperUtil.jsonJacksonGetString(arrayNode, 1), "grouperHeader.httpPath is required.");
     
   }
   

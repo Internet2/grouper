@@ -77,7 +77,6 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
-import net.sf.json.JSONObject;
 
 /**
  * servlet for rest ui web services
@@ -234,9 +233,8 @@ public class GrouperUiRestServlet extends HttpServlet {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     String appStateString = request.getParameter("appState");
-    JSONObject jsonObject = JSONObject.fromObject(appStateString);
 
-    AppState appState = (AppState)JSONObject.toBean( jsonObject, AppState.class ); 
+    AppState appState = GrouperUtil.jsonConvertFrom(appStateString, AppState.class ); 
 
     //app state isnt there e.g. for ajax components
     if (appState == null) {

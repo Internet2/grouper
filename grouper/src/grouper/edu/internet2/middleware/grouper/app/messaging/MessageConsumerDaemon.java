@@ -55,11 +55,6 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingEngine;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.StringUtils;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONException;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
 
 /**
  * @author vsachdeva
@@ -177,62 +172,35 @@ public class MessageConsumerDaemon implements Job {
     
     List<GrouperMessage> messagesToBeAcknowledged = new ArrayList<GrouperMessage>();
     
-    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
     for (GrouperMessage inputMessage: grouperMessages) {
       
       String messageBody = inputMessage.getMessageBody();
       InputMessageGrouperHeader grouperHeader = null;
       
-      JSONObject jsonObjectLegacy = null;
-      
       JsonNode jsonObject = null;
       
-      if (useLegacy) {
+      
+      try { 
+        jsonObject = GrouperUtil.jsonJacksonNode(messageBody);
         
-        try { 
-          jsonObjectLegacy = JSONObject.fromObject(messageBody);
-        } catch(JSONException e) {
-          LOG.error("Error occurred while building json object for "+messageBody);
-          continue;
-        }
-        
-        JSONObject grouperHeaderJson = null;
-        try {
-          grouperHeaderJson = jsonObjectLegacy.getJSONObject("grouperHeader");
-        } catch (JSONException e) {
-          LOG.error("Error occurred while retrieving key grouperHeader out of message body: "+messageBody);
-          continue;
-        }
-        try {
-          grouperHeader = (InputMessageGrouperHeader)JSONObject.toBean(grouperHeaderJson, InputMessageGrouperHeader.class);
-        } catch (JSONException e) {
-          LOG.error("Error occurred while building Json object for "+grouperHeaderJson);
-          continue;
-        }
-      } else {
-        
-        try { 
-          jsonObject = GrouperUtil.jsonJacksonNode(messageBody);
-          
-        } catch(Exception e) {
-          LOG.error("Error occurred while building json object for "+messageBody);
-          continue;
-        }
-        
-        JsonNode grouperHeaderJson = null;
-        try {
-          grouperHeaderJson = jsonObject.get("grouperHeader");
-        } catch (Exception e) {
-          LOG.error("Error occurred while retrieving key grouperHeader out of message body: "+messageBody);
-          continue;
-        }
-        
-        try {
-          grouperHeader = GrouperUtil.jsonConvertFrom(grouperHeaderJson, InputMessageGrouperHeader.class);
-        } catch (Exception e) {
-          LOG.error("Error occurred while building Json object for "+grouperHeaderJson);
-          continue;
-        }
+      } catch(Exception e) {
+        LOG.error("Error occurred while building json object for "+messageBody);
+        continue;
+      }
+      
+      JsonNode grouperHeaderJson = null;
+      try {
+        grouperHeaderJson = jsonObject.get("grouperHeader");
+      } catch (Exception e) {
+        LOG.error("Error occurred while retrieving key grouperHeader out of message body: "+messageBody);
+        continue;
+      }
+      
+      try {
+        grouperHeader = GrouperUtil.jsonConvertFrom(grouperHeaderJson, InputMessageGrouperHeader.class);
+      } catch (Exception e) {
+        LOG.error("Error occurred while building Json object for "+grouperHeaderJson);
+        continue;
       }
       
       Collection<String> errors = validate(grouperHeader);
@@ -252,7 +220,7 @@ public class MessageConsumerDaemon implements Job {
       
       String endpoint = grouperHeader.getEndpoint();
       
-      String wsRequestBody = useLegacy ? jsonObjectLegacy.getString(endpoint): GrouperUtil.jsonJacksonGetString(jsonObject, endpoint);
+      String wsRequestBody = GrouperUtil.jsonJacksonGetString(jsonObject, endpoint);
       
       String newJson = "{ \"" + endpoint + "\" :" + wsRequestBody + "}";
       
@@ -486,9 +454,10 @@ public class MessageConsumerDaemon implements Job {
     ObjectNode objectNode = GrouperUtil.jsonConvertFromObjectToObjectNode(outputHeader);
     
     renameKeys(objectNode);
-    String header = objectNode.asText();
+
+    String header = GrouperUtil.jsonConvertTo(objectNode, false);
     
-    String errorMessages = JSONArray.fromObject(errors).toString();
+    String errorMessages = GrouperUtil.jsonConvertTo(errors, false);
     
     String finalOuput = " { \"grouperHeader\":  "+header+", \"errors\": " + errorMessages + " }" ;
         
@@ -533,7 +502,7 @@ public class MessageConsumerDaemon implements Job {
     ObjectNode objectNode = GrouperUtil.jsonConvertFromObjectToObjectNode(outputHeader);
     renameKeys(objectNode);
     
-    String header = objectNode.asText();
+    String header = GrouperUtil.jsonConvertTo(objectNode, false);
     
     String finalOuput = " { \"grouperHeader\":  "+header+", " + wsResponse.getBody() + " }" ;
         

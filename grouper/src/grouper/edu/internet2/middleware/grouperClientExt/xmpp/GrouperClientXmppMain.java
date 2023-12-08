@@ -49,6 +49,7 @@ import org.quartz.TriggerBuilder;
 import org.quartz.TriggerKey;
 import org.quartz.impl.StdSchedulerFactory;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.api.GcGetMembers;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -56,7 +57,6 @@ import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResult;
 import edu.internet2.middleware.grouperClient.ws.beans.WsGetMembersResults;
 import edu.internet2.middleware.grouperClient.ws.beans.WsSubject;
 import edu.internet2.middleware.grouperClientExt.org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouperClientExt.util.JsonUtils;
 import edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppJob.XmppJobEventAction;
 import edu.internet2.middleware.morphString.Crypto;
 
@@ -276,7 +276,7 @@ public class GrouperClientXmppMain {
       public void handleMessage(Message message) {
         
         String body = message.getBody();
-        EsbEvents esbEvents = (EsbEvents)JsonUtils.jsonConvertFrom(body, EsbEvents.class);
+        EsbEvents esbEvents = GrouperUtil.jsonConvertFrom(body, EsbEvents.class);
         for (EsbEvent esbEvent : GrouperClientUtils.nonNull(esbEvents.getEsbEvent(), EsbEvent.class)) {
           //loop through jobs and see what matches
           for (GrouperClientXmppJob grouperClientXmppJob : GrouperClientXmppJob.retrieveXmppJobs()) {

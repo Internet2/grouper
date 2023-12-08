@@ -29,8 +29,6 @@ import java.util.Set;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONObject;
-
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -550,9 +548,7 @@ public class UiV2Visualization {
       graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
       graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
 
-      JSONObject jsonObject = JSONObject.fromObject(graph);
-
-      guiResponseJs.addAction(GuiScreenAction.newAssign("visualizationObject", jsonObject.toString()));
+      guiResponseJs.addAction(GuiScreenAction.newAssign("visualizationObject", graph));
       guiResponseJs.addAction(GuiScreenAction.newScript(jsDrawFunctionName));
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -133,6 +133,7 @@ import org.ldaptive.io.Hex;
 
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
+import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
@@ -637,12 +638,15 @@ public class GrouperUtil {
   }
 
   /**
+   * 
    * take out accented chars with
    * grouperUtil.normalize("NFD", groupAttribute).replaceAll("\\p{M}", "")
    * @param form
    * @param text
    * @return the normalized string
+   * @deprecated use this instead org.apache.commons.lang3.StringUtils.stripAccents((String)currentValue); 
    */
+  @Deprecated
   public static String normalize(String form, String text) {
     if (text == null) {
       return text;
@@ -2555,6 +2559,83 @@ public class GrouperUtil {
   
   /**
    * assign a jackson field
+   * @param objectNode
+   * @param jsonPointer e.g. /a/b/c/d
+   * @param value
+   */
+  public static void jsonJacksonAssignJsonPointerString(ObjectNode objectNode, String jsonPointer, String value) {
+
+    JsonPointer jsonPointerFull = JsonPointer.compile(jsonPointer);
+    JsonPointer currentPointer = jsonPointerFull;
+    int ttl = 100;
+
+    List<JsonPointer> jsonPointers = new ArrayList<JsonPointer>();
+
+    while(true) {
+
+      // e.g. a/b/c
+      JsonPointer headPointer = currentPointer.head();
+      
+      if (headPointer.length() == 0) {
+        jsonPointers.add(0, currentPointer);
+        break;
+      }
+      
+      // e.g. b/c/d
+      JsonPointer tailPointer = currentPointer.tail();
+      
+      if (tailPointer.length() > 0) {
+        int ttl2 = 100;
+        while (true) {
+          
+          JsonPointer nextTailPointer = tailPointer.tail();
+          
+          if (nextTailPointer.length() == 0) {
+            jsonPointers.add(0, tailPointer);
+            break;
+          }
+
+          tailPointer = nextTailPointer;
+          if (ttl2-- < 0) {
+            throw new RuntimeException("Endless loop");
+          }
+        }
+      }
+      
+      currentPointer = headPointer;
+      
+      if (ttl-- < 0) {
+        throw new RuntimeException("Endless loop");
+      }
+    }
+    
+    //  JsonPointer jsonPointerProductLicense = jsonPointerLucidChartLicense.head();
+    //  JsonPointer jsonPointerExtension = jsonPointerProductLicense.head();
+    //  JsonPointer jsonPointerRoot = jsonPointerExtension.head();
+    //  jsonPointerRoot.length() == 0 when at root
+
+    ObjectNode currentObjectNode = objectNode;
+    
+    for (int i=0;i<jsonPointers.size();i++) {
+      
+      JsonPointer currentJsonPointer = jsonPointers.get(i);
+
+      ObjectNode lucidChartLicense = (ObjectNode)objectNode.at(currentJsonPointer);
+      
+//      if ()
+      
+      String pointerString = currentJsonPointer.toString();
+      
+      if (pointerString.charAt(0) == '/') {
+        pointerString = pointerString.substring(1, pointerString.length());
+      }
+      System.out.println(pointerString);
+    }
+    
+  }
+  
+  /**
+   * assign a jackson field
    * @param jsonNode
    * @param fieldName
    * @return the string
@@ -2604,6 +2685,22 @@ public class GrouperUtil {
     }
   }
   
+  /**
+   * assign a jackson array
+   * @param objectNode
+   * @param fieldName
+   * @param values 
+   */
+  public static void jsonJacksonAssignObjectNodeArray(ObjectNode objectNode, String fieldName, Collection<ObjectNode> values) {
+    if (values != null) {
+      ArrayNode valuesJson = objectMapper.createArrayNode();
+      for (ObjectNode value : values) {
+        valuesJson.add(value);
+      }
+      objectNode.set(fieldName, valuesJson);
+    }
+  }
+  
   
   /**
    * get a field as string and handle null
@@ -2626,6 +2723,44 @@ public class GrouperUtil {
     return defaultString;
   }
 
+  /**
+   * get a field as string and handle null
+   * @param arrayNode
+   * @param index
+   * @return the string
+   */
+  public static String jsonJacksonGetString(ArrayNode arrayNode, int index) {
+    if (arrayNode != null) {
+      JsonNode fieldNode = arrayNode.get(index);
+      if (fieldNode != null) {
+        if (!(fieldNode instanceof NullNode)) {
+          return fieldNode.asText();
+        }
+      }
+    }
+    return null;
+  }
+
+  /**
+   * get a field as node or array.  could return null if not there
+   * @param jsonNode
+   * @param fieldName
+   * @return the node or array
+   */
+  public static ArrayNode jsonJacksonGetArrayNode(JsonNode jsonNode, String fieldName) {
+    
+    if (jsonNode == null || !jsonNode.has(fieldName)) {
+      return null;
+    }
+    
+    JsonNode fieldNode = jsonNode.get(fieldName);
+    if (fieldNode == null || fieldNode instanceof NullNode) {
+      return null;
+    }
+    return (ArrayNode)fieldNode;
+    
+  }
+  
   /**
    * get a field as node or array.  could return null if not there
    * @param jsonNode
@@ -2987,6 +3122,9 @@ public class GrouperUtil {
       JSONObject jsonObject = JSONObject.fromObject( json );
       Object object = JSONObject.toBean( jsonObject, theClass );
       return (T)object;
+    }
+    if (StringUtils.isBlank(json)) {
+      return null;
     }
     T val;
     try {
@@ -10028,6 +10166,30 @@ public class GrouperUtil {
     return abbreviate(str, 0, maxWidth);
   }
 
+  public RuntimeException exceptionConvertToRuntime(Throwable t) {
+    return exceptionConvertToRuntime(t, null);
+  }
+
+  public static RuntimeException exceptionConvertToRuntime(Throwable t, String inject) {
+    if (t == null && inject == null) {
+      return new RuntimeException();
+    }
+    if (inject == null) {
+      if (t instanceof RuntimeException) {
+        return (RuntimeException)t;
+      }
+      return new RuntimeException(t);
+    }
+    if (t==null) {
+      return new RuntimeException(inject);
+    }
+    injectInException(t,  inject);
+    if (t instanceof RuntimeException) {
+      return (RuntimeException)t;
+    }
+    return new RuntimeException(t);
+  }
+  
   /**
    * <p>Abbreviates a String using ellipses. This will turn
    * "Now is the time for all good men" into "...is the time for..."</p>

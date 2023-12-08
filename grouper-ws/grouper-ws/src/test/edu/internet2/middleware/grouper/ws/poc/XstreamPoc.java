@@ -30,9 +30,6 @@ import com.thoughtworks.xstream.io.xml.CompactWriter;
 import com.thoughtworks.xstream.io.xml.XppDriver;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import net.sf.json.JSONObject;
-import net.sf.json.JsonConfig;
-import net.sf.json.util.PropertyFilter;
 
 
 /**
@@ -148,29 +145,12 @@ public class XstreamPoc {
 
       group.setName(null);
       
-//      JSONObject jsonObject = net.sf.json.JSONObject.fromObject( group );  
-//      String json = jsonObject.toString();
-
-      JsonConfig jsonConfig = new JsonConfig();  
-      jsonConfig.setJsonPropertyFilter( new PropertyFilter(){  
-         public boolean apply( Object source, String name, Object value ) {  
-            return value == null; 
-         }  
-      });  
-      JSONObject jsonObject = JSONObject.fromObject( group, jsonConfig );  
-      String json = jsonObject.toString();
+      String json = GrouperUtil.jsonConvertTo(group, false);
       
-      Map<String, Class<?>> conversionMap = new HashMap<String, Class<?>>();
-      conversionMap.put("XstreamPocGroup", XstreamPocGroup.class);
-
-  //    XStream xStream = new XStream(new JettisonMappedXmlDriver());
-  //    xStream.alias("XstreamPocGroup", XstreamPocGroup.class);
-  //    xStream.alias("XstreamPocMember", XstreamPocMember.class);
-  //    String json = xStream.toXML(group);
       System.out.println(GrouperUtil.indent(json, true));
 
-      jsonObject = JSONObject.fromObject( json );  
-      group = (XstreamPocGroup) JSONObject.toBean( jsonObject, XstreamPocGroup.class );  
+      
+      group = GrouperUtil.jsonConvertFrom(json, XstreamPocGroup.class );  
 
   //    group = (XstreamPocGroup)xStream.fromXML(json);
 //      group = (XstreamPocGroup)GrouperUtil.jsonConvertFrom(conversionMap, json);
