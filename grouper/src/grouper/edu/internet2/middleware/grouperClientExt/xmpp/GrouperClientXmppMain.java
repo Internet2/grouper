@@ -68,7 +68,7 @@ public class GrouperClientXmppMain {
   /**
   * logger
   */
-  private static Log log = GrouperClientUtils.retrieveLog(GrouperClientXmppMain.class);
+  private static Log log = GrouperUtil.getLog(GrouperClientXmppMain.class);
 
   /** supported event types */
   private static final Set<String> SUPPORTED_EVENT_TYPES = Collections.unmodifiableSet(GrouperClientUtils.toSet(

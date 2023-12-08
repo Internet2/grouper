@@ -6,6 +6,7 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.Map;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.logging.Log;
 
@@ -89,7 +90,7 @@ public enum LdapSyncSubtype {
   /**
    * log object
    */
-  private static final Log LOG = GrouperClientUtils.retrieveLog(LdapSyncSubtype.class);
+  private static final Log LOG = GrouperUtil.getLog(LdapSyncSubtype.class);
   
   /**
    * see if full sync

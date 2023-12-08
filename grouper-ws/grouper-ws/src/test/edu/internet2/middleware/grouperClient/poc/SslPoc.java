@@ -23,6 +23,7 @@ import edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory;
 import org.apache.commons.httpclient.HttpClient;
 import org.apache.commons.httpclient.methods.GetMethod;
 import org.apache.commons.httpclient.protocol.Protocol;
+import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
 
 
 /**
@@ -37,7 +38,7 @@ public class SslPoc {
   @SuppressWarnings("deprecation")
   public static void main(String[] args) throws Exception {
     
-    Protocol easyhttps = new Protocol("https", new EasySslSocketFactory(), 443);
+    Protocol easyhttps = new Protocol("https", (SecureProtocolSocketFactory)new EasySslSocketFactory(), 443);
     Protocol.registerProtocol("https", easyhttps);
 
     
