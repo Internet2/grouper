@@ -1,7 +1,15 @@
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.Objects;
+
+import org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.HashCodeBuilder;
+
+import edu.internet2.middleware.grouper.app.provisioning.GrouperIncrementalDataItem;
 
 public class GuiDataFieldRowDictionary {
+  
+  private String dataFieldConfigId;
   
   private String dataFieldAliases;
   
@@ -107,5 +115,30 @@ public class GuiDataFieldRowDictionary {
     this.multiValued = multiValued;
   }
 
+  public String getDataFieldConfigId() {
+    return dataFieldConfigId;
+  }
 
+  public void setDataFieldConfigId(String dataFieldConfigId) {
+    this.dataFieldConfigId = dataFieldConfigId;
+  }
+
+
+  @Override
+  public int hashCode() {
+    return new HashCodeBuilder()
+        .append(this.dataFieldConfigId).toHashCode();
+  }
+
+  @Override
+  public boolean equals(Object obj) {
+    if (!(obj instanceof GuiDataFieldRowDictionary)) {
+      return false;
+    }
+    GuiDataFieldRowDictionary guiDataFieldRowDictionary = (GuiDataFieldRowDictionary)obj;
+    return new EqualsBuilder()
+        .append(this.dataFieldConfigId, guiDataFieldRowDictionary.dataFieldConfigId)
+        .isEquals();
+  }
+  
 }

@@ -123,10 +123,13 @@
                     </div>
                   </div>
                 </c:if>
-                <a href="#" onclick="$('#examples-${j}-${i}').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryHeaderExamples']}</a>
-                <div id="examples-${j}-${i}" style="display: none;">                
-                  ${guiDataFieldRowDictionary.examples}
-                </div>
+                
+                <c:if test="${!grouper:isBlank(guiDataFieldRowDictionary.examples)}">
+                  <a href="#" onclick="$('#examples-${j}-${i}').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryHeaderExamples']}</a>
+                  <div id="examples-${j}-${i}" style="display: none;">                
+                    ${guiDataFieldRowDictionary.examples}
+                  </div>
+                </c:if>
               </td>
               </tr>
               <c:set var="i" value="${i+1}" />

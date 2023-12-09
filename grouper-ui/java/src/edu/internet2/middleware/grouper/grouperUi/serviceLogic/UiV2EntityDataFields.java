@@ -5,6 +5,8 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -2174,6 +2176,7 @@ public class UiV2EntityDataFields {
         
         String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
         
+        guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfig.getConfigId());
         guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
         guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
         guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
@@ -2196,42 +2199,45 @@ public class UiV2EntityDataFields {
       
       List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
       
+      Map<String, GrouperDataRowConfig> aliasToRowConfig = new TreeMap<>();
+      
       for (GrouperDataRowConfig dataRowConfig: dataRows) {
         
         Set<String> rowAliases = dataRowConfig.getRowAliases();
-        //TODO lowercase them
-        List<String> aliasesList = new ArrayList<String>(rowAliases);
+        
+        Set<String> lowercaseRowAliases = rowAliases.stream().map(String::toLowerCase)
+            .collect(Collectors.toSet());
+        
+        List<String> aliasesList = new ArrayList<String>(lowercaseRowAliases);
         Collections.sort(aliasesList);
         String alias = aliasesList.get(0);
-        
+        aliasToRowConfig.put(alias, dataRowConfig);
       }
-      //sort data rows based on the first lowercase alias
       
-      
-      for (GrouperDataRowConfig dataRowConfig: dataRows) {
+      for (GrouperDataRowConfig dataRowConfig: aliasToRowConfig.values()) {
         
         guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
-        
-        Set<String> rowAliases = dataRowConfig.getRowAliases();
-        //TODO lowercase them
-        List<String> aliasesList = new ArrayList<String>(rowAliases);
-        Collections.sort(aliasesList);
-        String alias = aliasesList.get(0);
-        
         guiDataFieldRowDictionaryTable.setCanAccess(true);
-        guiDataFieldRowDictionaryTable.setTitle("Data row: "+String.join(", ", dataRowConfig.getRowAliases()));
-        guiDataFieldRowDictionaryTable.setDescription("<b>Description:</b> "+ dataRowConfig.getDescriptionHtml() 
-          + "<br/><b>Data owner:</b> " + dataRowConfig.getDataOwnerHtml() 
-          + "<br/><b>How to get access:</b> " + dataRowConfig.getHowToGetAccessHtml() 
-          + "<br/><b>Examples:</b> " + dataRowConfig.getZeroToManyExamplesHtml());
+        guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataRowLabel")+" "+
+            String.join(", ", dataRowConfig.getRowAliases()));
         
-        fieldConfigItems = new ArrayList<>();
+        guiDataFieldRowDictionaryTable.setDescription("<b>Description:</b> "+ GrouperUtil.defaultIfBlank(dataRowConfig.getDescriptionHtml(), "")
+          + "<br/><b>Data owner:</b> " +  GrouperUtil.defaultIfBlank(dataRowConfig.getDataOwnerHtml(), "")
+          + "<br/><b>How to get access:</b> " + GrouperUtil.defaultIfBlank(dataRowConfig.getHowToGetAccessHtml(), "") 
+          + "<br/><b>Examples:</b> " + GrouperUtil.defaultIfBlank(dataRowConfig.getZeroToManyExamplesHtml(), ""));
+        
+        List<GuiDataFieldRowDictionary> fieldConfigItemsForDatarow = new ArrayList<>();
         
         for (String dataFieldConfigId : dataRowConfig.getDataFieldConfigIds()) {
           
           GrouperDataFieldConfig dataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(dataFieldConfigId);
           
           GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
+          guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfigId);
+          
+          // we want to show the data field config only in row section if it's there so
+          // let's remove it from the data field section
+          fieldConfigItems.remove(guiDataFieldRowDictionary);
 
           String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
           
@@ -2246,10 +2252,10 @@ public class UiV2EntityDataFields {
           guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
           guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
           guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
-          fieldConfigItems.add(guiDataFieldRowDictionary);
+          fieldConfigItemsForDatarow.add(guiDataFieldRowDictionary);
         }
         
-        guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
+        guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItemsForDatarow);
         result.add(guiDataFieldRowDictionaryTable);
       }
       
