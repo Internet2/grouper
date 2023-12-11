@@ -16,10 +16,14 @@
 
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Random;
+import java.util.Set;
 
 import org.apache.commons.logging.Log;
 import org.hibernate.type.LongType;
@@ -31,7 +35,9 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * schedule quartz daemon
@@ -161,16 +167,149 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
-    handleBlockedAndAcquiredStates(otherJobInput);
-    handleErrorState(otherJobInput);
-    handleMissingTriggers(otherJobInput);
+    boolean runNow = GrouperLoader.isJobRunningAsRunNow("OTHER_JOB_schedulerCheckDaemon");
+    
+    handleBlockedAndAcquiredStates(otherJobInput, runNow);
+    handleErrorState(otherJobInput, runNow);
+    handleMissingTriggers(otherJobInput, runNow);
+    handleJobsWhereJvmDied(otherJobInput);
 
     LOG.info("GrouperDaemonSchedulerCheck finished successfully.");
     return null;
   }
   
-  private void handleMissingTriggers(OtherJobInput otherJobInput) {
+  private void handleJobsWhereJvmDied(OtherJobInput otherJobInput) {
 
+    if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("schedulerCheckDaemon.handleJobsWhereJvmDied", true)) {
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Skipping handleJobsWhereJvmDied.  ");
+    }
+
+    //  has status of STARTED or RUNNING 
+    //  AND
+    //    - last_updated is in the last 30 seconds
+    //    OR
+    //        - theres a fired triggers with job name that matches
+    //        OR 
+    //         - theres a fired triggers with trigger name that matches and the triggers table has a job name that matches
+    //      - AND the triggers instance name matches a scheduler that is alive
+    //  then the job is running
+
+    // last checkin in last 50 seconds
+    long lastCheckinTime = System.currentTimeMillis() - 50000;
+    
+    List<Object[]> jobIdsNamesStartedTimes = new GcDbAccess().sql("select id, job_name, gll.started_time from grouper_loader_log gll where status in ('STARTED', 'RUNNING') and last_updated < ?")
+        .addBindVar(new Timestamp(System.currentTimeMillis() - (60*1000L))).selectList(Object[].class);
+
+    if (GrouperUtil.length(jobIdsNamesStartedTimes) == 0) {
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("No running jobs last updated more than 1 minutes ago");
+      return;
+    }
+
+    Set<MultiKey> idsAndJobNamesToFix = new HashSet<MultiKey>();
+    Set<String> jobNamesRunning = new HashSet<String>();
+    
+    int batchSize = 300;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(jobIdsNamesStartedTimes, batchSize, false);
+    
+    for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
+      
+      List<Object[]> jobIdsNamesStartedTimesBatch = GrouperUtil.batchList(jobIdsNamesStartedTimes, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select id, gll.job_name from grouper_loader_log gll where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      boolean first = true;
+      for (Object[] jobIdNameStartedTime : jobIdsNamesStartedTimesBatch) {
+        
+        if (!first) {
+          sql.append(" or ");
+        }
+        
+        sql.append(" ( gll.id != ? and gll.job_name = ? and gll.started_time > ? ) ");
+        gcDbAccess.addBindVar(jobIdNameStartedTime[0]).addBindVar(jobIdNameStartedTime[1]).addBindVar(jobIdNameStartedTime[2]);
+        
+        first = false;
+      }
+
+      List<Object[]> idsAndJobNames = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      for (Object[] idAndJobName : idsAndJobNames) {
+        idsAndJobNamesToFix.add(new MultiKey(idAndJobName));
+      }
+
+      sql = new StringBuilder(" select gqft.job_name from grouper_qz_fired_triggers gqft, grouper_qz_scheduler_state gqss "
+          + " where gqft.job_name in (" + GrouperClientUtils.appendQuestions(jobIdsNamesStartedTimesBatch.size()) + ") and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > " + lastCheckinTime + " "
+          + " union "
+          + " select gqft.job_name from grouper_qz_fired_triggers gqft, grouper_qz_triggers gqt, grouper_qz_scheduler_state gqss "
+          + " where gqft.trigger_name = gqt.trigger_name and gqt.job_name in (" + GrouperClientUtils.appendQuestions(jobIdsNamesStartedTimesBatch.size()) + ") "
+          + " and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > " + lastCheckinTime + " ");
+      
+      gcDbAccess = new GcDbAccess();
+      
+      for (Object[] jobIdNameStartedTime : jobIdsNamesStartedTimesBatch) {
+        
+        gcDbAccess.addBindVar(jobIdNameStartedTime[1]);
+        
+      }
+      for (Object[] jobIdNameStartedTime : jobIdsNamesStartedTimesBatch) {
+        
+        gcDbAccess.addBindVar(jobIdNameStartedTime[1]);
+        
+      }
+      
+      List<String> jobNamesRunningBatch = gcDbAccess.sql(sql.toString()).selectList(String.class);
+      jobNamesRunning.addAll(jobNamesRunningBatch);
+    }
+
+    for (Object[] jobIdNameStartedTime : jobIdsNamesStartedTimes) {
+      
+      if (!jobNamesRunning.contains(jobIdNameStartedTime[1])) {
+        idsAndJobNamesToFix.add(new MultiKey(jobIdNameStartedTime[0], jobIdNameStartedTime[1]));
+      }
+    }
+    
+    int fixed = 0;
+
+    otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed jobs where jvm died: ");
+
+    for (MultiKey idAndName : idsAndJobNamesToFix) {
+
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = HibernateSession.byHqlStatic().createQuery("from Hib3GrouperLoaderLog theLoaderLog1 " +
+          "where theLoaderLog1.id = :id and status in ('STARTED', 'RUNNING')")
+          .setString("id", (String)idAndName.getKey(0)).uniqueResult(edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog.class);
+
+      if (hib3GrouperLoaderLog == null) {
+        continue;
+      }
+      
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(idAndName.getKey(1) + ", ");
+      otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
+      hib3GrouperLoaderLog.appendJobMessage(".  Marking job as error since its status was " + hib3GrouperLoaderLog.getStatus() + " and it is not detected as running.  The JVM abruptly stopped or died perhaps due to memory error.");
+      hib3GrouperLoaderLog.setStatus("ERROR");
+      hib3GrouperLoaderLog.store();
+      
+      fixed++;
+      
+    }
+
+    otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(fixed + ".  ");
+    
+    otherJobInput.getHib3GrouperLoaderLog().store();
+  }
+  
+
+  
+  private void handleMissingTriggers(OtherJobInput otherJobInput, boolean runNow) {
+
+    // either running now or every thirty minutes
+    boolean run = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("schedulerCheckDaemon.handleMissingTriggers", true) 
+        && (runNow || new Random().nextInt(100) < GrouperLoaderConfig.retrieveConfig().propertyValueInt("schedulerCheckDaemon.percentRunFixerJobs", 3));
+
+    if (!run) {
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Skipping handleMissingTriggers.  ");
+      return;
+    }
+    
     List<String> badJobs = new ArrayList<String>();
         
     String sql = "select trigger_name from grouper_qz_triggers gqt where start_time < ? and "
@@ -203,13 +342,20 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
       }
       
     }
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Fixed " + badJobs.size() + " jobs with trigger entries without the child table entries in trigger cron or simple tables: " + badJobs.toString() + ". ");
+    otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed " + badJobs.size() + " jobs with trigger entries without the child table entries in trigger cron or simple tables: " + badJobs.toString() + ". ");
     otherJobInput.getHib3GrouperLoaderLog().store();
   }
   
-  
-  
-  private void handleBlockedAndAcquiredStates(OtherJobInput otherJobInput) {
+  private void handleBlockedAndAcquiredStates(OtherJobInput otherJobInput, boolean runNow) {
+
+    // either running now or every thirty minutes
+    boolean run = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("schedulerCheckDaemon.handleBlockedAndAcquiredStates", true) 
+        && (runNow || new Random().nextInt(100) < GrouperLoaderConfig.retrieveConfig().propertyValueInt("schedulerCheckDaemon.percentRunFixerJobs", 3));
+
+    if (!run) {
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Skipping handleBlockedAndAcquiredStates.  ");
+      return;
+    }
 
     List<String> badJobs = new ArrayList<String>();
         
@@ -244,12 +390,21 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
       }
     }
     
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Fixed " + badJobs.size() + " jobs stuck in BLOCKED or ACQUIRED states: " + badJobs.toString() + ". ");
+    otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed " + badJobs.size() + " jobs stuck in BLOCKED or ACQUIRED states: " + badJobs.toString() + ". ");
     otherJobInput.getHib3GrouperLoaderLog().store();
   }
   
 
-  private void handleErrorState(OtherJobInput otherJobInput) {
+  private void handleErrorState(OtherJobInput otherJobInput, boolean runNow) {
+
+    // either running now or every thirty minutes
+    boolean run = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("schedulerCheckDaemon.handleErrorState", true) 
+        && (runNow || new Random().nextInt(100) < GrouperLoaderConfig.retrieveConfig().propertyValueInt("schedulerCheckDaemon.percentRunFixerJobs", 3));
+
+    if (!run) {
+      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Skipping handleErrorState.  ");
+      return;
+    }
 
     List<String> badJobs = new ArrayList<String>();
 
