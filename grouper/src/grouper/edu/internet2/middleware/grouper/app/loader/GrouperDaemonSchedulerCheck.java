@@ -31,9 +31,10 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
- * attestation daemon
+ * schedule quartz daemon
  */
 @DisallowConcurrentExecution
 public class GrouperDaemonSchedulerCheck extends OtherJobBase {
@@ -162,10 +163,51 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     
     handleBlockedAndAcquiredStates(otherJobInput);
     handleErrorState(otherJobInput);
+    handleMissingTriggers(otherJobInput);
 
     LOG.info("GrouperDaemonSchedulerCheck finished successfully.");
     return null;
   }
+  
+  private void handleMissingTriggers(OtherJobInput otherJobInput) {
+
+    List<String> badJobs = new ArrayList<String>();
+        
+    String sql = "select trigger_name from grouper_qz_triggers gqt where start_time < ? and "
+        + " (gqt.trigger_type = 'CRON' and not exists (select 1 from grouper_qz_cron_triggers gqct where gqct.trigger_name = gqt.trigger_name)) "
+        + " or (gqt.trigger_type = 'SIMPLE' and not exists (select 1 from grouper_qz_simple_triggers gqst where gqst.trigger_name = gqt.trigger_name))";
+
+    List<String> triggerNamesMissingTriggers = new GcDbAccess().sql(sql).addBindVar(System.currentTimeMillis() - (30 * 1000)).selectList(String.class);
+
+    if (GrouperUtil.length(triggerNamesMissingTriggers) > 0) {
+
+      //  if you get something, wait 10 seconds
+      try {
+        Thread.sleep(11111);
+      } catch (InterruptedException e) {
+        // ignore
+      }
+
+      // run again just to make sure there's not some race condition happening
+      List<String> triggerNames2 = new GcDbAccess().sql(sql).addBindVar(System.currentTimeMillis() - (40 * 1000)).selectList(String.class);
+
+      for (String triggerName : triggerNamesMissingTriggers) {      
+        if (triggerNames2.contains(triggerName)) {
+          LOG.info("Trigger with name=" + triggerName + " is missing a cron or simple trigger entry, the generic entry will be removed");
+          badJobs.add(triggerName);
+          
+          int fixed = new GcDbAccess().sql("delete from grouper_QZ_TRIGGERS where trigger_name = ?").addBindVar(triggerName).executeSql();
+
+          otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(fixed);
+        }
+      }
+      
+    }
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Fixed " + badJobs.size() + " jobs with trigger entries without the child table entries in trigger cron or simple tables: " + badJobs.toString() + ". ");
+    otherJobInput.getHib3GrouperLoaderLog().store();
+  }
+  
+  
   
   private void handleBlockedAndAcquiredStates(OtherJobInput otherJobInput) {
 
@@ -194,8 +236,10 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
           LOG.info("Trigger with name=" + triggerName + " is not being fired.  Updating trigger state.");
           badJobs.add(triggerName);
           
-          HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and (trigger_state='BLOCKED' or trigger_state='ACQUIRED')",
+          int fixed = HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and (trigger_state='BLOCKED' or trigger_state='ACQUIRED')",
               GrouperUtil.toListObject(triggerName), HibUtils.listType(StringType.INSTANCE));
+
+          otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(fixed);
         }
       }
     }
@@ -217,8 +261,10 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
       LOG.info("Trigger with name=" + triggerName + " is not being fired.  Updating trigger state.");
       badJobs.add(triggerName);
         
-      HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and trigger_state='ERROR'",
+      int fixed = HibernateSession.bySqlStatic().executeSql("update grouper_QZ_TRIGGERS set trigger_state='WAITING' where trigger_name=? and trigger_state='ERROR'",
           GrouperUtil.toListObject(triggerName), HibUtils.listType(StringType.INSTANCE));
+      
+      otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(fixed);
     }
     
     otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed " + badJobs.size() + " jobs stuck in ERROR state: " + badJobs.toString() + ". ");
