@@ -81,6 +81,7 @@ import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 
 
@@ -2343,19 +2344,67 @@ public class GrouperLoader {
   }
   
   /**
+   * see if the job is running as a run now: 
+   * @param jobName
+   * @return true if run now, e.g. OTHER_JOB_sleep, OTHER_JOB_schedulerCheckDaemon
+   */
+  public static boolean isJobRunningAsRunNow(String jobName) {
+    
+    int count = new GcDbAccess().sql("select count(1) from grouper_qz_triggers where job_name = ? "
+        + "and trigger_type = 'SIMPLE' and trigger_state = 'COMPLETE' and start_time > ?")
+        .addBindVar(jobName)
+        .addBindVar(System.currentTimeMillis() - 2000).select(int.class);
+    
+    return count > 0;
+    
+  }
+  
+  /**
    * @param jobName
    * @return true if the job appears to currently be running
    */
   public static boolean isJobRunning(String jobName) {
+
+    // old logic
+    if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("daemon.legacyIsJobRunning", false)) {
+      long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSeconds", 300);
+      Long count = HibernateSession.byHqlStatic()
+          .createQuery("select count(*) from Hib3GrouperLoaderLog where jobName = :jobName and status = 'STARTED' and lastUpdated > :lastUpdated")
+          .setString("jobName", jobName)
+          .setTimestamp("lastUpdated", new Date(System.currentTimeMillis() - assumeJobKilledIfNoUpdateInMillis))
+          .uniqueResult(Long.class);
+      
+      return count > 0;
+
+    }
     
-    long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSeconds", 300);
-    Long count = HibernateSession.byHqlStatic()
-        .createQuery("select count(*) from Hib3GrouperLoaderLog where jobName = :jobName and status = 'STARTED' and lastUpdated > :lastUpdated")
-        .setString("jobName", jobName)
-        .setTimestamp("lastUpdated", new Date(System.currentTimeMillis() - assumeJobKilledIfNoUpdateInMillis))
-        .uniqueResult(Long.class);
-    
-    return count > 0;
+    //  has status of STARTED or RUNNING 
+    //  AND
+    //    - last_updated is in the last 30 seconds
+    //    OR
+    //        - theres a fired triggers with job name that matches
+    //        OR 
+    //         - theres a fired triggers with trigger name that matches and the triggers table has a job name that matches
+    //      - AND the triggers instance name matches a scheduler that is alive
+    //  then the job is running
+
+    long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSecondsV2", 50);
+    // last checkin in last 20 seconds
+    long lastCheckinTime = System.currentTimeMillis() - 20000;
+    List<Long> counts = new GcDbAccess().sql("select count(*) from grouper_loader_log where job_name = ? and status in ('STARTED', 'RUNNING') and last_updated > ? "
+        + " union "
+        + " select count(*) from grouper_qz_fired_triggers gqft, grouper_qz_scheduler_state gqss "
+        + " where gqft.job_name = ? and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > ? "
+        + " union "
+        + " select count(*) from grouper_qz_fired_triggers gqft, grouper_qz_triggers gqt, grouper_qz_scheduler_state gqss "
+        + " where gqft.trigger_name = gqt.trigger_name and gqt.job_name = ? "
+        + " and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > ? ")
+        .addBindVar(jobName)
+        .addBindVar(new Date(System.currentTimeMillis() - assumeJobKilledIfNoUpdateInMillis))
+        .addBindVar(jobName).addBindVar(lastCheckinTime).addBindVar(jobName).addBindVar(lastCheckinTime)
+        .selectList(Long.class);
+
+    return counts.get(0) > 0 && (counts.get(1) > 0 || counts.get(2) > 0);
   }
   
   /**
