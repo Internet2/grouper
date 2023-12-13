@@ -18,6 +18,8 @@
  */
 package edu.internet2.middleware.grouper.j2ee.status;
 
+import java.util.Date;
+
 import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
@@ -89,7 +91,7 @@ public class DiagnosticLoaderJobTest extends DiagnosticTask {
     int minutesSinceLastSuccess = DaemonJobStatus.getMinutesSinceLastSuccess(this.jobName, this.grouperLoaderType);
     
     Long lastSuccess = loaderResultsCache.get(this.jobName);
-    
+
     if (lastSuccess != null && (System.currentTimeMillis() - lastSuccess) / (1000 * 60) < minutesSinceLastSuccess ) {
       this.appendSuccessTextLine("Not checking, there was a success from before: " + GrouperUtil.dateStringValue(lastSuccess) 
           + ", expecting one in the last " + minutesSinceLastSuccess + " minutes");
