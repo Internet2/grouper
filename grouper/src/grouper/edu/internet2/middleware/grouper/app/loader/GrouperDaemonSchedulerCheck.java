@@ -20,8 +20,11 @@ import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
@@ -201,50 +204,87 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
         .addBindVar(new Timestamp(System.currentTimeMillis() - (60*1000L))).selectList(Object[].class);
 
     if (GrouperUtil.length(jobIdsNamesStartedTimes) == 0) {
-      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("No running jobs last updated more than 1 minutes ago");
       return;
     }
 
     Set<MultiKey> idsAndJobNamesToFix = new HashSet<MultiKey>();
+    Set<MultiKey> idsAndJobNamesToFixDueToMoreRecentDupe = new HashSet<MultiKey>();
+    Set<String> grouperLoaderLogsRunning = new HashSet<String>();
+    
+    for (Object[] jobIdNameStartedTime : GrouperUtil.nonNull(jobIdsNamesStartedTimes)) {
+      String jobName = (String)jobIdNameStartedTime[1];
+      grouperLoaderLogsRunning.add(jobName);
+    }
+    
+    List<String> jobNamesRunningList = new ArrayList<>(grouperLoaderLogsRunning);
+    
+    int batchSize = 1000;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(jobNamesRunningList, batchSize, false);
+    Map<String, Timestamp> jobNameMostRecentStartedTime = new HashMap<String, Timestamp>();
+
+    for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
+      
+      List<String> jobNamesRunningListBatch = GrouperUtil.batchList(jobNamesRunningList, batchSize, batchIndex);
+      
+      String sql = "select gll.job_name, max(gll.started_time) from grouper_loader_log gll where gll.job_name in (" 
+          + GrouperClientUtils.appendQuestions(GrouperUtil.length(jobNamesRunningListBatch)) + ") group by gll.job_name";
+      
+      GcDbAccess gcDbAccess = new GcDbAccess().sql(sql);
+      
+      for (String jobNameRunning : jobNamesRunningListBatch) {
+        gcDbAccess.addBindVar(jobNameRunning);
+      }
+      
+      List<Object[]> jobNameStartedTimes = gcDbAccess.selectList(Object[].class);
+      
+      for (Object[] jobNameStartedTime : GrouperUtil.nonNull(jobNameStartedTimes)) {
+        Timestamp mostRecentStartedTime = (Timestamp)jobNameStartedTime[1];
+        if (mostRecentStartedTime != null) {
+          jobNameMostRecentStartedTime.put((String)jobNameStartedTime[0], mostRecentStartedTime);
+        }
+      }
+      
+    }    
+
+    for (Object[] jobIdNameStartedTime : GrouperUtil.nonNull(jobIdsNamesStartedTimes)) {
+      String jobId = (String)jobIdNameStartedTime[0];
+      String jobName = (String)jobIdNameStartedTime[1];
+      Timestamp startedTime = (Timestamp)jobIdNameStartedTime[2];
+
+      Timestamp mostRecentStartedTime = jobNameMostRecentStartedTime.get(jobName);
+      if (mostRecentStartedTime != null && startedTime.before(mostRecentStartedTime)) {
+        MultiKey jobIdNameMultikey = new MultiKey(jobId, jobName);
+        idsAndJobNamesToFix.add(jobIdNameMultikey);
+        idsAndJobNamesToFixDueToMoreRecentDupe.add(jobIdNameMultikey);
+      }
+    }
+    
+    Iterator<Object[]> jobIdNameStartedTimeIterator = jobIdsNamesStartedTimes.iterator();
+    while (jobIdNameStartedTimeIterator.hasNext()) {
+      Object[] jobIdNameStartedTime = jobIdNameStartedTimeIterator.next();
+      String jobId = (String)jobIdNameStartedTime[0];
+      String jobName = (String)jobIdNameStartedTime[1];
+      if (idsAndJobNamesToFix.contains(new MultiKey(jobId, jobName))) {
+        jobIdNameStartedTimeIterator.remove();
+      }
+    }
+    
+    batchSize = 500;
+    numberOfBatches = GrouperUtil.batchNumberOfBatches(jobIdsNamesStartedTimes, batchSize, false);
     Set<String> jobNamesRunning = new HashSet<String>();
-    
-    int batchSize = 300;
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(jobIdsNamesStartedTimes, batchSize, false);
-    
+
     for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
       
       List<Object[]> jobIdsNamesStartedTimesBatch = GrouperUtil.batchList(jobIdsNamesStartedTimes, batchSize, batchIndex);
       
-      StringBuilder sql = new StringBuilder("select id, gll.job_name from grouper_loader_log gll where ");
-      
-      GcDbAccess gcDbAccess = new GcDbAccess();
-      
-      boolean first = true;
-      for (Object[] jobIdNameStartedTime : jobIdsNamesStartedTimesBatch) {
-        
-        if (!first) {
-          sql.append(" or ");
-        }
-        
-        sql.append(" ( gll.id != ? and gll.job_name = ? and gll.started_time > ? ) ");
-        gcDbAccess.addBindVar(jobIdNameStartedTime[0]).addBindVar(jobIdNameStartedTime[1]).addBindVar(jobIdNameStartedTime[2]);
-        
-        first = false;
-      }
-
-      List<Object[]> idsAndJobNames = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
-      for (Object[] idAndJobName : idsAndJobNames) {
-        idsAndJobNamesToFix.add(new MultiKey(idAndJobName));
-      }
-
-      sql = new StringBuilder(" select gqft.job_name from grouper_qz_fired_triggers gqft, grouper_qz_scheduler_state gqss "
+      StringBuilder sql = new StringBuilder(" select gqft.job_name from grouper_qz_fired_triggers gqft, grouper_qz_scheduler_state gqss "
           + " where gqft.job_name in (" + GrouperClientUtils.appendQuestions(jobIdsNamesStartedTimesBatch.size()) + ") and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > " + lastCheckinTime + " "
           + " union "
           + " select gqft.job_name from grouper_qz_fired_triggers gqft, grouper_qz_triggers gqt, grouper_qz_scheduler_state gqss "
           + " where gqft.trigger_name = gqt.trigger_name and gqt.job_name in (" + GrouperClientUtils.appendQuestions(jobIdsNamesStartedTimesBatch.size()) + ") "
           + " and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > " + lastCheckinTime + " ");
       
-      gcDbAccess = new GcDbAccess();
+      GcDbAccess gcDbAccess = new GcDbAccess();
       
       for (Object[] jobIdNameStartedTime : jobIdsNamesStartedTimesBatch) {
         
@@ -269,7 +309,9 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     }
     
     int fixed = 0;
-
+    if (idsAndJobNamesToFix.size() == 0) {
+      return;
+    }
     otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed jobs where jvm died: ");
 
     for (MultiKey idAndName : idsAndJobNamesToFix) {
@@ -282,9 +324,16 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
         continue;
       }
       
-      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(idAndName.getKey(1) + ", ");
+      if (idsAndJobNamesToFixDueToMoreRecentDupe.contains(idAndName)) {
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(idAndName.getKey(1) + " (dupe), ");
+        hib3GrouperLoaderLog.appendJobMessage(".  Marking job as error since its status was " + hib3GrouperLoaderLog.getStatus() + " and it has a more recent job log.  The JVM abruptly stopped or died perhaps due to memory error.");
+        
+      } else {
+        otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(idAndName.getKey(1) + " (not running), ");
+        hib3GrouperLoaderLog.appendJobMessage(".  Marking job as error since its status was " + hib3GrouperLoaderLog.getStatus() + " and it is not detected as running.  The JVM abruptly stopped or died perhaps due to memory error.");
+        
+      }
       otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
-      hib3GrouperLoaderLog.appendJobMessage(".  Marking job as error since its status was " + hib3GrouperLoaderLog.getStatus() + " and it is not detected as running.  The JVM abruptly stopped or died perhaps due to memory error.");
       hib3GrouperLoaderLog.setStatus("ERROR");
       hib3GrouperLoaderLog.store();
       
@@ -293,7 +342,6 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     }
 
     otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(fixed + ".  ");
-    
     otherJobInput.getHib3GrouperLoaderLog().store();
   }
   
@@ -342,6 +390,9 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
       }
       
     }
+    if (badJobs.size() == 0) {
+      return;
+    }
     otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed " + badJobs.size() + " jobs with trigger entries without the child table entries in trigger cron or simple tables: " + badJobs.toString() + ". ");
     otherJobInput.getHib3GrouperLoaderLog().store();
   }
@@ -389,7 +440,10 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
         }
       }
     }
-    
+    if (badJobs.size() == 0) {
+      return;
+    }
+
     otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed " + badJobs.size() + " jobs stuck in BLOCKED or ACQUIRED states: " + badJobs.toString() + ". ");
     otherJobInput.getHib3GrouperLoaderLog().store();
   }
@@ -422,6 +476,10 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
       otherJobInput.getHib3GrouperLoaderLog().addUpdateCount(fixed);
     }
     
+    if (badJobs.size() == 0) {
+      return;
+    }
+
     otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Fixed " + badJobs.size() + " jobs stuck in ERROR state: " + badJobs.toString() + ". ");
     otherJobInput.getHib3GrouperLoaderLog().store();
   }

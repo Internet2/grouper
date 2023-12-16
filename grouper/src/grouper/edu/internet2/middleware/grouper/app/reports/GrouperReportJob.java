@@ -74,7 +74,7 @@ public class GrouperReportJob implements Job {
     try {
       grouperSession = GrouperSession.startRootSession();
       
-      if (!"STARTED".equals(hib3GrouploaderLog.getStatus()) && GrouperLoader.isJobRunning(jobName)) {
+      if (!"STARTED".equals(hib3GrouploaderLog.getStatus()) && GrouperLoader.isJobRunning(jobName, true)) {
         GrouperLoaderLogger.addLogEntry("grouperReportLog", "grouperReportingJobAlreadyRunningSoAborting", true);
         LOG.warn("job " + jobName + " is currently running already.  Aborting this run");
         return;

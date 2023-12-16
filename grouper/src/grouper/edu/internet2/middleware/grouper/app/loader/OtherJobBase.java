@@ -367,7 +367,7 @@ public abstract class OtherJobBase implements Job {
     String jobName = null;
     jobName = context.getJobDetail().getKey().getName();
 
-    if (GrouperLoader.isJobRunning(jobName)) {
+    if (GrouperLoader.isJobRunning(jobName, true)) {
       LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
       return;
     }
