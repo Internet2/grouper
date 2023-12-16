@@ -311,8 +311,9 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
       } else {
         this.setState(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStateDisabled"));
       }
-      
-      if (!isRunning && isEnabled) {
+
+      // the job wont run if isJobRunning, so add that here, dont show the button if so
+      if (!isRunning && isEnabled && !GrouperLoader.isJobRunning(jobName, false)) {
         this.setShowMoreActionsRunNow(true);
       }
       

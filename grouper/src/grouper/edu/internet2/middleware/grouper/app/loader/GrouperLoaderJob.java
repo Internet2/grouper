@@ -91,7 +91,7 @@ public class GrouperLoaderJob implements Job {
   
       GrouperLoaderLogger.addLogEntry("overallLog", "startTime", new Date());
       
-      if (GrouperLoader.isJobRunning(jobName)) {
+      if (GrouperLoader.isJobRunning(jobName, true)) {
         GrouperLoaderLogger.addLogEntry("overallLog", "alreadyRunningSoAborting", true);
         LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
         return;

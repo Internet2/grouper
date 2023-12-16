@@ -59,7 +59,7 @@ public class FindBadMembershipsDaemon implements Job {
 
       String jobName = context.getJobDetail().getKey().getName();
 
-      if (GrouperLoader.isJobRunning(jobName)) {
+      if (GrouperLoader.isJobRunning(jobName, true)) {
         LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
         return;
       }

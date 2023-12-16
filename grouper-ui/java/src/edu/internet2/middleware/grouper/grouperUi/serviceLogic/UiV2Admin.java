@@ -328,7 +328,11 @@ public class UiV2Admin extends UiServiceLogicBase {
         if (!StringUtils.isEmpty(action) && !StringUtils.isEmpty(jobName)) {
           JobKey jobKey = new JobKey(jobName);
           if ("runNow".equals(action)) {
-            scheduler.triggerJob(jobKey);
+            if (GrouperLoader.isJobRunning(jobName, false)) {
+              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, TextContainer.retrieveFromRequest().getText().get("daemonJobRunButRunning")));
+            } else {
+              scheduler.triggerJob(jobKey);
+            }
           } else if ("disable".equals(action)) {
             scheduler.pauseJob(jobKey);
             guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, TextContainer.retrieveFromRequest().getText().get("daemonJobDisabledSuccess")));
@@ -1264,7 +1268,7 @@ public class UiV2Admin extends UiServiceLogicBase {
         
       }
       
-      queryOptions = QueryOptions.create("lastUpdated", false, 1, maxLogs);
+      queryOptions = QueryOptions.create("startedTime", false, 1, maxLogs);
       
       
     }

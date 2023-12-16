@@ -1995,11 +1995,11 @@ public class GrouperLoader {
       boolean unscheduleAndReturn = false;
       
       if (StringUtils.isEmpty(cronString)) {
-        LOG.warn("Full synchronization provisioning jobs are not scheduled. To schedule full synchronization jobs, " +
+        LOG.info("Full synchronization provisioning jobs are not scheduled. To schedule full synchronization jobs, " +
                  "set grouper-loader.properties key 'changeLog.psp.fullSync.quartzCron' to a cron expression.");
         unscheduleAndReturn = true;
       } else if (StringUtils.isEmpty(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class"))) {
-        LOG.warn("Unable to run a full synchronization provisioning job. " +
+        LOG.info("Unable to run a full synchronization provisioning job. " +
             "Set grouper-loader.properties key 'changeLog.psp.fullSync.class' to the name of the class providing a fullSync() method.");
         unscheduleAndReturn = true;
       }
@@ -2008,7 +2008,7 @@ public class GrouperLoader {
         return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
       }
       
-      LOG.info("Scheduling " + GrouperLoaderType.PSP_FULL_SYNC.name());
+      //LOG.info("Scheduling " + GrouperLoaderType.PSP_FULL_SYNC.name());
         
       //at this point we have all the attributes and we know the required ones are there, and logged when 
       //forbidden ones are there
@@ -2023,8 +2023,9 @@ public class GrouperLoader {
   
       Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
   
-      return scheduleJobIfNeeded(jobDetail, trigger);
-  
+      // 2023/12/16 do not schedule the psp job
+      //return scheduleJobIfNeeded(jobDetail, trigger);
+      return false;
     } catch (Exception e) {
       String errorMessage = "Could not schedule job: '" + GrouperLoaderType.PSP_FULL_SYNC.name() + "'";
       LOG.error(errorMessage, e);
@@ -2361,9 +2362,10 @@ public class GrouperLoader {
   
   /**
    * @param jobName
+   * @param true if checking within this job (in which case checking to see if it is running elsewhere?)
    * @return true if the job appears to currently be running
    */
-  public static boolean isJobRunning(String jobName) {
+  public static boolean isJobRunning(String jobName, boolean checkingAtStartOfJobBeforeInsertingGrouperLoaderLog) {
 
     // old logic
     if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("daemon.legacyIsJobRunning", false)) {
@@ -2389,13 +2391,13 @@ public class GrouperLoader {
     //  then the job is running
 
     long assumeJobKilledIfNoUpdateInMillis = 1000L * GrouperConfig.retrieveConfig().propertyValueInt("loader.assumeJobKilledIfNoUpdateInSecondsV2", 50);
-    // last checkin in last 20 seconds
-    long lastCheckinTime = System.currentTimeMillis() - 20000;
+    // last checkin in last 50 seconds
+    long lastCheckinTime = System.currentTimeMillis() - 50000;
     List<Long> counts = new GcDbAccess().sql("select count(*) from grouper_loader_log where job_name = ? and status in ('STARTED', 'RUNNING') and last_updated > ? "
-        + " union "
+        + " union all "
         + " select count(*) from grouper_qz_fired_triggers gqft, grouper_qz_scheduler_state gqss "
         + " where gqft.job_name = ? and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > ? "
-        + " union "
+        + " union all "
         + " select count(*) from grouper_qz_fired_triggers gqft, grouper_qz_triggers gqt, grouper_qz_scheduler_state gqss "
         + " where gqft.trigger_name = gqt.trigger_name and gqt.job_name = ? "
         + " and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > ? ")
@@ -2404,7 +2406,8 @@ public class GrouperLoader {
         .addBindVar(jobName).addBindVar(lastCheckinTime).addBindVar(jobName).addBindVar(lastCheckinTime)
         .selectList(Long.class);
 
-    return counts.get(0) > 0 && (counts.get(1) > 0 || counts.get(2) > 0);
+    int rowsToFind = checkingAtStartOfJobBeforeInsertingGrouperLoaderLog ? 1 : 0;
+    return counts.get(0) > 0 && (counts.get(1) + counts.get(2) > rowsToFind);
   }
   
   /**
