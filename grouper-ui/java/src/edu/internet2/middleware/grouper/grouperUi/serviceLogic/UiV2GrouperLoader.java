@@ -1670,8 +1670,9 @@ public class UiV2GrouperLoader {
             TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditSaveSuccess")));
 
       } else {
-        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-            "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
+        // dont redraw screen if there is an error
+//        guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+//            "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
       }
           return null;
       }
