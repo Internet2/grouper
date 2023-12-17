@@ -21,6 +21,8 @@ package edu.internet2.middleware.grouper.grouperUi.beans.json;
 import java.io.Serializable;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import com.fasterxml.jackson.annotation.JsonRawValue;
 
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -57,6 +59,10 @@ public class GuiScreenAction implements Serializable {
    */
   public static GuiScreenAction newMessage(GuiMessageType guiMessageType, String message) {
     
+    if (StringUtils.isBlank(message)) {
+      throw new RuntimeException("Message is blank! " + guiMessageType);
+    }
+
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setMessage(message);
     guiScreenAction.setMessageType(guiMessageType.name());
@@ -72,6 +78,10 @@ public class GuiScreenAction implements Serializable {
    */
   public static GuiScreenAction newMessageAppend(GuiMessageType guiMessageType, String message) {
     
+    if (StringUtils.isBlank(message)) {
+      throw new RuntimeException("Message is blank! " + guiMessageType);
+    }
+
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setMessage(message);
     guiScreenAction.setMessageType(guiMessageType.name());
@@ -561,6 +571,11 @@ public class GuiScreenAction implements Serializable {
    * @return the action
    */
   public static GuiScreenAction newAlert(String theAlert) {
+    
+    if (StringUtils.isBlank(theAlert)) {
+      throw new RuntimeException("Alert is blank!");
+    }
+
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setAlert(theAlert);
     return guiScreenAction;
@@ -573,6 +588,11 @@ public class GuiScreenAction implements Serializable {
    * @return the action
    */
   public static GuiScreenAction newAlert(String theAlert, boolean theAlertCentered) {
+    
+    if (StringUtils.isBlank(theAlert)) {
+      throw new RuntimeException("Alert is blank!");
+    }
+
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setAlert(theAlert);
     guiScreenAction.setAlertCentered(theAlertCentered);
@@ -723,6 +743,10 @@ public class GuiScreenAction implements Serializable {
    */
   public static GuiScreenAction newValidationMessage(GuiMessageType guiMessageType, 
       String jqueryHandle, String message) {
+    
+    if (StringUtils.isBlank(message)) {
+      throw new RuntimeException("Message is blank! " + jqueryHandle + ", " + guiMessageType);
+    }
     
     GuiScreenAction guiScreenAction = new GuiScreenAction();
     guiScreenAction.setValidationMessage(message);
