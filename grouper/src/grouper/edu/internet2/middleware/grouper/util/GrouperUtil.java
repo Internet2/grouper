@@ -2480,7 +2480,7 @@ public class GrouperUtil {
    * @return the string of json
    */
   public static String jsonConvertTo(Object object) {
-    return jsonConvertTo(object, true);
+    return jsonConvertTo(object, !(object instanceof Map));
   }
 
   /**
@@ -3106,6 +3106,25 @@ public class GrouperUtil {
     
     return object;
   }
+
+  
+  /**
+   * convert an object from Map.
+   * @param jsonMap is the json map
+   * @param theClass is the class that the object should be coverted into.
+   * Note: only the top level object needs to be registered
+   * @return the object
+   * 
+   */
+  public static <T> T jsonConvertFromMap(Map<String, Object> jsonMap, Class<T> theClass) {
+
+    if (jsonMap == null) {
+      return null;
+    }
+    T val = objectMapper.convertValue(jsonMap, theClass);
+    return val;
+  }
+
   /**
    * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
    * @param json is the json string, not wrapped with a simple class name

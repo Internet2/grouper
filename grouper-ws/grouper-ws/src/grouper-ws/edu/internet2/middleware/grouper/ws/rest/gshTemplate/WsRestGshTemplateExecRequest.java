@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.ws.rest.gshTemplate;
 
+import java.util.Map;
+
 import edu.internet2.middleware.grouper.ws.coresoap.WsGroupLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsGshTemplateInput;
 import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
@@ -10,7 +12,16 @@ import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
 
 public class WsRestGshTemplateExecRequest implements WsRequestBean {
   
+  private Map<String, Object> wsInput;
   
+  public Map<String, Object> getWsInput() {
+    return wsInput;
+  }
+  
+  public void setWsInput(Map<String, Object> wsInput) {
+    this.wsInput = wsInput;
+  }
+
   private String configId;
   
   private String ownerType;

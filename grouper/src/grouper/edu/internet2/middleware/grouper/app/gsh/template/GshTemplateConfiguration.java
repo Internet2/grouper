@@ -5,6 +5,7 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang3.StringUtils;
@@ -247,16 +248,17 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
       
       if (stem == null) {
-        String error = GrouperTextContainer.textOrNull("customUiConfigSaveErrorFolderNotFound");
+        String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorFolderNotFound");
         error = GrouperUtil.replace(error, "$$folderUUIDOrName$$", folderUuidOrName);
         validationErrorsToDisplay.put(defaultRunButtonFolderUuidOrNameAttribute.getHtmlForElementIdHandle(), error);
-      } else {
-        // we still need to check if the default run folder is one of the folders where the template can show
-        if (!canDefaultRunFolderShowTemplate(stem)) {
-          String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorDefaultRunFolderNotInFoldersToShowList");
-          error = GrouperUtil.replace(error, "$$folderUUIDOrName$$", folderUuidOrName);
-          validationErrorsToDisplay.put(defaultRunButtonFolderUuidOrNameAttribute.getHtmlForElementIdHandle(), error);
-        }
+        return;
+      }
+      // we still need to check if the default run folder is one of the folders where the template can show
+      if (!canDefaultRunFolderShowTemplate(stem)) {
+        String error = GrouperTextContainer.textOrNull("gshTemplateConfigSaveErrorDefaultRunFolderNotInFoldersToShowList");
+        error = GrouperUtil.replace(error, "$$folderUUIDOrName$$", folderUuidOrName);
+        validationErrorsToDisplay.put(defaultRunButtonFolderUuidOrNameAttribute.getHtmlForElementIdHandle(), error);
+        return;
       }
       
     }
@@ -295,6 +297,33 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
           return;
         }
         
+      }
+      GrouperConfigurationModuleAttribute validationType = attributes.get("input."+i+".validationType");
+      if (validationType != null && StringUtils.equals(validationType.getValueOrExpressionEvaluation(), "regex")) {
+        GrouperConfigurationModuleAttribute validationRegexAttribute = attributes.get("input."+i+".validationRegex");
+        boolean invalidRegex = false;
+        
+        String error = null;
+        if (validationRegexAttribute == null) {
+          // not sure how this could happen
+          invalidRegex = true;
+          error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputInvalidRegex");
+        } else {
+          String regex = validationRegexAttribute.getValueOrExpressionEvaluation();
+          try {
+            Pattern.compile(regex);
+          } catch (Exception e) {
+            invalidRegex = true;
+            error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputInvalidRegex") + "<pre>" + e.getMessage() + "</pre>";
+          }
+        }
+        
+        if (invalidRegex) {
+          validationErrorsToDisplay.put(validationRegexAttribute.getHtmlForElementIdHandle(), error);
+          return;
+          
+        }
+                
       }
     }
     

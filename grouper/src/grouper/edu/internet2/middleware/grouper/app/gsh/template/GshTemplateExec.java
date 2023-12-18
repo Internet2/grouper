@@ -71,6 +71,30 @@ import edu.internet2.middleware.subject.Subject;
 public class GshTemplateExec {
   
   /**
+   * arbitrary wsInput
+   */
+  private Map<String, Object> wsInput = new HashMap<String, Object>();
+  
+  
+  
+  /**
+   * arbitrary wsInput
+   * @return
+   */
+  public Map<String, Object> getWsInput() {
+    return wsInput;
+  }
+
+  /**
+   * arbitrary wsInput
+   * @param wsInput
+   */
+  public GshTemplateExec assignWsInput(Map<String, Object> wsInput) {
+    this.wsInput = wsInput;
+    return this;
+  }
+
+  /**
    * pass in so you have a reference
    */
   private GrouperGroovyRuntime grouperGroovyRuntime = null;
@@ -345,7 +369,6 @@ public class GshTemplateExec {
       }
     });
     
-  
     if (this.gshTemplateExecOutput.getGshTemplateOutput().getValidationLines().size() > 0) {
       this.gshTemplateExecOutput.setValid(false);
       return this.gshTemplateExecOutput;
@@ -382,6 +405,10 @@ public class GshTemplateExec {
       scriptToRun.append("String gsh_builtin_subjectId = gsh_builtin_gshTemplateRuntime.getCurrentSubject().getId();\n");
     }
 
+    if (this.getWsInput() != null) {
+      gshTemplateRuntime.setWsInput(this.getWsInput());
+    }
+    
     if (this.gshTemplateOwnerType == GshTemplateOwnerType.stem) {
       gshTemplateRuntime.setOwnerStemName(ownerStemName);
     } else if (this.gshTemplateOwnerType == GshTemplateOwnerType.group) {
@@ -425,6 +452,13 @@ public class GshTemplateExec {
       String valueFromUser = null;
       if (gshTemplateInput != null) {
         valueFromUser = gshTemplateInput.getValueString();
+      }
+      
+      if (StringUtils.isBlank(valueFromUser)) {
+        String defaultValue = inputConfig.getDefaultValue();
+        if (!StringUtils.isBlank(defaultValue)) {
+          valueFromUser = defaultValue;
+        }
       }
       
       if (templateVersionV1) {

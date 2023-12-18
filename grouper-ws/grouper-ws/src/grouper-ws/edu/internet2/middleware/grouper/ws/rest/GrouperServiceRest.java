@@ -3003,7 +3003,7 @@ public class GrouperServiceRest {
       
       wsGshTemplateExecResult = GrouperServiceLogic.executeGshTemplate(clientVersion, wsRestGshTemplateExecRequest.getConfigId(),
           templateOwnerType, wsRestGshTemplateExecRequest.getOwnerGroupLookup(), wsRestGshTemplateExecRequest.getOwnerStemLookup(),
-          wsRestGshTemplateExecRequest.getInputs(),
+          wsRestGshTemplateExecRequest.getInputs(), wsRestGshTemplateExecRequest.getWsInput(),
           wsRestGshTemplateExecRequest.getGshTemplateActAsSubjectLookup(),
           wsRestGshTemplateExecRequest.getActAsSubjectLookup(), wsRestGshTemplateExecRequest.getParams());
     } catch (Exception e) {
