@@ -1,11 +1,37 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.util.HashMap;
+import java.util.Map;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateRuntime {
   
+  /**
+   * arbitrary wsInput
+   */
+  private Map<String, Object> wsInput = new HashMap<String, Object>();
+  
+  
+  
+  /**
+   * arbitrary wsInput
+   * @return
+   */
+  public Map<String, Object> getWsInput() {
+    return wsInput;
+  }
+
+  /**
+   * arbitrary wsInput
+   * @param wsInput
+   */
+  public void setWsInput(Map<String, Object> wsInput) {
+    this.wsInput = wsInput;
+  }
+
   /**
    * set this from script
    */

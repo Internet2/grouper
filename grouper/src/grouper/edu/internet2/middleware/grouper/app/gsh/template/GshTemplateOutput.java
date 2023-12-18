@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class GshTemplateOutput {
   
@@ -102,7 +103,27 @@ public class GshTemplateOutput {
     return this;
   }
 
+  /**
+   * set a map or javabean
+   */
+  private Object wsOutput;
   
+  /**
+   * set a map or javabean
+   * @return
+   */
+  public Object getWsOutput() {
+    return wsOutput;
+  }
+  
+  /**
+   * set a map or javabean
+   * @param wsOutput
+   */
+  public void setWsOutput(Object wsOutput) {
+    this.wsOutput = wsOutput;
+  }
+
   public List<GshValidationLine> getValidationLines() {
     return validationLines;
   }

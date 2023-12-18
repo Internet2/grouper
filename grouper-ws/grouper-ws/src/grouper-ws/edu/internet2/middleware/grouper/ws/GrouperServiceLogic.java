@@ -10976,6 +10976,7 @@ public class GrouperServiceLogic {
    * @param clientVersion is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @param configId configId of the template to execute
    * @param ownerType stem or group
+   * @param wsInput is a map from the arbitrary input
    * @param ownerGroupLookup owner group when ownerType is group
    * @param ownerStemLookup owner stem when ownerType is stem
    * @param inputs name/value pairs to inject into the template at runtime
@@ -10984,7 +10985,7 @@ public class GrouperServiceLogic {
    */
   public static WsGshTemplateExecResult executeGshTemplate(final GrouperVersion clientVersion,
       String configId, GshTemplateOwnerType ownerType, WsGroupLookup ownerGroupLookup, WsStemLookup ownerStemLookup,
-      final WsGshTemplateInput[] inputs,
+      final WsGshTemplateInput[] inputs, final Map<String, Object> wsInput,
       final WsSubjectLookup gshTemplateActAsSubjectLookup,
       final WsSubjectLookup actAsSubjectLookup, final WsParam[] params) {
 
@@ -11050,15 +11051,29 @@ public class GrouperServiceLogic {
         }
       }
       
-      for (WsGshTemplateInput wsTemplateInput: inputs) {
+      for (WsGshTemplateInput wsTemplateInput: GrouperUtil.nonNull(inputs, WsGshTemplateInput.class)) {
         GshTemplateInput input = new GshTemplateInput();
         input.assignName(wsTemplateInput.getName());
         input.assignValueString(wsTemplateInput.getValue());
         exec.addGshTemplateInput(input);
       }
       
+      for (String key: GrouperUtil.nonNull(wsInput).keySet()) {
+        if (key.startsWith("gsh_input_")) {
+          GshTemplateInput input = new GshTemplateInput();
+          input.assignName(key);
+          input.assignValueString(GrouperUtil.stringValue(wsInput.get(key)));
+          exec.addGshTemplateInput(input);
+        }
+      }
+      if (wsInput != null) {
+        exec.assignWsInput(wsInput);
+      }
+      
       GshTemplateExecOutput output = exec.execute();
 
+      wsGshTemplateExecResult.setWsOutput(output.getGshTemplateOutput() == null ? null : output.getGshTemplateOutput().getWsOutput());
+      
       wsGshTemplateExecResult.setGshExitCode(output.getGrouperGroovyResult().getResultCode());
       if (output.getException() != null) {
         wsGshTemplateExecResult.assignResultCodeException(output.getException(), output.getExceptionStack(), clientVersion);

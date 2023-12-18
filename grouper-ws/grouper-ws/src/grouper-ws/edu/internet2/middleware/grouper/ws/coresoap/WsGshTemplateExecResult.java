@@ -81,6 +81,27 @@ public class WsGshTemplateExecResult implements WsResponseBean, ResultMetadataHo
 
   private Integer gshExitCode;
 
+  /**
+   * set a map or javabean
+   */
+  private Object wsOutput;
+  
+  /**
+   * set a map or javabean
+   * @return
+   */
+  public Object getWsOutput() {
+    return wsOutput;
+  }
+  
+  /**
+   * set a map or javabean
+   * @param wsOutput
+   */
+  public void setWsOutput(Object wsOutput) {
+    this.wsOutput = wsOutput;
+  }
+
   
   public Boolean getTransaction() {
     return transaction;

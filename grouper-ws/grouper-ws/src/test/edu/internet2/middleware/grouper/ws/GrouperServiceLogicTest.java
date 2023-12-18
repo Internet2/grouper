@@ -10946,8 +10946,9 @@ public class GrouperServiceLogicTest extends GrouperTest {
     inputs[0] = wsGshTemplateInput;
     
     // execute gsh template
-    WsGshTemplateExecResult wsGshTemplateExecResult = GrouperServiceLogic.executeGshTemplate(GROUPER_VERSION, "testGshTemplateConfig", GshTemplateOwnerType.stem, null, wsStemLookup,
-        inputs, null, null, null);
+    WsGshTemplateExecResult wsGshTemplateExecResult = GrouperServiceLogic.executeGshTemplate(GROUPER_VERSION, "testGshTemplateConfig", 
+        GshTemplateOwnerType.stem, null, wsStemLookup,
+        inputs, null, null, null, null);
     
     assertEquals(wsGshTemplateExecResult.getResultMetadata().getResultMessage(),
         WsGetAuditEntriesResultsCode.SUCCESS.name(),
