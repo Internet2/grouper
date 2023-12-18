@@ -44,9 +44,9 @@ public class GrouperGoogleGroup {
       //settings
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_add", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "default_message_deny_text", Types.VARCHAR, "500", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "message_moderation_level", Types.VARCHAR, "15", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "reply_to", Types.VARCHAR, "15", false, false);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "spam_moderation_level", Types.VARCHAR, "15", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "message_moderation_level", Types.VARCHAR, "25", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "reply_to", Types.VARCHAR, "20", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "spam_moderation_level", Types.VARCHAR, "20", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_join", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_membership", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_group", Types.VARCHAR, "40", false, false);
