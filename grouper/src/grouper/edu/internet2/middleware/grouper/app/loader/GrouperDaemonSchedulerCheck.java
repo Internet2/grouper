@@ -185,6 +185,7 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
 
     if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("schedulerCheckDaemon.handleJobsWhereJvmDied", true)) {
       otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Skipping handleJobsWhereJvmDied.  ");
+      return;
     }
 
     //  has status of STARTED or RUNNING 
