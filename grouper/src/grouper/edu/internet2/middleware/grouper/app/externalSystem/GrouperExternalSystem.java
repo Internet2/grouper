@@ -104,7 +104,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     externalTypeClassNamesList.add(SftpGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(SmtpGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(SqsGrouperExternalSystem.class.getName());
-    //externalTypeClassNamesList.add(TeamDynamixExternalSystem.class.getName());
+    externalTypeClassNamesList.add(TeamDynamixExternalSystem.class.getName());
     externalTypeClassNamesList.add(WsBearerTokenExternalSystem.class.getName());
     
     String extraExternalSystemRegex = "^grouperExtraExternalSystem\\.([^.]+)\\.class$";
