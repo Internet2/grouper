@@ -76,7 +76,37 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
-    // TODO Auto-generated method stub
+    
+    //TODO think about batch sizes
+//    grouperProvisionerDaoCapabilities.setDefaultBatchSize(20);
+    
+    grouperProvisionerDaoCapabilities.setCanDeleteGroups(true);
+    
+    grouperProvisionerDaoCapabilities.setCanDeleteEntities(true);
+
+    grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
+
+    grouperProvisionerDaoCapabilities.setCanInsertEntities(true);
+
+    grouperProvisionerDaoCapabilities.setCanInsertGroups(true);
+
+    grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
+    grouperProvisionerDaoCapabilities.setInsertMembershipsBatchSize(400);
+
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
+//    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
+
+    grouperProvisionerDaoCapabilities.setCanRetrieveEntities(true);
+
+    grouperProvisionerDaoCapabilities.setCanRetrieveGroups(true);
+
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+
+    grouperProvisionerDaoCapabilities.setCanUpdateEntities(true);
+
+    grouperProvisionerDaoCapabilities.setCanUpdateGroups(true);
     
   }
 

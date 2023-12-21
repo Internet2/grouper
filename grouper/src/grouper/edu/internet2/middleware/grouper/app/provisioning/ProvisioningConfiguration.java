@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.app.remedyV2.RemedyProvisionerConfigurat
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
 import edu.internet2.middleware.grouper.app.sqlProvisioning.SqlProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixProvisionerConfiguration;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -98,6 +99,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(GrouperScim2Configuration.class.getName());
     configClassNamesList.add(RemedyProvisionerConfiguration.class.getName());
     configClassNamesList.add(SqlProvisionerConfiguration.class.getName());
+    configClassNamesList.add(TeamDynamixProvisionerConfiguration.class.getName());
     configClassNamesList.add(BoxProvisionerConfiguration.class.getName());
 //    provisionerConfigClassNames.add("edu.internet2.middleware.grouperBox.BoxProvisionerConfiguration");
     
