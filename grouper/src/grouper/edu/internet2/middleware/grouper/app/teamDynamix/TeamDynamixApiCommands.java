@@ -165,10 +165,11 @@ public class TeamDynamixApiCommands {
 
     String bearerToken = TeamDynamixExternalSystem
         .retrieveBearerTokenForTeamDynamixConfigId(debugMap, configId);
-    String graphEndpoint = GrouperLoaderConfig.retrieveConfig()
+    
+    String url = GrouperLoaderConfig.retrieveConfig()
         .propertyValueStringRequired(
-            "grouper.azureConnector." + configId + ".resourceEndpoint");
-    String url = graphEndpoint;
+            "grouper.teamDynamix." + configId + ".url");
+    
     if (url.endsWith("/")) {
       url = url.substring(0, url.length() - 1);
     }
