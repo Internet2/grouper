@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.teamDynamix;
 
 import java.sql.Types;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
@@ -33,11 +34,60 @@ public class TeamDynamixMembership {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_mship_uid_idx", false, "user_id");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_mship_uid_idx", true, "group_id", "user_id");
       
-      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_azure_mship_gid_fkey", "mock_azure_group", "group_id", "id");
-      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_azure_mship_uid_fkey", "mock_azure_user", "user_id", "id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_teamdynamix_mship_gid_fkey", "mock_teamdynamix_group", "group_id", "id");
+      GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "mock_teamdynamix_mship_uid_fkey", "mock_teamdynamix_user", "user_id", "id");
     }
     
   }
+  
+  private String userId;
+  
+  private String groupId;
+  
+  public String getUserId() {
+    return userId;
+  }
 
+  
+  public void setUserId(String userId) {
+    this.userId = userId;
+  }
+
+  
+  public String getGroupId() {
+    return groupId;
+  }
+  
+  public void setGroupId(String groupId) {
+    this.groupId = groupId;
+  }
+
+  private String id;
+
+  public String getId() {
+    return id;
+  }
+
+  public void setId(String id) {
+    this.id = id;
+  }
+  
+  public ProvisioningMembership toProvisioningMembership() {
+    ProvisioningMembership targetMembership = new ProvisioningMembership();
+    
+    if (this.groupId != null) {
+      targetMembership.setProvisioningGroupId(this.groupId);
+    }
+    
+    if (this.userId != null) {
+      targetMembership.setProvisioningEntityId(this.userId);
+    }
+    
+    if (this.id != null) {
+      targetMembership.setId(this.id);
+    }
+    
+    return targetMembership;
+  }
 
 }
