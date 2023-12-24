@@ -98,6 +98,16 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
  * </pre>
  * </blockquote>
  * </p>
+ * 
+ * <p>
+ * Rename a group to same parent folder
+ * <blockquote> 
+ * <pre>
+ * new GroupSave().assignGroupNameToEdit("folder:oldName").assignName("folder:newName").assignReplaceAllSettings(false).save();
+ * </pre>
+ * </blockquote>
+ * </p>
+ * 
  */
 public class GroupSave {
   

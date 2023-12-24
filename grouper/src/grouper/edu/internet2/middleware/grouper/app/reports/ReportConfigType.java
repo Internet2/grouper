@@ -75,11 +75,11 @@ public enum ReportConfigType {
         scriptToRun.append("String gsh_builtin_ownerStemName = gsh_builtin_gshReportRuntime.getOwnerStemName();\n");
         scriptToRun.append("String gsh_builtin_ownerGroupName = gsh_builtin_gshReportRuntime.getOwnerGroupName();\n");
   
-  
+        GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
+        grouperGroovyInput.assignScriptPrependHeaders(GrouperUtil.whitespaceCountNewLines(gshScript.toString()));
         scriptToRun.append(gshScript);
 
         // keep a handle of the runtime
-        GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
         GrouperGroovyRuntime grouperGroovyRuntime = new GrouperGroovyRuntime();
 
         grouperGroovyInput.assignGrouperGroovyRuntime(grouperGroovyRuntime);
