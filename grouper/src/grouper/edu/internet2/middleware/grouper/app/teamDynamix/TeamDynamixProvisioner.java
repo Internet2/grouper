@@ -2,8 +2,6 @@ package edu.internet2.middleware.grouper.app.teamDynamix;
 
 import edu.internet2.middleware.grouper.app.azure.AzureProvisioningTranslator;
 import edu.internet2.middleware.grouper.app.azure.AzureSyncObjectMetadata;
-import edu.internet2.middleware.grouper.app.azure.GrouperAzureConfiguration;
-import edu.internet2.middleware.grouper.app.azure.GrouperAzureTargetDao;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
@@ -20,8 +18,7 @@ public class TeamDynamixProvisioner extends GrouperProvisioner {
 
   @Override
   protected Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass() {
-//    return TeamDynamixConfiguration.class;
-    return null;
+    return TeamDynamixProvisioningConfiguration.class;
   }
 
   @Override
@@ -29,14 +26,14 @@ public class TeamDynamixProvisioner extends GrouperProvisioner {
     grouperProvisioningBehavior.setGrouperProvisioningBehaviorMembershipType(GrouperProvisioningBehaviorMembershipType.membershipObjects);
   }
   
-  @Override
-  protected Class<? extends GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass() {
-    return AzureSyncObjectMetadata.class;
-  }
-
-  @Override
-  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
-    return AzureProvisioningTranslator.class;
-  }
+//  @Override
+//  protected Class<? extends GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass() {
+//    return AzureSyncObjectMetadata.class;
+//  }
+//
+//  @Override
+//  protected Class<? extends GrouperProvisioningTranslator> grouperTranslatorClass() {
+//    return AzureProvisioningTranslator.class;
+//  }
 
 }

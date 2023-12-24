@@ -75,6 +75,10 @@ import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.GrouperD
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Group;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Membership;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
+import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixAuth;
+import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixGroup;
+import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixMembership;
+import edu.internet2.middleware.grouper.app.teamDynamix.TeamDynamixUser;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -267,6 +271,11 @@ public abstract class Hib3DAO {
         addClass(configuration, GrouperDigitalMarketplaceUser.class);
         addClass(configuration, GrouperDigitalMarketplaceMembership.class);
         addClass(configuration, GrouperDigitalMarketplaceAuth.class);
+        
+        addClass(configuration, TeamDynamixGroup.class);
+        addClass(configuration, TeamDynamixUser.class);
+        addClass(configuration, TeamDynamixMembership.class);
+        addClass(configuration, TeamDynamixAuth.class);
         
       }
       addClass(configuration, Hib3MemberDAO.class);

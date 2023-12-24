@@ -192,7 +192,7 @@ public class TeamDynamixExternalSystem extends GrouperExternalSystem {
       long secondsExpiresOn = System.currentTimeMillis() / 1000 + expiresInSeconds;
       
       // https://solutions.teamdynamix.com/TDClient/1965/Portal/KB/ArticleDet?ID=1715
-      final String url = loginEndpoint + (loginEndpoint.endsWith("/") ? "" : "/") + "/api/auth/loginadmin";
+      final String url = loginEndpoint + (loginEndpoint.endsWith("/") ? "" : "/") + "api/auth/loginadmin";
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
       grouperHttpClient.assignUrl(url);
 
@@ -202,12 +202,10 @@ public class TeamDynamixExternalSystem extends GrouperExternalSystem {
       grouperHttpClient.assignProxyUrl(proxyUrl);
       grouperHttpClient.assignProxyType(proxyType);
 
-      // {"BEID":"df0b5273-d7d4-44a3-9dbb-73a57c2904a9","WebServicesKey":"2313ed32-7b4c-4c5b-8974-126a638d0de1"}
       ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
       jsonJacksonNode.put("BEID", beid);
       jsonJacksonNode.put("WebServicesKey", webServicesKey);
       String authnBody = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
-      
       
       grouperHttpClient.assignBody(authnBody);
   
