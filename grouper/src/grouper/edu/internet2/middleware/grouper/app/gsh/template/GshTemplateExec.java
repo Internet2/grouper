@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyExit;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
@@ -471,6 +472,8 @@ public class GshTemplateExec {
       }
     }
     
+    grouperGroovyInput.assignScriptPrependHeaders(GrouperUtil.whitespaceCountNewLines(scriptToRun.toString()));
+
     scriptToRun.append(templateConfig.getGshTemplate());
     GrouperSession grouperSession = null;
     
@@ -524,8 +527,21 @@ public class GshTemplateExec {
                 }
               }
               if (templateVersionV2) {
+                try {
+                  gshTemplateV2.gshRunLogic(gshTemplateV2input, gshTemplateV2output);
+                } catch (Throwable t) {
+                  if (t instanceof GrouperGroovyExit) {
+                    GrouperGroovyExit grouperGroovyExit = (GrouperGroovyExit)t.getCause();
+                    if (grouperGroovyExit.getExitCode() != 0 || GrouperUtil.defaultIfNull(grouperGroovyResult.getResultCode(), 0) == 0) {
+                      grouperGroovyResult.setResultCode(grouperGroovyExit.getExitCode());
+                    }
+                    // this is a normal exit
+                  } else {
 
-                gshTemplateV2.gshRunLogic(gshTemplateV2input, gshTemplateV2output);
+                    t = GrouperGroovysh.handleGshException(gshTemplateV2.isLightWeight(), gshTemplateV2.getScriptPrependHeaders(), gshTemplateV2.getSource(), t);
+                    throw GrouperUtil.exceptionConvertToRuntime(t, null);
+                  }
+                }
               }
               
               for (GshOutputLine gshOutputLine: gshTemplateExecOutput.getGshTemplateOutput().getOutputLines()) {
@@ -648,12 +664,11 @@ public class GshTemplateExec {
 
           StringBuilder scriptToRun = new StringBuilder();
           
-          scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
+          scriptToRun.append("GshTemplateRuntime gsh_builtin_gshTemplateRuntime = edu.internet2.middleware.grouper.app.gsh.template.GshTemplateRuntime.retrieveGshTemplateRuntime();\n");
           
           boolean templateVersionV2 = StringUtils.equals("V2", templateConfig.getTemplateVersion());
           
           GrouperUtil.assertion(templateVersionV2, "GSH template must be template type V2!");
-          GrouperUtil.assertion(!templateConfig.isGshLightweight(), "V2 GSH template must not be 'lightweight'!");
           
           gshTemplateV2[0] = configIdToGshTemplateV2.get(configId);
           String cachedSource = configIdToGshTemplateV2source.get(configId);
@@ -667,6 +682,8 @@ public class GshTemplateExec {
               GshTemplateExec.this.grouperGroovyRuntime = new GrouperGroovyRuntime();
             }
             grouperGroovyInput.assignGrouperGroovyRuntime(GshTemplateExec.this.grouperGroovyRuntime);
+            
+            grouperGroovyInput.assignScriptPrependHeaders(GrouperUtil.whitespaceCountNewLines(scriptToRun.toString()));
             
             scriptToRun.append(templateConfig.getGshTemplate());
             
@@ -686,6 +703,10 @@ public class GshTemplateExec {
             if (gshTemplateV2[0] == null) {
               throw new RuntimeException("The script did not set the template! gsh_builtin_gshTemplateRuntime.assignGshTemplateV2(gshTemplateV2);");
             }
+            
+            gshTemplateV2[0].setSource(grouperGroovyResult.getOverallScript());
+            gshTemplateV2[0].setLightWeight(grouperGroovyInput.isLightWeight());
+            gshTemplateV2[0].setScriptPrependHeaders(grouperGroovyInput.getScriptPrependHeaders());
             
             configIdToGshTemplateV2.put(configId, gshTemplateV2[0]);
             configIdToGshTemplateV2source.put(configId, templateConfig.getGshTemplate());
@@ -710,8 +731,9 @@ public class GshTemplateExec {
         GshTemplateRuntime.removeThreadLocalGshTemplateRuntime();
       }
     }
-    return GrouperUtil.newInstance(gshTemplateV2[0].getClass());
-    
+     GshTemplateV2 gshTemplateV2new = GrouperUtil.newInstance(gshTemplateV2[0].getClass());
+     gshTemplateV2new.copyStateFrom(gshTemplateV2[0]);
+     return gshTemplateV2new;
   }
 
   

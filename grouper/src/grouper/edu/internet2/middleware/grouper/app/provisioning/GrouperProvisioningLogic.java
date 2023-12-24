@@ -1540,7 +1540,7 @@ public class GrouperProvisioningLogic {
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
       
       ProvisioningGroup provisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
-      
+
       boolean shouldSkip = provisioningGroup == null || !provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject();
 
       // shouldnt be null at this point

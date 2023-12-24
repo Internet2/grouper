@@ -8,6 +8,28 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 public class GrouperGroovyInput {
 
   /**
+   * how many lines are prepended to the script
+   */
+  private int scriptPrependHeaders = 0;
+  
+  /**
+   * how many lines are prepended to the script
+   * @return
+   */
+  public int getScriptPrependHeaders() {
+    return scriptPrependHeaders;
+  }
+
+  /**
+   * how many lines are prepended to the script
+   * @param scriptPrependHeaders
+   */
+  public GrouperGroovyInput assignScriptPrependHeaders(int scriptPrependHeaders) {
+    this.scriptPrependHeaders = scriptPrependHeaders;
+    return this;
+  }
+
+  /**
    * pass in so you have a reference
    */
   private GrouperGroovyRuntime grouperGroovyRuntime = null;

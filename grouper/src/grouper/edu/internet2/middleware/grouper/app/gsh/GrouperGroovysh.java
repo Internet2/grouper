@@ -27,6 +27,7 @@ import javax.script.ScriptException;
 import org.apache.commons.lang.StringUtils;
 import org.codehaus.groovy.control.CompilerConfiguration;
 import org.codehaus.groovy.control.customizers.ImportCustomizer;
+import org.codehaus.groovy.runtime.StackTraceUtils;
 import org.codehaus.groovy.tools.shell.Groovysh;
 import org.codehaus.groovy.tools.shell.IO;
 import org.codehaus.groovy.tools.shell.Interpreter;
@@ -90,6 +91,30 @@ public class GrouperGroovysh extends Groovysh {
   
   public static class GrouperGroovyResult {
     
+    /**
+     * the overall script that was run
+     */
+    private String overallScript = null;
+    
+    
+    
+    /**
+     * the overall script that was run
+     * @return
+     */
+    public String getOverallScript() {
+      return overallScript;
+    }
+
+    /**
+     * the overall script that was run
+     * @param overallScript
+     */
+    public void setOverallScript(String overallScript) {
+      this.overallScript = overallScript;
+    }
+
+
     /**
      * debug map from script
      */
@@ -256,13 +281,13 @@ public class GrouperGroovysh extends Groovysh {
   }
 
   /**
-   * cache 10000 scripts
+   * cache 200 scripts
    */
   private static Map<String, GrouperGroovyScript> scriptCache = Collections.synchronizedMap(new LinkedHashMap<String, GrouperGroovyScript>() {
 
     @Override
     protected boolean removeEldestEntry(Entry<String, GrouperGroovyScript> eldest) {
-      return size() > 10000;
+      return size() > 200;
     }
     
     
@@ -273,6 +298,33 @@ public class GrouperGroovysh extends Groovysh {
   
   private static Compilable scriptEngine = (Compilable)scriptEngineManager.getEngineByName("groovy");
   
+  /**
+   * how many lines are in the lightweight profile
+   */
+  private static int lightWeightLines = -1;
+
+  /**
+   * how many lines are in the normal profile
+   */
+  private static int normalLines = -1;
+  
+  
+  /**
+   * how many lines are in the lightweight profile
+   * @return
+   */
+  public static int getLightWeightLines() {
+    return lightWeightLines;
+  }
+
+  /**
+   * how many lines are in the normal profile
+   * @return
+   */
+  public static int getNormalLines() {
+    return normalLines;
+  }
+
   /**
    * run a script and return the result.  Note, check for exception and rethrow.
    * Note this uses
@@ -295,15 +347,24 @@ public class GrouperGroovysh extends Groovysh {
       StringBuilder script = new StringBuilder();
       if (grouperGroovyInput.isLightWeight()) {
         script.append(GrouperUtil.readResourceIntoString("groovy_lightWeight.profile", false)).append("\n");
+        if (lightWeightLines == -1) {
+          lightWeightLines = GrouperUtil.whitespaceCountNewLines(script.toString());
+        }
+        grouperGroovyInput.assignScriptPrependHeaders(grouperGroovyInput.getScriptPrependHeaders() + lightWeightLines);
       } else {
         script.append(GrouperUtil.readResourceIntoString("groovy.profile", false)).append("\n");
+        if (normalLines == -1) {
+          normalLines = GrouperUtil.whitespaceCountNewLines(script.toString());
+        }
+        grouperGroovyInput.assignScriptPrependHeaders(grouperGroovyInput.getScriptPrependHeaders() + normalLines);
       }
-
+      
       GrouperUtil.assertion(!StringUtils.isBlank(grouperGroovyInput.getScript()), "Script is required");
       
       script.append(grouperGroovyInput.getScript());
       
-      String scriptString = script.toString();
+      final String scriptString = script.toString();
+      grouperGroovyResult.setOverallScript(scriptString);
       GrouperGroovyScript grouperGroovyScript = scriptCache.get(scriptString);
       
       if (grouperGroovyScript == null) {
@@ -364,7 +425,9 @@ public class GrouperGroovysh extends Groovysh {
                           }
                           // this is a normal exit
                         } else {
-                          throw new RuntimeException("error running script", scriptException);
+                          Throwable scriptException2 = handleGshException(grouperGroovyInput.isLightWeight(), 
+                              grouperGroovyInput.getScriptPrependHeaders(), scriptString, scriptException);
+                          throw new RuntimeException("error running script", scriptException2);
                         }
                       }
                       return null;
@@ -495,5 +558,34 @@ public class GrouperGroovysh extends Groovysh {
     
     return GrouperSession.startRootSession();
     
+  }
+
+  public static Throwable handleGshException(boolean isLightWeight, int scriptPrependHeaders,
+      final String scriptString, Throwable scriptException) {
+    Throwable scriptException2 = StackTraceUtils.deepSanitize(scriptException);
+    int expandedLineNumber = -1;
+    Throwable currentCause = scriptException2;
+    OUTER: while(currentCause != null) {
+      for (StackTraceElement stackTraceElement : GrouperUtil.nonNull(currentCause.getStackTrace(), StackTraceElement.class)) {
+        if (GrouperUtil.defaultString(stackTraceElement.getFileName()).matches("^Script\\d+\\.groovy$")) {
+          expandedLineNumber = stackTraceElement.getLineNumber();
+          break OUTER;
+        }
+      }
+      currentCause = currentCause.getCause();
+    }
+    if (expandedLineNumber != -1) {
+      StringBuilder exceptionInfo = new StringBuilder("Error on original script line number: " + (expandedLineNumber - scriptPrependHeaders));
+      if (isLightWeight) {
+        exceptionInfo.append("\nError on prepended script line number: " + (expandedLineNumber - lightWeightLines));
+      } else {
+        exceptionInfo.append("\nError on prepended script line number: " + (expandedLineNumber - normalLines));
+      }
+      exceptionInfo.append("\nError on profile prepended script line number: " + expandedLineNumber);
+      String[] scriptLines = GrouperUtil.whitespaceNormalizeNewLines(scriptString).split("\n");
+      exceptionInfo.append("\nError with line: " + scriptLines[expandedLineNumber-1]).append("\n");
+      GrouperUtil.injectInException(scriptException2, exceptionInfo.toString());
+    }
+    return scriptException2;
   }
 }
