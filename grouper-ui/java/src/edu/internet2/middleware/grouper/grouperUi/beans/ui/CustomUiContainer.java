@@ -509,6 +509,7 @@ public class CustomUiContainer {
         grouperGroovyInput.assignInputValueObject("group", group);
         script.append("Group group = (Group)grouperGroovyRuntime.retrieveInputValueObject(\"group\");\n");
         script.append("GrouperSession grouperSession = grouperGroovyRuntime.getGrouperSession();\n");
+        grouperGroovyInput.assignScriptPrependHeaders(GrouperUtil.whitespaceCountNewLines(script.toString()));
         script.append(scriptPart);
         grouperGroovyInput.assignScript(script.toString());
         GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();

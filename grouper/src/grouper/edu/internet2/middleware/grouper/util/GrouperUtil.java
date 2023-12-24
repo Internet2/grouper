@@ -116,6 +116,7 @@ import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+import org.apache.commons.text.WordUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
@@ -8796,6 +8797,17 @@ public class GrouperUtil {
     String modifiedInput = input.replaceAll("\r\n", "\n");
     modifiedInput = modifiedInput.replaceAll("\r", "\n");
     return modifiedInput;
+  }
+  
+  /**
+   * normalize newlines then count newlines
+   * @param input
+   * @return new string
+   */
+  public static int whitespaceCountNewLines(String input) {
+    
+    input = whitespaceNormalizeNewLines(input);
+    return StringUtils.countMatches(input, '\n');
   }
   
   /**
