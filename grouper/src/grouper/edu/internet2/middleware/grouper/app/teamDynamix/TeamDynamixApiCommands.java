@@ -889,7 +889,7 @@ public class TeamDynamixApiCommands {
       JsonNode jsonToSend = grouperGoogleGroup.toJson(null);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups", GrouperUtil.toSet(200), 
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/groups", GrouperUtil.toSet(201), 
           new int[] { -1 }, jsonStringToSend);
 
       TeamDynamixGroup teamDynamixGroupResult = TeamDynamixGroup.fromJson(jsonNode);

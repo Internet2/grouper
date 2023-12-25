@@ -90,11 +90,11 @@ public class TeamDynamixGroup {
     
     TeamDynamixGroup teamDynamixGroup = new TeamDynamixGroup();
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
-      teamDynamixGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Description")) {      
+      teamDynamixGroup.setDescription(targetGroup.retrieveAttributeValueString("Description"));
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
-      teamDynamixGroup.setName(targetGroup.getDisplayName());
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Name")) {      
+      teamDynamixGroup.setName(targetGroup.retrieveAttributeValueString("Name"));
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
@@ -130,19 +130,21 @@ public class TeamDynamixGroup {
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
     ObjectNode result = GrouperUtil.jsonJacksonNode();
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Description")) {      
       result.put("Description", this.description);
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Name")) {      
       result.put("Name", this.name);
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Id")) {
       if (!StringUtils.isBlank(this.id)) {
         result.put("ID", this.id);
       }
     }
+    
+    result.put("IsActive", true);
     
     return result;
   }

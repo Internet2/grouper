@@ -176,7 +176,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
     
     long startNanos = System.nanoTime();
     ProvisioningGroup targetGroup = targetDaoInsertGroupRequest.getTargetGroup();
-
+    
     try {
       TeamDynamixProvisioningConfiguration duoConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
