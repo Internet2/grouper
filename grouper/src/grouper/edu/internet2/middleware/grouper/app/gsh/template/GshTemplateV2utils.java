@@ -94,7 +94,7 @@ public class GshTemplateV2utils {
     GshTemplateV2input gshTemplateV2input = new GshTemplateV2input();
 
     GshTemplateRuntime gshTemplateRuntime = new GshTemplateRuntime();
-
+    
     boolean[] validTest = new boolean[] {true};
     
     boolean startedSession = false;
@@ -115,6 +115,7 @@ public class GshTemplateV2utils {
       return gshTemplateV2testOutput;
     }
     gshTemplateV2testOutput.setSetupSuccess(true);
+    gshTemplateRuntime.setWsInput(gshTemplateV2test.getGshWsInput());
 
     final GshTemplateOutput gshTemplateOutput = new GshTemplateOutput();
     gshTemplateV2testOutput.setGsh_builtin_gshTemplateOutput(gshTemplateOutput);
@@ -176,8 +177,15 @@ public class GshTemplateV2utils {
       
       GshTemplateExec gshTemplateExec = new GshTemplateExec();
 
+      gshTemplateExec.assignWsInput(gshTemplateV2test.getGshWsInput());
+
       for (String gshInputName : gshInputs.keySet()) {
         String gshInputValue = gshInputs.get(gshInputName);
+        
+        if (gshInputName.startsWith("gsh_input_") && gshTemplateV2test.getGshWsInput().containsKey(gshInputName)) {
+          gshInputValue = GrouperUtil.stringValue(gshTemplateV2test.getGshWsInput().get(gshInputName));
+        }
+        
         GshTemplateInput gshTemplateInput = new GshTemplateInput();
         gshTemplateInput.assignName(gshInputName);
         gshTemplateInput.assignValueString(gshInputValue);
@@ -273,6 +281,7 @@ public class GshTemplateV2utils {
       GshTemplateV2testOutput gshTemplateV2testOutput) {
     
     GshTemplateV2test gshTemplateV2test = gshTemplateV2testOutput.getGshTemplateV2test();
+    gshTemplateExecTestOutput.addTest();
     
     if (gshTemplateV2testOutput.isSetupSuccess() && gshTemplateV2testOutput.isRunLogicSuccess() 
         && gshTemplateV2testOutput.isCheckResultSuccess() && gshTemplateV2testOutput.isTearDownSuccess()

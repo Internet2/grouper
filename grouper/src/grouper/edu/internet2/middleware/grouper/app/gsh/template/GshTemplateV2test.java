@@ -18,6 +18,23 @@ import edu.internet2.middleware.subject.Subject;
  */
 public abstract class GshTemplateV2test extends GrouperTestInApi {
 
+  private Map<String, Object> gshWsInput = new LinkedHashMap<>();
+  
+  public void setGshWsInput(Object wsInputBean) {
+    if (wsInputBean == null) {
+      gshWsInput = new LinkedHashMap<>();
+    } else if (wsInputBean instanceof Map) {
+      gshWsInput = (Map)wsInputBean;
+    } else {
+      String json = GrouperUtil.jsonConvertToNoWrap(wsInputBean);
+      this.gshWsInput = GrouperUtil.jsonConvertFrom(json, Map.class);
+    }
+  }
+  
+  public Map<String, Object> getGshWsInput() {
+    return gshWsInput;
+  }
+
   /**
    * where template is called
    */

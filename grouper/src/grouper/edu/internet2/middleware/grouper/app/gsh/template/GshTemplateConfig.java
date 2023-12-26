@@ -66,6 +66,13 @@ public class GshTemplateConfig {
   
   private GshTemplateGroupShowOnDescendants gshTemplateGroupShowOnDescendants;
   
+  private boolean allowWsFromNoOwner;
+  
+  
+  public boolean isAllowWsFromNoOwner() {
+    return allowWsFromNoOwner;
+  }
+
   private boolean showOnFolders;
   
   private GshTemplateFolderShowType gshTemplateFolderShowType;
@@ -413,6 +420,8 @@ public class GshTemplateConfig {
           }
           
         }
+        
+        allowWsFromNoOwner = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"allowWsFromNoOwner", false);
         
         showOnFolders = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showOnFolders", false);
         

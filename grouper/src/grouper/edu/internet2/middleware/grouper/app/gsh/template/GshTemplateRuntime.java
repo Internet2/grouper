@@ -47,6 +47,18 @@ public class GshTemplateRuntime {
   
   /**
    * set this from script
+   * @param gshTemplateV2
+   */
+  public void assignGshTemplateV2internal(GshTemplateV2 gshTemplateV2) {
+    // if the script didnt set it, try to set it
+    if (this.gshTemplateV2 == null) { 
+      this.gshTemplateV2 = gshTemplateV2;
+    }
+  }
+  
+
+  /**
+   * set this from script
    * @return
    */
   public GshTemplateV2 getGshTemplateV2() {

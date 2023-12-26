@@ -12,7 +12,7 @@ public class GshTemplateExecOutput {
   
   private GshTemplateOutput gshTemplateOutput;
   
-  private GrouperGroovyResult grouperGroovyResult;
+  private GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
   
   public GrouperGroovyResult getGrouperGroovyResult() {
     return grouperGroovyResult;
