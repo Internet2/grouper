@@ -56,6 +56,10 @@ public class GshTemplateExecTestOutput {
     this.failures++;
   }
    
+  public void addTest() {
+    this.tests++;
+  }
+   
   public void addException() {
     this.exceptions++;
   }

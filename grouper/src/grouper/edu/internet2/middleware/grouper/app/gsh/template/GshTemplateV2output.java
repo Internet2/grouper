@@ -3,7 +3,7 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 
 public class GshTemplateV2output {
 
-  private GshTemplateOutput gsh_builtin_gshTemplateOutput;
+  private GshTemplateOutput gsh_builtin_gshTemplateOutput = new GshTemplateOutput();
 
   public GshTemplateOutput getGsh_builtin_gshTemplateOutput() {
     return gsh_builtin_gshTemplateOutput;

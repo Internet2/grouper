@@ -8,6 +8,8 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -414,7 +416,7 @@ public class GshTemplateExec {
       gshTemplateRuntime.setOwnerStemName(ownerStemName);
     } else if (this.gshTemplateOwnerType == GshTemplateOwnerType.group) {
       gshTemplateRuntime.setOwnerGroupName(ownerGroupName);
-    } else {
+    } else if (!templateConfig.isAllowWsFromNoOwner()) {
       throw new RuntimeException("Invalid gsh template owner type "+this.gshTemplateOwnerType);
     }
     
@@ -687,7 +689,19 @@ public class GshTemplateExec {
             
             scriptToRun.append(templateConfig.getGshTemplate());
             
+            // class Test25membershipCountV2convert extends GshTemplateV2
+            // class Test25membershipCountV2convert extends edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2
+            Pattern pattern = Pattern.compile(".*class\\s+([^\\s]+)\\s+extends\\s+(edu\\.internet2\\.middleware\\.grouper\\.app\\.gsh\\.template\\.)?GshTemplateV2(\\{|\\s).*", Pattern.DOTALL);
+            Matcher matcher = pattern.matcher(templateConfig.getGshTemplate());
+            if (matcher.matches()) {
+              String className = matcher.group(1);
+              scriptToRun.append("\ngsh_builtin_gshTemplateRuntime.assignGshTemplateV2internal(new " + className + "());");
+            }
+
             GrouperGroovyResult grouperGroovyResult = new GrouperGroovyResult();
+            
+            String scriptString = scriptToRun.toString();
+            
             grouperGroovyInput.assignScript(scriptToRun.toString());
 
             gshTemplateExecOutput.setGrouperGroovyResult(grouperGroovyResult);
@@ -701,7 +715,7 @@ public class GshTemplateExec {
             gshTemplateV2[0] = gshTemplateRuntime.getGshTemplateV2();
             
             if (gshTemplateV2[0] == null) {
-              throw new RuntimeException("The script did not set the template! gsh_builtin_gshTemplateRuntime.assignGshTemplateV2(gshTemplateV2);");
+              throw new RuntimeException("The script did not set the template or the GshTemplateV2 class couldnt be found! gsh_builtin_gshTemplateRuntime.assignGshTemplateV2(new MyGshTemplateV2);");
             }
             
             gshTemplateV2[0].setSource(grouperGroovyResult.getOverallScript());

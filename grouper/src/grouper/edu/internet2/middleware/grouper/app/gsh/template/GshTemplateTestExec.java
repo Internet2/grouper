@@ -102,6 +102,7 @@ public class GshTemplateTestExec {
         this.getProgressBean().setProgressTotalRecords(gshTemplateV2tests.size());
         
         int testsDone = 0;
+        
         for (String testName : gshTemplateV2tests.keySet()) {
           GshTemplateV2test gshTemplateV2test = gshTemplateV2tests.get(testName);
           
