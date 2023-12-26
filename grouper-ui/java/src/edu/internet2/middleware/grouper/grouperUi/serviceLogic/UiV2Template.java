@@ -481,13 +481,14 @@ public class UiV2Template {
       // see if running in thread
       boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.gshExec.useThread", true);
 
+      boolean done = false;
       if (useThreads) {
         
         GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
         
-        int waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.gshExec.progressStartsInSeconds", 5);
+        int waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.gshExec.progressStartsInSeconds", 10);
 
-        GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
+        done = GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
         
       } else {
         grouperCallable.callLogic();
@@ -495,10 +496,23 @@ public class UiV2Template {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+      if (done) {
+        GshTemplateExecOutput gshTemplateExecOutput = exec.getGshTemplateExecOutput();
+        String redirectToGrouperOperation = (gshTemplateExecOutput == null || gshTemplateExecOutput.getGshTemplateOutput() == null) ? null 
+            : gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation();
+        
+        // if we are done and not moving pages, then redraw the form
+        if (StringUtils.equalsIgnoreCase("NONE", redirectToGrouperOperation)) {
+          boolean simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + exec.getConfigId() + ".simplifiedUi", false);
+
+          newTemplateHelper(request, response, simplifiedUi);
+        }
+
+      }
       // running...
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
       
-      customTemplateExecuteHelper(sessionId, uniqueId); 
+      customTemplateExecuteHelper(request, response, sessionId, uniqueId); 
                   
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
@@ -521,7 +535,7 @@ public class UiV2Template {
 
       String sessionId = request.getSession().getId();
       String uniqueId = request.getParameter("uniqueId");
-      customTemplateExecuteHelper(sessionId, uniqueId);
+      customTemplateExecuteHelper(request, response, sessionId, uniqueId);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -532,7 +546,7 @@ public class UiV2Template {
    * @param request
    * @param response
    */
-  private void customTemplateExecuteHelper(String sessionId, String uniqueImportId) {
+  private void customTemplateExecuteHelper(final HttpServletRequest request, final HttpServletResponse response, String sessionId, String uniqueImportId) {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -706,7 +720,8 @@ public class UiV2Template {
           String redirectToGrouperOperation = gshTemplateExecOutput.getGshTemplateOutput() == null ? null : gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation();
           
           if (StringUtils.equalsIgnoreCase("NONE", redirectToGrouperOperation)) {
-            // nothing :)
+            // redraw screen doesnt work since state is not there
+            //newTemplateHelper(request, response, simplifiedUi);
           } else if (!StringUtils.isBlank(gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation())) {
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('" + redirectToGrouperOperation + "')"));
           } else {
@@ -1202,13 +1217,13 @@ public class UiV2Template {
       boolean simplifiedRequest) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    GrouperSession grouperSession = null;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
   
     Stem stem = null;
     Group group = null;
-    
+    boolean startedSession = grouperSession == null;
     try {
-      grouperSession = GrouperSession.start(loggedInSubject);
+      grouperSession = startedSession ? GrouperSession.start(loggedInSubject) : grouperSession;
       stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
@@ -1306,7 +1321,9 @@ public class UiV2Template {
       }      
       
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
 
   }
