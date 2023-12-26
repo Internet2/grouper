@@ -3020,25 +3020,7 @@ public class GrouperUtil {
       throw new RuntimeException("Not allowed to unmarshal json: " + simpleClassName + ", " + json);
     }
     
-    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
-    if (useLegacy) {
-//    Gson gson = new GsonBuilder().create();
-//    Object object = gson.fromJson(jsonBody, theClass);
-    JSONObject jsonObject = JSONObject.fromObject( jsonBody );
-    Object object = JSONObject.toBean( jsonObject, theClass );
-    return object;
-    }
-    
-    Object object;
-    try {
-      object = objectMapper.readValue(jsonBody, theClass);
-    } catch (JsonMappingException e) {
-      throw new RuntimeException(e);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    }
-    
-    return object;
+    return jsonConvertFrom(jsonBody, theClass);
   }
 
   
@@ -3060,6 +3042,28 @@ public class GrouperUtil {
   }
 
   /**
+   * convert an object from json using legacy converter.  dont call this.  note this works well if there are no collections, just real types, arrays, etc.
+   * @param json is the json string, not wrapped with a simple class name
+   * @param theClass is the class that the object should be coverted into.
+   * Note: only the top level object needs to be registered
+   * @return the object
+   * @deprecated
+   * 
+   */
+  @Deprecated
+  private static <T> T jsonConvertFromLegacy(String json, Class<T> theClass) {
+
+    JSONObject jsonObject = JSONObject.fromObject( json );
+    Object object = JSONObject.toBean( jsonObject, theClass );
+    return (T)object;
+  }
+
+  /**
+   * dont log more than once per hour
+   */
+  private static long jsonLastLogParseErrorMillis = -1;
+  
+  /**
    * convert an object from json.  note this works well if there are no collections, just real types, arrays, etc.
    * @param json is the json string, not wrapped with a simple class name
    * @param theClass is the class that the object should be coverted into.
@@ -3069,23 +3073,28 @@ public class GrouperUtil {
    */
   public static <T> T jsonConvertFrom(String json, Class<T> theClass) {
 
-    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
-    
-    if (useLegacy) {
-      JSONObject jsonObject = JSONObject.fromObject( json );
-      Object object = JSONObject.toBean( jsonObject, theClass );
-      return (T)object;
-    }
     if (StringUtils.isBlank(json)) {
       return null;
     }
-    T val;
+
+    boolean useLegacy = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacy", false);
+    
+    if (useLegacy) {
+      return jsonConvertFromLegacy(json,  theClass);
+    }
+    T val = null;
     try {
       val = objectMapper.readValue(json, theClass);
-    } catch (JsonMappingException e) {
-      throw new RuntimeException(e);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
+    } catch (Exception e) {
+      if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.json.serialize.deserialize.useLegacyOnError", true)) {
+        int logAfterMillis = GrouperConfig.retrieveConfig().propertyValueInt("grouper.json.serialize.deserialize.parseErrorLogEveryMillis", 3600000);
+        if (System.currentTimeMillis() - jsonLastLogParseErrorMillis > logAfterMillis) {
+          jsonLastLogParseErrorMillis = System.currentTimeMillis();
+          LOG.error("Error parsing JSON new way perhaps since more strict than legacy", e);
+        }
+        return jsonConvertFromLegacy(json,  theClass);
+      }
+      throw GrouperUtil.exceptionConvertToRuntime(e, "Error parsing JSON new way perhaps since more strict than legacy");
     }
     return val;
   }
