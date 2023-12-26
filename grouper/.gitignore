@@ -32,3 +32,4 @@ src/grouper/SampleGrouperMain.java
 src/grouper/Test*
 src/grouper/Covid*.java
 felix-cache
+/confLocal/
