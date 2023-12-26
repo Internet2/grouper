@@ -553,6 +553,8 @@ public class GshTemplateConfig {
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.json) {
               String dropdownJsonValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJsonValue");
               gshTemplateInputConfig.setDropdownJsonValue(dropdownJsonValue);
+            } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.dynamicFromTemplate) {
+              // let this happen
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.javaclass) {
               String dropdownJavaClassValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJavaClassValue");
               gshTemplateInputConfig.setDropdownJavaClassValue(dropdownJavaClassValue);

@@ -22,7 +22,7 @@
     <tbody>
       <c:if test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
 
-      	<c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
+      	<c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.gshTemplateInputConfigAndValues}" var="guiGshTemplateInputConfigMap">
 			
 			<c:set var="guiGshTemplateInputConfigName" value="${guiGshTemplateInputConfigMap.key}"></c:set>		  				
 			<c:set var="guiGshTemplateInputConfig" value="${guiGshTemplateInputConfigMap.value}"></c:set>		  				
