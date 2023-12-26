@@ -30,13 +30,16 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateDecorateForUiInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecTestOutput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateTestExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -51,7 +54,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateConfig;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateInputConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ServiceAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -164,7 +166,7 @@ public class UiV2Template {
     }
   }
   
-  private Map<String, GuiGshTemplateInputConfig> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
+  private Map<String, GshTemplateInputConfigAndValue> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -176,7 +178,7 @@ public class UiV2Template {
     GuiGshTemplateConfig guiGshTemplateConfig = new GuiGshTemplateConfig();
     guiGshTemplateConfig.setGshTemplateConfig(gshTemplateConfig);
     
-    Map<String, GuiGshTemplateInputConfig> guiTemplateInputConfigsMap = new LinkedHashMap<String, GuiGshTemplateInputConfig>();
+    Map<String, GshTemplateInputConfigAndValue> guiTemplateInputConfigsMap = new LinkedHashMap<String, GshTemplateInputConfigAndValue>();
     Map<String, Object> variableMap = new HashMap<String, Object>();
     
     variableMap.put("grouperUtil", new GrouperUtil());
@@ -192,8 +194,8 @@ public class UiV2Template {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     for (GshTemplateInputConfig gshTemplateInputConfig: gshTemplateConfig.getGshTemplateInputConfigs()) {
-      GuiGshTemplateInputConfig guiGshTemplateInputConfig = new GuiGshTemplateInputConfig();
-      guiGshTemplateInputConfig.setGshTemplateInputConfig(gshTemplateInputConfig);
+      GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = new GshTemplateInputConfigAndValue();
+      gshTemplateInputConfigAndValue.setGshTemplateInputConfig(gshTemplateInputConfig);
       
       String value = request.getParameter("config_"+gshTemplateInputConfig.getName());
       
@@ -208,10 +210,10 @@ public class UiV2Template {
         return null;
       }
       
-      guiGshTemplateInputConfig.setValue(value);
+      gshTemplateInputConfigAndValue.setValue(value);
       
       variableMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getGshTemplateInputType().convertToType(value));
-      guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), guiGshTemplateInputConfig);
+      guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfigAndValue);
       
     }
     
@@ -236,7 +238,7 @@ public class UiV2Template {
       
     }
     
-    guiGshTemplateConfig.setGuiGshTemplateInputConfigs(guiTemplateInputConfigsMap);
+    guiGshTemplateConfig.setGshTemplateInputConfigAndValues(guiTemplateInputConfigsMap);
     GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     templateContainer.setGuiGshTemplateConfig(guiGshTemplateConfig);
     
@@ -297,7 +299,7 @@ public class UiV2Template {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
       
-      Map<String, GuiGshTemplateInputConfig> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
+      Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
       
       if (gshTemplateInputs == null) {
         return;
@@ -1110,11 +1112,25 @@ public class UiV2Template {
         
         if (templateLogic == null) {
           // must be gsh custom template
-          Map<String, GuiGshTemplateInputConfig> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
+          Map<String, GshTemplateInputConfigAndValue> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
+          if (StringUtils.equals("V2", templateContainer.getGuiGshTemplateConfig().getGshTemplateConfig().getTemplateVersion())) {
+            GshTemplateExec gshTemplateExec = new GshTemplateExec();
+            gshTemplateExec.assignConfigId(templateType);
+            GshTemplateV2 executeForTemplateV2instance = gshTemplateExec.executeForTemplateV2instance();
+            
+            GshTemplateDecorateForUiInput gshTemplateDecorateForUiInput = new GshTemplateDecorateForUiInput();
+            
+            gshTemplateDecorateForUiInput.setGshTemplateInputConfigAndValues(customTemplateInputs);
+            gshTemplateDecorateForUiInput.setCurrentSubject(loggedInSubject);
+            gshTemplateDecorateForUiInput.setTemplateConfigId(templateType);
+            
+            executeForTemplateV2instance.decorateTemplateForUiDisplay(gshTemplateDecorateForUiInput);
+            
+          }
           if (customTemplateInputs == null) {
             return;
           }
-          
+
         } else {
           templateContainer.setTemplateLogic(templateLogic);
           templateLogic.initScreen();

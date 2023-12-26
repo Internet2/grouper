@@ -3,24 +3,25 @@ package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;
 
 public class GuiGshTemplateConfig {
   
   private GshTemplateConfig gshTemplateConfig;
   
-  private Map<String, GuiGshTemplateInputConfig> guiGshTemplateInputConfigs;
+  private Map<String, GshTemplateInputConfigAndValue> gshTemplateInputConfigAndValues;
   
   
   
-  public Map<String, GuiGshTemplateInputConfig> getGuiGshTemplateInputConfigs() {
-    return guiGshTemplateInputConfigs;
+  public Map<String, GshTemplateInputConfigAndValue> getGshTemplateInputConfigAndValues() {
+    return gshTemplateInputConfigAndValues;
   }
 
 
   
-  public void setGuiGshTemplateInputConfigs(
-      Map<String, GuiGshTemplateInputConfig> guiGshTemplateInputConfigs) {
-    this.guiGshTemplateInputConfigs = guiGshTemplateInputConfigs;
+  public void setGshTemplateInputConfigAndValues(
+      Map<String, GshTemplateInputConfigAndValue> gshTemplateInputConfigAndValues) {
+    this.gshTemplateInputConfigAndValues = gshTemplateInputConfigAndValues;
   }
 
 

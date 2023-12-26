@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.util.Map;
+
 public abstract class GshTemplateV2 {
 
   public abstract void gshRunLogic(GshTemplateV2input gshTemplateV2input, GshTemplateV2output gshTemplateV2output);
@@ -70,6 +72,10 @@ public abstract class GshTemplateV2 {
     this.setLightWeight(gshTemplateV2.isLightWeight());
     this.setScriptPrependHeaders(gshTemplateV2.getScriptPrependHeaders());
     this.setSource(gshTemplateV2.getSource());
+  }
+
+  public void decorateTemplateForUiDisplay(GshTemplateDecorateForUiInput gshTemplateDecorateForUiInput) {
+    
   }
   
   
