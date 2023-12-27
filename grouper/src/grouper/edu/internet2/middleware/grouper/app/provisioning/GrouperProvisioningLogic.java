@@ -2446,8 +2446,12 @@ public class GrouperProvisioningLogic {
               subjectMatchingIdentifier = provisioningEntity.getSubjectId();
           } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier0")) {
             subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier1")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier1");
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier2")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier2");
           } else {
-              throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId' or 'subjectIdentifier0'");
+              throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId', 'subjectIdentifier0', 'subjectIdentifier1', 'subjectIdentifier2'");
           }
           
           gcDbAccess.addBindVar(subjectMatchingIdentifier);
@@ -2507,8 +2511,12 @@ public class GrouperProvisioningLogic {
           subjectMatchingIdentifier = provisioningEntity.getSubjectId();
       } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier0")) {
         subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier1")) {
+        subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier1");
+      } else if (StringUtils.equals(grouperAttributeThatMatchesRow, "subjectIdentifier2")) {
+        subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier2");
       } else {
-          throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId' or 'subjectIdentifier0'");
+          throw new RuntimeException("invalid grouperAttributeThatMatchesRow: "+grouperAttributeThatMatchesRow + " expected 'subjectId', 'subjectIdentifier0', 'subjectIdentifier1', 'subjectIdentifier2'");
       }
       
       MultiKey identifier = null;
@@ -2661,8 +2669,12 @@ public class GrouperProvisioningLogic {
               subjectMatchingIdentifier = provisioningEntity.getSubjectId();
           } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier0")) {
             subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier0");
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier1")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier1");
+          } else if (StringUtils.equals(grouperAttributeThatMatchesRecord, "subjectIdentifier2")) {
+            subjectMatchingIdentifier = (String)provisioningEntity.retrieveAttributeValueString("subjectIdentifier2");
           } else {
-              throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId' or 'subjectIdentifier0'");
+              throw new RuntimeException("invalid grouperAttributeThatMatchesRecord: "+grouperAttributeThatMatchesRecord + " expected 'subjectId', 'subjectIdentifier0', 'subjectIdentifier1', 'subjectIdentifier2' ");
           }
           
           filter.append("("+subjectSearchMatchingAttribute+"="+subjectMatchingIdentifier+")");  
