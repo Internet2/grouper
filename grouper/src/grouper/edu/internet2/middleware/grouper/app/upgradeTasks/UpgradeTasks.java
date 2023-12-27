@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.serviceLifecycle.GrouperRecentMemberships;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
  * @author shilen
@@ -71,7 +73,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V1 {
 
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
       new AddMissingGroupSets().addMissingSelfGroupSetsForGroups();
       //new SyncPITTables().processMissingActivePITGroupSets();
     }
@@ -83,7 +85,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V2 {
 
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
       AttributeDefName deletedMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionDeleted", false);
 
       if (deletedMembersAttr != null) {
@@ -123,7 +125,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V3{
 
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
       GrouperRecentMemberships.upgradeFromV2_5_29_to_V2_5_30();
     }
     
@@ -131,7 +133,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V4{
 
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
 
       String recentMembershipsRootStemName = GrouperRecentMemberships.recentMembershipsStemName();
       String recentMembershipsMarkerDefName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_MARKER_DEF;
@@ -164,7 +166,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V5 {
 
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
 
       RuleUtils.changeInheritedPrivsToActAsGrouperSystem();
       
@@ -174,7 +176,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V6 {
 
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
 
       new AddMissingGroupSets().addMissingSelfGroupSetsForStems();
 
@@ -184,7 +186,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V7 {
     
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
 
       Pattern gshTemplateFolderUuidsToShowPattern = Pattern.compile("^grouperGshTemplate\\.([^.]+)\\.folderUuidsToShow$");
       
@@ -219,7 +221,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V8 {
     
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
       // make sure id_index is populated in grouper_members and make column not null
 
       // check if grouper_members.id_index is already not null - better to use ddlutils here or check the resultset?
@@ -288,7 +290,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V9{
     
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
       
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
@@ -318,6 +320,74 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
           }          
           
           
+          return null;
+        }
+      });
+    }
+  }, 
+  V10{
+    
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+      
+          try {
+            if (!GrouperDdlUtils.assertIndexExists("grouper_loader_log", "grouper_loader_log_temp_st_idx")) {
+              new GcDbAccess().sql("CREATE INDEX grouper_loader_log_temp_st_idx ON grouper_loader_log (job_name,started_time)").executeSql();
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_loader_log_temp_st_idx");
+              }
+            } else {
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", index grouper_loader_log_temp_st_idx exists already");
+              }
+            }
+  
+            if (!GrouperDdlUtils.assertIndexExists("grouper_loader_log", "grouper_loader_log_temp_s2_idx")) {
+              new GcDbAccess().sql("CREATE INDEX grouper_loader_log_temp_s2_idx ON grouper_loader_log (job_name,status,last_updated)").executeSql();
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_loader_log_temp_s2");
+              }
+            } else {
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", index grouper_loader_log_temp_s2 exists already");
+              }
+            }
+            if (!GrouperDdlUtils.assertIndexExists("grouper_loader_log", "grouper_loader_log_temp_s3_idx")) {
+              new GcDbAccess().sql("CREATE INDEX grouper_loader_log_temp_s3_idx ON grouper_loader_log (status,last_updated)").executeSql();
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_loader_log_temp_s3");
+              }
+            } else {
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", index grouper_loader_log_temp_s3 exists already");
+              }
+            }
+            if (!GrouperDdlUtils.assertIndexExists("grouper_loader_log", "grouper_loader_log_temp_s4_idx")) {
+              new GcDbAccess().sql("CREATE INDEX grouper_loader_log_temp_s4_idx ON grouper_loader_log (parent_job_name)").executeSql();
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_loader_log_temp_s4");
+              }
+            } else {
+              if (otherJobInput != null) {
+                otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", index grouper_loader_log_temp_s4 exists already");
+              }
+            }
+          } catch (Throwable t) {
+            String message = "Could not perform upgrade task V10 on grouper_loader_log adding indexes for GRP-5195!  Skipping this upgrade task, install the indexes manually";
+            LOG.error(message, t);
+            if (otherJobInput != null) {
+              otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", " + message);
+            }
+          }
           return null;
         }
       });

@@ -601,7 +601,7 @@ public class GshTemplateExecTest extends GrouperTest {
       }
     }
     
-    UpgradeTasks.V7.updateVersionFromPrevious();
+    UpgradeTasks.V7.updateVersionFromPrevious(null);
     
     String folderUuidToShow = GrouperConfig.retrieveConfig().propertyValueString("grouperGshTemplate.testGshTemplateConfig.folderUuidToShow");
     assertEquals("abc,def", folderUuidToShow);
