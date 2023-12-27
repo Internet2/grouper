@@ -603,7 +603,7 @@ public class GshTemplateExecTest extends GrouperTest {
       }
     }
     
-    UpgradeTasks.V7.updateVersionFromPrevious();
+    UpgradeTasks.V7.updateVersionFromPrevious(null);
     
     
     String gshScript = GrouperUtil.readResourceIntoString("edu/internet2/middleware/grouper/app/gsh/template/test-gsh-script2.gsh", false);
