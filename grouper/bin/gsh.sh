@@ -40,10 +40,10 @@ isApiHome() {
 isApiMvnHome() {
 	# undefined is failure
 	if [ -z "$1" ]; then return 1; fi
-	compgen -G "grouper/target/grouper-[0-9].[0-9].[0-9]*.jar" -X "@(*-tests.jar|*-sources.jar)" > /dev/null 2>&1
+	compgen -G "grouper/target/grouper-[0-9]*.[0-9]*.[0-9]*.jar" -X "@(*-tests.jar|*-sources.jar)" > /dev/null 2>&1
 }
 
-# Returns true if exists in $1/lib: grouper.jar or grouper-a.b.c*.jar
+# Returns true if exists in $1/lib: grouper.jar or grouper-a*.b*.c*.jar
 isWebappHome() {
 	# undefined is failure
 	if [ -z "$1" ]; then return 1; fi
@@ -52,7 +52,7 @@ isWebappHome() {
 	if [ -f "$1/lib/grouper.jar" ]; then return 0; fi
 
 	# (bash command) lib/grouper-a.b.c.jar and lib/grouper-a.b.c-SNAPSHOT.jar are success
-	compgen -G "$1/lib/grouper-[0-9].[0-9].[0-9]*.jar" > /dev/null 2>&1
+	compgen -G "$1/lib/grouper-[0-9]*.[0-9]*.[0-9]*.jar" > /dev/null 2>&1
 }
 
 # set _grouperHomeType to ["", api, webapp] depending on where grouper.jar is found
@@ -171,8 +171,8 @@ elif [ $_grouperHomeType = webapp ]; then
 	GROUPER_CP="${GROUPER_CONF}:${GROUPER_HOME}/lib/*"
 elif [ $_grouperHomeType = apiMvn ]; then
 	# compgen -X filter works from the command line; not working in this script for some reason
-	#GROUPER_CP="${GROUPER_CP}":$(compgen -G "${GROUPER_HOME}/target/grouper-[0-9].[0-9].[0-9]*.jar" -X "@(*-tests.jar|*-sources.jar)" | tr '\n' ':')
-	GROUPER_CP="${GROUPER_CP}":$(compgen -G "${GROUPER_HOME}/target/grouper-[0-9].[0-9].[0-9]*.jar" | grep -v -- '-tests.jar' | grep -v -- '-sources.jar' | tr '\n' ':')
+	#GROUPER_CP="${GROUPER_CP}":$(compgen -G "${GROUPER_HOME}/target/grouper-[0-9]*.[0-9]*.[0-9]*.jar" -X "@(*-tests.jar|*-sources.jar)" | tr '\n' ':')
+	GROUPER_CP="${GROUPER_CP}":$(compgen -G "${GROUPER_HOME}/target/grouper-[0-9]*.[0-9]*.[0-9]*.jar" | grep -v -- '-tests.jar' | grep -v -- '-sources.jar' | tr '\n' ':')
 	GROUPER_CP="${GROUPER_CP}:${GROUPER_HOME}/target/dependency/*"
 	GROUPER_CP="${GROUPER_CP}:${GROUPER_HOME}/target/classes"
 	GROUPER_CP="${GROUPER_CP}:${GROUPER_HOME}/conf"
