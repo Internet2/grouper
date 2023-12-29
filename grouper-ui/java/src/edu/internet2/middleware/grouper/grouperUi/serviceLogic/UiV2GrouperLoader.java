@@ -1064,11 +1064,11 @@ public class UiV2GrouperLoader {
 
         GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-        if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
-          return true;
-        }
+//        if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+//          return true;
+//        }
 
         if (!hasError) {
           String constructScript = request.getParameter("constructScript");
@@ -1153,6 +1153,7 @@ public class UiV2GrouperLoader {
           GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
           
           grouperDataEngine.loadFieldsAndRows(grouperConfig);
+          
 
           String errorMessage = GrouperAbac.validScript(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), grouperDataEngine);
           if (!StringUtils.isBlank(errorMessage)) {
@@ -1160,6 +1161,11 @@ public class UiV2GrouperLoader {
                 TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptInvalid")
                 + "<br />" + StringUtils.replace(GrouperUtil.xmlEscape(errorMessage), "\n", "<br />")));
             hasError = true;
+          }
+          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject);
+          if (jexlScriptAnalysis != null && 
+              (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
+            throw new RuntimeException("not allowed");
           }
         }
 
@@ -1580,12 +1586,12 @@ public class UiV2GrouperLoader {
 
             GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-            if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
-              return true;
-              
-            }
+//            if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//              guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//                  TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+//              return true;
+//              
+//            }
 
             GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
               
@@ -1872,12 +1878,12 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
-        return;
-        
-      }
+//      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//            TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+//        return;
+//        
+//      }
       
       editGrouperLoaderHelper(request, grouperLoaderContainer);
       
@@ -1924,6 +1930,10 @@ public class UiV2GrouperLoader {
       if (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage())) {        
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#grouperLoaderJexlScriptId", jexlScriptAnalysis.getErrorMessage()));
         return;
+      }
+      
+      if (StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage())) {        
+        guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.info, "#grouperLoaderJexlScriptId", jexlScriptAnalysis.getWarningMessage()));
       }
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
@@ -2327,12 +2337,12 @@ public class UiV2GrouperLoader {
 
         GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-        if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
-          return;
-          
-        }
+//        if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+//          return;
+//          
+//        }
 
         {
           String grouperLoaderConstructScript = request.getParameter("constructScript");

@@ -19,6 +19,11 @@
                     
                     <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Attestation.attestationOverall');" style="white-space: nowrap;"
                       >${textContainer.text['miscAttestationLink'] }</a>
+                      
+                    <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;"
+                      >${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>
+                      
+                      
                     <c:if test="${grouperRequestContainer.deprovisioningContainer.allowedToDeprovision}">
                       <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Deprovisioning.deprovisioningMain');" style="white-space: nowrap;"
                       >${textContainer.text['deprovisioningMainLink'] }</a>

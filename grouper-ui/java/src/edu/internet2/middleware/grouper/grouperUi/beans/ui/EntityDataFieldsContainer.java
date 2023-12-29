@@ -63,6 +63,7 @@ public class EntityDataFieldsContainer {
 
   private List<GuiDataRowConfiguration> guiDataRowConfigurations = new ArrayList<>();
   
+  private List<GuiDataFieldRowDictionaryTable> guiDataFieldRowDictionaryTables = new ArrayList<>();
   
   /**
    * @return true if can operate on entity data fields
@@ -336,6 +337,17 @@ public class EntityDataFieldsContainer {
   
   public List<GrouperPrivacyRealmConfiguration> getAllPrivacyRealmTypes() {
     return Arrays.asList(new GrouperPrivacyRealmConfiguration());
+  }
+
+
+  
+  public List<GuiDataFieldRowDictionaryTable> getGuiDataFieldRowDictionaryTables() {
+    return guiDataFieldRowDictionaryTables;
+  }
+
+  public void setGuiDataFieldRowDictionaryTables(
+      List<GuiDataFieldRowDictionaryTable> guiDataFieldRowDictionaryTables) {
+    this.guiDataFieldRowDictionaryTables = guiDataFieldRowDictionaryTables;
   }
   
 }

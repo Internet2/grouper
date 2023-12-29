@@ -1,6 +1,5 @@
 package edu.internet2.middleware.grouper.abac;
 
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -55,8 +54,6 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
@@ -150,7 +147,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       GrouperShutdown.shutdown();
     }
   }
-
+  
   public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(String jexlScript, Subject subject, Subject loggedInSubject) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
@@ -191,17 +188,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           String grouperPrivacyRealmConfigId = grouperDataFieldConfig.getGrouperPrivacyRealmConfigId();
           
           GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
-          String viewersGroupName = grouperPrivacyRealmConfig.getPrivacyRealmViewersGroupName();
           
-          Group group = StringUtils.isBlank(viewersGroupName) ? null : (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-            
-            @Override
-            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return GroupFinder.findByName(grouperSession, viewersGroupName, true);
-            }
-          });
+          String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
           
-          if (group != null && !group.hasMember(loggedInSubject)) {
+          if (StringUtils.equals(highestLevelAccess, "read")) {
+            String warningMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy");
+            grouperJexlScriptAnalysis.setWarningMessage(warningMessage + " '"+attributeAlias + "'");
+          } else if (StringUtils.equals(highestLevelAccess, "") || StringUtils.equals(highestLevelAccess, "view")) {
             String errorMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToViewAttribute");
             grouperJexlScriptAnalysis.setErrorMessage(errorMessage + " '"+attributeAlias + "'");
             return grouperJexlScriptAnalysis;

@@ -15,6 +15,9 @@
       <div class="lead span9 pull-left">
         <h4>${textContainer.text['miscellaneousEntityDataFieldsMainDescription'] }</h4>
       </div>
+      <div class="span10 pull-left">
+        <a href="#" onclick="return guiV2link('operation=UiV2EntityDataFields.viewDataFieldAndRowDictionary');" style="white-space: nowrap;">${textContainer.text['miscAttestationDataFieldAndRowDictionaryLink'] }</a>
+      </div>
       <%-- <div class="span2 pull-right">
         <%@ include file="externalSystemsMoreActionsButtonContents.jsp"%>
       </div> --%>

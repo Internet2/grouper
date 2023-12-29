@@ -122,10 +122,13 @@
                     
                     </div>
                     <div class="lead span12">
-                     <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
-                              value="${textContainer.text['grouperLoaderEditButtonSave'] }" 
-                              onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;"> 
-                              &nbsp; 
+                    
+                    <c:if test="${grouper:isBlank(grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptAnalysis.warningMessage)}">
+                      <input type="submit" class="btn btn-primary" aria-controls="groupFilterResultsId" id="filterSubmitId" 
+                            value="${textContainer.text['grouperLoaderEditButtonSave'] }" 
+                            onclick="ajax('../app/UiV2GrouperLoader.editGrouperLoaderSave', {formIds: 'editLoaderFormId'}); return false;">
+                    </c:if>
+                      &nbsp; 
                       <a class="btn btn-cancel" role="button" 
                         onclick="return guiV2link('operation=UiV2GrouperLoader.loader?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                         >${textContainer.text['grouperLoaderEditButtonCancel'] }</a>

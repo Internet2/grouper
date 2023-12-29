@@ -4,19 +4,29 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
+import java.util.TreeMap;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.EntityDataFieldsService;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderChangeLogQueryConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderConfiguration;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderQueryConfiguration;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfiguration;
+import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
@@ -24,6 +34,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.Gui
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.EntityDataFieldsContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataFieldConfiguration;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataFieldRowDictionary;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataFieldRowDictionaryTable;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataProviderChangeLogQueryConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataProviderConfiguration;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiDataProviderQueryConfiguration;
@@ -32,6 +44,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiPrivacyRealmConfig
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 public class UiV2EntityDataFields {
@@ -2112,6 +2125,220 @@ public class UiV2EntityDataFields {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/entityDataFields/entityDataProviders.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * 
+   * @param request
+   * @param response
+   */
+  public void viewDataFieldAndRowDictionary(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+      
+      final EntityDataFieldsContainer entityDataFieldsContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getEntityDataFieldsContainer();
+      
+      List<GuiDataFieldRowDictionaryTable> result = new ArrayList<>(); 
+      
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      grouperDataEngine.loadFieldsAndRows(grouperConfig);
+      
+//      List<GrouperDataFieldConfig> dataFields = 
+      MultiKey fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "individuals");
+      
+      GuiDataFieldRowDictionaryTable guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
+
+      guiDataFieldRowDictionaryTable.setCanAccess((Boolean)fieldsAndHasAccess.getKey(1));
+      guiDataFieldRowDictionaryTable.setDataField(true);
+      List<GuiDataFieldRowDictionary> fieldConfigItems = new ArrayList<>();
+      
+      for (GrouperDataFieldConfig dataFieldConfig: (List<GrouperDataFieldConfig>)fieldsAndHasAccess.getKey(0)) {
+        
+        GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
+
+        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+        
+        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+        
+        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        
+        guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfig.getConfigId());
+        guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
+        guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
+        guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
+        guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
+        guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
+        guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
+        guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
+        guiDataFieldRowDictionary.setValueType(dataFieldConfig.getFieldDataType().name());
+        guiDataFieldRowDictionary.setMultiValued(dataFieldConfig.isFieldMultiValued());
+        
+        fieldConfigItems.add(guiDataFieldRowDictionary);
+      }
+      
+      guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
+      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsTitle"));
+      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsDescription"));
+      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldIndividualsDocumentation"));
+      
+      result.add(guiDataFieldRowDictionaryTable);
+      
+      List<GrouperDataRowConfig> dataRows = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
+      
+      Map<String, GrouperDataRowConfig> aliasToRowConfig = new TreeMap<>();
+      
+      for (GrouperDataRowConfig dataRowConfig: dataRows) {
+        
+        Set<String> rowAliases = dataRowConfig.getRowAliases();
+        
+        Set<String> lowercaseRowAliases = rowAliases.stream().map(String::toLowerCase)
+            .collect(Collectors.toSet());
+        
+        List<String> aliasesList = new ArrayList<String>(lowercaseRowAliases);
+        Collections.sort(aliasesList);
+        String alias = aliasesList.get(0);
+        aliasToRowConfig.put(alias, dataRowConfig);
+      }
+      
+      for (GrouperDataRowConfig dataRowConfig: aliasToRowConfig.values()) {
+        
+        guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
+        guiDataFieldRowDictionaryTable.setCanAccess(true);
+        guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataRowLabel")+" "+
+            String.join(", ", dataRowConfig.getRowAliases()));
+        
+        guiDataFieldRowDictionaryTable.setDescription("<b>Description:</b> "+ GrouperUtil.defaultIfBlank(dataRowConfig.getDescriptionHtml(), "")
+          + "<br/><b>Data owner:</b> " +  GrouperUtil.defaultIfBlank(dataRowConfig.getDataOwnerHtml(), "")
+          + "<br/><b>How to get access:</b> " + GrouperUtil.defaultIfBlank(dataRowConfig.getHowToGetAccessHtml(), "") 
+          + "<br/><b>Examples:</b> " + GrouperUtil.defaultIfBlank(dataRowConfig.getZeroToManyExamplesHtml(), ""));
+        
+        List<GuiDataFieldRowDictionary> fieldConfigItemsForDatarow = new ArrayList<>();
+        
+        for (String dataFieldConfigId : dataRowConfig.getDataFieldConfigIds()) {
+          
+          GrouperDataFieldConfig dataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(dataFieldConfigId);
+          
+          GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
+          guiDataFieldRowDictionary.setDataFieldConfigId(dataFieldConfigId);
+          
+          // we want to show the data field config only in row section if it's there so
+          // let's remove it from the data field section
+          fieldConfigItems.remove(guiDataFieldRowDictionary);
+
+          String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+          
+          GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+          
+          String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+          
+          guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
+          guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
+          guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
+          guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
+          guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
+          guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
+          guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
+          fieldConfigItemsForDatarow.add(guiDataFieldRowDictionary);
+        }
+        
+        guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItemsForDatarow);
+        result.add(guiDataFieldRowDictionaryTable);
+      }
+      
+      fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "global");
+      
+      guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
+      guiDataFieldRowDictionaryTable.setCanAccess((Boolean)fieldsAndHasAccess.getKey(1));
+      guiDataFieldRowDictionaryTable.setDataField(true);
+
+      fieldConfigItems = new ArrayList<>();
+      
+      for (GrouperDataFieldConfig dataFieldConfig: (List<GrouperDataFieldConfig>)fieldsAndHasAccess.getKey(0)) {
+        
+        GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
+
+        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+        
+        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+        
+        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        
+        guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
+        guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
+        guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
+        guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
+        guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
+        guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
+        guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
+        guiDataFieldRowDictionary.setValueType(dataFieldConfig.getFieldDataType().name());
+        guiDataFieldRowDictionary.setMultiValued(dataFieldConfig.isFieldMultiValued());
+        
+        fieldConfigItems.add(guiDataFieldRowDictionary);
+      }
+      guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
+      
+      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalTitle"));
+      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalDescription"));
+      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGlobalDocumentation"));
+      
+      result.add(guiDataFieldRowDictionaryTable);
+      
+      fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "groups");
+      
+      guiDataFieldRowDictionaryTable = new GuiDataFieldRowDictionaryTable();
+      guiDataFieldRowDictionaryTable.setCanAccess((Boolean)fieldsAndHasAccess.getKey(1));
+      guiDataFieldRowDictionaryTable.setDataField(true);
+
+      fieldConfigItems = new ArrayList<>();
+      
+      for (GrouperDataFieldConfig dataFieldConfig: (List<GrouperDataFieldConfig>)fieldsAndHasAccess.getKey(0)) {
+        
+        GuiDataFieldRowDictionary guiDataFieldRowDictionary = new GuiDataFieldRowDictionary();
+
+        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+        
+        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+        
+        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        
+        guiDataFieldRowDictionary.setDataFieldAliases(String.join(", ", dataFieldConfig.getFieldAliases()));
+        guiDataFieldRowDictionary.setDataOwner(dataFieldConfig.getDataOwnerHtml());
+        guiDataFieldRowDictionary.setDataType(dataFieldConfig.getFieldDataType().name());
+        guiDataFieldRowDictionary.setDescription(dataFieldConfig.getDescriptionHtml());
+        guiDataFieldRowDictionary.setExamples(dataFieldConfig.getZeroToManyExamplesHtml());
+        guiDataFieldRowDictionary.setHowToGetAccess(dataFieldConfig.getHowToGetAccessHtml());
+        guiDataFieldRowDictionary.setPrivilege(highestLevelAccess);
+        guiDataFieldRowDictionary.setValueType(dataFieldConfig.getFieldDataType().name());
+        guiDataFieldRowDictionary.setMultiValued(dataFieldConfig.isFieldMultiValued());
+        
+        fieldConfigItems.add(guiDataFieldRowDictionary);
+      }
+      guiDataFieldRowDictionaryTable.setGuiDataFieldRowDictionary(fieldConfigItems);
+      
+      guiDataFieldRowDictionaryTable.setTitle(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsTitle"));
+      guiDataFieldRowDictionaryTable.setDescription(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsDescription"));
+      guiDataFieldRowDictionaryTable.setDocumentation(GrouperTextContainer.textOrNull("entityDataFieldRowDictionaryDataFieldGroupsDocumentation"));
+      
+      result.add(guiDataFieldRowDictionaryTable);
+      
+      entityDataFieldsContainer.setGuiDataFieldRowDictionaryTables(result);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/entityDataFields/dataFieldRowDictionary.jsp"));
       
     } finally {
       GrouperSession.stopQuietly(grouperSession);

@@ -181,10 +181,10 @@ public class GrouperDuoUser {
     targetEntity.assignAttributeValue("lastName", this.lastName);
     targetEntity.assignAttributeValue("phones", this.phones);
     targetEntity.assignAttributeValue("isPushEnabled", this.getPushEnabledDb());
-    targetEntity.assignAttributeValue("aliase1", this.alias1);
-    targetEntity.assignAttributeValue("aliase2", this.alias2);
-    targetEntity.assignAttributeValue("aliase3", this.alias3);
-    targetEntity.assignAttributeValue("aliase4", this.alias4);
+    targetEntity.assignAttributeValue("alias1", this.alias1);
+    targetEntity.assignAttributeValue("alias2", this.alias2);
+    targetEntity.assignAttributeValue("alias3", this.alias3);
+    targetEntity.assignAttributeValue("alias4", this.alias4);
     targetEntity.assignAttributeValue("aliases", this.aliases);
     targetEntity.assignAttributeValue("isEnrolled", this.getEnrolledDb());
     targetEntity.assignAttributeValue("lastDirectorySync", this.lastDirectorySync);

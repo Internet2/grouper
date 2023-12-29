@@ -34,8 +34,6 @@ public class GrouperJexlScriptAnalysis {
   
   private String errorMessage;
 
-
-  
   public String getErrorMessage() {
     return errorMessage;
   }
@@ -45,5 +43,14 @@ public class GrouperJexlScriptAnalysis {
     this.errorMessage = errorMessage;
   }
   
+  private String warningMessage;
+
+  public String getWarningMessage() {
+    return warningMessage;
+  }
+
+  public void setWarningMessage(String warningMessage) {
+    this.warningMessage = warningMessage;
+  }
   
 }
