@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
@@ -80,7 +81,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupStemTemplateCont
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateInputConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -1092,7 +1092,7 @@ public class UiV2GrouperLoader {
               GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
               gshTemplateConfig.populateConfiguration();
               
-              Map<String, GuiGshTemplateInputConfig> gshTemplateInputs = UiV2Template.populateCustomTemplateInputs(request, templateType);
+              Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = UiV2Template.populateCustomTemplateInputs(request, templateType);
               
               for (String inputName: gshTemplateInputs.keySet()) {
                 
