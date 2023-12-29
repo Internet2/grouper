@@ -306,7 +306,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       });
     }
   }, 
-  V13{
+  V14{
     
     @Override
     public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
@@ -381,7 +381,18 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   V10 {
     
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
+      // do a blank ten so v4 upgrades (which added ten) will get the new stuff
+    }
+  }      
+  ,
+  /**
+   * make sure internal_id is populated in grouper_members and make column not null
+   */
+  V11 {
+    
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
       
       boolean groupsNullable = GrouperDdlUtils.isColumnNullable("grouper_groups", "internal_id", "name", GrouperCheckConfig.attributeRootStemName() + ":upgradeTasks:upgradeTasksMetadataGroup");
       boolean fieldsNullable = GrouperDdlUtils.isColumnNullable("grouper_fields", "internal_id", "name", "admins");
@@ -472,10 +483,10 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   /**
    * make sure internal_id is populated in grouper_members and make column not null
    */
-  V11 {
+  V12 {
     
     @Override
-    public void updateVersionFromPrevious() {
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
       
       if (!GrouperDdlUtils.isColumnNullable("grouper_members", "internal_id", "subject_id", "GrouperSystem")) {
         return;
@@ -502,10 +513,10 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
   /**
    * make sure source_internal_id is populated in pit tables (fields/members/groups)
    */
-  V12 {
+  V13 {
     
     @Override
-    public void updateVersionFromPrevious() {      
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {      
       new GcDbAccess().sql("update grouper_pit_groups  pg set source_internal_id = (select g.internal_id from grouper_groups  g where pg.source_id = g.id) where pg.source_internal_id is null and pg.active='T'").executeSql();
       new GcDbAccess().sql("update grouper_pit_fields  pf set source_internal_id = (select f.internal_id from grouper_fields  f where pf.source_id = f.id) where pf.source_internal_id is null and pf.active='T'").executeSql();
       new GcDbAccess().sql("update grouper_pit_members pm set source_internal_id = (select m.internal_id from grouper_members m where pm.source_id = m.id) where pm.source_internal_id is null and pm.active='T'").executeSql();

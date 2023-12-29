@@ -1922,7 +1922,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //first make sure the DB ddl is up to date
     new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
   
-    UpgradeTasks.V8.updateVersionFromPrevious();
+    UpgradeTasks.V8.updateVersionFromPrevious(null);
     
     //lets make sure everything is there on upgrade
     assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_members", "internal_id"));

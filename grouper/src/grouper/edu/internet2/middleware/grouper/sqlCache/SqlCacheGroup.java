@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.grouperClientExt.org.apache.commons.lang3.builder.EqualsBuilder;
+import org.apache.commons.lang3.builder.EqualsBuilder;
 
 @GcPersistableClass(tableName="grouper_sql_cache_group", defaultFieldPersist=GcPersist.doPersist)
 public class SqlCacheGroup implements GcSqlAssignPrimaryKey, GcDbVersionable {
