@@ -75,7 +75,9 @@ public class TeamDynamixGroup {
   
   public ProvisioningGroup toProvisioningGroup() {
     ProvisioningGroup targetGroup = new ProvisioningGroup();
-    targetGroup.assignAttributeValue("description", this.description);
+    targetGroup.assignAttributeValue("Description", this.description);
+    targetGroup.assignAttributeValue("Name", this.name);
+    targetGroup.assignAttributeValue("ID", this.getId());
     targetGroup.setName(this.name);
     targetGroup.setId(this.id);
     return targetGroup;
@@ -115,7 +117,7 @@ public class TeamDynamixGroup {
       return null;
     }
     TeamDynamixGroup teamDynamixGroup = new TeamDynamixGroup();
-    teamDynamixGroup.description = GrouperUtil.jsonJacksonGetString(groupNode, "description");
+    teamDynamixGroup.description = GrouperUtil.jsonJacksonGetString(groupNode, "Description");
     teamDynamixGroup.name = GrouperUtil.jsonJacksonGetString(groupNode, "Name");
     teamDynamixGroup.id = GrouperUtil.jsonJacksonGetString(groupNode, "ID");
     

@@ -19,4 +19,9 @@ public class TeamDynamixProvisioningConfiguration extends GrouperProvisioningCon
     this.teamDynamixExternalSystemConfigId = teamDynamixExternalSystemConfigId;
   }
 
+  @Override
+  public void setThreadPoolSize(int threadPoolSize) {
+    super.setThreadPoolSize(1);
+  }
+
 }
