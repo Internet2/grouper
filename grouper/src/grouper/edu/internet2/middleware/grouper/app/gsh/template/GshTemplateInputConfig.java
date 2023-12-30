@@ -114,14 +114,24 @@ public class GshTemplateInputConfig {
     }
   }
   
+  private List<MultiKey> dropdownKeysAndLabels;
   
+  public void setDropdownKeysAndLabels(List<MultiKey> dropdownKeysAndLabels) {
+    this.dropdownKeysAndLabels = dropdownKeysAndLabels;
+  }
+
   public List<MultiKey> getDropdownKeysAndLabels() {
-    List<MultiKey> dropdownKeysAndLabels = new ArrayList<MultiKey>();
+    
+    if (dropdownKeysAndLabels != null) {
+      return dropdownKeysAndLabels;
+    }
+    
+    List<MultiKey> localDropdownKeysAndLabels = new ArrayList<MultiKey>();
     
     if (this.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
-      dropdownKeysAndLabels.add(new MultiKey("", ""));
-      dropdownKeysAndLabels.addAll(this.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(this));
-      return dropdownKeysAndLabels;
+      localDropdownKeysAndLabels.add(new MultiKey("", ""));
+      localDropdownKeysAndLabels.addAll(this.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(this));
+      return localDropdownKeysAndLabels;
     } else if (this.getConfigItemFormElement() == ConfigItemFormElement.RADIOBUTTON) {
       
       String trueLabel = GrouperTextContainer.textOrNull("config.defaultTrueLabel");
@@ -132,17 +142,17 @@ public class GshTemplateInputConfig {
         Boolean booleanObjectValue = GrouperUtil.booleanObjectValue(defaultValue);
         if (booleanObjectValue != null) {
           String defaultValueStr = booleanObjectValue ? "("+trueLabel+")" : "("+falseLabel+")"; 
-          dropdownKeysAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" " + defaultValueStr ));
+          localDropdownKeysAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" " + defaultValueStr ));
         }
       }
       
       
-      dropdownKeysAndLabels.add(new MultiKey("true", trueLabel));
-      dropdownKeysAndLabels.add(new MultiKey("false", falseLabel));
-      return dropdownKeysAndLabels;
+      localDropdownKeysAndLabels.add(new MultiKey("true", trueLabel));
+      localDropdownKeysAndLabels.add(new MultiKey("false", falseLabel));
+      return localDropdownKeysAndLabels;
     }
     
-    return dropdownKeysAndLabels;
+    return localDropdownKeysAndLabels;
   }
   
   public String getDescriptionExternalizedTextKey() {

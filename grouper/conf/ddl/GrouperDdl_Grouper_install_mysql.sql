@@ -1266,6 +1266,11 @@ CREATE TABLE grouper_loader_log
 
 CREATE INDEX loader_context_idx ON grouper_loader_log (context_id);
 
+CREATE INDEX grouper_loader_log_temp_st_idx ON grouper_loader_log (job_name,started_time);
+CREATE INDEX grouper_loader_log_temp_s2_idx ON grouper_loader_log (job_name,status,last_updated);
+CREATE INDEX grouper_loader_log_temp_s3_idx ON grouper_loader_log (status,last_updated);
+CREATE INDEX grouper_loader_log_temp_s4_idx ON grouper_loader_log (parent_job_name); 
+
 CREATE TABLE grouper_message
 (
     id VARCHAR(40) NOT NULL,

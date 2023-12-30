@@ -1,8 +1,10 @@
-package edu.internet2.middleware.grouper.grouperUi.beans.ui;
+package edu.internet2.middleware.grouper.app.gsh.template;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
 
-public class GuiGshTemplateInputConfig {
+public class GshTemplateInputConfigAndValue {
   
   private GshTemplateInputConfig gshTemplateInputConfig;
   
@@ -26,6 +28,14 @@ public class GuiGshTemplateInputConfig {
   
   public void setValue(String value) {
     this.value = value;
+  }
+
+
+  public String getValueOrDefault() {
+    if (StringUtils.isBlank(this.value)) {
+      return this.gshTemplateInputConfig.getDefaultValue();
+    }
+    return this.value;
   }
   
 

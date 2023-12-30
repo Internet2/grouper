@@ -76,7 +76,13 @@ public enum GshTemplateDropdownValueFormatType {
       return keysAndLabels;
     }
   },
-  
+  dynamicFromTemplate {
+    @Override
+    public List<MultiKey> retrieveKeysAndLabels(GshTemplateInputConfig gshTemplateInputConfig) {
+      
+      return GrouperUtil.nonNull(gshTemplateInputConfig.getDropdownKeysAndLabels());
+    }
+  },
   csv {
 
     @Override

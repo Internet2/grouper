@@ -66,6 +66,13 @@ public class GshTemplateConfig {
   
   private GshTemplateGroupShowOnDescendants gshTemplateGroupShowOnDescendants;
   
+  private boolean allowWsFromNoOwner;
+  
+  
+  public boolean isAllowWsFromNoOwner() {
+    return allowWsFromNoOwner;
+  }
+
   private boolean showOnFolders;
   
   private GshTemplateFolderShowType gshTemplateFolderShowType;
@@ -414,6 +421,8 @@ public class GshTemplateConfig {
           
         }
         
+        allowWsFromNoOwner = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"allowWsFromNoOwner", false);
+        
         showOnFolders = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showOnFolders", false);
         
         if (showOnFolders) {
@@ -544,6 +553,8 @@ public class GshTemplateConfig {
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.json) {
               String dropdownJsonValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJsonValue");
               gshTemplateInputConfig.setDropdownJsonValue(dropdownJsonValue);
+            } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.dynamicFromTemplate) {
+              // let this happen
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.javaclass) {
               String dropdownJavaClassValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJavaClassValue");
               gshTemplateInputConfig.setDropdownJavaClassValue(dropdownJavaClassValue);

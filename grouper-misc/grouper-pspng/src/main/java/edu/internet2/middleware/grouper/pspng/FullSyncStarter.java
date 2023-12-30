@@ -100,7 +100,7 @@ public class FullSyncStarter
       else
         throw new JobExecutionException("PSPNG full-syncs have to be run via otherJob properties, not via " + jobName);
 
-      if (GrouperLoader.isJobRunning(jobName)) {
+      if (GrouperLoader.isJobRunning(jobName, true)) {
         LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
         return;
       }

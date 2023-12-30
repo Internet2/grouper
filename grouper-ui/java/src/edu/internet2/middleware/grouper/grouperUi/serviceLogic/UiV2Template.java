@@ -30,13 +30,16 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateDecorateForUiInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecTestOutput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateTestExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -51,7 +54,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContain
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperTemplateLogicBase;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateConfig;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateInputConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ServiceAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -164,7 +166,7 @@ public class UiV2Template {
     }
   }
   
-  private Map<String, GuiGshTemplateInputConfig> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
+  private Map<String, GshTemplateInputConfigAndValue> populateCustomTemplateInputs(HttpServletRequest request, String templateConfigId) {
    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
@@ -176,7 +178,7 @@ public class UiV2Template {
     GuiGshTemplateConfig guiGshTemplateConfig = new GuiGshTemplateConfig();
     guiGshTemplateConfig.setGshTemplateConfig(gshTemplateConfig);
     
-    Map<String, GuiGshTemplateInputConfig> guiTemplateInputConfigsMap = new LinkedHashMap<String, GuiGshTemplateInputConfig>();
+    Map<String, GshTemplateInputConfigAndValue> guiTemplateInputConfigsMap = new LinkedHashMap<String, GshTemplateInputConfigAndValue>();
     Map<String, Object> variableMap = new HashMap<String, Object>();
     
     variableMap.put("grouperUtil", new GrouperUtil());
@@ -192,8 +194,8 @@ public class UiV2Template {
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
     
     for (GshTemplateInputConfig gshTemplateInputConfig: gshTemplateConfig.getGshTemplateInputConfigs()) {
-      GuiGshTemplateInputConfig guiGshTemplateInputConfig = new GuiGshTemplateInputConfig();
-      guiGshTemplateInputConfig.setGshTemplateInputConfig(gshTemplateInputConfig);
+      GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = new GshTemplateInputConfigAndValue();
+      gshTemplateInputConfigAndValue.setGshTemplateInputConfig(gshTemplateInputConfig);
       
       String value = request.getParameter("config_"+gshTemplateInputConfig.getName());
       
@@ -208,10 +210,10 @@ public class UiV2Template {
         return null;
       }
       
-      guiGshTemplateInputConfig.setValue(value);
+      gshTemplateInputConfigAndValue.setValue(value);
       
       variableMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getGshTemplateInputType().convertToType(value));
-      guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), guiGshTemplateInputConfig);
+      guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfigAndValue);
       
     }
     
@@ -236,7 +238,7 @@ public class UiV2Template {
       
     }
     
-    guiGshTemplateConfig.setGuiGshTemplateInputConfigs(guiTemplateInputConfigsMap);
+    guiGshTemplateConfig.setGshTemplateInputConfigAndValues(guiTemplateInputConfigsMap);
     GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     templateContainer.setGuiGshTemplateConfig(guiGshTemplateConfig);
     
@@ -297,7 +299,7 @@ public class UiV2Template {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
       
-      Map<String, GuiGshTemplateInputConfig> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
+      Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
       
       if (gshTemplateInputs == null) {
         return;
@@ -354,13 +356,14 @@ public class UiV2Template {
       // see if running in thread
       boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouperUi.gshExec.useThread", true);
 
+      boolean done = false;
       if (useThreads) {
         
         GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
         
-        int waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.gshExec.progressStartsInSeconds", 5);
+        int waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.gshExec.progressStartsInSeconds", 10);
 
-        GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
+        done = GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
         
       } else {
         grouperCallable.callLogic();
@@ -368,10 +371,23 @@ public class UiV2Template {
   
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+      if (done) {
+        GshTemplateExecOutput gshTemplateExecOutput = exec.getGshTemplateExecOutput();
+        String redirectToGrouperOperation = (gshTemplateExecOutput == null || gshTemplateExecOutput.getGshTemplateOutput() == null) ? null 
+            : gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation();
+        
+        // if we are done and not moving pages, then redraw the form
+        if (StringUtils.equalsIgnoreCase("NONE", redirectToGrouperOperation)) {
+          boolean simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + exec.getConfigId() + ".simplifiedUi", false);
+
+          newTemplateHelper(request, response, simplifiedUi);
+        }
+
+      }
       // running...
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateSubheading")));
       
-      customTemplateExecuteHelper(sessionId, uniqueId); 
+      customTemplateExecuteHelper(request, response, sessionId, uniqueId); 
                   
     } finally {
       GrouperSession.stopQuietly(grouperSession); 
@@ -394,7 +410,7 @@ public class UiV2Template {
 
       String sessionId = request.getSession().getId();
       String uniqueId = request.getParameter("uniqueId");
-      customTemplateExecuteHelper(sessionId, uniqueId);
+      customTemplateExecuteHelper(request, response, sessionId, uniqueId);
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
@@ -405,7 +421,7 @@ public class UiV2Template {
    * @param request
    * @param response
    */
-  private void customTemplateExecuteHelper(String sessionId, String uniqueImportId) {
+  private void customTemplateExecuteHelper(final HttpServletRequest request, final HttpServletResponse response, String sessionId, String uniqueImportId) {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -579,7 +595,8 @@ public class UiV2Template {
           String redirectToGrouperOperation = gshTemplateExecOutput.getGshTemplateOutput() == null ? null : gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation();
           
           if (StringUtils.equalsIgnoreCase("NONE", redirectToGrouperOperation)) {
-            // nothing :)
+            // redraw screen doesnt work since state is not there
+            //newTemplateHelper(request, response, simplifiedUi);
           } else if (!StringUtils.isBlank(gshTemplateExecOutput.getGshTemplateOutput().getRedirectToGrouperOperation())) {
             guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('" + redirectToGrouperOperation + "')"));
           } else {
@@ -1075,13 +1092,13 @@ public class UiV2Template {
       boolean simplifiedRequest) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    GrouperSession grouperSession = null;
+    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
   
     Stem stem = null;
     Group group = null;
-    
+    boolean startedSession = grouperSession == null;
     try {
-      grouperSession = GrouperSession.start(loggedInSubject);
+      grouperSession = startedSession ? GrouperSession.start(loggedInSubject) : grouperSession;
       stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
@@ -1110,11 +1127,25 @@ public class UiV2Template {
         
         if (templateLogic == null) {
           // must be gsh custom template
-          Map<String, GuiGshTemplateInputConfig> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
+          Map<String, GshTemplateInputConfigAndValue> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
+          if (StringUtils.equals("V2", templateContainer.getGuiGshTemplateConfig().getGshTemplateConfig().getTemplateVersion())) {
+            GshTemplateExec gshTemplateExec = new GshTemplateExec();
+            gshTemplateExec.assignConfigId(templateType);
+            GshTemplateV2 executeForTemplateV2instance = gshTemplateExec.executeForTemplateV2instance();
+            
+            GshTemplateDecorateForUiInput gshTemplateDecorateForUiInput = new GshTemplateDecorateForUiInput();
+            
+            gshTemplateDecorateForUiInput.setGshTemplateInputConfigAndValues(customTemplateInputs);
+            gshTemplateDecorateForUiInput.setCurrentSubject(loggedInSubject);
+            gshTemplateDecorateForUiInput.setTemplateConfigId(templateType);
+            
+            executeForTemplateV2instance.decorateTemplateForUiDisplay(gshTemplateDecorateForUiInput);
+            
+          }
           if (customTemplateInputs == null) {
             return;
           }
-          
+
         } else {
           templateContainer.setTemplateLogic(templateLogic);
           templateLogic.initScreen();
@@ -1165,7 +1196,9 @@ public class UiV2Template {
       }      
       
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      if (startedSession) {
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
 
   }

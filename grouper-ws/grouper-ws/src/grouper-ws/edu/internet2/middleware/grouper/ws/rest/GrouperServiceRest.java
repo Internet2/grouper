@@ -2999,7 +2999,7 @@ public class GrouperServiceRest {
 
     try {
 
-      GshTemplateOwnerType templateOwnerType = GshTemplateOwnerType.valueOfIgnoreCase(wsRestGshTemplateExecRequest.getOwnerType(), true);
+      GshTemplateOwnerType templateOwnerType = GshTemplateOwnerType.valueOfIgnoreCase(wsRestGshTemplateExecRequest.getOwnerType(), false);
       
       wsGshTemplateExecResult = GrouperServiceLogic.executeGshTemplate(clientVersion, wsRestGshTemplateExecRequest.getConfigId(),
           templateOwnerType, wsRestGshTemplateExecRequest.getOwnerGroupLookup(), wsRestGshTemplateExecRequest.getOwnerStemLookup(),

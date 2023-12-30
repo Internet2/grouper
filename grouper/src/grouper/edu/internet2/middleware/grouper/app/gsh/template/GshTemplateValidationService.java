@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.util.HashMap;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -25,6 +26,41 @@ public class GshTemplateValidationService {
   
 
   public boolean validate(GshTemplateConfig templateConfig, GshTemplateExec gshTemplateExec, GshTemplateOutput gshTemplateOutput) {
+    
+    
+    if (StringUtils.equals("V2", templateConfig.getTemplateVersion())) {
+      GshTemplateExec gshTemplateExec2 = new GshTemplateExec();
+      gshTemplateExec2.assignConfigId(templateConfig.getConfigId());
+      GshTemplateV2 executeForTemplateV2instance = gshTemplateExec.executeForTemplateV2instance();
+      
+      GshTemplateDecorateForUiInput gshTemplateDecorateForUiInput = new GshTemplateDecorateForUiInput();
+      gshTemplateDecorateForUiInput.setCurrentSubject(gshTemplateExec.getCurrentUser());
+      gshTemplateDecorateForUiInput.setActAsSubject(gshTemplateExec.getActAsSubject());
+      gshTemplateDecorateForUiInput.setTemplateConfigId(gshTemplateExec.getConfigId());
+      Map<String, GshTemplateInputConfigAndValue> gshTemplateInputConfigAndValues = new LinkedHashMap<>();
+      Map<String, GshTemplateInput> nameToGshTemplateInput = new HashMap<>(); 
+      for (GshTemplateInput gshTemplateInput : GrouperUtil.nonNull(gshTemplateExec.getGshTemplateInputs())) {
+        nameToGshTemplateInput.put(gshTemplateInput.getName(), gshTemplateInput);
+      }
+
+      for (GshTemplateInputConfig gshTemplateInputConfig : GrouperUtil.nonNull(templateConfig.getGshTemplateInputConfigs())) {
+
+        GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = new GshTemplateInputConfigAndValue();
+        gshTemplateInputConfigAndValues.put(gshTemplateInputConfig.getName(), gshTemplateInputConfigAndValue);
+        gshTemplateInputConfigAndValue.setGshTemplateInputConfig(gshTemplateInputConfig);
+        
+        GshTemplateInput gshTemplateInput = nameToGshTemplateInput.get(gshTemplateInputConfig.getName());
+        if (gshTemplateInput != null) {
+          gshTemplateInputConfigAndValue.setValue(gshTemplateInput.getValueString());
+        }
+        
+      }
+      gshTemplateDecorateForUiInput.setGshTemplateInputConfigAndValues(gshTemplateInputConfigAndValues);
+      
+      executeForTemplateV2instance.decorateTemplateForUiDisplay(gshTemplateDecorateForUiInput);
+      
+    }
+
     
     boolean isValid = validateEnabled(templateConfig, gshTemplateOutput);
     isValid = isValid && validateOwnerType(templateConfig, gshTemplateExec, gshTemplateOutput);
@@ -71,11 +107,16 @@ public class GshTemplateValidationService {
         gshTemplateOutput.addValidationLine(errorMessage);
         return false;
       }
+      if (!templateConfig.canGroupRunTemplate(ownerGroup)) {
+        throw new RuntimeException("ownerGroup "+ownerGroup.getName() + " is not allowed to run this gsh template");
+      }
       
     } else {
-      String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message");
-      gshTemplateOutput.addValidationLine(errorMessage);
-      return false;
+      if (!templateConfig.isAllowWsFromNoOwner()) {
+        String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message");
+        gshTemplateOutput.addValidationLine(errorMessage);
+        return false;
+      }
     }
     
     return true;
@@ -414,7 +455,7 @@ public class GshTemplateValidationService {
         
         // dropdown value
         if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
-          List<MultiKey> validKeysValues = gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().retrieveKeysAndLabels(gshTemplateInputConfig);
+          List<MultiKey> validKeysValues = gshTemplateInputConfig.getDropdownKeysAndLabels();
           
           if (StringUtils.isNotBlank(valueFromUser)) {
             if (!gshTemplateInputConfig.getGshTemplateDropdownValueFormatType().doesValuePassValidation(valueFromUser, validKeysValues)) {

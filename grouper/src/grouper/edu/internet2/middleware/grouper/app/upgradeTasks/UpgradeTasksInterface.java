@@ -16,6 +16,8 @@
 
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+
 /**
  * @author shilen
  */
@@ -24,5 +26,5 @@ public interface UpgradeTasksInterface {
   /**
    * update to next version
    */
-  public void updateVersionFromPrevious();
+  public void updateVersionFromPrevious(OtherJobInput otherJobInput);
 }

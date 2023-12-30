@@ -101,13 +101,13 @@ public class UpgradeTasksJob extends OtherJobBase {
     for (int version = oldDBVersion + 1; version <= newDBVersion; version++) {
       String enumName = "V" + version;
       UpgradeTasksInterface task = Enum.valueOf(UpgradeTasks.class, enumName);
-      task.updateVersionFromPrevious();
+      task.updateVersionFromPrevious(otherJobInput);
       group.getAttributeValueDelegate().assignValue(upgradeTasksVersionName, "" + version);
       
       LOG.info("Upgraded to version " + enumName);
     }
     
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished running job, previousVersion=" + oldDBVersion + ", currentVersion=" + newDBVersion);
+    otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(".  Finished running job, previousVersion=" + oldDBVersion + ", currentVersion=" + newDBVersion);
     otherJobInput.getHib3GrouperLoaderLog().store();
 
     LOG.info("UpgradeTasksJob finished successfully.");
