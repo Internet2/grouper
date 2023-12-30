@@ -17,7 +17,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class TeamDynamixUser {
   
-  private String uid;
+  private String id; // UID
   
   private String firstName;
   
@@ -33,15 +33,30 @@ public class TeamDynamixUser {
   
   private String userName;
   
+  private String externalId;
   
-  public String getUid() {
-    return uid;
+  
+  public String getExternalId() {
+    return externalId;
   }
 
+
   
-  public void setUid(String uid) {
-    this.uid = uid;
+  public void setExternalId(String externalId) {
+    this.externalId = externalId;
   }
+
+
+  
+  public String getId() {
+    return id;
+  }
+
+
+  public void setId(String id) {
+    this.id = id;
+  }
+
 
 
   public String getFirstName() {
@@ -117,11 +132,12 @@ public class TeamDynamixUser {
     ProvisioningEntity targetEntity = new ProvisioningEntity();
     targetEntity.assignAttributeValue("FirstName", this.firstName);
     targetEntity.assignAttributeValue("LastName", this.lastName);
-    targetEntity.setId(this.uid);
+    targetEntity.setId(this.id);
     targetEntity.assignAttributeValue("PrimaryEmail", this.primaryEmail);
     targetEntity.assignAttributeValue("Company", this.company);
-    targetEntity.assignAttributeValue("SecurityRoleId", this.securityRoleId);
+    targetEntity.assignAttributeValue("SecurityRoleID", this.securityRoleId);
     targetEntity.assignAttributeValue("UserName", this.userName);
+    targetEntity.assignAttributeValue("ExternalID", this.externalId);
     return targetEntity;
   }
 
@@ -151,16 +167,20 @@ public class TeamDynamixUser {
       teamDynamixUser.setCompany(targetEntity.retrieveAttributeValueString("Company"));
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("SecurityRoleId")) {      
-      teamDynamixUser.setSecurityRoleId(targetEntity.retrieveAttributeValueString("SecurityRoleId"));
-    }
-   
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
-      teamDynamixUser.setUid(targetEntity.getId());
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("SecurityRoleID")) {      
+      teamDynamixUser.setSecurityRoleId(targetEntity.retrieveAttributeValueString("SecurityRoleID"));
     }
     
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
+      teamDynamixUser.setId(targetEntity.getId());
+    }
+   
     if (fieldNamesToSet == null || fieldNamesToSet.contains("UserName")) {      
       teamDynamixUser.setUserName(targetEntity.retrieveAttributeValueString("UserName"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("ExternalID")) {      
+      teamDynamixUser.setExternalId(targetEntity.retrieveAttributeValueString("ExternalID"));
     }
     
     return teamDynamixUser;
@@ -173,7 +193,7 @@ public class TeamDynamixUser {
    */
   public static TeamDynamixUser fromJson(JsonNode entityNode) {
 
-    if (entityNode == null || !entityNode.has("userPrincipalName")) {
+    if (entityNode == null || !entityNode.has("FirstName")) {
       return null;
     }
 
@@ -183,9 +203,11 @@ public class TeamDynamixUser {
     teamDynamixUser.lastName = GrouperUtil.jsonJacksonGetString(entityNode, "LastName");
     teamDynamixUser.primaryEmail = GrouperUtil.jsonJacksonGetString(entityNode, "PrimaryEmail");
     teamDynamixUser.company = GrouperUtil.jsonJacksonGetString(entityNode, "Company");
-    teamDynamixUser.securityRoleId = GrouperUtil.jsonJacksonGetString(entityNode, "SecurityRoleId");
+    teamDynamixUser.securityRoleId = GrouperUtil.jsonJacksonGetString(entityNode, "SecurityRoleID");
     teamDynamixUser.typeId = GrouperUtil.jsonJacksonGetInteger(entityNode, "TypeID");
     teamDynamixUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "UserName");
+    teamDynamixUser.externalId = GrouperUtil.jsonJacksonGetString(entityNode, "ExternalID");
+    teamDynamixUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "UID");
     
     return teamDynamixUser;
   }
@@ -198,29 +220,32 @@ public class TeamDynamixUser {
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
     ObjectNode result = GrouperUtil.jsonJacksonNode();
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("firstName")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("FirstName")) {      
       GrouperUtil.jsonJacksonAssignString(result, "FirstName", this.firstName);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("lastName")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("LastName")) {      
       GrouperUtil.jsonJacksonAssignString(result, "LastName", this.lastName);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("primaryEmail")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("PrimaryEmail")) {      
       GrouperUtil.jsonJacksonAssignString(result, "PrimaryEmail", this.primaryEmail);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("company")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Company")) {      
       GrouperUtil.jsonJacksonAssignString(result, "Company", this.company);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("securityRoleId")) {      
-      GrouperUtil.jsonJacksonAssignString(result, "SecurityRoleId", this.securityRoleId);
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("SecurityRoleID")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "SecurityRoleID", this.securityRoleId);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("userName")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("UserName")) {      
       GrouperUtil.jsonJacksonAssignString(result, "UserName", this.userName);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("typeId")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("ExternalID")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "ExternalID", this.externalId);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("TypeID")) {      
       GrouperUtil.jsonJacksonAssignLong(result, "TypeID", Long.valueOf(this.typeId));
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("uid")) {
-      GrouperUtil.jsonJacksonAssignString(result, "UID", this.uid);
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("UID")) {
+      GrouperUtil.jsonJacksonAssignString(result, "UID", this.id);
     }
     
     return result;
@@ -255,6 +280,7 @@ public class TeamDynamixUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "company", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_role_id", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_name", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "external_id", Types.VARCHAR, "256", false, true);
       
     }
     

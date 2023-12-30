@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -27,6 +28,7 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Log;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -194,6 +196,29 @@ public class TeamDynamixApiCommands {
     grouperHttpCall.addHeader("Content-Type", "application/json");
     grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
     grouperHttpCall.assignBody(body);
+    
+    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(70*1000L); // 1 min and 10 secs
+    
+    grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
+      
+      @Override
+      public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
+        
+        String responseBody = httpClient.getResponseBody();
+        boolean isThrottle = false;
+        //sometimes it throttles but it also has a response so we're going to use the response if it has
+        if (StringUtils.isNotBlank(responseBody) && 
+            StringUtils.contains(responseBody, "Please try again later.") &&
+            !StringUtils.contains(responseBody, "Please try again later.[{")) {
+          isThrottle = true;
+        }
+        if (isThrottle) {                
+          GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
+        }
+        return isThrottle;
+      }
+    });
+    
     grouperHttpCall.executeRequest();
     
     int code = -1;
@@ -203,6 +228,12 @@ public class TeamDynamixApiCommands {
       code = grouperHttpCall.getResponseCode();
       returnCode[0] = code;
       json = grouperHttpCall.getResponseBody();
+      
+      if (StringUtils.isNotBlank(json) && json.contains("Please try again later.[{")) {
+        int startOfJson = json.indexOf("[{");
+        json =  json.substring(startOfJson);
+      }
+      
     } catch (Exception e) {
       throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
     }
@@ -221,6 +252,8 @@ public class TeamDynamixApiCommands {
       JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
       return rootNode;
     } catch (Exception e) {
+//      System.out.println("Error parsing response: '" + json + "'");
+//      return null;
       throw new RuntimeException("Error parsing response: '" + json + "'", e);
     }
 
@@ -366,13 +399,9 @@ public class TeamDynamixApiCommands {
       
       String urlSuffix = "api/groups/"+groupId+"/members";
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), 
+      executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), 
           new int[] { -1 }, jsonStringToSend);
       
-      if (jsonNode == null) {
-        throw new RuntimeException("error creating team dyamix membership for groupId "+groupId);
-      }
-
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -396,7 +425,7 @@ public class TeamDynamixApiCommands {
     try {
       
       ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
-      jsonJacksonNode.put("isActive", true);
+      jsonJacksonNode.put("IsActive", true);
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
@@ -854,8 +883,8 @@ public class TeamDynamixApiCommands {
       JsonNode jsonToSend = grouperDuoUser.toJson(null);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/users",
-          GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/api/people",
+          GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend);
       
       TeamDynamixUser teamDynamixUserResult = TeamDynamixUser.fromJson(jsonNode);
 
@@ -954,6 +983,10 @@ public class TeamDynamixApiCommands {
     debugMap.put("method", "retrieveTeamDynamixUserByExternalId");
 
     long startTime = System.nanoTime();
+    
+    if (StringUtils.isBlank(externalId)) {
+      return null;
+    }
 
     try {
 
@@ -966,18 +999,24 @@ public class TeamDynamixApiCommands {
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/people/search",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       
-      ArrayNode usersArray = (ArrayNode) jsonNode.get("response");
+      ArrayNode usersArray = (ArrayNode) jsonNode;
       
       if (usersArray == null || usersArray.size() == 0) {
         return null;
-      } else if (usersArray.size() > 1) {
-        throw new RuntimeException("How can there be more than one user with the same external id in team dynamix?? '" + externalId + "'");
-      } else {
-        JsonNode userNode = usersArray.get(0);
-        TeamDynamixUser grouperDuoUser = TeamDynamixUser.fromJson(userNode);
-        return grouperDuoUser;
+      } 
+      Iterator<JsonNode> iterator = usersArray.iterator();
+      List<TeamDynamixUser> users = new ArrayList<>();
+      while (iterator.hasNext()) {
+        JsonNode userNode = iterator.next();
+        TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromJson(userNode);
+        if (StringUtils.equals(teamDynamixUser.getExternalId(), externalId)) {
+          users.add(teamDynamixUser);
+        }
       }
-      
+      if (users.size() > 1) {
+        throw new RuntimeException("How can there be more than one user with the same external id in TeamDynamix?? '" + externalId + "'");
+      }
+      return users.get(0);
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -1057,13 +1096,20 @@ public class TeamDynamixApiCommands {
       
       if (groupsArray == null || groupsArray.size() == 0) {
         return null;
-      } else if (groupsArray.size() > 1) {
-        throw new RuntimeException("How can there be more than one group with the same name in TeamDynamix?? '" + username + "'");
-      } else {
-        JsonNode userNode = groupsArray.get(0);
-        TeamDynamixGroup grouperDuoUser = TeamDynamixGroup.fromJson(userNode);
-        return grouperDuoUser;
+      } 
+      Iterator<JsonNode> iterator = groupsArray.iterator();
+      List<TeamDynamixGroup> groups = new ArrayList<>();
+      while (iterator.hasNext()) {
+        JsonNode groupNode = iterator.next();
+        TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(groupNode);
+        if (StringUtils.equals(teamDynamixGroup.getName(), username)) {
+          groups.add(teamDynamixGroup);
+        }
       }
+      if (groups.size() > 1) {
+        throw new RuntimeException("How can there be more than one group with the same name in TeamDynamix?? '" + username + "'");
+      }
+      return groups.get(0);
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -1205,7 +1251,7 @@ public class TeamDynamixApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(operationsNode);
 
-      executeMethod(debugMap, "PATCH", configId, "/api/people/"+ GrouperUtil.escapeUrlEncode(grouperScim2User.getUid()),
+      executeMethod(debugMap, "PATCH", configId, "/api/people/"+ GrouperUtil.escapeUrlEncode(grouperScim2User.getId()),
           GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
 
     } catch (RuntimeException re) {
