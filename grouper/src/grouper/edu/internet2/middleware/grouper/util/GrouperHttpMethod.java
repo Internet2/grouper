@@ -48,12 +48,12 @@ public enum GrouperHttpMethod{
 	delete {
 		@Override
 		public HttpRequestBase newHttpMethod(String url) {
-			return new HttpDelete(url);
+			return new GrouperHttpDeleteWithBody(url);
 		}
 
     @Override
     public boolean supportsRequestBody() {
-      return false;
+      return true;
     }
 	},
 	

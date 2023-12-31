@@ -36,6 +36,7 @@ import org.apache.http.NameValuePair;
 import org.apache.http.client.config.RequestConfig;
 import org.apache.http.client.entity.UrlEncodedFormEntity;
 import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpDelete;
 import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
@@ -1101,6 +1102,8 @@ public class GrouperHttpClient {
           ((HttpPatch)httpRequestBase).setEntity(new StringEntity((this.body)));
         } else if (this.grouperHttpMethod == GrouperHttpMethod.put){
           ((HttpPut)httpRequestBase).setEntity(new StringEntity((this.body)));
+        } else if (this.grouperHttpMethod == GrouperHttpMethod.delete){
+          ((GrouperHttpDeleteWithBody)httpRequestBase).setEntity(new StringEntity((this.body)));
         } else {
           throw new RuntimeException("Request body may only be used with POST, PATCH or PUT!");
         }
@@ -1111,6 +1114,8 @@ public class GrouperHttpClient {
           ((HttpPatch)httpRequestBase).setEntity(new ByteArrayEntity((this.bodyBytes)));
         } else if (this.grouperHttpMethod == GrouperHttpMethod.put){
           ((HttpPut)httpRequestBase).setEntity(new ByteArrayEntity((this.bodyBytes)));
+        } else if (this.grouperHttpMethod == GrouperHttpMethod.delete){
+          ((GrouperHttpDeleteWithBody)httpRequestBase).setEntity(new ByteArrayEntity((this.bodyBytes)));
         } else {
           throw new RuntimeException("Request body may only be used with POST, PATCH or PUT!");
         }
