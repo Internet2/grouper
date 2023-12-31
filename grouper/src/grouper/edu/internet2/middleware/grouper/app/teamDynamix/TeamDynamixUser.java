@@ -35,6 +35,7 @@ public class TeamDynamixUser {
   
   private String externalId;
   
+  private Boolean active;
   
   public String getExternalId() {
     return externalId;
@@ -128,6 +129,23 @@ public class TeamDynamixUser {
     this.userName = userName;
   }
   
+  public Boolean getActive() {
+    return active;
+  }
+
+  public void setActive(Boolean active) {
+    this.active = active;
+  }
+  
+  public String getActiveDb() {
+    return active == null ? "F" : active ? "T" : "F";
+  }
+  
+  public void setActiveDb(String active) {
+    this.active = GrouperUtil.booleanObjectValue(active);
+  }
+  
+  
   public ProvisioningEntity toProvisioningEntity() {
     ProvisioningEntity targetEntity = new ProvisioningEntity();
     targetEntity.assignAttributeValue("FirstName", this.firstName);
@@ -208,6 +226,10 @@ public class TeamDynamixUser {
     teamDynamixUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "UserName");
     teamDynamixUser.externalId = GrouperUtil.jsonJacksonGetString(entityNode, "ExternalID");
     teamDynamixUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "UID");
+    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(entityNode, "IsActive");
+    if (isActive != null && isActive) {
+      teamDynamixUser.active = true;
+    }
     
     return teamDynamixUser;
   }
@@ -247,6 +269,9 @@ public class TeamDynamixUser {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("UID")) {
       GrouperUtil.jsonJacksonAssignString(result, "UID", this.id);
     }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("IsActive")) {      
+      result.put("IsActive", this.active);
+    }
     
     return result;
   }
@@ -281,6 +306,7 @@ public class TeamDynamixUser {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "security_role_id", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "external_id", Types.VARCHAR, "256", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, false);
       
     }
     

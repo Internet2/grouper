@@ -2,18 +2,15 @@ package edu.internet2.middleware.grouper.app.teamDynamix;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.lang3.RandomStringUtils;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -23,7 +20,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
 import edu.internet2.middleware.grouper.app.google.GrouperGoogleLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Log;
@@ -287,88 +283,6 @@ public class TeamDynamixApiCommands {
   }
   
   
-  //https://www.baeldung.com/java-generate-secure-password
-  private static String generateRandomPassword() {
-    String upperCaseLetters = RandomStringUtils.random(2, 65, 90, true, true);
-    String lowerCaseLetters = RandomStringUtils.random(2, 97, 122, true, true);
-    String numbers = RandomStringUtils.randomNumeric(2);
-    String specialChar = RandomStringUtils.random(2, 33, 47, false, false);
-    String totalChars = RandomStringUtils.randomAlphanumeric(2);
-    String combinedChars = upperCaseLetters.concat(lowerCaseLetters)
-      .concat(numbers)
-      .concat(specialChar)
-      .concat(totalChars);
-    List<Character> pwdChars = combinedChars.chars()
-      .mapToObj(c -> (char) c)
-      .collect(Collectors.toList());
-    Collections.shuffle(pwdChars);
-    String password = pwdChars.stream()
-      .collect(StringBuilder::new, StringBuilder::append, StringBuilder::append)
-      .toString();
-    return password;
-  }
-  
-  
-  /**
-   * create a membership
-   * @param grouperTeamDynamixGroup
-   * @return the result
-   */
-  private static void createTeamDynamixMembership(String configId,
-      String groupId, String userId) {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "createTeamDynamixMembership");
-
-    long startTime = System.nanoTime();
-
-    try {
-
-      ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
-
-      String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-          "grouper.azureConnector."+configId+".resourceEndpoint");
-      
-      objectNode.put("@odata.id", GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/directoryObjects/" + GrouperUtil.escapeUrlEncode(userId));
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
-      
-      int[] returnCode = new int[] { -1 };
-      
-      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureMemberhipErrorCount", 1);
-      }
-      
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members/$ref",
-          GrouperUtil.toSet(204, 400, 429), returnCode, jsonStringToSend);
-      
-      if (returnCode[0] == 429) {
-        int secondsToSleep = retrieveSecondsToSleep(null);
-        GrouperUtil.sleep(secondsToSleep * 1000);
-        
-        GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
-        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
-        }
-        
-        GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
-        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
-        }
-        
-        createTeamDynamixMembership(configId, groupId, userId);
-      }
-
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
-    }
-
-  }
-  
-
   /**
    * create a membership
    * @param grouperTeamDynamixGroup
@@ -390,7 +304,6 @@ public class TeamDynamixApiCommands {
 
     try {
 
-      
       ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
       for (String userId: userIds) {
         arrayNode.add(userId);
@@ -453,314 +366,11 @@ public class TeamDynamixApiCommands {
 
     return results;
   }
-  
-  public static List<TeamDynamixUser> retrieveTeamDynamixUsers(String configId) {
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-    
-    List<TeamDynamixUser> results = new ArrayList<TeamDynamixUser>();
-    
-    debugMap.put("method", "retrieveTeamDynamixUsers");
-    
-    long startTime = System.nanoTime();
-    
-    try {
-      
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, "api/people/userlist?isActive=true",
-           new int[] { -1 });
-      
-      ArrayNode usersArray = (ArrayNode) jsonNode;
-      
-      for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
-        JsonNode groupNode = usersArray.get(i);
-        TeamDynamixUser grouperTeamDynamixGroup = TeamDynamixUser.fromJson(groupNode);
-        if (grouperTeamDynamixGroup != null) {
-          results.add(grouperTeamDynamixGroup);
-        }
-      }
-      
-      
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
-    }
-    debugMap.put("size", GrouperClientUtils.length(results));
-    
-    return results;
-  }
-
-  
-  private static void retrieveUserGroupsHelper(String configId, Map<String, Object> debugMap, 
-      String urlSuffix, boolean securityEnabledOnly, Set<String> result) {
-    
-    int[] returnCode = new int[] {-1};
-    JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200, 429), returnCode,
-        "{\"securityEnabledOnly\": " + securityEnabledOnly + "}");
-
-    if (returnCode[0] == 429) {
-      int secondsToSleep = retrieveSecondsToSleep(null);
-      GrouperUtil.sleep(secondsToSleep * 1000);
-      
-      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
-      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
-      }
-      
-      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
-      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
-      }
-      
-      retrieveUserGroupsHelper(configId, debugMap, urlSuffix, securityEnabledOnly, result);
-    } else {
-      ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-      if (value != null && value.size() > 0) {
-        
-        int azureGetUserGroupsMax = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetUserGroupsMax", 2046);
-        if (value.size() == azureGetUserGroupsMax) {
-          throw new RuntimeException("Too many groups! " + value.size());
-        }
-        
-        for (int i=0;i<value.size();i++) {
-          String groupId = value.get(i).asText();
-          result.add(groupId);
-        }
-      }
-    }
-
-  }
-  
-  
-  /**
-   * return user ids in the group
-   * @param configId
-   * @param userId
-   * @return group ids
-   */
-  public static Set<String> retrieveTeamDynamixUserGroups(String configId, String userId)  {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "retrieveTeamDynamixUserGroups");
-
-    long startTime = System.nanoTime();
-    
-    Set<String> result = new LinkedHashSet<String>();
-
-    try {
-
-      String urlSuffix = "/users/" + GrouperUtil.escapeUrlEncode(userId) + "/getMemberGroups";
-
-      for (boolean securityEnabledOnly: new boolean[] {true, false}) { 
-
-        retrieveUserGroupsHelper(configId, debugMap, urlSuffix, securityEnabledOnly, result);
-        
-      }
-      
-      return result;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
-    }
-  }
-
-  /**
-   * return user ids in the group
-   * @param configId
-   * @param groupId
-   * @return user ids
-   */
-  public static Set<String> retrieveTeamDynamixGroupMembers(String configId, String groupId)  {
-
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "retrieveTeamDynamixGroupMembers");
-
-    int calls = 0;
-    long startTime = System.nanoTime();
-    
-    Set<String> result = new LinkedHashSet<String>();
-
-    try {
-
-      int azureGetMembershipPagingSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("azureGetMembershipPagingSize", 999);
-      
-      String urlSuffix = "/groups/" + GrouperUtil.escapeUrlEncode(groupId) + "/members?$select=id&$top=" + azureGetMembershipPagingSize;
-
-      int[] returnCode = new int[] { -1 };
-      
-      JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
-      
-      if (returnCode[0] == 429) {
-        int secondsToSleep = retrieveSecondsToSleep(null);
-        GrouperUtil.sleep(secondsToSleep * 1000);
-        
-        GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
-        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
-        }
-        
-        GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
-        if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-          GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
-        }
-        
-        return retrieveTeamDynamixGroupMembers(configId, groupId);
-      }
-      
-      //lets get the group node
-      retrieveTeamDynamixGroupMembersHelper(result, jsonNode);
-      debugMap.put("calls", ++calls);
-      
-      String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired(
-          "grouper.azureConnector."+configId+".resourceEndpoint");
-      
-      for (int i=0; i<1000000; i++) {
-        String nextLink = GrouperUtil.jsonJacksonGetString(jsonNode, "@odata.nextLink");
-        if (StringUtils.isBlank(nextLink)) {
-          break;
-        }
-        
-        if (!nextLink.startsWith(resourceEndpoint)) {
-          if (!GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouperTeamDynamixAllowNextLinkPrefixMismatch", false)) {
-            throw new RuntimeException("@odata.nextLink is going to a different URL! '" + nextLink + "', '" + resourceEndpoint + "'");
-          }
-        } else {
-          urlSuffix = nextLink.substring(resourceEndpoint.length(), nextLink.length());
-        }
-        JsonNode localJsonNode = executeGetMethod(debugMap, configId, urlSuffix, returnCode);
-        
-        if (returnCode[0] == 429) {
-          int secondsToSleep = retrieveSecondsToSleep(null);
-          GrouperUtil.sleep(secondsToSleep * 1000);
-          GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
-          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
-          }
-          
-          GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
-          if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-            GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
-          }
-          
-          continue;
-        }
-        
-        jsonNode = localJsonNode;
-        
-        retrieveTeamDynamixGroupMembersHelper(result, jsonNode);
-        debugMap.put("calls", ++calls);
-      }
-
-      return result;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
-    }
-  }
-
-  private static void retrieveTeamDynamixGroupMembersHelper(Set<String> result, JsonNode jsonNode) {
-    ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(jsonNode, "value");
-    if (value != null && value.size() > 0) {
-      for (int i=0;i<value.size();i++) {
-        JsonNode membership = value.get(i);
-        result.add(GrouperUtil.jsonJacksonGetString(membership, "id"));
-      }
-    }
-  }
-
-  private static void deleteMembershipsHelper(String configId, Map<String, Object> debugMap, 
-      List<ProvisioningMembership> membershipsInOneHttpRequest, Map<ProvisioningMembership, Exception> membershipToMayBeException) {
-    
-    List<ProvisioningMembership> throttledMembershipsToDelete = new ArrayList<>();
-    
-    int secondsToSleep = -1;
-    
-    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
-    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
-    mainRequestsNode.set("requests", requestsArrayNode);
-    
-    int index = 0;
-    
-    for (ProvisioningMembership singleMembershipToBeDeleted: membershipsInOneHttpRequest) {
-      
-      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
-      innerRequestNode.put("id", String.valueOf(index));
-      innerRequestNode.put("url", "/groups/" + 
-          GrouperUtil.escapeUrlEncode(singleMembershipToBeDeleted.getProvisioningGroupId()) + "/members/" +
-          GrouperUtil.escapeUrlEncode(singleMembershipToBeDeleted.getProvisioningEntityId()) + "/$ref");
-      innerRequestNode.put("method", "DELETE");
-      
-      requestsArrayNode.add(innerRequestNode);
-      
-      index++;
-      
-    }
-    
-    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
-    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
-        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
-    
-    if (mainResponseNode != null) {
-      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
-      
-      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
-        JsonNode oneResponse = responses.get(i);
-        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
-        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
-        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
-        
-        int userIndex = GrouperUtil.intValue(id);
-        
-        ProvisioningMembership provisioningMembership = membershipsInOneHttpRequest.get(userIndex);
-        if (statusCode == 429) {
-          throttledMembershipsToDelete.add(provisioningMembership);
-          
-          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
-          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
-          
-        } else if (statusCode != 204 && statusCode != 404) {
-          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
-          membershipToMayBeException.put(provisioningMembership, new RuntimeException(error.toString()));
-          
-        } else {
-          membershipToMayBeException.put(provisioningMembership, null);
-        }
-      }
-    }
-    
-    if (throttledMembershipsToDelete.size() > 0) {
-      if (secondsToSleep < 0) {
-        secondsToSleep = 155;
-      }
-      
-      GrouperUtil.sleep(secondsToSleep * 1000);
-      
-      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
-      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
-      }
-      
-      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
-      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
-        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
-      }
-      deleteMembershipsHelper(configId, debugMap, throttledMembershipsToDelete, membershipToMayBeException);
-      
-    }
-    
-  }
 
   /**
    * delete memberships
    */
-  public static Map<ProvisioningMembership, Exception> deleteTeamDynamixMemberships(String configId, List<ProvisioningMembership> membershipsToDelete) {
+  public static void deleteTeamDynamixMemberships(String configId, List<ProvisioningMembership> membershipsToDelete) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -768,23 +378,41 @@ public class TeamDynamixApiCommands {
 
     long startTime = System.nanoTime();
     
-    Map<ProvisioningMembership, Exception> membershipToMayBeException = new HashMap<>();
-
     try {
       
-      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(membershipsToDelete, 20, false);
-      debugMap.put("numberOfHttpRequests", numberOfHttpRequests);
-      
-      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+      Map<String, Set<String>> groupToMembers = new HashMap<>();
+      for (ProvisioningMembership provisioningMembership: membershipsToDelete) {
         
-        List<ProvisioningMembership> membershipsInOneHttpRequest = GrouperUtil.batchList(membershipsToDelete, 20, httpRequestIndex);
-        
-        deleteMembershipsHelper(configId, debugMap, membershipsInOneHttpRequest, membershipToMayBeException);
+        String groupId = provisioningMembership.getProvisioningGroupId();
+        if (groupToMembers.containsKey(groupId)) {
+          groupToMembers.get(groupId).add(provisioningMembership.getProvisioningEntityId());
+        } else {
+          
+          Set<String> members = new HashSet<>();
+          members.add(provisioningMembership.getProvisioningEntityId());
+          groupToMembers.put(provisioningMembership.getProvisioningGroupId(), members);
+          
+        }
         
       }
-
-      return membershipToMayBeException;
       
+      for (String groupId: groupToMembers.keySet()) {
+        
+        ArrayNode arrayNode = GrouperUtil.jsonJacksonArrayNode();
+
+        for (String userId: groupToMembers.get(groupId)) {
+          arrayNode.add(userId);
+        }
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNode);
+        
+        String urlSuffix = "api/groups/"+groupId+"/members";
+
+        executeMethod(debugMap, "DELETE", configId, urlSuffix, GrouperUtil.toSet(200), 
+            new int[] { -1 }, jsonStringToSend);
+        
+      }
+     
+
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -828,33 +456,8 @@ public class TeamDynamixApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "DELETE", configId, "/users/" + userId,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
-
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperDuoLog.duoLog(debugMap, startTime);
-    }
-  }
-  
-  public static void deleteTeamDynamixGroup(String configId,
-      String groupId) {
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "deleteTeamDynamixGroup");
-
-    long startTime = System.nanoTime();
-
-    try {
-    
-      if (StringUtils.isBlank(groupId)) {
-        throw new RuntimeException("id is null");
-      }
-    
-      executeMethod(debugMap, "DELETE", configId, "/groups/" + groupId,
-          GrouperUtil.toSet(200, 404), new int[] { -1 }, null);
+      executeMethod(debugMap, "PUT", configId, "/api/people/" + userId+"/isactive?status=false",
+          GrouperUtil.toSet(200), new int[] { -1 }, null);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -944,7 +547,7 @@ public class TeamDynamixApiCommands {
 
     try {
 
-      String urlSuffix = "/users/" + id;
+      String urlSuffix = "/api/people/" + id;
 
       int[] returnCode = new int[] { -1 };
       
@@ -1028,6 +631,51 @@ public class TeamDynamixApiCommands {
   
   /**
    * @param configId
+   * @param externalId
+   * @return
+   */
+  public static List<TeamDynamixUser> retrieveTeamDynamixUsers(String configId) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "retrieveTeamDynamixUsers");
+
+    long startTime = System.nanoTime();
+    
+    try {
+
+      ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
+      jsonJacksonNode.put("IsActive", true);
+      
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
+      
+      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/people/search",
+          GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+      
+      ArrayNode usersArray = (ArrayNode) jsonNode;
+      
+      List<TeamDynamixUser> results = new ArrayList<TeamDynamixUser>();
+      
+      for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
+        JsonNode groupNode = usersArray.get(i);
+        TeamDynamixUser grouperTeamDynamixGroup = TeamDynamixUser.fromJson(groupNode);
+        if (grouperTeamDynamixGroup != null) {
+          results.add(grouperTeamDynamixGroup);
+        }
+      }
+      
+      return results;
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
+    }
+
+  }
+  
+  /**
+   * @param configId
    * @param group id
    * @return the user
    */
@@ -1084,7 +732,7 @@ public class TeamDynamixApiCommands {
     try {
 
       ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
-      jsonJacksonNode.put("isActive", true);
+      jsonJacksonNode.put("IsActive", true);
       jsonJacksonNode.put("NameLike", username);
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
