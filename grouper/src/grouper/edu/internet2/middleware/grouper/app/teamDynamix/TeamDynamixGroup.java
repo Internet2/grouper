@@ -24,6 +24,8 @@ public class TeamDynamixGroup {
   
   private String description;
 
+  private Boolean active;
+
   
   public String getId() {
     return id;
@@ -49,6 +51,22 @@ public class TeamDynamixGroup {
     this.description = description;
   }
   
+  public Boolean getActive() {
+    return active;
+  }
+
+  public void setActive(Boolean active) {
+    this.active = active;
+  }
+  
+  public String getActiveDb() {
+    return active == null ? "F" : active ? "T" : "F";
+  }
+  
+  public void setActiveDb(String active) {
+    this.active = GrouperUtil.booleanObjectValue(active);
+  }
+  
   /**
    * @param ddlVersionBean
    * @param database
@@ -67,7 +85,7 @@ public class TeamDynamixGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
-
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_group_name_idx", false, "name");
     }
             
@@ -120,6 +138,10 @@ public class TeamDynamixGroup {
     teamDynamixGroup.description = GrouperUtil.jsonJacksonGetString(groupNode, "Description");
     teamDynamixGroup.name = GrouperUtil.jsonJacksonGetString(groupNode, "Name");
     teamDynamixGroup.id = GrouperUtil.jsonJacksonGetString(groupNode, "ID");
+    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupNode, "IsActive");
+    if (isActive != null && isActive) {
+      teamDynamixGroup.active = true;
+    }
     
     return teamDynamixGroup;
   }
@@ -146,6 +168,10 @@ public class TeamDynamixGroup {
       }
     }
     
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("IsActive")) {      
+      result.put("IsActive", this.active);
+    }
+
     return result;
   }
   

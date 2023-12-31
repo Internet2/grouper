@@ -37,6 +37,7 @@
     <property name="securityRoleId" column="security_role_id" />
     <property name="userName" column="user_name" />
     <property name="externalId" column="external_id" />
+    <property name="activeDb" column="active" />
 
   </class>
 </hibernate-mapping>

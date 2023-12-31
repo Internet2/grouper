@@ -32,6 +32,8 @@
 
     <property name="description" column="description" />
     <property name="name" column="name" />
+    
+    <property name="activeDb" column="active" />
 
   </class>
 </hibernate-mapping>

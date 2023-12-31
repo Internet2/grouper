@@ -184,6 +184,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       TeamDynamixProvisioningConfiguration duoConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       TeamDynamixGroup grouperDuoGroup = TeamDynamixGroup.fromProvisioningGroup(targetGroup, null);
+      grouperDuoGroup.setActive(true);
       
       TeamDynamixGroup createdDuoGroup = TeamDynamixApiCommands.createTeamDynamixGroup(duoConfiguration.getTeamDynamixExternalSystemConfigId(), grouperDuoGroup);
 
@@ -310,23 +311,13 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       TeamDynamixProvisioningConfiguration  azureConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
-      Map<ProvisioningMembership, Exception> targetMembershipsWithMaybeException = TeamDynamixApiCommands.deleteTeamDynamixMemberships(azureConfiguration.getTeamDynamixExternalSystemConfigId(), targetMemberships);
+      TeamDynamixApiCommands.deleteTeamDynamixMemberships(azureConfiguration.getTeamDynamixExternalSystemConfigId(), targetMemberships);
 
-      for (ProvisioningMembership targetMembership: targetMembershipsWithMaybeException.keySet()) {
+      for (ProvisioningMembership targetMembership: targetMemberships) {
         
-        Exception exception = targetMembershipsWithMaybeException.get(targetMembership);
-
-        if (exception == null) {
-          targetMembership.setProvisioned(true);
-          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-            provisioningObjectChange.setProvisioned(true);
-          }
-        } else {
-          targetMembership.setProvisioned(false);
-          targetMembership.setException(exception);
-          for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-            provisioningObjectChange.setProvisioned(false);
-          }
+        targetMembership.setProvisioned(true);
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+          provisioningObjectChange.setProvisioned(true);
         }
         
       }
@@ -851,9 +842,10 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       TeamDynamixProvisioningConfiguration duoConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       TeamDynamixGroup grouperDuoGroup = TeamDynamixGroup.fromProvisioningGroup(targetGroup, null);
+      grouperDuoGroup.setActive(false);
       
-      TeamDynamixApiCommands.deleteTeamDynamixGroup(duoConfiguration.getTeamDynamixExternalSystemConfigId(), grouperDuoGroup.getId());
-
+      TeamDynamixApiCommands.updateTeamDynamixGroup(duoConfiguration.getTeamDynamixExternalSystemConfigId(), grouperDuoGroup, null);
+      
       targetGroup.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);
@@ -1123,6 +1115,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       TeamDynamixGroup grouperDuoGroup = TeamDynamixGroup.fromProvisioningGroup(targetGroup, null);
+      grouperDuoGroup.setActive(true);
       TeamDynamixApiCommands.updateTeamDynamixGroup(duoConfiguration.getTeamDynamixExternalSystemConfigId(), grouperDuoGroup, null);
 
       targetGroup.setProvisioned(true);
