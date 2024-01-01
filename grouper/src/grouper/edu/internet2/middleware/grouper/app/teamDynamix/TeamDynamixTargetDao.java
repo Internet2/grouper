@@ -218,9 +218,9 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       
       TeamDynamixUser grouperDuoUser = TeamDynamixUser.fromProvisioningEntity(targetEntity, null);
       
-      TeamDynamixUser createdDuoUser = TeamDynamixApiCommands.createTeamDynamixUser(duoConfiguration.getTeamDynamixExternalSystemConfigId(), grouperDuoUser);
+      String userId = TeamDynamixApiCommands.createTeamDynamixUser(duoConfiguration.getTeamDynamixExternalSystemConfigId(), grouperDuoUser);
 
-      targetEntity.setId(createdDuoUser.getId());
+      targetEntity.setId(userId);
       targetEntity.setProvisioned(true);
 
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
@@ -814,7 +814,8 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
 
       TeamDynamixUser grouperDuoUser = TeamDynamixUser.fromProvisioningEntity(targetEntity, null);
       
-      TeamDynamixApiCommands.deleteTeamDynamixUser(duoConfiguration.getTeamDynamixExternalSystemConfigId(), grouperDuoUser.getId());
+      TeamDynamixApiCommands.updateTeamDynamixUserStatus(duoConfiguration.getTeamDynamixExternalSystemConfigId(),
+          grouperDuoUser.getId(), false);
 
       targetEntity.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
@@ -886,8 +887,10 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
         grouperDuoUser = TeamDynamixApiCommands.retrieveTeamDynamixUser(duoConfiguration.getTeamDynamixExternalSystemConfigId(), 
             GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()));
       } else if (StringUtils.equals("ExternalID", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
-        grouperDuoUser = TeamDynamixApiCommands.retrieveTeamDynamixUserByExternalId(
-            duoConfiguration.getTeamDynamixExternalSystemConfigId(), GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()));
+        grouperDuoUser = TeamDynamixApiCommands.retrieveTeamDynamixUserBySearchTerm(
+            duoConfiguration.getTeamDynamixExternalSystemConfigId(), 
+            "externalId", 
+            GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue()), true);
       } else {
         throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveEntityRequest.getSearchAttribute() + "'");
       }

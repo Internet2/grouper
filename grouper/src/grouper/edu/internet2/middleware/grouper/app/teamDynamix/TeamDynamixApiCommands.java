@@ -443,10 +443,11 @@ public class TeamDynamixApiCommands {
     return secondsToSleep;
   }
   
-  public static void deleteTeamDynamixUser(String configId, String userId) {
+  public static void updateTeamDynamixUserStatus(String configId, 
+      String userId, boolean newStatus) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "deleteTeamDynamixUser");
+    debugMap.put("method", "updateTeamDynamixUserStatus");
 
     long startTime = System.nanoTime();
 
@@ -456,7 +457,7 @@ public class TeamDynamixApiCommands {
         throw new RuntimeException("id is null");
       }
     
-      executeMethod(debugMap, "PUT", configId, "/api/people/" + userId+"/isactive?status=false",
+      executeMethod(debugMap, "PUT", configId, "/api/people/" + userId+"/isactive?status="+newStatus,
           GrouperUtil.toSet(200), new int[] { -1 }, null);
 
     } catch (RuntimeException re) {
@@ -472,8 +473,8 @@ public class TeamDynamixApiCommands {
    * @param TeamDynamixUser
    * @return the result
    */
-  public static TeamDynamixUser createTeamDynamixUser(String configId,
-      TeamDynamixUser grouperDuoUser) {
+  public static String createTeamDynamixUser(String configId,
+      TeamDynamixUser teamDynamixUser) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -483,15 +484,30 @@ public class TeamDynamixApiCommands {
 
     try {
 
-      JsonNode jsonToSend = grouperDuoUser.toJson(null);
+      JsonNode jsonToSend = teamDynamixUser.toJson(null);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
-
+      
+      int[] returnCode = new int[] { -1 };
+      
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/api/people",
-          GrouperUtil.toSet(200, 201), new int[] { -1 }, jsonStringToSend);
+          GrouperUtil.toSet(200, 201, 400), returnCode, jsonStringToSend);
+      
+      if (returnCode[0] == 400 && jsonNode != null && jsonNode.has("Message")
+          && StringUtils.contains(GrouperUtil.jsonJacksonGetString(jsonNode, "Message"), "Username must be unique")) {
+       
+        TeamDynamixUser teamDynamixUserBySearchTerm = retrieveTeamDynamixUserBySearchTerm(configId, "username", teamDynamixUser.getUserName(), false);
+        if (teamDynamixUserBySearchTerm != null) {
+          updateTeamDynamixUserStatus(configId, teamDynamixUserBySearchTerm.getId(), true);
+          return teamDynamixUserBySearchTerm.getId();
+        } 
+        
+        throw new RuntimeException("How is it possible to get username already exists but then not find the user when searching");
+        
+      }
       
       TeamDynamixUser teamDynamixUserResult = TeamDynamixUser.fromJson(jsonNode);
-
-      return teamDynamixUserResult;
+      return teamDynamixUserResult.getId();
+      
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -576,10 +592,12 @@ public class TeamDynamixApiCommands {
   
   /**
    * @param configId
-   * @param externalId
+   * @param searchTerm
    * @return
    */
-  public static TeamDynamixUser retrieveTeamDynamixUserByExternalId(String configId, String externalId) {
+  public static TeamDynamixUser retrieveTeamDynamixUserBySearchTerm(String configId,
+      String fieldName,
+      String searchTerm, Boolean isActive) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -587,15 +605,17 @@ public class TeamDynamixApiCommands {
 
     long startTime = System.nanoTime();
     
-    if (StringUtils.isBlank(externalId)) {
+    if (StringUtils.isBlank(searchTerm)) {
       return null;
     }
 
     try {
 
       ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
-      jsonJacksonNode.put("IsActive", true);
-      jsonJacksonNode.put("SearchText", externalId);
+      if (isActive != null) {
+        jsonJacksonNode.put("IsActive", isActive);
+      }
+      jsonJacksonNode.put("SearchText", searchTerm);
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
@@ -612,12 +632,24 @@ public class TeamDynamixApiCommands {
       while (iterator.hasNext()) {
         JsonNode userNode = iterator.next();
         TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromJson(userNode);
-        if (StringUtils.equals(teamDynamixUser.getExternalId(), externalId)) {
-          users.add(teamDynamixUser);
+        
+        if (StringUtils.equals(fieldName, "externalId")) {
+          if (StringUtils.equals(teamDynamixUser.getExternalId(), searchTerm)) {
+            users.add(teamDynamixUser);
+          }
+        } else if (StringUtils.equals(fieldName, "username")) {
+          if (StringUtils.equals(teamDynamixUser.getUserName(), searchTerm)) {
+            users.add(teamDynamixUser);
+          }
+        } else {
+          throw new RuntimeException("Invalid field name.");
         }
+        
+        
+        
       }
       if (users.size() > 1) {
-        throw new RuntimeException("How can there be more than one user with the same external id in TeamDynamix?? '" + externalId + "'");
+        throw new RuntimeException("How can there be more than one user with the same value in TeamDynamix?? '" + searchTerm + "'");
       }
       return users.get(0);
     } catch (RuntimeException re) {
@@ -843,7 +875,7 @@ public class TeamDynamixApiCommands {
   }
   
   public static void patchTeamDynamixUser(String configId,
-      TeamDynamixUser grouperScim2User, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
+      TeamDynamixUser teamDynamixUser, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -871,19 +903,32 @@ public class TeamDynamixApiCommands {
         
         ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
         
+        String newValue = null;
+        
+        if (StringUtils.equals(fieldToUpdate, "FirstName")) {
+          newValue = teamDynamixUser.getFirstName();
+        } else if (StringUtils.equals(fieldToUpdate, "LastName")) {
+          newValue = teamDynamixUser.getLastName();
+        } else if (StringUtils.equals(fieldToUpdate, "Company")) {
+          newValue = teamDynamixUser.getCompany();
+        } else if (StringUtils.equals(fieldToUpdate, "ExternalId")) {
+          newValue = teamDynamixUser.getExternalId();
+        } else if (StringUtils.equals(fieldToUpdate, "PrimaryEmail")) {
+          newValue = teamDynamixUser.getPrimaryEmail();
+        } else if (StringUtils.equals(fieldToUpdate, "SecurityRoleId")) {
+          newValue = teamDynamixUser.getSecurityRoleId();
+        } else if (StringUtils.equals(fieldToUpdate, "UserName")) {
+          newValue = teamDynamixUser.getUserName();
+        }
+        
         switch (provisioningObjectChangeAction) {
           case insert:
             operationNode.put("op", "add");
-            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
+            operationNode.put("value", newValue);
             break;
           case update:
             operationNode.put("op", "replace");
-            Object resolvedObject = GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate);
-            if (resolvedObject != null && resolvedObject instanceof Boolean) {
-              operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
-            } else {
-              operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
-            }
+            operationNode.put("value", newValue);
             break;
           case delete:
             operationNode.put("op", "remove");
@@ -899,7 +944,7 @@ public class TeamDynamixApiCommands {
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(operationsNode);
 
-      executeMethod(debugMap, "PATCH", configId, "/api/people/"+ GrouperUtil.escapeUrlEncode(grouperScim2User.getId()),
+      executeMethod(debugMap, "PATCH", configId, "/api/people/"+ GrouperUtil.escapeUrlEncode(teamDynamixUser.getId()),
           GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend);
 
     } catch (RuntimeException re) {
