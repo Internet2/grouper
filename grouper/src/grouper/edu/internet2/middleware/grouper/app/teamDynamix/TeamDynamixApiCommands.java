@@ -17,12 +17,9 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
-import edu.internet2.middleware.grouper.app.google.GrouperGoogleLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
-import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Log;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -37,113 +34,6 @@ public class TeamDynamixApiCommands {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(TeamDynamixApiCommands.class);
 
-  public static void main(String[] args) {
-
-//    TeamDynamixMockServiceHandler.dropTeamDynamixMockTables();
-//    TeamDynamixMockServiceHandler.ensureTeamDynamixMockTables();
-    
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-//        "grouper.azureConnector.azure1.loginEndpoint",
-//        "http://localhost/f3/login.microsoftonline.com/");
-//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-//        "grouper.azureConnector.azure1.resourceEndpoint",
-//        "http://localhost/f3/graph.microsoft.com/v1.0/");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-      "grouper.azureConnector.azure1.loginEndpoint",
-      "http://localhost:8400/grouper/mockServices/azure/auth");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-      "grouper.azureConnector.azure1.resourceEndpoint",
-      "http://localhost:8400/grouper/mockServices/azure");
-
-    //GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("TeamDynamixProvA");
-    //GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
-
-    //GraphApiClient apiClient = TeamDynamixGrouperExternalSystem.retrieveApiConnectionForProvisioning("azure1");
-
-    //  List<TeamDynamixGroup> grouperTeamDynamixGroups = retrieveTeamDynamixGroups("azure1");
-    //  
-    //  for (TeamDynamixGroup grouperTeamDynamixGroup : grouperTeamDynamixGroups) {
-    //    System.out.println(grouperTeamDynamixGroup);
-    //  }
-    
-    //  TeamDynamixGroup grouperTeamDynamixGroup = retrieveTeamDynamixGroup("azure1", "id", "1153755cfa554297a29cfc332e1bef9f");
-    //  TeamDynamixGroup grouperTeamDynamixGroup = retrieveTeamDynamixGroup("azure1", "displayName", "myDisplayName2");
-    //  System.out.println(grouperTeamDynamixGroup);
-
-//    for (int i=0;i<5;i++) {
-//      {
-//        TeamDynamixUser grouperTeamDynamixUser = new TeamDynamixUser();
-//        grouperTeamDynamixUser.setAccountEnabled(true);
-//        grouperTeamDynamixUser.setDisplayName("myDispName" + i);
-//        grouperTeamDynamixUser.setId(GrouperUuid.getUuid());
-//        grouperTeamDynamixUser.setMailNickname("a" + i + "@b.c");
-//        grouperTeamDynamixUser.setOnPremisesImmutableId((12345678+i) + "");
-//        grouperTeamDynamixUser.setUserPrincipalName("jsmith" + 1);
-//        HibernateSession.byObjectStatic().save(grouperTeamDynamixUser);
-//        createTeamDynamixMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", grouperTeamDynamixUser.getId());
-//      }
-//      
-//    }
-    
-    //  Set<String> groupIds = retrieveTeamDynamixUserGroups("azure1", "84ec56bad4da4430ae5f2998ea283dfc");
-    //  for (String groupId : groupIds) {
-    //    System.out.println(groupId);
-    //  }
-
-    //    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("azureGetMembershipPagingSize", "2");
-    //
-    //    Set<String> userIds = retrieveTeamDynamixGroupMembers("azure1", "dcba5d8d7986432db23a0342887e8fba");
-    //    for (String userId : userIds) {
-    //      System.out.println(userId);
-    //    }
-        
-    
-    //  {
-    //    TeamDynamixUser grouperTeamDynamixUser = new TeamDynamixUser();
-    //    grouperTeamDynamixUser.setAccountEnabled(true);
-    //    grouperTeamDynamixUser.setDisplayName("myDispName2");
-    //    grouperTeamDynamixUser.setId(GrouperUuid.getUuid());
-    //    grouperTeamDynamixUser.setMailNickname("a@b.d");
-    //    grouperTeamDynamixUser.setOnPremisesImmutableId("12345679");
-    //    grouperTeamDynamixUser.setUserPrincipalName("kjohnson");
-    //    HibernateSession.byObjectStatic().save(grouperTeamDynamixUser);
-    //  }
-    
-    //  List<TeamDynamixUser> grouperTeamDynamixUsers = retrieveTeamDynamixUsers("azure1");
-    //
-    //  for (TeamDynamixUser grouperTeamDynamixUser : grouperTeamDynamixUsers) {
-    //    System.out.println(grouperTeamDynamixUser);
-    //  }
-    
-    //TeamDynamixUser grouperTeamDynamixUser = retrieveTeamDynamixUser("azure1", "userPrincipalName", "jsmith");
-    //TeamDynamixUser grouperTeamDynamixUser = retrieveTeamDynamixUser("azure1", "displayName", "myDispName");
-    //System.out.println(grouperTeamDynamixUser);
-    
-    //  createTeamDynamixMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
-    
-    //createTeamDynamixMemberships("azure1", "dcba5d8d7986432db23a0342887e8fba", GrouperUtil.toSet("1db63cda166a4640b9ef1a0808f90873", "b1dda78d8d42461a93f8b471f26b682e"));
-    
-    //  deleteTeamDynamixMembership("azure1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
-    
-//    TeamDynamixGroup grouperTeamDynamixGroup = new TeamDynamixGroup();
-//    grouperTeamDynamixGroup.setDescription("myDescription3");
-//    grouperTeamDynamixGroup.setName("myName3");
-//    Map<TeamDynamixGroup, Set<String>> map = new HashMap<>();
-//    map.put(grouperTeamDynamixGroup, null);
-//    createTeamDynamixGroups("azure1", map);
-
-    //deleteTeamDynamixGroup("azure1", "fa356bb8ddb14600be7994cd7b5239a7");
-    
-//    TeamDynamixGroup grouperTeamDynamixGroup = new TeamDynamixGroup();
-//    grouperTeamDynamixGroup.setId("dcba5d8d7986432db23a0342887e8fba");
-//    grouperTeamDynamixGroup.setDisplayName("myDisplayName4");
-//    grouperTeamDynamixGroup.setMailNickname("whatever");
-//    updateTeamDynamixGroup("azure1", grouperTeamDynamixGroup, GrouperUtil.toSet("displayName"));
-  }
-
-  
 
   private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId,
       String urlSuffix, int[] returnCode) {
@@ -464,7 +354,7 @@ public class TeamDynamixApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperDuoLog.duoLog(debugMap, startTime);
+      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
     }
   }
   
@@ -524,7 +414,7 @@ public class TeamDynamixApiCommands {
    * @return the result
    */
   public static TeamDynamixGroup createTeamDynamixGroup(String configId,
-      TeamDynamixGroup grouperGoogleGroup) {
+      TeamDynamixGroup teamDynamixGroup) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -533,16 +423,33 @@ public class TeamDynamixApiCommands {
     long startTime = System.nanoTime();
 
     try {
-
-      JsonNode jsonToSend = grouperGoogleGroup.toJson(null);
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/groups", GrouperUtil.toSet(201), 
-          new int[] { -1 }, jsonStringToSend);
-
-      TeamDynamixGroup teamDynamixGroupResult = TeamDynamixGroup.fromJson(jsonNode);
+      //maybe the group already exists with the same name
+      TeamDynamixGroup groupByName = retrieveTeamDynamixGroupByName(configId,
+          teamDynamixGroup.getName(), null);
       
-      return teamDynamixGroupResult;
+      if (groupByName == null) {
+        JsonNode jsonToSend = teamDynamixGroup.toJson(null);
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+        
+        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/groups", GrouperUtil.toSet(201), 
+            new int[] { -1 }, jsonStringToSend);
+
+        TeamDynamixGroup teamDynamixGroupResult = TeamDynamixGroup.fromJson(jsonNode);
+        
+        return teamDynamixGroupResult;
+      }
+      
+      if (groupByName.getActive() == null || groupByName.getActive() == false) {
+        
+        groupByName.setActive(true);
+        groupByName.setDescription(teamDynamixGroup.getDescription());
+        
+        TeamDynamixGroup teamDynamixGroupResult = updateTeamDynamixGroup(configId, groupByName, null);
+        return teamDynamixGroupResult;
+      }
+      
+      return groupByName;
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -578,14 +485,14 @@ public class TeamDynamixApiCommands {
       if (userNode == null) {
         return null;
       }
-      TeamDynamixUser grouperDuoUser = TeamDynamixUser.fromJson(userNode);
+      TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromJson(userNode);
 
-      return grouperDuoUser;
+      return teamDynamixUser;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperDuoLog.duoLog(debugMap, startTime);
+      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
     }
 
   }
@@ -736,9 +643,9 @@ public class TeamDynamixApiCommands {
       if (groupNode == null) {
         return null;
       }
-      TeamDynamixGroup grouperDuoGroup = TeamDynamixGroup.fromJson(groupNode);
+      TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(groupNode);
 
-      return grouperDuoGroup;
+      return teamDynamixGroup;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -750,10 +657,12 @@ public class TeamDynamixApiCommands {
   
   /**
    * @param configId
-   * @param username
+   * @param groupName
+   * @param isActive
    * @return
    */
-  public static TeamDynamixGroup retrieveTeamDynamixGroupByName(String configId, String username) {
+  public static TeamDynamixGroup retrieveTeamDynamixGroupByName(String configId, 
+      String groupName, Boolean isActive) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -764,8 +673,10 @@ public class TeamDynamixApiCommands {
     try {
 
       ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
-      jsonJacksonNode.put("IsActive", true);
-      jsonJacksonNode.put("NameLike", username);
+      if (isActive != null) {
+        jsonJacksonNode.put("IsActive", isActive);
+      }
+      jsonJacksonNode.put("NameLike", groupName);
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
@@ -782,12 +693,12 @@ public class TeamDynamixApiCommands {
       while (iterator.hasNext()) {
         JsonNode groupNode = iterator.next();
         TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(groupNode);
-        if (StringUtils.equals(teamDynamixGroup.getName(), username)) {
+        if (StringUtils.equals(teamDynamixGroup.getName(), groupName)) {
           groups.add(teamDynamixGroup);
         }
       }
       if (groups.size() > 1) {
-        throw new RuntimeException("How can there be more than one group with the same name in TeamDynamix?? '" + username + "'");
+        throw new RuntimeException("How can there be more than one group with the same name in TeamDynamix?? '" + groupName + "'");
       }
       return groups.get(0);
       
@@ -832,7 +743,7 @@ public class TeamDynamixApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperDuoLog.duoLog(debugMap, startTime);
+      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
     }
 
   }
@@ -869,7 +780,7 @@ public class TeamDynamixApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperDuoLog.duoLog(debugMap, startTime);
+      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
     }
 
   }
@@ -951,7 +862,7 @@ public class TeamDynamixApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperScim2Log.scimLog(debugMap, startTime);
+      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
     }
 
   }
@@ -959,11 +870,13 @@ public class TeamDynamixApiCommands {
   
   /**
    * update a group
-   * @param grouperGoogleGroup
+   * @param configId 
+   * @param teamDynamixGroup
+   * @param fieldsToUpdate 
    * @return the result
    */
   public static TeamDynamixGroup updateTeamDynamixGroup(String configId,
-      TeamDynamixGroup grouperGoogleGroup, Set<String> fieldsToUpdate) {
+      TeamDynamixGroup teamDynamixGroup, Set<String> fieldsToUpdate) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -973,11 +886,11 @@ public class TeamDynamixApiCommands {
 
     try {
 
-      String id = grouperGoogleGroup.getId();
+      String id = teamDynamixGroup.getId();
       
-      JsonNode jsonToSend = grouperGoogleGroup.toJson(fieldsToUpdate);
+      JsonNode jsonToSend = teamDynamixGroup.toJson(fieldsToUpdate);
       
-      TeamDynamixGroup updatedGoogleGroup = null;
+      TeamDynamixGroup updatedTeamDynamixGroup = null;
       
       if (jsonToSend.size() > 0) {
         String urlSuffix = "/api/groups/"+id;
@@ -987,16 +900,16 @@ public class TeamDynamixApiCommands {
         JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix,
             GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
 
-        updatedGoogleGroup = TeamDynamixGroup.fromJson(jsonNode);
+        updatedTeamDynamixGroup = TeamDynamixGroup.fromJson(jsonNode);
       }
 
-      return updatedGoogleGroup;
+      return updatedTeamDynamixGroup;
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperGoogleLog.googleLog(debugMap, startTime);
+      TeamDynamixLog.teamDynamixLog(debugMap, startTime);
     }
 
   }
