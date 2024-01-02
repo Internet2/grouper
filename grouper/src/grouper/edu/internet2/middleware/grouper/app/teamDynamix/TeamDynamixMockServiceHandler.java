@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.teamDynamix;
 
+import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Set;
@@ -10,6 +11,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -117,6 +119,11 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     if (StringUtils.isBlank(configId)) {
       this.configId = "myTeamDynamix";
     }
+    
+    String[] postMockNamePaths = mockServiceRequest.getPostMockNamePaths();
+    //just remove 'api' from all the requests
+    String[] modifiedArray = Arrays.copyOfRange(postMockNamePaths, 1, postMockNamePaths.length);
+    mockServiceRequest.setPostMockNamePaths(modifiedArray);
 
     if (StringUtils.equals("GET", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
@@ -160,14 +167,14 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
         return;
       }
       
-      if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) && "search".equals(mockServiceRequest.getPostMockNamePaths()[1]) 
-          && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        searchUsers(mockServiceRequest, mockServiceResponse);
+      if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
+        createUser(mockServiceRequest, mockServiceResponse);
         return;
       }
       
-      if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
-        createUser(mockServiceRequest, mockServiceResponse);
+      if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) && "search".equals(mockServiceRequest.getPostMockNamePaths()[1]) 
+          && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+        searchUsers(mockServiceRequest, mockServiceResponse);
         return;
       }
       
@@ -178,15 +185,15 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       }
     }
     if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
-//      if ("groups".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-//        patchGroups(mockServiceRequest, mockServiceResponse);
-//        return;
-//      }
+      if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+        patchUser(mockServiceRequest, mockServiceResponse);
+        return;
+      }
     }    
     
     if (StringUtils.equals("PUT", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("people".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 
-          "isactive".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 3 == mockServiceRequest.getPostMockNamePaths().length) {
+          "isactive".equals(mockServiceRequest.getPostMockNamePaths()[2]) && 3 == mockServiceRequest.getPostMockNamePaths().length) {
         deleteUser(mockServiceRequest, mockServiceResponse);
         return;
       }
@@ -198,6 +205,112 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     throw new RuntimeException("Not expecting request: '" + mockServiceRequest.getHttpServletRequest().getMethod() 
         + "', '" + mockServiceRequest.getPostMockNamePath() + "'");
+    
+  }
+  
+  public void patchUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    
+    checkAuthorization(mockServiceRequest);
+    
+    String id = mockServiceRequest.getPostMockNamePaths()[1];
+    
+    GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
+  
+    TeamDynamixUser grouperScimUser = HibernateSession.byHqlStatic()
+        .createQuery("from TeamDynamixUser where id = :theValue").setString("theValue", id)
+        .uniqueResult(TeamDynamixUser.class);
+
+    if (grouperScimUser == null) {
+      mockServiceResponse.setResponseCode(404);
+      mockServiceRequest.getDebugMap().put("foundUser", false);
+      return;
+    }
+        
+    mockServiceResponse.setContentType("application/json");
+
+//  [
+//  {"op": "add", "path": "/title", "value": "Updated Title"},
+//  {"op": "add", "path": "/accountid", "value": 47},
+//  {"op": "add", "path": "/attributes/1234", "value": "New Attribute Value"},
+//  {"op": "remove", "path": "/attributes/5678"}
+// ]
+    
+    String requestBodyString = mockServiceRequest.getRequestBody();
+    ArrayNode operationsNode = (ArrayNode) GrouperUtil.jsonJacksonNode(requestBodyString);
+
+    GrouperUtil.assertion(operationsNode.size() > 0, "must send operations");
+
+    for (int i=0;i<operationsNode.size();i++) {
+      
+      JsonNode operation = operationsNode.get(i);
+      
+      //            "op": "replace",
+      //            "path": "active",
+      //            "value": "false"
+
+      // replace, add, remove
+      String op = GrouperUtil.jsonJacksonGetString(operation, "op");
+      boolean opAdd = "add".equals(op);
+      boolean opReplace = "replace".equals(op);
+      boolean opRemove = "remove".equals(op);
+      if (!opAdd && !opRemove && !opReplace) {
+        throw new RuntimeException("Invalid op, expecting add, replace, remove, but received: '" + op + "'");
+      }
+      String path = GrouperUtil.jsonJacksonGetString(operation, "path");
+      
+      GrouperUtil.assertion(!"id".equals(path), "cannot patch id");
+
+      if ("FirstName".equals(path)) {
+        path = "firstName";
+      }
+      if ("LastName".equals(path)) {
+        path = "lastName";
+      }
+      if ("Company".equals(path)) {
+        path = "company";
+      }
+      if ("ExternalId".equals(path)) {
+        path = "externalId";
+      }
+      if ("PrimaryEmail".equals(path)) {
+        path = "primaryEmail";
+      }
+      if ("SecurityRoleId".equals(path)) {
+        path = "securityRoleId";
+      }
+      if ("UserName".equals(path)) {
+        path = "userName";
+      }
+        
+      Object newValue = GrouperUtil.jsonJacksonGetString(operation, "value");
+      Object oldValue = GrouperUtil.fieldValue(grouperScimUser, path);
+      
+      if (opAdd) {
+        
+        GrouperUtil.assertion(GrouperUtil.isBlank(oldValue), "add op already has value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+        
+        GrouperUtil.assignField(grouperScimUser, path, newValue);
+        
+      } else {
+
+        GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "add op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+
+        if (opRemove) {
+          
+          GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
+        }
+
+        GrouperUtil.assignField(grouperScimUser, path, newValue);
+      }
+        
+      
+    }
+    HibernateSession.byObjectStatic().saveOrUpdate(grouperScimUser);
+    
+    ObjectNode objectNode = grouperScimUser.toJson(null);
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
     
   }
   
@@ -442,15 +555,35 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     //check require args
     String name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "NameLike");
+    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "IsActive");
+    
     
     List<TeamDynamixGroup> grouperAzureGroups = null;
+    
+    StringBuilder query = new StringBuilder("from TeamDynamixGroup where ");
+    
+    
     if (StringUtils.isNotBlank(name)) {
-      grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where name like :theName and active = :theActive")
-          .setString("theName", "%"+name+"%").setString("theActive", "T") .list(TeamDynamixGroup.class);
-    } else {
-      grouperAzureGroups = HibernateSession.byHqlStatic().createQuery("from TeamDynamixGroup where active = :theActive")
-         .setString("theActive", "T") .list(TeamDynamixGroup.class);
+      query.append("name like :theName ");
+    } 
+    
+    if (isActive != null) {
+      if (StringUtils.isNotBlank(name)) {
+        query.append(" and ");
+      }
+      query.append("active = :theActive");
     }
+    
+    ByHqlStatic createQuery = HibernateSession.byHqlStatic()
+      .createQuery(query.toString());
+    if (StringUtils.isNotBlank(name)) {
+      createQuery.setString("theName", "%"+name+"%");
+    }
+    if (isActive != null) {
+      createQuery.setString("theActive", isActive ? "T": "F");
+    }
+    
+    grouperAzureGroups = createQuery.list(TeamDynamixGroup.class);
     
     ArrayNode results = GrouperUtil.jsonJacksonArrayNode();
     
@@ -484,15 +617,35 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     //check require args
     String name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "SearchText");
+    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "IsActive");
     
     List<TeamDynamixUser> grouperAzureUsers = null;
+    
+    StringBuilder query = new StringBuilder("from TeamDynamixUser where ");
+    
+    
     if (StringUtils.isNotBlank(name)) {
-      grouperAzureUsers = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where externalId = :theExternalId and active = :theActive")
-          .setString("theExternalId", "%"+name+"%").setString("theActive", "T") .list(TeamDynamixUser.class);
-    } else {
-      grouperAzureUsers = HibernateSession.byHqlStatic().createQuery("from TeamDynamixUser where active = :theActive")
-         .setString("theActive", "T") .list(TeamDynamixUser.class);
+      query.append("( externalId like :theExternalId or userName like :theUserName )");
+    } 
+    
+    if (isActive != null) {
+      if (StringUtils.isNotBlank(name)) {
+        query.append(" and ");
+      }
+      query.append("active = :theActive");
     }
+    
+    ByHqlStatic createQuery = HibernateSession.byHqlStatic()
+      .createQuery(query.toString());
+    if (StringUtils.isNotBlank(name)) {
+      createQuery.setString("theExternalId", "%"+name+"%");
+      createQuery.setString("theUserName", "%"+name+"%");
+    }
+    if (isActive != null) {
+      createQuery.setString("theActive", isActive ? "T": "F");
+    }
+    
+    grouperAzureUsers = createQuery.list(TeamDynamixUser.class);
     
     ArrayNode results = GrouperUtil.jsonJacksonArrayNode();
     

@@ -211,7 +211,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       TeamDynamixProvisioningConfiguration teamDynamixConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       TeamDynamixUser teamDynamixUser = TeamDynamixUser.fromProvisioningEntity(targetEntity, null);
-      
+      teamDynamixUser.setActive(true);
       String userId = TeamDynamixApiCommands.createTeamDynamixUser(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), teamDynamixUser);
 
       targetEntity.setId(userId);
