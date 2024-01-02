@@ -592,7 +592,7 @@ public class RuleEngine {
 
             } catch (Exception e) {
               numberOfErrors++;
-              LOG.error("Error with daemon on rule: " + ruleDefinition, e);
+              GrouperUtil.injectInException(e, "Error with daemon on rule: " + ruleDefinition);
               if (throwable == null) {
                 throwable = e;
               }

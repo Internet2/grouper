@@ -373,8 +373,19 @@ public class RuleDefinition {
   public String toString() {
     StringBuilder result = new StringBuilder();
     try {
-      if (this.attributeAssignType != null && !StringUtils.isBlank(this.attributeAssignType.getId())) {
-        result.append("attributeAssignTypeId: ").append(this.attributeAssignType.getId()).append(", ");
+      if (this.attributeAssignType != null) {
+        if (!StringUtils.isBlank(this.attributeAssignType.getId())) {
+          result.append("attributeAssignTypeId: ").append(this.attributeAssignType.getId()).append(", ");
+        }
+        if (!StringUtils.isBlank(this.attributeAssignType.getOwnerGroupId())) {
+          result.append("attributeAssignOwnerGroupId: ").append(this.attributeAssignType.getOwnerGroupId()).append(", ");
+        }
+        if (!StringUtils.isBlank(this.attributeAssignType.getOwnerStemId())) {
+          result.append("attributeAssignOwnerStemId: ").append(this.attributeAssignType.getOwnerStemId()).append(", ");
+        }
+        if (!StringUtils.isBlank(this.attributeAssignType.getOwnerMemberId())) {
+          result.append("attributeAssignOwnerMemberId: ").append(this.attributeAssignType.getOwnerMemberId()).append(", ");
+        }
       }
       if (this.actAs != null) {
         this.actAs.toStringHelper(result);
