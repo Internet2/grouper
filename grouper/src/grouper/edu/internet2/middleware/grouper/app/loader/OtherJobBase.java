@@ -26,6 +26,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -43,8 +44,9 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 
 /**
- *
+ * note, all subclasses should have annotation @DisallowConcurrentExecution
  */
+@DisallowConcurrentExecution
 public abstract class OtherJobBase implements Job {
 
   /**

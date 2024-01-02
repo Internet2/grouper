@@ -29,6 +29,7 @@ import org.jivesoftware.smack.filter.FromContainsFilter;
 import org.jivesoftware.smack.filter.PacketFilter;
 import org.jivesoftware.smack.filter.PacketTypeFilter;
 import org.jivesoftware.smack.packet.Message;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -45,6 +46,7 @@ import edu.internet2.middleware.grouper.xmpp.XmppConnectionBean;
  * filtered on sender name. All configuration in grouper-loader.properties
  *
  */
+@DisallowConcurrentExecution
 public class EsbXmppListener implements Job {
 
   /** */

@@ -21,6 +21,7 @@ import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.app.file.GrouperSftp;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -34,6 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  *
  */
+@DisallowConcurrentExecution
 public class GrouperCsvReportJob extends OtherJobBase {
   
   /** logger */

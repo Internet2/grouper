@@ -9,6 +9,7 @@ import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.app.file.GrouperSftp;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -23,6 +24,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncFromData
  * @author mchyzer
  *
  */
+@DisallowConcurrentExecution
 public class GrouperSftpToSqlJob extends OtherJobBase {
 
   /** logger */

@@ -14,6 +14,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -31,6 +32,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMe
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 import edu.internet2.middleware.subject.Subject;
 
+@DisallowConcurrentExecution
 public class NotificationDaemon extends OtherJobBase {
 
   public static void main(String[] args) {

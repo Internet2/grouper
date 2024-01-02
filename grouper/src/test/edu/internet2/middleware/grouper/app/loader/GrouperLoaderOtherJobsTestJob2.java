@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -22,6 +23,7 @@ import org.quartz.JobExecutionException;
 /**
  * @author shilen
  */
+@DisallowConcurrentExecution
 public class GrouperLoaderOtherJobsTestJob2 implements Job {
 
   @Override

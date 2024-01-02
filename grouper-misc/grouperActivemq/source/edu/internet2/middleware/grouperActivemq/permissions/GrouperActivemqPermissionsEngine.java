@@ -20,6 +20,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.jivesoftware.smack.packet.Message;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouperClientExt.xmpp.GrouperClientXmppMessageHa
  * is a copy in memory or disk, then it will still work.  I believe the disk store is
  * only read on startup, but Im not sure.
  */
+@DisallowConcurrentExecution
 public class GrouperActivemqPermissionsEngine implements Job, StatefulJob {
 
   /**
