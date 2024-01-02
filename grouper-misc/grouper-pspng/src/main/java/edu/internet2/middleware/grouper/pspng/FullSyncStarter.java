@@ -25,6 +25,7 @@ import java.util.Map;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
@@ -52,6 +53,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * @author bert
  *
  */
+@DisallowConcurrentExecution
 public class FullSyncStarter
         extends ChangeLogConsumerBase
         implements Job {

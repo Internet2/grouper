@@ -5,9 +5,12 @@ import java.time.LocalDateTime;
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
 
+import org.quartz.DisallowConcurrentExecution;
+
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
+@DisallowConcurrentExecution
 public class GrouperTimeDaemon extends OtherJobBase {
 
   @Override

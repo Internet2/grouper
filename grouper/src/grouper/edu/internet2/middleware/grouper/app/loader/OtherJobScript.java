@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.app.loader;
 import java.io.File;
 
 import org.apache.commons.lang.StringUtils;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.ddl.GrouperAntProject;
@@ -18,6 +19,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  *
  */
+@DisallowConcurrentExecution
 public class OtherJobScript extends OtherJobBase {
 
   /**

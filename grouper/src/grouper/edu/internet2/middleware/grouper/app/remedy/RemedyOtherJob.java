@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.app.remedy;
 
+import org.quartz.DisallowConcurrentExecution;
+
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -13,6 +15,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  *
  */
+@DisallowConcurrentExecution
 public class RemedyOtherJob extends OtherJobBase {
 
   /**

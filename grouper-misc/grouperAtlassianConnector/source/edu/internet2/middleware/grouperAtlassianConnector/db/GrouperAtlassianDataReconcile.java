@@ -27,6 +27,7 @@ import java.util.Set;
 
 import org.quartz.CronScheduleBuilder;
 import org.quartz.CronTrigger;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobBuilder;
 import org.quartz.JobDetail;
@@ -59,6 +60,7 @@ import edu.internet2.middleware.grouperClientExt.xmpp.GcDecodeEsbEvents;
 /**
  *
  */
+@DisallowConcurrentExecution
 public class GrouperAtlassianDataReconcile implements Job, StatefulJob {
 
   /**

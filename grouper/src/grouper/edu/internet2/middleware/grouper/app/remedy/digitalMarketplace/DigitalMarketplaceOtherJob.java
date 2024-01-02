@@ -4,15 +4,17 @@
  */
 package edu.internet2.middleware.grouper.app.remedy.digitalMarketplace;
 
+import org.quartz.DisallowConcurrentExecution;
+
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
-import edu.internet2.middleware.grouper.app.remedy.digitalMarketplace.GrouperDigitalMarketplaceFullRefresh;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  *
  */
+@DisallowConcurrentExecution
 public class DigitalMarketplaceOtherJob extends OtherJobBase {
 
   /**

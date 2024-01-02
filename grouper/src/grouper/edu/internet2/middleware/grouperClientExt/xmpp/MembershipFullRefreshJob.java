@@ -19,18 +19,20 @@
  */
 package edu.internet2.middleware.grouperClientExt.xmpp;
 
+import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.StatefulJob;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import org.apache.commons.logging.Log;
 
 
 /**
  * refresh grouper membership lists full after so often (e.g. daily)
  */
+@DisallowConcurrentExecution
 public class MembershipFullRefreshJob implements Job, StatefulJob {
 
   /**

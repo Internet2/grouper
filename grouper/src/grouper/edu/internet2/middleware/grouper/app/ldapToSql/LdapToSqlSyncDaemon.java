@@ -14,7 +14,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
-import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableBea
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableData;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 
+@DisallowConcurrentExecution
 public class LdapToSqlSyncDaemon extends OtherJobBase {
   
   public static void main(String[] args) {

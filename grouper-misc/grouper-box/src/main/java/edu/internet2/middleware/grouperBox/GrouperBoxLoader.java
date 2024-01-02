@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.quartz.DisallowConcurrentExecution;
 
 import com.box.sdk.BoxUser;
 
@@ -24,6 +25,7 @@ import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
+@DisallowConcurrentExecution
 public class GrouperBoxLoader extends OtherJobBase {
 
   public static Timestamp convertDateToTimestampRoundToSecond(Date date) {

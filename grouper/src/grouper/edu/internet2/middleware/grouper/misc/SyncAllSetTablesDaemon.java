@@ -1,12 +1,14 @@
 package edu.internet2.middleware.grouper.misc;
 
 import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.OtherJobLogUpdater;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
+@DisallowConcurrentExecution
 public class SyncAllSetTablesDaemon extends OtherJobBase {
 
   /** logger */

@@ -30,6 +30,7 @@ import org.mortbay.jetty.security.ConstraintMapping;
 import org.mortbay.jetty.security.HashUserRealm;
 import org.mortbay.jetty.security.SecurityHandler;
 import org.mortbay.jetty.security.SslSocketConnector;
+import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
 import org.quartz.JobDataMap;
 import org.quartz.JobExecutionContext;
@@ -46,7 +47,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * SSL and basic auth supported for security. All configuration in grouper-loader.properties
  *
  */
-
+@DisallowConcurrentExecution
 public class EsbHttpServer implements Job {
 
   private static final Log LOG = GrouperUtil.getLog(EsbHttpServer.class);

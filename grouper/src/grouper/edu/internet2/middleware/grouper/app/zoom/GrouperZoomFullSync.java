@@ -15,6 +15,7 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -30,6 +31,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 /**
  *
  */
+@DisallowConcurrentExecution
 public class GrouperZoomFullSync extends OtherJobBase {
 
   /**
