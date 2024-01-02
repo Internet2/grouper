@@ -947,6 +947,9 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
     
     if (GrouperLoaderLogger.isLoggerEnabled()) {
       String logLabel = StringUtils.isBlank(this.getParentJobId()) ? "overallLog" : "subjobLog";
+      
+      GrouperLoaderLogger.initializeThreadLocalMap(logLabel);
+      
       GrouperLoaderLogger.addLogEntry(logLabel, "dryRun", GrouperLoader.isDryRun());
       GrouperLoaderLogger.addLogEntry(logLabel, "jobName", this.getJobName());
       if (!StringUtils.isBlank(this.getParentJobId())) {
