@@ -40,6 +40,19 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * </blockquote>
  * </p>
  *
+ * <p> Sample call to assign attribute and metadata with values
+ * <blockquote>
+ * <pre>
+ *  AttributeAssign attributeAssign = new AttributeAssignToGroupSave().
+ *    assignNameOfAttributeDefName("etc:attribute:abacJexlScript:grouperJexlScriptMarker").
+ *    assignGroupName("test:isc:astt:chris:testJexl2").save();
+ *  
+ *  attributeAssign.getAttributeValueDelegate().assignValueString(
+ *    "etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", 
+ *    "${entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup1')}");
+ * </pre>
+ * </blockquote>
+ * </p>
  */
 public class AttributeAssignToGroupSave {
   
