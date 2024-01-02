@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * 
  * <blockquote>
  * <pre>
+ * import edu.internet2.middleware.grouper.attr.assign.*;
  * AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignAttributeDefName(attributeDefName).assignStem(stem);
  * AttributeAssign attributeAssign = attributeAssignToStemSave.save();
  * System.out.println(attributeAssignToStemSave.getSaveResultType()); // DELETE, INSERT, NO_CHANGE, or UPDATE
@@ -43,7 +44,24 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <p> Sample call to remove attribute def name from a folder
  * <blockquote>
  * <pre>
+ * import edu.internet2.middleware.grouper.attr.assign.*;
  * new AttributeAssignToStemSave().assignAttributeDefName(attributeDefName).assignStem(stem).assignSaveMode(SaveMode.DELETE).save();
+ * </pre>
+ * </blockquote>
+ * 
+ * </p>
+ * <p> Sample call to assign attribute and metadata with values.  Note, this example doesnt make
+ * sense since this attribute is assignable to groups, but this is how to do it.
+ * <blockquote>
+ * <pre>
+ *  import edu.internet2.middleware.grouper.attr.assign.*;
+ *  AttributeAssign attributeAssign = new AttributeAssignToStemSave().
+ *    assignNameOfAttributeDefName("etc:attribute:abacJexlScript:grouperJexlScriptMarker").
+ *    assignStemName("test:isc:astt:chris:testJexl2").save();
+ *  
+ *  attributeAssign.getAttributeValueDelegate().assignValueString(
+ *    "etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", 
+ *    "${entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup1')}");
  * </pre>
  * </blockquote>
  * </p>
