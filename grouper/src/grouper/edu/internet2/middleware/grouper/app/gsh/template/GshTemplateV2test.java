@@ -255,7 +255,7 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
         return;
       }
     }
-    fail("Cannot find line: '" + line + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLogHtml(gshTemplateOutput.getOutputLines()));
+    fail("Cannot find line: '" + line + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
   }
 
   /**
@@ -279,7 +279,7 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
         return;
       }
     }
-    fail("Cannot find substring: '" + substring + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLogHtml(gshTemplateOutput.getOutputLines()));
+    fail("Cannot find substring: '" + substring + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
   }
 
   /**
@@ -304,7 +304,7 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
         return;
       }
     }
-    fail("Cannot find line: '" + line + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLogHtml(gshTemplateOutput.getValidationLines()));
+    fail("Cannot find line: '" + line + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
   }
 
   /**
@@ -321,7 +321,7 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
         return;
       }
     }
-    fail("Cannot find substring: '" + substring + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLogHtml(gshTemplateOutput.getValidationLines()));
+    fail("Cannot find substring: '" + substring + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
   }
 
 
