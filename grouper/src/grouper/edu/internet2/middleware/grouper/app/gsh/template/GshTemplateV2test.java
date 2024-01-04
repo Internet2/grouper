@@ -247,15 +247,39 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
    * @param messageType success (default), info, error
    */
   public void assertGshOutputContainsLine(String messageType, String line) {
+    if (gshOutputContainsLine(messageType, line)) {
+      return;
+    }
+    fail("Cannot find line: '" + line + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
+  }
+
+  /**
+   * see if there is not an output matching this line
+   * @param line to find
+   * @param messageType success (default), info, error
+   */
+  public void assertGshOutputContainsLineNot(String messageType, String line) {
+    if (!gshOutputContainsLine(messageType, line)) {
+      return;
+    }
+    fail("Can find line: '" + line + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output (but shouldnt): " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
+  }
+
+  /**
+   * see if there is an output matching this line
+   * @param line to find
+   * @param messageType success (default), info, error
+   */
+  public boolean gshOutputContainsLine(String messageType, String line) {
     for (GshOutputLine gshOutputLine : GrouperUtil.nonNull(gshTemplateOutput.getOutputLines())) {
       if (messageType != null && !StringUtils.equals(messageType, StringUtils.defaultString(gshOutputLine.getMessageType(), "success"))) {
         continue;
       }
       if (StringUtils.equals(line, gshOutputLine.getText())) {
-        return;
+        return true;
       }
     }
-    fail("Cannot find line: '" + line + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
+    return false;
   }
 
   /**
@@ -267,19 +291,57 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
   }
 
   /**
+   * see if there is not an output matching this line
+   * @param line to find
+   */
+  public void assertGshOutputContainsLineNot(String line) {
+    assertGshOutputContainsLineNot(null, line);
+  }
+
+  /**
    * see if there is an output matching this line
    * @param substring to find
    */
   public void assertGshOutputLineContainsText(String messageType, String substring) {
+    if (gshOutputLineContainsText(messageType, substring)) {
+      return;
+    }
+    fail("Cannot find substring: '" + substring + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
+  }
+
+  /**
+   * see if there is not an output matching this line
+   * @param substring to find
+   */
+  public void assertGshOutputLineContainsTextNot(String messageType, String substring) {
+    if (!gshOutputLineContainsText(messageType, substring)) {
+      return;
+    }
+    fail("Can find substring: '" + substring + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output (but shouldn't): " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
+  }
+
+  /**
+   * see if there is an output matching this line
+   * @param substring to find
+   */
+  public boolean gshOutputLineContainsText(String messageType, String substring) {
     for (GshOutputLine gshOutputLine : GrouperUtil.nonNull(gshTemplateOutput.getOutputLines())) {
       if (messageType != null && !StringUtils.equals(messageType, StringUtils.defaultString(gshOutputLine.getMessageType(), "success"))) {
         continue;
       }
       if (GrouperUtil.defaultString(gshOutputLine.getText()).contains(substring)) {
-        return;
+        return true;
       }
     }
-    fail("Cannot find substring: '" + substring + "'" + (StringUtils.isBlank(messageType) ? "" : (", messageType: " + messageType)) + " in output: " + GrouperUtil.toStringForLog(gshTemplateOutput.getOutputLines()));
+    return false;
+  }
+
+  /**
+   * see if there is not an output matching this line
+   * @param substring to find
+   */
+  public void assertGshOutputLineContainsTextNot(String substring) {
+    assertGshOutputLineContainsTextNot(null, substring);
   }
 
   /**
@@ -296,15 +358,39 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
    * @param inputName
    */
   public void assertGshValidationContainsLine(String inputName, String line) {
+    if (gshValidationContainsLine(inputName, line)) {
+      return;
+    }
+    fail("Cannot find line: '" + line + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
+  }
+
+  /**
+   * see if there is not an validation matching this line
+   * @param line to find
+   * @param inputName
+   */
+  public void assertGshValidationContainsLineNot(String inputName, String line) {
+    if (!gshValidationContainsLine(inputName, line)) {
+      return;
+    }
+    fail("Can find line: '" + line + "', inputName: " + inputName + " in validation (but shouldn't): " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
+  }
+
+  /**
+   * see if there is an validation matching this line
+   * @param line to find
+   * @param inputName
+   */
+  public boolean gshValidationContainsLine(String inputName, String line) {
     for (GshValidationLine gshValidationLine : GrouperUtil.nonNull(gshTemplateOutput.getValidationLines())) {
       if (!StringUtils.equals(inputName, gshValidationLine.getInputName())) {
         continue;
       }
       if (StringUtils.equals(line, gshValidationLine.getText())) {
-        return;
+        return true;
       }
     }
-    fail("Cannot find line: '" + line + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
+    return false;
   }
 
   /**
@@ -313,15 +399,39 @@ public abstract class GshTemplateV2test extends GrouperTestInApi {
    * @param inputName
    */
   public void assertGshValidationLineContainsText(String inputName, String substring) {
+    if (gshValidationLineContainsText(inputName, substring)) {
+      return;
+    }
+    fail("Cannot find substring: '" + substring + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
+  }
+
+  /**
+   * see if there is not a validation matching this line
+   * @param substring to find
+   * @param inputName
+   */
+  public void assertGshValidationLineContainsTextNot(String inputName, String substring) {
+    if (!gshValidationLineContainsText(inputName, substring)) {
+      return;
+    }
+    fail("Can find substring: '" + substring + "', inputName: " + inputName + " in validation (but shouldn't): " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
+  }
+
+  /**
+   * see if there is an validation matching this line
+   * @param substring to find
+   * @param inputName
+   */
+  public boolean gshValidationLineContainsText(String inputName, String substring) {
     for (GshValidationLine gshValidationLine : GrouperUtil.nonNull(gshTemplateOutput.getValidationLines())) {
       if (!StringUtils.equals(inputName, gshValidationLine.getInputName())) {
         continue;
       }
       if (GrouperUtil.defaultString(gshValidationLine.getText()).contains(substring)) {
-        return;
+        return true;
       }
     }
-    fail("Cannot find substring: '" + substring + "', inputName: " + inputName + " in validation: " + GrouperUtil.toStringForLog(gshTemplateOutput.getValidationLines()));
+    return false;
   }
 
 
