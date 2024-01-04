@@ -243,6 +243,7 @@ public class GshTemplateV2utils {
 
         try {
           if (gshTemplateV2testOutput.isRunLogicSuccess()) {
+            boolean previouslyValidTest = validTest[0];
             validTest[0] = validTest[0] && GrouperUtil.length(gshTemplateV2output.getGsh_builtin_gshTemplateOutput().getValidationLines()) == 0;
             if (!gshTemplateV2test.isGshExpectValidationError() != validTest[0]) {
               gshTemplateV2testOutput.appendMessage("Expected validation error? " + gshTemplateV2test.isGshExpectValidationError()
@@ -251,7 +252,7 @@ public class GshTemplateV2utils {
                       (", " + GrouperUtil.toStringForLogHtml(gshTemplateV2output.getGsh_builtin_gshTemplateOutput().getValidationLines())) : ""));
               gshTemplateV2testOutput.setFailure(true);
             }
-            if (validTest[0]) {
+            if (previouslyValidTest) {
               gshTemplateV2test.gshCheckResult();
             }
             gshTemplateV2testOutput.setCheckResultSuccess(true);
