@@ -21,6 +21,7 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -30,6 +31,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -47,6 +49,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.preferences.UiV2VisualizationPreference;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
@@ -54,12 +57,19 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.VisualizationContainer;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
+import edu.internet2.middleware.grouper.util.GrouperCallable;
+import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -474,6 +484,9 @@ public class UiV2Visualization {
     }
   }
 
+  /** logger */
+  protected static final Log LOG = edu.internet2.middleware.grouper.util.GrouperUtil.getLog(UiV2Visualization.class);
+
   /**
    * Internal ajax call to get the graph based on settings. Puts json into the visualizationObject DOM element
    *
@@ -517,43 +530,238 @@ public class UiV2Visualization {
         relationGraph.assignSkipGroupNamePatterns(GrouperUtil.splitTrimToSet(groupFilterRegexp, ";"));
       }
 
-      relationGraph.build();
+      final ProgressBean progressBean = new ProgressBean();
+      progressBean.setStartedMillis(System.currentTimeMillis());
+             
+      visualizationContainer.setProgressBean(progressBean);
 
-      VisualizationGraph graph = null;
-      String jsDrawFunctionName = null;
+      // uniquely identifies this composite as opposed to other composite in other tabs
+      String uniqueStemEditId = GrouperUuid.getUuid();
+   
+      visualizationContainer.setUniqueId(uniqueStemEditId);
+       
 
-      if ("text".equals(visualizationContainer.getDrawModule())) {
-        graph = buildToJsonText(relationGraph);
-        jsDrawFunctionName = "drawGraphModuleText()";
-      } else if ("d3".equals(visualizationContainer.getDrawModule())) {
-        graph = buildToJsonD3(relationGraph, visualizationContainer);
-        jsDrawFunctionName = "drawGraphModuleD3()";
+      GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("visualization") {
+         
+        @Override
+        public Void callLogic() {
+          try {
+ 
+            relationGraph.build();
+
+            
+            VisualizationGraph graph = null;
+            String jsDrawFunctionName = null;
+
+            if ("text".equals(visualizationContainer.getDrawModule())) {
+              graph = buildToJsonText(relationGraph);
+              jsDrawFunctionName = "drawGraphModuleText();";
+            } else if ("d3".equals(visualizationContainer.getDrawModule())) {
+              graph = buildToJsonD3(relationGraph, visualizationContainer);
+              jsDrawFunctionName = "drawGraphModuleD3();";
+            } else {
+              throw new RuntimeException("Invalid visualization module: '" + visualizationContainer.getDrawModule() + "'");
+            }
+            
+            visualizationContainer.setGraph(graph);
+            visualizationContainer.setJsDrawFunctionName(jsDrawFunctionName);
+
+            graph.addStatistic("numEdges", String.valueOf(relationGraph.getEdges().size()));
+            graph.addStatistic("totalMemberCount", relationGraph.isShowAllMemberCounts() ? String.valueOf(relationGraph.getTotalMemberCount()) : "(not included)");
+            graph.addStatistic("directMemberCount", relationGraph.isShowDirectMemberCounts() ? String.valueOf(relationGraph.getDirectMemberCount()) : "(not included)");
+            graph.addStatistic("numNodes", String.valueOf(relationGraph.getNodes().size()));
+            graph.addStatistic("numLoaderJobs", String.valueOf(relationGraph.getNumLoaders()));
+            graph.addStatistic("numGroupsFromLoaders", String.valueOf(relationGraph.getNumGroupsFromLoaders()));
+            graph.addStatistic("numProvisioners", String.valueOf(relationGraph.getNumProvisioners()));
+            graph.addStatistic("numGroupsToProvisioners", String.valueOf(relationGraph.getNumGroupsToProvisioners()));
+            graph.addStatistic("numSkippedFolders", String.valueOf(relationGraph.getNumSkippedFolders()));
+            graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
+
+            graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
+            graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
+            graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
+            graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
+
+ 
+            GrouperUtil.sleep(1000L * GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.visualization.pauseInActionSeconds", 0));
+             
+          } catch (RuntimeException re) {
+            progressBean.setHasException(true);
+            progressBean.setException(re);
+            // log this since the thread will just end and will never get logged
+            LOG.error("error", re);
+          } finally {
+            // we done
+            progressBean.setComplete(true);
+          }
+          return null;
+        }
+      };    
+        
+      // see if running in thread
+      boolean useThreads = GrouperUiConfig.retrieveConfig().propertyValueBooleanRequired("grouperUi.composite.useThread");
+    
+      if (useThreads) {
+          
+        GrouperFuture<Void> grouperFuture = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable);
+          
+        Integer waitForCompleteForSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.composite.progressStartsInSeconds");
+    
+        GrouperFuture.waitForJob(grouperFuture, waitForCompleteForSeconds);
+             
       } else {
-        throw new RuntimeException("Invalid visualization module: '" + visualizationContainer.getDrawModule() + "'");
+        grouperCallable.callLogic();
       }
+ 
+      String sessionId = request.getSession().getId();
+       
+      MultiKey reportMultiKey = new MultiKey(sessionId, uniqueStemEditId);
+       
+      threadProgress.put(reportMultiKey, visualizationContainer);
 
-      graph.addStatistic("numEdges", String.valueOf(relationGraph.getEdges().size()));
-      graph.addStatistic("totalMemberCount", relationGraph.isShowAllMemberCounts() ? String.valueOf(relationGraph.getTotalMemberCount()) : "(not included)");
-      graph.addStatistic("directMemberCount", relationGraph.isShowDirectMemberCounts() ? String.valueOf(relationGraph.getDirectMemberCount()) : "(not included)");
-      graph.addStatistic("numNodes", String.valueOf(relationGraph.getNodes().size()));
-      graph.addStatistic("numLoaderJobs", String.valueOf(relationGraph.getNumLoaders()));
-      graph.addStatistic("numGroupsFromLoaders", String.valueOf(relationGraph.getNumGroupsFromLoaders()));
-      graph.addStatistic("numProvisioners", String.valueOf(relationGraph.getNumProvisioners()));
-      graph.addStatistic("numGroupsToProvisioners", String.valueOf(relationGraph.getNumGroupsToProvisioners()));
-      graph.addStatistic("numSkippedFolders", String.valueOf(relationGraph.getNumSkippedFolders()));
-      graph.addStatistic("numSkippedGroups", String.valueOf(relationGraph.getNumSkippedGroups()));
+      buildGraphStatusHelper(sessionId, uniqueStemEditId, true);
+      
 
-      graph.addSetting("startNode", relationGraph.getStartNode().getGrouperObject().getId());
-      graph.addSetting("showAllMemberCounts", relationGraph.isShowAllMemberCounts());
-      graph.addSetting("showDirectMemberCounts", relationGraph.isShowDirectMemberCounts());
-      graph.addSetting("showObjectTypes", relationGraph.isShowObjectTypes());
-
-      guiResponseJs.addAction(GuiScreenAction.newAssign("visualizationObject", graph));
-      guiResponseJs.addAction(GuiScreenAction.newScript(jsDrawFunctionName));
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
+
+  /**
+   * get the status of a progress screen
+   */
+  private void buildGraphStatusHelper(String sessionId, String uniqueId, boolean firstCall) {
+     
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+     
+    debugMap.put("method", "buildGraphStatusHelper");
+    debugMap.put("sessionId", GrouperUtil.abbreviate(sessionId, 8));
+    debugMap.put("uniqueId", GrouperUtil.abbreviate(uniqueId, 8));
+   
+    long startNanos = System.nanoTime();
+    try {
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+   
+      MultiKey multiKey = new MultiKey(sessionId, uniqueId);
+       
+      VisualizationContainer visualizationContainer = threadProgress.get(multiKey);
+   
+      if (visualizationContainer != null) {
+         
+        GrouperRequestContainer.retrieveFromRequestOrCreate().setVisualizationContainer(visualizationContainer);
+
+        ProgressBean progressBean = visualizationContainer.getProgressBean();
+     
+        debugMap.put("elapsedSeconds", progressBean.getElapsedSeconds());
+        
+        // endless loop?
+        if (progressBean.isThisLastStatus()) {
+          return;
+        }
+         
+        if (progressBean.isHasException()) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error,
+              TextContainer.retrieveFromRequest().getText().get("visualizationException")));
+          // it has an exception, leave it be
+          threadProgress.put(multiKey, null);
+          
+          if (progressBean.getException() != null) {
+
+            if (GrouperUiUtils.vetoHandle(guiResponseJs, progressBean.getException())) {
+              return;
+            }
+
+            //dont change screens
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+                GrouperUtil.xmlEscape(progressBean.getException().getMessage(), true)));
+
+          }
+          return;
+        }
+        // kick it off again?
+        debugMap.put("complete", progressBean.isComplete());
+        String jsDrawFunctionName = visualizationContainer.getJsDrawFunctionName();
+
+        if (!progressBean.isComplete()) {
+          
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#progressDiv",
+              "/WEB-INF/grouperUi2/visualization/visualizationWrapper.jsp"));
+
+          if (firstCall) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newScript("$('#vis-settings-form').hide('slow')"));
+
+          }
+          
+          int progressRefreshSeconds = GrouperUiConfig.retrieveConfig().propertyValueInt("grouperUi.visualization.progressRefreshSeconds");
+          progressRefreshSeconds = Math.max(progressRefreshSeconds, 1);
+          progressRefreshSeconds *= 1000;
+          guiResponseJs.addAction(GuiScreenAction.newScript("setTimeout(function() {ajax('../app/UiV2Visualization.buildGraphStatus?uniqueId=" + uniqueId + "')}, " + progressRefreshSeconds + ")"));
+        } else {
+          
+          if (!firstCall) {
+            
+            guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#progressDiv",
+                "/WEB-INF/grouperUi2/visualization/visualizationWrapper.jsp"));
+
+            jsDrawFunctionName = "if ($('#id_" + visualizationContainer.getUniqueId() + "').length > 0) {" + jsDrawFunctionName + "}";
+          }
+
+          VisualizationGraph graph = visualizationContainer.getGraph();
+
+          guiResponseJs.addAction(GuiScreenAction.newScript("$('#vis-settings-form').show('slow')"));
+
+          guiResponseJs.addAction(GuiScreenAction.newAssign("visualizationObject", graph));
+          guiResponseJs.addAction(GuiScreenAction.newScript(jsDrawFunctionName));
+
+          // it is complete, leave it be
+          threadProgress.put(multiKey, null);
+           
+        }
+      } else {
+        //go back to main screen
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Main.indexMain');"));
+      }
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+      throw re;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("tookMillis", (System.nanoTime()-startNanos)/1000000);
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+
+    }
+   
+   
+  }
+
+  
+  /**
+   * get the status of a stem edit
+   * @param request
+   * @param response
+   */
+  public void buildGraphStatus(HttpServletRequest request, HttpServletResponse response) {
+    String sessionId = request.getSession().getId();
+    String uniqueCompositeId = request.getParameter("uniqueId");
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GrouperSession grouperSession = GrouperSession.start(loggedInSubject);
+
+    try {
+      buildGraphStatusHelper(sessionId, uniqueCompositeId, false);
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  /**
+   * keep an expirable cache of progress for 1 hours (longest an import is expected).  This has multikey of session id and some random uuid
+   * uniquely identifies this action as opposed to other actions in other tabs
+   */
+  private static ExpirableCache<MultiKey, VisualizationContainer> threadProgress = new ExpirableCache<MultiKey, VisualizationContainer>(60);
+  
 
   private String getGrouperObjectDisplayExtension(GraphNode graphNode) {
     String displayExtension = graphNode.getGrouperObjectName();
