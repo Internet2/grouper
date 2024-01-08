@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -41,6 +43,7 @@ import edu.internet2.middleware.subject.Subject;
 public class AttributeDefNameSetDelegate implements Serializable {
 
   /** keep a reference to the attribute def name */
+  @JsonIgnore
   private AttributeDefName attributeDefName;
   
   /**

@@ -31,6 +31,8 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -48,12 +50,14 @@ public class AttributeValueDelegate {
   /**
    * reference to the attribute delegate
    */
+  @JsonIgnore
   private AttributeAssignBaseDelegate attributeAssignBaseDelegate = null;
   /** cache hits for testing */
   public static long allAttributeAssignValuesCacheHitsForTest = 0;
   /** cache misses for testing */
   public static long allAttributeAssignValuesCacheMissesForTest = 0;
   /** keep a cache of attribute assigns and values */
+  @JsonIgnore
   private Map<AttributeAssign, Set<AttributeAssignValue>> allAttributeAssignValuesCache = null;
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(AttributeValueDelegate.class);

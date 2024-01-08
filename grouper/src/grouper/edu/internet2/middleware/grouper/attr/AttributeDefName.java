@@ -32,6 +32,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.GroupType;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -760,7 +762,7 @@ public class AttributeDefName extends GrouperAPI
   /**
    * delegate logic about attribute def name sets to this object
    */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeDefNameSetDelegate attributeDefNameSetDelegate;
 
   /** id of the group as a unique integer */

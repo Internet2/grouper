@@ -53,6 +53,8 @@ import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
@@ -143,7 +145,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
     Comparable<Member>, XmlImportable<Member>, AttributeAssignable, GrouperId {
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeAssignMemberDelegate attributeAssignMemberDelegate;
   
   /**
@@ -171,7 +173,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
   }
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeValueDelegate attributeValueDelegate;
   
   /**

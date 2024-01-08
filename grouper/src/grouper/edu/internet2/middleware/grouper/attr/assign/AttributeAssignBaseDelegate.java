@@ -25,6 +25,8 @@ import java.util.Set;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
@@ -93,6 +95,7 @@ public abstract class AttributeAssignBaseDelegate {
 
   /** delegatable result.  CH 2010/04/29: can we cache this here???? seems wrong since
    * a different attributeDefName will have a different result... hmmm */
+  @JsonIgnore
   private AttributeAssignDelegatable attributeAssignDelegatable = null;
   
   /**
@@ -376,6 +379,7 @@ public abstract class AttributeAssignBaseDelegate {
   }
 
   /** keep a cache of attribute assigns */
+  @JsonIgnore
   private Set<AttributeAssign> allAttributeAssignsCache = null;
   
   /** cache hits for testing */

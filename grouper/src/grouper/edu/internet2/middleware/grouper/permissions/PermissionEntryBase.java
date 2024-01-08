@@ -17,6 +17,8 @@ package edu.internet2.middleware.grouper.permissions;
 
 import java.sql.Timestamp;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
@@ -37,7 +39,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public abstract class PermissionEntryBase extends GrouperAPI implements PermissionEntry {
 
   /** cache the weighting of this assignment */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private PermissionHeuristics permissionHeuristics;
 
   /**

@@ -72,6 +72,8 @@ import org.hibernate.Session;
 import org.hibernate.classic.Lifecycle;
 import org.hibernate.type.StringType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -752,7 +754,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeAssignGroupDelegate attributeAssignGroupDelegate;
   
   /**
@@ -767,7 +769,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   }
   
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeValueDelegate attributeValueDelegate;
   
   /**
@@ -7607,7 +7609,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * cache this for performance.  delegate calls to this class for role hierarchy stuff
    */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private RoleInheritanceDelegate roleInheritanceDelegate = null;
   
   /**
@@ -7624,7 +7626,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   /**
    * cache this for performance.  delegate calls to this class for role hierarchy stuff
    */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private PermissionRoleDelegate permissionRoleDelegate = null;
 
   /**

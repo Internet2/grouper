@@ -21,6 +21,8 @@ package edu.internet2.middleware.grouper.attr.assign;
 
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -40,6 +42,7 @@ public class AttributeAssignAttrAssignDelegate extends AttributeAssignBaseDelega
   /**
    * reference to the assignment in question
    */
+  @JsonIgnore
   private AttributeAssign attributeAssignToAssignTo = null;
   
   /**
