@@ -33,6 +33,8 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -55,6 +57,7 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
   /**
    * reference to the member in question
    */
+  @JsonIgnore
   private Member member = null;
   
   /**

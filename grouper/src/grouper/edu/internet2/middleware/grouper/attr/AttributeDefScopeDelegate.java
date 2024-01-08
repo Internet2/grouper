@@ -24,6 +24,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
@@ -44,6 +46,7 @@ public class AttributeDefScopeDelegate {
   /**
    * reference to the attributedef in question
    */
+  @JsonIgnore
   private AttributeDef attributeDef = null;
   
   /**

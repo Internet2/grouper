@@ -44,6 +44,8 @@ import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.lang.time.StopWatch;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -147,13 +149,13 @@ public class GrouperSession implements Serializable {
   /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
+  @GrouperIgnoreClone @JsonIgnore
   private transient AccessResolver  accessResolver;
 
   /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
+  @GrouperIgnoreClone @JsonIgnore
   private transient AttributeDefResolver  attributeDefResolver;
 
   /** */
@@ -165,7 +167,7 @@ public class GrouperSession implements Serializable {
   /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
-  @GrouperIgnoreClone
+  @GrouperIgnoreClone @JsonIgnore
   private transient NamingResolver  namingResolver;
 
   /** */

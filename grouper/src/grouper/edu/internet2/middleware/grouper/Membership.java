@@ -46,6 +46,8 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -444,7 +446,7 @@ public class Membership extends GrouperAPI implements
   private Long disabledTimeDb;
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeAssignMembershipDelegate attributeAssignMembershipDelegate;
   
   /**
@@ -459,7 +461,7 @@ public class Membership extends GrouperAPI implements
   }
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeValueDelegate attributeValueDelegate;
   
   /**
@@ -3277,7 +3279,7 @@ public class Membership extends GrouperAPI implements
   }
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeValueDelegate attributeValueDelegateEffMship;
   
   /**

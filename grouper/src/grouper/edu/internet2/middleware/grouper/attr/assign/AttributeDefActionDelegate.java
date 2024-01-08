@@ -25,6 +25,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.AttributeAssignActionNotFoundException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -38,6 +40,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class AttributeDefActionDelegate {
 
   /** reference back to attribute def */
+  @JsonIgnore
   private AttributeDef attributeDef;
 
   /**
@@ -62,11 +65,13 @@ public class AttributeDefActionDelegate {
   /**
    * set of allowed actions
    */
+  @JsonIgnore
   private Set<AttributeAssignAction> allowedActionsSet = null;
 
   /**
    * set of allowed actions
    */
+  @JsonIgnore
   private Set<String> allowedActionStringSet = null;
 
   /**

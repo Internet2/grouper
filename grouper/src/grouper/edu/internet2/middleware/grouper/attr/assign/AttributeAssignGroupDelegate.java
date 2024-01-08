@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -44,6 +46,7 @@ public class AttributeAssignGroupDelegate extends AttributeAssignBaseDelegate {
   /**
    * reference to the group in question
    */
+  @JsonIgnore
   private Group group = null;
   
   /**

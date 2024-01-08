@@ -35,6 +35,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
@@ -89,9 +91,11 @@ public class LazySubject implements Subject {
   }
 
   /** membership if built from membership */
+  @JsonIgnore
   private Membership membership;
 
   /** member if built from it or already retrieved it */
+  @JsonIgnore
   private Member member;
 
   /** subject if it has lazily retrieved it already */
@@ -105,6 +109,7 @@ public class LazySubject implements Subject {
   /**
    * 
    */
+  @JsonIgnore
   private Source subjectSource = null;
 
   /**

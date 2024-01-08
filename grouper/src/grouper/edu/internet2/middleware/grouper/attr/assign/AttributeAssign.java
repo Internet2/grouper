@@ -39,6 +39,8 @@ import org.quartz.Scheduler;
 import org.quartz.SchedulerException;
 import org.quartz.impl.matchers.GroupMatcher;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -1046,7 +1048,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
   
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeAssignAttrAssignDelegate attributeAssignAttrAssignDelegate;
   
   /**
@@ -1886,6 +1888,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
   
   /** delegate to manage values on this assignment */
+  @JsonIgnore
   private AttributeAssignValueDelegate valueDelegate;
   
   /**
@@ -1917,7 +1920,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
   }
   
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeValueDelegate attributeValueDelegate;
   
   /**
