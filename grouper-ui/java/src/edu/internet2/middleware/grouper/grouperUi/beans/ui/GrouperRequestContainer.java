@@ -933,6 +933,14 @@ public class GrouperRequestContainer {
     return roleInheritanceContainer;
   }
 
+  
+  /**
+   * container for visualization screen
+   */
+  public void setVisualizationContainer(VisualizationContainer visualizationContainer) {
+    this.visualizationContainer = visualizationContainer;
+  }
+
   /**
    * container for visualization screen
    */
