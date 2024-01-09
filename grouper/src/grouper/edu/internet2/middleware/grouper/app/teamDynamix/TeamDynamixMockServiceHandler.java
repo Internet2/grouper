@@ -281,8 +281,11 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
       if ("UserName".equals(path)) {
         path = "userName";
       }
+      if ("IsActive".equals(path)) {
+        path = "active";
+      }
         
-      Object newValue = GrouperUtil.jsonJacksonGetString(operation, "value");
+      Object newValue = "active".equals(path) ? GrouperUtil.jsonJacksonGetBoolean(operation, "value") : GrouperUtil.jsonJacksonGetString(operation, "value");
       Object oldValue = GrouperUtil.fieldValue(grouperScimUser, path);
       
       if (opAdd) {
@@ -615,18 +618,20 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     String groupJsonString = mockServiceRequest.getRequestBody();
     JsonNode groupJsonNode = GrouperUtil.jsonJacksonNode(groupJsonString);
 
-    //check require args
-    String name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "SearchText");
+    StringBuilder query = new StringBuilder("from TeamDynamixUser where ");
+
+    String name = null;
+    if (groupJsonNode.has("ExternalID")) {
+      name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "ExternalID");
+      query.append("externalId like :theSearch ");
+    } else if (groupJsonNode.has("UserName")) {
+      name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "UserName");
+      query.append("userName like :theSearch ");
+    }
+    
     Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "IsActive");
     
     List<TeamDynamixUser> grouperAzureUsers = null;
-    
-    StringBuilder query = new StringBuilder("from TeamDynamixUser where ");
-    
-    
-    if (StringUtils.isNotBlank(name)) {
-      query.append("( externalId like :theExternalId or userName like :theUserName )");
-    } 
     
     if (isActive != null) {
       if (StringUtils.isNotBlank(name)) {
@@ -638,8 +643,7 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     ByHqlStatic createQuery = HibernateSession.byHqlStatic()
       .createQuery(query.toString());
     if (StringUtils.isNotBlank(name)) {
-      createQuery.setString("theExternalId", "%"+name+"%");
-      createQuery.setString("theUserName", "%"+name+"%");
+      createQuery.setString("theSearch", "%"+name+"%");
     }
     if (isActive != null) {
       createQuery.setString("theActive", isActive ? "T": "F");

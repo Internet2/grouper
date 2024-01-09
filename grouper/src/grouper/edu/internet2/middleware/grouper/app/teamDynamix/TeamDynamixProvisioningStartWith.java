@@ -10,10 +10,8 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisionerStartWithBase;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
-import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -149,6 +147,16 @@ public class TeamDynamixProvisioningStartWith extends ProvisionerStartWithBase {
           provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpression", startWithSuffixToValue.get("entityUserFirstNameTranslationScript"));
         } else if (StringUtils.equals("other", userFirstNameAttributeType)) {
           //do nothing
+        } else if (StringUtils.equals("subjectAttribute", userFirstNameAttributeType)) {
+
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
+
+          provisionerSuffixToValue.put("entityAttributeValueCache2has", "true");
+          provisionerSuffixToValue.put("entityAttributeValueCache2source", "grouper");
+          provisionerSuffixToValue.put("entityAttributeValueCache2type", "subjectTranslationScript");
+          String subjectFirstNameAttribute = startWithSuffixToValue.get("subjectUserFirstNameAttribute");
+          provisionerSuffixToValue.put("entityAttributeValueCache2translationScript", "${subject.getAttributeValue('"+subjectFirstNameAttribute+"')}");
         } else { 
           provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
           provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", userFirstNameAttributeType);
@@ -165,6 +173,16 @@ public class TeamDynamixProvisioningStartWith extends ProvisionerStartWithBase {
           provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpression", startWithSuffixToValue.get("entityUserLastNameTranslationScript"));
         } else if (StringUtils.equals("other", entityUserLastNameType)) {
           //do nothing
+        } else if (StringUtils.equals("subjectAttribute", entityUserLastNameType)) {
+
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
+          provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", "entityAttributeValueCache3");
+
+          provisionerSuffixToValue.put("entityAttributeValueCache3has", "true");
+          provisionerSuffixToValue.put("entityAttributeValueCache3source", "grouper");
+          provisionerSuffixToValue.put("entityAttributeValueCache3type", "subjectTranslationScript");
+          String subjectLasttNameAttribute = startWithSuffixToValue.get("subjectUserLastNameAttribute");
+          provisionerSuffixToValue.put("entityAttributeValueCache3translationScript", "${subject.getAttributeValue('"+subjectLasttNameAttribute+"')}");
         } else {
           provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateExpressionType", "grouperProvisioningEntityField");
           provisionerSuffixToValue.put("targetEntityAttribute."+numberOfEntityAttributes+".translateFromGrouperProvisioningEntityField", entityUserLastNameType);
@@ -261,7 +279,6 @@ public class TeamDynamixProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("entityAttributeValueCache0type", "entityAttribute");
       provisionerSuffixToValue.put("entityAttributeValueCache0entityAttribute", "id");
       
-
       provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
       provisionerSuffixToValue.put("entityAttributeValueCache1source", "target");
       provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
