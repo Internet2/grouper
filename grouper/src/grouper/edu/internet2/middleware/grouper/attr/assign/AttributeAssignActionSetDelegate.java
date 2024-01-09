@@ -23,6 +23,8 @@ import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.grouperSet.GrouperSetEnum;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -36,6 +38,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class AttributeAssignActionSetDelegate implements Serializable {
 
   /** keep a reference to the attribute assign action */
+  @JsonIgnore
   private AttributeAssignAction attributeAssignAction;
   
   /**

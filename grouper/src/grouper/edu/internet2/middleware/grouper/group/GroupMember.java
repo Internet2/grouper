@@ -19,6 +19,8 @@
  */
 package edu.internet2.middleware.grouper.group;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -141,7 +143,7 @@ public class GroupMember implements AttributeAssignable {
   }
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeValueDelegate attributeValueDelegate;
   
 

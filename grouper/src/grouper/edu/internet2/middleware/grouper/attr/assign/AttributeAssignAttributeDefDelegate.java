@@ -23,6 +23,8 @@ import java.util.Set;
 
 import org.apache.commons.lang.builder.ToStringBuilder;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -43,6 +45,7 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
   /**
    * reference to the attributedef in question
    */
+  @JsonIgnore
   private AttributeDef attributeDef = null;
   
   /**

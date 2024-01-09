@@ -4,11 +4,19 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.grouperUi.serviceLogic.UiV2Visualization.VisualizationGraph;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -17,6 +25,38 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class VisualizationContainer {
 
+  private ProgressBean progressBean = null;
+  
+  public ProgressBean getProgressBean() {
+    return progressBean;
+  }
+   
+  public void setProgressBean(ProgressBean progressBean) {
+    this.progressBean = progressBean;
+  }
+   
+   
+  /**
+   * for progress
+   */
+  private String uniqueId;
+   
+  /**
+   * for progress
+   * @return
+   */
+  public String getUniqueId() {
+    return uniqueId;
+  }
+   
+  /**
+   * for progress
+   * @param uniqueId
+   */
+  public void setUniqueId(String uniqueId) {
+    this.uniqueId = uniqueId;
+  }
+  
   private String operation;
   private String drawModule;
   private String drawObjectNameType;
@@ -364,5 +404,28 @@ public class VisualizationContainer {
     }
 
     return grouperObject;
+  }
+
+  private String jsDrawFunctionName = null;
+  
+  public String getJsDrawFunctionName() {
+    return jsDrawFunctionName;
+  }
+
+  
+  public void setJsDrawFunctionName(String jsDrawFunctionName) {
+    this.jsDrawFunctionName = jsDrawFunctionName;
+  }
+
+
+  private VisualizationGraph graph = null;
+  
+  
+  public VisualizationGraph getGraph() {
+    return graph;
+  }
+
+  public void setGraph(VisualizationGraph graph) {
+    this.graph = graph;
   }
 }

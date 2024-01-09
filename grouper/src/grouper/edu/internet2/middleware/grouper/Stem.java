@@ -51,6 +51,8 @@ import org.apache.commons.logging.Log;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreClone;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreDbVersion;
 import edu.internet2.middleware.grouper.annotations.GrouperIgnoreFieldConstant;
@@ -473,7 +475,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   private String contextId;
 
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeAssignStemDelegate attributeAssignStemDelegate;
   
   /**
@@ -488,7 +490,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   }
   
   /** */
-  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone @GrouperIgnoreDbVersion @GrouperIgnoreFieldConstant @JsonIgnore
   private AttributeValueDelegate attributeValueDelegate;
   
   /**

@@ -22,6 +22,8 @@ package edu.internet2.middleware.grouper.attr;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.time.StopWatch;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
@@ -62,6 +64,7 @@ public class AttributeDefPrivilegeDelegate {
   /**
    * reference to the attribute def in question
    */
+  @JsonIgnore
   private AttributeDef attributeDef = null;
   
   /**

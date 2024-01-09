@@ -120,6 +120,10 @@ public class GshTemplateInputConfig {
     this.dropdownKeysAndLabels = dropdownKeysAndLabels;
   }
 
+  public List<MultiKey> getDropdownKeysAndLabelsCached() {
+    return dropdownKeysAndLabels;
+  }
+
   public List<MultiKey> getDropdownKeysAndLabels() {
     
     if (dropdownKeysAndLabels != null) {

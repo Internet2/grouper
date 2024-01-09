@@ -4,12 +4,9 @@
 <script src="../../grouperExternal/public/assets/js/grouperVisualization.js?updated=20190603" type="text/javascript"></script>
 
 
-<div class="lead">${textContainer.text['visualization.title']}
-  <a href="#" aria-label="Set visualization options" id="visualization-settings-button" class="btn btn-medium" aria-expanded="false" onclick="$('#visualization-settings').toggle()">
-  <span class="fa fa-cog"></span><span class="caret"></span>
-  </a>
+<div class="lead" id="progressDiv">
+  <%@ include file="visualizationProgress.jsp"%>
 </div>
-
 <form class="form-horizontal form-inline" method="get" id="vis-settings-form">
   <input type="hidden" name="operation" id="vis-settings-operation" value="${grouperRequestContainer.visualizationContainer.operation}" />
   <input type="hidden" name="objectId" id="vis-settings-objectid" value="${grouperRequestContainer.visualizationContainer.objectId}" />
