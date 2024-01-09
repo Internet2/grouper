@@ -79,8 +79,8 @@ public enum GshTemplateDropdownValueFormatType {
   dynamicFromTemplate {
     @Override
     public List<MultiKey> retrieveKeysAndLabels(GshTemplateInputConfig gshTemplateInputConfig) {
-      
-      return GrouperUtil.nonNull(gshTemplateInputConfig.getDropdownKeysAndLabels());
+      // avoid endless loop
+      return GrouperUtil.nonNull(gshTemplateInputConfig.getDropdownKeysAndLabelsCached());
     }
   },
   csv {

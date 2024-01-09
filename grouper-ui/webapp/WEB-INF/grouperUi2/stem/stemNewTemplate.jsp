@@ -120,7 +120,7 @@
 				shouldShowElCheckbox="false"
 				value="${guiGshTemplateInputConfig.value}"
 				hasExpressionLanguage="false"
-				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}', {formIds: 'newStemTemplateFormId'}); return false;"
+				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&eventConfigId=${guiGshTemplateInputConfig.gshTemplateInputConfig.name}', {formIds: 'newStemTemplateFormId'}); return false;"
 				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
         indent="${attribute.configItemMetadata.indent}"
         

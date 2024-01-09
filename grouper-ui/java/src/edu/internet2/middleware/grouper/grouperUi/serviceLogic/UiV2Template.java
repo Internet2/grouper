@@ -92,7 +92,7 @@ public class UiV2Template {
    */
   public void newTemplate(final HttpServletRequest request, final HttpServletResponse response) {
 
-    newTemplateHelper(request, response, false);
+    newTemplateHelper(request, response, false, false, true);
 	  
   }
   
@@ -505,7 +505,7 @@ public class UiV2Template {
         if (StringUtils.equalsIgnoreCase("NONE", redirectToGrouperOperation)) {
           boolean simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperGshTemplate." + exec.getConfigId() + ".simplifiedUi", false);
 
-          newTemplateHelper(request, response, simplifiedUi);
+          newTemplateHelper(request, response, simplifiedUi, true, false);
         }
 
       }
@@ -1214,7 +1214,7 @@ public class UiV2Template {
    * @param simplifiedRequest true if from simple request, false if not
    */
   private void newTemplateHelper(final HttpServletRequest request, final HttpServletResponse response, 
-      boolean simplifiedRequest) {
+      boolean simplifiedRequest, boolean submit, boolean newTemplate) {
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
@@ -1263,7 +1263,9 @@ public class UiV2Template {
             gshTemplateDecorateForUiInput.setGshTemplateInputConfigAndValues(customTemplateInputs);
             gshTemplateDecorateForUiInput.setCurrentSubject(loggedInSubject);
             gshTemplateDecorateForUiInput.setTemplateConfigId(templateType);
-            
+            gshTemplateDecorateForUiInput.setEventConfigId(request.getParameter("eventConfigId"));
+            gshTemplateDecorateForUiInput.setSubmit(submit);
+            gshTemplateDecorateForUiInput.setNewForm(newTemplate);
             executeForTemplateV2instance.decorateTemplateForUiDisplay(gshTemplateDecorateForUiInput);
             
           }
@@ -1334,7 +1336,7 @@ public class UiV2Template {
    * @param response
    */
   public void newTemplateSimplifiedUi(final HttpServletRequest request, final HttpServletResponse response) {
-    newTemplateHelper(request, response, true);
+    newTemplateHelper(request, response, true, false, true);
     
   }
 
