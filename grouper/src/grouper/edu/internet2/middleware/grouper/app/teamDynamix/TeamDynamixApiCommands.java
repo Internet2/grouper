@@ -373,30 +373,79 @@ public class TeamDynamixApiCommands {
     long startTime = System.nanoTime();
 
     try {
-
-      JsonNode jsonToSend = teamDynamixUser.toJson(null);
-      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
       
-      int[] returnCode = new int[] { -1 };
+    //maybe the user already exists with the same external id
+      TeamDynamixUser user = retrieveTeamDynamixUserBySearchTerm(configId, "externalId", teamDynamixUser.getExternalId(), null);
       
-      JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/api/people",
-          GrouperUtil.toSet(200, 201, 400), returnCode, jsonStringToSend);
-      
-      if (returnCode[0] == 400 && jsonNode != null && jsonNode.has("Message")
-          && StringUtils.contains(GrouperUtil.jsonJacksonGetString(jsonNode, "Message"), "Username must be unique")) {
-       
-        TeamDynamixUser teamDynamixUserBySearchTerm = retrieveTeamDynamixUserBySearchTerm(configId, "username", teamDynamixUser.getUserName(), false);
-        if (teamDynamixUserBySearchTerm != null) {
-          updateTeamDynamixUserStatus(configId, teamDynamixUserBySearchTerm.getId(), true);
-          return teamDynamixUserBySearchTerm.getId();
-        } 
+      if (user == null) {
+        JsonNode jsonToSend = teamDynamixUser.toJson(null);
+        String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
         
-        throw new RuntimeException("How is it possible to get username already exists but then not find the user when searching");
+        int[] returnCode = new int[] { -1 };
         
+        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "/api/people",
+            GrouperUtil.toSet(200, 201, 400), returnCode, jsonStringToSend);
+        
+        if (returnCode[0] == 400 && jsonNode != null && jsonNode.has("Message")
+            && StringUtils.contains(GrouperUtil.jsonJacksonGetString(jsonNode, "Message"), "Username must be unique")) {
+         
+          TeamDynamixUser teamDynamixUserBySearchTerm = retrieveTeamDynamixUserBySearchTerm(configId, "username", teamDynamixUser.getUserName(), null);
+          if (teamDynamixUserBySearchTerm != null) {
+            
+            Map<String, ProvisioningObjectChangeAction> fieldsToUpdate = new HashMap<>();
+            fieldsToUpdate.put("FirstName", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("LastName", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("Company", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("ExternalId", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("PrimaryEmail", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("SecurityRoleId", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("UserName", ProvisioningObjectChangeAction.update);
+            fieldsToUpdate.put("IsActive", ProvisioningObjectChangeAction.update);
+            
+            teamDynamixUserBySearchTerm.setActive(true);
+            teamDynamixUserBySearchTerm.setCompany(teamDynamixUser.getCompany());
+            teamDynamixUserBySearchTerm.setExternalId(teamDynamixUser.getExternalId());
+            teamDynamixUserBySearchTerm.setFirstName(teamDynamixUser.getFirstName());
+            teamDynamixUserBySearchTerm.setLastName(teamDynamixUser.getLastName());
+            teamDynamixUserBySearchTerm.setPrimaryEmail(teamDynamixUser.getPrimaryEmail());
+            teamDynamixUserBySearchTerm.setSecurityRoleId(teamDynamixUser.getSecurityRoleId());
+            teamDynamixUserBySearchTerm.setUserName(teamDynamixUser.getUserName());
+            
+            patchTeamDynamixUser(configId, teamDynamixUserBySearchTerm, fieldsToUpdate);
+            
+//            updateTeamDynamixUserStatus(configId, teamDynamixUserBySearchTerm.getId(), true);
+            return teamDynamixUserBySearchTerm.getId();
+          } 
+          
+          throw new RuntimeException("How is it possible to get username already exists but then not found the user when searching");
+          
+        }
+        
+        TeamDynamixUser teamDynamixUserResult = TeamDynamixUser.fromJson(jsonNode);
+        return teamDynamixUserResult.getId();
       }
       
-      TeamDynamixUser teamDynamixUserResult = TeamDynamixUser.fromJson(jsonNode);
-      return teamDynamixUserResult.getId();
+      Map<String, ProvisioningObjectChangeAction> fieldsToUpdate = new HashMap<>();
+      fieldsToUpdate.put("FirstName", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("LastName", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("Company", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("ExternalId", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("PrimaryEmail", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("SecurityRoleId", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("UserName", ProvisioningObjectChangeAction.update);
+      fieldsToUpdate.put("IsActive", ProvisioningObjectChangeAction.update);
+      
+      user.setActive(true);
+      user.setCompany(teamDynamixUser.getCompany());
+      user.setExternalId(teamDynamixUser.getExternalId());
+      user.setFirstName(teamDynamixUser.getFirstName());
+      user.setLastName(teamDynamixUser.getLastName());
+      user.setPrimaryEmail(teamDynamixUser.getPrimaryEmail());
+      user.setSecurityRoleId(teamDynamixUser.getSecurityRoleId());
+      user.setUserName(teamDynamixUser.getUserName());
+      
+      patchTeamDynamixUser(configId, user, fieldsToUpdate);
+      return user.getId();
       
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -440,7 +489,9 @@ public class TeamDynamixApiCommands {
         return teamDynamixGroupResult;
       }
       
-      if (groupByName.getActive() == null || groupByName.getActive() == false) {
+      if (!StringUtils.equals(groupByName.getDescription(), 
+          teamDynamixGroup.getDescription()) || 
+          (groupByName.getActive() == null || groupByName.getActive() == false)) {
         
         groupByName.setActive(true);
         groupByName.setDescription(teamDynamixGroup.getDescription());
@@ -519,10 +570,13 @@ public class TeamDynamixApiCommands {
     try {
 
       ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
-      if (isActive != null) {
-        jsonJacksonNode.put("IsActive", isActive);
+      jsonJacksonNode.put("IsActive", isActive);
+      
+      if (StringUtils.equals(fieldName, "externalId")) {
+        jsonJacksonNode.put("ExternalID", searchTerm);
+      } else if (StringUtils.equals(fieldName, "username")) {
+        jsonJacksonNode.put("UserName", searchTerm);
       }
-      jsonJacksonNode.put("SearchText", searchTerm);
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonJacksonNode);
       
@@ -552,13 +606,11 @@ public class TeamDynamixApiCommands {
           throw new RuntimeException("Invalid field name.");
         }
         
-        
-        
       }
       if (users.size() > 1) {
         throw new RuntimeException("How can there be more than one user with the same value in TeamDynamix?? '" + searchTerm + "'");
       }
-      return users.get(0);
+      return users.size() == 1 ? users.get(0) : null;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -830,6 +882,8 @@ public class TeamDynamixApiCommands {
           newValue = teamDynamixUser.getSecurityRoleId();
         } else if (StringUtils.equals(fieldToUpdate, "UserName")) {
           newValue = teamDynamixUser.getUserName();
+        } else {
+          continue;
         }
         
         switch (provisioningObjectChangeAction) {
@@ -851,6 +905,14 @@ public class TeamDynamixApiCommands {
         operationNode.put("path", fieldToUpdate);
         operationsNode.add(operationNode);
         
+      }
+      
+      if (fieldsToUpdate.containsKey("IsActive")) {
+        ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+        operationNode.put("op", "replace");
+        operationNode.put("value", teamDynamixUser.getActive());
+        operationNode.put("path", "IsActive");
+        operationsNode.add(operationNode);
       }
       
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(operationsNode);
@@ -913,6 +975,5 @@ public class TeamDynamixApiCommands {
     }
 
   }
- 
 
 }

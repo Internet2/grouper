@@ -227,10 +227,8 @@ public class TeamDynamixUser {
     teamDynamixUser.externalId = GrouperUtil.jsonJacksonGetString(entityNode, "ExternalID");
     teamDynamixUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "UID");
     Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(entityNode, "IsActive");
-    if (isActive != null && isActive) {
-      teamDynamixUser.active = true;
-    }
-    
+    teamDynamixUser.active = isActive;
+
     return teamDynamixUser;
   }
   
