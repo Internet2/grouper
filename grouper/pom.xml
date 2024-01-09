@@ -96,10 +96,19 @@
             <groupId>cglib</groupId>
             <artifactId>cglib</artifactId>
         </dependency>
+
+        <!-- osgi -->
         <dependency>
           <groupId>org.apache.felix</groupId>
           <artifactId>org.apache.felix.framework</artifactId>
         </dependency>
+        <dependency>
+            <groupId>edu.internet2.middleware.grouper.plugins</groupId>
+            <artifactId>felix-framework-security</artifactId>
+            <version>0.0.1</version>
+            <scope>test</scope>
+        </dependency>
+        <!-- END osgi -->
         <dependency>
           <groupId>com.amazonaws</groupId>
           <artifactId>aws-java-sdk-core</artifactId>
@@ -576,6 +585,9 @@
 
         <resources>
             <resource>
+                <directory>src/main/resources</directory>
+            </resource>
+            <resource>
                 <directory>conf</directory>
                 <includes>
                     <include>grouperUtf8.txt</include>
@@ -598,6 +610,8 @@
                     <include>**/*.jexl</include>
                     <include>edu/internet2/middleware/grouper/xml/export.properties</include>
                     <include>edu/internet2/middleware/grouper/xml/import.properties</include>
+                    <include>edu/internet2/middleware/grouper/plugins/all.policy</include>
+                    <include>edu/internet2/middleware/grouper/plugins/org.apache.felix.framework.security-2.8.4.jar</include>
                 </includes>
             </resource>
         </resources>
@@ -614,6 +628,9 @@
 
                     <!-- This file is no longer being used in unit tests -->
                     <!--<include>edu/internet2/middleware/grouper/xml/importXml/xmlImport_v1_6_0.xml</include>-->
+
+                    <!-- osgi -->
+                    <include>plugins/**/*</include>
                 </includes>
             </testResource>
         </testResources>

@@ -25,11 +25,11 @@
         <groupId>edu.internet2.middleware.grouper</groupId>
         <artifactId>grouper-parent</artifactId>
         <version>5.0.0-SNAPSHOT</version>
-        <relativePath>../../../grouper-parent</relativePath>
+        <relativePath>../../grouper-parent</relativePath>
     </parent>
-	
-	<name>Grouper UI webapp</name>
-    <artifactId>grouper-ui-webapp</artifactId>
+
+    <name>Grouper webapp</name>
+    <artifactId>grouper-webapp</artifactId>
     <packaging>war</packaging>
 
     <dependencies>
@@ -38,12 +38,17 @@
             <artifactId>grouper-ui</artifactId>
             <version>${project.version}</version>
         </dependency>
+        <dependency>
+            <groupId>${project.groupId}</groupId>
+            <artifactId>grouper-ws</artifactId>
+            <version>${project.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
         <resources>
             <resource>
-                <directory>../../../grouper/conf</directory>
+                <directory>../../grouper/conf</directory>
             </resource>
         </resources>
         <plugins>
@@ -55,19 +60,21 @@
                     <failOnMissingWebXml>false</failOnMissingWebXml>
                     <webResources>
                         <resource>
-                            <directory>../../../grouper-ui/webapp</directory>
+                            <directory>../../grouper-ui/webapp</directory>
                         </resource>
                     </webResources>
                 </configuration>
             </plugin>
             <plugin>
-                <groupId>org.eclipse.jetty</groupId>
-                <artifactId>jetty-maven-plugin</artifactId>
-                <version>9.4.27.v20200227</version>
+                <groupId>org.codehaus.cargo</groupId>
+                <artifactId>cargo-maven3-plugin</artifactId>
+                <version>1.10.9</version>
                 <configuration>
-                    <webApp>
-                        <contextPath>/grouper</contextPath>
-                    </webApp>
+                    <configuration>
+                        <properties>
+                            <cargo.servlet.port>8080</cargo.servlet.port>
+                        </properties>
+                    </configuration>
                 </configuration>
             </plugin>
         </plugins>
@@ -83,6 +90,34 @@
                     </resource>
                 </resources>
             </build>
+        </profile>
+        <profile>
+            <id>debug</id>
+            <build>
+                <plugins>
+                <plugin>
+                    <groupId>org.codehaus.cargo</groupId>
+                    <artifactId>cargo-maven3-plugin</artifactId>
+                    <version>1.10.9</version>
+                    <configuration>
+                        <container>
+                            <timeout>3600000</timeout>
+                        </container>
+                        <configuration>
+                            <properties>
+                                <cargo.servlet.port>8080</cargo.servlet.port>
+                                <cargo.start.jvmargs>
+                                    -Xdebug
+                                    -agentlib:jdwp=transport=dt_socket,server=y,suspend=y,address=*:5005
+                                    -Xnoagent
+                                    -Djava.compiler=NONE
+                                </cargo.start.jvmargs>
+                            </properties>
+                        </configuration>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </build>
         </profile>
     </profiles>
 </project>

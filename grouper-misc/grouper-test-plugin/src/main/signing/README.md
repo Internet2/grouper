@@ -1,0 +1,1 @@
+These files are strictly examples and for testing. Do not use them in your own projects!
