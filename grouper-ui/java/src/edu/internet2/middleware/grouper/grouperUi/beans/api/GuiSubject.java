@@ -21,7 +21,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 import java.util.HashMap;
-import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Set;
@@ -50,6 +49,7 @@ import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectCaseInsensitiveMapImpl;
 import edu.internet2.middleware.subject.provider.SourceManager;
 
 
@@ -735,7 +735,7 @@ public class GuiSubject extends GuiObjectBase implements Serializable {
   @SuppressWarnings({ "cast", "unchecked" })
   public Map<String, String> getAttributes() {
     if (this.attributes == null) {
-      Map<String, String> result = new LinkedHashMap<String, String>();
+      Map<String, String> result = new SubjectCaseInsensitiveMapImpl<String, String>();
       
       if (this.subject != null) {
         for (String key : (Set<String>)(Object)GrouperUtil.nonNull(this.subject.getAttributes()).keySet()) {
