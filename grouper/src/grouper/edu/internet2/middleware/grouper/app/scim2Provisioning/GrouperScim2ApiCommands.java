@@ -30,7 +30,7 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public class GrouperScim2ApiCommands {
   
-  public static void main1(String[] args) {
+  public static void main(String[] args) {
     
     GrouperStartup.startup();
     
@@ -56,25 +56,25 @@ public class GrouperScim2ApiCommands {
 //        System.out.println(grouperScim2User);
 //      }
     
-      GrouperScim2User grouperScimUser = retrieveScimUser("githubLocal", null, "id", "4a16500367134ad0954d0612d8203b56");
+      GrouperScim2User grouperScimUser = retrieveScimUser("atlassianCloudSso", null, "id", "eec55825-add9-4bc8-8dce-def0eb4422b3");
       System.out.println(grouperScimUser);
     
 //      deleteScimUser("githubLocal", "49dbdc83e0744a68bd565ee9e2780e38");
     
-      Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
-      fieldToAction.put("displayName", ProvisioningObjectChangeAction.update);
-      grouperScimUser.setDisplayName("newDisplayName");
+//      Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
+//      fieldToAction.put("displayName", ProvisioningObjectChangeAction.update);
+//      grouperScimUser.setDisplayName("newDisplayName");
 //      fieldToAction.put("active", ProvisioningObjectChangeAction.update);
 //      grouperScimUser.setActive(false);
-      patchScimUser("githubLocal", null, grouperScimUser, fieldToAction);
+//      patchScimUser("githubLocal", null, grouperScimUser, fieldToAction);
 //    
-      grouperScimUser = retrieveScimUser("githubLocal",null, "id", "4a16500367134ad0954d0612d8203b56");
-      System.out.println(grouperScimUser);
+//      grouperScimUser = retrieveScimUser("githubLocal",null, "id", "4a16500367134ad0954d0612d8203b56");
+//      System.out.println(grouperScimUser);
 
     
   }
 
-  public static void main(String[] args) {
+  public static void main1(String[] args) {
 
     GrouperStartup.startup();
 //
@@ -228,11 +228,11 @@ public class GrouperScim2ApiCommands {
 //        throw new UnsupportedOperationException("active field cannnot be modified");
 //      }
 
-      if (fieldsToUpdate.containsKey("emailValue") || fieldsToUpdate.containsKey("emailType")) {
+      if (fieldsToUpdate.containsKey("emailValue") || fieldsToUpdate.containsKey("emailType") || fieldsToUpdate.containsKey("emailValue2") || fieldsToUpdate.containsKey("emailType2")) {
         
         ProvisioningObjectChangeAction emailValueChangeAction = fieldsToUpdate.get("emailValue");
-        ProvisioningObjectChangeAction emailTypeChangeAction = fieldsToUpdate.get("emailType");
-        
+        ProvisioningObjectChangeAction emailValue2ChangeAction = fieldsToUpdate.get("emailValue2");
+
         // "value", "type" 
         //  {
         //    "op": "replace",
@@ -241,11 +241,9 @@ public class GrouperScim2ApiCommands {
         //  }
 
         ProvisioningObjectChangeAction resultingAction = null;
-        if (GrouperUtil.defaultIfNull(emailTypeChangeAction, ProvisioningObjectChangeAction.delete) == ProvisioningObjectChangeAction.delete 
-            || GrouperUtil.defaultIfNull(emailValueChangeAction, ProvisioningObjectChangeAction.delete) == ProvisioningObjectChangeAction.delete) {
+        if (emailValueChangeAction == ProvisioningObjectChangeAction.delete && emailValue2ChangeAction == ProvisioningObjectChangeAction.delete) {
           resultingAction = ProvisioningObjectChangeAction.delete;
-        } else if (GrouperUtil.defaultIfNull(emailTypeChangeAction, ProvisioningObjectChangeAction.insert) == ProvisioningObjectChangeAction.insert 
-            || GrouperUtil.defaultIfNull(emailValueChangeAction, ProvisioningObjectChangeAction.insert) == ProvisioningObjectChangeAction.insert) {
+        } else if (emailValueChangeAction == ProvisioningObjectChangeAction.insert && emailValue2ChangeAction == ProvisioningObjectChangeAction.insert) {
           resultingAction = ProvisioningObjectChangeAction.insert;
         } else {
           resultingAction = ProvisioningObjectChangeAction.update;
@@ -260,17 +258,32 @@ public class GrouperScim2ApiCommands {
           
         } else {
           
+          boolean hasEmail = !StringUtils.isBlank(grouperScim2User.getEmailValue());
+          boolean hasEmail2 = !StringUtils.isBlank(grouperScim2User.getEmailValue2());
+          
           operationNode.put("op", "replace");
           ArrayNode emailsNode = GrouperUtil.jsonJacksonArrayNode();
-          ObjectNode emailNode = GrouperUtil.jsonJacksonNode();
-          emailNode.put("primary", true);
-          if (!StringUtils.isBlank(grouperScim2User.getEmailValue())) {
+          
+          if (hasEmail) {
+            ObjectNode emailNode = GrouperUtil.jsonJacksonNode();
+            emailNode.put("primary", true);
             emailNode.put("value", grouperScim2User.getEmailValue());
+            if (!StringUtils.isBlank(grouperScim2User.getEmailType())) {
+              emailNode.put("type", grouperScim2User.getEmailType());
+            }
+            emailsNode.add(emailNode);
           }
-          if (!StringUtils.isBlank(grouperScim2User.getEmailType())) {
-            emailNode.put("type", grouperScim2User.getEmailType());
+          if (hasEmail2) {
+            ObjectNode emailNode = GrouperUtil.jsonJacksonNode();
+            if (!hasEmail) {
+              emailNode.put("primary", true);
+            }
+            emailNode.put("value", grouperScim2User.getEmailValue2());
+            if (!StringUtils.isBlank(grouperScim2User.getEmailType2())) {
+              emailNode.put("type", grouperScim2User.getEmailType2());
+            }
+            emailsNode.add(emailNode);
           }
-          emailsNode.add(emailNode);
           
           operationNode.set("value", emailsNode);
         }
@@ -279,6 +292,11 @@ public class GrouperScim2ApiCommands {
       }
 
       for (String fieldToUpdate : fieldsToUpdate.keySet()) {
+        
+        if (StringUtils.equals(fieldToUpdate, "emailValue") || StringUtils.equals(fieldToUpdate, "emailType") || StringUtils.equals(fieldToUpdate, "emailValue2") || StringUtils.equals(fieldToUpdate, "emailType2")) {
+          continue;
+        }
+        
         ProvisioningObjectChangeAction provisioningObjectChangeAction = fieldsToUpdate.get(fieldToUpdate);
         
         ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
