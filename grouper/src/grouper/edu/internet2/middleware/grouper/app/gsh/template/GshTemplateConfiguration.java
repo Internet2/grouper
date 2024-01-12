@@ -507,8 +507,8 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
   }
   
   public String getFolderId() {
+    String folderUuidOrNameString = this.retrieveAttributeValueFromConfig("defaultRunButtonFolderUuidOrName", true);
     try {
-      String folderUuidOrNameString = this.retrieveAttributeValueFromConfig("defaultRunButtonFolderUuidOrName", true);
       
       Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folderUuidOrNameString, false);
       if (stem == null) {
@@ -516,7 +516,7 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       }
       return stem.getId();
     } catch (Exception e) {
-      throw new RuntimeException("could not find configured defult run button stem for gsh template configId "+this.getConfigId());
+      throw new RuntimeException("could not find configured defult run button stem for gsh template configId: " + folderUuidOrNameString + " , "+this.getConfigId());
     }
   }
   
