@@ -51,29 +51,6 @@ public class TeamDynamixExternalSystem extends GrouperExternalSystem {
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
   }
 
-  //  # team dynamix login base uri to get a token. Should end in a slash.  e.g. https://yourTeamDynamixDomain/
-  //  # {valueType: "string", required: true, regex: "^grouper\\.teamDynamix\\.([^.]+)\\.url$"}
-  //  # grouper.teamDynamix.myTeamDynamix.url = 
-  //
-  //  # team dynamix beid (tenant id)
-  //  # {valueType: "string", required: true, regex: "^grouper\\.teamDynamix\\.([^.]+)\\.beid$"}
-  //  # grouper.teamDynamix.myTeamDynamix.beid =
-  //
-  //  # web services key
-  //  # {valueType: "string", required: true, regex: "^grouper\\.teamDynamix\\.([^.]+)\\.webServicesKey"}
-  //  # grouper.teamDynamix.myTeamDynamix.webServicesKey =
-  //
-  //  # proxy requests here, e.g. https://server:1234
-  //  # {valueType: "string", regex: "^grouper\\.teamDynamix\\.([^.]+)\\.proxyUrl$"}
-  //  # grouper.teamDynamix.myTeamDynamix.proxyUrl =
-  //
-  //  # socks or http
-  //  # {valueType: "string", regex: "^grouper\\.teamDynamix\\.([^.]+)\\.proxyType$", formElement: "dropdown", optionValues: ["PROXY_HTTP", "PROXY_SOCKS5"]}
-  //  # grouper.teamDynamix.myTeamDynamix.proxyType =
-  //
-  //  # if this team dynamix connector is enabled
-  //  # {valueType: "boolean", regex: "^grouper\\.teamDynamix\\.([^.]+)\\.enabled$", defaultValue: "true"}
-  //  # grouper.teamDynamix.myTeamDynamix.enabled
   
   @Override
   public String getConfigItemPrefix() {

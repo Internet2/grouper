@@ -2,7 +2,7 @@ package edu.internet2.middleware.grouper.app.teamDynamix;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.duo.DuoProvisionerTestConfigInput;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -21,9 +21,20 @@ public class TeamDynamixProvisionerTestUtils {
     
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperTest.teamDynamix.mock.configId").value("teamdx").store();
 
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.beid").value("fake value").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.url").value("http://localhost:8080/grouper/mockServices/teamdynamix/").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.webServicesKey").value("fake value").store();
+    if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.tdx.provisioning.real", false)) {
+      
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.beid")
+        .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.tdx.provisioning.real.beid")).store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.url")
+        .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.tdx.provisioning.real.url")).store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.webServicesKey")
+        .value(GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.tdx.provisioning.real.webServicesKey")).store();
+      
+    } else {
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.beid").value("fake value").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.url").value("http://localhost:8080/grouper/mockServices/teamdynamix/").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.teamDynamix.teamdx.webServicesKey").value("fake value").store();
+    }
     
   }
   
