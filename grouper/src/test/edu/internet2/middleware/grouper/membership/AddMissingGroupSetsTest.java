@@ -96,6 +96,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     RegistryReset.internal_resetRegistryAndAddTestSubjects();
     GrouperTest.initGroupsAndAttributes();
 
+    runCompositeMembershipChangeLogConsumer();
     
     GrouperSession session = GrouperSession.startRootSession();
     Member rootMember = MemberFinder.findBySubject(session, SubjectFinder.findRootSubject(), true);
@@ -140,6 +141,7 @@ public class AddMissingGroupSetsTest extends GrouperTest {
     customFieldTest.addMember(four.toSubject(), fieldTestList);
     updateFieldTest.grantPriv(four.toSubject(), AccessPrivilege.UPDATE);
     top.grantPriv(four.toSubject(), NamingPrivilege.CREATE);
+    runCompositeMembershipChangeLogConsumer();
 
     // get number of groupSets before proceeding..
     Set<GroupSet> originalGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
@@ -147,6 +149,8 @@ public class AddMissingGroupSetsTest extends GrouperTest {
 
     // delete all groupSets
     reset();
+    runCompositeMembershipChangeLogConsumer();
+
     Set<GroupSet> currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
     T.amount("Total groupSets", 0, currentGroupSets.size());
     
@@ -174,6 +178,9 @@ public class AddMissingGroupSetsTest extends GrouperTest {
 
     // now add them back and verify again
     new AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
+    
+    runCompositeMembershipChangeLogConsumer();
+
     currentGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findAllByCreator(rootMember);
     T.amount("Total groupSets", size, currentGroupSets.size());
     currentGroupSetsAfterMod = convertCurrentGroupSets(originalGroupSets, currentGroupSets);

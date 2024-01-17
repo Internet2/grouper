@@ -103,7 +103,7 @@ public class TestGroup1 extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestGroup1("testReplaceMembers"));
+    TestRunner.run(new TestGroup1("testCompositeIsDeletedWhenGroupIsDeleted"));
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestGroup1.class);
@@ -664,6 +664,8 @@ public class TestGroup1 extends GrouperTest {
   public void testCompositeIsDeletedWhenGroupIsDeleted() {
     LOG.info("testCompositeIsDeletedWhenGroupIsDeleted");
     try {
+      runCompositeMembershipChangeLogConsumer();
+      
       R           r     = R.populateRegistry(1, 3, 1);
       Group       gA    = r.getGroup("a", "a");
       Group       gB    = r.getGroup("a", "b");
@@ -671,10 +673,14 @@ public class TestGroup1 extends GrouperTest {
       Subject     subjA = r.getSubject("a");
       gB.addMember(subjA);
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
+      runCompositeMembershipChangeLogConsumer();
+
       Member      mA    = MemberFinder.findBySubject(r.rs, subjA, true);
       T.amount("subjA mships before deletion", 2, mA.getMemberships().size());
       MembershipFinder.findCompositeMembership(r.rs, gA, subjA, true);  
       gA.delete(); 
+      runCompositeMembershipChangeLogConsumer();
+
       mA    = MemberFinder.findBySubject(r.rs, subjA, true);
       T.amount("subjA mships after deletion", 1, mA.getMemberships().size());
       r.rs.stop();
@@ -881,6 +887,9 @@ public class TestGroup1 extends GrouperTest {
   public void testFailToGetViaGroupWhenComposite() {
     LOG.info("testFailToGetViaGroupWhenComposite");
     try {
+      
+      runCompositeMembershipChangeLogConsumer();
+      
       R           r     = R.populateRegistry(1, 3, 1);
       Group       gA    = r.getGroup("a", "a");
       Group       gB    = r.getGroup("a", "b");
@@ -888,6 +897,8 @@ public class TestGroup1 extends GrouperTest {
       Subject     subjA = r.getSubject("a");
       gB.addMember(subjA);
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
+      runCompositeMembershipChangeLogConsumer();
+
       Membership  ms    = MembershipFinder.findCompositeMembership(r.rs, gA, subjA, true);  
       // Fail
       try {

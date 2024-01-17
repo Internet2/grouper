@@ -70,7 +70,7 @@ import edu.internet2.middleware.subject.Subject;
 public class TestDisabledMembership extends GrouperTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new TestDisabledMembership("testAddingMembershipWhenDisabledMembershipExistsInPath"));
+    TestRunner.run(new TestDisabledMembership("testDisablingMembership"));
   }
   
   R r = null;
@@ -93,7 +93,8 @@ public class TestDisabledMembership extends GrouperTest {
    * @throws Exception 
    */
   public void testAddingDisabledMembership() throws Exception {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     r = R.populateRegistry(0, 0, 3);
     
     Timestamp disabledTime = new Timestamp(new Date().getTime() - 10000);
@@ -111,7 +112,8 @@ public class TestDisabledMembership extends GrouperTest {
     owner.addCompositeMember(CompositeType.UNION, left, right);
     left.addMember(one.toSubject());
     two.addMember(three.toSubject());
-    
+    runCompositeMembershipChangeLogConsumer();
+
     // now add two -> one as a disabled membership
     Membership ms = new Membership();
     ms.setCreatorUuid(r.rs.getMemberUuid());
@@ -123,7 +125,8 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setEnabledTime(enabledTime);
     ms.setDisabledTime(disabledTime);    
     GrouperDAOFactory.getFactory().getMembership().save(ms);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(owner.hasMember(two.toSubject()));
     assertFalse(owner.hasMember(three.toSubject()));
     assertFalse(left.hasMember(two.toSubject()));
@@ -136,7 +139,8 @@ public class TestDisabledMembership extends GrouperTest {
    * @throws Exception 
    */
   public void testAddingMembershipWhenDisabledMembershipExistsInPath() throws Exception {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     r = R.populateRegistry(0, 0, 3);
     Subject a = r.getSubject("a");
     
@@ -155,7 +159,8 @@ public class TestDisabledMembership extends GrouperTest {
     
     left.addMember(one.toSubject());
     one.addMember(two.toSubject());
-    
+    runCompositeMembershipChangeLogConsumer();
+
     // disable one -> left
     Membership ms = GrouperDAOFactory.getFactory().getMembership().findByGroupOwnerAndMemberAndFieldAndType(
         left.getUuid(), one.toMember().getUuid(), Group.getDefaultList(), MembershipType.IMMEDIATE.getTypeString(), true, true);
@@ -167,7 +172,8 @@ public class TestDisabledMembership extends GrouperTest {
     // add some memberships
     two.addMember(a);
     one.addMember(a);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(owner.hasMember(a));
     assertFalse(owner.hasMember(two.toSubject()));
     assertFalse(owner.hasMember(one.toSubject()));
@@ -181,7 +187,8 @@ public class TestDisabledMembership extends GrouperTest {
    * @throws Exception 
    */
   public void testAddingUnionCompositeWithDisabledMemberships() throws Exception {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     r = R.populateRegistry(0, 0, 3);
     Subject a = r.getSubject("a");
     
@@ -218,7 +225,8 @@ public class TestDisabledMembership extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(ms);
 
     owner.addCompositeMember(CompositeType.UNION, left, right);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(owner.hasMember(a));
   }
   
@@ -226,7 +234,8 @@ public class TestDisabledMembership extends GrouperTest {
    * @throws Exception 
    */
   public void testAddingIntersectionCompositeWithDisabledMemberships() throws Exception {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     r = R.populateRegistry(0, 0, 4);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
@@ -287,6 +296,8 @@ public class TestDisabledMembership extends GrouperTest {
     
 
     owner.addCompositeMember(CompositeType.INTERSECTION, left, right);
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(owner.hasMember(a));
     assertFalse(owner.hasMember(b));
     assertFalse(owner.hasMember(c));
@@ -298,7 +309,8 @@ public class TestDisabledMembership extends GrouperTest {
    * @throws Exception 
    */
   public void testAddingComplementCompositeWithDisabledMemberships() throws Exception {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     r = R.populateRegistry(0, 0, 4);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
@@ -359,6 +371,8 @@ public class TestDisabledMembership extends GrouperTest {
     
 
     owner.addCompositeMember(CompositeType.COMPLEMENT, left, right);
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(owner.hasMember(a));
     assertTrue(owner.hasMember(b));
     assertFalse(owner.hasMember(c));
@@ -370,7 +384,8 @@ public class TestDisabledMembership extends GrouperTest {
    * @throws Exception
    */
   public void testDisablingMembership() throws Exception {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     r = R.populateRegistry(0, 0, 3);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
@@ -402,6 +417,7 @@ public class TestDisabledMembership extends GrouperTest {
     top1.addMember(owner.toSubject());
     top2.grantPriv(owner.toSubject(), AccessPrivilege.UPDATE);
     stem.grantPriv(owner.toSubject(), NamingPrivilege.CREATE);
+    runCompositeMembershipChangeLogConsumer();
 
     verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
@@ -413,6 +429,7 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
+    runCompositeMembershipChangeLogConsumer();
 
     verifyMemberships(12, 4, 4, false, true, true, true, true, true);
     
@@ -423,7 +440,8 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(null);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     // disable owner -> top2 (update priv)
@@ -434,6 +452,7 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
+    runCompositeMembershipChangeLogConsumer();
 
     verifyMemberships(16, 4, 0, true, false, true, true, true, true);
     
@@ -444,7 +463,8 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(null);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     // disable owner -> stem (create priv)
@@ -455,6 +475,7 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
+    runCompositeMembershipChangeLogConsumer();
 
     verifyMemberships(16, 0, 4, true, true, false, true, true, true);
     
@@ -465,7 +486,8 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(null);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     // disable one -> left
@@ -476,6 +498,7 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
+    runCompositeMembershipChangeLogConsumer();
 
     verifyMemberships(8, 2, 2, true, true, true, false, true, true);
     
@@ -486,7 +509,8 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(null);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     verifyMemberships(16, 4, 4, true, true, true, true, true, true);
 
     
@@ -498,6 +522,7 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
+    runCompositeMembershipChangeLogConsumer();
 
     verifyMemberships(10, 3, 3, true, true, true, true, false, true);
     
@@ -508,7 +533,8 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(null);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     verifyMemberships(16, 4, 4, true, true, true, true, true, true);
     
     
@@ -520,6 +546,7 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(disabledTime);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
+    runCompositeMembershipChangeLogConsumer();
 
     verifyMemberships(11, 3, 3, true, true, true, true, true, false);
     
@@ -530,7 +557,8 @@ public class TestDisabledMembership extends GrouperTest {
     ms.setDisabledTime(null);
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     verifyMemberships(16, 4, 4, true, true, true, true, true, true);
   }
   

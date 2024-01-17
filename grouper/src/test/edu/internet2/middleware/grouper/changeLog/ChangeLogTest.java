@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -100,7 +101,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeDefPrivileges"));
+    TestRunner.run(new ChangeLogTest("testNonFlattenedMemberships"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -8991,7 +8992,8 @@ public class ChangeLogTest extends GrouperTest {
     g2.addMember(member1.getSubject());
     
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     // clear changelog
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
@@ -9000,9 +9002,11 @@ public class ChangeLogTest extends GrouperTest {
 
     
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 3 new change log entries - 1 composite, 2 effective", 3, newChangeLogCount);
 
@@ -9018,9 +9022,11 @@ public class ChangeLogTest extends GrouperTest {
     g1.deleteCompositeMember();
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 3 new change log entries - 1 composite, 2 effective", 3, newChangeLogCount);
 
@@ -9032,7 +9038,9 @@ public class ChangeLogTest extends GrouperTest {
     g2.deleteMember(member1.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // clear changelog
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
@@ -9040,9 +9048,11 @@ public class ChangeLogTest extends GrouperTest {
     g2.addMember(member1.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
     
@@ -9064,9 +9074,11 @@ public class ChangeLogTest extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
 
     ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
 
@@ -9082,15 +9094,19 @@ public class ChangeLogTest extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 0 new change log entries", 0, newChangeLogCount);
 
     immediate.setMember(member1);
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
 
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     ChangeLogTempToEntity.convertRecords();
     
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
@@ -9111,9 +9127,11 @@ public class ChangeLogTest extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
 
@@ -9132,10 +9150,11 @@ public class ChangeLogTest extends GrouperTest {
     GrouperDAOFactory.getFactory().getMembership().update(immediate);
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 8 new change log entries - 2 composite, 2 immediate, 4 effective", 8, newChangeLogCount);
 
@@ -9151,10 +9170,11 @@ public class ChangeLogTest extends GrouperTest {
     g2.deleteMember(rootMember);
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
 
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, 
-      "select count(1) from grouper_change_log_entry");
+      "select count(1) from grouper_change_log_entry_v where change_log_category in ('membership','privilege')");
     
     assertEquals("Should have 4 new change log entries - 1 composite, 1 immediate, 2 effective", 4, newChangeLogCount);
 
@@ -9164,6 +9184,11 @@ public class ChangeLogTest extends GrouperTest {
    * @throws Exception
    */
   public void testNonFlattenedMemberships() throws Exception {
+    
+    // initialize
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+
 
     Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
     Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
@@ -9178,6 +9203,8 @@ public class ChangeLogTest extends GrouperTest {
     g2.addMember(member1.getSubject());
     
     ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
 
     // clear changelog
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
@@ -9188,7 +9215,9 @@ public class ChangeLogTest extends GrouperTest {
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.includeNonFlattenedMemberships", "true");
     
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // should have only 1 immediate and only 1 flattened membership
     int newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 2 change log entries", 2, newChangeLogCount);
@@ -9215,7 +9244,9 @@ public class ChangeLogTest extends GrouperTest {
     g4.deleteMember(member1.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // should have only 1 immediate and only 1 flattened membership
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 2 change log entries", 2, newChangeLogCount);
@@ -9243,7 +9274,9 @@ public class ChangeLogTest extends GrouperTest {
     g4.addMember(member2.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // should have only 1 immediate, 1 composite and 3 flattened memberships
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 5 change log entries", 5, newChangeLogCount);
@@ -9284,7 +9317,9 @@ public class ChangeLogTest extends GrouperTest {
     g4.deleteMember(member2.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // should have only 1 immediate, 1 composite and 3 flattened memberships
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 5 change log entries", 5, newChangeLogCount);
@@ -9324,7 +9359,9 @@ public class ChangeLogTest extends GrouperTest {
     g2.deleteMember(member1.getSubject());
 
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // clear changelog
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryTemp").executeUpdate();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
@@ -9332,7 +9369,9 @@ public class ChangeLogTest extends GrouperTest {
     g2.addMember(member1.getSubject());
     
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // should have only 1 immediate
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 1 change log entry", 1, newChangeLogCount);
@@ -9358,7 +9397,9 @@ public class ChangeLogTest extends GrouperTest {
     g2.deleteMember(g4.toSubject());
     
     ChangeLogTempToEntity.convertRecords();
-
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+    
     // should have 1 immediate and 1 flattened memberships and a group set
     newChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");
     assertEquals("Should have 3 change log entry", 3, newChangeLogCount);

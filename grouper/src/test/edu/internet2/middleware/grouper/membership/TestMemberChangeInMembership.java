@@ -74,7 +74,8 @@ public class TestMemberChangeInMembership extends GrouperTest {
    * @throws Exception
    */
   public void testChangingMember() throws Exception {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     r = R.populateRegistry(0, 0, 4);
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
@@ -104,7 +105,8 @@ public class TestMemberChangeInMembership extends GrouperTest {
     top1.addMember(owner.toSubject());
     top2.grantPriv(owner.toSubject(), AccessPrivilege.UPDATE);
     stem.grantPriv(owner.toSubject(), NamingPrivilege.CREATE);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     int numberOfMembershipsBefore = GrouperDAOFactory.getFactory().getMembership().findAll(false).size();
     assertTrue(two.hasMember(c));
     assertTrue(one.hasMember(c));
@@ -121,7 +123,8 @@ public class TestMemberChangeInMembership extends GrouperTest {
     ms.setMember(MemberFinder.findBySubject(r.rs, d, true));
     GrouperDAOFactory.getFactory().getMembership().update(ms);
     GrouperCacheUtils.clearAllCaches();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     int numberOfMembershipsAfter = GrouperDAOFactory.getFactory().getMembership().findAll(false).size();
     assertEquals(numberOfMembershipsBefore, numberOfMembershipsAfter);
     

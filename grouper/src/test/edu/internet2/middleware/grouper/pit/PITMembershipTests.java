@@ -29,6 +29,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -76,7 +77,7 @@ public class PITMembershipTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITMembershipTests("testGroupSetAddDeleteAddSameTransaction"));
+    TestRunner.run(new PITMembershipTests("testCompositeMemberships"));
   }
   
   /**
@@ -1257,6 +1258,7 @@ public class PITMembershipTests extends GrouperTest {
     
     // clear change log
     ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
     
     Group group1 = edu.addChildGroup("group1", "group1");    
@@ -1270,19 +1272,27 @@ public class PITMembershipTests extends GrouperTest {
 
     Date beforeAddTime = new Date();
     GrouperUtil.sleep(sleepTime);
+    
     group1.addCompositeMember(CompositeType.UNION, group2, group3);
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+
     GrouperUtil.sleep(sleepTime);
     Date afterAddTime = new Date();
     GrouperUtil.sleep(sleepTime);
     Date beforeDeleteTime = new Date();
-    ChangeLogTempToEntity.convertRecords();
+
     GrouperUtil.sleep(sleepTime);
+    
     group1.deleteCompositeMember();
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    ChangeLogTempToEntity.convertRecords();
+
     GrouperUtil.sleep(sleepTime);
     Date afterDeleteTime = new Date();
     group1.delete();
-
-    ChangeLogTempToEntity.convertRecords();
 
     Set<PITMembershipView> results = new PITMembershipViewQuery()
       .setOwnerGroupId(group1.getId())

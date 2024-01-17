@@ -409,6 +409,7 @@ public class AuditTest extends GrouperTest {
    * @throws Exception 
    */
   public void testComposites() throws Exception {
+    runCompositeMembershipChangeLogConsumer();
 
     Group group = this.edu.addChildGroup("test1", "test1");
     Group groupLeft = this.edu.addChildGroup("test1left", "test1left");
@@ -420,7 +421,8 @@ public class AuditTest extends GrouperTest {
         "select count(1) from grouper_audit_entry");
     
     group.addCompositeMember(CompositeType.UNION, groupLeft, groupRight);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     int newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");
     
@@ -441,6 +443,8 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
 
     group.assignCompositeMember(CompositeType.COMPLEMENT, groupLeft, groupRight);
+    runCompositeMembershipChangeLogConsumer();
+
     composite = group.getComposite(true);
     
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
@@ -465,6 +469,7 @@ public class AuditTest extends GrouperTest {
     GrouperUtil.sleep(1000);
     
     group.deleteCompositeMember();
+    runCompositeMembershipChangeLogConsumer();
 
     newAuditCount = HibernateSession.bySqlStatic().select(int.class, 
       "select count(1) from grouper_audit_entry");

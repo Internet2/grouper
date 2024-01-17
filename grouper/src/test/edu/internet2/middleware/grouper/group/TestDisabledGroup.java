@@ -77,7 +77,7 @@ public class TestDisabledGroup extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestDisabledGroup("testFixEnabledDisabledEnableViaEnableDate"));
+    TestRunner.run(new TestDisabledGroup("testCompositeOwner"));
   }
   
   /**
@@ -468,6 +468,8 @@ public class TestDisabledGroup extends GrouperTest {
    * 
    */
   public void testCompositeFactor() {
+    runCompositeMembershipChangeLogConsumer();
+
     Group top = edu.addChildGroup("top", "top");
     Group group1 = edu.addChildGroup("test1", "test1");
     Group group2 = edu.addChildGroup("test2", "test2");
@@ -476,16 +478,18 @@ public class TestDisabledGroup extends GrouperTest {
     top.addMember(group1.toSubject());
     
     group2.addMember(SubjectTestHelper.SUBJ0);
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(top.hasMember(SubjectTestHelper.SUBJ0));
     
     group2.setEnabledTime(new Timestamp(System.currentTimeMillis() + 100000L));
     group2.store();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(group1.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(top.hasMember(SubjectTestHelper.SUBJ0));
     
-    ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, GrouperDaemonEnabledDisabledCheck.internal_groupsFixEnabledDisabled(System.currentTimeMillis()));
@@ -494,12 +498,12 @@ public class TestDisabledGroup extends GrouperTest {
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
 
     group2.addMember(SubjectTestHelper.SUBJ1);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(group2.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(group1.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(top.hasMember(SubjectTestHelper.SUBJ1));
     
-    ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, GrouperDaemonEnabledDisabledCheck.internal_groupsFixEnabledDisabled(System.currentTimeMillis()));
@@ -508,7 +512,8 @@ public class TestDisabledGroup extends GrouperTest {
 
     group2.setEnabledTime(new Timestamp(System.currentTimeMillis() - 100000L));
     group2.store();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(group2.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(group1.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(top.hasMember(SubjectTestHelper.SUBJ0));
@@ -516,7 +521,6 @@ public class TestDisabledGroup extends GrouperTest {
     assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(top.hasMember(SubjectTestHelper.SUBJ1));
     
-    ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, GrouperDaemonEnabledDisabledCheck.internal_groupsFixEnabledDisabled(System.currentTimeMillis()));
@@ -528,6 +532,8 @@ public class TestDisabledGroup extends GrouperTest {
    * 
    */
   public void testCompositeOwner() {
+    runCompositeMembershipChangeLogConsumer();
+
     Group topComposite = edu.addChildGroup("topComposite", "topComposite");
     Group topNothing = edu.addChildGroup("topNothing", "topNothing");
     
@@ -540,24 +546,26 @@ public class TestDisabledGroup extends GrouperTest {
     topComposite.addCompositeMember(CompositeType.UNION, composite, topNothing);
     
     group2.addMember(SubjectTestHelper.SUBJ0);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(composite.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(topComposite.hasMember(SubjectTestHelper.SUBJ0));
     
     composite.setEnabledTime(new Timestamp(System.currentTimeMillis() + 1000000L));
     composite.store();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertFalse(composite.hasMember(SubjectTestHelper.SUBJ0));
     assertFalse(topComposite.hasMember(SubjectTestHelper.SUBJ0));
     
     group2.addMember(SubjectTestHelper.SUBJ1);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(group2.hasMember(SubjectTestHelper.SUBJ1));
     
     assertFalse(composite.hasMember(SubjectTestHelper.SUBJ1));
     assertFalse(topComposite.hasMember(SubjectTestHelper.SUBJ1));
     
-    ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, GrouperDaemonEnabledDisabledCheck.internal_groupsFixEnabledDisabled(System.currentTimeMillis()));
@@ -566,13 +574,13 @@ public class TestDisabledGroup extends GrouperTest {
 
     composite.setEnabledTime(new Timestamp(System.currentTimeMillis() - 100000L));
     composite.store();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(composite.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(topComposite.hasMember(SubjectTestHelper.SUBJ0));
     assertTrue(composite.hasMember(SubjectTestHelper.SUBJ1));
     assertTrue(topComposite.hasMember(SubjectTestHelper.SUBJ1));
     
-    ChangeLogTempToEntity.convertRecords();
     assertEquals(0, new SyncPITTables().showResults(false).syncAllPITTables());
     grouperSession = GrouperSession.startRootSession();
     assertEquals(0, GrouperDaemonEnabledDisabledCheck.internal_groupsFixEnabledDisabled(System.currentTimeMillis()));

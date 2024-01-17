@@ -182,6 +182,8 @@ public class TestMemberChangeSubject extends GrouperTest {
       rootGrouperSession = SessionHelper.getRootSession();
       root  = StemHelper.findRootStem(rootGrouperSession);
       
+      runCompositeMembershipChangeLogConsumer();
+
       //add a stem privilege
       root.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.STEM);
       root.grantPriv(SubjectTestHelper.SUBJ0, NamingPrivilege.CREATE);
@@ -278,7 +280,7 @@ public class TestMemberChangeSubject extends GrouperTest {
       });
       sysadmingroup.addMember(SubjectTestHelper.SUBJ0);      
       
-      
+      runCompositeMembershipChangeLogConsumer();
     } catch (Exception e) {
       throw new RuntimeException(e);
     }

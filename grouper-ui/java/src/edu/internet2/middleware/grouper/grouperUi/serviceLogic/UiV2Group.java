@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -526,9 +527,15 @@ public class UiV2Group {
         boolean madeChanges = group.deleteMember(member, false);
         
         if (madeChanges) {
-    
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
+          boolean membershipsMayPropagate = GrouperUtil.checkIfMembershipsMayPropagate(Collections.singleton(group));
+
+          if (membershipsMayPropagate) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccessButPropagating")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
+          }
               
         } else {
           
@@ -1074,9 +1081,13 @@ public class UiV2Group {
           attrUpdateChecked, startDate, endDate, false);
       
       if (madeChanges) {
-
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
+        if (memberChecked && GrouperUtil.checkIfMembershipsMayPropagate(Collections.singleton(group))) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccessButPropagating")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
+        }
 
         //what subscreen are we on?
         String groupRefreshPart = request.getParameter("groupRefreshPart");
@@ -3096,8 +3107,13 @@ public class UiV2Group {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersErrors")));
       } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses")));
+        if (successes[0] > 0 && GrouperUtil.checkIfMembershipsMayPropagate(Collections.singleton(group))) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccessesButPropagating")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses"))); 
+        }
       }
 
     } catch (RuntimeException re) {

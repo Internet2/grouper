@@ -69,6 +69,8 @@ public class TestCompositeU extends GrouperTest {
   public void testFailNotPrivilegedToAddCompositeMember() {
     LOG.info("testFailNotPrivilegedToAddCompositeMember");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R               r   = R.populateRegistry(1, 3, 1);
       GrouperSession  nrs = GrouperSession.start( r.getSubject("a") );
       Group           a   = r.getGroup("a", "a");
@@ -90,6 +92,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithCompositeChildAndNoParents() {
     LOG.info("testAddUnionWithCompositeChildAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -101,6 +105,8 @@ public class TestCompositeU extends GrouperTest {
       c.addMember(subjB);
       a.addCompositeMember(CompositeType.UNION, b, c);
       d.addCompositeMember(CompositeType.UNION, a, b);
+      runCompositeMembershipChangeLogConsumer();
+
       T.amount("d members", 2, d.getMembers().size());
       Assert.assertTrue("d hasMember subjA", d.hasMember(subjA));
       Assert.assertTrue("d hasMember subjB", d.hasMember(subjB));
@@ -114,6 +120,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithNoChildrenAndCompositeParent() {
     LOG.info("testAddUnionWithNoChildrenAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 5, 0);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -125,7 +133,8 @@ public class TestCompositeU extends GrouperTest {
       // Parent Composite Group
       Group   e     = r.getGroup("a", "e");
       e.addCompositeMember(CompositeType.UNION, c, d);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
@@ -155,6 +164,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithNoChildrenAndParent() {
     LOG.info("testAddUnionWithNoChildrenAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 0);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -165,6 +176,8 @@ public class TestCompositeU extends GrouperTest {
       // Parent Group
       Group   d     = r.getGroup("a", "d");
       d.addMember(c.toSubject());
+      runCompositeMembershipChangeLogConsumer();
+
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
@@ -192,6 +205,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithOneChildAndNoParents() {
     LOG.info("testAddUnionWithOneChildAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 1);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -200,6 +215,8 @@ public class TestCompositeU extends GrouperTest {
       Field   f     = Group.getDefaultList();
       b.addMember(subjA);
       a.addCompositeMember(CompositeType.UNION, b, c);
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertTrue(  "a hasComposite"  , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
       Assert.assertFalse( "c !hasComposite" , c.hasComposite()  );
@@ -231,6 +248,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithOneChildAndParent() {
     LOG.info("testAddUnionWithOneChildAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 1);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -244,7 +263,8 @@ public class TestCompositeU extends GrouperTest {
       Group   d     = r.getGroup("a", "d");
       Subject cSubj = c.toSubject();
       d.addMember(cSubj);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
@@ -273,6 +293,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithTwoChildrenAndNoParents() {
     LOG.info("testAddUnionWithTwoChildrenAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -282,6 +304,8 @@ public class TestCompositeU extends GrouperTest {
       b.addMember(subjA);
       c.addMember(subjB);
       a.addCompositeMember(CompositeType.UNION, b, c);
+      runCompositeMembershipChangeLogConsumer();
+
       T.amount("a members", 2, a.getMembers().size());
       Assert.assertTrue("a hasMember subjA", a.hasMember(subjA));
       Assert.assertTrue("a hasMember subjB", a.hasMember(subjB));
@@ -295,6 +319,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithTwoCompositeChildrenAndNoParents() {
     LOG.info("testAddUnionWithTwoCompositeChildrenAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 7, 4);
       // Feeder Groups
       Subject subjA = r.getSubject("a");
@@ -317,6 +343,8 @@ public class TestCompositeU extends GrouperTest {
       // And our ultimate composite group
       Group   g     = r.getGroup("a", "g");
       g.addCompositeMember(CompositeType.UNION, e, f);
+      runCompositeMembershipChangeLogConsumer();
+
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
@@ -364,6 +392,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithCompositeChildAndNoParents() {
     LOG.info("testDelUnionWithCompositeChildAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -375,7 +405,11 @@ public class TestCompositeU extends GrouperTest {
       c.addMember(subjB);
       a.addCompositeMember(CompositeType.UNION, b, c);
       d.addCompositeMember(CompositeType.UNION, a, b);
+      runCompositeMembershipChangeLogConsumer();
+
       d.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
+
       T.amount("d members", 0, d.getMembers().size());
       Assert.assertFalse("d !hasMember subjA", d.hasMember(subjA));
       Assert.assertFalse("d !hasMember subjB", d.hasMember(subjB));
@@ -389,6 +423,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithNoChildrenAndCompositeParent() {
     LOG.info("testDelUnionWithNoChildrenAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 5, 0);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -400,8 +436,10 @@ public class TestCompositeU extends GrouperTest {
       // Parent Composite Group
       Group   e     = r.getGroup("a", "e");
       e.addCompositeMember(CompositeType.UNION, c, d);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       d.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -432,12 +470,18 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithNoChildrenAndNoParents() {
     LOG.info("testDelUnionWithNoChildrenAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R     r = R.populateRegistry(1, 3, 0);
       Group a = r.getGroup("a", "a");
       Group b = r.getGroup("a", "b");
       Group c = r.getGroup("a", "c");
       a.addCompositeMember(CompositeType.UNION, b, c);
+      runCompositeMembershipChangeLogConsumer();
+
       a.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
       Assert.assertFalse( "c !hasComposite" , c.hasComposite()  );
@@ -455,6 +499,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithNoChildrenAndParent() {
     LOG.info("testDelUnionWithNoChildrenAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 0);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -465,7 +511,10 @@ public class TestCompositeU extends GrouperTest {
       // Parent Group
       Group   d     = r.getGroup("a", "d");
       d.addMember(c.toSubject());
+      runCompositeMembershipChangeLogConsumer();
+
       c.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -494,6 +543,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithOneChildAndNoParents() {
     LOG.info("testDelUnionWithOneChildAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 1);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -501,7 +552,11 @@ public class TestCompositeU extends GrouperTest {
       Subject subjA = r.getSubject("a");
       b.addMember(subjA);
       a.addCompositeMember(CompositeType.UNION, b, c);
+      runCompositeMembershipChangeLogConsumer();
+
       a.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
       Assert.assertFalse( "c !hasComposite" , c.hasComposite()  );
@@ -519,6 +574,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithTwoChildrenAndNoParents() {
     LOG.info("testDelUnionWithTwoChildrenAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -528,7 +585,11 @@ public class TestCompositeU extends GrouperTest {
       b.addMember(subjA);
       c.addMember(subjB);
       a.addCompositeMember(CompositeType.UNION, b, c);
+      runCompositeMembershipChangeLogConsumer();
+
       a.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
+
       T.amount("a members", 0, a.getMembers().size());
       Assert.assertFalse("a !hasMember subjA", a.hasMember(subjA));
       Assert.assertFalse("a !hasMember subjB", a.hasMember(subjB));
@@ -542,6 +603,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithTwoCompositeChildrenAndNoParents() {
     LOG.info("testDelUnionWithTwoCompositeChildrenAndNoParents");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 7, 4);
       // Feeder Groups
       Subject subjA = r.getSubject("a");
@@ -564,7 +627,11 @@ public class TestCompositeU extends GrouperTest {
       // And our ultimate composite group
       Group   g     = r.getGroup("a", "g");
       g.addCompositeMember(CompositeType.UNION, e, f);
+      runCompositeMembershipChangeLogConsumer();
+
       g.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
+
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
@@ -608,6 +675,8 @@ public class TestCompositeU extends GrouperTest {
   public void testFailHasCompositeWhenNot() {
     LOG.info("testFailHasCompositeWhenNot");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R     r = R.populateRegistry(1, 1, 0);
       Group a = r.getGroup("a", "a");
       Assert.assertFalse("hasComposite", a.hasComposite());
@@ -621,6 +690,8 @@ public class TestCompositeU extends GrouperTest {
   public void testFailNotPrivilegedToDeleteCompositeMember() {
     LOG.info("testFailNotPrivilegedToDeleteCompositeMember");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R               r   = R.populateRegistry(1, 3, 1);
       GrouperSession  nrs = GrouperSession.start( r.getSubject("a") );
       Group           a   = r.getGroup("a", "a");
@@ -643,6 +714,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithChildAndCompositeChildAndParent() {
     LOG.info("testAddUnionWithChildAndCompositeChildAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 7, 3);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -661,7 +734,8 @@ public class TestCompositeU extends GrouperTest {
       d.addCompositeMember(CompositeType.UNION, a, b);
       e.addCompositeMember(CompositeType.UNION, c, d);
       f.addMember(eSubj);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       T.amount("a members", 1, a.getMembers().size());
@@ -708,6 +782,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithOneChildAndCompositeParent() {
     LOG.info("testAddUnionWithOneChildAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 5, 1);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -722,7 +798,8 @@ public class TestCompositeU extends GrouperTest {
       // Parent Group
       Group   e     = r.getGroup("a", "e");
       e.addCompositeMember(CompositeType.UNION, c, d);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       Assert.assertFalse( "b !hasComposite" , b.hasComposite()  );
@@ -759,6 +836,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithOneCompositeChildAndCompositeParent() {
     LOG.info("testAddUnionWithOneCompositeChildAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 7, 3);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -777,7 +856,8 @@ public class TestCompositeU extends GrouperTest {
       d.addMember(subjC);
       e.addCompositeMember(CompositeType.UNION, c, d);
       g.addCompositeMember(CompositeType.UNION, e, f);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       T.amount("a members", 1, a.getMembers().size());
@@ -827,6 +907,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithTwoChildrenAndCompositeParent() {
     LOG.info("testAddUnionWithTwoChildrenAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 5, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -840,7 +922,8 @@ public class TestCompositeU extends GrouperTest {
       b.addMember(subjB);
       c.addCompositeMember(CompositeType.UNION, a, b);
       e.addCompositeMember(CompositeType.UNION, c, d);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       T.amount("a members", 1, a.getMembers().size());
@@ -877,6 +960,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithTwoChildrenAndParent() {
     LOG.info("testAddUnionWithTwoChildrenAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -890,7 +975,8 @@ public class TestCompositeU extends GrouperTest {
       b.addMember(subjB);
       c.addCompositeMember(CompositeType.UNION, a, b);
       d.addMember(cSubj);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       T.amount("a members", 1, a.getMembers().size());
       Assert.assertTrue("a has subjA", a.hasMember(subjA));
   
@@ -918,6 +1004,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithOneChildAndCompositeParent() {
     LOG.info("testDelUnionWithOneChildAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 5, 1);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -932,8 +1020,10 @@ public class TestCompositeU extends GrouperTest {
       // Parent Group
       Group   e     = r.getGroup("a", "e");
       e.addCompositeMember(CompositeType.UNION, c, d);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       c.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
       
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -969,6 +1059,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithOneChildAndParent() {
     LOG.info("testDelUnionWithOneChildAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 1);
       // Feeder Groups
       Group   a     = r.getGroup("a", "a");
@@ -982,8 +1074,10 @@ public class TestCompositeU extends GrouperTest {
       Group   d     = r.getGroup("a", "d");
       Subject cSubj = c.toSubject();
       d.addMember(cSubj);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       c.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       // And test
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -1011,6 +1105,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithOneCompositeChildAndCompositeParent() {
     LOG.info("testDelUnionWithOneCompositeChildAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 7, 3);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1029,7 +1125,10 @@ public class TestCompositeU extends GrouperTest {
       d.addMember(subjC);
       e.addCompositeMember(CompositeType.UNION, c, d);
       g.addCompositeMember(CompositeType.UNION, e, f);
+      runCompositeMembershipChangeLogConsumer();
+
       c.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       Assert.assertFalse( "a !isComposite"  , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -1075,6 +1174,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithTwoChildrenAndCompositeParent() {
     LOG.info("testDelUnionWithTwoChildrenAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 5, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1088,7 +1189,10 @@ public class TestCompositeU extends GrouperTest {
       b.addMember(subjB);
       c.addCompositeMember(CompositeType.UNION, a, b);
       e.addCompositeMember(CompositeType.UNION, c, d);
+      runCompositeMembershipChangeLogConsumer();
+
       c.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       Assert.assertFalse( "a !isComposite"  , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -1122,6 +1226,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithTwoChildrenAndParent() {
     LOG.info("testDelUnionWithTwoChildrenAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 4, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1135,7 +1241,10 @@ public class TestCompositeU extends GrouperTest {
       b.addMember(subjB);
       c.addCompositeMember(CompositeType.UNION, a, b);
       d.addMember(cSubj);
+      runCompositeMembershipChangeLogConsumer();
+
       c.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       T.amount("a members", 1, a.getMembers().size());
       Assert.assertTrue("a has subjA", a.hasMember(subjA));
@@ -1158,6 +1267,8 @@ public class TestCompositeU extends GrouperTest {
   public void testFailIsCompositeWhenNot() {
     LOG.info("testFailIsCompositeWhenNot");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R     r = R.populateRegistry(1, 1, 0);
       Group a = r.getGroup("a", "a");
       Assert.assertFalse("isComposite", a.isComposite());
@@ -1171,6 +1282,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddMemberToChildOfComposite() {
     LOG.info("testAddMemberToChildOfComposite");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 3);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1183,7 +1296,8 @@ public class TestCompositeU extends GrouperTest {
       b.addMember(subjB);
       c.addCompositeMember(CompositeType.UNION, a, b);
       a.addMember(subjC);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       T.amount("a members", 2, a.getMembers().size());
@@ -1212,6 +1326,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithChildAndCompositeChildAndCompositeParent() {
     LOG.info("testAddUnionWithChildAndCompositeChildAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 8, 3);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1230,7 +1346,8 @@ public class TestCompositeU extends GrouperTest {
       d.addCompositeMember(CompositeType.UNION, a, b);
       e.addCompositeMember(CompositeType.UNION, c, d);
       g.addCompositeMember(CompositeType.UNION, e, f);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       T.amount("a members", 1, a.getMembers().size());
@@ -1280,6 +1397,8 @@ public class TestCompositeU extends GrouperTest {
   public void testAddUnionWithTwoCompositeChildrenAndCompositeParent() {
     LOG.info("testAddUnionWithTwoCompositeChildrenAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 9, 4);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1303,7 +1422,8 @@ public class TestCompositeU extends GrouperTest {
       f.addCompositeMember(CompositeType.UNION, d, e);
       g.addCompositeMember(CompositeType.UNION, c, f);
       i.addCompositeMember(CompositeType.UNION, g, h);
-  
+      runCompositeMembershipChangeLogConsumer();
+
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
       T.amount("a members", 1, a.getMembers().size());
@@ -1366,6 +1486,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelMemberFromChildofComposite() {
     LOG.info("testDelMemberFromChildofComposite");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 2);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1376,7 +1498,10 @@ public class TestCompositeU extends GrouperTest {
       a.addMember(subjA);
       b.addMember(subjB);
       c.addCompositeMember(CompositeType.UNION, a, b);
+      runCompositeMembershipChangeLogConsumer();
+
       a.deleteMember(subjA);
+      runCompositeMembershipChangeLogConsumer();
   
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -1402,6 +1527,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithChildAndCompositeChildAndCompositeParent() {
     LOG.info("testDelUnionWithChildAndCompositeChildAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 8, 3);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1420,7 +1547,10 @@ public class TestCompositeU extends GrouperTest {
       d.addCompositeMember(CompositeType.UNION, a, b);
       e.addCompositeMember(CompositeType.UNION, c, d);
       g.addCompositeMember(CompositeType.UNION, e, f);
+      runCompositeMembershipChangeLogConsumer();
+
       e.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -1465,6 +1595,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithChildAndCompositeChildAndParent() {
     LOG.info("testDelUnionWithChildAndCompositeChildAndParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 7, 3);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1483,7 +1615,10 @@ public class TestCompositeU extends GrouperTest {
       d.addCompositeMember(CompositeType.UNION, a, b);
       e.addCompositeMember(CompositeType.UNION, c, d);
       f.addMember(eSubj);
+      runCompositeMembershipChangeLogConsumer();
+
       e.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -1525,6 +1660,8 @@ public class TestCompositeU extends GrouperTest {
   public void testDelUnionWithTwoCompositeChildrenAndCompositeParent() {
     LOG.info("testDelUnionWithTwoCompositeChildrenAndCompositeParent");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 9, 4);
       Group   a     = r.getGroup("a", "a");
       Group   b     = r.getGroup("a", "b");
@@ -1548,7 +1685,10 @@ public class TestCompositeU extends GrouperTest {
       f.addCompositeMember(CompositeType.UNION, d, e);
       g.addCompositeMember(CompositeType.UNION, c, f);
       i.addCompositeMember(CompositeType.UNION, g, h);
+      runCompositeMembershipChangeLogConsumer();
+
       g.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
   
       Assert.assertTrue(  "a isComposite"   , a.isComposite()   );
       Assert.assertFalse( "a !hasComposite" , a.hasComposite()  );
@@ -1604,11 +1744,15 @@ public class TestCompositeU extends GrouperTest {
   public void testFailToAddMemberWhenHasComposite() {
     LOG.info("testFailToAddMemberWhenHasComposite");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R     r = R.populateRegistry(1, 3, 1);
       Group a = r.getGroup("a", "a");
       Group b = r.getGroup("a", "b");
       Group c = r.getGroup("a", "c");
       a.addCompositeMember(CompositeType.UNION, b, c);
+      runCompositeMembershipChangeLogConsumer();
+
       try {
         a.addMember( r.getSubject("a") );
         Assert.fail("FAIL: expected exception: " + E.GROUP_AMTC);
@@ -1629,11 +1773,15 @@ public class TestCompositeU extends GrouperTest {
   public void testFailToDeleteMemberWhenHasComposite() {
     LOG.info("testFailToDeleteMemberWhenHasComposite");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R     r = R.populateRegistry(1, 3, 1);
       Group a = r.getGroup("a", "a");
       Group b = r.getGroup("a", "b");
       Group c = r.getGroup("a", "c");
       a.addCompositeMember(CompositeType.UNION, b, c);
+      runCompositeMembershipChangeLogConsumer();
+
       try {
         a.deleteMember( r.getSubject("a") );
         Assert.fail("FAIL: expected exception: " + E.GROUP_DMFC);

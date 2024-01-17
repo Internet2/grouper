@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.sql.Timestamp;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -31,7 +32,6 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
@@ -788,10 +788,16 @@ public class UiV2Subject {
         boolean madeChanges = group.deleteMember(subject, false);
 
         if (madeChanges) {
+          
+          boolean membershipsMayPropagate = GrouperUtil.checkIfMembershipsMayPropagate(Collections.singleton(group));
     
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
-              
+          if (membershipsMayPropagate) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccessButPropagating")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
+          }
         } else {
           
           //not sure why this would happen (race condition?)
@@ -850,6 +856,8 @@ public class UiV2Subject {
       int successes = 0;
       int failures = 0;
       
+      Set<Group> successRemoveGroups = new LinkedHashSet<Group>();
+      
       for (String membershipId : membershipsIds) {
         try {
           final Membership membership = new MembershipFinder().addMembershipId(membershipId).findMembership(true);
@@ -873,6 +881,7 @@ public class UiV2Subject {
           } else {
             group.deleteMember(membership.getMember(), false);
             successes++;
+            successRemoveGroups.add(group);
           }
           
         } catch (Exception e) {
@@ -883,13 +892,20 @@ public class UiV2Subject {
   
       GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setSuccessCount(successes);
       GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().setFailureCount(failures);
-  
+      
       if (failures > 0) {
         guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
             TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersErrors")));
       } else {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses")));
+        boolean membershipsMayPropagate = GrouperUtil.checkIfMembershipsMayPropagate(successRemoveGroups);
+
+        if (membershipsMayPropagate) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccessesButPropagating")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupDeleteMembersSuccesses"))); 
+        }
       }
       
       filterHelper(request, response, subject);
@@ -1139,10 +1155,13 @@ public class UiV2Subject {
           attrUpdateChecked, startDate, endDate, false);
       
       if (madeChanges) {
-  
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-            TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
-  
+        if (memberChecked && GrouperUtil.checkIfMembershipsMayPropagate(Collections.singleton(group))) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccessButPropagating")));
+        } else {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+              TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess"))); 
+        }
         
         //what subscreen are we on?
         String groupRefreshPart = request.getParameter("subjectRefreshPart");

@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.StemNotFoundException;
@@ -303,6 +304,9 @@ public class GrouperTest extends GrouperTestBase {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.autoadd.typesAttributes", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("loader.sqlTable.likeString.removeGroupIfMemberOfAnotherGroup", "false");
+
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.changeLogTempToChangeLog.longRunning", "false");
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("changeLog.consumer.compositeMemberships.longRunning", "false");
 
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("default.subject.source.id", null);
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("configuration.autocreate.system.groups", "true");
@@ -579,5 +583,18 @@ public class GrouperTest extends GrouperTestBase {
     
   }
 
+  public static void runCompositeMembershipChangeLogConsumer() {
+    int count = 0;
+    while (true) {
+      int numberOfChanges = ChangeLogTempToEntity.convertRecords();
+      
+      if (numberOfChanges == 0 && count > 0) {
+        break;
+      }
+      
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+      count++;
+    }
+  }
 }
 

@@ -96,6 +96,8 @@ public class TestMembershipDeletes0 extends GrouperTest {
 
   public void testMembershipDeletes0() {
     LOG.info("testMembershipDeletes0");
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       GrouperUtil.sleep(100);
       before  = new Date();
@@ -161,6 +163,7 @@ public class TestMembershipDeletes0 extends GrouperTest {
       gVDel.addMember(gXDel.toSubject());
       gWDel.addMember(gZDel.toSubject());
       gZDel.addMember(subjEDel);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMembershipAddAndDelete(gA, subjEDel);
       verifyMembershipAddAndDelete(gB, subjEDel);
@@ -224,6 +227,7 @@ public class TestMembershipDeletes0 extends GrouperTest {
   public void verifyMembershipAddAndDelete(Group g, Subject s) throws Exception {
     g.addMember(s);
     g.deleteMember(s);
+    runCompositeMembershipChangeLogConsumer();
     verifyMemberships();
   }
 

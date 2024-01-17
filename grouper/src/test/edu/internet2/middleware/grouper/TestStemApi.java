@@ -124,7 +124,7 @@ public class TestStemApi extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStemApi("testStemCreateEditDeleteAudit"));
+    TestRunner.run(new TestStemApi("test_copy_insufficientPrivileges_with_admin_group"));
   }
 
   /** size before getting started */
@@ -2379,6 +2379,8 @@ public class TestStemApi extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
     
+    runCompositeMembershipChangeLogConsumer();
+    
     Subject a = r.getSubject("a");
     Subject b = r.getSubject("b");
     Subject c = r.getSubject("c");
@@ -2481,6 +2483,8 @@ public class TestStemApi extends GrouperTest {
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
+    
+    runCompositeMembershipChangeLogConsumer();
   }
   
   private void verify_copy(R r, Stem newStem, boolean privilegesOfStem,

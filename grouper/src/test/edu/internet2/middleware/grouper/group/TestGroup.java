@@ -744,6 +744,8 @@ public class TestGroup extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.read", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "false");
 
+    runCompositeMembershipChangeLogConsumer();
+
     //    grouperSession = GrouperSession.startRootSession();
     //    suffix = "6";
     //    folderName = "test";
@@ -772,6 +774,9 @@ public class TestGroup extends GrouperTest {
     grouperSession = GrouperSession.start(subject);
     Group compositeOwner = new GroupSave(grouperSession).assignName(folderName + ":compositeOwner" + suffix).save();
     compositeOwner.addCompositeMember(CompositeType.COMPLEMENT, compositeLeft, compositeRight);
+    
+    runCompositeMembershipChangeLogConsumer();
+
     compositeOwner.delete();
     
   }

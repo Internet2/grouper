@@ -1314,7 +1314,7 @@ public class ChangeLogConsumerBaseImplTest extends GrouperTest {
     hib3GrouploaderLog.setHost(GrouperUtil.hostname());
     hib3GrouploaderLog.setJobName("CHANGE_LOG_consumer_" + JOB_NAME);
     hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-    ChangeLogHelper.processRecords(JOB_NAME, hib3GrouploaderLog, new PrintChangeLogConsumer());
+    ChangeLogHelper.processRecordsWrapper(hib3GrouploaderLog);
 
     return hib3GrouploaderLog;
   }

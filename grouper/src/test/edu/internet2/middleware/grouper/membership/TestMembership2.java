@@ -75,6 +75,8 @@ public class TestMembership2 extends GrouperTest {
   
   public void testCreationTimesAndCreators() {
     LOG.info("testCreationTimesAndCreators");
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       R       r     = R.populateRegistry(1, 3, 1);
       Group   gA    = r.getGroup("a", "a");
@@ -90,6 +92,8 @@ public class TestMembership2 extends GrouperTest {
       gC.grantPriv( subjA, AccessPrivilege.ADMIN );
       GrouperSession.start(subjA);
       gC.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
+      runCompositeMembershipChangeLogConsumer();
+
       Date    future  = DateHelper.getFutureDate();
 
       List imms   = new ArrayList( gA.getImmediateMemberships() );

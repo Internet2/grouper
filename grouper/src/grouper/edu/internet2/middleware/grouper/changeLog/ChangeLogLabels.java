@@ -1337,4 +1337,48 @@ public class ChangeLogLabels {
     
     depth;
   }
+  
+  /**
+   * label for composite add
+   */
+  public static enum GROUP_COMPOSITE_ADD implements ChangeLogLabel {
+    
+    id,
+    
+    ownerId,
+    
+    ownerName,
+    
+    leftFactorId,
+    
+    leftFactorName,
+    
+    rightFactorId,
+    
+    rightFactorName,
+    
+    type
+  }
+  
+  /**
+   * label for composite delete
+   */
+  public static enum GROUP_COMPOSITE_DELETE implements ChangeLogLabel {
+    
+    id,
+    
+    ownerId,
+    
+    ownerName,
+    
+    leftFactorId,
+    
+    leftFactorName,
+    
+    rightFactorId,
+    
+    rightFactorName,
+    
+    type
+  }
 }

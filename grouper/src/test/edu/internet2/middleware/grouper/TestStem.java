@@ -106,7 +106,7 @@ public class TestStem extends GrouperTest {
    * @param args String[]
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestStem("testGetChildMembershipGroups"));
+    TestRunner.run(new TestStem("testObliterateAndPointInTimeComposite"));
     //TestRunner.run(TestStem.class);
     //stemObliterate2setup();
     //loadLotsOfData(3, 3, 3, 3, 3);
@@ -3183,6 +3183,9 @@ public class TestStem extends GrouperTest {
    */
   public void testObliterateAndPointInTimeComposite() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    runCompositeMembershipChangeLogConsumer();
+
     Stem stem = new StemSave(grouperSession).assignName("test").save();
     new StemSave(grouperSession).assignName("test:sub1").save();
     new StemSave(grouperSession).assignName("test:sub2").save();
@@ -3199,6 +3202,9 @@ public class TestStem extends GrouperTest {
     
     testGroup.addCompositeMember(CompositeType.INTERSECTION, test2Group, test2Group2);
     test2Group3.addCompositeMember(CompositeType.INTERSECTION, testGroup2, test2Group4);
+    
+    test2Group.addMember(SubjectTestHelper.SUBJ1);
+    test2Group2.addMember(SubjectTestHelper.SUBJ1);
     
     new GroupSave(grouperSession).assignName("test:testGroup3").save();
     new GroupSave(grouperSession).assignName("test:sub1:testGroup").save();
@@ -3246,6 +3252,8 @@ public class TestStem extends GrouperTest {
     new AttributeDefNameSave(grouperSession, testTestSub2222AttributeDef).assignName("test:testSub2222AttributeDefName").save();
     new AttributeDefNameSave(grouperSession, testTestSub2223AttributeDef).assignName("test:testSub2223AttributeDefName").save();
   
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       Stem.testingRunChangeLogSooner = true;
       

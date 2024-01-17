@@ -51,8 +51,20 @@ public class DaemonJobStatus {
    * @param minutesSinceLastSuccess 
    */
   public DaemonJobStatus(String jobName, int minutesSinceLastSuccess) {
-    Timestamp timestamp = HibernateSession.byHqlStatic().createQuery("select max(theLoaderLog.endedTime) from Hib3GrouperLoaderLog theLoaderLog " +
+    boolean checkSubJobs = jobName.equals("CHANGE_LOG_changeLogTempToChangeLog") || 
+        (jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX) && 
+            GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + jobName.substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length()) + ".longRunning", false));
+    
+    Timestamp timestamp = null;
+    
+    if (checkSubJobs) {
+      timestamp = HibernateSession.byHqlStatic().createQuery("select max(theLoaderLog.endedTime) from Hib3GrouperLoaderLog theLoaderLog " +
+          "where (theLoaderLog.jobName = :theJobName or theLoaderLog.jobName = :theSubJobName)  and theLoaderLog.status = 'SUCCESS'").setString("theJobName", jobName).setString("theSubJobName", "subjobFor_" + jobName).uniqueResult(Timestamp.class);
+
+    } else {
+      timestamp = HibernateSession.byHqlStatic().createQuery("select max(theLoaderLog.endedTime) from Hib3GrouperLoaderLog theLoaderLog " +
         "where theLoaderLog.jobName = :theJobName and theLoaderLog.status = 'SUCCESS'").setString("theJobName", jobName).uniqueResult(Timestamp.class);
+    }
     
     Long lastSuccess = timestamp == null ? null : timestamp.getTime();
     

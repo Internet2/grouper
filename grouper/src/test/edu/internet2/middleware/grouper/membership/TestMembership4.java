@@ -91,6 +91,8 @@ public class TestMembership4 extends GrouperTest {
   public void testEffectiveMembershipsWithComposites() {
     LOG.info("testEffectiveMembershipsWithComposites");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       GrouperUtil.sleep(100);
       before  = new Date();
       GrouperUtil.sleep(100);
@@ -142,9 +144,11 @@ public class TestMembership4 extends GrouperTest {
       gR.addMember(gS.toSubject());
       gF.addMember(gR.toSubject());
       gR.addMember(gQ.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 2
       gT.addMember(gP.toSubject());
@@ -167,9 +171,11 @@ public class TestMembership4 extends GrouperTest {
       gF.addMember(gR.toSubject());
       gR.addMember(gQ.toSubject());
       gA.addMember(subjB);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 3
       gD.addCompositeMember(CompositeType.UNION, gB, gC);
@@ -192,9 +198,11 @@ public class TestMembership4 extends GrouperTest {
       gR.addMember(gQ.toSubject());
       gA.addMember(subjB);
       gT.addMember(gP.toSubject());
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 4
       gP.addCompositeMember(CompositeType.UNION, gD, gO);
@@ -217,9 +225,11 @@ public class TestMembership4 extends GrouperTest {
       gA.addMember(subjB);
       gT.addMember(gP.toSubject());
       gD.addCompositeMember(CompositeType.UNION, gB, gC);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 5
       gB.addMember(gA.toSubject());
@@ -242,9 +252,11 @@ public class TestMembership4 extends GrouperTest {
       gT.addMember(gP.toSubject());
       gD.addCompositeMember(CompositeType.UNION, gB, gC);
       gP.addCompositeMember(CompositeType.UNION, gD, gO);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 6
       gN.addMember(gG.toSubject());
@@ -267,9 +279,11 @@ public class TestMembership4 extends GrouperTest {
       gD.addCompositeMember(CompositeType.UNION, gB, gC);
       gP.addCompositeMember(CompositeType.UNION, gD, gO);
       gB.addMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 7
       gG.addMember(gD.toSubject());
@@ -292,9 +306,11 @@ public class TestMembership4 extends GrouperTest {
       gP.addCompositeMember(CompositeType.UNION, gD, gO);
       gB.addMember(gA.toSubject());
       gN.addMember(gG.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 8
       gF.addMember(gH.toSubject());
@@ -317,9 +333,11 @@ public class TestMembership4 extends GrouperTest {
       gB.addMember(gA.toSubject());
       gN.addMember(gG.toSubject());
       gG.addMember(gD.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 9
       gH.addMember(subjA);
@@ -342,9 +360,11 @@ public class TestMembership4 extends GrouperTest {
       gN.addMember(gG.toSubject());
       gG.addMember(gD.toSubject());
       gF.addMember(gH.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 10
       gI.addCompositeMember(CompositeType.UNION, gJ, gK);
@@ -367,9 +387,11 @@ public class TestMembership4 extends GrouperTest {
       gG.addMember(gD.toSubject());
       gF.addMember(gH.toSubject());
       gH.addMember(subjA);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 11
       gJ.addMember(gE.toSubject());
@@ -392,9 +414,11 @@ public class TestMembership4 extends GrouperTest {
       gF.addMember(gH.toSubject());
       gH.addMember(subjA);
       gI.addCompositeMember(CompositeType.UNION, gJ, gK);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 12
       gK.addMember(subjC);
@@ -417,9 +441,11 @@ public class TestMembership4 extends GrouperTest {
       gH.addMember(subjA);
       gI.addCompositeMember(CompositeType.UNION, gJ, gK);
       gJ.addMember(gE.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 13
       gL.addMember(gI.toSubject());
@@ -442,9 +468,11 @@ public class TestMembership4 extends GrouperTest {
       gI.addCompositeMember(CompositeType.UNION, gJ, gK);
       gJ.addMember(gE.toSubject());
       gK.addMember(subjC);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 14
       gM.addMember(gJ.toSubject());
@@ -467,9 +495,11 @@ public class TestMembership4 extends GrouperTest {
       gJ.addMember(gE.toSubject());
       gK.addMember(subjC);
       gL.addMember(gI.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 15
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
@@ -492,9 +522,11 @@ public class TestMembership4 extends GrouperTest {
       gK.addMember(subjC);
       gL.addMember(gI.toSubject());
       gM.addMember(gJ.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 16
       gQ.addMember(subjD);
@@ -517,9 +549,11 @@ public class TestMembership4 extends GrouperTest {
       gL.addMember(gI.toSubject());
       gM.addMember(gJ.toSubject());
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 17
       gH.addMember(gQ.toSubject());
@@ -542,9 +576,11 @@ public class TestMembership4 extends GrouperTest {
       gM.addMember(gJ.toSubject());
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
       gQ.addMember(subjD);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 18
       gR.addMember(gS.toSubject());
@@ -567,9 +603,11 @@ public class TestMembership4 extends GrouperTest {
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
       gQ.addMember(subjD);
       gH.addMember(gQ.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 19
       gF.addMember(gR.toSubject());
@@ -592,9 +630,11 @@ public class TestMembership4 extends GrouperTest {
       gQ.addMember(subjD);
       gH.addMember(gQ.toSubject());
       gR.addMember(gS.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 20
       gR.addMember(gQ.toSubject());
@@ -617,9 +657,11 @@ public class TestMembership4 extends GrouperTest {
       gH.addMember(gQ.toSubject());
       gR.addMember(gS.toSubject());
       gF.addMember(gR.toSubject());
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
 
       r.rs.stop();

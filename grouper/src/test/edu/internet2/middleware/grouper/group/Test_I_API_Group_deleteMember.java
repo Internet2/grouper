@@ -52,7 +52,6 @@ import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.misc.CompositeType;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
 import edu.internet2.middleware.subject.SubjectNotUniqueException;
@@ -188,6 +187,8 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
    */
   public void test_DeleteSubjectsRemovedFromFactorsFromWhereTheyAreEffective() {
     try {
+      runCompositeMembershipChangeLogConsumer();
+      
       // (1)
       gA.addMember(subjX);
       // (2)
@@ -198,6 +199,7 @@ public class Test_I_API_Group_deleteMember extends GrouperTest {
       gD.addMember( gC.toSubject() );
       // (5)
       gA.deleteMember(subjX);
+      runCompositeMembershipChangeLogConsumer();
     }
     catch (Exception eShouldNotHappen) {
       fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getFullStackTrace(eShouldNotHappen) );

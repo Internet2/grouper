@@ -52,8 +52,8 @@ public class AddCompositeMemberValidator extends GrouperValidator {
       v.setErrorMessage(E.GROUP_ACTC);
     }
     else if ( 
-      GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndField(
-        g.getUuid(), Group.getDefaultList(), false
+      GrouperDAOFactory.getFactory().getMembership().findAllMembershipEntriesByGroupOwnerAndFieldAndType(
+        g.getUuid(), Group.getDefaultList(), "immediate", false
       ).size() > 0 
     )
     {

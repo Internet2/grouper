@@ -37,6 +37,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
@@ -1199,6 +1200,42 @@ TODO update for 1.5
    * @return set of immediate memberships that are bad
    */
   public Set<Membership> findBadIntersectionMemberships(List<String> compositeIds);
+
+  /**
+   * @param composite
+   * @return set of member ids that should be added as composite memberships 
+   */
+  public Set<String> findMissingComplementMemberships(Composite composite);
+  
+  /**
+   * @param composite
+   * @return set of member ids that should be added as composite memberships 
+   */
+  public Set<String> findMissingUnionMemberships(Composite composite);
+  
+  /**
+   * @param composite
+   * @return set of member ids that should be added as composite memberships 
+   */
+  public Set<String> findMissingIntersectionMemberships(Composite composite);
+  
+  /**
+   * @param composite
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadComplementMemberships(Composite composite);
+  
+  /**
+   * @param composite
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadUnionMemberships(Composite composite);
+  
+  /**
+   * @param composite
+   * @return set of immediate memberships that are bad
+   */
+  public Set<Membership> findBadIntersectionMemberships(Composite composite);
   
   /**
    * This will find "immediate" memberships on composite groups 

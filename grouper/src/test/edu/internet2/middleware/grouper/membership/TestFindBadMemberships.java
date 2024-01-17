@@ -547,6 +547,8 @@ public class TestFindBadMemberships extends GrouperTest {
    * @throws Exception
    */
   private void setUpComposites() throws Exception {
+    runCompositeMembershipChangeLogConsumer();
+    
     R r = R.populateRegistry(0, 0, 6);
     subjA = r.getSubject("a");
     subjB = r.getSubject("b");
@@ -614,6 +616,8 @@ public class TestFindBadMemberships extends GrouperTest {
     right5.addMember(subjB);
     left6.addMember(subjA);
     right6.addMember(subjA);
+    
+    runCompositeMembershipChangeLogConsumer();
   }
   
   /**

@@ -776,6 +776,71 @@ public enum EsbEventType {
       event.setGroupId(event.getRoleId());
       event.setGroupName(event.getRoleName());
     }
+  },
+  
+  /** GROUP_COMPOSITE_ADD event */
+  GROUP_COMPOSITE_ADD {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.GROUP_COMPOSITE_ADD.name());
+      event.setId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.id));
+      event.setCompositeOwnerId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.ownerId));
+      event.setCompositeOwnerName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.ownerName));
+      event.setCompositeLeftFactorId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.leftFactorId));
+      event.setCompositeLeftFactorName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.leftFactorName));
+      event.setCompositeRightFactorId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.rightFactorId));
+      event.setCompositeRightFactorName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.rightFactorName));
+      event.setCompositeType(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_ADD.type));      
+    }
+  },
+  
+  /** GROUP_COMPOSITE_DELETE event */
+  GROUP_COMPOSITE_DELETE {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+
+
+      EsbEvent event = esbEventContainer.getEsbEvent();
+
+      event.setEventType(EsbEventType.GROUP_COMPOSITE_DELETE.name());
+      event.setId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.id));
+      event.setCompositeOwnerId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.ownerId));
+      event.setCompositeOwnerName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.ownerName));
+      event.setCompositeLeftFactorId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.leftFactorId));
+      event.setCompositeLeftFactorName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.leftFactorName));
+      event.setCompositeRightFactorId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.rightFactorId));
+      event.setCompositeRightFactorName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.rightFactorName));
+      event.setCompositeType(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_COMPOSITE_DELETE.type));      
+    }
+  },
+  
+  /** GROUP_ENABLE event */
+  GROUP_ENABLE {
+
+    @Override
+    public void processChangeLogEntry(EsbEventContainer esbEventContainer,
+        ChangeLogEntry changeLogEntry) {
+      
+      EsbEvent event = esbEventContainer.getEsbEvent();
+      
+      event.setEventType(EsbEventType.GROUP_ENABLE.name());
+      event.setId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.id));
+      event.setGroupId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.id));
+      event.setName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.name));
+      event.setGroupName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.name));
+      event.setGroupIdIndex(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.idIndex));
+      event.setParentStemId(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.parentStemId));
+      event.setDisplayName(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.displayName));
+      event.setDescription(retrieveLabelValue(changeLogEntry, ChangeLogLabels.GROUP_ENABLE.description));
+    }
   };
   
   /** */
