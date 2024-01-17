@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+    This file is an EXAMPLE policy file.  While the policy presented in this 
+    example file is illustrative of some simple cases, it relies on the names of
+    non-existent example services and the example attributes demonstrated in the
+    default attribute-resolver.xml file.
+
+    This example does contain some usable "general purpose" policies that may be
+    useful in conjunction with specific deployment choices, but those policies may
+    not be applicable to your specific needs or constraints.    
+-->
+<AttributeFilterPolicyGroup id="ShibbolethFilterPolicy"
+        xmlns="urn:mace:shibboleth:2.0:afp"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:oidc="urn:mace:shibboleth:2.0:afp:oidc"
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:afp http://shibboleth.net/schema/idp/shibboleth-afp.xsd
+                            urn:mace:shibboleth:2.0:afp:oidc http://shibboleth.net/schema/oidc/shibboleth-afp-oidc.xsd">
+
+    <AttributeFilterPolicy>
+        <PolicyRequirementRule xsi:type="ANY" />
+        <AttributeRule attributeID="uid">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+    </AttributeFilterPolicy>
+
+    <AttributeFilterPolicy id="OPENID_SCOPE">
+        <PolicyRequirementRule xsi:type="oidc:OIDCScope" value="openid" />
+        <!-- May adjust to taste depending on strategy used to produce sub claim. -->
+        <AttributeRule attributeID="subject">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+        <AttributeRule attributeID="subject-public">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+        <AttributeRule attributeID="subject-pairwise">
+            <PermitValueRule xsi:type="ANY" />
+        </AttributeRule>
+    </AttributeFilterPolicy>
+    
+</AttributeFilterPolicyGroup>

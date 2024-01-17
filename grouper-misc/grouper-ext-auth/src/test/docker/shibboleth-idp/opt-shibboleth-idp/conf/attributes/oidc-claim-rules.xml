@@ -1,0 +1,428 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+                           
+       default-init-method="initialize"
+       default-destroy-method="destroy">
+
+    <!-- https://openid.net/specs/openid-connect-core-1_0.html#StandardClaims -->
+
+    <bean parent="shibboleth.TranscodingRuleLoader">
+    <constructor-arg>
+    <list>
+
+        <!-- Typical inetOrgPerson attributes that map to standard claims. -->
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">displayName</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">name</prop>
+                    <prop key="displayName.en">Display name</prop>
+                    <prop key="displayName.de">Anzeigename</prop>
+                    <prop key="displayName.fr">Nom</prop>
+                    <prop key="displayName.it">Nome</prop>
+                    <prop key="displayName.ja">表示名</prop>
+                    <prop key="description.en">The name that should appear in white-pages-like applications for this person.</prop>
+                    <prop key="description.de">Anzeigename</prop>
+                    <prop key="description.fr">Nom complet d'affichage</prop>
+                    <prop key="description.it">Nome</prop>
+                    <prop key="description.ja">アプリケーションでの表示に用いられる英字氏名</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">givenName</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">given_name</prop>
+                    <prop key="displayName.en">Given name</prop>
+                    <prop key="displayName.de">Vorname</prop>
+                    <prop key="displayName.fr">Prénom</prop>
+                    <prop key="displayName.it">Nome</prop>
+                    <prop key="displayName.ja">名</prop>
+                    <prop key="description.en">Given name of a person</prop>
+                    <prop key="description.de">Vorname</prop>
+                    <prop key="description.fr">Prénom de l'utilisateur</prop>
+                    <prop key="description.it">Nome</prop>
+                    <prop key="description.ja">氏名(名)の英語表記</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">homePhone</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">phone_number</prop>
+                    <prop key="displayName.en">Private phone number</prop>
+                    <prop key="displayName.de">Telefon Privat</prop>
+                    <prop key="displayName.fr">Teléphone personnel</prop>
+                    <prop key="displayName.it">Numero di telefono privato</prop>
+                    <prop key="displayName.ja">自宅電話番号</prop>
+                    <prop key="description.en">Private phone number</prop>
+                    <prop key="description.de">Private Telefonnummer</prop>
+                    <prop key="description.fr">Numéro de téléphone de domicile de la personne</prop>
+                    <prop key="description.it">Numero di telefono privato</prop>
+                    <prop key="description.ja">自宅の電話番号</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">mail</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">email</prop>
+                    <prop key="displayName.en">E-mail</prop>
+                    <prop key="displayName.de">E-Mail</prop>
+                    <prop key="displayName.fr">Email</prop>
+                    <prop key="displayName.it">E-mail</prop>
+                    <prop key="displayName.ja">メールアドレス</prop>
+                    <prop key="description.en">E-Mail: Preferred address for e-mail to be sent to this person</prop>
+                    <prop key="description.de">E-Mail-Adresse</prop>
+                    <prop key="description.de-ch">E-Mail Adresse</prop>
+                    <prop key="description.fr">Adresse de courrier électronique</prop>
+                    <prop key="description.it">E-Mail: l'indirizzo e-mail preferito dall'utente</prop>
+                    <prop key="description.ja">メールアドレス</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">preferredLanguage</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">locale</prop>
+                    <prop key="displayName.en">Preferred Language</prop>
+                    <prop key="displayName.de">Bevorzugte Sprache</prop>
+                    <prop key="displayName.fr">Langue préférée</prop>
+                    <prop key="displayName.it">Lingua preferita</prop>
+                    <prop key="displayName.ja">希望言語</prop>
+                    <prop key="description.en">Preferred language: Users preferred language (see RFC1766)</prop>
+                    <prop key="description.de">Bevorzugte Sprache (siehe RFC1766)</prop>
+                    <prop key="description.fr">Exemple: fr, de, it, en, ... (voir RFC1766)</prop>
+                    <prop key="description.it">Lingua preferita: la lingua preferita dall'utente (cfr. RFC1766)</prop>
+                    <prop key="description.ja">利用者が希望する言語(RFC1766 を参照)</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">sn</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">family_name</prop>
+                    <prop key="displayName.en">Surname</prop>
+                    <prop key="displayName.de">Nachname</prop>
+                    <prop key="displayName.fr">Nom de famille</prop>
+                    <prop key="displayName.it">Cognome</prop>
+                    <prop key="displayName.ja">姓</prop>
+                    <prop key="description.en">Surname or family name</prop>
+                    <prop key="description.de">Familienname</prop>
+                    <prop key="description.fr">Nom de famille de l'utilisateur.</prop>
+                    <prop key="description.it">Cognome dell'utilizzatore</prop>
+                    <prop key="description.ja">氏名(姓)の英語表記</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">telephoneNumber</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">phone_number</prop>
+                    <prop key="displayName.en">Business phone number</prop>
+                    <prop key="displayName.de">Telefon Geschäft</prop>
+                    <prop key="displayName.fr">Teléphone professionnel</prop>
+                    <prop key="displayName.it">Numero di telefono dell'ufficio</prop>
+                    <prop key="displayName.ja">所属機関内電話番号</prop>
+                    <prop key="description.en">Business phone number: Office or campus phone number</prop>
+                    <prop key="description.de">Telefonnummer am Arbeitsplatz</prop>
+                    <prop key="description.fr">Teléphone de l'institut, de l'université</prop>
+                    <prop key="description.it">Numero di telefono dell'ufficio</prop>
+                    <prop key="description.ja">所属機関での利用者の電話番号</prop>
+                </props>
+            </property>
+        </bean>
+        
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">uid</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">preferred_username</prop>
+                    <prop key="displayName.en">User ID</prop>
+                    <prop key="displayName.de">Benutzer-ID</prop>
+                    <prop key="displayName.fr">ID utilisateur</prop>
+                    <prop key="displayName.it">ID dell'utente</prop>
+                    <prop key="displayName.ja">ユーザID</prop>
+                    <prop key="description.en">A unique identifier for a person, mainly used for user identification within the user's home organization.</prop>
+                    <prop key="description.de">Eine eindeutige Nummer für eine Person, welche hauptsächlich zur Identifikation innerhalb der Organisation benutzt wird.</prop>
+                    <prop key="description.fr">Identifiant de connexion d'une personnes sur les systèmes informatiques.</prop>
+                    <prop key="description.it">Identificativo unico della persona, usato per l'identificazione dell'utente all'interno della organizzazione di appartenenza.</prop>
+                    <prop key="description.ja">所属機関内で一意の利用者識別子</prop>
+                </props>
+            </property>
+        </bean>
+
+        <!-- eduPerson attributes that map to standard claims. -->
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">eduPersonNickname</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">nickname</prop>
+                    <prop key="displayName.en">Nickname</prop>
+                    <prop key="displayName.de">Kurzname</prop>
+                    <prop key="displayName.de-ch">Übername</prop>
+                    <prop key="displayName.fr">Surnom</prop>
+                    <prop key="displayName.it">Diminutivo</prop>
+                    <prop key="displayName.ja">ニックネーム</prop>
+                    <prop key="description.en">Person's nickname, or the informal name by which they are accustomed to be hailed.</prop>
+                    <prop key="description.de">Kurzname einer Person, oder üblicher Rufname zur Begrüßung.</prop>
+                    <prop key="description.de-ch">Übername einer Person, oder üblicher Rufname zur Begrüssung.</prop>
+                    <prop key="description.fr">Nom personnalisable pour un usage informel.</prop>
+                    <prop key="description.it">Diminutivo della persona, o  soprannome.</prop>
+                    <prop key="description.ja">利用者のニックネームもしくは通称</prop>
+                </props>
+            </property>
+        </bean>
+
+        <!-- A subset of the major eduPerson attributes that have no standard claim mapping. -->
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">eduPersonAssurance</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">eduPersonAssurance</prop>
+                    <prop key="displayName.en">Assurance level</prop>
+                    <prop key="displayName.de">Vertrauensgrad</prop>
+                    <prop key="displayName.fr">Niveau de confiance</prop>
+                    <prop key="displayName.it">Livello di sicurezza</prop>
+                    <prop key="displayName.ja">保証レベル</prop>
+                    <prop key="description.en">Set of URIs that assert compliance with specific standards for identity assurance.</prop>
+                    <prop key="description.de">URIs die eine gewisse Zusicherung für spezifische Standards des Vertrauens beinhalten</prop>
+                    <prop key="description.fr">Un ensemble d'URI qui attestent la conformité selon un standard pour les niveaux d'assurance d'identités</prop>
+                    <prop key="description.it">Un insieme di URI che asseriscono l'osservanza dei livelli di sicurezza richiesti</prop>
+                    <prop key="description.ja">IDの保証レベルに関して特定の基準に準拠していることを示すURI</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">eduPersonEntitlement</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">eduPersonEntitlement</prop>
+                    <prop key="displayName.en">Entitlement</prop>
+                    <prop key="displayName.de">Berechtigung</prop>
+                    <prop key="displayName.fr">Entitlement</prop>
+                    <prop key="displayName.it">Prerogativa</prop>
+                    <prop key="displayName.ja">資格情報</prop>
+                    <prop key="description.en">Member of: URI (either URL or URN) that indicates a set of rights to specific resources based on an agreement across the releavant community</prop>
+                    <prop key="description.de">Zeichenkette, die Rechte für spezifische Ressourcen beschreibt</prop>
+                    <prop key="description.fr">Membre de: URI (soit une URL ou une URN) décrivant un droit spécific d'accès.</prop>
+                    <prop key="description.it">Membro delle seguenti URI (sia URL o URN) che rappresentano diritti specifici d'accesso validi in tutta la communità</prop>
+                    <prop key="description.ja">特定のアプリケーションもしくはコミュニティ内の複数リソースへのアクセス権限を持つことを示すURI(URLもしくはURN)</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">eduPersonPrincipalName</prop>
+                    <prop key="transcoder">OIDCScopedStringTranscoder</prop>
+                    <prop key="oidc.name">eduPersonPrincipalName</prop>
+                    <prop key="displayName.en">Principal name</prop>
+                    <prop key="displayName.de">Persönliche ID</prop>
+                    <prop key="displayName.fr">Principal Name</prop>
+                    <prop key="displayName.it">Principal Name</prop>
+                    <prop key="displayName.ja">プリンシパルID</prop>
+                    <prop key="description.en">A unique identifier for a person, mainly for inter-institutional user identification.</prop>
+                    <prop key="description.de">Eindeutige Benutzeridentifikation</prop>
+                    <prop key="description.de-ch">Eindeutige Benützeridentifikation</prop>
+                    <prop key="description.fr">L'identifiant unique de l'utilisateur</prop>
+                    <prop key="description.it">Un ID personale che identifica chiaramente l'utente in seno alla sua organizzazione</prop>
+                    <prop key="description.ja">フェデレーション内で一意かつ永続的な利用者識別子</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">eduPersonScopedAffiliation</prop>
+                    <prop key="transcoder">OIDCScopedStringTranscoder</prop>
+                    <prop key="oidc.name">eduPersonScopedAffiliation</prop>
+                    <prop key="displayName.en">Scoped affiliation</prop>
+                    <prop key="displayName.de">Zugehörigkeit</prop>
+                    <prop key="displayName.fr">Affiliation</prop>
+                    <prop key="displayName.it">Tipo di membro</prop>
+                    <prop key="displayName.ja">スコープ付き職位</prop>
+                    <prop key="description.en">Specifies the person's affiliation within a particular security domain</prop>
+                    <prop key="description.de">Art der Zugehörigkeit zur Heimatorganisation</prop>
+                    <prop key="description.de-ch">Art der Zugehörigkeit zur Heimorganisation</prop>
+                    <prop key="description.fr">Type d'affiliation dans l'organisation</prop>
+                    <prop key="description.it">Tipo di membro: Tipo di lavoro svolto per l'organizzazione</prop>
+                    <prop key="description.ja">セキュリティドメインのスコープが付いた所属機関における職位</prop>
+                </props>
+            </property>
+        </bean>
+
+        <!-- The remainder are standard OIDC claims, which we map based on the actual claim name. -->
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">address</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.asObject">true</prop>
+                    <prop key="oidc.name">address</prop>
+                    <prop key="displayName.en">Postal address</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">birthdate</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">birthdate</prop>
+                    <prop key="displayName.en">Date of birth</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">email_verified</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">email_verified</prop>
+                    <prop key="oidc.asBoolean">true</prop>
+                    <prop key="displayName.en">E-mail verification status</prop>
+                    <prop key="description.en">Indicates whether e-mail address has been verified by the issuer</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">gender</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">gender</prop>
+                    <prop key="displayName.en">Gender</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">middle_name</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">middle_name</prop>
+                    <prop key="displayName.en">Middle name</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">phone_number_verified</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">phone_number_verified</prop>
+                    <prop key="oidc.asBoolean">true</prop>
+                    <prop key="displayName.en">Phone number verification status</prop>
+                    <prop key="description.en">Indicates whether phone number has been verified by the issuer</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">picture</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">picture</prop>
+                    <prop key="displayName.en">Picture</prop>
+                    <prop key="description.en">URL of personal photo</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">profile</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">profile</prop>
+                    <prop key="displayName.en">Profile page</prop>
+                    <prop key="description.en">URL of personal profile page</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">website</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">website</prop>
+                    <prop key="displayName.en">Web site</prop>
+                    <prop key="description.en">URL to personal web site</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">updated_at</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">updated_at</prop>
+                    <prop key="oidc.asInteger">true</prop>
+                    <prop key="displayName.en">Last update of information</prop>
+                </props>
+            </property>
+        </bean>
+
+        <bean parent="shibboleth.TranscodingProperties">
+            <property name="properties">
+                <props merge="true">
+                    <prop key="id">zoneinfo</prop>
+                    <prop key="transcoder">OIDCStringTranscoder</prop>
+                    <prop key="oidc.name">zoneinfo</prop>
+                    <prop key="displayName.en">Time zone</prop>
+                </props>
+            </property>
+        </bean>
+
+    </list>
+    </constructor-arg>
+    </bean>
+    
+</beans>
