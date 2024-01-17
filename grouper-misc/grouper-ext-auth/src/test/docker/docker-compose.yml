@@ -1,0 +1,128 @@
+services:
+  reverse-proxy:
+    image: library/traefik:v2.2
+    command:
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--entrypoints.web-secure.address=:443"
+      - "--providers.file.directory=/configuration/"
+      - "--providers.file.watch=true"
+      - "--log.level=DEBUG"
+      - "--serversTransport.insecureSkipVerify=true"
+    networks:
+      reverse-proxy:
+        aliases:
+          - idp.unicon.local
+          - cas.unicon.local
+    ports:
+      - "80:80"
+      - "8080:8080"
+      - "443:443"
+      - "8443:8443"
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - ./reverse-proxy/:/configuration/
+      - ./reverse-proxy/certs/:/certs/
+  directory:
+    build: ./directory
+    networks:
+      - idp
+      - grouper
+    ports:
+      - 389:389
+    volumes:
+      - directory_data:/var/lib/ldap
+      - directory_config:/etc/ldap/slapd.d
+      - ./directory/certs:/tmp/certs:ro
+    environment:
+      LDAP_BASE_DN: "dc=unicon,dc=local"
+      LDAP_DOMAIN: "unicon.local"
+      HOSTNAME: "directory"
+      LDAP_TLS_VERIFY_CLIENT: "try"
+      LDAP_SEED_INTERNAL_LDAP_TLS_CRT_FILE: /tmp/certs/ldap.crt
+      LDAP_SEED_INTERNAL_LDAP_TLS_KEY_FILE: /tmp/certs/ldap.key
+      LDAP_SEED_INTERNAL_LDAP_TLS_CA_CRT_FILE: /tmp/certs/ca.crt
+      LDAP_SEED_INTERNAL_LDAP_TLS_DH_PARAM_FILE: /tmp/certs/dhparam.pem
+  database:
+    image: postgres
+    networks:
+      - grouper
+    ports:
+      - 5432:5432
+    environment:
+      POSTGRES_USER: grouper
+      POSTGRES_PASSWORD: grouper
+      POSTGRES_DB: grouper
+  shibboleth-idp:
+    build: ./shibboleth-idp
+    labels:
+      - "traefik.http.routers.idp.rule=Host(`idp.unicon.local`)"
+      - "traefik.http.services.idp.loadbalancer.server.port=8080"
+      - "traefik.http.routers.idp.tls=true"
+      - "traefik.docker.network=grouper-ext-auth_reverse-proxy"
+      - "traefik.enable=true"
+    depends_on:
+      - directory
+      - reverse-proxy
+    networks:
+      - idp
+      - reverse-proxy
+    #ports:
+    #  - 8443:443
+    volumes:
+      - ./directory/certs/ca.crt:/opt/shibboleth-idp/credentials/ldap-server.crt:ro
+      - ./grouper/config/sp-metadata.xml:/opt/shibboleth-idp/metadata/sp-metadata.xml:ro
+    healthcheck:
+      disable: true
+  grouper-ui:
+    build:
+      context: grouper
+    command:
+      - ui
+    labels:
+      - "traefik.http.routers.grouperui.rule=Host(`grouper-ui.unicon.local`)"
+      - "traefik.http.services.grouperui.loadbalancer.server.port=8080"
+      - "traefik.http.routers.grouperui.tls=true"
+      - "traefik.docker.network=grouper-ext-auth_reverse-proxy"
+      - "traefik.enable=true"
+    networks:
+      - reverse-proxy
+      - grouper
+    ports:
+      - 15005:15005
+    volumes:
+      - /path/to/grouper-ext-auth/target/grouper-authentication-plugin-1.0.0.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
+      - ./grouper/config/grouper.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper.properties
+      ## Uncomment one of the grouper-ui.properties below depending on the authentication method
+      ##   -- OIDC --
+      - ./grouper/config/grouper-ui.properties.oidc:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      ##   -- SAML --
+      #- ./grouper/config/grouper-ui.properties.saml:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      ##   -- CAS --
+      #- ./grouper/config/grouper-ui.properties.cas:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-ui.properties
+      - ./grouper/config/grouper-loader.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper-loader.properties
+      - ./grouper/config/subject.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/subject.properties
+      - ./shibboleth-idp/opt-shibboleth-idp/metadata/idp-metadata.xml:/opt/grouper/idp-metadata.xml
+      - ./grouper/certs/unicon.local.pem:/opt/grouper/certs/client/unicon.local.pem
+    environment:
+      GROUPER_DATABASE_URL: "jdbc:postgresql://database/grouper"
+      GROUPER_DATABASE_USERNAME: "grouper"
+      GROUPER_DATABASE_PASSWORD: "grouper"
+      GROUPER_MORPHSTRING_ENCRYPT_KEY: "THISISSUPERSECRET!"
+      GROUPER_AUTO_DDL_UPTOVERSION: "4.*.*"
+      GROUPER_RUN_TOMCAT_NOT_SUPERVISOR: "true"
+      GROUPER_UI_CONFIGURATION_EDITOR_SOURCEIPADDRESSES: "0.0.0.0/0"
+      RUN_SHIB_SP: "false"
+      GROUPER_EXTRA_CATALINA_OPTS: "-agentlib:jdwp=transport=dt_socket,server=y,suspend=n,address=*:15005"
+#      GROUPER_UI_GROUPER_AUTH: "true"
+#      GROUPERSYSTEM_QUICKSTART_PASS: "letmein7"
+networks:
+  reverse-proxy:
+  idp:
+  grouper:
+volumes:
+  directory_data:
+    driver: local
+  directory_config:
+    driver: local

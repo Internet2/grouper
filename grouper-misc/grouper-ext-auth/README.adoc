@@ -1,0 +1,110 @@
+= Grouper External Authentication Plugin
+
+Grouper plugin that provides configurable authentication. Features include
+
+* Authentication for UI, without requiring a separate process or container
+* Supports SAML2, OIDC, and CAS
+
+== Usage
+
+=== Grouper Version 4.x
+
+NOTE: For a fully integrated sample configuration, see the docker-compose setup in the `src/test/docker` folder of the Git
+repository. The environment includes sample Grouper configurations for SAML2, OIDC, or CAS, along with a Shibboleth IDP
+that can authenticate Grouper using any of these methods.
+
+. Add plugin to Grouper image (latest versions can be downloaded from https://github.internet2.edu/internet2/grouper-ext-auth/releases[])
++
+[source, dockerfile]
+----
+COPY grouper-authentication-plugin.jar /opt/grouper/plugins
+----
+
+. Enable Plugins
++
+In `grouper.properties`, add properties
++
+[source, properties]
+----
+grouper.osgi.enable = true
+grouper.osgi.jar.dir = /opt/grouper/plugins
+grouper.osgi.framework.boot.delegation=org.osgi.*,javax.*,org.apache.commons.logging,edu.internet2.middleware.grouperClient.*,edu.internet2.middleware.grouper.*,org.w3c.*,org.xml.*,sun.*
+
+grouperOsgiPlugin.0.jarName = grouper-authentication-plugin.jar
+----
++
+`grouper.osgi.jar.dir` should point to the directory you copied the file to in your image build file
++
+`grouperOsgiPlugin.0.jarName` should be the name of the file you copied in
+
+. Configure UI
++
+In `grouper-ui.properties, add properties appropriate for desired authentication. Note that only one can be used.
++
+Most of the configuration for the underlying authentication library is exposed to the Grouper configuration. Any field in the Java classes can be directly set using the field name or a setter used by using a related property (setting `attribute=value` will call `setAttribute(value)` )
+
+.. SAML2
++
+For SAML2, for example:
++
+[source,properties]
+----
+grouper.is.extAuth.enabled = true
+external.authentication.grouperContextUrl = https://grouper-ui.unicon.local/grouper
+
+external.authentication.provider = saml
+external.authentication.saml.identityProviderEntityId = https://idp-host-name/idp/shibboleth
+external.authentication.saml.serviceProviderEntityId = http://localhost:8080/grouper
+external.authentication.saml.serviceProviderMetadataPath = file:/opt/grouper/sp-metadata.xml
+external.authentication.saml.identityProviderMetadataPath = file:/opt/grouper/idp-metadata.xml
+external.authentication.saml.keystorePath = file:/opt/grouper/here.key
+external.authentication.saml.keystorePassword = testme
+external.authentication.saml.privateKeyPassword = testme
+external.authentication.saml.attributeAsId = urn:oid:0.9.2342.19200300.100.1.1
+----
++
+For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/saml.html[] and https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-saml/src/main/java/org/pac4j/saml/config/SAML2Configuration.java[]
+
+.. OIDC
++
+For OIDC, for example:
++
+[source,properties]
+----
+grouper.is.extAuth.enabled = true
+external.authentication.grouperContextUrl = https://grouper-ui.unicon.local/grouper
+
+external.authentication.provider = oidc
+external.authentication.oidc.clientId = *****
+external.authentication.oidc.discoveryURI = https://idp-host-name/.well-known/openid-configuration
+external.authentication.oidc.secret = *****
+external.authentication.oidc.claimAsUsername = preferred_username
+
+----
++
+For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/openid-connect.html[] and https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-oidc/src/main/java/org/pac4j/oidc/config/OidcConfiguration.java[]
+
+.. CAS
++
+For CAS, for example:
++
+[source,properties]
+----
+grouper.is.extAuth.enabled = true
+external.authentication.grouperContextUrl = https://grouper-ui.unicon.local/grouper
+
+# Note for CAS: you'll need to make sure that the CAS server SSL certificate is available in the trust store
+external.authentication.provider = cas
+external.authentication.cas.prefixUrl = https://idp-host-name/idp/profile/cas
+external.authentication.cas.protocol = CAS20
+----
++
+For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/cas.html[] and https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-cas/src/main/java/org/pac4j/cas/config/CasConfiguration.java[]
+
+=== Version 5.x+
+
+TODO
+
+== More Information
+
+If assistance is needed (e.g., bugs, errors, configuration samples), feel free to open a ticket in the github repository or ask on the Slack channel

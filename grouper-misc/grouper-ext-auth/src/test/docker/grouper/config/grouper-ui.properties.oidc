@@ -1,0 +1,8 @@
+grouper.is.extAuth.enabled = true
+external.authentication.grouperContextUrl = https://grouper-ui.unicon.local/grouper
+
+external.authentication.provider = oidc
+external.authentication.oidc.clientId = grouper
+external.authentication.oidc.discoveryURI = https://idp.unicon.local/idp/profile/oidc/configuration
+external.authentication.oidc.secret = thisisverysecret
+external.authentication.oidc.claimAsUsername = preferred_username
