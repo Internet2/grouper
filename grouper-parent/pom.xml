@@ -37,6 +37,15 @@
         <module>../grouper-ui</module>
         <module>../grouper-ws</module>
         <module>../grouper-misc/grouper-installer</module>
+<<<<<<< GROUPER_5_BRANCH
+=======
+        <module>../grouper-misc/grouper-pspng</module>
+        <module>../grouper-misc/grouper-box</module>
+        <module>../grouper-misc/grouper-duo</module>
+        <module>../grouper-misc/googleapps-grouper-provisioner</module>
+        <module>../grouper-misc/grouper-azure</module>
+        <module>../grouper-misc/webapp/grouper-ui-webapp</module>
+>>>>>>> 7515361 Import Pac4j plugin from https://github.internet2.edu/internet2/grouper-ext-auth.git (commit 2)
         <module>../grouper-misc/grouper-ext-auth</module>
     </modules>
 

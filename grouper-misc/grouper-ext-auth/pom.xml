@@ -241,10 +241,14 @@
 
     <name>Grouper Authentication Plugin</name>
     <description>Authentication Library Plugin</description>
-    <groupId>edu.internet2.middleware.grouper.plugins</groupId>
-    <artifactId>grouper-authentication-plugin</artifactId>
-    <version>1.0.0</version>
     <packaging>bundle</packaging>
+
+    <parent>
+            <groupId>edu.internet2.middleware.grouper</groupId>
+            <artifactId>grouper-parent</artifactId>
+            <version>4.0.0-SNAPSHOT</version>
+            <relativePath>../../grouper-parent</relativePath>
+    </parent>
 
     <properties>
         <maven.compiler.source>17</maven.compiler.source>
@@ -252,26 +256,25 @@
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
         <pac4j.version>5.7.2</pac4j.version>
         <javaee-pac4j.version>7.1.0</javaee-pac4j.version>
-        <grouper.version>4.7.0</grouper.version>
     </properties>
 
     <dependencies>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouperClient</artifactId>
-            <version>${grouper.version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper</artifactId>
-            <version>${grouper.version}</version>
+            <version>${project.version}</version>
             <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper-ui</artifactId>
-            <version>${grouper.version}</version>
+            <version>${project.version}</version>
             <scope>test</scope>
         </dependency>
         <dependency>
@@ -350,7 +353,7 @@
         <dependency>
             <groupId>edu.internet2.middleware.grouper</groupId>
             <artifactId>grouper</artifactId>
-            <version>${grouper.version}</version>
+            <version>${project.version}</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
@@ -366,18 +369,6 @@
             <scope>test</scope>
         </dependency>
     </dependencies>
-
-    <dependencyManagement>
-        <dependencies>
-            <dependency>
-                <groupId>edu.internet2.middleware.grouper</groupId>
-                <artifactId>grouper</artifactId>
-                <version>2.6.15</version>
-                <type>pom</type>
-                <scope>import</scope>
-            </dependency>
-        </dependencies>
-    </dependencyManagement>
 
     <build>
         <plugins>
@@ -415,6 +406,7 @@
                 <version>5.1.9</version>
                 <extensions>true</extensions>
                 <configuration>
+                    <finalName>${artifactId}</finalName>
                     <instructions>
                         <Bundle-SymbolicName>${project.groupId}.${project.artifactId}</Bundle-SymbolicName>
                         <Bundle-Name>${project.artifactId}-bundle</Bundle-Name>

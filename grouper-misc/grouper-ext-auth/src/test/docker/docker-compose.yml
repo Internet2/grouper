@@ -220,7 +220,7 @@ services:
     ports:
       - 15005:15005
     volumes:
-      - /path/to/grouper-ext-auth/target/grouper-authentication-plugin-1.0.0.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
+      - ../../../target/grouper-authentication-plugin.jar:/opt/grouper/plugins/grouper-authentication-plugin.jar
       - ./grouper/config/grouper.properties:/opt/grouper/grouperWebapp/WEB-INF/classes/grouper.properties
       ## Uncomment one of the grouper-ui.properties below depending on the authentication method
       ##   -- OIDC --
