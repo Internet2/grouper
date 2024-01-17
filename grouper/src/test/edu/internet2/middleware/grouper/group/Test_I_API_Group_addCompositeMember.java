@@ -118,6 +118,8 @@ public class Test_I_API_Group_addCompositeMember extends GrouperTest {
    */
   public void test_addCompositeMember_propogateEffectiveChangesOnCompositeTypeChange() {
     try {
+      runCompositeMembershipChangeLogConsumer();
+      
       // (1)
       gA.addMember(subjX);
       gA.addMember(subjY);
@@ -125,11 +127,14 @@ public class Test_I_API_Group_addCompositeMember extends GrouperTest {
       gB.addMember(subjX);
       // (3)
       gC.addCompositeMember( CompositeType.COMPLEMENT, gA, gB );
+      runCompositeMembershipChangeLogConsumer();
       // (4)
       gD.addMember( gC.toSubject() );
       // (5)
       gC.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
       gC.addCompositeMember( CompositeType.UNION, gA, gB );
+      runCompositeMembershipChangeLogConsumer();
     }
     catch (Exception eShouldNotHappen) {
       fail( "ERROR INITIALIZING TEST: " + ExceptionUtils.getFullStackTrace(eShouldNotHappen));

@@ -170,6 +170,7 @@ import edu.internet2.middleware.grouper.exception.ExpressionLanguageMissingVaria
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hooks.logic.HookVeto;
 import edu.internet2.middleware.grouper.misc.GrouperCloneable;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperId;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
@@ -15545,5 +15546,21 @@ public class GrouperUtil {
         iterator.remove();
       }
     }
+  }
+  
+  /**
+   * @param groups
+   * @return true if membership adds/deletes in any of the given groups may propagate asynchronously to composites
+   */
+  public static boolean checkIfMembershipsMayPropagate(Set<Group> groups) {
+    String synchronousCalculationGroupNameRegex = GrouperConfig.retrieveConfig().propertyValueString("composites.synchronousCalculationGroupNameRegex");
+    for (Group group : groups) {
+      boolean isSyncSynchronous = !StringUtils.isBlank(synchronousCalculationGroupNameRegex) && group.getName().matches(synchronousCalculationGroupNameRegex);
+      if (!isSyncSynchronous && GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(group.getId()).size() > 0) {
+        return true;
+      }
+    }
+    
+    return false;
   }
 }

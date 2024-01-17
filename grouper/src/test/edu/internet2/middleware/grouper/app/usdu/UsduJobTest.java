@@ -46,7 +46,7 @@ public class UsduJobTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new UsduJobTest("testGroupSubjectIdentifier0"));
+    TestRunner.run(new UsduJobTest("testUsduJobWhenSubjectIsMarkedAsUnresolvable"));
   }
   
   public UsduJobTest(String name) {
@@ -346,6 +346,8 @@ public class UsduJobTest extends GrouperTest {
     //Given
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "-1");
 
+    runCompositeMembershipChangeLogConsumer();
+
     R r = R.populateRegistry(1, 6, 1);
     
     Group gA = r.getGroup("a", "a");
@@ -363,6 +365,8 @@ public class UsduJobTest extends GrouperTest {
     gE.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
     gF.addCompositeMember(CompositeType.COMPLEMENT, gA, gD);
 
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(gA.hasMember(subjA));
     assertTrue(gB.hasMember(subjA));
     assertTrue(gC.hasMember(subjA));
@@ -374,6 +378,8 @@ public class UsduJobTest extends GrouperTest {
     //When
     UsduJob.runDaemonStandalone();
     
+    runCompositeMembershipChangeLogConsumer();
+
     //Then
     assertFalse(gA.hasMember(subjA));
     assertFalse(gB.hasMember(subjA));
@@ -403,6 +409,8 @@ public class UsduJobTest extends GrouperTest {
     //Given
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "10");
 
+    runCompositeMembershipChangeLogConsumer();
+
     R r = R.populateRegistry(1, 6, 1);
     
     Group gA = r.getGroup("a", "a");
@@ -420,6 +428,8 @@ public class UsduJobTest extends GrouperTest {
     gE.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
     gF.addCompositeMember(CompositeType.COMPLEMENT, gA, gD);
 
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(gA.hasMember(subjA));
     assertTrue(gB.hasMember(subjA));
     assertTrue(gC.hasMember(subjA));
@@ -431,6 +441,8 @@ public class UsduJobTest extends GrouperTest {
     //When
     UsduJob.runDaemonStandalone();
     
+    runCompositeMembershipChangeLogConsumer();
+
     //Then
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subjA, true);
     
@@ -454,6 +466,8 @@ public class UsduJobTest extends GrouperTest {
     //Given
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("usdu.delete.ifAfterDays", "10");
     
+    runCompositeMembershipChangeLogConsumer();
+
     R r = R.populateRegistry(1, 6, 1);
     
     Group gA = r.getGroup("a", "a");
@@ -473,6 +487,8 @@ public class UsduJobTest extends GrouperTest {
     gE.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
     gF.addCompositeMember(CompositeType.COMPLEMENT, gA, gD);
 
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(gA.hasMember(subjA));
     assertTrue(gB.hasMember(subjA));
     assertTrue(gC.hasMember(subjA));
@@ -483,6 +499,8 @@ public class UsduJobTest extends GrouperTest {
     
     UsduJob.runDaemonStandalone();
     
+    runCompositeMembershipChangeLogConsumer();
+
     Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subjA, true);
     
     AttributeAssignValueFinderResult attributeAssignValueFinderResult = new AttributeAssignValueFinder()

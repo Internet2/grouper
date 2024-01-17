@@ -5,6 +5,8 @@ package edu.internet2.middleware.grouper;
 
 import org.junit.Assert;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.misc.SaveMode;
@@ -38,6 +40,11 @@ public class CompositeSaveTest extends GrouperTest {
   public void testSaveCompositeUnionType() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
+    // clear change log
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
+    
     Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup1").save();
     Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup2").save();
     Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup3").save();
@@ -48,6 +55,12 @@ public class CompositeSaveTest extends GrouperTest {
     group2.addMember(SubjectTestHelper.SUBJ1);
     group3.addMember(SubjectTestHelper.SUBJ2);
     
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Assert.assertEquals(2, group1.getMembers().size());
     Assert.assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
     Assert.assertTrue(group1.hasMember(SubjectTestHelper.SUBJ2));
@@ -57,6 +70,10 @@ public class CompositeSaveTest extends GrouperTest {
   public void testSaveCompositeIntersectionType() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
+    // clear change log
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup1").save();
     Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup2").save();
     Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup3").save();
@@ -69,6 +86,12 @@ public class CompositeSaveTest extends GrouperTest {
     group3.addMember(SubjectTestHelper.SUBJ2);
     group3.addMember(SubjectTestHelper.SUBJ3);
     
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Assert.assertEquals(1, group1.getMembers().size());
     Assert.assertTrue(group1.hasMember(SubjectTestHelper.SUBJ2));
     
@@ -77,6 +100,10 @@ public class CompositeSaveTest extends GrouperTest {
   public void testSaveCompositeComplementType() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
+    // clear change log
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup1").save();
     Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup2").save();
     Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup3").save();
@@ -88,6 +115,12 @@ public class CompositeSaveTest extends GrouperTest {
     group2.addMember(SubjectTestHelper.SUBJ2);
     group3.addMember(SubjectTestHelper.SUBJ2);
     
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Assert.assertEquals(1, group1.getMembers().size());
     Assert.assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
     
@@ -96,6 +129,10 @@ public class CompositeSaveTest extends GrouperTest {
   public void testDeleteComposite() {
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
+    // clear change log
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Group group1 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup1").save();
     Group group2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup2").save();
     Group group3 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup3").save();
@@ -106,11 +143,25 @@ public class CompositeSaveTest extends GrouperTest {
     group2.addMember(SubjectTestHelper.SUBJ1);
     group3.addMember(SubjectTestHelper.SUBJ2);
     
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
     Assert.assertEquals(2, group1.getMembers().size());
     Assert.assertTrue(group1.hasMember(SubjectTestHelper.SUBJ1));
     Assert.assertTrue(group1.hasMember(SubjectTestHelper.SUBJ2));
     
     new CompositeSave().assignOwnerName(group1.getName()).assignLeftFactorName(group2.getName()).assignRightFactorName(group3.getName()).assignSaveMode(SaveMode.DELETE).save();
+    
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_compositeMemberships", false);
+    
+    
     Assert.assertEquals(0, group1.getMembers().size());
     
   }

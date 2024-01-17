@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashMap;
@@ -33,6 +34,8 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignType;
@@ -84,7 +87,89 @@ public class ChangeLogTempToEntity {
    * @return the number of records converted
    */
   public static int convertRecords() {
-    return convertRecords(null);
+    return convertRecords((Hib3GrouperLoaderLog)null);
+  }
+
+  private static Hib3GrouperLoaderLog createSubLoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLogOverall) {
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+    hib3GrouperLoaderLog.setParentJobId(hib3GrouperLoaderLogOverall.getId());
+    hib3GrouperLoaderLog.setParentJobName(hib3GrouperLoaderLogOverall.getJobName());
+    hib3GrouperLoaderLog.setJobName("subjobFor_" + hib3GrouperLoaderLogOverall.getJobName());
+    hib3GrouperLoaderLog.setJobType(hib3GrouperLoaderLogOverall.getJobType());
+    hib3GrouperLoaderLog.setJobScheduleType(hib3GrouperLoaderLogOverall.getJobScheduleType());
+    hib3GrouperLoaderLog.setJobScheduleIntervalSeconds(hib3GrouperLoaderLogOverall.getJobScheduleIntervalSeconds());
+    hib3GrouperLoaderLog.setJobSchedulePriority(hib3GrouperLoaderLogOverall.getJobSchedulePriority());
+    hib3GrouperLoaderLog.setJobScheduleQuartzCron(hib3GrouperLoaderLogOverall.getJobScheduleQuartzCron());
+    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+    hib3GrouperLoaderLog.setStartedTime(new Timestamp(System.currentTimeMillis()));
+    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());          
+    hib3GrouperLoaderLog.store();
+    
+    return hib3GrouperLoaderLog;
+  }
+  
+  public static int convertRecordsWrapper(Hib3GrouperLoaderLog hib3GrouperLoaderLogOverall) {
+
+    boolean isLongRunning = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.changeLogTempToChangeLog.longRunning", true);
+    int longRunningSleepInBetweenMillis = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.changeLogTempToChangeLog.longRunningSleepInBetweenMillis", 500);
+    int longRunningRuntimeSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.changeLogTempToChangeLog.longRunningRuntimeSeconds", 3600);
+    int longRunningNewLoaderLogIntervalSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.changeLogTempToChangeLog.longRunningNewLoaderLogIntervalSeconds", 60);
+
+    int totalCount = 0;
+    long startTime = System.currentTimeMillis();
+    
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = hib3GrouperLoaderLogOverall;
+    if (isLongRunning) {
+      GrouperLoaderLogger.initializeThreadLocalMap("subjobLog");
+      hib3GrouperLoaderLog = createSubLoaderLog(hib3GrouperLoaderLogOverall);
+    }
+    
+    while (true) {
+      try {
+        totalCount += convertRecords(hib3GrouperLoaderLog);
+      } catch (Exception e) {
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+        hib3GrouperLoaderLog.store();
+        throw e;
+      }
+      
+      if (!isLongRunning) {
+        break;
+      }
+      
+      boolean longRunningJobDone = (startTime + (longRunningRuntimeSeconds * 1000L)) < System.currentTimeMillis();
+      boolean needNewLoaderLog = (hib3GrouperLoaderLog.getStartedTime().getTime() + (longRunningNewLoaderLogIntervalSeconds * 1000L)) < System.currentTimeMillis();
+      
+      if (longRunningJobDone || needNewLoaderLog) {
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+        long endTime = System.currentTimeMillis();
+        hib3GrouperLoaderLog.setEndedTime(new Timestamp(endTime));
+        hib3GrouperLoaderLog.setMillis((int)(endTime-hib3GrouperLoaderLog.getStartedTime().getTime()));
+        hib3GrouperLoaderLog.store();
+        hib3GrouperLoaderLogOverall.addTotalCount(hib3GrouperLoaderLog.getTotalCount());
+        hib3GrouperLoaderLogOverall.addDeleteCount(hib3GrouperLoaderLog.getDeleteCount());
+        hib3GrouperLoaderLogOverall.addInsertCount(hib3GrouperLoaderLog.getInsertCount());
+      }
+      
+      if (longRunningJobDone) {
+        break;
+      }
+      
+      if (needNewLoaderLog) {
+        hib3GrouperLoaderLog = createSubLoaderLog(hib3GrouperLoaderLogOverall);
+      }
+      
+      try {
+        Thread.sleep(longRunningSleepInBetweenMillis);
+      } catch (InterruptedException e) {
+        // ignore
+      }
+    }
+    
+    hib3GrouperLoaderLogOverall.setJobMessage("Ran the changeLogTempToChangeLog daemon");
+    hib3GrouperLoaderLogOverall.setStatus(GrouperLoaderStatus.SUCCESS.name());
+    
+    return totalCount;
   }
   
   /**
@@ -92,7 +177,7 @@ public class ChangeLogTempToEntity {
    * @param hib3GrouperLoaderLog is the log object to post updates, can be null
    * @return the number of records converted
    */
-  public static int convertRecords(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  public static int convertRecords(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {    
     int changeLogTempToChangeLogQuerySize = GrouperLoaderConfig.retrieveConfig().propertyValueIntRequired("changeLog.changeLogTempToChangeLogQuerySize");
     if (changeLogTempToChangeLogQuerySize <= 0) {
       changeLogTempToChangeLogQuerySize = 1;

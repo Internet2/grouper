@@ -91,6 +91,8 @@ public class TestMembershipDeletes2 extends GrouperTest {
   }
 
   public void testMembershipDeletes2() {
+    runCompositeMembershipChangeLogConsumer();
+
     LOG.info("testMembershipDeletes2");
     try {
       GrouperUtil.sleep(100);
@@ -128,6 +130,7 @@ public class TestMembershipDeletes2 extends GrouperTest {
       gI.addMember( gA.toSubject() );
       gH.grantPriv( gI.toSubject(), AccessPrivilege.UPDATE );
       gJ.grantPriv( gA.toSubject(), AccessPrivilege.UPDATE );
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMembershipAddAndDeleteMember(gB, gG.toSubject());
       verifyMembershipAddAndDeleteAccessPrivUpdate(gB, gI.toSubject());
@@ -147,6 +150,8 @@ public class TestMembershipDeletes2 extends GrouperTest {
   public void verifyMembershipAddAndDeleteMember(Group g, Subject s) throws Exception {
     g.addMember(s);
     g.deleteMember(s);
+    runCompositeMembershipChangeLogConsumer();
+
     verifyMemberships();
   }
 

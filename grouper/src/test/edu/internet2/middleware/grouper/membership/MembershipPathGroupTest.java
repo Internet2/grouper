@@ -75,7 +75,8 @@ public class MembershipPathGroupTest extends GrouperTest {
    * 
    */
   public void testCompositePrivilege() {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     GrouperSession grouperSession = GrouperSession.startRootSession();
 
     Group g0 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths2:privGroup").save();
@@ -89,6 +90,7 @@ public class MembershipPathGroupTest extends GrouperTest {
     g1.addCompositeMember(CompositeType.INTERSECTION, g2, g3);
     g2.addMember(s0);
     g3.addMember(s0);
+    runCompositeMembershipChangeLogConsumer();
 
     MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyzePrivileges(g0, s0);
 
@@ -149,7 +151,8 @@ public class MembershipPathGroupTest extends GrouperTest {
    * 
    */
   public void testMembershipPathGroup() {
-    
+    runCompositeMembershipChangeLogConsumer();
+
     //########################## Non composite
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -260,6 +263,7 @@ public class MembershipPathGroupTest extends GrouperTest {
       employeeGroup.addMember(memberSubject, false);
       
       endGroup.addMember(overallComposite.toSubject(), false);
+      runCompositeMembershipChangeLogConsumer();
     }
     
     Group overallCompositeDepth2owner = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
@@ -289,6 +293,7 @@ public class MembershipPathGroupTest extends GrouperTest {
       employeeGroupDepth2.addMember(memberSubject, false);
       
       endGroup.addMember(overallCompositeDepth2owner.toSubject(), false);
+      runCompositeMembershipChangeLogConsumer();
     }
     
     Group overallEffectiveComposite = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
@@ -323,6 +328,8 @@ public class MembershipPathGroupTest extends GrouperTest {
       endGroup.addMember(overallEffectiveComposite.toSubject(), false);
     }
     
+    runCompositeMembershipChangeLogConsumer();
+
     MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
     
     //grouper system

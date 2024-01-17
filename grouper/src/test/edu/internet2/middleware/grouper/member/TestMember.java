@@ -101,7 +101,7 @@ public class TestMember extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestMember("testGetAndHasPrivs"));
+    TestRunner.run(new TestMember("testNonImmediateMembershipsAndGroups"));
   }
   
   /** logger */
@@ -182,6 +182,8 @@ public class TestMember extends GrouperTest {
    * 
    */
   public void testNonImmediateMembershipsAndGroups() {
+    runCompositeMembershipChangeLogConsumer();
+
     Subject         subj  = SubjectTestHelper.SUBJ0;
     GrouperSession  s     = SessionHelper.getRootSession();
     Stem            root  = StemFinder.findRootStem(s);
@@ -199,6 +201,8 @@ public class TestMember extends GrouperTest {
     Group           uofc  = edu.addChildGroup("uofc", "uofc");
     GroupHelper.addMember(uofc, subj, "members");
     GroupHelper.addMember(i2, uofc.toSubject(), "members");
+    runCompositeMembershipChangeLogConsumer();
+
     Member          member     = MemberFinder.findBySubject(s, subj, true);
     
     Set<Member> members = compLeft.getNonImmediateMembers();
@@ -312,6 +316,8 @@ public class TestMember extends GrouperTest {
    * 
    */
   public void testGetGroupsComplex() {
+    runCompositeMembershipChangeLogConsumer();
+
     Subject         subj  = SubjectTestHelper.SUBJ0;
     Subject         subj1  = SubjectTestHelper.SUBJ1;
     GrouperSession  s     = SessionHelper.getRootSession();
@@ -339,7 +345,8 @@ public class TestMember extends GrouperTest {
     
     i2sub.addMember(subj1);
     edu2i2sub.addMember(subj1);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     Set<Group> groups = member.getImmediateGroups();
     assertEquals(3, groups.size());
     assertTrue(groups.contains(compLeft));
@@ -597,6 +604,8 @@ public class TestMember extends GrouperTest {
    * </pre>
    */
   public void testGetMembershipsComplex() {
+    runCompositeMembershipChangeLogConsumer();
+
     Subject         subj  = SubjectTestHelper.SUBJ0;
     Subject         subj1  = SubjectTestHelper.SUBJ1;
     GrouperSession  s     = SessionHelper.getRootSession();
@@ -624,6 +633,7 @@ public class TestMember extends GrouperTest {
     
     i2sub.addMember(subj1);
     edu2i2sub.addMember(subj1);
+    runCompositeMembershipChangeLogConsumer();
 
     //Set<Group> groups = member.getImmediateGroups();
     Set<Object[]> results = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerOptions(null, 

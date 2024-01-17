@@ -89,6 +89,8 @@ public class TestMembership12 extends GrouperTest {
   public void testCircularWithComposites() {
     LOG.info("testCircularWithComposites");
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       //sleep so if auto added members in config check, doesnt mess things up here
       GrouperUtil.sleep(50);
 //      before   = DateHelper.getPastDate();
@@ -116,20 +118,24 @@ public class TestMembership12 extends GrouperTest {
       // Test 1
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
       gB.addMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 8, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       // undo
       gB.deleteMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
       
       // Test 2
       gC.addMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 8, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       // undo
       gC.deleteMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
@@ -137,11 +143,13 @@ public class TestMembership12 extends GrouperTest {
       // Test 3
       gB.addMember(gD.toSubject());
       gD.addMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 16, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       // undo
       gD.deleteMember(gA.toSubject());
       gB.deleteMember(gD.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
@@ -149,11 +157,13 @@ public class TestMembership12 extends GrouperTest {
       // Test 4
       gD.addMember(gA.toSubject());
       gB.addMember(gD.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 16, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       // undo
       gB.deleteMember(gD.toSubject());
       gD.deleteMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
@@ -163,11 +173,13 @@ public class TestMembership12 extends GrouperTest {
       gD.addMember(gE.toSubject());
       gE.addMember(gF.toSubject());
       gF.addMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 29, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       // undo
       gF.deleteMember(gA.toSubject());
       gE.deleteMember(gF.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 10, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
@@ -175,10 +187,12 @@ public class TestMembership12 extends GrouperTest {
       // Test 6
       gF.addMember(gA.toSubject());
       gE.addMember(gF.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 29, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       // undo
       gE.deleteMember(gF.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 14, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
@@ -187,10 +201,12 @@ public class TestMembership12 extends GrouperTest {
       gA.deleteCompositeMember();
       gE.addMember(gF.toSubject());
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 29, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       // undo
       gA.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 14, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
@@ -201,6 +217,7 @@ public class TestMembership12 extends GrouperTest {
       gB.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
       gD.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
       gE.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      runCompositeMembershipChangeLogConsumer();
 
       T.amount("Number of list memberships", 14, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 12, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());

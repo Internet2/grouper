@@ -321,6 +321,27 @@ public class EsbEvent {
   /** if we have looked for the subject */
   private boolean _lookedForSubject = false;
   
+  /** */
+  private String compositeOwnerId;
+  
+  /** */
+  private String compositeLeftFactorId;
+  
+  /** */
+  private String compositeRightFactorId;
+  
+  /** */
+  private String compositeOwnerName;
+  
+  /** */
+  private String compositeLeftFactorName;
+  
+  /** */
+  private String compositeRightFactorName;
+  
+  /** */
+  private String compositeType;
+  
   /**
    * sequence number of event for logging or whatnot
    * @return sequence number
@@ -1164,5 +1185,75 @@ public class EsbEvent {
   
   public void setGroupIdIndex(String groupIdIndex) {
     this.groupIdIndex = groupIdIndex;
+  }
+
+  
+  public String getCompositeOwnerId() {
+    return compositeOwnerId;
+  }
+
+  
+  public void setCompositeOwnerId(String compositeOwnerId) {
+    this.compositeOwnerId = compositeOwnerId;
+  }
+
+  
+  public String getCompositeLeftFactorId() {
+    return compositeLeftFactorId;
+  }
+
+  
+  public void setCompositeLeftFactorId(String compositeLeftFactorId) {
+    this.compositeLeftFactorId = compositeLeftFactorId;
+  }
+
+  
+  public String getCompositeRightFactorId() {
+    return compositeRightFactorId;
+  }
+
+  
+  public void setCompositeRightFactorId(String compositeRightFactorId) {
+    this.compositeRightFactorId = compositeRightFactorId;
+  }
+
+  
+  public String getCompositeType() {
+    return compositeType;
+  }
+
+  
+  public void setCompositeType(String compositeType) {
+    this.compositeType = compositeType;
+  }
+
+  
+  public String getCompositeOwnerName() {
+    return compositeOwnerName;
+  }
+
+  
+  public void setCompositeOwnerName(String compositeOwnerName) {
+    this.compositeOwnerName = compositeOwnerName;
+  }
+
+  
+  public String getCompositeLeftFactorName() {
+    return compositeLeftFactorName;
+  }
+
+  
+  public void setCompositeLeftFactorName(String compositeLeftFactorName) {
+    this.compositeLeftFactorName = compositeLeftFactorName;
+  }
+
+  
+  public String getCompositeRightFactorName() {
+    return compositeRightFactorName;
+  }
+
+  
+  public void setCompositeRightFactorName(String compositeRightFactorName) {
+    this.compositeRightFactorName = compositeRightFactorName;
   }
 }

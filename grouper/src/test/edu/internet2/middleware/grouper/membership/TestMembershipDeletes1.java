@@ -98,6 +98,9 @@ public class TestMembershipDeletes1 extends GrouperTest {
    */
   public void testMembershipDeletes1() {
     LOG.info("testMembershipDeletes1");
+    
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       GrouperUtil.sleep(100);
       before  = new Date();
@@ -156,57 +159,73 @@ public class TestMembershipDeletes1 extends GrouperTest {
       gM.addMember(gN.toSubject());
       gN.addMember(subjA);
       gN.addMember(subjB);
+      runCompositeMembershipChangeLogConsumer();
 
       // Remove SA -> gM (causes 2 membership deletes)
       int beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       gM.deleteMember(subjA);
+      runCompositeMembershipChangeLogConsumer();
       int afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       assertEquals("membership changes", -2, afterCount - beforeCount);
       gM.addMember(subjA);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       // Remove gM -> gL (causes 13 membership adds and 7 membership deletes)
       beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       gL.deleteMember(gM.toSubject());
+      runCompositeMembershipChangeLogConsumer();
       afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       assertEquals("membership changes", 6, afterCount - beforeCount);
       gL.addMember(gM.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       // Add and remove SD -> gG (remove causes 1 membership delete)
       gG.addMember(subjD);
+      runCompositeMembershipChangeLogConsumer();
       beforeCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       gG.deleteMember(subjD);
+      runCompositeMembershipChangeLogConsumer();
       afterCount = GrouperDAOFactory.getFactory().getMembership().findAll(true).size();
       assertEquals("membership changes", -1, afterCount - beforeCount);
       
       // add and remove SF -> gI
       gI.addMember(subjFDel);
       gI.deleteMember(subjFDel);
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 46, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 3, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
 
       // remove composite gJ
       gJ.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 55, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
+      runCompositeMembershipChangeLogConsumer();
 
       // remove composite gH
       gH.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 35, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 1, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
       gH.addCompositeMember(CompositeType.COMPLEMENT, gI, gJ);
+      runCompositeMembershipChangeLogConsumer();
 
       // remove composite gE
       gE.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 32, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 3, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
+      runCompositeMembershipChangeLogConsumer();
 
       // remove composite gA
       gA.deleteCompositeMember();
+      runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 44, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
       T.amount("Number of update privileges", 3, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldUpdaters).size());
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
+      runCompositeMembershipChangeLogConsumer();
 
       r.rs.stop();
     }

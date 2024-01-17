@@ -66,8 +66,8 @@ public class TestGroupModifyAttributes extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new TestGroupModifyAttributes("testGroupModifyAttributesAfterDisablingMembership"));
-    TestRunner.run(TestGroupModifyAttributes.class);
+    TestRunner.run(new TestGroupModifyAttributes("testGroupModifyAttributesAfterAddingComplementWithMembers"));
+    //TestRunner.run(TestGroupModifyAttributes.class);
   }
   
   private static final Log LOG = GrouperUtil.getLog(TestGroupModifyAttributes.class);
@@ -246,6 +246,8 @@ public class TestGroupModifyAttributes extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       R       r     = R.populateRegistry(1, 3, 3);
       Group   gA    = r.getGroup("a", "a");
@@ -262,11 +264,16 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gA.addMember(subjA);
       gB.addMember(subjB);
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
+      
+      runCompositeMembershipChangeLogConsumer();
 
       long    pre2   = new java.util.Date().getTime();
       GrouperUtil.sleep(50);
 
       gA.addMember(subjC);
+
+      runCompositeMembershipChangeLogConsumer();
+
       long    post  = new java.util.Date().getTime();
 
       // load group in new session so we don't (potentially) get stale data
@@ -575,6 +582,8 @@ public class TestGroupModifyAttributes extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 3);
       Group   gA    = r.getGroup("a", "a");
       Group   gB    = r.getGroup("a", "b");
@@ -586,6 +595,7 @@ public class TestGroupModifyAttributes extends GrouperTest {
       
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
+      runCompositeMembershipChangeLogConsumer();
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -610,6 +620,8 @@ public class TestGroupModifyAttributes extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       R       r     = R.populateRegistry(1, 3, 3);
       Group   gA    = r.getGroup("a", "a");
@@ -619,11 +631,15 @@ public class TestGroupModifyAttributes extends GrouperTest {
 
       gA.addMember(subjA);
 
+      runCompositeMembershipChangeLogConsumer();
+
       GrouperUtil.sleep(100);
       long    pre   = new java.util.Date().getTime();
       GrouperUtil.sleep(100);
       
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
+
+      runCompositeMembershipChangeLogConsumer();
 
 
       // load group in new session so we don't (potentially) get stale data
@@ -650,18 +666,23 @@ public class TestGroupModifyAttributes extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
     try {
+      runCompositeMembershipChangeLogConsumer();
+
       R       r     = R.populateRegistry(1, 3, 3);
       Group   gA    = r.getGroup("a", "a");
       Group   gB    = r.getGroup("a", "b");
       Group   gC    = r.getGroup("a", "c");
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
 
+      runCompositeMembershipChangeLogConsumer();
 
       GrouperUtil.sleep(100);
       long    pre   = new java.util.Date().getTime();
       GrouperUtil.sleep(100);
       
       gC.deleteCompositeMember();
+
+      runCompositeMembershipChangeLogConsumer();
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );
@@ -686,6 +707,8 @@ public class TestGroupModifyAttributes extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastMembershipTime", "true");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.updateLastImmediateMembershipTime", "true");
 
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       R       r     = R.populateRegistry(1, 3, 3);
       Group   gA    = r.getGroup("a", "a");
@@ -695,11 +718,15 @@ public class TestGroupModifyAttributes extends GrouperTest {
       gC.addCompositeMember(CompositeType.COMPLEMENT, gA, gB);
       gA.addMember(subjA);
 
+      runCompositeMembershipChangeLogConsumer();
+
       GrouperUtil.sleep(100);
       long    pre   = new java.util.Date().getTime();
       GrouperUtil.sleep(100);
       
       gC.deleteCompositeMember();
+
+      runCompositeMembershipChangeLogConsumer();
 
       // load group in new session so we don't (potentially) get stale data
       GrouperSession  s     = GrouperSession.start( SubjectFinder.findRootSubject() );

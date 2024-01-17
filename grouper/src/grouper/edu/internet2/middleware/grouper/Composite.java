@@ -43,10 +43,15 @@ import org.apache.commons.lang.builder.HashCodeBuilder;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.lang.builder.ToStringStyle;
 import org.apache.commons.logging.Log;
+import org.hibernate.type.StringType;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.hooks.CompositeHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksCompositeBean;
@@ -485,6 +490,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public void onPostDelete(HibernateSession hibernateSession) {
     super.onPostDelete(hibernateSession);
 
+    /*
     // fix composites
     Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactorOrHasMemberOfFactor(this.getFactorOwnerUuid());
     Set<String> groupIds = new LinkedHashSet<String>();
@@ -499,8 +505,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     }
     
     Membership.updateLastMembershipChangeDuringMembersListUpdate(groupIds);
-    
-    membersDeletedOnPreDelete = null;
+    */
     
     GrouperHooksUtils.schedulePostCommitHooksIfRegistered(GrouperHookType.COMPOSITE, 
         CompositeHooks.METHOD_COMPOSITE_POST_COMMIT_DELETE, HooksCompositeBean.class, 
@@ -518,6 +523,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public void onPostSave(HibernateSession hibernateSession) {
     super.onPostSave(hibernateSession);
     
+    /*
     // add the composite memberships
     Set<String> membersList = new LinkedHashSet<String>();
     if (this.getType().equals(CompositeType.COMPLEMENT)) {
@@ -547,7 +553,8 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     }
     
     Membership.updateLastMembershipChangeDuringMembersListUpdate(groupIds);
-
+    */
+    
     // update group set object to specify type of composite
     GroupSet selfGroupSet = 
       GrouperDAOFactory.getFactory().getGroupSet().findSelfGroup(this.getFactorOwnerUuid(), Group.getDefaultList().getUuid());
@@ -579,10 +586,6 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
         CompositeHooks.METHOD_COMPOSITE_POST_UPDATE, HooksCompositeBean.class, 
         this, Composite.class, VetoTypeGrouper.COMPOSITE_POST_UPDATE, true, false);
   }
-
-  /** we're using this to save members deleted during a composite delete onPreDelete so it can be used again onPostDelete */
-  private Set<String> membersDeletedOnPreDelete;
-
   
   /**
    * @see edu.internet2.middleware.grouper.GrouperAPI#onPreDelete(edu.internet2.middleware.grouper.hibernate.HibernateSession)
@@ -591,6 +594,7 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
   public void onPreDelete(HibernateSession hibernateSession) {
     super.onPreDelete(hibernateSession);
     
+    /*
     // delete the composite memberships
     Set<Membership> mships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndFieldAndType( 
         this.getFactorOwnerUuid(), Group.getDefaultList(), "composite", false);
@@ -602,6 +606,11 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
     }
     
     GrouperDAOFactory.getFactory().getMembership().delete(mships);
+    */
+    
+    // set via_composite_id to null for all memberships
+    HibernateSession.bySqlStatic().executeSql("update grouper_memberships set via_composite_id = null where via_composite_id = ?",
+        GrouperUtil.toListObject(this.getUuid()), HibUtils.listType(StringType.INSTANCE));
     
     // update the membership type of the group set to 'immediate'
     GroupSet selfGroupSet = 
@@ -613,6 +622,20 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
         CompositeHooks.METHOD_COMPOSITE_PRE_DELETE, HooksCompositeBean.class, 
         this, Composite.class, VetoTypeGrouper.COMPOSITE_PRE_DELETE, false, false);
   
+    Group ownerGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getFactorOwnerUuid(), true);
+    Group leftGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getLeftFactorUuid(), true);
+    Group rightGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getRightFactorUuid(), true);
+
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_COMPOSITE_DELETE, 
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.id.name(), this.getUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.ownerId.name(), this.getFactorOwnerUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.ownerName.name(), ownerGroup.getName(),
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.leftFactorId.name(), this.getLeftFactorUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.leftFactorName.name(), leftGroup.getName(),
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.rightFactorId.name(), this.getRightFactorUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.rightFactorName.name(), rightGroup.getName(),
+        ChangeLogLabels.GROUP_COMPOSITE_DELETE.type.name(), this.type).save();
   }
 
   /**
@@ -627,6 +650,20 @@ public class Composite extends GrouperAPI implements GrouperHasContext, Hib3Grou
         CompositeHooks.METHOD_COMPOSITE_PRE_INSERT, HooksCompositeBean.class, 
         this, Composite.class, VetoTypeGrouper.COMPOSITE_PRE_INSERT, false, false);
   
+    Group ownerGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getFactorOwnerUuid(), true);
+    Group leftGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getLeftFactorUuid(), true);
+    Group rightGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(this.getRightFactorUuid(), true);
+
+    //change log into temp table
+    new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_COMPOSITE_ADD, 
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.id.name(), this.getUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.ownerId.name(), this.getFactorOwnerUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.ownerName.name(), ownerGroup.getName(),
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.leftFactorId.name(), this.getLeftFactorUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.leftFactorName.name(), leftGroup.getName(),
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.rightFactorId.name(), this.getRightFactorUuid(),
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.rightFactorName.name(), rightGroup.getName(),
+        ChangeLogLabels.GROUP_COMPOSITE_ADD.type.name(), this.type).save();
   }
 
   /**

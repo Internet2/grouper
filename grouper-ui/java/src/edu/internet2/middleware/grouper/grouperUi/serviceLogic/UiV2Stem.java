@@ -17,6 +17,7 @@ package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -1541,9 +1542,15 @@ public class UiV2Stem {
         
         if (madeChanges) {
     
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-              TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
-              
+          boolean membershipsMayPropagate = GrouperUtil.checkIfMembershipsMayPropagate(Collections.singleton(group));
+          
+          if (membershipsMayPropagate) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccessButPropagating")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupDeleteMemberSuccess")));
+          }
         } else {
           
           //not sure why this would happen (race condition?)

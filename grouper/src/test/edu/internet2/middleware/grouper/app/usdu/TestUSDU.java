@@ -108,6 +108,8 @@ public class TestUSDU extends GrouperTest {
     try {
       LOG.info("testMemberships");
 
+      runCompositeMembershipChangeLogConsumer();
+      
       R r = R.populateRegistry(1, 6, 1);
 
       Group gA = r.getGroup("a", "a");
@@ -125,6 +127,8 @@ public class TestUSDU extends GrouperTest {
       gE.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
       gF.addCompositeMember(CompositeType.COMPLEMENT, gA, gD);
 
+      runCompositeMembershipChangeLogConsumer();
+
       assertTrue(gA.hasMember(subjA));
       assertTrue(gB.hasMember(subjA));
       assertTrue(gC.hasMember(subjA));
@@ -139,6 +143,8 @@ public class TestUSDU extends GrouperTest {
       assertTrue(unresolvables.iterator().next().getSubjectId().equals(subjA.getId()));
 
       USDU.resolveMembers(unresolvables, true);
+
+      runCompositeMembershipChangeLogConsumer();
 
       assertFalse(gA.hasMember(subjA));
       assertFalse(gB.hasMember(subjA));
@@ -246,6 +252,8 @@ public class TestUSDU extends GrouperTest {
 
       LOG.info("testFailsafe");
 
+      runCompositeMembershipChangeLogConsumer();
+
       R r = R.populateRegistry(1, 6, 2);
 
       Group gA = r.getGroup("a", "a");
@@ -264,6 +272,8 @@ public class TestUSDU extends GrouperTest {
       gC.addCompositeMember(CompositeType.UNION, gA, gD);
       gE.addCompositeMember(CompositeType.INTERSECTION, gA, gB);
       gF.addCompositeMember(CompositeType.COMPLEMENT, gA, gD);
+
+      runCompositeMembershipChangeLogConsumer();
 
       assertTrue(gA.hasMember(subjA));
       assertTrue(gB.hasMember(subjA));

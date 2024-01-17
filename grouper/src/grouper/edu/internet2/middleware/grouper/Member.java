@@ -840,6 +840,16 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   Set<Membership> membershipsToDelete = new HashSet<Membership>();
   
                   for (Membership membershipPrevious : membershipsPrevious) {
+                    if (StringUtils.equals(Member.this.getUuid(), membershipPrevious.getMemberUuid()) && membershipPrevious.isComposite()) {
+                      if (report == null) {
+                        membershipsToDelete.add(membershipPrevious);
+                      } else {
+                        report.append("DELETE membership [since it's a composite]: " 
+                            + membershipPrevious.getUuid() + ", " + membershipPrevious.getOwnerName()
+                            + ", " + membershipPrevious.getListType() + "-" + membershipPrevious.getListName() + "\n");
+                      }
+                    }
+                    
                     if (membershipPrevious.isEffective() || membershipPrevious.isComposite()) {
                       continue;
                     }

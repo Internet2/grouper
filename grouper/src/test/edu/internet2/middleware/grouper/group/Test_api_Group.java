@@ -107,7 +107,7 @@ public class Test_api_Group extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new Test_api_Group("test_copy_name_exists"));
+    TestRunner.run(new Test_api_Group("test_delete_which_causes_membership_add"));
   }
   
   private Group           top_group, child_group;
@@ -147,7 +147,9 @@ public class Test_api_Group extends GrouperTest {
       type3list1 = type3.addList(s, "type3list1", AccessPrivilege.READ, AccessPrivilege.ADMIN);
       type3list2 = type3.addList(s, "type3list2", AccessPrivilege.ADMIN, AccessPrivilege.ADMIN);
       type3attr1 = type3.addAttribute(s, "type3attr1", true);
-      type3attr2 = type3.addAttribute(s, "type3attr2", false);      
+      type3attr2 = type3.addAttribute(s, "type3attr2", false);   
+      
+      runCompositeMembershipChangeLogConsumer();
     }
     catch (Exception e) {
       throw new GrouperException( "test setUp() error: " + e.getMessage(), e );
@@ -446,9 +448,13 @@ public class Test_api_Group extends GrouperTest {
     
     child_group.addMember(a);
     left.addMember(a);
+    runCompositeMembershipChangeLogConsumer();
+    
     assertTrue(top_group.getMembers().size() == 0);
     
     child_group.delete();
+    runCompositeMembershipChangeLogConsumer();
+
     assertTrue(top_group.getMembers().size() == 1);
   }
 
@@ -1301,8 +1307,11 @@ public class Test_api_Group extends GrouperTest {
     Group composite = top.addChildGroup("composite", "composite");
     Group right = top.addChildGroup("right", "right");
     composite.addCompositeMember(CompositeType.UNION, child_group, right);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     Group newGroup = child_group.copy(top);
+    runCompositeMembershipChangeLogConsumer();
+
     verify_copy(r, newGroup, true, true, true, true, true, true);
     
     assertTrue(composite.getComposite(true).getRightGroup().getName().equals("top:right"));
@@ -1326,9 +1335,14 @@ public class Test_api_Group extends GrouperTest {
     left.addMember(a);
     right.addMember(b);
     child_group.addCompositeMember(CompositeType.UNION, left, right);
+    runCompositeMembershipChangeLogConsumer();
+
     group_copy_setup(r, true);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     Group newGroup = child_group.copy(top);
+    runCompositeMembershipChangeLogConsumer();
+
     verify_copy(r, newGroup, true, true, true, true, true, true);
     
     assertTrue(child_group.getComposite(true).getRightGroup().getName().equals("top:right"));
@@ -1914,7 +1928,8 @@ public class Test_api_Group extends GrouperTest {
     test.grantPriv(c, NamingPrivilege.STEM_ATTR_READ);
     
     owner.addCompositeMember(CompositeType.UNION, first, second);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     first.addMember(second.toSubject());
     first.grantPriv(second.toSubject(), AccessPrivilege.UPDATE);
     
@@ -1929,7 +1944,8 @@ public class Test_api_Group extends GrouperTest {
     second.revokePriv(a, AccessPrivilege.ADMIN);
 
     owner.deleteCompositeMember();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     // after all this, the last_membership_change should still be null for all groups
     owner = GroupFinder.findByName(r.rs, "top:owner", true);
     first = GroupFinder.findByName(r.rs, "top:first", true);
@@ -1965,7 +1981,8 @@ public class Test_api_Group extends GrouperTest {
     test.grantPriv(c, NamingPrivilege.STEM_ATTR_READ);
     
     owner.addCompositeMember(CompositeType.UNION, first, second);
-    
+    runCompositeMembershipChangeLogConsumer();
+
     first.addMember(second.toSubject());
     first.grantPriv(second.toSubject(), AccessPrivilege.UPDATE);
     
@@ -1980,7 +1997,8 @@ public class Test_api_Group extends GrouperTest {
     second.revokePriv(a, AccessPrivilege.ADMIN);
 
     owner.deleteCompositeMember();
-    
+    runCompositeMembershipChangeLogConsumer();
+
     // after all this, the last_membership_change should still be null for all groups
     owner = GroupFinder.findByName(r.rs, "top:owner", true);
     first = GroupFinder.findByName(r.rs, "top:first", true);

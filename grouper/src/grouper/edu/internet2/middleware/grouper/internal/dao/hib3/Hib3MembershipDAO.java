@@ -46,6 +46,7 @@ import org.apache.commons.logging.Log;
 import org.hibernate.HibernateException;
 import org.hibernate.Session;
 
+import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
 import edu.internet2.middleware.grouper.Group;
@@ -3661,6 +3662,45 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return results;
   }
   
+  public Set<String> findMissingComplementMemberships(Composite composite) {
+
+    if (composite.getType() != CompositeType.COMPLEMENT) {
+      throw new RuntimeException("Unexpected composite type: " + composite.getTypeDb());
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct m.uuid from MembershipEntry ms, Member m " +
+        "where ms.ownerGroupId = :leftFactorUuid " +
+        "and ms.fieldId = :fieldId " +
+        "and ms.enabledDb = 'T' " +
+        "and ms.memberUuid = m.uuid " +
+        "and m.subjectSourceIdDb <> 'g:gsa' " +
+        "and not exists " +
+        "    (select 1 from MembershipEntry ms2 " +
+        "     where ms2.ownerGroupId = :rightFactorUuid " +
+        "     and ms2.memberUuid = m.uuid " +
+        "     and ms2.fieldId = :fieldId " +
+        "     and ms2.enabledDb = 'T') " +
+        "and not exists " +
+        "    (select 1 from ImmediateMembershipEntry ms3 " +
+        "     where ms3.ownerGroupId = :factorOwnerUuid " +
+        "     and ms3.memberUuid = m.uuid " +
+        "     and ms3.fieldId = :fieldId " +
+        "     and ms3.type = 'composite' " +
+        "     and ms3.enabledDb = 'T') ");
+    
+    Set<String> results = byHqlStatic.createQuery(sql.toString())
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .setString("factorOwnerUuid", composite.getFactorOwnerUuid())
+      .setString("rightFactorUuid", composite.getRightFactorUuid())
+      .setString("leftFactorUuid", composite.getLeftFactorUuid())
+      .listSet(String.class);
+
+    return results;
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findMissingUnionMemberships()
    */
@@ -3693,6 +3733,40 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     Set<Object[]> results = byHqlStatic.createQuery(sql.toString())
       .setString("fieldId", Group.getDefaultList().getUuid())
       .listSet(Object[].class);
+    
+    return results;
+
+  }
+  
+  public Set<String> findMissingUnionMemberships(Composite composite) {
+    
+    if (composite.getType() != CompositeType.UNION) {
+      throw new RuntimeException("Unexpected composite type: " + composite.getTypeDb());
+    }
+
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct m.uuid from MembershipEntry ms, Member m " +
+        "where (ms.ownerGroupId = :leftFactorUuid or ms.ownerGroupId = :rightFactorUuid) " +
+        "and ms.fieldId = :fieldId " +
+        "and ms.enabledDb = 'T' " +
+        "and ms.memberUuid = m.uuid " +
+        "and m.subjectSourceIdDb <> 'g:gsa' " +
+        "and not exists " +
+        "    (select 1 from ImmediateMembershipEntry ms2 " +
+        "     where ms2.ownerGroupId = :factorOwnerUuid " +
+        "     and ms2.memberUuid = m.uuid " +
+        "     and ms2.fieldId = :fieldId " +
+        "     and ms2.type = 'composite' " +
+        "     and ms2.enabledDb = 'T') ");
+    
+    Set<String> results = byHqlStatic.createQuery(sql.toString())
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .setString("factorOwnerUuid", composite.getFactorOwnerUuid())
+      .setString("rightFactorUuid", composite.getRightFactorUuid())
+      .setString("leftFactorUuid", composite.getLeftFactorUuid())
+      .listSet(String.class);
     
     return results;
 
@@ -3738,6 +3812,45 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     return results;
   }
+  
+  public Set<String> findMissingIntersectionMemberships(Composite composite) {
+
+    if (composite.getType() != CompositeType.INTERSECTION) {
+      throw new RuntimeException("Unexpected composite type: " + composite.getTypeDb());
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct m.uuid from MembershipEntry ms, Member m " +
+        "where ms.ownerGroupId = :leftFactorUuid " +
+        "and ms.fieldId = :fieldId " +
+        "and ms.enabledDb = 'T' " +
+        "and ms.memberUuid = m.uuid " +
+        "and m.subjectSourceIdDb <> 'g:gsa' " +
+        "and exists " +
+        "    (select 1 from MembershipEntry ms2 " +
+        "     where ms2.ownerGroupId = :rightFactorUuid " +
+        "     and ms2.memberUuid = m.uuid " +
+        "     and ms2.fieldId = :fieldId " +
+        "     and ms2.enabledDb = 'T') " +
+        "and not exists " +
+        "    (select 1 from ImmediateMembershipEntry ms3 " +
+        "     where ms3.ownerGroupId = :factorOwnerUuid " +
+        "     and ms3.memberUuid = m.uuid " +
+        "     and ms3.fieldId = :fieldId " +
+        "     and ms3.type = 'composite' " +
+        "     and ms3.enabledDb = 'T') ");
+    
+    Set<String> results = byHqlStatic.createQuery(sql.toString())
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .setString("factorOwnerUuid", composite.getFactorOwnerUuid())
+      .setString("rightFactorUuid", composite.getRightFactorUuid())
+      .setString("leftFactorUuid", composite.getLeftFactorUuid())
+      .listSet(String.class);
+    
+    return results;
+  }
 
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadComplementMemberships()
@@ -3774,6 +3887,45 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     Set<Membership> results = byHqlStatic.createQuery(sql.toString())
       .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(Membership.class);
+    
+    return results;
+
+  }
+  
+  public Set<Membership> findBadComplementMemberships(Composite composite) {
+    
+    if (composite.getType() != CompositeType.COMPLEMENT) {
+      throw new RuntimeException("Unexpected composite type: " + composite.getTypeDb());
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct ms from ImmediateMembershipEntry ms, Member m " +
+        "where ms.ownerGroupId = :factorOwnerUuid " +
+        "and ms.fieldId = :fieldId " +
+        "and ms.enabledDb = 'T' " +
+        "and ms.memberUuid = m.uuid " +
+        "and ms.type = 'composite' " +
+        "and (exists " +
+        "    (select 1 from MembershipEntry ms2 " +
+        "     where ms2.ownerGroupId = :rightFactorUuid " +
+        "     and ms2.memberUuid = m.uuid " +
+        "     and ms2.fieldId = :fieldId " +
+        "     and ms2.enabledDb = 'T') " +
+        "  or not exists " +
+        "    (select 1 from MembershipEntry ms3 " +
+        "     where ms3.ownerGroupId = :leftFactorUuid " +
+        "     and ms3.memberUuid = m.uuid " +
+        "     and ms3.fieldId = :fieldId " +
+        "     and ms3.enabledDb = 'T')) ");
+            
+    Set<Membership> results = byHqlStatic.createQuery(sql.toString())
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .setString("factorOwnerUuid", composite.getFactorOwnerUuid())
+      .setString("rightFactorUuid", composite.getRightFactorUuid())
+      .setString("leftFactorUuid", composite.getLeftFactorUuid())
       .listSet(Membership.class);
     
     return results;
@@ -3820,6 +3972,46 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     return results;
 
   }
+
+  public Set<Membership> findBadUnionMemberships(Composite composite) {
+
+    if (composite.getType() != CompositeType.UNION) {
+      throw new RuntimeException("Unexpected composite type: " + composite.getTypeDb());
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct ms from ImmediateMembershipEntry ms, Member m " +
+        "where ms.ownerGroupId = :factorOwnerUuid " +
+        "and ms.fieldId = :fieldId " +
+        "and ms.enabledDb = 'T' " +
+        "and ms.memberUuid = m.uuid " +
+        "and ms.type = 'composite' " +
+        "and not exists " +
+        "    (select 1 from MembershipEntry ms2 " +
+        "     where ms2.ownerGroupId = :rightFactorUuid " +
+        "     and ms2.memberUuid = m.uuid " +
+        "     and ms2.fieldId = :fieldId " +
+        "     and ms2.enabledDb = 'T') " +
+        "and not exists " +
+        "    (select 1 from MembershipEntry ms3 " +
+        "     where ms3.ownerGroupId = :leftFactorUuid " +
+        "     and ms3.memberUuid = m.uuid " +
+        "     and ms3.fieldId = :fieldId " +
+        "     and ms3.enabledDb = 'T') ");
+
+    Set<Membership> results = byHqlStatic.createQuery(sql.toString())
+        .setString("fieldId", Group.getDefaultList().getUuid())
+        .setString("factorOwnerUuid", composite.getFactorOwnerUuid())
+        .setString("rightFactorUuid", composite.getRightFactorUuid())
+        .setString("leftFactorUuid", composite.getLeftFactorUuid())
+        .listSet(Membership.class);
+
+    return results;
+
+  }
+
   
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.MembershipDAO#findBadUnionMemberships()
@@ -3856,6 +4048,45 @@ public class Hib3MembershipDAO extends Hib3DAO implements MembershipDAO {
     
     Set<Membership> results = byHqlStatic.createQuery(sql.toString())
       .setString("fieldId", Group.getDefaultList().getUuid())
+      .listSet(Membership.class);
+    
+    return results;
+
+  }
+  
+  public Set<Membership> findBadIntersectionMemberships(Composite composite) {
+    
+    if (composite.getType() != CompositeType.INTERSECTION) {
+      throw new RuntimeException("Unexpected composite type: " + composite.getTypeDb());
+    }
+    
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic()
+        .setCacheable(false);
+
+    StringBuilder sql = new StringBuilder("select distinct ms from ImmediateMembershipEntry ms, Member m " +
+        "where ms.ownerGroupId = :factorOwnerUuid " +
+        "and ms.fieldId = :fieldId " +
+        "and ms.enabledDb = 'T' " +
+        "and ms.memberUuid = m.uuid " +
+        "and ms.type = 'composite' " +
+        "and (not exists " +
+        "    (select 1 from MembershipEntry ms2 " +
+        "     where ms2.ownerGroupId = :rightFactorUuid " +
+        "     and ms2.memberUuid = m.uuid " +
+        "     and ms2.fieldId = :fieldId " +
+        "     and ms2.enabledDb = 'T') " +
+        "  or not exists " +
+        "    (select 1 from MembershipEntry ms3 " +
+        "     where ms3.ownerGroupId = :leftFactorUuid " +
+        "     and ms3.memberUuid = m.uuid " +
+        "     and ms3.fieldId = :fieldId " +
+        "     and ms3.enabledDb = 'T')) ");
+        
+    Set<Membership> results = byHqlStatic.createQuery(sql.toString())
+      .setString("fieldId", Group.getDefaultList().getUuid())
+      .setString("factorOwnerUuid", composite.getFactorOwnerUuid())
+      .setString("rightFactorUuid", composite.getRightFactorUuid())
+      .setString("leftFactorUuid", composite.getLeftFactorUuid())
       .listSet(Membership.class);
     
     return results;

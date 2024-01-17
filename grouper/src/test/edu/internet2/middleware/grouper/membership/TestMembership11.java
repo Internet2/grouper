@@ -107,6 +107,8 @@ public class TestMembership11 extends GrouperTest {
    */
   public void testNestedComposites() {
     LOG.info("testNestedComposites");
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       //sleep so if auto added members in config check, doesnt mess things up here
       GrouperUtil.sleep(50);
@@ -163,9 +165,11 @@ public class TestMembership11 extends GrouperTest {
       gM.addMember(gN.toSubject());
       gN.addMember(subjA);
       gN.addMember(subjB);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 2
       gB.addMember(gD.toSubject());
@@ -192,9 +196,11 @@ public class TestMembership11 extends GrouperTest {
       gN.addMember(subjA);
       gN.addMember(subjB);
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 3
       gC.addMember(subjB);
@@ -221,9 +227,11 @@ public class TestMembership11 extends GrouperTest {
       gN.addMember(subjB);
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
       gB.addMember(gD.toSubject());
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 4
       gC.addMember(subjC);
@@ -250,9 +258,11 @@ public class TestMembership11 extends GrouperTest {
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
       gB.addMember(gD.toSubject());
       gC.addMember(subjB);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 5
       gC.addMember(subjD);
@@ -279,9 +289,11 @@ public class TestMembership11 extends GrouperTest {
       gB.addMember(gD.toSubject());
       gC.addMember(subjB);
       gC.addMember(subjC);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 6
       gD.addMember(gE.toSubject());
@@ -308,9 +320,11 @@ public class TestMembership11 extends GrouperTest {
       gC.addMember(subjB);
       gC.addMember(subjC);
       gC.addMember(subjD);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 7
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
@@ -337,9 +351,11 @@ public class TestMembership11 extends GrouperTest {
       gC.addMember(subjC);
       gC.addMember(subjD);
       gD.addMember(gE.toSubject());
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 8
       gF.addMember(subjD);
@@ -366,9 +382,11 @@ public class TestMembership11 extends GrouperTest {
       gC.addMember(subjD);
       gD.addMember(gE.toSubject());
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 9
       gG.addMember(subjE);
@@ -395,9 +413,11 @@ public class TestMembership11 extends GrouperTest {
       gD.addMember(gE.toSubject());
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
       gF.addMember(subjD);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 10
       gG.addMember(gH.toSubject());
@@ -424,9 +444,11 @@ public class TestMembership11 extends GrouperTest {
       gE.addCompositeMember(CompositeType.UNION, gF, gG);
       gF.addMember(subjD);
       gG.addMember(subjE);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 11
       gH.grantPriv(gH.toSubject(), AccessPrivilege.UPDATE);
@@ -453,9 +475,11 @@ public class TestMembership11 extends GrouperTest {
       gF.addMember(subjD);
       gG.addMember(subjE);
       gG.addMember(gH.toSubject());
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 12
       gH.addCompositeMember(CompositeType.COMPLEMENT, gI, gJ);
@@ -482,9 +506,11 @@ public class TestMembership11 extends GrouperTest {
       gG.addMember(subjE);
       gG.addMember(gH.toSubject());
       gH.grantPriv(gH.toSubject(), AccessPrivilege.UPDATE);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 13
       gI.addMember(subjA);
@@ -511,9 +537,11 @@ public class TestMembership11 extends GrouperTest {
       gG.addMember(gH.toSubject());
       gH.grantPriv(gH.toSubject(), AccessPrivilege.UPDATE);
       gH.addCompositeMember(CompositeType.COMPLEMENT, gI, gJ);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 14
       gI.addMember(subjB);
@@ -540,9 +568,11 @@ public class TestMembership11 extends GrouperTest {
       gH.grantPriv(gH.toSubject(), AccessPrivilege.UPDATE);
       gH.addCompositeMember(CompositeType.COMPLEMENT, gI, gJ);
       gI.addMember(subjA);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 15
       gI.addMember(subjC);
@@ -569,9 +599,11 @@ public class TestMembership11 extends GrouperTest {
       gH.addCompositeMember(CompositeType.COMPLEMENT, gI, gJ);
       gI.addMember(subjA);
       gI.addMember(subjB);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 16
       gI.addMember(subjF);
@@ -598,9 +630,11 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjA);
       gI.addMember(subjB);
       gI.addMember(subjC);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 17
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
@@ -627,9 +661,11 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjB);
       gI.addMember(subjC);
       gI.addMember(subjF);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 18
       gK.addMember(subjA);
@@ -656,9 +692,11 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjC);
       gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 19
       gK.addMember(subjB);
@@ -685,9 +723,11 @@ public class TestMembership11 extends GrouperTest {
       gI.addMember(subjF);
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 20
       gL.addMember(gM.toSubject());
@@ -714,9 +754,11 @@ public class TestMembership11 extends GrouperTest {
       gJ.addCompositeMember(CompositeType.INTERSECTION, gK, gL);
       gK.addMember(subjA);
       gK.addMember(subjB);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 21
       gM.addMember(subjA);
@@ -743,9 +785,11 @@ public class TestMembership11 extends GrouperTest {
       gK.addMember(subjA);
       gK.addMember(subjB);
       gL.addMember(gM.toSubject());
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 22
       gM.addMember(gN.toSubject());
@@ -772,9 +816,11 @@ public class TestMembership11 extends GrouperTest {
       gK.addMember(subjB);
       gL.addMember(gM.toSubject());
       gM.addMember(subjA);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 23
       gN.addMember(subjA);
@@ -801,9 +847,11 @@ public class TestMembership11 extends GrouperTest {
       gL.addMember(gM.toSubject());
       gM.addMember(subjA);
       gM.addMember(gN.toSubject());
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
       deleteMemberships();
+      runCompositeMembershipChangeLogConsumer();
 
       // Test 24
       gN.addMember(subjB);
@@ -830,7 +878,8 @@ public class TestMembership11 extends GrouperTest {
       gM.addMember(subjA);
       gM.addMember(gN.toSubject());
       gN.addMember(subjA);
-      
+      runCompositeMembershipChangeLogConsumer();
+
       verifyMemberships();
 
       r.rs.stop();

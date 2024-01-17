@@ -84,6 +84,8 @@ public class TestMembership9 extends GrouperTest {
 
   public void testIntersectionComposite() {
     LOG.info("testIntersectionComposite");
+    runCompositeMembershipChangeLogConsumer();
+
     try {
       GrouperUtil.sleep(100);
       before  = new Date();
@@ -115,6 +117,7 @@ public class TestMembership9 extends GrouperTest {
       gE.addMember(gA.toSubject());
       gF.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.grantPriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
 
@@ -126,6 +129,7 @@ public class TestMembership9 extends GrouperTest {
       gE.deleteMember(gA.toSubject());
       gF.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.revokePriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
       T.amount("Number of list memberships", 0, listMemberships.size());
@@ -144,6 +148,7 @@ public class TestMembership9 extends GrouperTest {
       gF.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.grantPriv(gA.toSubject(), NamingPrivilege.CREATE);
       gB.addMember(gD.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
 
@@ -155,6 +160,7 @@ public class TestMembership9 extends GrouperTest {
       gE.deleteMember(gA.toSubject());
       gF.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.revokePriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
       T.amount("Number of list memberships", 0, listMemberships.size());
@@ -173,6 +179,7 @@ public class TestMembership9 extends GrouperTest {
       nsA.grantPriv(gA.toSubject(), NamingPrivilege.CREATE);
       gB.addMember(gD.toSubject());
       gD.addMember(subjA);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
 
@@ -184,6 +191,7 @@ public class TestMembership9 extends GrouperTest {
       gE.deleteMember(gA.toSubject());
       gF.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.revokePriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
       T.amount("Number of list memberships", 0, listMemberships.size());
@@ -202,6 +210,7 @@ public class TestMembership9 extends GrouperTest {
       gB.addMember(gD.toSubject());
       gD.addMember(subjA);
       gC.addMember(subjA);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
 
@@ -213,6 +222,7 @@ public class TestMembership9 extends GrouperTest {
       gE.deleteMember(gA.toSubject());
       gF.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.revokePriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
       T.amount("Number of list memberships", 0, listMemberships.size());
@@ -231,6 +241,7 @@ public class TestMembership9 extends GrouperTest {
       gD.addMember(subjA);
       gC.addMember(subjA);
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
 
@@ -242,6 +253,7 @@ public class TestMembership9 extends GrouperTest {
       gE.deleteMember(gA.toSubject());
       gF.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.revokePriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
       T.amount("Number of list memberships", 0, listMemberships.size());
@@ -260,6 +272,7 @@ public class TestMembership9 extends GrouperTest {
       gC.addMember(subjA);
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
       gE.addMember(gA.toSubject());
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
 
@@ -271,6 +284,7 @@ public class TestMembership9 extends GrouperTest {
       gE.deleteMember(gA.toSubject());
       gF.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.revokePriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
       T.amount("Number of list memberships", 0, listMemberships.size());
@@ -289,6 +303,7 @@ public class TestMembership9 extends GrouperTest {
       gA.addCompositeMember(CompositeType.INTERSECTION, gB, gC);
       gE.addMember(gA.toSubject());
       gF.grantPriv(gA.toSubject(), AccessPrivilege.UPDATE);
+      runCompositeMembershipChangeLogConsumer();
 
       verifyMemberships();
 
@@ -300,6 +315,7 @@ public class TestMembership9 extends GrouperTest {
       gE.deleteMember(gA.toSubject());
       gF.revokePriv(gA.toSubject(), AccessPrivilege.UPDATE);
       nsA.revokePriv(gA.toSubject(), NamingPrivilege.CREATE);
+      runCompositeMembershipChangeLogConsumer();
 
       listMemberships = MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers);
       T.amount("Number of list memberships", 0, listMemberships.size());
