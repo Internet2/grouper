@@ -4881,7 +4881,10 @@ public class GrouperInstaller {
     classesDir.mkdirs();
     File binDir = new File(webInfDir+File.separator+"bin");
     binDir.mkdirs();
-    
+
+    File pluginsDir = new File(containerDirString + "plugins]");
+    webAppDir.mkdirs();
+
     // go in grouper-container and run mvn dependency:copy-dependencies
     Map<File, File> projectDirToOutputLibDir = new LinkedHashMap<File, File>();
     projectDirToOutputLibDir.put(new File(grouperUntarredReleaseDir + File.separator + "grouper-container" + File.separator + "grouper-api-container"), libDir);
@@ -5027,7 +5030,10 @@ public class GrouperInstaller {
     reportOnConflictingJars(libDir.getAbsolutePath());
     reportOnConflictingJars(libUiAndDaemonDir.getAbsolutePath());
     reportOnConflictingJars(libWsDir.getAbsolutePath());
-    
+
+    // now download plugins intothe plugin directory
+    downloadGrouperPluginJarsIntoPluginDirectory(pluginsDir);
+
     // copy apache-tomcat-x.y.z to tomcat
     // why can't uncompressed directory has the same name??? :((
     File tomcatUntarredDir = new File(this.grouperTarballDirectoryString + File.separator + "apache-tomcat-" + this.tomcatVersion());
@@ -6706,6 +6712,18 @@ public class GrouperInstaller {
       downloadFile(wsUrlToDownload, libWsDir.getAbsolutePath() + File.separator+ wsJarfileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
     }
     
+  }
+
+  private void downloadGrouperPluginJarsIntoPluginDirectory(File pluginDir) {
+    String basePath = "https://oss.sonatype.org/service/local/repositories/releases/content/edu/internet2/middleware/grouper/";
+
+    List<String> urlsToDownload = new ArrayList<String>();
+    urlsToDownload.add(basePath+"grouper-authentication-plugin/"+this.version+"/grouper-authentication-plugin.jar");
+
+    for (String urlToDownload: urlsToDownload) {
+      String fileName = urlToDownload.substring(urlToDownload.lastIndexOf(File.separator)+1, urlToDownload.length());
+      downloadFile(urlToDownload, pluginDir.getAbsolutePath() + File.separator+ fileName, "grouperInstaller.autorun.buildContainerUseExistingJarIfExists");
+    }
   }
 
   /**
