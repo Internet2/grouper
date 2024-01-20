@@ -16,12 +16,10 @@
                     <%@ include file="../stem/stemMoreTab.jsp" %>
                   </c:if>
                 </ul>
-                <div class="row-fluid">
+                 <div class="row-fluid">
                   <div class="lead span9">${textContainer.text['provisioningFolderSettingsTitle'] }</div>
-                  <div class="span3" id="grouperProvisioningFolderMoreActionsButtonContentsDivId">
-                    <%@ include file="provisioningFolderMoreActionsButtonContents.jsp"%>
-                  </div>
                 </div>
+                
                 <c:set var="ObjectType" value="Folder" />
                 <%@ include file="provisioningSettingsView.jsp"%>
 

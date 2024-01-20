@@ -263,16 +263,29 @@ public class GrouperProvisioningService {
   }
   
   /**
-   * retrieve type setting for a given grouper object (group/stem) and target name.
+   * retrieve provisioning settings for a given grouper object (group/stem) and target name.
    * @param grouperObject
    * @param targetName
    * @return
    */
   public static GrouperProvisioningAttributeValue getProvisioningAttributeValue(GrouperObject grouperObject, String targetName) {
+    return getProvisioningAttributeValue(grouperObject, targetName, false);
+  }
+  
+  /**
+   * retrieve provisioning setting for a given grouper object (group/stem) and target name.
+   * @param grouperObject
+   * @param targetName
+   * @param onlyCalculateParent
+   * @return
+   */
+  public static GrouperProvisioningAttributeValue getProvisioningAttributeValue(GrouperObject grouperObject, String targetName, boolean onlyCalculateParent) {
      
-    AttributeAssign attributeAssign = getAttributeAssign(grouperObject, targetName);
-    if (attributeAssign != null) {
-      return buildGrouperProvisioningAttributeValue(attributeAssign);
+    if (!onlyCalculateParent) {
+      AttributeAssign attributeAssign = getAttributeAssign(grouperObject, targetName);
+      if (attributeAssign != null) {
+        return buildGrouperProvisioningAttributeValue(attributeAssign);
+      }
     }
     
     if (!(grouperObject instanceof Group) && !(grouperObject instanceof Stem)) {

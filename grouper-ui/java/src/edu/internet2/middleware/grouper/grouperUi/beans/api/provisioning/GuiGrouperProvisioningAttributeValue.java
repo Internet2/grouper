@@ -2,7 +2,9 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api.provisioning;
 
 import java.sql.Timestamp;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -10,10 +12,14 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GuiGrouperProvisioningAttributeValue {
   
@@ -46,6 +52,10 @@ public class GuiGrouperProvisioningAttributeValue {
 //  private boolean canAssignProvisioning;
   
   private List<GrouperProvisioningObjectMetadataItem> metadataItems = new ArrayList<GrouperProvisioningObjectMetadataItem>();
+  
+  private Map<String, Object> metadataNameValuesExternalized = new HashMap<>();
+
+  private boolean parentWillMakeThisProvisionable;
   
   public Timestamp getLastTimeWorkWasDone() {
     return lastTimeWorkWasDone;
@@ -118,21 +128,69 @@ public class GuiGrouperProvisioningAttributeValue {
     return GrouperProvisioningSettings.getTargets(true).get(this.grouperProvisioningAttributeValue.getTargetName()).getKey();
   }
   
-  public static List<GuiGrouperProvisioningAttributeValue> convertFromGrouperProvisioningAttributeValues(List<GrouperProvisioningAttributeValue> attributeValues) {
+  public static List<GuiGrouperProvisioningAttributeValue> convertFromGrouperProvisioningAttributeValues(List<GrouperProvisioningAttributeValue> attributeValues, GrouperObject grouperObject) {
     
     List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = new ArrayList<GuiGrouperProvisioningAttributeValue>();
     
     for (GrouperProvisioningAttributeValue singleAttributeValue: attributeValues) {
       GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(singleAttributeValue);
       guiGrouperProvisioningAttributeValue.setProvisionable(singleAttributeValue.getDoProvision() != null);
+      
+      GrouperProvisioningAttributeValue parentProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(grouperObject, singleAttributeValue.getTargetName(), true);
+      if (parentProvisioningAttributeValue != null) {
+        guiGrouperProvisioningAttributeValue.setParentWillMakeThisProvisionable(true);
+      }
+      
+      Map<String, Object> metadataNameValues = singleAttributeValue.getMetadataNameValues();
+      for (String metadataName: metadataNameValues.keySet()) {
+        //md_anotherMetadata_myTeamDynamixProvisioner_label
+        
+        if (metadataName.equals("md_grouper_allowPolicyGroupOverride")) {
+          String labelOrNull = GrouperTextContainer.textOrNull("grouperProvisioningObjectMetadataProvisionOnlyPolicyGroupsLabel");
+          String stringValue = GrouperUtil.stringValue(metadataNameValues.get(metadataName));
+          stringValue = GrouperUtil.defaultIfBlank(stringValue, "");
+          stringValue = GrouperUtil.xmlEscape(stringValue);
+          guiGrouperProvisioningAttributeValue.metadataNameValuesExternalized.put(GrouperUtil.defaultString(labelOrNull, metadataName), stringValue);
+          continue;
+        } else if (metadataName.equals("md_grouper_allowProvisionableRegexOverride")) {
+          String labelOrNull = GrouperTextContainer.textOrNull("grouperProvisioningObjectMetadataProvisionableRegexLabel");
+          String stringValue = GrouperUtil.stringValue(metadataNameValues.get(metadataName));
+          stringValue = GrouperUtil.defaultIfBlank(stringValue, "");
+          stringValue = GrouperUtil.xmlEscape(stringValue);
+          guiGrouperProvisioningAttributeValue.metadataNameValuesExternalized.put(GrouperUtil.defaultString(labelOrNull, metadataName), stringValue);
+          continue;
+        }
+        
+        String labelOrNull = GrouperTextContainer.textOrNull(metadataName+"_"+singleAttributeValue.getTargetName()+"_label");
+        String stringValue = GrouperUtil.stringValue(metadataNameValues.get(metadataName));
+        stringValue = GrouperUtil.defaultIfBlank(stringValue, "");
+        stringValue = GrouperUtil.xmlEscape(stringValue);
+        guiGrouperProvisioningAttributeValue.metadataNameValuesExternalized.put(GrouperUtil.defaultString(labelOrNull, metadataName), stringValue);
+      }
+      
       guiGrouperProvisioningAttributeValues.add(guiGrouperProvisioningAttributeValue);
     }
     
     return guiGrouperProvisioningAttributeValues;
     
   }
+  
+  
+  private void setParentWillMakeThisProvisionable(boolean parentWillMakeThisProvisionable) {
+    this.parentWillMakeThisProvisionable = parentWillMakeThisProvisionable;
+  }
 
   
+  public boolean isParentWillMakeThisProvisionable() {
+    return parentWillMakeThisProvisionable;
+  }
+
+
+  public Map<String, Object> getMetadataNameValuesExternalized() {
+    return metadataNameValuesExternalized;
+  }
+
+
   public List<GrouperProvisioningObjectMetadataItem> getMetadataItems() {
     return metadataItems;
   }

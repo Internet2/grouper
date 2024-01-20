@@ -18,10 +18,8 @@
                 </ul>
                 <div class="row-fluid">
                   <div class="lead span9">${textContainer.text['provisioningFolderSettingsTitle'] }</div>
-                  <div class="span3" id="grouperProvisioningFolderMoreActionsButtonContentsDivId">
-                    <%@ include file="provisioningFolderMoreActionsButtonContents.jsp"%>
-                  </div>
                 </div>
+                
                 <c:set var="ObjectType" value="Folder" />
                 <%@ include file="provisioningFolderTargetDetailsHelper.jsp"%>
               </div>

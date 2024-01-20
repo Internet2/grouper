@@ -16,13 +16,11 @@
                     <%@ include file="../stem/stemMoreTab.jsp" %>
                   </c:if>
                 </ul>
-                <div class="row-fluid">
-                  <div class="lead span9">${textContainer.text['provisioningFolderSettingsTitle'] }</div>
-                  <div class="span3" id="grouperProvisioningFolderMoreActionsButtonContentsDivId">
-                    <%@ include file="provisioningFolderMoreActionsButtonContents.jsp"%>
-                  </div>
-                </div>
                 
+                <div class="row-fluid">
+                    <div class="lead span9">${textContainer.text['provisioningFolderSettingsTitle'] }</div>
+                </div>
+    
                 <form class="form-inline form-small form-filter" id="editProvisioningFormId">
                   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
                   <table class="table table-condensed table-striped">

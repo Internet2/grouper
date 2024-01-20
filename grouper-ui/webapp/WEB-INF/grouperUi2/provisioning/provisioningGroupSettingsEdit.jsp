@@ -20,9 +20,6 @@
     </div>
     <div class="row-fluid">
       <div class="lead span9">${textContainer.text['provisioningGroupSettingsTitle'] }</div>
-      <div class="span3" id="provisioningGroupMoreActionsButtonContentsDivId">
-        <%@ include file="provisioningGroupMoreActionsButtonContents.jsp"%>
-      </div>
     </div>
 
                 <form class="form-inline form-small form-filter" id="editProvisioningFormId">

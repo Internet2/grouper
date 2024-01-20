@@ -22,14 +22,27 @@ ${grouper:titleFromKeyAndText('groupProvisioningPageTitle', grouperRequestContai
     </div>
     <div class="row-fluid">
       <div class="lead span9">${textContainer.text['provisioningGroupProvisioningTitle'] }</div>
-      <div class="span3" id="grouperProvisioningGroupMoreActionsButtonContentsDivId">
-        <%@ include file="provisioningGroupMoreActionsButtonContents.jsp"%>
-      </div>
     </div>
     
     <div class="row-fluid">
       <div class="span9"> <p>${textContainer.text['provisioningGroupProvisioningDescription'] }</p></div>
     </div>
+    
+       <div class="row-fluid">
+      <div class="span12"> 
+       <a href="#" onclick="$('#provisioningGroupDocumentation').toggle('slow'); return false;">
+        ${textContainer.text['provisioning.documentationLink'] }
+       </a>
+      </div>
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12" style="min-height: 10px;"> 
+        <div id="provisioningGroupDocumentation" style="display: none; font-weight:normal;">
+         ${textContainer.text['provisioning.group.documentation']}
+        </div>
+      </div>
+   </div>
     
     <%@ include file="provisioningGroupProvisionersTableHelper.jsp"%>
     
