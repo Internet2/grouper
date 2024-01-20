@@ -20,9 +20,6 @@
     </div>
     <div class="row-fluid">
       <div class="lead span9">${textContainer.text['provisioningGroupDetailsTitle'] }</div>
-      <div class="span3" id="grouperProvisioningGroupMoreActionsButtonContentsDivId">
-        <%@ include file="provisioningGroupMoreActionsButtonContents.jsp"%>
-      </div>
     </div>
     
     <%@ include file="provisioningGroupProvisionersTableHelper.jsp"%>

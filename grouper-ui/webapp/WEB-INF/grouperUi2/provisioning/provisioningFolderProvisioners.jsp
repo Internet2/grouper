@@ -21,16 +21,30 @@ ${grouper:titleFromKeyAndText('stemProvisioningPageTitle', grouperRequestContain
         </c:if>
       </ul>
     </div>
-   <div class="row-fluid">
+    
+    <div class="row-fluid">
       <div class="lead span9">${textContainer.text['provisioningFolderSettingsTitle'] }</div>
-      <div class="span3" id="grouperProvisioningFolderMoreActionsButtonContentsDivId">
-        <%@ include file="provisioningFolderMoreActionsButtonContents.jsp"%>
-      </div>
     </div>
     
     <div class="row-fluid">
       <div class="span9"> <p>${textContainer.text['provisioningFolderProvisioningDescription'] }</p></div>
     </div>
+    
+    <div class="row-fluid">
+      <div class="span12"> 
+       <a href="#" onclick="$('#provisioningFolderDocumentation').toggle('slow'); return false;">
+        ${textContainer.text['provisioning.documentationLink'] }
+       </a>
+      </div>
+    </div>
+    
+    <div class="row-fluid">
+      <div class="span12" style="min-height: 10px;"> 
+        <div id="provisioningFolderDocumentation" style="display: none; font-weight:normal;">
+         ${textContainer.text['provisioning.folder.documentation']}
+        </div>
+      </div>
+   </div>
     
     <%@ include file="provisioningFolderProvisionersTableHelper.jsp"%>
     
