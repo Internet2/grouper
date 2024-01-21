@@ -3070,17 +3070,18 @@ public class Hib3GroupDAO extends Hib3DAO implements GroupDAO {
     
     Set<Group> overallResults = new LinkedHashSet<Group>();
     
-    int groupBatches = GrouperUtil.batchNumberOfBatches(totalGroupIds, 100);
+    int groupBatches = GrouperUtil.batchNumberOfBatches(totalGroupIds, 100, true);
 
     List<String> totalGroupIdsList = new ArrayList<String>(GrouperUtil.nonNull(totalGroupIds));
     
     long count = 0L;
 
+    // TODO are we expecting to search by names and ids at the same time?  if so this wouldnt work
     for (int groupIndex = 0; groupIndex < groupBatches; groupIndex++) {
       
       List<String> groupIds = GrouperUtil.batchList(totalGroupIdsList, 100, groupIndex);
 
-      int groupNameBatches = GrouperUtil.batchNumberOfBatches(totalGroupNames, 50);
+      int groupNameBatches = GrouperUtil.batchNumberOfBatches(totalGroupNames, 50, true);
 
       List<String> totalGroupNamesList = new ArrayList<String>(GrouperUtil.nonNull(totalGroupNames));
       

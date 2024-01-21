@@ -46,30 +46,36 @@ public class CustomUiGrouper extends CustomUiUserQueryBase {
   public static void main(String[] args) throws Exception {
     GrouperStartup.startup();
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    Subject subject1 = SubjectFinder.findById("10021368", true);
-    Subject subject2 = SubjectFinder.findById("13228666", true);
-    Subject subject3 = SubjectFinder.findById("10002177", true);
-    Subject subject4 = SubjectFinder.findById("15251428", true);
-    
-    Group group = GroupFinder.findByName(grouperSession, "penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod", true);
-    
-    CustomUiGrouper customUiGrouper = new CustomUiGrouper();
-    
-    for (Subject subject : new Subject[]{subject1, subject2, subject3, subject4}) {
-      boolean hasMembership = customUiGrouper.hasGrouperMembership(group, subject);
-          
-      System.out.println(hasMembership);
-      
-      boolean hasPrivilege = customUiGrouper.hasDirectGrouperGroupPrivilege(group, subject, "read");
-      
-      System.out.println(hasPrivilege);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      boolean canPrivilege = customUiGrouper.canHaveGroupPrivilege(group, subject, "read");
-      
-      System.out.println(canPrivilege);
-    }
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Subject subject1 = SubjectFinder.findById("10021368", true);
+        Subject subject2 = SubjectFinder.findById("13228666", true);
+        Subject subject3 = SubjectFinder.findById("10002177", true);
+        Subject subject4 = SubjectFinder.findById("15251428", true);
+        
+        Group group = GroupFinder.findByName(grouperSession, "penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod", true);
+        
+        CustomUiGrouper customUiGrouper = new CustomUiGrouper();
+        
+        for (Subject subject : new Subject[]{subject1, subject2, subject3, subject4}) {
+          boolean hasMembership = customUiGrouper.hasGrouperMembership(group, subject);
+              
+          System.out.println(hasMembership);
+          
+          boolean hasPrivilege = customUiGrouper.hasDirectGrouperGroupPrivilege(group, subject, "read");
+          
+          System.out.println(hasPrivilege);
+
+          boolean canPrivilege = customUiGrouper.canHaveGroupPrivilege(group, subject, "read");
+          
+          System.out.println(canPrivilege);
+        }
+        return null;
+      }
+    });
   }
   
   /**

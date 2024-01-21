@@ -378,40 +378,45 @@ public class GrouperUiFilter implements Filter {
       throw new NoUserAuthenticatedException("Cant find logged in user");
     }
     
-    GrouperSession rootSession = GrouperSession.startRootSession();
-    try {
-      String sourceIds = GrouperUiConfig.retrieveConfig().propertyValueString("grouper.ui.authentication.sourceIds");
-      if (StringUtils.isBlank(sourceIds)) {
-        subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
-      } else {
-        Subject theSubjectLoggedIn = null;
-        for (String sourceId : GrouperUtil.splitTrim(sourceIds, ",")) {
-          Subject tempSubject = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
-          if (tempSubject != null) {
-            if (theSubjectLoggedIn == null) {
-              theSubjectLoggedIn = tempSubject;
-            } else {
-              throw new SubjectNotUniqueException("Found multiple matching subjects: '" + userIdLoggedIn + "'");
+    return (Subject)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Subject subjectLoggedIn = null;
+        try {
+          String sourceIds = GrouperUiConfig.retrieveConfig().propertyValueString("grouper.ui.authentication.sourceIds");
+          if (StringUtils.isBlank(sourceIds)) {
+            subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
+          } else {
+            Subject theSubjectLoggedIn = null;
+            for (String sourceId : GrouperUtil.splitTrim(sourceIds, ",")) {
+              Subject tempSubject = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
+              if (tempSubject != null) {
+                if (theSubjectLoggedIn == null) {
+                  theSubjectLoggedIn = tempSubject;
+                } else {
+                  throw new SubjectNotUniqueException("Found multiple matching subjects: '" + userIdLoggedIn + "'");
+                }
+              }
+            }
+            subjectLoggedIn = theSubjectLoggedIn;
+            if (subjectLoggedIn == null) {
+              throw new SubjectNotFoundException("Cannot find subject by id or identifier: '" + userIdLoggedIn + "'");
             }
           }
+        } catch (RuntimeException re) {
+          if (re instanceof SubjectNotFoundException && allowNoUserLoggedIn) {
+            return null;
+          }
+          //this is probably a system error...  not a user error
+          GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
+          throw re;
         }
-        subjectLoggedIn = theSubjectLoggedIn;
-        if (subjectLoggedIn == null) {
-          throw new SubjectNotFoundException("Cannot find subject by id or identifier: '" + userIdLoggedIn + "'");
-        }
+            
+        return subjectLoggedIn;
       }
-    } catch (RuntimeException re) {
-      if (re instanceof SubjectNotFoundException && allowNoUserLoggedIn) {
-        return null;
-      }
-      //this is probably a system error...  not a user error
-      GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
-      throw re;
-    } finally {
-      GrouperSession.stopQuietly(rootSession);
-    }
-        
-    return subjectLoggedIn;
+    });
+    
 
   }
 

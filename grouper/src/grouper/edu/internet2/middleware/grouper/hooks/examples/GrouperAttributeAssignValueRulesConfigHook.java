@@ -113,7 +113,7 @@ public class GrouperAttributeAssignValueRulesConfigHook extends AttributeAssignV
     try {
       
       //do this as admin
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
   
         /**
          * 

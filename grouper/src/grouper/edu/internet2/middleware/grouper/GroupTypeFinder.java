@@ -222,7 +222,8 @@ public class GroupTypeFinder {
         String groupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
         String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
 
-        Stem stem = GrouperCheckConfig.legacyAttributeBaseStem(grouperSession);
+        String legacyAttributesStemName =  GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+        Stem stem = StemFinder.findByName(legacyAttributesStemName, true);
         
         Set<AttributeDefName> attributes = GrouperDAOFactory.getFactory().getAttributeDefName().findByStem(stem.getUuid());
         for (AttributeDefName attribute : attributes) {

@@ -1671,8 +1671,6 @@ public class GrouperLoaderTest extends GrouperTest {
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperLoaderGroups").executeUpdate();
       HibernateSession.byHqlStatic().createQuery("delete from TestgrouperIncrementalLoader").executeUpdate();
       
-      GrouperStartup.initLoaderType();
-      
       setupTestConfigForIncludeExclude();
       
       GrouperStartup.initIncludeExcludeType();

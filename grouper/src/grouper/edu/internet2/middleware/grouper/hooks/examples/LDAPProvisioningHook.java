@@ -64,7 +64,7 @@ public class LDAPProvisioningHook extends GroupHooks {
 
     if (excludeMatches) {
 
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
         @Override
         public Object callback(GrouperSession grouperSession)

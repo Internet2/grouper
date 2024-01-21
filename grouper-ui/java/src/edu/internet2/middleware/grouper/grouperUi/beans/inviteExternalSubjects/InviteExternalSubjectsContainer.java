@@ -141,29 +141,29 @@ public class InviteExternalSubjectsContainer {
           return null;
           
         }
-  
-      grouperSession = GrouperSession.startRootSession(false);
-      try {
         final Group GROUP = group;
-        boolean canEdit = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-        
+
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
           @Override
-          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-            return GROUP.hasUpdate(loggedInSubject) || GROUP.hasAdmin(loggedInSubject);
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            boolean canEdit = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+            
+              @Override
+              public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+                return GROUP.hasUpdate(loggedInSubject) || GROUP.hasAdmin(loggedInSubject);
+              }
+            });
+            if (!canEdit) {
+              String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupPrivileges");
+              errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(GROUP.getDisplayName(), true));
+              guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
+              return null;
+            }
+            defaultGroup = GROUP;
+            return null;
           }
         });
-        if (!canEdit) {
-          String errorMessage = TagUtils.navResourceString("inviteExternalSubjects.invalidGroupPrivileges");
-          errorMessage = StringUtils.replace(errorMessage, "{0}", GrouperUiUtils.escapeHtml(group.getDisplayName(), true));
-          guiResponseJs.addAction(GuiScreenAction.newAlert(errorMessage));
-          return null;
-        }
-        this.defaultGroup = group;
-  
-        
-      } finally {
-        GrouperSession.stopQuietly(grouperSession);
-      }
       
     }
     return this.defaultGroup;      

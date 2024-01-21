@@ -37,6 +37,8 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogProcessorMetadata;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -68,7 +70,13 @@ public class EsbConsumer extends ChangeLogConsumerBase {
    * @param args
    */
   public static void main(String[] args) {
-    GrouperSession grouperSession = GrouperSession.startRootSession();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return null;
+      }
+    });
     
     //GrouperBuiltinMessagingSystem.createQueue("abc");
 //    int i=14;

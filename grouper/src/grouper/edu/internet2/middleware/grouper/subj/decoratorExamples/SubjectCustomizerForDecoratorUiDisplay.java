@@ -85,7 +85,7 @@ public class SubjectCustomizerForDecoratorUiDisplay extends SubjectCustomizerBas
       } else {
 
         //do this check as root so anyone can do it
-        allowExtendedDisplay = (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        allowExtendedDisplay = (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
           
           @Override
           public Object callback(GrouperSession rootSession) throws GrouperSessionException {

@@ -33,12 +33,6 @@ public class GshTemplateTestExec {
   public ProgressBean getProgressBean() {
     return this.progressBean;
   }
-
-  public static void main(String[] args) {
-    GrouperStartup.startup();
-    GrouperSession.startRootSession();
-     
-  }
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GshTemplateTestExec.class);

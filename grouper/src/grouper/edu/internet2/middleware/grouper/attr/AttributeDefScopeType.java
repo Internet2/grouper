@@ -70,7 +70,7 @@ public enum AttributeDefScopeType {
       
       GrouperSession grouperSession = GrouperSession.staticGrouperSession();
 
-      return (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           

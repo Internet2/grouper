@@ -394,8 +394,7 @@ public class SessionInitialiser {
 			if(!StringUtils.isBlank(debugGroup) && !debugGroup.matches("^@.*?@$") && !attemptedDebuggers) {
 				try {
 					attemptedDebuggers=true;
-					GrouperSession root = GrouperSession.startRootSession();
-					debuggers=GroupFinder.findByName(root, debugGroup, true);
+					debuggers=GroupFinder.findByNameAsGrouperSystem(debugGroup, true);
 				}catch(Exception e) {
 					LOG.error("browser.debug.group:" + debugGroup + " does not exist",e);
 				}

@@ -32,6 +32,8 @@ import org.mortbay.jetty.Request;
 import org.mortbay.jetty.handler.AbstractHandler;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -41,8 +43,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  *
  */
 public class EsbHttpHandler extends AbstractHandler {
-
-  private GrouperSession grouperSession;
 
   private EsbListener esbListener;
 
@@ -74,18 +74,34 @@ public class EsbHttpHandler extends AbstractHandler {
       if (LOG.isDebugEnabled()) {
         LOG.debug("Event received by HTTP server " + jsonString);
       }
-      // start a session and store it - should this be a staticSession?
-      if (this.grouperSession == null)
-        this.grouperSession = GrouperSession.startRootSession();
-      if (this.esbListener == null)
-        this.esbListener = new EsbListener();
-      String result = esbListener.processEvent(jsonString, grouperSession);
-      response.setContentType("text/html;charset=utf-8");
-      response.setStatus(HttpServletResponse.SC_OK);
-      response.getWriter().print(result);
-      response.flushBuffer();
-      if (LOG.isDebugEnabled()) {
-        LOG.debug("Result " + result);
+      try {
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+  
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            try {
+              // start a session and store it - should this be a staticSession?
+              if (EsbHttpHandler.this.esbListener == null)
+                EsbHttpHandler.this.esbListener = new EsbListener();
+              String result = esbListener.processEvent(jsonString, grouperSession);
+              response.setContentType("text/html;charset=utf-8");
+              response.setStatus(HttpServletResponse.SC_OK);
+              response.getWriter().print(result);
+              response.flushBuffer();
+              if (LOG.isDebugEnabled()) {
+                LOG.debug("Result " + result);
+              }
+              return null;
+            } catch (IOException ioe) {
+              throw new RuntimeException(ioe);
+            }
+          }
+        });
+      } catch (RuntimeException re) {
+        if (re.getCause() instanceof IOException) {
+          throw (IOException)re.getCause();
+        }
+        throw re;
       }
     }
   }

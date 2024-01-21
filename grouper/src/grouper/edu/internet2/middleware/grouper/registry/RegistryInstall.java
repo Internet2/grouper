@@ -78,35 +78,28 @@ public class RegistryInstall {
   public static void install() {
     // Install group types, fields and privileges
     try {
-      GrouperSession s = GrouperSession.start( SubjectFinder.findRootSubject(), false );
-      
-      GrouperSession.callbackGrouperSession(s, new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           //make sure the ALL subject is created before the change log happens
           MemberFinder.findBySubject(grouperSession, SubjectFinder.findAllSubject(), true);
           boolean changed = false;
-          try {
-            changed = changed | _installFieldsAndTypes(grouperSession);
-            changed = changed | _installGroupsAndStems(grouperSession);
+          changed = changed | _installFieldsAndTypes(grouperSession);
+          changed = changed | _installGroupsAndStems(grouperSession);
 
-            if (changed) {
-              ChangeLogTempToEntity.convertRecords();
-            }
+          if (changed) {
+            ChangeLogTempToEntity.convertRecords();
+          }
 
-            if (changed && LOG.isWarnEnabled()) {
-              LOG.warn("Registry was initted (default fields, types, stem, etc inserted)");
-            }
-          } catch (Exception e) {
-            throw new GrouperSessionException(e);
+          if (changed && LOG.isWarnEnabled()) {
+            LOG.warn("Registry was initted (default fields, types, stem, etc inserted)");
           }
           return null;
         }
         
       });
       
-      s.stop();
     }
     catch (Throwable throwable) {
       //unwrap exception

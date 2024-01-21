@@ -23,6 +23,8 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
@@ -39,9 +41,14 @@ public class NotificationDaemon extends OtherJobBase {
     
     GrouperStartup.startup();
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_ngssFerpaExpireNotification");
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_ngssFerpaExpireNotification");
+        return null;
+      }
+    });    
     
   }
   
@@ -70,8 +77,6 @@ public class NotificationDaemon extends OtherJobBase {
 
   private Map<String, Object> debugMap = null;
 
-  private GrouperSession grouperSession = null;
-  
   private String jobName = null;
   
   private List<Subject> emailSummaryToSubjects = null;
@@ -118,202 +123,208 @@ public class NotificationDaemon extends OtherJobBase {
     
     debugMap = new LinkedHashMap<String, Object>();
     
-    grouperSession = GrouperSession.startRootSession();
-    
-    jobName = otherJobInput.getJobName();
-    
-    // jobName = OTHER_JOB_csvSync
-    jobName = jobName.substring("OTHER_JOB_".length(), jobName.length());
+    return (OtherJobOutput)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    // notification, summary
-    emailTypeString = GrouperLoaderConfig
-        .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailType");
-    debugMap.put("emailType", emailTypeString);
-    
-    isNotification = "notification".equals(emailTypeString);
-    isSummary = "summary".equals(emailTypeString);
-    if (!isNotification && !isSummary) {
-      throw new RuntimeException("Invalid email type: '" + emailTypeString + "'" );
-    }
-    emailSummaryToSubjects = null;
-    if (isSummary) {
-      
-      emailSummaryToSubjects = new ArrayList<Subject>();
-      
-      String emailSummaryToGroupName = GrouperLoaderConfig
-          .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailSummaryToGroupName");
-      
-      Group emailSummaryToGroup = GroupFinder.findByName(grouperSession, emailSummaryToGroupName, true);
-      
-      for (Member member : emailSummaryToGroup.getMembers()) {
-        Subject subject = member.getSubject();
-        if (subject == null) {
-          continue;
-        }
-        String email = GrouperEmailUtils.getEmail(subject);
-        if (StringUtils.isBlank(email)) {
-          continue;
-        }
-        emailSummaryToSubjects.add(subject);
-      }
-      
-      // sort for testing
-      Collections.sort(emailSummaryToSubjects, new Comparator<Subject>() {
-
-        @Override
-        public int compare(Subject o1, Subject o2) {
-          return o1.getId().compareTo(o2.getId());
-        }
-      });
-      
-      emailSummaryOnlyIfRecordsExist = GrouperLoaderConfig
-          .retrieveConfig().propertyValueBooleanRequired("otherJob." + jobName + ".emailSummaryOnlyIfRecordsExist");
-    }
-    
-    emailSubjectTemplate = GrouperLoaderConfig
-        .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailSubjectTemplate");
-
-    emailBodyTemplate = GrouperLoaderConfig
-        .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailBodyTemplate");
-
-    // select penn_id, needed_by_date from authz_ngss_ferpa_needed_v
-    emailListQuery = GrouperLoaderConfig
-        .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListQuery");
-
-    subjectSourceId = GrouperLoaderConfig
-        .retrieveConfig().propertyValueString("otherJob." + jobName + ".subjectSourceId");
-
-    // pennCommunity
-    emailListDbConnection = GrouperLoaderConfig
-        .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListDbConnection");
-
-    if (StringUtils.isBlank(emailListQuery)) {
-      String emailListGroupName = GrouperLoaderConfig
-          .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListGroupName");
-      GrouperUtil.assertion(StringUtils.isNotBlank(emailListGroupName), "emailListQuery or emailListGroupName is required");
-
-      emailListDbConnection = "grouper";
-      GrouperUtil.assertion(StringUtils.isNotBlank(emailListGroupName), "emailListQuery or emailListGroupName is required");
-      GrouperUtil.assertion(!emailListGroupName.contains("'"), "emailListGroupName '" + emailListGroupName + "' cannot contain a single quote!");
-      emailListQuery = "select subject_id from grouper_memberships_lw_v where group_name = '" + emailListGroupName + "' and list_name = 'members' order by subject_id ";
-      if (!StringUtils.isBlank(subjectSourceId)) {
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        GrouperUtil.assertion(!subjectSourceId.contains("'"), "subjectSourceId '" + subjectSourceId + "' cannot contain a single quote!");
-        emailListQuery += " and subject_source = '" + subjectSourceId + "'";
+        jobName = otherJobInput.getJobName();
         
-      }
+        // jobName = OTHER_JOB_csvSync
+        jobName = jobName.substring("OTHER_JOB_".length(), jobName.length());
 
-    } else {
-      GrouperUtil.assertion(StringUtils.isNotBlank(emailListQuery), "emailListQuery or emailListGroupName is required");
-    }
-    
-    // penn:isc:ait:apps:ngss:team:ngssTeamNotificationsLastSent
-    lastSentGroupName = GrouperLoaderConfig
-        .retrieveConfig().propertyValueString("otherJob." + jobName + ".lastSentGroupName");
-
-    bccsCommaSeparated = GrouperLoaderConfig
-        .retrieveConfig().propertyValueString("otherJob." + jobName + ".bccsCommaSeparated");
-
-    sendToBccOnly = GrouperLoaderConfig
-        .retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".sendToBccOnly", false);
-    
-    lastSentGroup = null;
-    
-    if (!StringUtils.isBlank(lastSentGroupName)) {
-      lastSentGroup = GroupFinder.findByName(grouperSession, lastSentGroupName, true);
-  
-//      lastSentNameOfAttributeDefName = GrouperLoaderConfig
-//          .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".lastSentAttributeDefName");
-//      AttributeDefName lastSentAttributeDefName = null;
-//      
-//      lastSentAttributeDefName = AttributeDefNameFinder.findByName(lastSentNameOfAttributeDefName, true);
-//  
-//      AttributeDef lastSentAttributeDef = lastSentAttributeDefName.getAttributeDef();
-//      
-//      GrouperUtil.assertion(!lastSentAttributeDef.isMultiValued(), 
-//          lastSentAttributeDef.getName() + " must not be multi valued");
-//      GrouperUtil.assertion(!lastSentAttributeDef.isMultiAssignable(), 
-//          lastSentAttributeDef.getName() + " must not be multi assign");
-//      GrouperUtil.assertion(lastSentAttributeDef.getValueType() == AttributeDefValueType.string, 
-//          lastSentAttributeDef.getName() + " must be value type string");
-//      GrouperUtil.assertion(lastSentAttributeDef.isAssignToImmMembership(), 
-//          lastSentAttributeDef.getName() + " must be able to be assign to immediate membership");
-    }
-    
-    eligibilitySubjectIds = null;
-    
-    {
-      Group eligibilityGroup = null;
-      
-      String eligibilityGroupName = GrouperLoaderConfig
-          .retrieveConfig().propertyValueString("otherJob." + jobName + ".eligibilityGroupName");
-      if (!StringUtils.isBlank(eligibilityGroupName)) {
-        eligibilityGroup = GroupFinder.findByName(grouperSession, eligibilityGroupName, true);
-        GcDbAccess gcDbAccess = new GcDbAccess();
-        gcDbAccess.addBindVar(eligibilityGroup.getName());
+        // notification, summary
+        emailTypeString = GrouperLoaderConfig
+            .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailType");
+        debugMap.put("emailType", emailTypeString);
         
-        String membershipQuery = "select subject_id from grouper_memberships_lw_v where group_name = ? and list_name = 'members' ";
-        if (!StringUtils.isBlank(subjectSourceId)) {
-          membershipQuery += " and subject_source = ?";
-          gcDbAccess.addBindVar(subjectSourceId);
+        isNotification = "notification".equals(emailTypeString);
+        isSummary = "summary".equals(emailTypeString);
+        if (!isNotification && !isSummary) {
+          throw new RuntimeException("Invalid email type: '" + emailTypeString + "'" );
+        }
+        emailSummaryToSubjects = null;
+        if (isSummary) {
+          
+          emailSummaryToSubjects = new ArrayList<Subject>();
+          
+          String emailSummaryToGroupName = GrouperLoaderConfig
+              .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailSummaryToGroupName");
+          
+          Group emailSummaryToGroup = GroupFinder.findByName(grouperSession, emailSummaryToGroupName, true);
+          
+          for (Member member : emailSummaryToGroup.getMembers()) {
+            Subject subject = member.getSubject();
+            if (subject == null) {
+              continue;
+            }
+            String email = GrouperEmailUtils.getEmail(subject);
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            emailSummaryToSubjects.add(subject);
+          }
+          
+          // sort for testing
+          Collections.sort(emailSummaryToSubjects, new Comparator<Subject>() {
+
+            @Override
+            public int compare(Subject o1, Subject o2) {
+              return o1.getId().compareTo(o2.getId());
+            }
+          });
+          
+          emailSummaryOnlyIfRecordsExist = GrouperLoaderConfig
+              .retrieveConfig().propertyValueBooleanRequired("otherJob." + jobName + ".emailSummaryOnlyIfRecordsExist");
         }
         
-        eligibilitySubjectIds = new HashSet<String>(
-            gcDbAccess.sql(membershipQuery).selectList(String.class));
+        emailSubjectTemplate = GrouperLoaderConfig
+            .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailSubjectTemplate");
+
+        emailBodyTemplate = GrouperLoaderConfig
+            .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".emailBodyTemplate");
+
+        // select penn_id, needed_by_date from authz_ngss_ferpa_needed_v
+        emailListQuery = GrouperLoaderConfig
+            .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListQuery");
+
+        subjectSourceId = GrouperLoaderConfig
+            .retrieveConfig().propertyValueString("otherJob." + jobName + ".subjectSourceId");
+
+        // pennCommunity
+        emailListDbConnection = GrouperLoaderConfig
+            .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListDbConnection");
+
+        if (StringUtils.isBlank(emailListQuery)) {
+          String emailListGroupName = GrouperLoaderConfig
+              .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListGroupName");
+          GrouperUtil.assertion(StringUtils.isNotBlank(emailListGroupName), "emailListQuery or emailListGroupName is required");
+
+          emailListDbConnection = "grouper";
+          GrouperUtil.assertion(StringUtils.isNotBlank(emailListGroupName), "emailListQuery or emailListGroupName is required");
+          GrouperUtil.assertion(!emailListGroupName.contains("'"), "emailListGroupName '" + emailListGroupName + "' cannot contain a single quote!");
+          emailListQuery = "select subject_id from grouper_memberships_lw_v where group_name = '" + emailListGroupName + "' and list_name = 'members' order by subject_id ";
+          if (!StringUtils.isBlank(subjectSourceId)) {
+            
+            GrouperUtil.assertion(!subjectSourceId.contains("'"), "subjectSourceId '" + subjectSourceId + "' cannot contain a single quote!");
+            emailListQuery += " and subject_source = '" + subjectSourceId + "'";
+            
+          }
+
+        } else {
+          GrouperUtil.assertion(StringUtils.isNotBlank(emailListQuery), "emailListQuery or emailListGroupName is required");
+        }
+        
+        // penn:isc:ait:apps:ngss:team:ngssTeamNotificationsLastSent
+        lastSentGroupName = GrouperLoaderConfig
+            .retrieveConfig().propertyValueString("otherJob." + jobName + ".lastSentGroupName");
+
+        bccsCommaSeparated = GrouperLoaderConfig
+            .retrieveConfig().propertyValueString("otherJob." + jobName + ".bccsCommaSeparated");
+
+        sendToBccOnly = GrouperLoaderConfig
+            .retrieveConfig().propertyValueBoolean("otherJob." + jobName + ".sendToBccOnly", false);
+        
+        lastSentGroup = null;
+        
+        if (!StringUtils.isBlank(lastSentGroupName)) {
+          lastSentGroup = GroupFinder.findByName(grouperSession, lastSentGroupName, true);
+      
+//          lastSentNameOfAttributeDefName = GrouperLoaderConfig
+//              .retrieveConfig().propertyValueStringRequired("otherJob." + jobName + ".lastSentAttributeDefName");
+//          AttributeDefName lastSentAttributeDefName = null;
+//          
+//          lastSentAttributeDefName = AttributeDefNameFinder.findByName(lastSentNameOfAttributeDefName, true);
+    //  
+//          AttributeDef lastSentAttributeDef = lastSentAttributeDefName.getAttributeDef();
+//          
+//          GrouperUtil.assertion(!lastSentAttributeDef.isMultiValued(), 
+//              lastSentAttributeDef.getName() + " must not be multi valued");
+//          GrouperUtil.assertion(!lastSentAttributeDef.isMultiAssignable(), 
+//              lastSentAttributeDef.getName() + " must not be multi assign");
+//          GrouperUtil.assertion(lastSentAttributeDef.getValueType() == AttributeDefValueType.string, 
+//              lastSentAttributeDef.getName() + " must be value type string");
+//          GrouperUtil.assertion(lastSentAttributeDef.isAssignToImmMembership(), 
+//              lastSentAttributeDef.getName() + " must be able to be assign to immediate membership");
+        }
+        
+        eligibilitySubjectIds = null;
+        
+        {
+          Group eligibilityGroup = null;
+          
+          String eligibilityGroupName = GrouperLoaderConfig
+              .retrieveConfig().propertyValueString("otherJob." + jobName + ".eligibilityGroupName");
+          if (!StringUtils.isBlank(eligibilityGroupName)) {
+            eligibilityGroup = GroupFinder.findByName(grouperSession, eligibilityGroupName, true);
+            GcDbAccess gcDbAccess = new GcDbAccess();
+            gcDbAccess.addBindVar(eligibilityGroup.getName());
+            
+            String membershipQuery = "select subject_id from grouper_memberships_lw_v where group_name = ? and list_name = 'members' ";
+            if (!StringUtils.isBlank(subjectSourceId)) {
+              membershipQuery += " and subject_source = ?";
+              gcDbAccess.addBindVar(subjectSourceId);
+            }
+            
+            eligibilitySubjectIds = new HashSet<String>(
+                gcDbAccess.sql(membershipQuery).selectList(String.class));
+          }
+
+        }
+
+        date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+        debugMap.put("date", date);
+        
+        if (lastSentGroup != null) {
+          subjectIdsSentToday = new HashSet<String>(new GcDbAccess()
+              .sql("select subject_id from grouper_aval_asn_mship_v gaaev "
+                  + "where group_name = ? "
+                  + "and attribute_def_name_name = ? and value_string = ?")
+              .addBindVar(lastSentGroupName).addBindVar(
+                  NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT )
+              .addBindVar(date).selectList(String.class));
+        }
+        
+        results = new GcDbAccess().connectionName(emailListDbConnection)
+            .sql(emailListQuery)
+            .selectList(Object[].class);
+
+        gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(emailListDbConnection, emailListQuery);
+
+        for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
+          GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
+          if ("subject_id".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
+            subjectIdIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
+            break;
+          }
+        }
+        
+        GrouperUtil.assertion(!isNotification || subjectIdIndex >= 0, "Cannot find a column named: subject_id: " + emailListQuery);
+        
+        
+        for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
+          GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
+          if ("email_address_to_send_to".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
+            emailAddressIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
+            break;
+          }
+        }
+        
+        otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(results));
+
+        if (isNotification) {
+          sendNotifications(grouperSession);
+        } else if (isSummary) {
+          sendSummary(grouperSession);
+        }
+        
+        return null;
       }
-
-    }
-
-    date = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
-    debugMap.put("date", date);
+    });
     
-    if (lastSentGroup != null) {
-      subjectIdsSentToday = new HashSet<String>(new GcDbAccess()
-          .sql("select subject_id from grouper_aval_asn_mship_v gaaev "
-              + "where group_name = ? "
-              + "and attribute_def_name_name = ? and value_string = ?")
-          .addBindVar(lastSentGroupName).addBindVar(
-              NotificationDaemon.attributeAutoCreateStemName()  + ":" + NotificationDaemon.GROUPER_ATTRIBUTE_NOTIFICATION_LAST_SENT )
-          .addBindVar(date).selectList(String.class));
-    }
-    
-    results = new GcDbAccess().connectionName(emailListDbConnection)
-        .sql(emailListQuery)
-        .selectList(Object[].class);
-
-    gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(emailListDbConnection, emailListQuery);
-
-    for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
-      GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
-      if ("subject_id".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
-        subjectIdIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
-        break;
-      }
-    }
-    
-    GrouperUtil.assertion(!isNotification || subjectIdIndex >= 0, "Cannot find a column named: subject_id: " + emailListQuery);
-    
-    
-    for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
-      GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
-      if ("email_address_to_send_to".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
-        emailAddressIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
-        break;
-      }
-    }
-    
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(results));
-
-    if (isNotification) {
-      sendNotifications();
-    } else if (isSummary) {
-      sendSummary();
-    }
-    
-    return null;
   }
 
-  public void sendSummary() {
+  public void sendSummary(GrouperSession grouperSession) {
 
     RuntimeException re = null;
 
@@ -470,7 +481,7 @@ public class NotificationDaemon extends OtherJobBase {
 
   private int emailAddressIndex = -1;
   
-  public void sendNotifications() {
+  public void sendNotifications(GrouperSession grouperSession) {
 
     RuntimeException re = null;
 

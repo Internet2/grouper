@@ -59,6 +59,8 @@ import edu.internet2.middleware.grouper.cfg.text.TextBundleBean;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttrFramework;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataUtils;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefDAO;
+import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3AttributeDefNameDAO;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -195,6 +197,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                 }
                 
                 if (GrouperUtil.length(namesOfAttributeDefs) > 0) {
+                  // TODO batch this or get from check config cache
                   for (String nameOfAttributeDef : namesOfAttributeDefs) {
                     try {
                       //if not there log it.  e.g. for UI you might ignore attributes, but wont be there if testing the API
@@ -205,6 +208,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                         continue;
                       }
                       
+                      Hib3AttributeDefDAO.attributeDefCacheAsRootIdsAndNamesAdd(attributeDef);
+
                       result.add(attributeDef.getId());
                       
                       if (result.size() > 150) {
@@ -300,6 +305,8 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
                         continue;
                       }
                       
+                      Hib3AttributeDefNameDAO.attributeDefNameCacheAsRootIdsAndNamesAdd(attributeDefName);
+
                       result.add(attributeDefName.getId());
                       
                       if (result.size() > 150) {

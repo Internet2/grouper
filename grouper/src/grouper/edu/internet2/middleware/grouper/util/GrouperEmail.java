@@ -720,7 +720,7 @@ public class GrouperEmail {
         
         theTos = dereferenceGroups(theTos);
         this.to = GrouperUtil.join(theTos, ",");
-        for (String aTo : theTos) {
+        for (String aTo : GrouperUtil.nonNull(theTos, String.class)) {
           if (!StringUtils.isBlank(aTo) && !StringUtils.equals("null", aTo)) {
 
             if (sendAllMessagesHereOverride) {
@@ -765,7 +765,7 @@ public class GrouperEmail {
         theCcs = dereferenceGroups(theCcs);
         this.cc = GrouperUtil.join(theCcs, ",");
 
-        for (String address : theCcs) {
+        for (String address : GrouperUtil.nonNull(theCcs, String.class)) {
           if (!StringUtils.isBlank(address)) {
 
             if (sendAllMessagesHereOverride) {
@@ -795,7 +795,7 @@ public class GrouperEmail {
         theBccs = dereferenceGroups(theBccs);
         this.bcc = GrouperUtil.join(theBccs, ",");
 
-        for (String address : theBccs) {
+        for (String address : GrouperUtil.nonNull(theBccs, String.class)) {
           if (!StringUtils.isBlank(address)) {
             if (sendAllMessagesHereOverride) {
               if (foundBcc) {

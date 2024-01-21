@@ -729,9 +729,15 @@ public class CustomUiEngine {
   } 
   
   public static void main(String[] args) {
-    GrouperSession.startRootSession();
-    Group group = GroupFinder.findByUuid("f3b4ff574c434259af7e28cae5b477c4", true);
-    new CustomUiEngine().createCustomUiConfig(group, "newConfigGrouperDemo", true);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = GroupFinder.findByUuid("f3b4ff574c434259af7e28cae5b477c4", true);
+        new CustomUiEngine().createCustomUiConfig(group, "newConfigGrouperDemo", true);
+        return null;
+      }
+    });
   }
   
   //create custom ui config based on the attributes off of the old attributes on the group

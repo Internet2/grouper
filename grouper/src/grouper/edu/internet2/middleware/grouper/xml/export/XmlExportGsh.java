@@ -40,6 +40,8 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -117,54 +119,60 @@ public class XmlExportGsh {
     GrouperStartup.runFromMain = true;
     GrouperStartup.startup();
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    try {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      XmlExportMain xmlExportMain = new XmlExportMain();
-      
-      if (Boolean.TRUE.equals(argsMap.get(INCLUDE_COMMENTS_ARG))) {
-        xmlExportMain.setIncludeComments(true);
-      }
-      
-      if (Boolean.TRUE.equals(argsMap.get(EXCLUDE_AUDITS_ARG))) {
-        xmlExportMain.setIncludeAudits(false);
-      }
-      
-      {
-        String stemsString = (String)argsMap.get(STEMS_ARG);
-        if (!StringUtils.isBlank(stemsString)) {
-          Set<String> stems = GrouperUtil.splitTrimToSet(stemsString, ",");
-          for (String stem : stems) {
-            xmlExportMain.addStem(stem);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+
+          XmlExportMain xmlExportMain = new XmlExportMain();
+          
+          if (Boolean.TRUE.equals(argsMap.get(INCLUDE_COMMENTS_ARG))) {
+            xmlExportMain.setIncludeComments(true);
           }
-        }
-      }
-      
-      {
-        String objectNamesString = (String)argsMap.get(OBJECT_NAMES_ARG);
-        if (!StringUtils.isBlank(objectNamesString)) {
-          Set<String> objectNames = GrouperUtil.splitTrimToSet(objectNamesString, ",");
-          for (String objectName : objectNames) {
-            xmlExportMain.addObjectName(objectName);
+          
+          if (Boolean.TRUE.equals(argsMap.get(EXCLUDE_AUDITS_ARG))) {
+            xmlExportMain.setIncludeAudits(false);
           }
+          
+          {
+            String stemsString = (String)argsMap.get(STEMS_ARG);
+            if (!StringUtils.isBlank(stemsString)) {
+              Set<String> stems = GrouperUtil.splitTrimToSet(stemsString, ",");
+              for (String stem : stems) {
+                xmlExportMain.addStem(stem);
+              }
+            }
+          }
+          
+          {
+            String objectNamesString = (String)argsMap.get(OBJECT_NAMES_ARG);
+            if (!StringUtils.isBlank(objectNamesString)) {
+              Set<String> objectNames = GrouperUtil.splitTrimToSet(objectNamesString, ",");
+              for (String objectName : objectNames) {
+                xmlExportMain.addObjectName(objectName);
+              }
+            }
+          }
+          
+          String fileName = (String)argsMap.get(XmlExportUtils.FILE_NAME_ARG);
+          
+          if (StringUtils.isBlank(fileName)) {
+            throw new RuntimeException("Enter a file name");
+          }
+          
+          File file = new File(fileName);
+          
+          xmlExportMain.writeAllTables(file);
+          
+          
+        } finally {
+          GrouperSession.stopQuietly(grouperSession);
         }
+        return null;
       }
-      
-      String fileName = (String)argsMap.get(XmlExportUtils.FILE_NAME_ARG);
-      
-      if (StringUtils.isBlank(fileName)) {
-        throw new RuntimeException("Enter a file name");
-      }
-      
-      File file = new File(fileName);
-      
-      xmlExportMain.writeAllTables(file);
-      
-      
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    });
+    
     
     System.exit(0);
     return;

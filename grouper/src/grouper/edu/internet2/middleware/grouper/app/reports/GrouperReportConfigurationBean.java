@@ -10,6 +10,8 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -448,25 +450,32 @@ public class GrouperReportConfigurationBean {
       return true;
     }
     
-    String groupId = this.getReportConfigViewersGroupId();
-    GrouperSession rootSession = GrouperSession.startRootSession();
-    Group group = GroupFinder.findByUuid(rootSession, groupId, false);
-    if (group == null) {
-      return false;
-    }
+    return (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        String groupId = getReportConfigViewersGroupId();
+        Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
+        if (group == null) {
+          return false;
+        }
+        
+        Subject everyEntitySubject = SubjectFinder.findAllSubject();
+        Member everyEntityMember = MemberFinder.findBySubject(grouperSession, everyEntitySubject, false);
+        if (group.getMembers().contains(everyEntityMember)) {
+          return true;
+        }
+        
+        Member member = MemberFinder.findBySubject(grouperSession, subject, false);
+        if (group.getMembers().contains(member)) {
+          return true;
+        }
+        
+        return false;
+      }
+    });
+
     
-    Subject everyEntitySubject = SubjectFinder.findAllSubject();
-    Member everyEntityMember = MemberFinder.findBySubject(rootSession, everyEntitySubject, false);
-    if (group.getMembers().contains(everyEntityMember)) {
-      return true;
-    }
-    
-    Member member = MemberFinder.findBySubject(rootSession, subject, false);
-    if (group.getMembers().contains(member)) {
-      return true;
-    }
-    
-    return false;
   }
   
   

@@ -25,7 +25,6 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -41,6 +40,11 @@ import edu.internet2.middleware.subject.Subject;
  * finder methods for attribute def
  */
 public class AttributeDefFinder {
+
+  /**
+   * names of attribute definitions to find
+   */
+  private Collection<String> namesOfAttributeDefs;
 
   /**
    * find an attributeDef by id.  This is a secure method, a GrouperSession must be open
@@ -335,7 +339,8 @@ public class AttributeDefFinder {
    */
   public Set<AttributeDef> findAttributes() {
     
-    if (GrouperUtil.length(this.attributeDefIds) > 1 && GrouperUtil.length(this.attributeDefNameIds) > 1) {
+    if ((GrouperUtil.length(this.attributeDefIds) >= 1 || GrouperUtil.length(this.namesOfAttributeDefs) >= 1 ) 
+        && GrouperUtil.length(this.attributeDefNameIds) >= 1) {
       throw new RuntimeException("You can only pass one set in of attributeDefs or attributeDefNames");
     }
     
@@ -343,6 +348,10 @@ public class AttributeDefFinder {
 
       // if passed in empty set of group ids and no names, then no groups found
       if (this.attributeDefIds != null && this.attributeDefIds.size() == 0) {
+        return new HashSet<AttributeDef>();
+      }
+      
+      if (this.namesOfAttributeDefs != null && this.namesOfAttributeDefs.size() == 0) {
         return new HashSet<AttributeDef>();
       }
       
@@ -359,7 +368,7 @@ public class AttributeDefFinder {
       results = GrouperDAOFactory.getFactory().getAttributeDef()
         .findAllAttributeDefsSecure(this.scope, this.splitScope, 
             this.subject, this.privileges, 
-            this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName, this.attributeDefIds);
+            this.queryOptions, this.parentStemId, this.stemScope, this.findByUuidOrName, this.attributeDefIds, this.namesOfAttributeDefs);
     } else {
       results = GrouperDAOFactory.getFactory().getAttributeDef()
           .findAllAttributeDefsFromNamesSecure(this.scope, this.splitScope, 
@@ -406,6 +415,19 @@ public class AttributeDefFinder {
   }
   
   /**
+   * add a attribute def name to search for
+   * @param nameOfAttributeDef
+   * @return this for chaining
+   */
+  public AttributeDefFinder addNameOfAttributeDef(String nameOfAttributeDef) {
+    if (this.namesOfAttributeDefs == null) {
+      this.namesOfAttributeDefs = new HashSet<String>();
+    }
+    this.namesOfAttributeDefs.add(nameOfAttributeDef);
+    return this;
+  }
+  
+  /**
    * add a attribute def id to search for
    * @param attributeDefNameId
    * @return this for chaining
@@ -425,6 +447,16 @@ public class AttributeDefFinder {
    */
   public AttributeDefFinder assignAttributeDefIds(Collection<String> theAttributeDefIds) {
     this.attributeDefIds = theAttributeDefIds;
+    return this;
+  }
+
+  /**
+   * assign attributeDef names
+   * @param theNamesOfAttributeDefs
+   * @return this for chaining
+   */
+  public AttributeDefFinder assignNamesOfAttributeDefs(Collection<String> theNamesOfAttributeDefs) {
+    this.namesOfAttributeDefs = theNamesOfAttributeDefs;
     return this;
   }
 

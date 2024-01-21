@@ -538,6 +538,35 @@ public class GroupFinder {
   }
 
   /**
+   * Find a group within the registry by name as grouper system.
+   * <pre class="eg">
+   * try {
+   *   Group g = GroupFinder.findByName(name);
+   * }
+   * catch (GroupNotFoundException e) {
+   *   // Group not found
+   * }
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   name  Name of group to find.
+   * @param exceptionIfNotFound 
+   * @return  A {@link Group}
+   * @throws  GroupNotFoundException
+   */
+  public static Group findByNameAsGrouperSystem(String name, boolean exceptionIfNotFound) 
+      throws GroupNotFoundException {
+    
+    return (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return findByName(grouperSession, name, exceptionIfNotFound, null);
+      }
+    });
+    
+  }
+
+  /**
    * Find a group within the registry by name.
    * <pre class="eg">
    * try {
@@ -858,6 +887,28 @@ public class GroupFinder {
    */
   public static Group findByUuid(String uuid, boolean exceptionIfNotFound) {
     return findByUuid(GrouperSession.staticGrouperSession(), uuid, exceptionIfNotFound);
+  }
+
+  /**
+   * Find a group within the registry by UUID as grouper system.
+   * <pre class="eg">
+   *   Group g = GroupFinder.findByUuid(s, uuid);
+   * </pre>
+   * @param   s     Find group within this session context.
+   * @param   uuid  UUID of group to find.
+   * @param exceptionIfNotFound true if exception if not found
+   * @return  A {@link Group}
+   * @throws GroupNotFoundException if not found an exceptionIfNotFound is true
+   */
+  public static Group findByUuidAsGrouperSystem(String uuid, boolean exceptionIfNotFound) {
+    return (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return findByUuid(grouperSession, uuid, exceptionIfNotFound);
+      }
+    });
+
   }
 
   /**

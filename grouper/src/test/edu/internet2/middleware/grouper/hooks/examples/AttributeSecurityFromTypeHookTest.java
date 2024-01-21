@@ -97,7 +97,7 @@ public class AttributeSecurityFromTypeHookTest extends GrouperTest {
     
     assertTrue(!group.getTypes().contains(groupType));
     
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         

@@ -1162,7 +1162,7 @@ public class GrouperLoaderContainer {
     
     if (GrouperUtil.length(andGroupsStringList) > 0) {
 
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
@@ -1218,7 +1218,7 @@ public class GrouperLoaderContainer {
 
     if (GrouperUtil.length(andGroupsStringList) > 0) {
 
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
@@ -2669,7 +2669,7 @@ public class GrouperLoaderContainer {
     
     if (GrouperUtil.length(andGroupsStringList) > 0) {
 
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           

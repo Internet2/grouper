@@ -18,6 +18,8 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
@@ -293,8 +295,14 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
   }
 
   public static void main(String[] args) {
-    GrouperSession.startRootSession();
-    new StemViewPrivilegeFullDaemonLogic().fullSyncLogic();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        new StemViewPrivilegeFullDaemonLogic().fullSyncLogic();
+        return null;
+      }
+    });
   }
 
 }

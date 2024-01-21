@@ -83,11 +83,17 @@ public class PrivilegeGroupInheritanceSave {
    */
   public static void main(String[] args) {
     GrouperStartup.startup();
-    GrouperSession.startRootSession();
-    SaveResultType saveResultType = new PrivilegeGroupInheritanceSave().assignStemName("test")
-      .addPrivilegeName("admin").assignSubjectSourceId("g:gsa").assignSubjectIdentifier("test:composite_owner2")
-      .save();
-    System.out.println(saveResultType);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        SaveResultType saveResultType = new PrivilegeGroupInheritanceSave().assignStemName("test")
+            .addPrivilegeName("admin").assignSubjectSourceId("g:gsa").assignSubjectIdentifier("test:composite_owner2")
+            .save();
+          System.out.println(saveResultType);
+        return null;
+      }
+    });
   }
   
   /**

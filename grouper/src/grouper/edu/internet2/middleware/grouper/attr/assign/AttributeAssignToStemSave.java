@@ -90,25 +90,30 @@ public class AttributeAssignToStemSave {
    */
   public static void main(String[] args) {
     GrouperStartup.startup();
-    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    new StemSave().assignName("test").save();
-    
-    AttributeDef attributeDef = new AttributeDefSave().assignName("test:def").assignToStem(true).assignValueType(AttributeDefValueType.marker).save();
-    AttributeDefName attributeDefName = new AttributeDefNameSave(attributeDef).assignName("test:defName").save();
-    
-//    attestationStemSave = new AttestationStemSave().assignStemName("test");
-//    attestationStemSave.save();
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        new StemSave().assignName("test").save();
+        
+        AttributeDef attributeDef = new AttributeDefSave().assignName("test:def").assignToStem(true).assignValueType(AttributeDefValueType.marker).save();
+        AttributeDefName attributeDefName = new AttributeDefNameSave(attributeDef).assignName("test:defName").save();
+        
+//        attestationStemSave = new AttestationStemSave().assignStemName("test");
+//        attestationStemSave.save();
 
-//    AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignStemName("test").assignNameOrAttributeDefName("test:defName");
-//    attributeAssignToStemSave.save();
+//        AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignStemName("test").assignNameOrAttributeDefName("test:defName");
+//        attributeAssignToStemSave.save();
 
-    AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignStemName("test").assignNameOfAttributeDefName("test:defName").assignSaveMode(SaveMode.DELETE);
-  attributeAssignToStemSave.save();
+        AttributeAssignToStemSave attributeAssignToStemSave = new AttributeAssignToStemSave().assignStemName("test").assignNameOfAttributeDefName("test:defName").assignSaveMode(SaveMode.DELETE);
+        attributeAssignToStemSave.save();
+        
+        System.out.println(attributeAssignToStemSave.getSaveResultType());
+        return null;
+      }
+    });
     
-    System.out.println(attributeAssignToStemSave.getSaveResultType());
-    
-    GrouperSession.stopQuietly(grouperSession);
   }
   
   /**

@@ -30,14 +30,13 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectAttribute;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig;
-import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectStorageController;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectAttributeConfigBean;
 import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectConfig.ExternalSubjectConfigBean;
+import edu.internet2.middleware.grouper.externalSubjects.ExternalSubjectStorageController;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.exceptions.NoSessionException;
-import edu.internet2.middleware.grouper.ui.tags.TagUtils;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 
@@ -79,23 +78,24 @@ public class ExternalRegisterContainer implements Serializable {
     
       final String identifier = this.getUserLoggedInIdentifier();
       
-      GrouperSession grouperSession = GrouperSession.startRootSession(false);
-      ExternalSubject externalSubject = null;
-      try {
-        externalSubject = (ExternalSubject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-          
-          @Override
-          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-            return ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
-          }
-        });
-            
-            //if its null then it is an insert
-        this.insert = externalSubject == null;
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      } finally {
-          GrouperSession.stopQuietly(grouperSession);
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          ExternalSubject externalSubject = null;
+          externalSubject = (ExternalSubject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+            
+            @Override
+            public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+              return ExternalSubjectStorageController.findByIdentifier(identifier, false, null);
+            }
+          });
+              
+              //if its null then it is an insert
+          insert = externalSubject == null;
+          return null;
         }
+      });
       }
     return this.insert;
   }
@@ -105,9 +105,7 @@ public class ExternalRegisterContainer implements Serializable {
    */
   private void initFields() {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
-    try { 
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
   
         /**
          * 
@@ -254,9 +252,6 @@ public class ExternalRegisterContainer implements Serializable {
           return null;
         }
       });
-    } finally {      
-        GrouperSession.stopQuietly(grouperSession);
-      }
     }
 
   /**

@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.internal.dao.hib3;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -578,12 +579,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, String parentStemId,
-      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames) {
+      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames, Collection<String> namesOfAttributeDefNames) {
     Set<AttributeDefName> attributeDefNames = findAllAttributeNamesSecureHelper2(scope,
         grouperSession, attributeDefId, subject, privileges,
         queryOptions, splitScope, attributeAssignType,
         attributeDefType, serviceRole, anyServiceRole, parentStemId,
-        stemScope, findByUuidOrName, idsOfAttributeDefNames);
+        stemScope, findByUuidOrName, idsOfAttributeDefNames, namesOfAttributeDefNames);
     
     //get all the attribute defs so that it is more efficient and same security settings
     Set<String> attributeDefIds = new LinkedHashSet<String>();
@@ -633,10 +634,10 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       GrouperSession grouperSession, String attributeDefId, Subject subject, Set<Privilege> privileges,
       QueryOptions queryOptions, boolean splitScope, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, String parentStemId,
-      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames) {
+      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames, Collection<String> namesOfAttributeDefNames) {
 
     //lets page through these
-    int pages = GrouperUtil.batchNumberOfBatches(idsOfAttributeDefNames, 100);
+    int pages = GrouperUtil.batchNumberOfBatches(idsOfAttributeDefNames, 100, true);
 
     List<String> idsOfAttributeDefNamesList = GrouperUtil.listFromCollection(idsOfAttributeDefNames);
     
@@ -647,276 +648,296 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
     for (int i=0; i<pages; i++) {
       List<String> idsOfAttributeDefNamesListBatch = GrouperUtil.batchList(idsOfAttributeDefNamesList, 100, i);
 
-      if (queryOptions == null) {
-        queryOptions = new QueryOptions();
-      }
-      if (queryOptions.getQuerySort() == null) {
-        queryOptions.sortAsc("theAttributeDefName.displayNameDb");
-      }
-    
-      Member member = subject == null ? null : MemberFinder.findBySubject(grouperSession, subject, true);
-  
-      StringBuilder sql = new StringBuilder(
-          "select distinct theAttributeDefName from AttributeDefName theAttributeDefName, AttributeDef theAttributeDef ");
-  
-      if (serviceRole != null || anyServiceRole) {
-        
-        if (attributeDefType != null && attributeDefType != AttributeDefType.service) {
-          throw new RuntimeException("You cant look for services and not have AttributeDefType of service: " + attributeDefType);
-        }
-        //CH not sure this is needed
-        //attributeDefType = AttributeDefType.service;
-        sql.append(", ServiceRoleView theServiceRoleView ");
-      }
-  
-      if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-        
-        if (StringUtils.isBlank(parentStemId) || stemScope == null) {
-          throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
-        }
-        
-        if (stemScope == Scope.SUB) {
-          sql.append(", StemSet theStemSet ");
-        }
-      }      
-  
+      int attributeDefNameBatchesByName = GrouperUtil.batchNumberOfBatches(namesOfAttributeDefNames, 100, true);
+      List<String> totalNamesOfAttributeDefNamesList = new ArrayList<String>(GrouperUtil.nonNull(namesOfAttributeDefNames));
+
+      for (int nameOfAttributeDefNameIndex = 0; nameOfAttributeDefNameIndex < attributeDefNameBatchesByName; nameOfAttributeDefNameIndex++) {
       
-      ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
-    
-      StringBuilder whereClause = new StringBuilder(" theAttributeDefName.attributeDefId = theAttributeDef.id ");
-  
-      if (serviceRole != null || anyServiceRole) {
-        if (attributeDefType == null) {
-          attributeDefType = AttributeDefType.service;
-        }
-        if (attributeDefType != AttributeDefType.service) {
-          throw new RuntimeException("Why are you filtering by serviceRole: " + serviceRole + " but you have the " +
-          		"attributeDefType not equal to AttributeDefType.service????  (or can be null): " + attributeDefType);
-        }
-        if (attributeAssignType == null) {
-          attributeAssignType = AttributeAssignType.stem;
-        }
-        if (attributeAssignType != AttributeAssignType.stem) {
-          throw new RuntimeException("Why are you filtering by serviceRole: " + serviceRole + " but you have the " +
-              "attributeAssignType not equal to AttributeAssignType.stem????  (or can be null): " + attributeAssignType);
-        }
-        
-      }
+        List<String> namesOfAttributeDefNamesBatch = GrouperUtil.batchList(totalNamesOfAttributeDefNamesList, 100, nameOfAttributeDefNameIndex);
+
       
-      if (attributeDefType != null) {
-        whereClause.append(" and ");
-        whereClause.append(" theAttributeDef.attributeDefTypeDb = :theAttributeDefType ");
-        byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
-      }
-  
-      if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
-        switch(stemScope) {
-          case ONE:
-            
-            whereClause.append(" and theAttributeDefName.stemId = :theStemId ");
-            byHqlStatic.setString("theStemId", parentStemId);
-            break;
-          case SUB:
-            
-            whereClause.append(" and theAttributeDefName.stemId = theStemSet.ifHasStemId " +
-            		" and theStemSet.thenHasStemId = :theStemId ");
-            byHqlStatic.setString("theStemId", parentStemId);
-            
-            break;
+        if (queryOptions == null) {
+          queryOptions = new QueryOptions();
+        }
+        if (queryOptions.getQuerySort() == null) {
+          queryOptions.sortAsc("theAttributeDefName.displayNameDb");
+        }
+      
+        Member member = subject == null ? null : MemberFinder.findBySubject(grouperSession, subject, true);
+    
+        StringBuilder sql = new StringBuilder(
+            "select distinct theAttributeDefName from AttributeDefName theAttributeDefName, AttributeDef theAttributeDef ");
+    
+        if (serviceRole != null || anyServiceRole) {
+          
+          if (attributeDefType != null && attributeDefType != AttributeDefType.service) {
+            throw new RuntimeException("You cant look for services and not have AttributeDefType of service: " + attributeDefType);
+          }
+          //CH not sure this is needed
+          //attributeDefType = AttributeDefType.service;
+          sql.append(", ServiceRoleView theServiceRoleView ");
+        }
+    
+        if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+          
+          if (StringUtils.isBlank(parentStemId) || stemScope == null) {
+            throw new RuntimeException("If you are passing in a parentStemId or a stemScope, then you need to pass both of them: " + parentStemId + ", " + stemScope);
+          }
+          
+          if (stemScope == Scope.SUB) {
+            sql.append(", StemSet theStemSet ");
+          }
+        }      
+    
+        
+        ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+      
+        StringBuilder whereClause = new StringBuilder(" theAttributeDefName.attributeDefId = theAttributeDef.id ");
+    
+        if (serviceRole != null || anyServiceRole) {
+          if (attributeDefType == null) {
+            attributeDefType = AttributeDefType.service;
+          }
+          if (attributeDefType != AttributeDefType.service) {
+            throw new RuntimeException("Why are you filtering by serviceRole: " + serviceRole + " but you have the " +
+            		"attributeDefType not equal to AttributeDefType.service????  (or can be null): " + attributeDefType);
+          }
+          if (attributeAssignType == null) {
+            attributeAssignType = AttributeAssignType.stem;
+          }
+          if (attributeAssignType != AttributeAssignType.stem) {
+            throw new RuntimeException("Why are you filtering by serviceRole: " + serviceRole + " but you have the " +
+                "attributeAssignType not equal to AttributeAssignType.stem????  (or can be null): " + attributeAssignType);
+          }
           
         }
-      }
-  
-      if (GrouperUtil.length(idsOfAttributeDefNamesListBatch) > 0) {
         
-        whereClause.append(" and ");
-        whereClause.append(" theAttributeDefName.id in (");
-
-        //add all the uuids
-        byHqlStatic.setCollectionInClause(whereClause, idsOfAttributeDefNamesListBatch);
-        whereClause.append(")");
-        
-      }
-      
-      if (!StringUtils.isBlank(attributeDefId)) {
-        
-        whereClause.append(" and ");
-        whereClause.append(" theAttributeDefName.attributeDefId = :theAttributeDefId ");
-        byHqlStatic.setString("theAttributeDefId", attributeDefId);
-        
-      }
-  
-      if (attributeAssignType != null) {
-        whereClause.append(" and ");
-        switch (attributeAssignType) {
-          case any_mem:
-            whereClause.append(" theAttributeDef.assignToEffMembershipDb = 'T' ");
-            break;
-          case any_mem_asgn:
-            whereClause.append(" theAttributeDef.assignToEffMembershipAssnDb = 'T' ");
-            break;
-          case attr_def:
-            whereClause.append(" theAttributeDef.assignToAttributeDefDb = 'T' ");
-            break;
-          case attr_def_asgn:
-            whereClause.append(" theAttributeDef.assignToAttributeDefAssnDb = 'T' ");
-            break;
-          case group:
-            whereClause.append(" theAttributeDef.assignToGroupDb = 'T' ");
-            break;
-          case group_asgn:
-            whereClause.append(" theAttributeDef.assignToGroupAssnDb = 'T' ");
-            break;
-          case imm_mem:
-            whereClause.append(" theAttributeDef.assignToImmMembershipDb = 'T' ");
-            break;
-          case imm_mem_asgn:
-            whereClause.append(" theAttributeDef.assignToImmMembershipAssnDb = 'T' ");
-            break;
-          case member:
-            whereClause.append(" theAttributeDef.assignToMemberDb = 'T' ");
-            break;
-          case mem_asgn:
-            whereClause.append(" theAttributeDef.assignToMemberAssnDb = 'T' ");
-            break;
-          case stem:
-            whereClause.append(" theAttributeDef.assignToStemDb = 'T' ");
-            break;
-          case stem_asgn:
-            whereClause.append(" theAttributeDef.assignToStemAssnDb = 'T' ");
-            break;
-          default:
-            throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
+        if (attributeDefType != null) {
+          whereClause.append(" and ");
+          whereClause.append(" theAttributeDef.attributeDefTypeDb = :theAttributeDefType ");
+          byHqlStatic.setString("theAttributeDefType", attributeDefType.name());
         }
-      }
-      
-  
-      //see if there is a scope
-      if (!StringUtils.isBlank(scope)) {
-        scope = scope.toLowerCase();
-  
-        String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
-  
-        whereClause.append(" and ");
-  
-        if (GrouperUtil.length(scopes) == 1) {
-          whereClause.append(" ( theAttributeDefName.id = :theAttributeDefNameIdScope or ( ");
-          byHqlStatic.setString("theAttributeDefNameIdScope", scope);
-        } else {
-          whereClause.append(" ( ( ");
-        }
-  
-        int index = 0;
-        for (String theScope : scopes) {
-          if (index != 0) {
-            whereClause.append(" and ");
+    
+        if (!StringUtils.isBlank(parentStemId) || stemScope != null) {
+          switch(stemScope) {
+            case ONE:
+              
+              whereClause.append(" and theAttributeDefName.stemId = :theStemId ");
+              byHqlStatic.setString("theStemId", parentStemId);
+              break;
+            case SUB:
+              
+              whereClause.append(" and theAttributeDefName.stemId = theStemSet.ifHasStemId " +
+              		" and theStemSet.thenHasStemId = :theStemId ");
+              byHqlStatic.setString("theStemId", parentStemId);
+              
+              break;
+            
           }
+        }
+    
+        if (GrouperUtil.length(idsOfAttributeDefNamesListBatch) > 0) {
+          
+          whereClause.append(" and ");
+          whereClause.append(" theAttributeDefName.id in (");
   
-          if (findByUuidOrName) {
-            whereClause.append(" ( theAttributeDefName.nameDb = :scope" + index + " or theAttributeDefName.alternateNameDb = :scope" + index 
-                + " or theAttributeDefName.displayNameDb = :scope" + index + " ) ");
-            byHqlStatic.setString("scope" + index, theScope);
+          //add all the uuids
+          byHqlStatic.setCollectionInClause(whereClause, idsOfAttributeDefNamesListBatch);
+          whereClause.append(")");
+          
+        }
+        
+        if (GrouperUtil.length(namesOfAttributeDefNamesBatch) > 0) {
+          
+          whereClause.append(" and ");
+          whereClause.append(" theAttributeDefName.nameDb in (");
+  
+          //add all the uuids
+          byHqlStatic.setCollectionInClause(whereClause, namesOfAttributeDefNamesBatch);
+          whereClause.append(")");
+          
+        }
+        
+        if (!StringUtils.isBlank(attributeDefId)) {
+          
+          whereClause.append(" and ");
+          whereClause.append(" theAttributeDefName.attributeDefId = :theAttributeDefId ");
+          byHqlStatic.setString("theAttributeDefId", attributeDefId);
+          
+        }
+    
+        if (attributeAssignType != null) {
+          whereClause.append(" and ");
+          switch (attributeAssignType) {
+            case any_mem:
+              whereClause.append(" theAttributeDef.assignToEffMembershipDb = 'T' ");
+              break;
+            case any_mem_asgn:
+              whereClause.append(" theAttributeDef.assignToEffMembershipAssnDb = 'T' ");
+              break;
+            case attr_def:
+              whereClause.append(" theAttributeDef.assignToAttributeDefDb = 'T' ");
+              break;
+            case attr_def_asgn:
+              whereClause.append(" theAttributeDef.assignToAttributeDefAssnDb = 'T' ");
+              break;
+            case group:
+              whereClause.append(" theAttributeDef.assignToGroupDb = 'T' ");
+              break;
+            case group_asgn:
+              whereClause.append(" theAttributeDef.assignToGroupAssnDb = 'T' ");
+              break;
+            case imm_mem:
+              whereClause.append(" theAttributeDef.assignToImmMembershipDb = 'T' ");
+              break;
+            case imm_mem_asgn:
+              whereClause.append(" theAttributeDef.assignToImmMembershipAssnDb = 'T' ");
+              break;
+            case member:
+              whereClause.append(" theAttributeDef.assignToMemberDb = 'T' ");
+              break;
+            case mem_asgn:
+              whereClause.append(" theAttributeDef.assignToMemberAssnDb = 'T' ");
+              break;
+            case stem:
+              whereClause.append(" theAttributeDef.assignToStemDb = 'T' ");
+              break;
+            case stem_asgn:
+              whereClause.append(" theAttributeDef.assignToStemAssnDb = 'T' ");
+              break;
+            default:
+              throw new RuntimeException("Not expecting attribute assign type: " + attributeAssignType);
+          }
+        }
+        
+    
+        //see if there is a scope
+        if (!StringUtils.isBlank(scope)) {
+          scope = scope.toLowerCase();
+    
+          String[] scopes = splitScope ? GrouperUtil.splitTrim(scope, " ") : new String[]{scope};
+    
+          whereClause.append(" and ");
+    
+          if (GrouperUtil.length(scopes) == 1) {
+            whereClause.append(" ( theAttributeDefName.id = :theAttributeDefNameIdScope or ( ");
+            byHqlStatic.setString("theAttributeDefNameIdScope", scope);
           } else {
-            whereClause.append(" ( lower(theAttributeDefName.nameDb) like :scope" + index 
-                + " or lower(theAttributeDefName.displayNameDb) like :scope" + index 
-                + " or lower(theAttributeDefName.description) like :scope" + index + " ) ");
-            if (splitScope) {
-              theScope = "%" + theScope + "%";
-            } else if (!theScope.endsWith("%")) {
-              theScope += "%";
-            }
-            byHqlStatic.setString("scope" + index, theScope.toLowerCase());
-  
-          }        
-  
-          index++;
-        }
-        whereClause.append(" ) ) ");
-      }
+            whereClause.append(" ( ( ");
+          }
     
-      boolean changedQuery = false;
+          int index = 0;
+          for (String theScope : scopes) {
+            if (index != 0) {
+              whereClause.append(" and ");
+            }
+    
+            if (findByUuidOrName) {
+              whereClause.append(" ( theAttributeDefName.nameDb = :scope" + index + " or theAttributeDefName.alternateNameDb = :scope" + index 
+                  + " or theAttributeDefName.displayNameDb = :scope" + index + " ) ");
+              byHqlStatic.setString("scope" + index, theScope);
+            } else {
+              whereClause.append(" ( lower(theAttributeDefName.nameDb) like :scope" + index 
+                  + " or lower(theAttributeDefName.displayNameDb) like :scope" + index 
+                  + " or lower(theAttributeDefName.description) like :scope" + index + " ) ");
+              if (splitScope) {
+                theScope = "%" + theScope + "%";
+              } else if (!theScope.endsWith("%")) {
+                theScope += "%";
+              }
+              byHqlStatic.setString("scope" + index, theScope.toLowerCase());
+    
+            }        
+    
+            index++;
+          }
+          whereClause.append(" ) ) ");
+        }
       
-      if (serviceRole != null || anyServiceRole) {
+        boolean changedQuery = false;
         
-        if (serviceRole != null && anyServiceRole) {
-          throw new RuntimeException("Cant set serviceRole and anyServiceRole, they are mutually exclusive");
-        }
-        
-        if (member == null) {
-          throw new RuntimeException("If filtering by serviceRole: " + serviceRole + ", then pass in a subject who can see the services");
-        }
-        
-        //must be a service type
-        whereClause.append(" and theAttributeDefName.id = theServiceRoleView.serviceNameId ");
-  
-        changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
-            grouperSession.getSubject(), byHqlStatic, 
-            sql, "theServiceRoleView.groupId", AccessPrivilege.READ_PRIVILEGES);
-        
-        //fields for the service role
-        HibUtils.convertFieldsToSqlInString(
-            anyServiceRole ? ServiceRole.allFieldsForGroupQuery() : serviceRole.fieldsForGroupQuery(), 
-            byHqlStatic, whereClause, "theServiceRoleView.fieldId");
-  
-        whereClause.append(" and theServiceRoleView.memberId = :groupMemberId ");
-        byHqlStatic.setString("groupMemberId", member.getUuid());
-  
-        //no need to do security for services, right????
-        
-      } else {
-  
-        //see if we are adding more to the query
-        if (GrouperUtil.length(privileges) > 0) {
+        if (serviceRole != null || anyServiceRole) {
           
-          if (subject == null) {
-            subject = grouperSession.getSubject();
+          if (serviceRole != null && anyServiceRole) {
+            throw new RuntimeException("Cant set serviceRole and anyServiceRole, they are mutually exclusive");
           }
           
-          grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
-              sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
+          if (member == null) {
+            throw new RuntimeException("If filtering by serviceRole: " + serviceRole + ", then pass in a subject who can see the services");
+          }
+          
+          //must be a service type
+          whereClause.append(" and theAttributeDefName.id = theServiceRoleView.serviceNameId ");
+    
+          changedQuery = grouperSession.getAccessResolver().hqlFilterGroupsWhereClause(
+              grouperSession.getSubject(), byHqlStatic, 
+              sql, "theServiceRoleView.groupId", AccessPrivilege.READ_PRIVILEGES);
+          
+          //fields for the service role
+          HibUtils.convertFieldsToSqlInString(
+              anyServiceRole ? ServiceRole.allFieldsForGroupQuery() : serviceRole.fieldsForGroupQuery(), 
+              byHqlStatic, whereClause, "theServiceRoleView.fieldId");
+    
+          whereClause.append(" and theServiceRoleView.memberId = :groupMemberId ");
+          byHqlStatic.setString("groupMemberId", member.getUuid());
+    
+          //no need to do security for services, right????
+          
+        } else {
+    
+          //see if we are adding more to the query
+          if (GrouperUtil.length(privileges) > 0) {
+            
+            if (subject == null) {
+              subject = grouperSession.getSubject();
+            }
+            
+            grouperSession.getAttributeDefResolver().hqlFilterAttrDefsWhereClause(subject, byHqlStatic,
+                sql, whereClause, "theAttributeDefName.attributeDefId", privileges);
+          }
         }
-      }
-      
-      if (changedQuery && sql.toString().contains(" where ")) {
-        sql.append(" and ");      
-      } else {
-        sql.append(" where ");
-      }
-      
-      sql.append(whereClause);
-      
-      if (queryOptions != null) {
-        massageSortFields(queryOptions.getQuerySort());
-      }
+        
+        if (changedQuery && sql.toString().contains(" where ")) {
+          sql.append(" and ");      
+        } else {
+          sql.append(" where ");
+        }
+        
+        sql.append(whereClause);
+        
+        if (queryOptions != null) {
+          massageSortFields(queryOptions.getQuerySort());
+        }
+    
+        Set<AttributeDefName> attributeDefNames = byHqlStatic.createQuery(sql.toString())
+          .setCacheable(false)
+          .setCacheRegion(KLASS + ".GetAllAttributeDefNamesSecure")
+          .options(queryOptions)
+          .listSet(AttributeDefName.class);
+        
+        if (queryOptions != null && queryOptions.isRetrieveCount()) {
+          count += queryOptions.getCount();
+        }
   
-      Set<AttributeDefName> attributeDefNames = byHqlStatic.createQuery(sql.toString())
-        .setCacheable(false)
-        .setCacheRegion(KLASS + ".GetAllAttributeDefNamesSecure")
-        .options(queryOptions)
-        .listSet(AttributeDefName.class);
-      
-      if (queryOptions != null && queryOptions.isRetrieveCount()) {
-        count += queryOptions.getCount();
-      }
-
-      //if find by uuid or name, try to narrow down to one...
-      if (findByUuidOrName) {
-        
-        //get the one with uuid
-        for (AttributeDefName attributeDefName : attributeDefNames) {
-          if (StringUtils.equals(scope, attributeDefName.getId())) {
-            return GrouperUtil.toSet(attributeDefName);
+        //if find by uuid or name, try to narrow down to one...
+        if (findByUuidOrName) {
+          
+          //get the one with uuid
+          for (AttributeDefName attributeDefName : attributeDefNames) {
+            if (StringUtils.equals(scope, attributeDefName.getId())) {
+              return GrouperUtil.toSet(attributeDefName);
+            }
+          }
+          
+          //get the one with name
+          for (AttributeDefName attributeDefName : attributeDefNames) {
+            if (StringUtils.equals(scope, attributeDefName.getName())) {
+              return GrouperUtil.toSet(attributeDefName);
+            }
           }
         }
-        
-        //get the one with name
-        for (AttributeDefName attributeDefName : attributeDefNames) {
-          if (StringUtils.equals(scope, attributeDefName.getName())) {
-            return GrouperUtil.toSet(attributeDefName);
-          }
-        }
+        overallResult.addAll(GrouperUtil.nonNull(attributeDefNames));
       }
-      overallResult.addAll(GrouperUtil.nonNull(attributeDefNames));
     }
     queryOptions.setCount(count);
 
@@ -934,7 +955,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
         subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
-        null, false, null, null, false, null);
+        null, false, null, null, false, null, null);
   }
 
   /**
@@ -1026,7 +1047,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
       ServiceRole serviceRole, boolean anyServiceRole) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
-        privileges, queryOptions, true, attributeAssignType, attributeDefType, serviceRole, anyServiceRole, null, null, false, null);
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, serviceRole, anyServiceRole, null, null, false, null, null);
   }
 
   /**
@@ -1038,7 +1059,7 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Set<Privilege> privileges, QueryOptions queryOptions,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, subject, 
-        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, false, null, null, false, null);
+        privileges, queryOptions, true, attributeAssignType, attributeDefType, null, false, null, null, false, null, null);
   }
 
 
@@ -1174,12 +1195,12 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Scope stemScope, boolean findByUuidOrName) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
         subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
-        serviceRole, anyServiceRole, parentStemId, stemScope, findByUuidOrName, null);
+        serviceRole, anyServiceRole, parentStemId, stemScope, findByUuidOrName, null, null);
   
   }
 
   /**
-   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType, ServiceRole, boolean, String, Scope, boolean, Set)
+   * @see AttributeDefNameDAO#findAllAttributeNamesSecure(String, boolean, GrouperSession, String, Subject, Set, QueryOptions, AttributeAssignType, AttributeDefType, ServiceRole, boolean, String, Scope, boolean, Set, Set)
    */
   @Override
   public Set<AttributeDefName> findAllAttributeNamesSecure(String scope,
@@ -1187,10 +1208,10 @@ public class Hib3AttributeDefNameDAO extends Hib3DAO implements AttributeDefName
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
       AttributeAssignType attributeAssignType, AttributeDefType attributeDefType,
       ServiceRole serviceRole, boolean anyServiceRole, String parentStemId,
-      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames) {
+      Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames, Collection<String> namesOfAttributeDefNames) {
     return findAllAttributeNamesSecureHelper(scope, grouperSession, attributeDefId, 
         subject, privileges, queryOptions, splitScope, attributeAssignType, attributeDefType,
-        serviceRole, anyServiceRole, parentStemId, stemScope, findByUuidOrName, idsOfAttributeDefNames);
+        serviceRole, anyServiceRole, parentStemId, stemScope, findByUuidOrName, idsOfAttributeDefNames, namesOfAttributeDefNames);
   
   }
 

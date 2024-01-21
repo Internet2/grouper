@@ -619,58 +619,45 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    */
   public static boolean subjectCanEditExternalUser(final Subject subject) {
 
-    boolean startedSession = false;
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    if (grouperSession == null) {
-      grouperSession = GrouperSession.startRootSession();
-      startedSession = true;
-    }
-    try {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
-      return (Boolean)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+        MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
         
-        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
-          MultiKey multiKey = new MultiKey(subject.getSourceId(), subject.getId());
-          
-          Boolean result = subjectCanEditExternalUser.get(multiKey);
-          
-          if (result != null) {
-            return result;
-          }
-          
-          //figure it out
-          boolean wheelOrRootCanEdit = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.wheelOrRootCanEdit", true);
-          final String groupAllowedForEdit = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.groupAllowedForEdit");
-          
-          if (wheelOrRootCanEdit) {
-            if (PrivilegeHelper.isWheelOrRoot(subject)) {
-              result = true;
-            }
-          }
-          
-          if (result == null || !result) {
-            if (!StringUtils.isBlank(groupAllowedForEdit)) {
-              
-              //use root since the current user might not be able to read the group of allowed users
-              Group theGroupAllowedForEdit = GroupFinder.findByName(theGrouperSession, groupAllowedForEdit, true);
-              
-              return theGroupAllowedForEdit.hasMember(subject);
-            }
-            
-          }
-          
-          //just cache the positives...
-          if (result != null && result) {
-            subjectCanEditExternalUser.put(multiKey, result);
-          }
-          return result != null ? result : false;
+        Boolean result = subjectCanEditExternalUser.get(multiKey);
+        
+        if (result != null) {
+          return result;
         }
-      });
-    } finally {
-      if (startedSession) {
-        GrouperSession.stopQuietly(grouperSession);
+        
+        //figure it out
+        boolean wheelOrRootCanEdit = GrouperConfig.retrieveConfig().propertyValueBoolean("externalSubjects.wheelOrRootCanEdit", true);
+        final String groupAllowedForEdit = GrouperConfig.retrieveConfig().propertyValueString("externalSubjects.groupAllowedForEdit");
+        
+        if (wheelOrRootCanEdit) {
+          if (PrivilegeHelper.isWheelOrRoot(subject)) {
+            result = true;
+          }
+        }
+        
+        if (result == null || !result) {
+          if (!StringUtils.isBlank(groupAllowedForEdit)) {
+            
+            //use root since the current user might not be able to read the group of allowed users
+            Group theGroupAllowedForEdit = GroupFinder.findByName(theGrouperSession, groupAllowedForEdit, true);
+            
+            return theGroupAllowedForEdit.hasMember(subject);
+          }
+          
+        }
+        
+        //just cache the positives...
+        if (result != null && result) {
+          subjectCanEditExternalUser.put(multiKey, result);
+        }
+        return result != null ? result : false;
       }
-    }
+    });
     
   }
   
@@ -1055,41 +1042,28 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
 
     final Subject subject = SubjectFinder.findByIdAndSource(this.getUuid(), sourceId(), true);
     final Set<String> groupNameSet = GrouperUtil.splitTrimToSet(groups, ",");
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    boolean startedGrouperSession = false;
-    if (grouperSession == null) {
-      grouperSession = GrouperSession.startRootSession(false);
-      startedGrouperSession = true;
-    }
-    if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
-      grouperSession = grouperSession.internal_getRootSession();
-    }
-    try {
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          for (String groupName : groupNameSet) {
-            if (LOG.isDebugEnabled()) {
-              LOG.debug("Assigning external subject to group: " + groupName + ", and expireAfterDays: " + expireAfterDays);
-            }
-            Group group = GroupFinder.findByName(grouperSession, groupName, true);
-            group.addMember(subject, false);
-            if (expireAfterDays > 0) {
-              Membership membership = group.getImmediateMembership(Group.getDefaultList(), subject, true, true);
-              membership.setEnabledTime(new Timestamp(System.currentTimeMillis() + ((long)expireAfterDays*24*60*60*1000)));
-              membership.update();
-            }
-          }
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-          return null;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        for (String groupName : groupNameSet) {
+          if (LOG.isDebugEnabled()) {
+            LOG.debug("Assigning external subject to group: " + groupName + ", and expireAfterDays: " + expireAfterDays);
+          }
+          Group group = GroupFinder.findByName(grouperSession, groupName, true);
+          group.addMember(subject, false);
+          if (expireAfterDays > 0) {
+            Membership membership = group.getImmediateMembership(Group.getDefaultList(), subject, true, true);
+            membership.setEnabledTime(new Timestamp(System.currentTimeMillis() + ((long)expireAfterDays*24*60*60*1000)));
+            membership.update();
+          }
         }
-      });
-    } finally {
-      if (startedGrouperSession) {
-        GrouperSession.stopQuietly(grouperSession);
+        return null;
       }
-    }
+    });
+    
+          
   }
 
   /**

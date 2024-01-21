@@ -51,9 +51,11 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssignable;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.EmailObject;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -97,9 +99,14 @@ public class GrouperAttestationJob extends OtherJobBase {
       public void run() {
         
         try {
-          GrouperSession.startRootSession();
-          
-          GrouperAttestationJob.stemAttestationProcessHelper(STEM, ATTRIBUTE_ASSIGN, stemName, newDateCertified);
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              GrouperAttestationJob.stemAttestationProcessHelper(STEM, ATTRIBUTE_ASSIGN, stemName, newDateCertified);
+              return null;
+            }
+          });
 
           FINISHED[0] = true;
         } catch (RuntimeException re) {
@@ -1410,22 +1417,28 @@ public class GrouperAttestationJob extends OtherJobBase {
    * run standalone
    */
   public static void runDaemonStandalone() {
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    
-    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_attestationDaemon";
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    hib3GrouperLoaderLog.setJobName(jobName);
-    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-    hib3GrouperLoaderLog.store();
-    
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    otherJobInput.setGrouperSession(grouperSession);
-    new GrouperAttestationJob().run(otherJobInput);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        
+        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        String jobName = "OTHER_JOB_attestationDaemon";
+
+        hib3GrouperLoaderLog.setJobName(jobName);
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        hib3GrouperLoaderLog.store();
+        
+        OtherJobInput otherJobInput = new OtherJobInput();
+        otherJobInput.setJobName(jobName);
+        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        otherJobInput.setGrouperSession(grouperSession);
+        new GrouperAttestationJob().run(otherJobInput);
+        return null;
+      }
+    });
   }
   
   /**

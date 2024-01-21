@@ -540,10 +540,9 @@ public class RuleEngine {
     final Map<AttributeAssign, Set<AttributeAssignValueContainer>> attributeAssignValueContainers 
       = allRulesAttributeAssignValueContainers(new QueryOptions().secondLevelCache(false));
   
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
-    
-    return (Integer)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-      
+    return (Integer)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         Throwable throwable = null;
         int numberOfErrors = 0;
@@ -615,7 +614,7 @@ public class RuleEngine {
         
         return rulesChanged;
       }
-    });
+    });      
   }
 
   /**

@@ -112,6 +112,23 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 public class GroupSave {
   
   /**
+   * group name to edit if there is a move
+   * @return
+   */
+  public String getGroupNameToEdit() {
+    return groupNameToEdit;
+  }
+
+
+  /**
+   * group name of the group (eventual name if there is a move)
+   * @return
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
    * set this to true to run as a root session
    */
   private boolean runAsRoot;

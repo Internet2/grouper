@@ -33,11 +33,13 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3GrouperVersioned;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportAuditEntry;
@@ -236,28 +238,34 @@ public class AuditEntry extends GrouperAPI implements Hib3GrouperVersioned, XmlI
       .append(" (").append(StringUtils.leftPad(Long.toString(this.getDurationMicroseconds()/1000), 6))
       .append("ms, ").append(StringUtils.leftPad(Integer.toString(this.getQueryCount()), 3)).append(" queries)\n");
     
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
-    
-    if (!StringUtils.isBlank(this.loggedInMemberId)) {
-      result.append("  ").append(StringUtils.rightPad("Logged in user:", 20));
-      Member loggedInMember = MemberFinder.findByUuid(grouperSession, this.loggedInMemberId, false);
-      String loggedInMemberString = subjectToString(loggedInMember);
-      result.append(loggedInMemberString);
-      
-      if (!StringUtils.isBlank(this.userIpAddress)) {
-        result.append(" (ip: ").append(this.userIpAddress).append(")");
-      }
-      
-      if (!StringUtils.isBlank(this.actAsMemberId) && !StringUtils.equals(this.actAsMemberId, this.loggedInMemberId)) {
-        result.append(" (actAs: ");
-        Member actAsMember = MemberFinder.findByUuid(grouperSession, this.actAsMemberId, false);
-        String actAsMemberString = subjectToString(actAsMember);
-        result.append(actAsMemberString);
-        result.append(")");
-      }
-      result.append("\n");
-    }
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (!StringUtils.isBlank(AuditEntry.this.loggedInMemberId)) {
+          result.append("  ").append(StringUtils.rightPad("Logged in user:", 20));
+          Member loggedInMember = MemberFinder.findByUuid(grouperSession, AuditEntry.this.loggedInMemberId, false);
+          String loggedInMemberString = subjectToString(loggedInMember);
+          result.append(loggedInMemberString);
+          
+          if (!StringUtils.isBlank(AuditEntry.this.userIpAddress)) {
+            result.append(" (ip: ").append(AuditEntry.this.userIpAddress).append(")");
+          }
+          
+          if (!StringUtils.isBlank(AuditEntry.this.actAsMemberId) && !StringUtils.equals(AuditEntry.this.actAsMemberId, AuditEntry.this.loggedInMemberId)) {
+            result.append(" (actAs: ");
+            Member actAsMember = MemberFinder.findByUuid(grouperSession, AuditEntry.this.actAsMemberId, false);
+            String actAsMemberString = subjectToString(actAsMember);
+            result.append(actAsMemberString);
+            result.append(")");
+          }
+          result.append("\n");
+        }
+
+        return null;
+      }
+    });
+    
     if (!StringUtils.isBlank(this.description)) {
       result.append("  ").append(StringUtils.rightPad("Description:", 20))
         .append(StringUtils.abbreviate(this.description, 200)).append("\n");

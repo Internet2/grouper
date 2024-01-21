@@ -75,7 +75,7 @@ public class AssignSelfOptOutGroupPrivilegeHook extends GroupHooks {
       return;
     }
 
-    Group thisGroup = GroupFinder.findByUuid(GrouperSession.startRootSession(),
+    Group thisGroup = GroupFinder.findByUuidAsGrouperSystem(
         postCommitInsertBean.getGroup().getId(), false);
     if (logger.isDebugEnabled()) {
       logger.debug("The Group: " + thisGroup);

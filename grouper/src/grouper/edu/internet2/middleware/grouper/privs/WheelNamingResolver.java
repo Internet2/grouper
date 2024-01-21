@@ -37,14 +37,10 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HqlQuery;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -92,9 +88,6 @@ public class WheelNamingResolver extends NamingResolverDecorator {
   /** only log this once... */
   private static boolean loggedWheelViewonlyGroupMissing = false;
 
-  /** wheel session */
-  private GrouperSession wheelSession = null;
-
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(WheelNamingResolver.class);
 
@@ -112,15 +105,13 @@ public class WheelNamingResolver extends NamingResolverDecorator {
           GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_USE_WHEEL_GROUP)).booleanValue();
       // TODO 20070816 and this is even worse
       if (this.useWheel) {
-        String wheelGroupName = "";
+        String wheelGroupName = GrouperConfig.retrieveConfig().propertyValueStringRequired(GrouperConfig.PROP_WHEEL_GROUP);
         try {
-          wheelGroupName = GrouperConfig.retrieveConfig().propertyValueString(GrouperConfig.PROP_WHEEL_GROUP);
-          this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
-          this.wheelGroup = GroupFinder.findByName(
-                      //dont replace the current grouper session
-              this.wheelSession,
+          this.wheelGroup = GroupFinder.findByNameAsGrouperSystem(
+              //dont replace the current grouper session
               wheelGroupName, GrouperStartup.isFinishedStartupSuccessfully()
-              );
+              ); 
+              
         } catch (Exception e) {
   
           //OK, so wheel group does not exist. Not fatal...
@@ -143,16 +134,11 @@ public class WheelNamingResolver extends NamingResolverDecorator {
         this.useViewonlyWheel = Boolean.valueOf(useWheelViewonlyString).booleanValue();
         // TODO 20070816 and this is even worse
         if (this.useViewonlyWheel) {
-          String wheelViewonlyName = null;
+          final String wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueStringRequired("groups.wheel.viewonly.group");
           try {
-            wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
-            if (this.wheelSession == null) {
-              this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
-            }
-            this.wheelViewonlyGroup = GroupFinder.findByName(
-                this.wheelSession,
-                wheelViewonlyName, GrouperStartup.isFinishedStartupSuccessfully()
-                );
+            this.wheelViewonlyGroup = GroupFinder.findByNameAsGrouperSystem(wheelViewonlyName, GrouperStartup.isFinishedStartupSuccessfully()
+                ); 
+
           } catch (Exception e) {
     
             String error = "Initialisation error with wheel viewonly group name '" + wheelViewonlyName
@@ -178,14 +164,9 @@ public class WheelNamingResolver extends NamingResolverDecorator {
         this.useReadonlyWheel = Boolean.valueOf(useWheelReadonlyString).booleanValue();
         // TODO 20070816 and this is even worse
         if (this.useReadonlyWheel) {
-          String wheelReadonlyName = null;
+          String wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
           try {
-            wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
-            if (this.wheelSession == null) {
-              this.wheelSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
-            }
-            this.wheelReadonlyGroup = GroupFinder.findByName(
-                this.wheelSession,
+            this.wheelReadonlyGroup = GroupFinder.findByNameAsGrouperSystem(
                 wheelReadonlyName, GrouperStartup.isFinishedStartupSuccessfully()
                 );
           } catch (Exception e) {
@@ -249,16 +230,9 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     Boolean rv = getFromIsWheelMemberCache(subj);
     if (rv == null) {
 
-      rv = (Boolean) GrouperSession.callbackGrouperSession(this.wheelSession,
-          new GrouperSessionHandler() {
-
-            public Object callback(GrouperSession grouperSession)
-                throws GrouperSessionException {
-              return WheelNamingResolver.this.wheelGroup != null 
-                  && WheelNamingResolver.this.wheelGroup.hasMember(subj);
-            }
-                    });
-
+      rv = WheelNamingResolver.this.wheelGroup != null 
+          && WheelNamingResolver.this.wheelGroup.hasMemberAsGrouperSystem(subj);
+          
       putInHasPrivilegeCache(subj, rv);
     }
     return rv;
@@ -274,15 +248,8 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     Boolean rv = getFromIsWheelViewonlyMemberCache(subj);
     if (rv == null) {
 
-      rv = (Boolean) GrouperSession.callbackGrouperSession(this.wheelSession,
-          new GrouperSessionHandler() {
-
-            public Object callback(GrouperSession grouperSession)
-                throws GrouperSessionException {
-              return WheelNamingResolver.this.wheelViewonlyGroup != null 
-                  && WheelNamingResolver.this.wheelViewonlyGroup.hasMember(subj);
-            }
-                    });
+      rv = WheelNamingResolver.this.wheelViewonlyGroup != null 
+          && WheelNamingResolver.this.wheelViewonlyGroup.hasMemberAsGrouperSystem(subj);
 
       putInHasViewonlyPrivilegeCache(subj, rv);
     }
@@ -298,16 +265,9 @@ public class WheelNamingResolver extends NamingResolverDecorator {
     Boolean rv = getFromIsWheelReadonlyMemberCache(subj);
     if (rv == null) {
 
-      rv = (Boolean) GrouperSession.callbackGrouperSession(this.wheelSession,
-          new GrouperSessionHandler() {
-
-            public Object callback(GrouperSession grouperSession)
-                throws GrouperSessionException {
-              return WheelNamingResolver.this.wheelReadonlyGroup != null 
-                  && WheelNamingResolver.this.wheelReadonlyGroup.hasMember(subj);
-            }
-                    });
-
+      rv = WheelNamingResolver.this.wheelReadonlyGroup != null 
+          && WheelNamingResolver.this.wheelReadonlyGroup.hasMember(subj);
+      
       putInHasReadonlyPrivilegeCache(subj, rv);
     }
     return rv;

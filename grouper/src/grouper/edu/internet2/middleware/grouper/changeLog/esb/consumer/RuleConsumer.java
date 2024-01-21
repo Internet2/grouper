@@ -326,21 +326,19 @@ public class RuleConsumer extends ChangeLogConsumerBase {
             continue;
           }
 
-          GrouperSession theGrouperSession = GrouperSession.startRootSession(false);
-          
-          RulesBean rulesBean = null;
-          
-          try {
-            rulesBean = (RulesBean)GrouperSession.callbackGrouperSession(theGrouperSession, new GrouperSessionHandler() {
-              
-              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-                return ruleEventType.setupRulesBean(changeLogType, changeLogEntry, grouperSession);
-              }
-            });
-          } finally {
-            GrouperSession.stopQuietly(theGrouperSession);
-          }
+          RulesBean rulesBean = (RulesBean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+              return (RulesBean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+                
+                public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                  return ruleEventType.setupRulesBean(changeLogType, changeLogEntry, grouperSession);
+                }
+              });
+            }
+          });
+          
           if (rulesBean != null) {
             ruleEventType.processEvent(changeLogType, changeLogEntry, rulesBean);
           }

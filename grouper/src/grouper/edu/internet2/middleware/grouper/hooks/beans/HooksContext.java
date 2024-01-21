@@ -199,15 +199,12 @@ public class HooksContext {
       return false;
     }
     
-    Subject rootSubject = SubjectFinder.findRootSubject();
-    GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.start(rootSubject, false);
+      boolean isMember = (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      boolean isMember = (Boolean)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+         
           //see if group cached
           Group group = groupNameToGroupCache.get(groupName);
           
@@ -238,8 +235,6 @@ public class HooksContext {
       }
       throw new RuntimeException("Problem seeing if subject: " + subject.getId() + ", " 
           + subject.getSource() + ", is in group: " + groupName, throwable);
-    } finally { 
-      GrouperSession.stopQuietly(grouperSession);
     }
   }
 

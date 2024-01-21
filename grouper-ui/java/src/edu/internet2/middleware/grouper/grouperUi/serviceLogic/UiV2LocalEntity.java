@@ -203,7 +203,7 @@ public class UiV2LocalEntity {
       final String groupName = parentFolder.getName() + ":" + extension;
       
       //search as an admin to see if the group exists
-      group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           

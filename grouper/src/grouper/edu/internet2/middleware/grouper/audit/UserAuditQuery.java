@@ -37,14 +37,14 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
 import edu.internet2.middleware.grouper.internal.dao.QuerySort;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -54,17 +54,23 @@ public class UserAuditQuery {
 
   public static void main(String args[]) {
 
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    UserAuditQuery userAuditQuery = new UserAuditQuery();
-    
-    userAuditQuery.addAuditTypeCategory("membership");
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    Group group = GroupFinder.findByName(grouperSession, "test:testGroup", true);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        UserAuditQuery userAuditQuery = new UserAuditQuery();
+        
+        userAuditQuery.addAuditTypeCategory("membership");
+
+        Group group = GroupFinder.findByName(grouperSession, "test:testGroup", true);
+        
+        userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_GROUP_ID, group.getUuid());
+        List<AuditEntry> auditEntries = userAuditQuery.execute();
+        System.out.println(GrouperUtil.toStringForLog(auditEntries));
+        return null;
+      }
+    });
     
-    userAuditQuery.addAuditTypeFieldValue(AuditFieldType.AUDIT_TYPE_GROUP_ID, group.getUuid());
-    List<AuditEntry> auditEntries = userAuditQuery.execute();
-    System.out.println(GrouperUtil.toStringForLog(auditEntries));
   }
   
   /**

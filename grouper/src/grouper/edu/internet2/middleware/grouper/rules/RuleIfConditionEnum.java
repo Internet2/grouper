@@ -29,7 +29,9 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -549,46 +551,46 @@ public enum RuleIfConditionEnum {
     public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
         RulesBean rulesBean) {
       
-      String memberId = null;
-      try {
-        memberId = rulesBean.getMemberId();
-      } catch (Exception e) {
-        //ignore
-      }
-      
-      GrouperSession rootSession = GrouperSession.startRootSession(false);
-      try {
-        
-        if (StringUtils.isBlank(memberId)) {
+      return (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          String memberId = null;
+          try {
+            memberId = rulesBean.getMemberId();
+          } catch (Exception e) {
+            //ignore
+          }
+          if (StringUtils.isBlank(memberId)) {
+            
+            Member member = MemberFinder.findBySubject(grouperSession, rulesBean.getSubject(), false);
+            memberId = member == null ? null : member.getUuid();
+
+            if (StringUtils.isBlank(memberId )) {
+              return false;
+            }
+          }
           
-          Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
-          memberId = member == null ? null : member.getUuid();
+          Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+              ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, true);
+          String groupId = group.getId();
+          
+          Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+            .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+                groupId, Group.getDefaultList(), 
+                GrouperUtil.toSet(memberId), "immediate", true);
 
-          if (StringUtils.isBlank(memberId )) {
-            return false;
+          
+          for (Membership membership : memberships) {
+            if (membership.getDisabledTime() == null) {
+              return true;
+            }
           }
+          
+          return false;
         }
+      });
         
-        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
-            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, true);
-        String groupId = group.getId();
-        
-        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
-              groupId, Group.getDefaultList(), 
-              GrouperUtil.toSet(memberId), "immediate", true);
-
-        
-        for (Membership membership : memberships) {
-          if (membership.getDisabledTime() == null) {
-            return true;
-          }
-        }
-        
-        return false;
-      } finally {
-        GrouperSession.stopQuietly(rootSession);
-      }
     }
 
     /**

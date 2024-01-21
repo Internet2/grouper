@@ -214,8 +214,7 @@ public enum AttributeDefValueType {
     if (checkSecurity) {
       return retrieveTypeBasedOnAttributeDefNameIdHelper(attributeDefNameId);
     }
-    return (AttributeDefValueType)GrouperSession.callbackGrouperSession(
-        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (AttributeDefValueType)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         return retrieveTypeBasedOnAttributeDefNameIdHelper(attributeDefNameId);

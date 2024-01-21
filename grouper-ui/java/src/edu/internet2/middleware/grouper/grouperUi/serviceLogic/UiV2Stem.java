@@ -2637,9 +2637,9 @@ public class UiV2Stem {
       //take into account the root stem
       final String stemName = StringUtils.isBlank(parentFolder.getName()) ? extension : (parentFolder.getName() + ":" + extension);
       
-      //search as an admin to see if the group exists
-      stem = (Stem)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
-        
+      //search as an admin to see if the stem exists
+      stem = (Stem)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {        
+
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
           return StemFinder.findByName(theGrouperSession, stemName, false);

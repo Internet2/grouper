@@ -130,10 +130,10 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
    */
   public Boolean deprovisionMembership(final Membership membership) {
     
-    return (Boolean) GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-      
+    return (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
       @Override
-      public Boolean callback(GrouperSession rootSession) throws GrouperSessionException {
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
         Subject subject =  membership.getMember().getSubject();
 
@@ -176,7 +176,7 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
    */
   public Set<Member> getUsersWhoHaveBeenDeprovisioned() {
     //these need to be looked up as root
-    return (Set<Member>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Set<Member>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
@@ -199,7 +199,7 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
    */
   public Group getUsersWhoHaveBeenDeprovisionedGroup() {
     //these need to be looked up as root
-    return (Group)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
@@ -222,14 +222,12 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
    */
   public Group getManagersGroup() {
     //these need to be looked up as root
-    return (Group)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-      
-      /**
-       * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
-       */
-      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+    return (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        Group managersGroup = GroupFinder.findByName(rootSession, GrouperDeprovisioningAffiliation.this.getManagersGroupName(), false);
+        Group managersGroup = GroupFinder.findByName(grouperSession, GrouperDeprovisioningAffiliation.this.getManagersGroupName(), false);
         if (managersGroup == null) {
           LOG.info("managers group is not found '" + GrouperDeprovisioningAffiliation.this.getManagersGroupName() + "', for affiliation: '" + GrouperDeprovisioningAffiliation.this.getLabel() + "'");
         }
@@ -246,7 +244,7 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
    */
   public boolean subjectIsManager(final Subject subject) {
     //these need to be looked up as root
-    return (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
@@ -313,7 +311,7 @@ public class GrouperDeprovisioningAffiliation implements Comparable<GrouperDepro
    */
   public static Map<String, GrouperDeprovisioningAffiliation> retrieveAffiliationsForUserManager(final Subject subject) {
     //these need to be looked up as root
-    return (Map<String, GrouperDeprovisioningAffiliation>)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Map<String, GrouperDeprovisioningAffiliation>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)

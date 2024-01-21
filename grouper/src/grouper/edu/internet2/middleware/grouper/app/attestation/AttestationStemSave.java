@@ -90,22 +90,25 @@ public class AttestationStemSave {
    */
   public static void main(String[] args) {
     GrouperStartup.startup();
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    AttestationStemSave attestationStemSave = null;
-    
-//    attestationStemSave = new AttestationStemSave().assignStemName("test");
-//    attestationStemSave.save();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    attestationStemSave = new AttestationStemSave().assignStemName("test").assignDaysBeforeToRemind(15).assignStemScope(Scope.SUB);
-    attestationStemSave.save();
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        AttestationStemSave attestationStemSave = null;
+        
+// attestationStemSave = new AttestationStemSave().assignStemName("test");
+// attestationStemSave.save();
 
-//    attestationStemSave = new AttestationStemSave().assignStemName("test").assignSaveMode(SaveMode.DELETE);
-//    attestationStemSave.save();
-    
-    System.out.println(attestationStemSave.getSaveResultType());
-    
-    GrouperSession.stopQuietly(grouperSession);
+        attestationStemSave = new AttestationStemSave().assignStemName("test").assignDaysBeforeToRemind(15).assignStemScope(Scope.SUB);
+        attestationStemSave.save();
+
+// attestationStemSave = new AttestationStemSave().assignStemName("test").assignSaveMode(SaveMode.DELETE);
+// attestationStemSave.save();
+      
+      System.out.println(attestationStemSave.getSaveResultType());
+        return null;
+      }
+    });
   }
   
   /**

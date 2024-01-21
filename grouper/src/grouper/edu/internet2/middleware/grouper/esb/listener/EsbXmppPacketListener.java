@@ -25,6 +25,8 @@ import org.jivesoftware.smack.packet.Message;
 import org.jivesoftware.smack.packet.Packet;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 /**
@@ -35,8 +37,6 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class EsbXmppPacketListener implements PacketListener {
 
-  private GrouperSession grouperSession;
-
   private EsbListener esbPublisher;
 
   private static final Log LOG = GrouperUtil.getLog(EsbXmppPacketListener.class);
@@ -45,16 +45,22 @@ public class EsbXmppPacketListener implements PacketListener {
    * Method to process incoming packet
    */
   public void processPacket(Packet packet) {
-    // TODO Auto-generated method stub
-    if (this.grouperSession == null)
-      this.grouperSession = GrouperSession.startRootSession();
-    if (this.esbPublisher == null)
-      this.esbPublisher = new EsbListener();
-    Message message = (Message) packet;
-    if (LOG.isDebugEnabled()) {
-      LOG.debug("Received message " + message.getBody());
-    }
-    esbPublisher.processEvent(message.getBody(), grouperSession);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        if (EsbXmppPacketListener.this.esbPublisher == null) {
+          EsbXmppPacketListener.this.esbPublisher = new EsbListener();
+        }
+        Message message = (Message) packet;
+        if (LOG.isDebugEnabled()) {
+          LOG.debug("Received message " + message.getBody());
+        }
+        esbPublisher.processEvent(message.getBody(), grouperSession);
+        return null;
+      }
+    });
+
   }
 
 }

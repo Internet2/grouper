@@ -27,14 +27,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
-import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.attr.AttributeDefSave;
-import edu.internet2.middleware.grouper.attr.AttributeDefType;
-import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -71,68 +65,6 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
   }
   
   /**
-   * see if initted
-   */
-  static boolean inittedOnce = false;
-  
-  /**
-   * @param inCheckConfig
-   */
-  public static void initObjectsOnce(final boolean inCheckConfig) {
-    if (inittedOnce) {
-      return;
-    }
-
-    synchronized (MembershipOneInFolderMaxHook.class) {
-      if (inittedOnce) {
-        return;
-      }
-    
-      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          String membershipOneHookStemName = GrouperCheckConfig.attributeRootStemName() + ":hooks";
-          Stem membershipOneHookStem = StemFinder.findByName(grouperSession, membershipOneHookStemName, false);
-          if (membershipOneHookStem == null) {
-            membershipOneHookStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-              .assignDescription("folder for hooks settings").assignName(membershipOneHookStemName)
-              .save();
-          }
-          
-          //see if attributeDef is there
-          String membershipOneDefName = membershipOneHookStemName + ":membershipOneInFolderDef";
-          AttributeDef membershipOneDef = new AttributeDefSave(grouperSession).assignName(membershipOneDefName)
-            .assignAttributeDefPublic(false).assignAttributeDefType(AttributeDefType.attr)
-            .assignMultiAssignable(false).assignMultiValued(false).assignToStem(true).assignValueType(AttributeDefValueType.marker).save();
-          
-      //    String membershipOneAssignmentDefName = membershipOneHookStemName + ":membershipOneInFolderAssignmentDef";
-          
-      //    AttributeDef membershipOneAssignmentDef = new AttributeDefSave(grouperSession).assignName(membershipOneAssignmentDefName)
-      //      .assignAttributeDefPublic(false).assignAttributeDefType(AttributeDefType.attr)
-      //      .assignMultiAssignable(false).assignMultiValued(false).assignToStemAssn(true).assignValueType(AttributeDefValueType.string).save();
-      
-          //this is publicly assignable and readable
-          //membershipOneDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
-          //membershipOneDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
-          
-          //add the only name
-          GrouperCheckConfig.checkAttribute(
-              membershipOneHookStem, membershipOneDef, MembershipOneInFolderMaxHook.membershipOneFolderExtensionOfAttributeDefName,
-              MembershipOneInFolderMaxHook.membershipOneFolderExtensionOfAttributeDefName,
-              "put this attribute on a folder to ensure there is one membership only for any group in folder", inCheckConfig);
-      //    checkAttribute(
-      //        membershipOneHookStem, membershipOneAssignmentDef, MembershipOneInFolderMaxHook.membershipOneFolderScopeExtensionOfAttributeDefName, 
-      //        "put this attribute on the hookMembershipOneInFolder attribute assignment to specify if ONE or SUB for if the "
-      //        + "membership is only for this folder or for all subfolders too", wasInCheckConfig);
-          inittedOnce = true;
-          return null;
-        }
-      });
-    }
-  }
-  
-  /**
    * put this attribute on a folder to ensure there is one membership only for any group in folder
    */
   public static final String membershipOneFolderExtensionOfAttributeDefName = "hookMembershipOneInFolder";
@@ -164,8 +96,6 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
     if (GrouperCheckConfig.inCheckConfig || !GrouperStartup.isFinishedStartupSuccessfully()) {
       return;
     }
-
-    initObjectsOnce(false);
 
     final Set<Group> problemGroups = new HashSet<Group>();
 
@@ -244,7 +174,6 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
    * 
    */
   public static void clearHook() {
-    inittedOnce = false;
     stemHasMembershipOneAttribute.clear();
   }
 
@@ -252,7 +181,6 @@ public class MembershipOneInFolderMaxHook extends MembershipHooks {
    * @return attribute def name for this hook
    */
   public static AttributeDefName membershipOneInFolderAttributeDefName() {
-    initObjectsOnce(false);
     return AttributeDefNameFinder.findByName(membershipOneFolderStemName() + ":" + membershipOneFolderExtensionOfAttributeDefName, true);
   }
 

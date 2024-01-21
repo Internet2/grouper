@@ -47,6 +47,11 @@ import edu.internet2.middleware.subject.Subject;
 public class AttributeDefNameFinder {
 
   /**
+   * names of attribute definition names to find
+   */
+  private Collection<String> namesOfAttributeDefNames;
+
+  /**
    * id of attribute def name
    */
   private Set<String> idsOfAttributeDefName;
@@ -70,6 +75,20 @@ public class AttributeDefNameFinder {
   }
   
   /**
+   * add a attribute def name name to search for
+   * @param nameOfAttributeDefName
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder addNameOfAttributeDefName(String nameOfAttributeDefName) {
+    if (this.namesOfAttributeDefNames == null) {
+      this.namesOfAttributeDefNames = new HashSet<String>();
+    }
+    this.namesOfAttributeDefNames.add(nameOfAttributeDefName);
+    return this;
+
+  }
+
+  /**
    * id of attribute def name
    * @param theIdsOfAttributeDefNames
    * @return this for chaining
@@ -79,8 +98,18 @@ public class AttributeDefNameFinder {
     if (this.idsOfAttributeDefName == null) {
       this.idsOfAttributeDefName = new HashSet<String>();
     }
-    
+
     this.idsOfAttributeDefName.addAll(theIdsOfAttributeDefNames);
+    return this;
+  }
+  
+  /**
+   * names of attribute def name
+   * @param theNamesOfAttributeDefNames
+   * @return this for chaining
+   */
+  public AttributeDefNameFinder assignNamesOfAttributeDefNames(Collection<String> theNamesOfAttributeDefNames) {
+    this.namesOfAttributeDefNames = theNamesOfAttributeDefNames;
     return this;
   }
   
@@ -304,10 +333,16 @@ public class AttributeDefNameFinder {
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.emptySetOfLookupsReturnsNoResults", true)) {
       // if passed in empty set of attributeDefName ids and no names, then no attributeDefNames found
       // uncomment this if we can search by attributeDefName names
-      if (this.idsOfAttributeDefName != null && this.idsOfAttributeDefName.size() == 0 /* && GrouperUtil.length(this.namesOfAttributeDefName) == 0 */ 
+      if (this.idsOfAttributeDefName != null && this.idsOfAttributeDefName.size() == 0
           ) {
         return new HashSet<AttributeDefName>();
       }
+
+      if (this.namesOfAttributeDefNames != null && this.namesOfAttributeDefNames.size() == 0
+          ) {
+        return new HashSet<AttributeDefName>();
+      }
+
     }
     
     GrouperSession grouperSession = GrouperSession.staticGrouperSession();
@@ -318,7 +353,7 @@ public class AttributeDefNameFinder {
           this.queryOptions, this.attributeAssignType, 
           this.attributeDefType, 
           this.serviceRole, this.anyServiceRole, this.parentStemId, 
-          this.stemScope, this.findByUuidOrName, this.idsOfAttributeDefName);
+          this.stemScope, this.findByUuidOrName, this.idsOfAttributeDefName, this.namesOfAttributeDefNames);
   }
   
   /**

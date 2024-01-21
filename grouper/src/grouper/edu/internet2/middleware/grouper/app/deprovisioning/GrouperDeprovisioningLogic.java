@@ -545,7 +545,7 @@ public class GrouperDeprovisioningLogic {
    * @param membership
    */
   public static void removeAccess(final Membership membership) {
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
@@ -578,7 +578,7 @@ public class GrouperDeprovisioningLogic {
    */
   public static void removeAccess(final Group group, final Subject subject) {
     
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
@@ -600,7 +600,7 @@ public class GrouperDeprovisioningLogic {
    */
   public static void removeAccess(final AttributeDef attributeDef, final Subject subject) {
     
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {
@@ -621,7 +621,7 @@ public class GrouperDeprovisioningLogic {
    */
   public static void removeAccess(final Stem stem, final Subject subject) {
     
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession rootSession) throws GrouperSessionException {

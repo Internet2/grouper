@@ -2711,7 +2711,7 @@ public enum RuleCheckType {
     ruleCheck.setCheckOwnerId(null);
     //set the owner to this stem
     AttributeDef attributeDef = (AttributeDef)
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         return AttributeDefFinder.findById(attributeDefId, true);

@@ -40,6 +40,9 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.MockGrouperAPI;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+import junit.textui.TestRunner;
 
 
 /**
@@ -51,10 +54,24 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
  */
 public class Test_api_GrouperAPI extends GrouperTest {
 
+  public static void main(String[] args) {
+    GrouperStartup.startup();
+    System.out.println("Sleeping...");
+    GrouperUtil.sleep(10000);
+    TestRunner.run(new Test_api_GrouperAPI("test_getSession_equalsSetSession2"));
+  }
 
   private GrouperAPI mockAPI;
 
 
+
+  public Test_api_GrouperAPI() {
+    super();
+  }
+
+  public Test_api_GrouperAPI(String name) {
+    super(name);
+  }
 
   public void setUp() {
     super.setUp();
@@ -69,8 +86,7 @@ public class Test_api_GrouperAPI extends GrouperTest {
 
   public void test_getSession_nullSession() {
     try {
-      GrouperSession.clearGrouperSession();
-      GrouperSession.staticGrouperSession();
+      GrouperSession.staticGrouperSession(true);
       fail("failed to throw expected IllegalStateException");
     }
     catch (IllegalStateException eExpected) {
@@ -81,7 +97,6 @@ public class Test_api_GrouperAPI extends GrouperTest {
   public void test_getSession_equalsSetSession() 
     throws  SessionException
   {
-    GrouperSession.clearGrouperSession();
     
     GrouperSession s = GrouperSession.start( SubjectFinder.findAllSubject() );
     assertEquals( s, GrouperSession.staticGrouperSession() );  
@@ -101,6 +116,7 @@ public class Test_api_GrouperAPI extends GrouperTest {
           throws GrouperSessionException {
         
         assertTrue (SESSION == grouperSession);
+        assertTrue (SESSION == GrouperSession.staticGrouperSession());
         
         //try to nest with same
         GrouperSession.callbackGrouperSession(SESSION, new GrouperSessionHandler() {
@@ -108,6 +124,7 @@ public class Test_api_GrouperAPI extends GrouperTest {
           public Object callback(GrouperSession grouperSession)
               throws GrouperSessionException {
             assertTrue (SESSION == grouperSession);
+            assertTrue (SESSION == GrouperSession.staticGrouperSession());
 
             //nest with different
             GrouperSession.callbackGrouperSession(SESSION2, new GrouperSessionHandler() {
@@ -116,6 +133,15 @@ public class Test_api_GrouperAPI extends GrouperTest {
                   throws GrouperSessionException {
 
                 assertTrue (SESSION2 == grouperSession);
+                assertTrue (SESSION2 == GrouperSession.staticGrouperSession());
+                
+                GrouperSession grouperSession2 = GrouperSession.startRootSession();
+                GrouperSession grouperSession3 = GrouperSession.staticGrouperSession();
+                assertEquals(grouperSession2, grouperSession3);
+                grouperSession2.stop();
+
+                assertTrue (SESSION2 == GrouperSession.staticGrouperSession());
+
                 return null;
                 
               }
@@ -123,6 +149,7 @@ public class Test_api_GrouperAPI extends GrouperTest {
             });
             
             assertTrue (SESSION == grouperSession);
+            assertTrue (SESSION == GrouperSession.staticGrouperSession());
             return null;
           }
           
@@ -130,13 +157,90 @@ public class Test_api_GrouperAPI extends GrouperTest {
         
         
         assertTrue (SESSION == grouperSession);
+        assertTrue (SESSION == GrouperSession.staticGrouperSession());
 
         return null;
       }
       
     });
+    
+    GrouperSession.stopQuietly(SESSION);
+    GrouperSession.stopQuietly(SESSION2);
   }
 
+  public void test_getSession_equalsSetSession2() 
+      throws  SessionException
+    {
+      
+      GrouperSession s = GrouperSession.start( SubjectFinder.findAllSubject() );
+      assertEquals( s, GrouperSession.staticGrouperSession() );  
+      s.stop();
+      
+      assertEquals(null, GrouperSession.staticGrouperSession(false));
+      
+      //do callback and see
+      final GrouperSession SESSION = GrouperSession.start(SubjectFinder.findAllSubject());
+      final GrouperSession SESSION2 = GrouperSession.start(SubjectFinder.findAllSubject());
+      
+      assertFalse(SESSION == SESSION2);
+      
+      GrouperSession.callbackGrouperSession(SESSION, new GrouperSessionHandler() {
+
+        public Object callback(GrouperSession grouperSession)
+            throws GrouperSessionException {
+          
+          assertTrue (SESSION == grouperSession);
+          assertTrue (SESSION == GrouperSession.staticGrouperSession());
+          
+          //try to nest with same
+          GrouperSession.callbackGrouperSession(SESSION, new GrouperSessionHandler() {
+
+            public Object callback(GrouperSession grouperSession)
+                throws GrouperSessionException {
+              assertTrue (SESSION == grouperSession);
+              assertTrue (SESSION == GrouperSession.staticGrouperSession());
+
+              //nest with different
+              GrouperSession.callbackGrouperSession(SESSION2, new GrouperSessionHandler() {
+
+                public Object callback(GrouperSession grouperSession)
+                    throws GrouperSessionException {
+
+                  assertTrue (SESSION2 == grouperSession);
+                  assertTrue (SESSION2 == GrouperSession.staticGrouperSession());
+                  
+                  GrouperSession grouperSession2 = GrouperSession.startRootSession();
+                  GrouperSession grouperSession3 = GrouperSession.staticGrouperSession();
+                  assertEquals(grouperSession2, grouperSession3);
+                  grouperSession2.stop();
+
+                  assertTrue (SESSION2 == GrouperSession.staticGrouperSession());
+
+                  return null;
+                  
+                }
+                
+              });
+              
+              assertTrue (SESSION == grouperSession);
+              assertTrue (SESSION == GrouperSession.staticGrouperSession());
+              return null;
+            }
+            
+          });
+          
+          
+          assertTrue (SESSION == grouperSession);
+          assertTrue (SESSION == GrouperSession.staticGrouperSession());
+
+          return null;
+        }
+        
+      });
+      
+      GrouperSession.stopQuietly(SESSION);
+      GrouperSession.stopQuietly(SESSION2);
+    }
 
 
 }

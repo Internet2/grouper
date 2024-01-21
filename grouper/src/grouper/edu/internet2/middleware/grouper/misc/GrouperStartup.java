@@ -365,17 +365,9 @@ public class GrouperStartup {
             //init include exclude type
             initIncludeExcludeType();
 
-            //init loader types and attributes if configured
-            initLoaderType();
-
             //init membership lite config type
             initMembershipLiteConfigType();
             
-            if (!ignoreCheckConfig) {
-              //post steps after loader config
-              GrouperCheckConfig.checkConfig2();
-            }
-
             // verify member search and sort config
             verifyMemberSortAndSearchConfig();
             
@@ -608,16 +600,12 @@ public class GrouperStartup {
     
     if (GrouperConfig.retrieveConfig().propertyValueBoolean("membershipUpdateLiteTypeAutoCreate", false)) {
       
-      GrouperSession grouperSession = null;
-
       try {
 
-        grouperSession = GrouperSession.startRootSession(false);
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-        GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-
-          public Object callback(GrouperSession grouperSession)
-              throws GrouperSessionException {
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
             try {
               
               GroupType groupMembershipLiteSettingsType = GroupType.createType(grouperSession, "grouperGroupMembershipSettings", false);
@@ -627,8 +615,6 @@ public class GrouperStartup {
 
             } catch (Exception e) {
               throw new RuntimeException(e.getMessage(), e);
-            } finally {
-              GrouperSession.stopQuietly(grouperSession);
             }
             return null;
           }
@@ -643,77 +629,7 @@ public class GrouperStartup {
     }
     
   }
-  
-  /**
-   * init the loader types and attributes if configured to
-   */
-  public static void initLoaderType() {
-    boolean autoaddBoolean = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.autoadd.typesAttributes", true);
-
-    if (!autoaddBoolean) {
-      return;
-    }
-
-    GrouperSession grouperSession = null;
-
-    try {
-
-      grouperSession = GrouperSession.startRootSession(false);
-
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          try {
-            
-            GroupType loaderType = GroupType.createType(grouperSession, "grouperLoader", false);
-
-            loaderType.addAttribute(grouperSession,"grouperLoaderType", false);
-            
-            loaderType.addAttribute(grouperSession,"grouperLoaderDbName", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderScheduleType", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderQuery", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderQuartzCron", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderIntervalSeconds", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderPriority", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderAndGroups", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderGroupTypes", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderGroupsLike", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderGroupQuery", false);
-
-            loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncBaseFolderName", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncLevels", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderDisplayNameSyncType", false);
-
-            loaderType.addAttribute(grouperSession,"grouperLoaderFailsafeUse", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderMaxGroupPercentRemove", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderMaxOverallPercentGroupsRemove", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderMaxOverallPercentMembershipsRemove", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderMinGroupSize", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderMinManagedGroups", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderFailsafeSendEmail", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderMinGroupNumberOfMembers", false);
-            loaderType.addAttribute(grouperSession,"grouperLoaderMinOverallNumberOfMembers", false);
-            
-          } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-          } finally {
-            GrouperSession.stopQuietly(grouperSession);
-          }
-          return null;
-        }
-
-      });
-
-      //register the hook if not already
-      GroupTypeTupleIncludeExcludeHook.registerHookIfNecessary(true);
-      
-    } catch (Exception e) {
-      throw new RuntimeException("Problem adding loader type/attributes", e);
-    }
-
-  }
-  
+    
   /**
    * init the include/exclude type if configured in the grouper.properties
    */
@@ -725,59 +641,50 @@ public class GrouperStartup {
     final String includeExcludeGroupTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.type.name");
     final String requireGroupsTypeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.type.name");
 
-    GrouperSession grouperSession = null;
 
     try {
 
-      grouperSession = GrouperSession.startRootSession(false);
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
-          try {
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
             
-            @SuppressWarnings("unused")
-            GroupType includeExcludeGroupType = useGrouperIncludeExclude ? 
-                GroupType.createType(grouperSession, includeExcludeGroupTypeName, false) : null;
+          @SuppressWarnings("unused")
+          GroupType includeExcludeGroupType = useGrouperIncludeExclude ? 
+              GroupType.createType(grouperSession, includeExcludeGroupTypeName, false) : null;
 
-            GroupType requireGroupsType = useGrouperRequireGroups ? 
-                GroupType.createType(grouperSession, requireGroupsTypeName, false) : null;
+          GroupType requireGroupsType = useGrouperRequireGroups ? 
+              GroupType.createType(grouperSession, requireGroupsTypeName, false) : null;
 
-            //first the requireGroups
-            String attributeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.attributeName");
+          //first the requireGroups
+          String attributeName = GrouperConfig.retrieveConfig().propertyValueString("grouperIncludeExclude.requireGroups.attributeName");
 
-            if (useGrouperRequireGroups && !StringUtils.isBlank(attributeName)) {
-              requireGroupsType.addAttribute(grouperSession,attributeName, false);
-            }
-
-            if (useGrouperRequireGroups) {
-              //add types/attributes from grouper.properties
-              int i=0;
-              while (true) {
-                String propertyName = "grouperIncludeExclude.requireGroup.name." + i;
-                String attributeOrTypePropertyName = "grouperIncludeExclude.requireGroup.attributeOrType." + i;
-
-                String propertyValue = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
-                if (StringUtils.isBlank(propertyValue)) {
-                  break;
-                }
-                String attributeOrTypeValue = GrouperConfig.retrieveConfig().propertyValueString(attributeOrTypePropertyName);
-                boolean attributeOrType = StringUtils.equals("attribute", attributeOrTypeValue);
-                if (attributeOrType) {
-                  requireGroupsType.addAttribute(grouperSession, propertyValue, false);
-                } else {
-                  GroupType.createType(grouperSession, propertyValue, false);
-                }
-                i++;
-              }
-            }
-            
-          } catch (Exception e) {
-            throw new RuntimeException(e.getMessage(), e);
-          } finally {
-            GrouperSession.stopQuietly(grouperSession);
+          if (useGrouperRequireGroups && !StringUtils.isBlank(attributeName)) {
+            requireGroupsType.addAttribute(grouperSession,attributeName, false);
           }
+
+          if (useGrouperRequireGroups) {
+            //add types/attributes from grouper.properties
+            int i=0;
+            while (true) {
+              String propertyName = "grouperIncludeExclude.requireGroup.name." + i;
+              String attributeOrTypePropertyName = "grouperIncludeExclude.requireGroup.attributeOrType." + i;
+
+              String propertyValue = GrouperConfig.retrieveConfig().propertyValueString(propertyName);
+              if (StringUtils.isBlank(propertyValue)) {
+                break;
+              }
+              String attributeOrTypeValue = GrouperConfig.retrieveConfig().propertyValueString(attributeOrTypePropertyName);
+              boolean attributeOrType = StringUtils.equals("attribute", attributeOrTypeValue);
+              if (attributeOrType) {
+                requireGroupsType.addAttribute(grouperSession, propertyValue, false);
+              } else {
+                GroupType.createType(grouperSession, propertyValue, false);
+              }
+              i++;
+            }
+          }
+          
           return null;
         }
         
@@ -798,46 +705,45 @@ public class GrouperStartup {
    */
   public static void initData(boolean logError) {
     try {
-      //lets see if we need to
-      boolean needsInit;
-      GrouperSession grouperSession = null;
-      try {
-        grouperSession = GrouperSession.start(SubjectFinder.findRootSubject());
-      } catch (SessionException se) {
-        throw new RuntimeException(se);
-      }
-      try {
-        needsInit = StemFinder.findRootStem(grouperSession) == null;
-        needsInit = needsInit || FieldFinder.find(Field.FIELD_NAME_ADMINS, true) == null ;
-      } catch (Exception e) {
-        if (logError && logErrorStatic) {
-          LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);
-        }
-        needsInit = true;
-      } finally {
-        GrouperSession.stopQuietly(grouperSession);
-      }
-      if (needsInit) {
-        if (GrouperConfig.retrieveConfig().propertyValueBoolean("registry.autoinit", true)) {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          //lets see if we need to
+          boolean needsInit;
           try {
-            
-            RegistryInstall.install();
-            
+            needsInit = StemFinder.findRootStem(grouperSession) == null;
+            needsInit = needsInit || FieldFinder.find(Field.FIELD_NAME_ADMINS, true) == null ;
           } catch (Exception e) {
             if (logError && logErrorStatic) {
-              String error = "Couldnt auto-create data: " + e.getMessage();
-              LOG.fatal(error, e);
+              LOG.error("Error initializing data, might just need to auto-create some data to fix...", e);
+            }
+            needsInit = true;
+          }
+          if (needsInit) {
+            if (GrouperConfig.retrieveConfig().propertyValueBoolean("registry.autoinit", true)) {
+              try {
+                
+                RegistryInstall.install();
+                
+              } catch (Exception e) {
+                if (logError && logErrorStatic) {
+                  String error = "Couldnt auto-create data: " + e.getMessage();
+                  LOG.fatal(error, e);
+                }
+              }
+            } else {
+              
+              if (logError && logErrorStatic) {
+                LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
+                  "But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
+                  "Initting means adding some default data like the root stem, built in fields, etc.");
+              }
             }
           }
-        } else {
-          
-          if (logError && logErrorStatic) {
-            LOG.fatal("grouper.properties registry.autoinit is false, so not auto initting.  " +
-              "But the registry needs to be auto-initted.  Please init the registry with GSH: registryInstall()  " +
-              "Initting means adding some default data like the root stem, built in fields, etc.");
-          }
+          return null;
         }
-      }
+      });
     } catch (Exception e) {
       if (logError && logErrorStatic) {
         LOG.error("Error initting data", e);

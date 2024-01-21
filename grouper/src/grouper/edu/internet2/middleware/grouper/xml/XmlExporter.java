@@ -285,7 +285,7 @@ public class XmlExporter {
       //System.exit(0);
       return;
     }
-    Properties rc = new Properties();
+    Properties rc;
     try {
       rc = XmlArgs.internal_getXmlExportArgs(args);
     }
@@ -298,9 +298,14 @@ public class XmlExporter {
     }
     XmlExporter exporter = null;
     try {
-      GrouperSession session = GrouperSession.startRootSession();
-      Subject subj = SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true );
-      GrouperSession.stopQuietly(session);
+
+      Subject subj = (Subject)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          return SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true );
+        }
+      });
       
       exporter = new XmlExporter(
         GrouperSession.start(
