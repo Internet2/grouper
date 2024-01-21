@@ -35,8 +35,10 @@ import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -130,11 +132,17 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
    */
   public static void runDaemonStandalone() {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-  
-    String jobName = "OTHER_JOB_schedulerCheckDaemon";
-     
-    GrouperLoader.runOnceByJobName(grouperSession, jobName);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        String jobName = "OTHER_JOB_schedulerCheckDaemon";
+         
+        GrouperLoader.runOnceByJobName(grouperSession, jobName);
+        return null;
+      }
+    });
 
 //    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
 //    

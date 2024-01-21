@@ -34,6 +34,7 @@ import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.exception.ExceptionUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 import org.quartz.Job;
@@ -58,15 +59,16 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
-import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -81,23 +83,27 @@ public class GrouperLoaderIncrementalJob implements Job {
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
   @Override
-  public void execute(JobExecutionContext context) throws JobExecutionException {
+  public void execute(JobExecutionContext context) {
     String jobName = context.getJobDetail().getKey().getName();
-    GrouperSession grouperSession = null;
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    try {
-      grouperSession = GrouperSession.startRootSession();
-      GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
-      
-      if (GrouperLoader.isJobRunning(jobName, true)) {
-        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
-        return;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
+        
+        if (GrouperLoader.isJobRunning(jobName, true)) {
+          LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+          return null;
+        }
+        
+        try {
+          runJob(grouperSession, jobName);
+        } catch (Throwable jee) {
+          throw GrouperUtil.exceptionConvertToRuntime(jee, null);
+        }
+        return null;
       }
-      
-      runJob(grouperSession, jobName);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    });
   }
   
   /**

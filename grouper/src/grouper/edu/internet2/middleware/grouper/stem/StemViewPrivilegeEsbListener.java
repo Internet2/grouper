@@ -23,6 +23,8 @@ import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -41,8 +43,14 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
   private Map<String, Object> debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
   
   public static void main(String[] args) {
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_stemViewPrivileges");
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_stemViewPrivileges");
+        return null;
+      }
+    });
   }
   
   private StemViewPrivilegeLogic stemViewPrivilegeLogic = new StemViewPrivilegeLogic();

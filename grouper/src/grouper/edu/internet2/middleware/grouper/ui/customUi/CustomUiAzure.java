@@ -19,6 +19,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -750,142 +752,148 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
   public static void main(String[] args) throws Exception {
     GrouperStartup.startup();
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    // 10287464
-    Subject subject1 = SubjectFinder.findById("10021368", true);
-    
-    
-    Map<String, Object> azureUser = new CustomUiAzure().retrieveAzureUserOrFromCache("pennAzure", subject1);
-    azureUser = new CustomUiAzure().retrieveAzureUserOrFromCache("pennAzure", subject1);
-    
-    System.out.println(GrouperUtil.mapToString(azureUser));
-    
-    
-    
-//    
-//    Subject subject2 = SubjectFinder.findById("13228666", true);
-//    Subject subject3 = SubjectFinder.findById("10002177", true);
-//    Subject subject4 = SubjectFinder.findById("15251428", true);
-//    
-//    
-//    Group group = GroupFinder.findByName(grouperSession, "penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod", true);
-//    
-//    CustomUiAzure customUiAzure = new CustomUiAzure();
-//    
-////    System.out.println("Azure id: " + retrieveAzureGroupIdFromGroup("pennAzure", group));
-//    System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject1));
-//    System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject2));
-//    System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject3));
-//    System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject4));
-    
-//    List<String> pennid = LdapSessionUtils.ldapSession().list(String.class, "oneProdAd", "DC=one,DC=upenn,DC=edu", LdapSearchScope.SUBTREE_SCOPE, 
-//        "(&(objectclass=user)(employeeID=" + subject4.getId() + ")(memberof=CN=penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu))",
-//        "employeeID");
-//    
-//    System.out.println("Ldap: " + (pennid != null && pennid.size() > 0 && !StringUtils.isBlank(pennid.get(0))));
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-//    List<String> pennid = LdapSessionUtils.ldapSession().list(String.class, "oneProdAd", "DC=one,DC=upenn,DC=edu", LdapSearchScope.SUBTREE_SCOPE, 
-//        "(&(objectclass=user)(employeeID=" + subject4.getId() + ")(memberof=CN=penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu))",
-//        "employeeID");
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        // 10287464
+        Subject subject1 = SubjectFinder.findById("10021368", true);
+        
+        
+        Map<String, Object> azureUser = new CustomUiAzure().retrieveAzureUserOrFromCache("pennAzure", subject1);
+        azureUser = new CustomUiAzure().retrieveAzureUserOrFromCache("pennAzure", subject1);
+        
+        System.out.println(GrouperUtil.mapToString(azureUser));
+        
+        
+        
+//        
+//        Subject subject2 = SubjectFinder.findById("13228666", true);
+//        Subject subject3 = SubjectFinder.findById("10002177", true);
+//        Subject subject4 = SubjectFinder.findById("15251428", true);
+//        
+//        
+//        Group group = GroupFinder.findByName(grouperSession, "penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod", true);
+//        
+//        CustomUiAzure customUiAzure = new CustomUiAzure();
+//        
+////        System.out.println("Azure id: " + retrieveAzureGroupIdFromGroup("pennAzure", group));
+//        System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject1));
+//        System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject2));
+//        System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject3));
+//        System.out.println(customUiAzure.hasAzureMembershipByGroup("pennAzure", group, subject4));
+        
+//        List<String> pennid = LdapSessionUtils.ldapSession().list(String.class, "oneProdAd", "DC=one,DC=upenn,DC=edu", LdapSearchScope.SUBTREE_SCOPE, 
+//            "(&(objectclass=user)(employeeID=" + subject4.getId() + ")(memberof=CN=penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu))",
+//            "employeeID");
+//        
+//        System.out.println("Ldap: " + (pennid != null && pennid.size() > 0 && !StringUtils.isBlank(pennid.get(0))));
 
-    
-//    GrouperSession.stopQuietly(grouperSession);
-//    System.out.println(retrieveBearerTokenForAzureConfigId("pennAzure"));
-    
-//    HttpClient httpClient = new HttpClient();
-//    PostMethod postMethod = new PostMethod("https://login.microsoftonline.com/6c4d949d-b91c-4c45-9aae-66d76443110d/oauth2/token");
-//    postMethod.addParameter("client_id", "fd805aeb-265f-4f61-92b4-42b57fc14dfb");
-//    postMethod.addParameter("client_secret", "***************");
-////    postMethod.addParameter("redirect_uri", "urn:ietf:wg:oauth:2.0:oob");
-//    postMethod.addParameter("grant_type", "client_credentials");
-//    postMethod.addParameter("resource", "https://graph.microsoft.com");
-////    postMethod.addParameter("state", "32");
-//    int code = httpClient.executeMethod(postMethod);
-//    // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
-//    
-//    String json = postMethod.getResponseBodyAsString();
-//    JSONObject jsonObject = JSONObject.fromObject(json);
-//    long expiresOn = GrouperUtil.longValue(jsonObject.getString("expires_on"));
-//    String accessToken = jsonObject.getString("access_token");
-    
-    //System.out.println(accessToken);
-    
-    // {"token_type":"Bearer","expires_in":"3599","ext_expires_in":"3599","expires_on":"1583377478","not_before":"1583373578",
-    // "resource":"00000002-0000-0000-c000-000000000000",
-    // "access_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkhsQzBSMTJza3h****************dEO3M0tvFa3K5ARF4HIc88Nqovx6jmEf5Mzy3AZE
-    // YbE-uC3WEQOMfFi5Q5g"}
-    
-//    HttpClient httpClient = new HttpClient();
-//
-//    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/groups?$filter=displayName%20eq%20'penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod'");
-    
-    //  200, {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#groups","value":[{"id":"bf5c1726-4a6c-474f-b9d8-a58908c11cb8",
-    //  "displayName":"penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod","groupTypes":[],
-    
-    // 200, {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#groups/$entity","id":"bf5c1726-4a6c-474f-b9d8-a58908c11cb8","deletedDateTime":null,"classification":null,
-    // "createdDateTime":"2018-11-17T19:23:51Z","creationOptions":[],"description":null,"displayName":"penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod",
-    // "groupTypes":[],"isAssignableToRole":null,"mail":null,"mailEnabled":false,"mailNickname":"penn_isc_ait_apps_O365_twoStepProd_o365_two_step_prod"}
-//    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/groups/bf5c1726-4a6c-474f-b9d8-a58908c11cb8/members?$top=10");
-//    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/beta/groups/bf5c1726-4a6c-474f-b9d8-a58908c11cb8/members");
-//    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/2462cf6a-15c2-4ef3-84ed-3d1e65b60e6d/memberOf");
-//    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu/memberOf?$filter=id%20eq%20'bf5c1726-4a6c-474f-b9d8-a58908c11cb8'");
-//    GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu");
-//    grouperHttpClient.addHeader("Content-Type", "application/json");
-////    grouperHttpClient.addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6***********ho9LhQ");
-//    grouperHttpClient.addHeader("Authorization", "Bearer " + accessToken);
-//    code = httpClient.executeMethod(getMethod);
-//
-//    System.out.println(code + ", " + getMethod.getResponseBodyAsString());
-//
-//    if (code != 200) {
-//      if (code == 404) {
-//        System.out.println("No");
-//      } else {
-//        System.out.println("Error! " + getMethod.getResponseBodyAsString());
-//      }
-//    } else {
-//      
-//      json = getMethod.getResponseBodyAsString();
-//      jsonObject = JSONObject.fromObject(json);
-//      JSONArray jsonArray = jsonObject.has("value") ? jsonObject.getJSONArray("value") : null;
-//      if (jsonArray == null || jsonArray.size() == 0) {
-//        System.out.println("No");
-//      } else {
-//        jsonObject = (JSONObject)jsonArray.get(0);
-//        System.out.println(jsonObject.getString("id"));
-//      }
-//    }
+//        List<String> pennid = LdapSessionUtils.ldapSession().list(String.class, "oneProdAd", "DC=one,DC=upenn,DC=edu", LdapSearchScope.SUBTREE_SCOPE, 
+//            "(&(objectclass=user)(employeeID=" + subject4.getId() + ")(memberof=CN=penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod,OU=Grouper,OU=365Groups,DC=one,DC=upenn,DC=edu))",
+//            "employeeID");
 
-    
-    
-//    if (code != 200) {
-//      if (code == 404) {
-//        System.out.println("No");
-//      } else {
-//        System.out.println("Error! " + getMethod.getResponseBodyAsString());
-//      }
-//    } else {
-//      
-//      json = getMethod.getResponseBodyAsString();
-//      jsonObject = JSONObject.fromObject(json);
-//      JSONArray jsonArray = jsonObject.has("value") ? jsonObject.getJSONArray("value") : null;
-//      if (jsonArray == null || jsonArray.size() == 0) {
-//        System.out.println("No");
-//      } else {
-//        jsonObject = (JSONObject)jsonArray.get(0);
-//        if ("bf5c1726-4a6c-474f-b9d8-a58908c11cb8".equals(jsonObject.getString("id"))) {
-//          System.out.println("Yes");
+        
+//        GrouperSession.stopQuietly(grouperSession);
+//        System.out.println(retrieveBearerTokenForAzureConfigId("pennAzure"));
+        
+//        HttpClient httpClient = new HttpClient();
+//        PostMethod postMethod = new PostMethod("https://login.microsoftonline.com/6c4d949d-b91c-4c45-9aae-66d76443110d/oauth2/token");
+//        postMethod.addParameter("client_id", "fd805aeb-265f-4f61-92b4-42b57fc14dfb");
+//        postMethod.addParameter("client_secret", "***************");
+////        postMethod.addParameter("redirect_uri", "urn:ietf:wg:oauth:2.0:oob");
+//        postMethod.addParameter("grant_type", "client_credentials");
+//        postMethod.addParameter("resource", "https://graph.microsoft.com");
+////        postMethod.addParameter("state", "32");
+//        int code = httpClient.executeMethod(postMethod);
+//        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
+//        
+//        String json = postMethod.getResponseBodyAsString();
+//        JSONObject jsonObject = JSONObject.fromObject(json);
+//        long expiresOn = GrouperUtil.longValue(jsonObject.getString("expires_on"));
+//        String accessToken = jsonObject.getString("access_token");
+        
+        //System.out.println(accessToken);
+        
+        // {"token_type":"Bearer","expires_in":"3599","ext_expires_in":"3599","expires_on":"1583377478","not_before":"1583373578",
+        // "resource":"00000002-0000-0000-c000-000000000000",
+        // "access_token":"eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsIng1dCI6IkhsQzBSMTJza3h****************dEO3M0tvFa3K5ARF4HIc88Nqovx6jmEf5Mzy3AZE
+        // YbE-uC3WEQOMfFi5Q5g"}
+        
+//        HttpClient httpClient = new HttpClient();
+    //
+//        GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/groups?$filter=displayName%20eq%20'penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod'");
+        
+        //  200, {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#groups","value":[{"id":"bf5c1726-4a6c-474f-b9d8-a58908c11cb8",
+        //  "displayName":"penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod","groupTypes":[],
+        
+        // 200, {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#groups/$entity","id":"bf5c1726-4a6c-474f-b9d8-a58908c11cb8","deletedDateTime":null,"classification":null,
+        // "createdDateTime":"2018-11-17T19:23:51Z","creationOptions":[],"description":null,"displayName":"penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod",
+        // "groupTypes":[],"isAssignableToRole":null,"mail":null,"mailEnabled":false,"mailNickname":"penn_isc_ait_apps_O365_twoStepProd_o365_two_step_prod"}
+//        GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/groups/bf5c1726-4a6c-474f-b9d8-a58908c11cb8/members?$top=10");
+//        GetMethod getMethod = new GetMethod("https://graph.microsoft.com/beta/groups/bf5c1726-4a6c-474f-b9d8-a58908c11cb8/members");
+//        GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/2462cf6a-15c2-4ef3-84ed-3d1e65b60e6d/memberOf");
+//        GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu/memberOf?$filter=id%20eq%20'bf5c1726-4a6c-474f-b9d8-a58908c11cb8'");
+//        GetMethod getMethod = new GetMethod("https://graph.microsoft.com/v1.0/users/smadan%40upenn.edu");
+//        grouperHttpClient.addHeader("Content-Type", "application/json");
+////        grouperHttpClient.addHeader("Authorization", "Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6***********ho9LhQ");
+//        grouperHttpClient.addHeader("Authorization", "Bearer " + accessToken);
+//        code = httpClient.executeMethod(getMethod);
+    //
+//        System.out.println(code + ", " + getMethod.getResponseBodyAsString());
+    //
+//        if (code != 200) {
+//          if (code == 404) {
+//            System.out.println("No");
+//          } else {
+//            System.out.println("Error! " + getMethod.getResponseBodyAsString());
+//          }
 //        } else {
-//          System.out.println("No");
+//          
+//          json = getMethod.getResponseBodyAsString();
+//          jsonObject = JSONObject.fromObject(json);
+//          JSONArray jsonArray = jsonObject.has("value") ? jsonObject.getJSONArray("value") : null;
+//          if (jsonArray == null || jsonArray.size() == 0) {
+//            System.out.println("No");
+//          } else {
+//            jsonObject = (JSONObject)jsonArray.get(0);
+//            System.out.println(jsonObject.getString("id"));
+//          }
 //        }
-//      }
-//    }
-    
-    // {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#directoryObjects",
-    // "value":[{"@odata.type":"#microsoft.graph.group",
-    // "id":"bf5c1726-4a6c-474f-b9d8-a58908c11cb8",
-    // "displayName":"penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod","groupTypes":[],"isAssignableToRole":null,"mail":null,
 
+        
+        
+//        if (code != 200) {
+//          if (code == 404) {
+//            System.out.println("No");
+//          } else {
+//            System.out.println("Error! " + getMethod.getResponseBodyAsString());
+//          }
+//        } else {
+//          
+//          json = getMethod.getResponseBodyAsString();
+//          jsonObject = JSONObject.fromObject(json);
+//          JSONArray jsonArray = jsonObject.has("value") ? jsonObject.getJSONArray("value") : null;
+//          if (jsonArray == null || jsonArray.size() == 0) {
+//            System.out.println("No");
+//          } else {
+//            jsonObject = (JSONObject)jsonArray.get(0);
+//            if ("bf5c1726-4a6c-474f-b9d8-a58908c11cb8".equals(jsonObject.getString("id"))) {
+//              System.out.println("Yes");
+//            } else {
+//              System.out.println("No");
+//            }
+//          }
+//        }
+        
+        // {"@odata.context":"https://graph.microsoft.com/v1.0/$metadata#directoryObjects",
+        // "value":[{"@odata.type":"#microsoft.graph.group",
+        // "id":"bf5c1726-4a6c-474f-b9d8-a58908c11cb8",
+        // "displayName":"penn:isc:ait:apps:O365:twoStepProd:o365_two_step_prod","groupTypes":[],"isAssignableToRole":null,"mail":null,
+
+        return null;
+      }
+    });
 
   }
   

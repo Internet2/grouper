@@ -227,7 +227,7 @@ public class PermissionLimitBean {
       
       //lets get the limits for those attribute assign ids
       //do this as grouper system so we dont miss any
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           

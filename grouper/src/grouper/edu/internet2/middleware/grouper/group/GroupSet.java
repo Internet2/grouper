@@ -76,7 +76,7 @@ public class GroupSet extends GrouperAPI implements GrouperHasContext, Hib3Group
     result.append(", memberField: ").append(FieldFinder.findById(this.memberFieldId, true).getName());
     result.append(", parent: ").append(this.parentId);
     
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
  
       /**
        * 

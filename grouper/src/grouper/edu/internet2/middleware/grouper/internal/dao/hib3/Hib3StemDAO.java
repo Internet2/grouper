@@ -2400,7 +2400,7 @@ public class Hib3StemDAO extends Hib3DAO implements StemDAO {
       return stems;
     }
     //lets page through these
-    int pages = GrouperUtil.batchNumberOfBatches(namesList, batchSize);
+    int pages = GrouperUtil.batchNumberOfBatches(namesList, batchSize, false);
 
     for (int i=0; i<pages; i++) {
       List<String> namePageList = GrouperUtil.batchList(namesList, batchSize, i);

@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
@@ -136,24 +137,30 @@ public class FindBadMemberships {
     // maybe this should go to a log file instead?
     printErrorsToSTOUT = true;
     
-    GrouperSession grouperSession = null;
+    final CommandLine LINE = line;
     
-    try {
-      grouperSession = GrouperSession.startRootSession();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      if (line.hasOption("all")) {
-        checkAll(out);
-      } else {
-        printUsage(options);
-        System.exit(0);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+
+          if (LINE.hasOption("all")) {
+            checkAll(out);
+          } else {
+            printUsage(options);
+            System.exit(0);
+          }
+
+        } catch (Exception e) {
+          System.err.println(e.getMessage());
+          System.exit(1);
+        }
+        return null;
       }
+    });
 
-    } catch (Exception e) {
-      System.err.println(e.getMessage());
-      System.exit(1);
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    
 
     out.println();
     out.println();

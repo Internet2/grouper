@@ -86,9 +86,15 @@ public class GrouperZoomLoader extends OtherJobBase {
     GrouperStartup.startup();
 
     if (GrouperUtil.length(args) == 1) {
-      GrouperSession grouperSession = GrouperSession.startRootSession();
-      // OTHER_JOB_pennZoomLoader
-      GrouperLoader.runOnceByJobName(grouperSession, args[0], false);
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          // OTHER_JOB_pennZoomLoader
+          GrouperLoader.runOnceByJobName(grouperSession, args[0], false);
+          return null;
+        }
+      });
 
     } else {
       

@@ -106,11 +106,17 @@ public class PrivilegeHelper {
     
     //GrouperSession grouperSession = GrouperSession.start(SubjectFinder.findByIdentifierAndSource("id.test.subject.0", "jdbc", true));
 
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Subject subject = SubjectFinder.findByIdentifierAndSource("id.test.subject.0", "jdbc", true);
-    grouperSession.stop();
-    grouperSession = GrouperSession.start(subject);
-    Stem s = new StemSave(grouperSession).assignName("unc:app:temp:base:hr:org").assignCreateParentStemsIfNotExist(true).save();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Subject subject = SubjectFinder.findByIdentifierAndSource("id.test.subject.0", "jdbc", true);
+        grouperSession.stop();
+        grouperSession = GrouperSession.start(subject);
+        Stem s = new StemSave(grouperSession).assignName("unc:app:temp:base:hr:org").assignCreateParentStemsIfNotExist(true).save();
+        return null;
+      }
+    });
     
   }
   

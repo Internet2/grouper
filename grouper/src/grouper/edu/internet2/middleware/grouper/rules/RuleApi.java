@@ -803,7 +803,7 @@ public class RuleApi {
   public static boolean hasInheritedPrivilege(final Map<MultiKey, Set<RuleDefinition>> inheritedRulesCacheByStemIdSubjectPrivilege, 
       final GrouperObject grouperObject, final Subject subject, final Privilege privilege, final boolean considerInGroup) {
     
-    return (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         boolean immediateStem = true;

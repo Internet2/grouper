@@ -95,6 +95,22 @@ public class StemSave {
   
   
   /**
+   * new stem name
+   * @return
+   */
+  public String getName() {
+    return name;
+  }
+
+  /**
+   * stem name to edit if renaming
+   * @return
+   */
+  public String getStemNameToEdit() {
+    return stemNameToEdit;
+  }
+
+  /**
    * replace all existing settings. defaults to true.
    */
   private boolean replaceAllSettings = true;

@@ -28,6 +28,8 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
@@ -53,36 +55,48 @@ public class GrouperWorkflowReminderEmailJob extends OtherJobBase {
    */
   public static void runDaemonStandalone() {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    
-    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_workflowEmailReminder";
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    hib3GrouperLoaderLog.setJobName(jobName);
-    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-    hib3GrouperLoaderLog.store();
-    
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    otherJobInput.setGrouperSession(grouperSession);
-    new GrouperWorkflowReminderEmailJob().run(otherJobInput);
-  }
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        
+        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        String jobName = "OTHER_JOB_workflowEmailReminder";
+
+        hib3GrouperLoaderLog.setJobName(jobName);
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        hib3GrouperLoaderLog.store();
+        
+        OtherJobInput otherJobInput = new OtherJobInput();
+        otherJobInput.setJobName(jobName);
+        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        otherJobInput.setGrouperSession(grouperSession);
+        new GrouperWorkflowReminderEmailJob().run(otherJobInput);
+        return null;
+      }
+    });
+    }
 
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
 
-    GrouperSession.startRootSession();
-    Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
-    
-    Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
-    
-    Map<Subject, Set<GrouperWorkflowInstance>> addressObjects = buildEmailObjects(instancesNeedingEmail);
-    
-    GrouperWorkflowEmailService.sendWaitingForApprovalEmail(addressObjects);
-    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Set<Group> groupsWithWorkflowInstance = GrouperWorkflowInstanceService.findGroupsWithWorkflowInstance();
+        
+        Set<GrouperWorkflowInstance> instancesNeedingEmail = instancesNeedingEmail(groupsWithWorkflowInstance);
+        
+        Map<Subject, Set<GrouperWorkflowInstance>> addressObjects = buildEmailObjects(instancesNeedingEmail);
+        
+        GrouperWorkflowEmailService.sendWaitingForApprovalEmail(addressObjects);
+        
+        return null;
+      }
+    });
     return null;
   }
   

@@ -19,6 +19,8 @@ import java.util.concurrent.TimeUnit;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.BooleanUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
@@ -40,12 +42,13 @@ import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder;
-import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignValueFinder.AttributeAssignValueFinderResult;
+import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -55,6 +58,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -65,8 +69,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
-import org.apache.commons.lang3.BooleanUtils;
-import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.subject.SourceUnavailableException;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.provider.SourceManager;
@@ -142,15 +144,127 @@ public class UsduJob extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
-    try {
-      runningUsduThreadLocal.set(true);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      GrouperSession grouperSession = GrouperSession.startRootSession();
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+          runningUsduThreadLocal.set(true);
+          
+          if (!UsduSettings.usduEnabled()) {
+            LOG.info("usdu.enable is set to false. not going to run usdu daemon.");
+            return null;
+          }
+          
+          AttributeDefName resolvableMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionResolvable", false);
+          if (resolvableMembersAttr != null) {
+            if (UpgradeTasksJob.getDBVersion() < 2) {
+              // flag for resolvable and deleted moving from attributes to member table.  if this isn't done yet, don't proceed.
+              throw new RuntimeException("Migration for subjectResolutionResolvable and subjectResolutionDeleted has not completed.  USDU will not run until that's done.  That migration is done automatically by the job OTHER_JOB_upgradeTasks.");
+            }
+            
+            LOG.warn("Migration for subjectResolutionResolvable and subjectResolutionDeleted was completed but the attributes are still there.  They may have been added back by an old API version after they were deleted.");
+          }
+              
+          int totalProvisioningObjectsUpdated = 0;
+          int batchSize = 20000;
+          
+          LOG.info("Going to mark members as deleted.");
+          Set<Member> unresolvableMembers = new LinkedHashSet<Member>();
+          List<String> memberIdsToCheck = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsForUnresolvableCheck());
+          LOG.debug("Found " + memberIdsToCheck.size() + " member ids to check.");
+          int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsToCheck.size(), batchSize);
+          for (int i = 0; i < numberOfBatches; i++) {
+            LOG.debug("Processing batch: " + i);
+            List<String> currentBatch = GrouperUtil.batchList(memberIdsToCheck, batchSize, i);
+            Set<Member> currentMembers = GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null);
+            LOG.debug("Retrieved current members of size: " + currentMembers.size());
+
+            Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
       
-      if (!UsduSettings.usduEnabled()) {
-        LOG.info("usdu.enable is set to false. not going to run usdu daemon.");
+            for (Member member : currentMembers) {
+              if (!member.isSubjectResolutionEligible()) {
+                member.setSubjectResolutionEligible(true);
+                member.store();
+              }
+            }
+            
+            Map<String, Subject> currMemberIdToSubjectMap = resolveMembers(currentMembers);
+            memberIdToSubjectMap.putAll(currMemberIdToSubjectMap);
+            
+            for (Member member : currentMembers) {
+
+              if (!currMemberIdToSubjectMap.containsKey(member.getId())) {
+                LOG.debug("Found unresolvable member, subjectId=" + member.getSubjectId() + " source=" + member.getSubjectSourceId());
+                unresolvableMembers.add(member);
+              }
+            }
+            
+            totalProvisioningObjectsUpdated += syncProvisioningData(currentBatch, memberIdToSubjectMap);
+          }
+      
+          long deletedMembers = deleteUnresolvableMembers(grouperSession, unresolvableMembers, otherJobInput.getHib3GrouperLoaderLog());
+          otherJobInput.getHib3GrouperLoaderLog().store();
+          
+          long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
+          otherJobInput.getHib3GrouperLoaderLog().store();
+          
+          int updateBatchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
+          if (updateBatchSize <= 0) {
+            updateBatchSize = 1;
+          }
+
+          List<String> memberIdsNoLongerSubjectResolutionEligible = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible());
+          numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsNoLongerSubjectResolutionEligible.size(), batchSize);
+          for (int i = 0; i < numberOfBatches; i++) {
+            List<String> currentBatch = GrouperUtil.batchList(memberIdsNoLongerSubjectResolutionEligible, batchSize, i);
+            List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
+            
+            for (Member member : currentMembers) {
+              member.setSubjectResolutionEligible(false);
+            }
+            
+            int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
+            for (int j = 0; j < numberOfUpdateBatches; j++) {
+              List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
+              HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
+            }
+          }
+          
+          List<String> deletedGroupMemberIdsIncorrectSubjectResolutionAttributes = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllDeletedGroupMemberIdsIncorrectSubjectResolutionAttributes());
+          numberOfBatches = GrouperUtil.batchNumberOfBatches(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size(), batchSize);
+          for (int i = 0; i < numberOfBatches; i++) {
+            List<String> currentBatch = GrouperUtil.batchList(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes, batchSize, i);
+            List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
+            
+            for (Member member : currentMembers) {
+              member.setSubjectResolutionDeleted(true);
+              member.setSubjectResolutionResolvable(false);
+            }
+            
+            int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
+            for (int j = 0; j < numberOfUpdateBatches; j++) {
+              List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
+              HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
+            }
+          }
+              
+          otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.  Fixed subject resolution attributes for " + deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size() + " deleted groups.  ");
+          
+          int duplicateSubjectIdentifierIssuesCount = checkDuplicateSubjectIdentifiers(otherJobInput.getHib3GrouperLoaderLog());
+          
+          if (duplicateSubjectIdentifierIssuesCount > 0) {
+            // force an error
+            throw new RuntimeException("There were duplicate subject identifiers in the grouper_members table.  See job message for details.");
+          }
+          
+          LOG.info("UsduJob finished successfully.");
+        } finally {
+          runningUsduThreadLocal.remove();
+        }
         return null;
       }
+<<<<<<< GROUPER_5_BRANCH
       
       AttributeDefName resolvableMembersAttr = AttributeDefNameFinder.findByName(UsduSettings.usduStemName() + ":subjectResolutionResolvable", false);
       if (resolvableMembersAttr != null) {
@@ -263,6 +377,9 @@ public class UsduJob extends OtherJobBase {
     } finally {
       runningUsduThreadLocal.remove();
     }
+=======
+    });
+>>>>>>> e04f50c temp commit on sessions and startup
     
     return null;
   }
@@ -312,22 +429,28 @@ public class UsduJob extends OtherJobBase {
    */
   public static void runDaemonStandalone() {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    
-    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_usduDaemon";
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    hib3GrouperLoaderLog.setJobName(jobName);
-    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-    hib3GrouperLoaderLog.store();
-    
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    otherJobInput.setGrouperSession(grouperSession);
-    new UsduJob().run(otherJobInput);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        
+        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        String jobName = "OTHER_JOB_usduDaemon";
+
+        hib3GrouperLoaderLog.setJobName(jobName);
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        hib3GrouperLoaderLog.store();
+        
+        OtherJobInput otherJobInput = new OtherJobInput();
+        otherJobInput.setJobName(jobName);
+        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        otherJobInput.setGrouperSession(grouperSession);
+        new UsduJob().run(otherJobInput);
+        return null;
+      }
+    });
   }
   
   /**

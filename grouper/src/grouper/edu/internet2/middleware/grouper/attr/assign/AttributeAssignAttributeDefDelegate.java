@@ -78,7 +78,7 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
     final boolean[] canAttrDefAttrRead = new boolean[1];
   
     //these need to be looked up as root
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
@@ -114,7 +114,7 @@ public class AttributeAssignAttributeDefDelegate extends AttributeAssignBaseDele
     final boolean[] canAttrDefAttrUpdate = new boolean[1];
  
     //these need to be looked up as root
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)

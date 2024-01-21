@@ -217,7 +217,7 @@ public class UiV2ExternalEntities {
                 externalSubjectInviteBean.setGroupIds(groupsToAssignFinal);
 
                 //send the invite as root
-                String error = (String)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+                String error = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
                   @Override
                   public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
@@ -281,7 +281,7 @@ public class UiV2ExternalEntities {
 
                     //lets store this, without validation... as root
                     //send the invite as root
-                    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+                    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
                       @Override
                       public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {

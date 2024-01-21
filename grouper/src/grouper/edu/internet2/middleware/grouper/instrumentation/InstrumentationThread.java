@@ -27,7 +27,6 @@ import java.util.TreeSet;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.io.FileUtils;
 import org.apache.commons.logging.Log;
 
@@ -35,9 +34,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.GrouperEngineIdentifier;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 /**
  * @author shilen
@@ -64,125 +66,123 @@ public class InstrumentationThread {
     executorService.execute(new Runnable() {
       public void run() {
 
-        GrouperSession rootSession = null;
-        long increment;
-        AttributeAssign parentAssignment;
-        File instanceFile;
-        
-        try {
-          GrouperStartup.waitForGrouperStartup();
-          
-          rootSession = GrouperSession.startRootSession(true);
-          
-          instanceFile = getInstanceFile(grouperEngineIdentifier);
-          
-          if (instanceFile == null) {
-            LOG.warn("Unable to save an instance id for this instance.");
-            return;
-          }
-          
-          String uuid;
-          try {
-            uuid = FileUtils.readFileToString(instanceFile, (String)null).trim();
-          } catch (IOException e) {
-            throw new RuntimeException(e);
-          }
-          
-          parentAssignment = InstrumentationDataUtils.grouperInstrumentationInstanceParentAttributeAssignment(grouperEngineIdentifier, uuid);
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-          increment = GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateIncrements", 3600) * 1000L;
-          if (3600000 % increment != 0) {
-            LOG.warn("instrumentation.updateIncrements must be divisible by 3600.  Using 3600 (1 hour) instead");
-            increment = 3600000;
-          }
-          
-          initCounts(customTypes);
-
-          InstrumentationDataUtils.setCollectingStats(true);
-        } catch (RuntimeException re) {
-          LOG.error("error in thread", re);
-          throw re;
-        } finally {
-          GrouperSession.stopQuietly(rootSession);
-        }
-        
-
-        while (true) {
-          if (Thread.currentThread().isInterrupted()) {
-            return;
-          }
-          
-          try {
-            Thread.sleep(GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateGrouperIntervalInSeconds", 3600) * 1000L);
-          } catch (InterruptedException e) {
-            LOG.info("Received interrupt to shutdown instrumentation thread.");
-            Thread.currentThread().interrupt();
-          }
-            
-          try {
-            rootSession = GrouperSession.startRootSession(true);
-
-            long daemonStartTime = System.currentTimeMillis();
-            
-            Map<MultiKey, Long> allCounts = new HashMap<MultiKey, Long>();
-            Set<Long> startTimes = new TreeSet<Long>();
-            
-            for (String key : instrumentationDataCounts.keySet()) {
-              InstrumentationDataCounts counts = instrumentationDataCounts.get(key);
-              List<Long> timestamps = counts.clearCounts();
-              
-              if (timestamps.size() > 0) {
-                for (Long timestamp : timestamps) {
-                  long startTime = (timestamp / increment) * increment;  // top of the increment (e.g. top of the hour)
-                  if ((startTime + increment) > daemonStartTime) {
-                    // add it back to be processed next time
-                    counts.addCount(timestamp);
-                  } else {
-                    MultiKey multiKey = new MultiKey(key, startTime);
-                    if (allCounts.get(multiKey) == null) {
-                      allCounts.put(multiKey, 0L);
-                    }
-                    
-                    allCounts.put(multiKey, allCounts.get(multiKey) + 1);
-                    startTimes.add(startTime);
-                  }
-                }
-              }      
-            }
-            
-            //System.out.println(allCounts);
-            
-            for (long startTime : startTimes) {
-              Map<String, Long> data = new LinkedHashMap<String, Long>();
-              data.put("startTime", startTime);
-              data.put("duration", increment);
-  
-              for (MultiKey multiKey : allCounts.keySet()) {
-                String key = (String)multiKey.getKey(0);
-                Long thisStartTime = (Long)multiKey.getKey(1);
-                
-                if (startTime == thisStartTime) {
-                  data.put(key, allCounts.get(multiKey));
-                }
-              }
-              
-              String dataJson = GrouperUtil.jsonConvertTo(data, false);
-              parentAssignment.getAttributeValueDelegate().addValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR, dataJson);
-            }
-            
-            parentAssignment.getAttributeValueDelegate().assignValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR, "" + daemonStartTime);
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            long increment;
+            AttributeAssign parentAssignment;
+            File instanceFile;
             
             try {
-              FileUtils.touch(instanceFile);
-            } catch (IOException e) {
-              LOG.warn("Non fatal error while touching file " + instanceFile.getAbsolutePath() + " for the purposes of making sure the file doesn't get cleaned up by the system.");
+              GrouperStartup.waitForGrouperStartup();
+                        
+              instanceFile = getInstanceFile(grouperEngineIdentifier);
+              
+              if (instanceFile == null) {
+                LOG.warn("Unable to save an instance id for this instance.");
+                return null;
+              }
+              
+              String uuid;
+              try {
+                uuid = FileUtils.readFileToString(instanceFile, (String)null).trim();
+              } catch (IOException e) {
+                throw new RuntimeException(e);
+              }
+              
+              parentAssignment = InstrumentationDataUtils.grouperInstrumentationInstanceParentAttributeAssignment(grouperEngineIdentifier, uuid);
+
+              increment = GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateIncrements", 3600) * 1000L;
+              if (3600000 % increment != 0) {
+                LOG.warn("instrumentation.updateIncrements must be divisible by 3600.  Using 3600 (1 hour) instead");
+                increment = 3600000;
+              }
+              
+              initCounts(customTypes);
+
+              InstrumentationDataUtils.setCollectingStats(true);
+            } catch (RuntimeException re) {
+              LOG.error("error in thread", re);
+              throw re;
             }
-          } catch (RuntimeException re) {
-            LOG.error("error in thread", re);
-          } finally {
-            GrouperSession.stopQuietly(rootSession);
+            
+
+            while (true) {
+              if (Thread.currentThread().isInterrupted()) {
+                return null;
+              }
+              
+              try {
+                Thread.sleep(GrouperConfig.retrieveConfig().propertyValueInt("instrumentation.updateGrouperIntervalInSeconds", 3600) * 1000L);
+              } catch (InterruptedException e) {
+                LOG.info("Received interrupt to shutdown instrumentation thread.");
+                Thread.currentThread().interrupt();
+              }
+                
+              try {
+
+                long daemonStartTime = System.currentTimeMillis();
+                
+                Map<MultiKey, Long> allCounts = new HashMap<MultiKey, Long>();
+                Set<Long> startTimes = new TreeSet<Long>();
+                
+                for (String key : instrumentationDataCounts.keySet()) {
+                  InstrumentationDataCounts counts = instrumentationDataCounts.get(key);
+                  List<Long> timestamps = counts.clearCounts();
+                  
+                  if (timestamps.size() > 0) {
+                    for (Long timestamp : timestamps) {
+                      long startTime = (timestamp / increment) * increment;  // top of the increment (e.g. top of the hour)
+                      if ((startTime + increment) > daemonStartTime) {
+                        // add it back to be processed next time
+                        counts.addCount(timestamp);
+                      } else {
+                        MultiKey multiKey = new MultiKey(key, startTime);
+                        if (allCounts.get(multiKey) == null) {
+                          allCounts.put(multiKey, 0L);
+                        }
+                        
+                        allCounts.put(multiKey, allCounts.get(multiKey) + 1);
+                        startTimes.add(startTime);
+                      }
+                    }
+                  }      
+                }
+                
+                //System.out.println(allCounts);
+                
+                for (long startTime : startTimes) {
+                  Map<String, Long> data = new LinkedHashMap<String, Long>();
+                  data.put("startTime", startTime);
+                  data.put("duration", increment);
+      
+                  for (MultiKey multiKey : allCounts.keySet()) {
+                    String key = (String)multiKey.getKey(0);
+                    Long thisStartTime = (Long)multiKey.getKey(1);
+                    
+                    if (startTime == thisStartTime) {
+                      data.put(key, allCounts.get(multiKey));
+                    }
+                  }
+                  
+                  String dataJson = GrouperUtil.jsonConvertTo(data, false);
+                  parentAssignment.getAttributeValueDelegate().addValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR, dataJson);
+                }
+                
+                parentAssignment.getAttributeValueDelegate().assignValue(InstrumentationDataUtils.grouperInstrumentationDataStemName() + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR, "" + daemonStartTime);
+                
+                try {
+                  FileUtils.touch(instanceFile);
+                } catch (IOException e) {
+                  LOG.warn("Non fatal error while touching file " + instanceFile.getAbsolutePath() + " for the purposes of making sure the file doesn't get cleaned up by the system.");
+                }
+              } catch (RuntimeException re) {
+                LOG.error("error in thread", re);
+              }
+            }
           }
-        }
+        });
       }
     });
   }

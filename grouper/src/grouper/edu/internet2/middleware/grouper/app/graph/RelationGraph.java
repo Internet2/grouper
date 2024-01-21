@@ -963,7 +963,7 @@ public class RelationGraph {
           // use this version if the graph should exclude groups that can't be viewed
           childGroup = m.toGroup();
           // use this version to see all the groups.
-//        // parentGroup = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+//        // parentGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 //        //    public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
 //        //    return m.toGroup();
 //        //  }

@@ -433,35 +433,16 @@ public class GrouperTest extends GrouperTestBase {
    * init groups and attributes after reset
    */
   public static void initGroupsAndAttributes() {
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean startedRootSession = false;
-    if (grouperSession == null) {
-      grouperSession = GrouperSession.startRootSession();
-      startedRootSession = false;
-    }
-    try {
-      if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
-        grouperSession = grouperSession.internal_getRootSession();
-      }
-    } catch (Exception e) {
-      //might throw an exception if wheel isnt created yet
-      grouperSession = grouperSession.internal_getRootSession();
-    }
-    try {
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
+      @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
   
           GrouperCheckConfig.checkObjects();
           return null;
         }
       });
-    } finally {
-      if (startedRootSession) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
     }
-  } 
 
   // @since   1.2.0
   protected void tearDown () {

@@ -120,7 +120,7 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
     final boolean isPermission = AttributeDefType.perm.equals(attributeDef.getAttributeDefType());
 
     //these need to be looked up as root
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
@@ -165,7 +165,7 @@ public class AttributeAssignEffMshipDelegate extends AttributeAssignBaseDelegate
     final boolean isPermission = AttributeDefType.perm.equals(attributeDefName.getAttributeDef().getAttributeDefType());
  
     //these need to be looked up as root
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)

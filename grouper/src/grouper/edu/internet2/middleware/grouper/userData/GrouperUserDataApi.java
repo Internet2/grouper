@@ -77,14 +77,20 @@ public class GrouperUserDataApi {
     
     GrouperStartup.startup();
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Subject subject = SubjectFinder.findRootSubject();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:ruleCheckOwnerId", true);
-    GrouperUserDataApi.favoriteAttributeDefNameAdd(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":grouperUi:grouperUiUserData", subject, attributeDefName);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Subject subject = SubjectFinder.findRootSubject();
 
-    attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:permissionLimits:limitWeekday9to5", true);
-    GrouperUserDataApi.favoriteAttributeDefNameAdd(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":grouperUi:grouperUiUserData", subject, attributeDefName);
+        AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:rules:ruleCheckOwnerId", true);
+        GrouperUserDataApi.favoriteAttributeDefNameAdd(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":grouperUi:grouperUiUserData", subject, attributeDefName);
+
+        attributeDefName = AttributeDefNameFinder.findByName(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":attribute:permissionLimits:limitWeekday9to5", true);
+        GrouperUserDataApi.favoriteAttributeDefNameAdd(GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":grouperUi:grouperUiUserData", subject, attributeDefName);
+        return null;
+      }
+    });
 
   }
   

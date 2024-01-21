@@ -949,7 +949,7 @@ public class UiV2Subject {
       
       final String stemString = tempStemString;
 
-      Stem stem = (Stem)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      Stem stem = (Stem)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -1046,7 +1046,7 @@ public class UiV2Subject {
       }
       final String groupString = tempGroupString;
       final boolean[] userHasAdmin = new boolean[]{false};
-      Group group = (Group)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      Group group = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
@@ -2212,7 +2212,7 @@ public class UiV2Subject {
       
       final String attributeDefString = tempAttributeDefString;
   
-      AttributeDef attributeDef = (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {

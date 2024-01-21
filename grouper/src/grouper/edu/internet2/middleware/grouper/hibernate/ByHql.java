@@ -267,6 +267,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
 
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     long startNanos = System.nanoTime();
+    long tookNanos = 0;
     try {
 
       GrouperContext.incrementQueryCount();
@@ -294,20 +295,31 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
         
       }
   
+      tookNanos = System.nanoTime()-startNanos;
       if (LOG.isDebugEnabled()) {
         debugMap.put("foundObject", object != null);
+        uniqueResultCount++;
+        long tookMicros = tookNanos / 1000;
+        uniqueResultMicros+= tookMicros;
+        debugMap.put("tookMicros", tookMicros);
+        debugMap.put("calls", uniqueResultCount);
+        debugMap.put("tookEachMicros", (long)(uniqueResultMicros / uniqueResultCount));
       }
       
       HibUtils.evict(hibernateSession, object, true);
       return object;
     } finally {
       if (LOG.isDebugEnabled()) {
+        LOG.debug("Stack: " + GrouperUtil.stack());
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
-      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, tookNanos);
 
     }    
   }
+  
+  private static long uniqueResultCount = 0;
+  private static long uniqueResultMicros = 0;
 
   /**
    * <pre>
@@ -366,6 +378,7 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
   public <T> List<T> list(@SuppressWarnings("unused") Class<T> returnType) {
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     long startNanos = System.nanoTime();
+    long tookNanos = 0;
     try {
 
       GrouperContext.incrementQueryCount();
@@ -449,8 +462,15 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
           }
         }
       }
+      tookNanos = System.nanoTime()-startNanos;
       if (LOG.isDebugEnabled()) {
+        long tookMicros = tookNanos/1000;
         debugMap.put("foundSize", GrouperUtil.length(list));
+        debugMap.put("tookMicros", tookMicros);
+        listResultCount++;
+        listResultMicros += tookMicros;
+        debugMap.put("calls", listResultCount);
+        debugMap.put("tookEachMicros", (long)(listResultMicros / listResultCount));
       }
   
       return list;
@@ -458,11 +478,14 @@ public class ByHql extends HibernateDelegate implements HqlQuery {
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(debugMap));
       }
-      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, System.nanoTime()-startNanos);
+      PerformanceLogger.performanceTimingAllDuration(PerformanceLogger.PERFORMANCE_LOG_LABEL_SQL, tookNanos);
 
     }
   }
   
+  private static long listResultCount = 0;
+  private static long listResultMicros = 0;
+
   /**
    * <pre>
    * call hql list result, and put the results in map with the key as one of the fields

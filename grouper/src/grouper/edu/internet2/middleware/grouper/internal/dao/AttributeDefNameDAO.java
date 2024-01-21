@@ -295,6 +295,7 @@ public interface AttributeDefNameDAO extends GrouperDAO {
    * @param stemScope is if the stem scope is ONE or SUB
    * @param findByUuidOrName if looking for attribute def names by uuid or name
    * @param idsOfAttributeDefNames ids of attribute def names to lookup
+   * @param namesOfAttributeDefNames names of attribute def names to lookup
    * @return set of attribute defs
    * @since v2.2.1
    */
@@ -302,6 +303,6 @@ public interface AttributeDefNameDAO extends GrouperDAO {
       GrouperSession grouperSession, String attributeDefId, 
       Subject subject, Set<Privilege> privileges, QueryOptions queryOptions, AttributeAssignType attributeAssignType,
       AttributeDefType attributeDefType, ServiceRole serviceRole, boolean anyServiceRole, 
-      String parentStemId, Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames);
+      String parentStemId, Scope stemScope, boolean findByUuidOrName, Set<String> idsOfAttributeDefNames, Collection<String> namesOfAttributeDefNames);
 
 }

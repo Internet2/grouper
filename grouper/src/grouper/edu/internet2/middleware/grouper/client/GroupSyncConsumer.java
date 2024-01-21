@@ -442,18 +442,17 @@ public class GroupSyncConsumer extends ChangeLogConsumerBase {
       return false;
     }
     
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
-    Subject subject = (Subject)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-      
+    Subject subject = (Subject)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        
         String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
 
         return SubjectFinder.findByIdAndSource(subjectId, sourceId, false);
         
       }
     });
-    
+        
     if (subject == null) {
       return false;
     }

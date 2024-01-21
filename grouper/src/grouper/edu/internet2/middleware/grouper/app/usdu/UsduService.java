@@ -26,9 +26,11 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.attr.value.AttributeValueDelegate;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Source;
 
@@ -144,98 +146,104 @@ public class UsduService {
    * 
    * @return the list of subject sources with unresolved and resolved count
    */
+  @SuppressWarnings("unchecked")
   public static List<SubjectResolutionStat> getSubjectResolutionStats() {
     
-    List<Source> sources = new ArrayList<Source>(SubjectFinder.getSources());
-    Collections.sort(sources, new Comparator<Source>() {
+    return (List<SubjectResolutionStat>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      public int compare(Source o1, Source o2) {
-        if (o1== o2) {
-          return 0;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        List<Source> sources = new ArrayList<Source>(SubjectFinder.getSources());
+        Collections.sort(sources, new Comparator<Source>() {
+
+          public int compare(Source o1, Source o2) {
+            if (o1== o2) {
+              return 0;
+            }
+            if (o1 == null) {
+              return -1;
+            }
+            if (o1 == null) {
+              return 1;
+            }
+            return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+          }
+        });
+        
+        List<SubjectResolutionStat> subjectResolutionStats = new ArrayList<SubjectResolutionStat>();
+        
+        // select subject_source, count(*) from grouper_members group by subject_source
+        List<Object[]> sourceIdCountTotals = HibernateSession.bySqlStatic().listSelect(Object[].class,
+            "select subject_source, count(*) from grouper_members group by subject_source ", null, null);
+        
+        // select distinct source_id, subject_id from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
+        // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionResolvable' and value_string = 'false' and enabled2 = 'T';
+        
+        // select source_id, count(*) from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
+        // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionResolvable' and value_string = 'false' and enabled2 = 'T' group by source_id;
+        
+        final String sqlUnresolvable = "select subject_source as source_id, count(*) from grouper_members where subject_resolution_resolvable='F' group by subject_source";
+        List<Object[]> sourceIdCountUnresolvables = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlUnresolvable, null, null);
+        
+
+        // select source_id, count(*) from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
+        // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionDeleted' and value_string = 'true' and enabled2 = 'T' group by source_id;
+        
+        final String sqlDeleted = "select subject_source as source_id, count(*) from grouper_members where subject_resolution_deleted='T' group by subject_source";
+        List<Object[]> sourceIdCountDeleteds = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlDeleted, null, null);
+        
+
+        for (Source source: sources) {
+          
+          long unresolvedCount = 0L;
+          long resolvedCount = 0L;
+          long deletedCount = 0L;
+
+          // go through the amount received from totals
+          TOTALS:
+          for (Object[] sourceIdCountTotal : GrouperUtil.nonNull(sourceIdCountTotals)) {
+            String sourceIdTotal = (String)sourceIdCountTotal[0];
+            if (!StringUtils.equals(source.getId(), sourceIdTotal)) {
+              continue TOTALS;
+            }
+            resolvedCount = GrouperUtil.intValue(sourceIdCountTotal[1]);
+
+            UNRESOLVABLES:
+            for (Object[] sourceIdCountUnresolvable : GrouperUtil.nonNull(sourceIdCountUnresolvables)) {
+              String sourceIdUnresolvable = (String)sourceIdCountUnresolvable[0];
+              if (!StringUtils.equals(source.getId(), sourceIdUnresolvable)) {
+                continue UNRESOLVABLES;
+              }
+              
+              // if there are unresolvables
+              unresolvedCount = GrouperUtil.intValue(sourceIdCountUnresolvable[1]);
+              resolvedCount -= unresolvedCount;
+              
+              DELETEDS:
+              for (Object[] sourceIdCountDeleted : GrouperUtil.nonNull(sourceIdCountDeleteds)) {
+                String sourceIdDeleted = (String)sourceIdCountDeleted[0];
+                if (!StringUtils.equals(source.getId(), sourceIdDeleted)) {
+                  continue DELETEDS;
+                }
+                deletedCount = GrouperUtil.intValue(sourceIdCountDeleted[1]);
+                unresolvedCount -= deletedCount;
+                break DELETEDS;
+              }
+              
+              break UNRESOLVABLES;
+            }
+            
+            break TOTALS;
+          }
+
+          subjectResolutionStats.add(new SubjectResolutionStat(source.getName(), unresolvedCount, resolvedCount, deletedCount));
+          
         }
-        if (o1 == null) {
-          return -1;
-        }
-        if (o1 == null) {
-          return 1;
-        }
-        return o1.getName().toLowerCase().compareTo(o2.getName().toLowerCase());
+        
+        return subjectResolutionStats;
       }
     });
     
-    GrouperSession session = GrouperSession.startRootSession();
-    
-    List<SubjectResolutionStat> subjectResolutionStats = new ArrayList<SubjectResolutionStat>();
-    
-    // select subject_source, count(*) from grouper_members group by subject_source
-    List<Object[]> sourceIdCountTotals = HibernateSession.bySqlStatic().listSelect(Object[].class,
-        "select subject_source, count(*) from grouper_members group by subject_source ", null, null);
-    
-    // select distinct source_id, subject_id from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
-    // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionResolvable' and value_string = 'false' and enabled2 = 'T';
-    
-    // select source_id, count(*) from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
-    // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionResolvable' and value_string = 'false' and enabled2 = 'T' group by source_id;
-    
-    final String sqlUnresolvable = "select subject_source as source_id, count(*) from grouper_members where subject_resolution_resolvable='F' group by subject_source";
-    List<Object[]> sourceIdCountUnresolvables = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlUnresolvable, null, null);
-    
-
-    // select source_id, count(*) from grouper_aval_asn_asn_member_v where attribute_def_name_name1 = 'penn:etc:usdu:subjectResolutionMarker'
-    // and attribute_def_name_name2 = 'penn:etc:usdu:subjectResolutionDeleted' and value_string = 'true' and enabled2 = 'T' group by source_id;
-    
-    final String sqlDeleted = "select subject_source as source_id, count(*) from grouper_members where subject_resolution_deleted='T' group by subject_source";
-    List<Object[]> sourceIdCountDeleteds = HibernateSession.bySqlStatic().listSelect(Object[].class, sqlDeleted, null, null);
-    
-
-    for (Source source: sources) {
-      
-      long unresolvedCount = 0L;
-      long resolvedCount = 0L;
-      long deletedCount = 0L;
-
-      // go through the amount received from totals
-      TOTALS:
-      for (Object[] sourceIdCountTotal : GrouperUtil.nonNull(sourceIdCountTotals)) {
-        String sourceIdTotal = (String)sourceIdCountTotal[0];
-        if (!StringUtils.equals(source.getId(), sourceIdTotal)) {
-          continue TOTALS;
-        }
-        resolvedCount = GrouperUtil.intValue(sourceIdCountTotal[1]);
-
-        UNRESOLVABLES:
-        for (Object[] sourceIdCountUnresolvable : GrouperUtil.nonNull(sourceIdCountUnresolvables)) {
-          String sourceIdUnresolvable = (String)sourceIdCountUnresolvable[0];
-          if (!StringUtils.equals(source.getId(), sourceIdUnresolvable)) {
-            continue UNRESOLVABLES;
-          }
-          
-          // if there are unresolvables
-          unresolvedCount = GrouperUtil.intValue(sourceIdCountUnresolvable[1]);
-          resolvedCount -= unresolvedCount;
-          
-          DELETEDS:
-          for (Object[] sourceIdCountDeleted : GrouperUtil.nonNull(sourceIdCountDeleteds)) {
-            String sourceIdDeleted = (String)sourceIdCountDeleted[0];
-            if (!StringUtils.equals(source.getId(), sourceIdDeleted)) {
-              continue DELETEDS;
-            }
-            deletedCount = GrouperUtil.intValue(sourceIdCountDeleted[1]);
-            unresolvedCount -= deletedCount;
-            break DELETEDS;
-          }
-          
-          break UNRESOLVABLES;
-        }
-        
-        break TOTALS;
-      }
-
-      subjectResolutionStats.add(new SubjectResolutionStat(source.getName(), unresolvedCount, resolvedCount, deletedCount));
-      
-    }
-    
-    return subjectResolutionStats;
     
   }
   

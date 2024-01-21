@@ -149,7 +149,7 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
     final boolean[] canReadAttribute = new boolean[1];
   
     //these need to be looked up as root
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
@@ -180,7 +180,7 @@ public class AttributeAssignMemberDelegate extends AttributeAssignBaseDelegate {
     final boolean[] canAdminMember = new boolean[1];
  
     //these need to be looked up as root
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       /**
        * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)

@@ -477,7 +477,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
         || this.assignToEffMembershipAssn
         || this.assignToImmMembership || this.assignToImmMembershipAssn )
     ) {
-      throw new RuntimeException("An attribute definition of type permission can only be assignable to group/role or effective membership");
+      throw new RuntimeException("An attribute definition of type permission can only be assignable to group/role or effective membership: " + this.getName());
     }
 
     //invalid entry: permission type attributes cannot be multi-assignable
@@ -1979,7 +1979,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
   public void onPostUpdate(HibernateSession hibernateSession) {
     
     if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
   
         /**
          * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)

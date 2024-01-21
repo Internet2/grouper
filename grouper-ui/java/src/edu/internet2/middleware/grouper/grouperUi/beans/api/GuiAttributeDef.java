@@ -68,7 +68,7 @@ public class GuiAttributeDef extends GuiObjectBase implements Serializable {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
 
-    return (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         return GuiAttributeDef.this.attributeDef.getPrivilegeDelegate().hasAttrAdmin(loggedInSubject);

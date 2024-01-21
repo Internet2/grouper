@@ -38,10 +38,11 @@ import javax.servlet.http.HttpSession;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -144,7 +145,6 @@ public class GrouperStatusServlet extends HttpServlet {
     // key is name
     Map<String, String> diagnosticErrorStacks = new HashMap<String, String>();
     
-    GrouperSession grouperSession = null;
     try {
       
       response.setContentType("text/html");
@@ -176,75 +176,83 @@ public class GrouperStatusServlet extends HttpServlet {
       
       DiagnosticType diagnosticType = DiagnosticType.valueOfIgnoreCase(diagnosticTypeString, true);
 
-      grouperSession = GrouperSession.startRootSession();
-      
-      // List all of the diagnostic tasks to execute.
-        
-      diagnosticType.appendDiagnostics(tasksToExecute);
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      // Execute each task, until all are complete or there is a 
-      // failure, in which case, throw an exception. If there
-      // is a failure, the error text (if any) of the task
-      // will be picked up and utilized in the catch block.
-      boolean failureOverall = false;
-      
-      for (DiagnosticTask diagnosticTask : tasksToExecute) {
-        try {
-          if (diagnosticTask.executeTask()){
-            result.append(diagnosticTask.retrieveSuccessText().toString());
-          } else {
-            diagnosticTasksWithErrors.add(diagnosticTask);
-            failureOverall = true;
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          // List all of the diagnostic tasks to execute.
+          
+          diagnosticType.appendDiagnostics(tasksToExecute);
+
+          // Execute each task, until all are complete or there is a 
+          // failure, in which case, throw an exception. If there
+          // is a failure, the error text (if any) of the task
+          // will be picked up and utilized in the catch block.
+          boolean failureOverall = false;
+          
+          for (DiagnosticTask diagnosticTask : tasksToExecute) {
+            try {
+              if (diagnosticTask.executeTask()){
+                result.append(diagnosticTask.retrieveSuccessText().toString());
+              } else {
+                diagnosticTasksWithErrors.add(diagnosticTask);
+                failureOverall = true;
+              }
+            } catch (RuntimeException re) {
+              diagnosticTasksWithErrors.add(diagnosticTask);
+              failureOverall = true;
+              diagnosticErrorStacks.put(diagnosticTask.retrieveName(), GrouperUtil.getFullStackTrace(re));
+            }
           }
-        } catch (RuntimeException re) {
-          diagnosticTasksWithErrors.add(diagnosticTask);
-          failureOverall = true;
-          diagnosticErrorStacks.put(diagnosticTask.retrieveName(), GrouperUtil.getFullStackTrace(re));
+
+          if (failureOverall) {
+            throw new RuntimeException();
+          }
+          
+          result.append("\n\n");
+
+          // Append the error count.
+          result.append("Diagnostics errors since start: ")
+              .append(diagnosticErrorCount)
+              .append(elapsedSuffix());
+
+          // See if there was an error, in the last day store the results if so.
+          if (diagnosticErrorCount > 0 && lastDiagnosticsErrorDate != null 
+              && System.currentTimeMillis() - lastDiagnosticsErrorDate < (long)24 * 60 * 60 * 1000 ) {
+            result.append("\nLast diagnostics error date: ")
+              .append(lastDiagnosticsErrorDateString)
+              .append("\nLast diagnostics error message: ")
+              .append(lastDiagnosticsError);
+          }
+
+          
+          response.setStatus(200);
+                
+          Writer writer = null;
+          
+          try {
+            writer = response.getWriter();
+            outerResult.append("<h1>Grouper status SUCCESS</h1><br /><pre>");
+            if (sendDetailsInResponse) {
+              outerResult.append(result);
+            } else {
+              LOG.info("Status result: " + result.toString());
+              outerResult.append("See logs or 'All daemon jobs' for details.");
+            }
+            outerResult.append("</pre></body></html>");
+            writer.write(outerResult.toString());
+          } catch (Exception e) {
+            LOG.error("error", e);
+          } finally {
+            GrouperUtil.closeQuietly(writer);
+          }
+
+
+          return null;
         }
-      }
-
-      if (failureOverall) {
-        throw new RuntimeException();
-      }
+      });
       
-      result.append("\n\n");
-
-      // Append the error count.
-      result.append("Diagnostics errors since start: ")
-          .append(diagnosticErrorCount)
-          .append(elapsedSuffix());
-
-      // See if there was an error, in the last day store the results if so.
-      if (diagnosticErrorCount > 0 && lastDiagnosticsErrorDate != null 
-          && System.currentTimeMillis() - lastDiagnosticsErrorDate < (long)24 * 60 * 60 * 1000 ) {
-        result.append("\nLast diagnostics error date: ")
-          .append(lastDiagnosticsErrorDateString)
-          .append("\nLast diagnostics error message: ")
-          .append(lastDiagnosticsError);
-      }
-
-      
-      response.setStatus(200);
-            
-      Writer writer = null;
-      
-      try {
-        writer = response.getWriter();
-        outerResult.append("<h1>Grouper status SUCCESS</h1><br /><pre>");
-        if (sendDetailsInResponse) {
-          outerResult.append(result);
-        } else {
-          LOG.info("Status result: " + result.toString());
-          outerResult.append("See logs or 'All daemon jobs' for details.");
-        }
-        outerResult.append("</pre></body></html>");
-        writer.write(outerResult.toString());
-      } catch (Exception e) {
-        LOG.error("error", e);
-      } finally {
-        GrouperUtil.closeQuietly(writer);
-      }
-
       
     } catch (RuntimeException re) {
 
@@ -321,9 +329,7 @@ public class GrouperStatusServlet extends HttpServlet {
       try {
         
         requestThreadLocal.remove();
-        
-        GrouperSession.stopQuietly(grouperSession);
-        
+                
         HttpSession httpSession = request.getSession(false);
         if (httpSession != null) {
           httpSession.invalidate();

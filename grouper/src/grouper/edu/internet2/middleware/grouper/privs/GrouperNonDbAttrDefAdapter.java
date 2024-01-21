@@ -168,7 +168,7 @@ public class GrouperNonDbAttrDefAdapter extends BaseAttrDefAdapter implements
     GrouperSession.validate(grouperSession);
 
 //this should let anyone read the privs, like the other access and naming adapters
-//    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+//    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 //      
 //      public Object callback(GrouperSession rootSession) throws GrouperSessionException {
 //        if ( !attributeDef.getPrivilegeDelegate().canAttrAdmin( grouperSession.getSubject() ) ) {

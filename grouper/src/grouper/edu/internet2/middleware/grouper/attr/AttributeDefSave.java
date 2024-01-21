@@ -70,6 +70,14 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class AttributeDefSave {
   
+  public String getAttributeDefNameToEdit() {
+    return attributeDefNameToEdit;
+  }
+  
+  public String getName() {
+    return name;
+  }
+
   /** id index */
   private Long idIndex;
   
@@ -678,7 +686,7 @@ public class AttributeDefSave {
                     //lets just confirm that one doesnt exist
                     final String newName = GrouperUtil.parentStemNameFromName(theAttributeDef.getName()) + ":" + extensionNew;
                     
-                    AttributeDef existingAttributeDef = (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+                    AttributeDef existingAttributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
                       
                       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
                         return AttributeDefFinder.findByName(newName, false);

@@ -37,7 +37,9 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -115,55 +117,61 @@ public class ChangeLogHelper {
     
     GrouperStartup.startup();
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
     
-    //lets start on latest change log for this example...  you probably shouldnt do this in real life...
-    {
-      ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName("myCustomJob", false);
-      if (changeLogConsumer == null) {
-        changeLogConsumer = new ChangeLogConsumer();
-        changeLogConsumer.setName("myCustomJob");
-        GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+        //lets start on latest change log for this example...  you probably shouldnt do this in real life...
+        {
+          ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName("myCustomJob", false);
+          if (changeLogConsumer == null) {
+            changeLogConsumer = new ChangeLogConsumer();
+            changeLogConsumer.setName("myCustomJob");
+            GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+          }
+          
+          changeLogConsumer.setLastSequenceProcessed(GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(true), 0l));
+          GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
+        }
+        
+        
+        Group group = new GroupSave(grouperSession).assignName("a:b").assignCreateParentStemsIfNotExist(true).save();
+        
+        TestChangeLogHelper testChangeLogHelper = new TestChangeLogHelper();
+        
+        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
+        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
+        hib3GrouploaderLog.setJobName("myCustomJob");
+        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+        hib3GrouploaderLog.store();
+        
+        try {
+    
+          group.addMember(SubjectFinder.findRootSubject(), false);
+          
+          GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+          processRecords("myCustomJob", hib3GrouploaderLog, testChangeLogHelper);
+          
+          group.addMember(SubjectFinder.findRootSubject(), false);
+          group.addMember(SubjectFinder.findAllSubject(), false);
+          group.deleteMember(SubjectFinder.findAllSubject());
+          group.deleteMember(SubjectFinder.findRootSubject());
+    
+          GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
+          
+          processRecords("myCustomJob", hib3GrouploaderLog, testChangeLogHelper);
+    
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
+          
+        } catch (Exception e) {
+          LOG.error("Error processing records", e);
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+        }
+        hib3GrouploaderLog.store();
+        return null;
       }
-      
-      changeLogConsumer.setLastSequenceProcessed(GrouperUtil.defaultIfNull(ChangeLogEntry.maxSequenceNumber(true), 0l));
-      GrouperDAOFactory.getFactory().getChangeLogConsumer().saveOrUpdate(changeLogConsumer);
-    }
-    
-    
-    Group group = new GroupSave(grouperSession).assignName("a:b").assignCreateParentStemsIfNotExist(true).save();
-    
-    TestChangeLogHelper testChangeLogHelper = new TestChangeLogHelper();
-    
-    Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-    hib3GrouploaderLog.setJobName("myCustomJob");
-    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
-    hib3GrouploaderLog.store();
-    
-    try {
-
-      group.addMember(SubjectFinder.findRootSubject(), false);
-      
-      GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
-      processRecords("myCustomJob", hib3GrouploaderLog, testChangeLogHelper);
-      
-      group.addMember(SubjectFinder.findRootSubject(), false);
-      group.addMember(SubjectFinder.findAllSubject(), false);
-      group.deleteMember(SubjectFinder.findAllSubject());
-      group.deleteMember(SubjectFinder.findRootSubject());
-
-      GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_CHANGE_LOG_TEMP_TO_CHANGE_LOG);
-      
-      processRecords("myCustomJob", hib3GrouploaderLog, testChangeLogHelper);
-
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-      
-    } catch (Exception e) {
-      LOG.error("Error processing records", e);
-      hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
-    }
-    hib3GrouploaderLog.store();
+    });
   }
   
   private static Hib3GrouperLoaderLog createSubLoaderLog(Hib3GrouperLoaderLog hib3GrouperLoaderLogOverall) {

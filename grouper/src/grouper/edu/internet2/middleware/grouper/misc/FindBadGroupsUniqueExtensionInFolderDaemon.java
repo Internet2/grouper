@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hooks.examples.GroupUniqueExtensionInFoldersHook;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -131,23 +132,28 @@ public class FindBadGroupsUniqueExtensionInFolderDaemon extends OtherJobBase {
    * run standalone
    */
   public static Hib3GrouperLoaderLog runDaemonStandalone() {
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    
-    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_findBadGroupsUniqueExtensionInFolder";
+    return (Hib3GrouperLoaderLog)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    hib3GrouperLoaderLog.setJobName(jobName);
-    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-    hib3GrouperLoaderLog.store();
-    
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    otherJobInput.setGrouperSession(grouperSession);
-    new FindBadGroupsUniqueExtensionInFolderDaemon().run(otherJobInput);
-    return hib3GrouperLoaderLog;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        
+        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        String jobName = "OTHER_JOB_findBadGroupsUniqueExtensionInFolder";
+
+        hib3GrouperLoaderLog.setJobName(jobName);
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        hib3GrouperLoaderLog.store();
+        
+        OtherJobInput otherJobInput = new OtherJobInput();
+        otherJobInput.setJobName(jobName);
+        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        otherJobInput.setGrouperSession(grouperSession);
+        new FindBadGroupsUniqueExtensionInFolderDaemon().run(otherJobInput);
+        return hib3GrouperLoaderLog;
+      }
+    });
   }
 
   /** logger */

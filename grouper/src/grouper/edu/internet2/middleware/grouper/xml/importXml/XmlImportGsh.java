@@ -43,7 +43,9 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.xml.export.XmlExportUtils;
@@ -108,38 +110,44 @@ public class XmlImportGsh {
     GrouperStartup.runFromMain = true;
     GrouperStartup.startup();
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    try {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      XmlImportMain xmlImportMain = new XmlImportMain();
-      
-      if (Boolean.TRUE.equals(argsMap.get(RECORD_REPORT_ARG))) {
-        xmlImportMain.setRecordReport(true);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+
+          XmlImportMain xmlImportMain = new XmlImportMain();
+          
+          if (Boolean.TRUE.equals(argsMap.get(RECORD_REPORT_ARG))) {
+            xmlImportMain.setRecordReport(true);
+          }
+          xmlImportMain.setRecordReport(true);
+          
+          String fileName = (String)argsMap.get(XmlExportUtils.FILE_NAME_ARG);
+          
+          if (StringUtils.isBlank(fileName) || fileName.startsWith("-")) {
+            throw new RuntimeException("Enter a file name");
+          }
+          
+          File file = new File(fileName);
+          
+          xmlImportMain.processXml(file);
+          
+          
+        } catch (Exception e) {      
+          if (GrouperUtil.getFullStackTrace(e).contains("groupTypeUuid")) {
+            System.err.println("ERROR: It appears you are trying to import an XML file that was exported from Grouper 2.1 or before. " +
+                "This is not supported.  Please upgrade instead using the procedure documented in the release notes.");
+          } else {
+            throw new RuntimeException(e);
+          }
+        } finally {
+          GrouperSession.stopQuietly(grouperSession);
+        }
+        return null;
       }
-      xmlImportMain.setRecordReport(true);
-      
-      String fileName = (String)argsMap.get(XmlExportUtils.FILE_NAME_ARG);
-      
-      if (StringUtils.isBlank(fileName) || fileName.startsWith("-")) {
-        throw new RuntimeException("Enter a file name");
-      }
-      
-      File file = new File(fileName);
-      
-      xmlImportMain.processXml(file);
-      
-      
-    } catch (Exception e) {      
-      if (GrouperUtil.getFullStackTrace(e).contains("groupTypeUuid")) {
-        System.err.println("ERROR: It appears you are trying to import an XML file that was exported from Grouper 2.1 or before. " +
-        		"This is not supported.  Please upgrade instead using the procedure documented in the release notes.");
-      } else {
-        throw new RuntimeException(e);
-      }
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    });
+    
     
     System.exit(0);
     return;

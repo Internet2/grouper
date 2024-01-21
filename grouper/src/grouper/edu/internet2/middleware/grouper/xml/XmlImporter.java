@@ -275,54 +275,60 @@ public class XmlImporter {
     GrouperStartup.startup();
     final XmlImporter[] importer = new XmlImporter[1];
     
-    GrouperSession.startRootSession();
-    
-    HibernateSession.callbackHibernateSession(
-        GrouperTransactionType.NONE, AuditControl.WILL_AUDIT,
-        new HibernateHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-          public Object callback(HibernateHandlerBean hibernateHandlerBean)
-              throws GrouperDAOException {
-            try { 
-              
-              importer[0]  = new XmlImporter(
-                GrouperSession.start(
-                  SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true ), false
-                ),
-                XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
-              );
-              _handleArgs(importer[0], rc);
-              
-              GrouperSession staticSession = GrouperSession.staticGrouperSession(false);
-              if(staticSession==null) {
-            	  staticSession = GrouperSession.start(SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true));  
-              }
-              AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.XML_IMPORT, "fileName", 
-                  rc.getProperty(XmlArgs.RC_IFILE), "subjectId", rc.getProperty(XmlArgs.RC_SUBJ));
-              auditEntry.setDescription("Imported xml: " + GrouperUtil.toStringForLog(args));
-              auditEntry.saveOrUpdate(true);
-              staticSession.stop();
-              
-            } catch (Exception e) {
-              LOG.fatal("unable to import from xml: " + e.getMessage(), e);
-              System.out.println("unable to import from xml: " + e.getMessage());
-              e.printStackTrace();
-              //System.exit(1);
-            } finally {
-              if (importer[0] != null) {
-                try {
-                  importer[0].s.stop();
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        HibernateSession.callbackHibernateSession(
+            GrouperTransactionType.NONE, AuditControl.WILL_AUDIT,
+            new HibernateHandler() {
+
+              public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                  throws GrouperDAOException {
+                try { 
+                  
+                  importer[0]  = new XmlImporter(
+                    GrouperSession.start(
+                      SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true ), false
+                    ),
+                    XmlUtils.internal_getUserProperties(LOG, rc.getProperty(XmlArgs.RC_UPROPS))
+                  );
+                  _handleArgs(importer[0], rc);
+                  
+                  GrouperSession staticSession = GrouperSession.staticGrouperSession(false);
+                  if(staticSession==null) {
+                    staticSession = GrouperSession.start(SubjectFinder.findByIdentifier( rc.getProperty(XmlArgs.RC_SUBJ), true));  
+                  }
+                  AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.XML_IMPORT, "fileName", 
+                      rc.getProperty(XmlArgs.RC_IFILE), "subjectId", rc.getProperty(XmlArgs.RC_SUBJ));
+                  auditEntry.setDescription("Imported xml: " + GrouperUtil.toStringForLog(args));
+                  auditEntry.saveOrUpdate(true);
+                  staticSession.stop();
+                  
+                } catch (Exception e) {
+                  LOG.fatal("unable to import from xml: " + e.getMessage(), e);
+                  System.out.println("unable to import from xml: " + e.getMessage());
+                  e.printStackTrace();
+                  //System.exit(1);
+                } finally {
+                  if (importer[0] != null) {
+                    try {
+                      importer[0].s.stop();
+                    }
+                    catch (SessionException eS) {
+                      LOG.error(eS.getMessage());
+                    }
+                  }
                 }
-                catch (SessionException eS) {
-                  LOG.error(eS.getMessage());
-                }
+                return null;
               }
-            }
-            return null;
-          }
-        });
-      
-    LOG.debug("Finished import of [" + rc.getProperty(XmlArgs.RC_IFILE) + "]");
+            });
+          
+        LOG.debug("Finished import of [" + rc.getProperty(XmlArgs.RC_IFILE) + "]");
+        return null;
+      }
+    });
+    
     System.exit(0);
     return;
   } // public static void main(args)

@@ -34,6 +34,7 @@ import org.quartz.Job;
 import org.quartz.JobExecutionContext;
 import org.quartz.JobExecutionException;
 import org.quartz.PersistJobDataAfterExecution;
+import org.quartz.SchedulerException;
 import org.quartz.SimpleTrigger;
 import org.quartz.Trigger;
 
@@ -50,12 +51,14 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hooks.LoaderHooks;
 import edu.internet2.middleware.grouper.hooks.beans.HooksLoaderBean;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHookType;
 import edu.internet2.middleware.grouper.hooks.logic.GrouperHooksUtils;
 import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafeBean;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -76,276 +79,291 @@ public class GrouperLoaderJob implements Job {
    * @see org.quartz.Job#execute(org.quartz.JobExecutionContext)
    */
   public void execute(JobExecutionContext context) throws JobExecutionException {
+    
     long startTime = System.currentTimeMillis();
-
+    
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
 
     Group group = null;
     AttributeDef attributeDef = null;
-    GrouperSession grouperSession = null;
     try {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+
       GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
 
-      grouperSession = GrouperSession.startRootSession();
       String jobName = context.getJobDetail().getKey().getName();
   
-      GrouperLoaderLogger.addLogEntry("overallLog", "startTime", new Date());
+          Group group = null;
+          AttributeDef attributeDef = null;
+          String jobName = context.getJobDetail().getKey().getName();
       
-      if (GrouperLoader.isJobRunning(jobName, true)) {
-        GrouperLoaderLogger.addLogEntry("overallLog", "alreadyRunningSoAborting", true);
-        LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
-        return;
-      }
-      
-      hib3GrouploaderLog.setJobName(jobName);
-      
-      String grouperLoaderQuartzCronFromOwner = null;
-      String grouperLoaderTypeFromOwner = null;
-      String grouperLoaderScheduleTypeFromOwner = null;
-      Integer grouperLoaderPriorityFromOwner = null;
-      Integer grouperLoaderIntervalSecondsFromOwner = null;
-      
-      //job name is GrouperLoaderType__groupname__uuid
-      GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
-
-      if (grouperLoaderType.equals(GrouperLoaderType.SQL_GROUP_LIST) || 
-          grouperLoaderType.equals(GrouperLoaderType.SQL_SIMPLE)) {
-        
-        int uuidIndexStart = jobName.lastIndexOf("__");
-        
-        if (uuidIndexStart >= 0) {
-          String grouperLoaderGroupUuid = null;
-          grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
-          hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
-
+          GrouperLoaderLogger.addLogEntry("overallLog", "startTime", new Date());
           
-          group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
-          grouperLoaderQuartzCronFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
-              GrouperLoader.GROUPER_LOADER_QUARTZ_CRON);
-          grouperLoaderScheduleTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
-              GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE);
-          grouperLoaderTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
-              GrouperLoader.GROUPER_LOADER_TYPE);
-          grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
-              GrouperLoaderType.attributeValueOrDefaultOrNull(group,
-              GrouperLoader.GROUPER_LOADER_PRIORITY), true);
+          if (GrouperLoader.isJobRunning(jobName, true)) {
+            GrouperLoaderLogger.addLogEntry("overallLog", "alreadyRunningSoAborting", true);
+            LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
+            return null;
+          }
           
-          //lets reset the job name in case the name has changed
-          jobName = grouperLoaderTypeFromOwner + "__" + group.getName() + "__" + group.getUuid();
           hib3GrouploaderLog.setJobName(jobName);
           
-        }
-      }
-      
-      if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
-        
-        int uuidIndexStart = jobName.lastIndexOf("__");
-        
-        if (uuidIndexStart >= 0) {
-          String grouperLoaderAttrDefUuid = null;
-          grouperLoaderAttrDefUuid = jobName.substring(uuidIndexStart+2, jobName.length());
-          hib3GrouploaderLog.setGroupUuid(grouperLoaderAttrDefUuid);
+          String grouperLoaderQuartzCronFromOwner = null;
+          String grouperLoaderTypeFromOwner = null;
+          String grouperLoaderScheduleTypeFromOwner = null;
+          Integer grouperLoaderPriorityFromOwner = null;
+          Integer grouperLoaderIntervalSecondsFromOwner = null;
+          
+          //job name is GrouperLoaderType__groupname__uuid
+          GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
 
-          
-          attributeDef = AttributeDefFinder.findById(grouperLoaderAttrDefUuid, true);
-          
-          grouperLoaderQuartzCronFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
-              GrouperLoader.ATTRIBUTE_LOADER_QUARTZ_CRON);
-          grouperLoaderScheduleTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
-              GrouperLoader.ATTRIBUTE_LOADER_SCHEDULE_TYPE);
-          grouperLoaderTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
-              GrouperLoader.ATTRIBUTE_LOADER_TYPE);
-          grouperLoaderIntervalSecondsFromOwner = GrouperUtil.intObjectValue(
-              GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef,
-              GrouperLoader.ATTRIBUTE_LOADER_INTERVAL_SECONDS), true);
-          grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
-              GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef,
-              GrouperLoader.ATTRIBUTE_LOADER_PRIORITY), true);
-          
-          //lets reset the job name in case the name has changed
-          jobName = grouperLoaderTypeFromOwner + "__" + attributeDef.getName() + "__" + attributeDef.getId();
-          hib3GrouploaderLog.setJobName(jobName);
-          
-        }
-      }
-      
-      if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
-          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
-          || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
-        
-        int uuidIndexStart = jobName.lastIndexOf("__");
-        
-        if (uuidIndexStart >= 0) {
-          String grouperLoaderGroupUuid = null;
-          grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
-          hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
+          if (grouperLoaderType.equals(GrouperLoaderType.SQL_GROUP_LIST) || 
+              grouperLoaderType.equals(GrouperLoaderType.SQL_SIMPLE)) {
+            
+            int uuidIndexStart = jobName.lastIndexOf("__");
+            
+            if (uuidIndexStart >= 0) {
+              String grouperLoaderGroupUuid = null;
+              grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+              hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
 
+              
+              group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
+              grouperLoaderQuartzCronFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+                  GrouperLoader.GROUPER_LOADER_QUARTZ_CRON);
+              grouperLoaderScheduleTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+                  GrouperLoader.GROUPER_LOADER_SCHEDULE_TYPE);
+              grouperLoaderTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNull(group, 
+                  GrouperLoader.GROUPER_LOADER_TYPE);
+              grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
+                  GrouperLoaderType.attributeValueOrDefaultOrNull(group,
+                  GrouperLoader.GROUPER_LOADER_PRIORITY), true);
+              
+              //lets reset the job name in case the name has changed
+              jobName = grouperLoaderTypeFromOwner + "__" + group.getName() + "__" + group.getUuid();
+              hib3GrouploaderLog.setJobName(jobName);
+              
+            }
+          }
           
-          group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
+          if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
+            
+            int uuidIndexStart = jobName.lastIndexOf("__");
+            
+            if (uuidIndexStart >= 0) {
+              String grouperLoaderAttrDefUuid = null;
+              grouperLoaderAttrDefUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+              hib3GrouploaderLog.setGroupUuid(grouperLoaderAttrDefUuid);
+
+              
+              attributeDef = AttributeDefFinder.findById(grouperLoaderAttrDefUuid, true);
+              
+              grouperLoaderQuartzCronFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
+                  GrouperLoader.ATTRIBUTE_LOADER_QUARTZ_CRON);
+              grouperLoaderScheduleTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
+                  GrouperLoader.ATTRIBUTE_LOADER_SCHEDULE_TYPE);
+              grouperLoaderTypeFromOwner = GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef, 
+                  GrouperLoader.ATTRIBUTE_LOADER_TYPE);
+              grouperLoaderIntervalSecondsFromOwner = GrouperUtil.intObjectValue(
+                  GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef,
+                  GrouperLoader.ATTRIBUTE_LOADER_INTERVAL_SECONDS), true);
+              grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(
+                  GrouperLoaderType.attributeValueOrDefaultOrNullAttrDef(attributeDef,
+                  GrouperLoader.ATTRIBUTE_LOADER_PRIORITY), true);
+              
+              //lets reset the job name in case the name has changed
+              jobName = grouperLoaderTypeFromOwner + "__" + attributeDef.getName() + "__" + attributeDef.getId();
+              hib3GrouploaderLog.setJobName(jobName);
+              
+            }
+          }
           
-          AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
+          if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+              || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+              || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
+            
+            int uuidIndexStart = jobName.lastIndexOf("__");
+            
+            if (uuidIndexStart >= 0) {
+              String grouperLoaderGroupUuid = null;
+              grouperLoaderGroupUuid = jobName.substring(uuidIndexStart+2, jobName.length());
+              hib3GrouploaderLog.setGroupUuid(grouperLoaderGroupUuid);
+
+              
+              group = GroupFinder.findByUuid(grouperSession, grouperLoaderGroupUuid, true);
+              
+              AttributeDefName attributeDefName = AttributeDefNameFinder.findByName(LoaderLdapUtils.grouperLoaderLdapName(), false);
+              
+              AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(AttributeDef.ACTION_DEFAULT, attributeDefName, false, true);
+              
+              grouperLoaderQuartzCronFromOwner = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
+              
+              grouperLoaderTypeFromOwner = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+              grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(attributeAssign.getAttributeValueDelegate()
+                  .retrieveValueString(LoaderLdapUtils.grouperLoaderLdapPriorityName()), true);
+              
+              //lets reset the job name in case the name has changed
+              jobName = grouperLoaderTypeFromOwner + "__" + group.getName() + "__" + group.getId();
+              hib3GrouploaderLog.setJobName(jobName);
+              
+            }
+          }
           
-          AttributeAssign attributeAssign = group.getAttributeDelegate().retrieveAssignment(AttributeDef.ACTION_DEFAULT, attributeDefName, false, true);
+          //switch the job type?
+          if (!StringUtils.isBlank(grouperLoaderTypeFromOwner)) {
+            GrouperLoaderType grouperLoaderTypeFromGroupEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeFromOwner, true);
+            if (!grouperLoaderTypeFromGroupEnum.equals(grouperLoaderType)) {
+              LOG.debug("Grouper loader type has changed to " + grouperLoaderTypeFromGroupEnum
+                  + " from " + grouperLoaderType + ", for job: " + jobName);
+              grouperLoaderType = grouperLoaderTypeFromGroupEnum;
+            }
+          }
           
-          grouperLoaderQuartzCronFromOwner = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapQuartzCronName());
+          Trigger trigger = context.getTrigger();
+          String grouperLoaderQuartzCron = null;
+          String grouperLoaderScheduleType = null;
+          if (trigger instanceof CronTrigger) {
+            grouperLoaderQuartzCron = ((CronTrigger)trigger).getCronExpression();
+            grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON.name();
+          }
+          Integer grouperLoaderIntervalSeconds = null;
+          if (trigger instanceof SimpleTrigger) {
+            grouperLoaderIntervalSeconds = (int)(((SimpleTrigger)trigger).getRepeatInterval()/1000);
+            grouperLoaderScheduleType = GrouperLoaderScheduleType.START_TO_START_INTERVAL.name();
+          }
           
-          grouperLoaderTypeFromOwner = attributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
-          grouperLoaderPriorityFromOwner = GrouperUtil.intObjectValue(attributeAssign.getAttributeValueDelegate()
-              .retrieveValueString(LoaderLdapUtils.grouperLoaderLdapPriorityName()), true);
+          boolean scheduleChange = false;
+          boolean manuallyTriggered = trigger.getKey().getName().startsWith("MT_");
           
-          //lets reset the job name in case the name has changed
-          jobName = grouperLoaderTypeFromOwner + "__" + group.getName() + "__" + group.getId();
-          hib3GrouploaderLog.setJobName(jobName);
-          
-        }
-      }
+          if (!manuallyTriggered) {
+            if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner)
+                && !StringUtils.equalsIgnoreCase(grouperLoaderScheduleTypeFromOwner, grouperLoaderScheduleType)) {
+              LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+                  + ", scheduleType from: " + grouperLoaderScheduleTypeFromOwner + ", to: " + grouperLoaderScheduleType);
       
-      //switch the job type?
-      if (!StringUtils.isBlank(grouperLoaderTypeFromOwner)) {
-        GrouperLoaderType grouperLoaderTypeFromGroupEnum = GrouperLoaderType.valueOfIgnoreCase(grouperLoaderTypeFromOwner, true);
-        if (!grouperLoaderTypeFromGroupEnum.equals(grouperLoaderType)) {
-          LOG.debug("Grouper loader type has changed to " + grouperLoaderTypeFromGroupEnum
-              + " from " + grouperLoaderType + ", for job: " + jobName);
-          grouperLoaderType = grouperLoaderTypeFromGroupEnum;
-        }
-      }
+              scheduleChange = true;
+            }
+            if (!StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)
+                && !StringUtils.equals(grouperLoaderQuartzCronFromOwner, grouperLoaderQuartzCron)) {
       
-      Trigger trigger = context.getTrigger();
-      String grouperLoaderQuartzCron = null;
-      String grouperLoaderScheduleType = null;
-      if (trigger instanceof CronTrigger) {
-        grouperLoaderQuartzCron = ((CronTrigger)trigger).getCronExpression();
-        grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON.name();
-      }
-      Integer grouperLoaderIntervalSeconds = null;
-      if (trigger instanceof SimpleTrigger) {
-        grouperLoaderIntervalSeconds = (int)(((SimpleTrigger)trigger).getRepeatInterval()/1000);
-        grouperLoaderScheduleType = GrouperLoaderScheduleType.START_TO_START_INTERVAL.name();
-      }
+              LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+                  + ", quartzCron from: " + grouperLoaderQuartzCronFromOwner + ", to: " + grouperLoaderQuartzCron);
       
-      boolean scheduleChange = false;
-      boolean manuallyTriggered = trigger.getKey().getName().startsWith("MT_");
+              scheduleChange = true;
+            }
+            if (grouperLoaderIntervalSecondsFromOwner != null
+                && !ObjectUtils.equals(grouperLoaderIntervalSecondsFromOwner, grouperLoaderIntervalSeconds)) {
       
-      if (!manuallyTriggered) {
-        if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner)
-            && !StringUtils.equalsIgnoreCase(grouperLoaderScheduleTypeFromOwner, grouperLoaderScheduleType)) {
-          LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
-              + ", scheduleType from: " + grouperLoaderScheduleTypeFromOwner + ", to: " + grouperLoaderScheduleType);
-  
-          scheduleChange = true;
-        }
-        if (!StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)
-            && !StringUtils.equals(grouperLoaderQuartzCronFromOwner, grouperLoaderQuartzCron)) {
-  
-          LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
-              + ", quartzCron from: " + grouperLoaderQuartzCronFromOwner + ", to: " + grouperLoaderQuartzCron);
-  
-          scheduleChange = true;
-        }
-        if (grouperLoaderIntervalSecondsFromOwner != null
-            && !ObjectUtils.equals(grouperLoaderIntervalSecondsFromOwner, grouperLoaderIntervalSeconds)) {
-  
-          LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
-              + ", intervalSeconds from: " + grouperLoaderIntervalSecondsFromOwner + ", to: " + grouperLoaderIntervalSeconds);
-  
-          scheduleChange = true;
-        }
-        if (grouperLoaderPriorityFromOwner != null && 
-            !ObjectUtils.equals(grouperLoaderPriorityFromOwner, trigger.getPriority())) {
-  
-          LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
-              + ", priority from: " + grouperLoaderPriorityFromOwner + ", to: " + trigger.getPriority());
-  
-          scheduleChange = true;
-        }
-      }
+              LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+                  + ", intervalSeconds from: " + grouperLoaderIntervalSecondsFromOwner + ", to: " + grouperLoaderIntervalSeconds);
       
-      //see if the runtime settings have changed
-      if (scheduleChange) {
-        
-        GrouperLoaderScheduleType grouperLoaderScheduleTypeEnumFromOwner = null;
-        
-        //if there is a cron string, then it must be cron
-        if (StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner) && !StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)) {
-          grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType.CRON;
+              scheduleChange = true;
+            }
+            if (grouperLoaderPriorityFromOwner != null && 
+                !ObjectUtils.equals(grouperLoaderPriorityFromOwner, trigger.getPriority())) {
+      
+              LOG.warn("Detected a grouper loader schedule change in job: " + jobName 
+                  + ", priority from: " + grouperLoaderPriorityFromOwner + ", to: " + trigger.getPriority());
+      
+              scheduleChange = true;
+            }
+          }
           
-          //if it is an LDAP job, then it must be cron
-        } else if (StringUtils.isBlank(grouperLoaderQuartzCronFromOwner) && (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+          //see if the runtime settings have changed
+          if (scheduleChange) {
+            
+            GrouperLoaderScheduleType grouperLoaderScheduleTypeEnumFromOwner = null;
+            
+            //if there is a cron string, then it must be cron
+            if (StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner) && !StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)) {
+              grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType.CRON;
+              
+              //if it is an LDAP job, then it must be cron
+            } else if (StringUtils.isBlank(grouperLoaderQuartzCronFromOwner) && (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
+                || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
+                || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES))) {
+              grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType.CRON;
+              
+              //else parse the schedule type, and it is required
+            } else {
+              grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType
+                  .valueOfIgnoreCase(grouperLoaderScheduleTypeFromOwner, true);
+            }
+            
+            if (grouperLoaderScheduleTypeEnumFromOwner.equals(GrouperLoaderScheduleType.START_TO_START_INTERVAL)) {
+              if (grouperLoaderIntervalSecondsFromOwner == null) {
+                grouperLoaderIntervalSecondsFromOwner = 60*60*24;
+              }
+            }
+            if (grouperLoaderScheduleTypeEnumFromOwner.equals(GrouperLoaderScheduleType.CRON)) {
+              if (StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)) {
+                throw new RuntimeException("Cron cant be blank if cron schedule: " + jobName);
+              }
+            }
+          }
+          
+          if (grouperLoaderType != null) {
+            hib3GrouploaderLog.setJobType(grouperLoaderType.name());
+          }
+          if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner)) {
+            hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleTypeFromOwner);
+          }
+          hib3GrouploaderLog.setJobScheduleIntervalSeconds(grouperLoaderIntervalSecondsFromOwner);
+          
+          if (grouperLoaderPriorityFromOwner != null || trigger != null) {
+            
+            hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriorityFromOwner != null ? grouperLoaderPriorityFromOwner 
+                : trigger.getPriority());
+          }
+
+          hib3GrouploaderLog.setJobScheduleQuartzCron(!StringUtils.isBlank(grouperLoaderQuartzCronFromOwner) ? 
+              grouperLoaderQuartzCronFromOwner : grouperLoaderQuartzCron );
+          
+          if (scheduleChange) {
+            LOG.warn("Detected a grouper loader schedule change in job: " + jobName + ", to: " 
+                + grouperLoaderScheduleTypeFromOwner + ", cron: " + grouperLoaderQuartzCronFromOwner
+                + ", interval: " + grouperLoaderIntervalSecondsFromOwner);
+            
+            try {
+              GrouperLoaderType.scheduleJob(jobName, true, grouperLoaderScheduleTypeFromOwner, grouperLoaderQuartzCronFromOwner,
+                  grouperLoaderIntervalSecondsFromOwner, grouperLoaderPriorityFromOwner);
+            } catch (SchedulerException se) {
+              throw GrouperUtil.exceptionConvertToRuntime(se, null);
+            }
+          }
+          
+          GrouperLoaderLogger.addLogEntry("overallLog", "jobName", jobName);
+
+          if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
+            GrouperLoaderLogger.addLogEntry("overallLog", "attributeDefOwner", attributeDef == null ? null : attributeDef.getName());
+
+            runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
+          } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
             || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
-            || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES))) {
-          grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType.CRON;
-          
-          //else parse the schedule type, and it is required
-        } else {
-          grouperLoaderScheduleTypeEnumFromOwner = GrouperLoaderScheduleType
-              .valueOfIgnoreCase(grouperLoaderScheduleTypeFromOwner, true);
-        }
-        
-        if (grouperLoaderScheduleTypeEnumFromOwner.equals(GrouperLoaderScheduleType.START_TO_START_INTERVAL)) {
-          if (grouperLoaderIntervalSecondsFromOwner == null) {
-            grouperLoaderIntervalSecondsFromOwner = 60*60*24;
+            || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
+            
+            if (group != null) {
+              GrouperLoaderLogger.addLogEntry("overallLog", "groupOwner", group.getName());
+            }
+            
+            runJobLdap(hib3GrouploaderLog, group, grouperSession);
+          } else {
+
+            if (group != null) {
+              GrouperLoaderLogger.addLogEntry("overallLog", "groupOwner", group.getName());
+            }
+            
+            //all other jobs go through here
+            runJob(hib3GrouploaderLog, group, grouperSession);
           }
-        }
-        if (grouperLoaderScheduleTypeEnumFromOwner.equals(GrouperLoaderScheduleType.CRON)) {
-          if (StringUtils.isBlank(grouperLoaderQuartzCronFromOwner)) {
-            throw new RuntimeException("Cron cant be blank if cron schedule: " + jobName);
-          }
-        }
+        return null;
       }
-      
-      if (grouperLoaderType != null) {
-        hib3GrouploaderLog.setJobType(grouperLoaderType.name());
-      }
-      if (!StringUtils.isBlank(grouperLoaderScheduleTypeFromOwner)) {
-        hib3GrouploaderLog.setJobScheduleType(grouperLoaderScheduleTypeFromOwner);
-      }
-      hib3GrouploaderLog.setJobScheduleIntervalSeconds(grouperLoaderIntervalSecondsFromOwner);
-      
-      if (grouperLoaderPriorityFromOwner != null || trigger != null) {
-        
-        hib3GrouploaderLog.setJobSchedulePriority(grouperLoaderPriorityFromOwner != null ? grouperLoaderPriorityFromOwner 
-            : trigger.getPriority());
-      }
-
-      hib3GrouploaderLog.setJobScheduleQuartzCron(!StringUtils.isBlank(grouperLoaderQuartzCronFromOwner) ? 
-          grouperLoaderQuartzCronFromOwner : grouperLoaderQuartzCron );
-      
-      if (scheduleChange) {
-        LOG.warn("Detected a grouper loader schedule change in job: " + jobName + ", to: " 
-            + grouperLoaderScheduleTypeFromOwner + ", cron: " + grouperLoaderQuartzCronFromOwner
-            + ", interval: " + grouperLoaderIntervalSecondsFromOwner);
-        
-        GrouperLoaderType.scheduleJob(jobName, true, grouperLoaderScheduleTypeFromOwner, grouperLoaderQuartzCronFromOwner,
-            grouperLoaderIntervalSecondsFromOwner, grouperLoaderPriorityFromOwner);
-        
-      }
-      
-      GrouperLoaderLogger.addLogEntry("overallLog", "jobName", jobName);
-
-      if (grouperLoaderType.equals(GrouperLoaderType.ATTR_SQL_SIMPLE)) {
-        GrouperLoaderLogger.addLogEntry("overallLog", "attributeDefOwner", attributeDef == null ? null : attributeDef.getName());
-
-        runJobAttrDef(hib3GrouploaderLog, attributeDef, grouperSession);
-      } else if (grouperLoaderType.equals(GrouperLoaderType.LDAP_SIMPLE)
-        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUP_LIST)
-        || grouperLoaderType.equals(GrouperLoaderType.LDAP_GROUPS_FROM_ATTRIBUTES)) {
-        
-        if (group != null) {
-          GrouperLoaderLogger.addLogEntry("overallLog", "groupOwner", group.getName());
-        }
-        
-        runJobLdap(hib3GrouploaderLog, group, grouperSession);
-      } else {
-
-        if (group != null) {
-          GrouperLoaderLogger.addLogEntry("overallLog", "groupOwner", group.getName());
-        }
-        
-        //all other jobs go through here
-        runJob(hib3GrouploaderLog, group, grouperSession);
-      }
+    });
     } catch (Throwable e) {
       LOG.error("Error running up job", e);
       if (!(e instanceof JobExecutionException)) {
@@ -360,8 +378,8 @@ public class GrouperLoaderJob implements Job {
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }
-      GrouperSession.stopQuietly(grouperSession);
     }
+    
     
   }
 

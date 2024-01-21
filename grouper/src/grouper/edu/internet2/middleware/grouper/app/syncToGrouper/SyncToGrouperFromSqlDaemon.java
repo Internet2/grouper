@@ -25,12 +25,18 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class SyncToGrouperFromSqlDaemon extends OtherJobBase {
 
   public static void main(String[] args) {
-    GrouperStartup.startup();
-    GrouperSession grouperSession = GrouperSession.startRootSession();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_syncToGrouperFromTrainingDb");
+    GrouperStartup.startup();
 
-    GrouperSession.stopQuietly(grouperSession);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_syncToGrouperFromTrainingDb");
+        return null;
+      }
+    });
+    
   }
   
   /**

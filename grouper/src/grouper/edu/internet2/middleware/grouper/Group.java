@@ -4748,6 +4748,37 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   } // public boolean hasMember(subj)
 
   /**
+   * Check whether the subject is a member of this group.
+   * 
+   * All immediate subjects, and effective members are members.  
+   * No duplicates will be returned (e.g. if immediate and effective).
+   * 
+   * <pre class="eg">
+   * if (g.hasMember(subj)) {
+   *   // Subject is a member of this group
+   * }
+   * else {
+   *   // Subject is not a member of this group
+   * } 
+   * </pre>
+   * @param   subj  Check this subject.
+   * @return  Boolean true if subject belongs to this group.
+   * @throws  GrouperException
+   */
+  public boolean hasMemberAsGrouperSystem(Subject subj) 
+    throws  GrouperException
+  {
+    return (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return Group.this.hasMember(subj);
+      }
+    });
+
+  } // public boolean hasMember(subj)
+
+  /**
    * Check whether the subject is a member of this list on this group.
    * 
    * All immediate subjects, and effective members are members.  
@@ -5875,10 +5906,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             SchemaException {
 
     try {
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-  
-        public Object callback(GrouperSession grouperSession)
-            throws GrouperSessionException {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           try {
             Group.this.revokePriv(AccessPrivilege.ADMIN);
             Group.this.revokePriv(AccessPrivilege.OPTIN);
@@ -6307,12 +6338,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
   public void onPostUpdate(HibernateSession hibernateSession) {
     
     if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-  
-        /**
-         * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
-         */
-        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           handleGroupRename();
           
           return null;
@@ -7336,12 +7365,10 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             
             final Group NEW_GROUP = newGroup;
             
-            GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-              
-              /**
-               * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
-               */
-              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
                 // may need to copy over the subject identifier if this is an entity
                 if (TypeOfGroup.entity == NEW_GROUP.getTypeOfGroup()) {

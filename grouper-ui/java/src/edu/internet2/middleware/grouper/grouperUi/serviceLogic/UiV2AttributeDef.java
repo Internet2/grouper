@@ -1413,7 +1413,7 @@ public class UiV2AttributeDef {
       final String nameOfAttributeDef = parentFolder.getName() + ":" + extension;
       
       //search as an admin to see if the group exists
-      attributeDef = (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+      attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
@@ -1838,7 +1838,7 @@ public class UiV2AttributeDef {
         final String NAME_OF_ATTRIBUTE_DEF = nameOfAttributeDef;
         
         //search as an admin to see if the group exists
-        AttributeDef theAttributeDef = (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+        AttributeDef theAttributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
           
           public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
             

@@ -1167,7 +1167,11 @@ public enum GrouperLoaderType {
         Thread thread = new Thread(new Runnable() {
 
           public void run() {
-            GrouperSession grouperSession = GrouperSession.startRootSession();
+            
+            GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
             try {
               LOG.info("Running " + PSP_FULL_SYNC.name());
               GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);        
@@ -1179,8 +1183,11 @@ public enum GrouperLoaderType {
               runtimeException[0] = re;
             } finally {
               done[0] = true;
-              GrouperSession.stopQuietly(grouperSession);
             }
+                return null;
+              }
+            });
+            
           }
           
         });
@@ -4438,17 +4445,16 @@ public enum GrouperLoaderType {
    */
   public static int scheduleAttributeLoads() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean grouperSessionStarted = false;
+    return (int)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
     Set<String> jobNames = new HashSet<String>();
 
     int changesMade = 0;
     
     try {
-      if (grouperSession == null) {
-        grouperSession = GrouperSession.startRootSession();
-        grouperSessionStarted = true;
-      }
 
       //lets see if there is configuration
       String attrRootStem = GrouperConfig.retrieveConfig().propertyValueString("grouper.attribute.rootStem");
@@ -4546,12 +4552,7 @@ public enum GrouperLoaderType {
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
-    } finally {
-      if (grouperSessionStarted) {
-        GrouperSession.stopQuietly(grouperSession);
       }
-    }
-    
     // check to see if anything should be unscheduled.
     try {
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
@@ -4603,6 +4604,10 @@ public enum GrouperLoaderType {
       }
     }
     return changesMade;
+
+      }
+    });
+
   }
   
   /**
@@ -4741,17 +4746,15 @@ public enum GrouperLoaderType {
    */
   public static int scheduleLdapLoads() {
     
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
-    boolean grouperSessionStarted = false;
+    return (int)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
     Set<String> jobNames = new HashSet<String>();
 
     int changesMade = 0;
     
     try {
-      if (grouperSession == null) {
-        grouperSessionStarted = true;
-        grouperSession = GrouperSession.startRootSession();
-      }
 
       Set<AttributeAssign> attributeAssigns = retrieveLdapAttributeAssigns();
 
@@ -4766,10 +4769,6 @@ public enum GrouperLoaderType {
       }
     } catch (Exception e) {
       throw new RuntimeException(e);
-    } finally {
-      if (grouperSessionStarted) {
-        GrouperSession.stopQuietly(grouperSession);
-      }
     }
     
     // check to see if anything should be unscheduled.
@@ -4825,6 +4824,10 @@ public enum GrouperLoaderType {
       }
     }
     return changesMade;
+  }
+
+    });
+    
   }
 
   public static Set<AttributeAssign> retrieveLdapAttributeAssigns() {

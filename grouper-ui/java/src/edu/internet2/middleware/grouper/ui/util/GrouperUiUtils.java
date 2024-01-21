@@ -1347,15 +1347,20 @@ public class GrouperUiUtils {
    * @param args
    */
   public static void main(String[] args) {
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Subject subject = SubjectFinder.findByIdentifierAndSource("edu:someGroup", "g:gsa", true);
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    Map<String, Object> variableMap = new HashMap<String, Object>();
-    variableMap.put("subject", subject);
-    variableMap.put("grouperUiUtils", new GrouperUiUtils());
-    String result = GrouperUtil.substituteExpressionLanguage("${subject.getAttributeValue('displayName')}", variableMap);
-    System.out.println(result);
-    GrouperSession.stopQuietly(grouperSession);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Subject subject = SubjectFinder.findByIdentifierAndSource("edu:someGroup", "g:gsa", true);
+
+        Map<String, Object> variableMap = new HashMap<String, Object>();
+        variableMap.put("subject", subject);
+        variableMap.put("grouperUiUtils", new GrouperUiUtils());
+        String result = GrouperUtil.substituteExpressionLanguage("${subject.getAttributeValue('displayName')}", variableMap);
+        System.out.println(result);
+        return null;
+      }
+    });
   }
 
   /**

@@ -62,6 +62,7 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -176,19 +177,21 @@ public class SyncPITTables {
    * @return the number of updates made
    */
   public long syncAllPITTables() {
+    return (long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    GrouperSession session = null;
-    long count = 0;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        long count = 0;
 
-    try {
-      session = GrouperSession.startRootSession();
-      clearReport();
-      
-      int tempChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
-      showStatus("Number of entries in grouper_change_log_entry_temp: " + tempChangeLogCount);
-      if (tempChangeLogCount > 0) {
-        showStatus("For best results, run loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\") first.");
-      }
+        clearReport();
+        
+        int tempChangeLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry_temp");
+        showStatus("Number of entries in grouper_change_log_entry_temp: " + tempChangeLogCount);
+        if (tempChangeLogCount > 0) {
+          showStatus("For best results, run loaderRunOneJob(\"CHANGE_LOG_changeLogTempToChangeLog\") first.");
+        }
+        
+       
       
       count += processMissingActivePITFields();
       GrouperDaemonUtils.stopProcessingIfJobPaused();
@@ -283,11 +286,11 @@ public class SyncPITTables {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       
-    } finally {
-      GrouperSession.stopQuietly(session);
-    }
     
     return count;
+      }
+    });
+
   }
  
   /**
@@ -1833,33 +1836,31 @@ public class SyncPITTables {
    */
   public long processAllDuplicates() {
     
-    GrouperSession session = null;
-    long count = 0;
+    return (long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    try {
-      session = GrouperSession.startRootSession();
-      clearReport();
-      
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITField());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITMember());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITConfig());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITStem());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITGroup());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITRoleSet());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDef());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDefName());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDefNameSet());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignAction());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITGroupSet());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITMembership());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssign());
-      count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignValue());
-    } finally {
-      GrouperSession.stopQuietly(session);
-    }
-    
-    return count;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        long count = 0;
+        clearReport();
+        
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITField());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITMember());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITConfig());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITStem());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITGroup());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITRoleSet());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDef());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDefName());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeDefNameSet());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignAction());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignActionSet());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITGroupSet());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITMembership());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssign());
+        count+= processDuplicates(GrouperDAOFactory.getFactory().getPITAttributeAssignValue());
+        return count;
+      }
+    });
   }
   
   /**

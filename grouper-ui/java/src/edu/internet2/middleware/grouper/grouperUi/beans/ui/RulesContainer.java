@@ -69,7 +69,7 @@ public class RulesContainer {
 
     if (!StringUtils.isBlank(privilegeInheritanceReadRequireGroup)) {
       
-      if (false == (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      if (false == (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           Group group = GroupFinder.findByName(grouperSession, privilegeInheritanceReadRequireGroup, true);
@@ -114,7 +114,7 @@ public class RulesContainer {
 
     if (!StringUtils.isBlank(privilegeInheritanceUpdateRequireGroup)) {
       
-      if (false == (Boolean)GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+      if (false == (Boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           Group group = GroupFinder.findByName(grouperSession, privilegeInheritanceUpdateRequireGroup, true);

@@ -69,52 +69,52 @@ public class RuleUtils {
    * @return
    */
   public static boolean groupHasImmediateEnabledMembership(RulesBean rulesBean, String groupId) {
-    String memberId = null;
-    try {
-      memberId = rulesBean.getMemberId();
-    } catch (Exception e) {
-      //ignore
-    }
-    
-    GrouperSession rootSession = GrouperSession.startRootSession(false);
-    try {
-      
-      if (StringUtils.isBlank(memberId)) {
-        
-        Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
-        memberId = member == null ? null : member.getUuid();
-        
-        if (StringUtils.isBlank(memberId )) {
-          throw new RuntimeException("memberId cannot be null");
+    return (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        String memberId = null;
+        try {
+          memberId = rulesBean.getMemberId();
+        } catch (Exception e) {
+          //ignore
         }
-      }
-      
-      if (StringUtils.isBlank(groupId)) {
-        throw new RuntimeException("groupId cannot be null");
-      }
-      
-      Group group = GroupFinder.findByUuid(rootSession, groupId, false);
-      
-      if (group == null) {
-        LOG.error("Group doesnt exist in rule!");
+        if (StringUtils.isBlank(memberId)) {
+          
+          Member member = MemberFinder.findBySubject(grouperSession, rulesBean.getSubject(), false);
+          memberId = member == null ? null : member.getUuid();
+          
+          if (StringUtils.isBlank(memberId )) {
+            throw new RuntimeException("memberId cannot be null");
+          }
+        }
+        
+        if (StringUtils.isBlank(groupId)) {
+          throw new RuntimeException("groupId cannot be null");
+        }
+        
+        Group group = GroupFinder.findByUuid(grouperSession, groupId, false);
+        
+        if (group == null) {
+          LOG.error("Group doesnt exist in rule!");
+          return false;
+        }
+        
+        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
+              group.getId(), Group.getDefaultList(), 
+              GrouperUtil.toSet(memberId), "immediate", true);
+        
+        //if not in this group, forget it
+        if (GrouperUtil.length(memberships) > 0) {
+          return true;
+        }
+        
         return false;
+        
       }
+    });
       
-      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-        .findAllByGroupOwnerAndFieldAndMemberIdsAndType(
-            group.getId(), Group.getDefaultList(), 
-            GrouperUtil.toSet(memberId), "immediate", true);
-      
-      //if not in this group, forget it
-      if (GrouperUtil.length(memberships) > 0) {
-        return true;
-      }
-      
-      return false;
-      
-    } finally {
-      GrouperSession.stopQuietly(rootSession);
-    }
 
   }
   
@@ -129,50 +129,50 @@ public class RuleUtils {
    */
   public static boolean folderHasMembership(RulesBean rulesBean, String stemId, String stemName, Stem.Scope stemScope, MembershipType membershipType) {
 
-    String memberId = null;
-    try {
-      memberId = rulesBean.getMemberId();
-    } catch (Exception e) {
-      //ignore
-    }
-    
-    GrouperSession rootSession = GrouperSession.startRootSession(false);
-    try {
-      
-      if (StringUtils.isBlank(memberId)) {
-        
-        Member member = MemberFinder.findBySubject(rootSession, rulesBean.getSubject(), false);
-        memberId = member == null ? null : member.getUuid();
+    return (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-        if (StringUtils.isBlank(memberId )) {
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        String memberId = null;
+        try {
+          memberId = rulesBean.getMemberId();
+        } catch (Exception e) {
+          //ignore
+        }
+        
+        if (StringUtils.isBlank(memberId)) {
+          
+          Member member = MemberFinder.findBySubject(grouperSession, rulesBean.getSubject(), false);
+          memberId = member == null ? null : member.getUuid();
+
+          if (StringUtils.isBlank(memberId )) {
+            return false;
+          }
+        }
+        
+        Stem stem = null;
+        if (!StringUtils.isBlank(stemId)) {
+          stem = StemFinder.findByUuid(grouperSession, stemId, false);
+        } else if (!StringUtils.isBlank(stemName)) {
+          stem = StemFinder.findByName(grouperSession, stemName, false);
+        }
+        
+        if (stem == null) {
+          throw new RuntimeException("Cant find stem: " + stemName + ", " + stemId);
+        }
+        
+        Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
+          .findAllByStemParentOfGroupOwnerAndFieldAndType(stem, stemScope, Group.getDefaultList(), membershipType, true, memberId);
+      
+        //if not in this group, forget it
+        if (GrouperUtil.length(memberships) == 0) {
           return false;
         }
-      }
       
-      Stem stem = null;
-      if (!StringUtils.isBlank(stemId)) {
-        stem = StemFinder.findByUuid(rootSession, stemId, false);
-      } else if (!StringUtils.isBlank(stemName)) {
-        stem = StemFinder.findByName(rootSession, stemName, false);
+        return true;
       }
-      
-      if (stem == null) {
-        throw new RuntimeException("Cant find stem: " + stemName + ", " + stemId);
-      }
-      
-      Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership()
-        .findAllByStemParentOfGroupOwnerAndFieldAndType(stem, stemScope, Group.getDefaultList(), membershipType, true, memberId);
-    
-      //if not in this group, forget it
-      if (GrouperUtil.length(memberships) == 0) {
-        return false;
-      }
-    
-      return true;
-      
-    } finally {
-      GrouperSession.stopQuietly(rootSession);
-    }
+    });
 
   }
 
@@ -184,34 +184,30 @@ public class RuleUtils {
    * @return the set of permissions entries
    */
   public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final RulesBean rulesBean, final boolean noEndDate) {
-    GrouperSession rootSession = GrouperSession.startRootSession(false);
     
     String memberId = null;
-    try {
-      memberId = (String)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    memberId = (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-          String memberId = null;
-          try {
-            memberId = rulesBean.getMemberId();
-          } catch (Exception e) {
-            //ignore
-          }
-
-          if (StringUtils.isBlank(memberId)) {
-            
-            Member member = MemberFinder.findBySubject(grouperSession, rulesBean.getSubject(), false);
-            memberId = member == null ? null : member.getUuid();
-
-          }
-          return memberId;
+        String memberId = null;
+        try {
+          memberId = rulesBean.getMemberId();
+        } catch (Exception e) {
+          //ignore
         }
-      });
 
-    } finally {
-      GrouperSession.stopQuietly(rootSession);
-    }
+        if (StringUtils.isBlank(memberId)) {
+          
+          Member member = MemberFinder.findBySubject(grouperSession, rulesBean.getSubject(), false);
+          memberId = member == null ? null : member.getUuid();
+
+        }
+        return memberId;
+      }
+    });
+
     return permissionsForUser(attributeDefId, memberId, noEndDate);
     
 
@@ -226,12 +222,12 @@ public class RuleUtils {
    * @param noEndDate
    * @return the set of permissions entries
    */
+  @SuppressWarnings("unchecked")
   public static Set<PermissionEntry> permissionsForUser(final String attributeDefId, final String memberId, final boolean noEndDate) {
-    GrouperSession rootSession = GrouperSession.startRootSession(false);
     
-    try {
-     return (Set<PermissionEntry>)GrouperSession.callbackGrouperSession(rootSession, new GrouperSessionHandler() {
+     return (Set<PermissionEntry>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
+        @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
           if (StringUtils.isBlank(memberId)) {
@@ -249,9 +245,6 @@ public class RuleUtils {
         }
       });
 
-    } finally {
-      GrouperSession.stopQuietly(rootSession);
-    }
 
   }
   
@@ -906,28 +899,27 @@ public class RuleUtils {
    * @return group or null
    */
   public static Group group(String groupId, String groupName, String alternateGroupId, boolean useRootSession, boolean throwExceptionIfNotFound) {
-    GrouperSession grouperSession = useRootSession ? GrouperSession.startRootSession(false) : GrouperSession.staticGrouperSession();
-    try {
-      Group group = null;
-      if (!StringUtils.isBlank(groupId)) {
-        group = GroupFinder.findByUuid(grouperSession, groupId, false);
-      } else if (!StringUtils.isBlank(groupName)) {
-        group = GroupFinder.findByName(grouperSession, groupName, false);
-      } else if (!StringUtils.isBlank(alternateGroupId)) {
-        group = GroupFinder.findByUuid(grouperSession, alternateGroupId, false);
-      }
-      
-      if (throwExceptionIfNotFound && group == null) {
-        throw new RuntimeException("Cant find group: " + groupId + ", " + groupName + ", " + alternateGroupId);
-      }
 
-      return group;
+    return (Group)GrouperSession.internal_callbackRootGrouperSession(useRootSession, new GrouperSessionHandler() {
 
-     } finally {
-       if (useRootSession) {
-         GrouperSession.stopQuietly(grouperSession);
-       }
-    }
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = null;
+        if (!StringUtils.isBlank(groupId)) {
+          group = GroupFinder.findByUuid(grouperSession, groupId, false);
+        } else if (!StringUtils.isBlank(groupName)) {
+          group = GroupFinder.findByName(grouperSession, groupName, false);
+        } else if (!StringUtils.isBlank(alternateGroupId)) {
+          group = GroupFinder.findByUuid(grouperSession, alternateGroupId, false);
+        }
+        
+        if (throwExceptionIfNotFound && group == null) {
+          throw new RuntimeException("Cant find group: " + groupId + ", " + groupName + ", " + alternateGroupId);
+        }
+
+        return group;
+      }
+    });
     
   }
   
@@ -941,27 +933,26 @@ public class RuleUtils {
    * @return stem or null
    */
   public static Stem stem(String stemId, String stemName, String alternateStemId, boolean useRootSession, boolean throwExceptionIfNotFound) {
-    GrouperSession grouperSession = useRootSession ? GrouperSession.startRootSession(false) : GrouperSession.staticGrouperSession();
-    try {
-      Stem stem = null;
-      if (!StringUtils.isBlank(stemId)) {
-        stem = StemFinder.findByUuid(grouperSession, stemId, false);
-      } else if (!StringUtils.isBlank(stemName)) {
-        stem = StemFinder.findByName(grouperSession, stemName, false);
-      } else if (!StringUtils.isBlank(alternateStemId)) {
-        stem = StemFinder.findByUuid(grouperSession, alternateStemId, false);
+    return (Stem)GrouperSession.internal_callbackRootGrouperSession(useRootSession, new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Stem stem = null;
+        if (!StringUtils.isBlank(stemId)) {
+          stem = StemFinder.findByUuid(grouperSession, stemId, false);
+        } else if (!StringUtils.isBlank(stemName)) {
+          stem = StemFinder.findByName(grouperSession, stemName, false);
+        } else if (!StringUtils.isBlank(alternateStemId)) {
+          stem = StemFinder.findByUuid(grouperSession, alternateStemId, false);
+        }
+        
+        if (throwExceptionIfNotFound && stem == null) {
+          throw new RuntimeException("Cant find stem: " + stemId + ", " + stemName + ", " + alternateStemId);
+        }
+        
+        return stem;
       }
-      
-      if (throwExceptionIfNotFound && stem == null) {
-        throw new RuntimeException("Cant find stem: " + stemId + ", " + stemName + ", " + alternateStemId);
-      }
-      
-      return stem;
-     } finally {
-       if (useRootSession) {
-         GrouperSession.stopQuietly(grouperSession);
-       }
-    }
+    });
     
   }
   
@@ -976,33 +967,26 @@ public class RuleUtils {
    */
   public static AttributeDef attributeDef(final String attributeDefId, final String attributeDefName, 
       final String alternateAttributeDefId, final boolean useRootSession, final boolean throwExceptionIfNotFound) {
-    GrouperSession grouperSession = useRootSession ? GrouperSession.startRootSession(false) : GrouperSession.staticGrouperSession();
-    try {
-      return (AttributeDef)GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-        
-        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          AttributeDef attributeDef = null;
-          if (!StringUtils.isBlank(attributeDefId)) {
-            attributeDef = AttributeDefFinder.findById(attributeDefId, false);
-          } else if (!StringUtils.isBlank(attributeDefName)) {
-            attributeDef = AttributeDefFinder.findByName(attributeDefName, false);
-          } else if (!StringUtils.isBlank(alternateAttributeDefId)) {
-            attributeDef = AttributeDefFinder.findById( alternateAttributeDefId, false);
-          }
-          
-          if (throwExceptionIfNotFound && attributeDef == null) {
-            throw new RuntimeException("Cant find attributeDef: " + attributeDefId + ", " + attributeDefName + ", " + alternateAttributeDefId);
-          }
-          
-          return attributeDef;
+    return (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(useRootSession, new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        AttributeDef attributeDef = null;
+        if (!StringUtils.isBlank(attributeDefId)) {
+          attributeDef = AttributeDefFinder.findById(attributeDefId, false);
+        } else if (!StringUtils.isBlank(attributeDefName)) {
+          attributeDef = AttributeDefFinder.findByName(attributeDefName, false);
+        } else if (!StringUtils.isBlank(alternateAttributeDefId)) {
+          attributeDef = AttributeDefFinder.findById( alternateAttributeDefId, false);
         }
-      });
-     } finally {
-       if (useRootSession) {
-         GrouperSession.stopQuietly(grouperSession);
-       }
-    }
-    
+        
+        if (throwExceptionIfNotFound && attributeDef == null) {
+          throw new RuntimeException("Cant find attributeDef: " + attributeDefId + ", " + attributeDefName + ", " + alternateAttributeDefId);
+        }
+        
+        return attributeDef;
+      }
+    });
   }
   
   /**

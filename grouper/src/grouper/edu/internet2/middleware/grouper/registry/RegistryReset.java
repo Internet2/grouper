@@ -191,25 +191,29 @@ public class RegistryReset {
       String id   = "test.subject." + i;
       
       boolean createdSession = false;
-      GrouperSession grouperSession = null;
-      try {
-        grouperSession = GrouperSession.staticGrouperSession(false);
-        if (grouperSession == null) {
-          grouperSession = GrouperSession.startRootSession();
-          createdSession = true;
-        }
-        
-        String name = "my name is " + id;
-        RegistrySubject.add(grouperSession, id, SUBJ_TYPE, name);
-        
-      } finally {
-        if (createdSession) {
-          GrouperSession.stopQuietly(grouperSession);
-        }
-      }
+      if (GrouperSession.staticGrouperSession(false) == null) {
+        GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+          @Override
+          public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+            addSubjectLogic(id, grouperSession);
+            return null;
+          }
+        }); 
+      } else {
+        addSubjectLogic(id, GrouperSession.staticGrouperSession());
+      }        
+      
     }
     SubjectSourceCache.clearCache();
   } 
+
+  private static void addSubjectLogic(String id, GrouperSession grouperSession) {
+    String name = "my name is " + id;
+    RegistrySubject.add(grouperSession, id, SUBJ_TYPE, name);
+  }
+
+
 
   private void _abort(String msg) 
     throws  GrouperException

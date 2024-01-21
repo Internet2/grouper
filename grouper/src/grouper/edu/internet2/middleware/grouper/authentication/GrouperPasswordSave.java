@@ -65,10 +65,16 @@ import edu.internet2.middleware.subject.SubjectUtils;
 public class GrouperPasswordSave {
   
   public static void main(String[] args) {
-    GrouperStartup.startup();
-    GrouperSession.startRootSession();
-    new GrouperPasswordSave().assignApplication(GrouperPassword.Application.UI).assignUsername("GrouperSystem").assignPassword("mypassword2").save();
-    new GrouperPasswordSave().assignApplication(GrouperPassword.Application.UI).assignUsername("GrouperSystem").assignPassword("mypassword3").save();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        GrouperStartup.startup();
+        new GrouperPasswordSave().assignApplication(GrouperPassword.Application.UI).assignUsername("GrouperSystem").assignPassword("mypassword2").save();
+        new GrouperPasswordSave().assignApplication(GrouperPassword.Application.UI).assignUsername("GrouperSystem").assignPassword("mypassword3").save();
+        return null;
+      }
+    });
   }
   
   /** logger */

@@ -76,6 +76,7 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.InsufficientPrivilegeException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
 import edu.internet2.middleware.grouper.exception.MembershipNotFoundException;
@@ -108,6 +109,7 @@ import edu.internet2.middleware.grouper.misc.E;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperHasContext;
 import edu.internet2.middleware.grouper.misc.GrouperId;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.M;
@@ -4962,153 +4964,158 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
         
         public Object call() throws Exception {
           
-          GrouperSession rootSession = GrouperSession.startRootSession();
+          GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-          try {
-            
-            HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+            @Override
+            public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
-              public Object callback(HibernateHandlerBean hibernateHandlerBean)
-                  throws GrouperDAOException {
+              try {
                 
-                if (subject.isResolvedFromSource()) {
-                  if (Member.this.dbVersion().isSubjectResolutionDeleted() || !Member.this.dbVersion().isSubjectResolutionResolvable()) {
-                    UsduService.deleteAttributeAssign(Member.this);
+                HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+    
+                  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+                      throws GrouperDAOException {
+                    if (subject.isResolvedFromSource()) {
+                      if (Member.this.dbVersion().isSubjectResolutionDeleted() || !Member.this.dbVersion().isSubjectResolutionResolvable()) {
+                        UsduService.deleteAttributeAssign(Member.this);
+                      }
+                    }
+                    
+                    String query = "update grouper_members set sort_string0 = ?, sort_string1 = ?, sort_string2 = ?, sort_string3 = ?, " +
+                      "sort_string4 = ?, search_string0 = ?, search_string1 = ?, search_string2 = ?, " +
+                      "search_string3 = ?, search_string4 = ?, name = ?, description = ?, subject_identifier0 = ?, subject_identifier1 = ?, subject_identifier2 = ?, email0 = ?";
+                    
+                    if (subject.isResolvedFromSource()) {
+                      query += ", subject_resolution_deleted='F', subject_resolution_resolvable='T'";
+                    }
+                    
+                    query += " where id = ?";
+                    
+                    List<Object> bindVars = GrouperUtil.toList((Object)Member.this.sortString0, Member.this.sortString1,
+                        Member.this.sortString2, Member.this.sortString3, Member.this.sortString4, Member.this.searchString0,
+                        Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, 
+                        Member.this.name, Member.this.description, Member.this.subjectIdentifier0, Member.this.subjectIdentifier1,
+                        Member.this.subjectIdentifier2, Member.this.email0,
+                        Member.this.getUuid());
+                    List<Type> types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
+                        StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
+                        StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+                        StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars, types);
+                    
+                    // if subject identifier is changing, we're sending that to the change log
+                    if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0) ||
+                        Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1) ||
+                        Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2) ||
+                        Member.this.dbVersionDifferentFields().contains(Member.FIELD_EMAIL0)) {
+                      ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
+                      String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string09, string10, string11, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
+                      types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
+                          StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+                          StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
+                          StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
+                      
+                      if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0)) {
+                        List<Object> bindVars2 = GrouperUtil.toList(
+                            (Object)GrouperUuid.getUuid(), 
+                            changeLogType.getId(),
+                            ChangeLogId.changeLogId(),
+                            Member.this.getId(),
+                            Member.this.getSubjectId(),
+                            Member.this.getSubjectSourceId(),
+                            Member.this.getSubjectTypeId(),
+                            Member.this.getSubjectIdentifier0(),
+                            Member.this.getSubjectIdentifier1(),
+                            Member.this.getSubjectIdentifier2(),
+                            Member.this.getEmail0(),
+                            Member.this.dbVersion().getSubjectIdentifier0(),
+                            Member.this.getSubjectIdentifier0(),
+                            "subjectIdentifier0");
+    
+                        hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                      }
+                      
+                      if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1)) {
+                        List<Object> bindVars2 = GrouperUtil.toList(
+                            (Object)GrouperUuid.getUuid(), 
+                            changeLogType.getId(),
+                            ChangeLogId.changeLogId(),
+                            Member.this.getId(),
+                            Member.this.getSubjectId(),
+                            Member.this.getSubjectSourceId(),
+                            Member.this.getSubjectTypeId(),
+                            Member.this.getSubjectIdentifier0(),
+                            Member.this.getSubjectIdentifier1(),
+                            Member.this.getSubjectIdentifier2(),
+                            Member.this.getEmail0(),
+                            Member.this.dbVersion().getSubjectIdentifier1(),
+                            Member.this.getSubjectIdentifier1(),
+                            "subjectIdentifier1");
+    
+                        hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                      }
+    
+                      if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2)) {
+                        List<Object> bindVars2 = GrouperUtil.toList(
+                            (Object)GrouperUuid.getUuid(), 
+                            changeLogType.getId(),
+                            ChangeLogId.changeLogId(),
+                            Member.this.getId(),
+                            Member.this.getSubjectId(),
+                            Member.this.getSubjectSourceId(),
+                            Member.this.getSubjectTypeId(),
+                            Member.this.getSubjectIdentifier0(),
+                            Member.this.getSubjectIdentifier1(),
+                            Member.this.getSubjectIdentifier2(),
+                            Member.this.getEmail0(),
+                            Member.this.dbVersion().getSubjectIdentifier2(),
+                            Member.this.getSubjectIdentifier2(),
+                            "subjectIdentifier2");
+    
+                        hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                      }
+                      
+                      if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_EMAIL0)) {
+                        List<Object> bindVars2 = GrouperUtil.toList(
+                            (Object)GrouperUuid.getUuid(), 
+                            changeLogType.getId(),
+                            ChangeLogId.changeLogId(),
+                            Member.this.getId(),
+                            Member.this.getSubjectId(),
+                            Member.this.getSubjectSourceId(),
+                            Member.this.getSubjectTypeId(),
+                            Member.this.getSubjectIdentifier0(),
+                            Member.this.getSubjectIdentifier1(),
+                            Member.this.getSubjectIdentifier2(),
+                            Member.this.getEmail0(),
+                            Member.this.dbVersion().getEmail0(),
+                            Member.this.getEmail0(),
+                            "email0");
+    
+                        hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
+                      }
+                    }
+                    
+                    if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0) ||
+                        Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1) ||
+                        Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2)) {
+                      // also check if there are duplicates with subject identifier
+                      internal_checkAndUpdateSubjectIdentifierDuplicates();
+                    }
+                    
+                    hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
+                    
+                    return null;
                   }
-                }
-                
-                String query = "update grouper_members set sort_string0 = ?, sort_string1 = ?, sort_string2 = ?, sort_string3 = ?, " +
-                  "sort_string4 = ?, search_string0 = ?, search_string1 = ?, search_string2 = ?, " +
-                  "search_string3 = ?, search_string4 = ?, name = ?, description = ?, subject_identifier0 = ?, subject_identifier1 = ?, subject_identifier2 = ?, email0 = ?";
-                
-                if (subject.isResolvedFromSource()) {
-                  query += ", subject_resolution_deleted='F', subject_resolution_resolvable='T'";
-                }
-                
-                query += " where id = ?";
-                
-                List<Object> bindVars = GrouperUtil.toList((Object)Member.this.sortString0, Member.this.sortString1,
-                    Member.this.sortString2, Member.this.sortString3, Member.this.sortString4, Member.this.searchString0,
-                    Member.this.searchString1, Member.this.searchString2, Member.this.searchString3, Member.this.searchString4, 
-                    Member.this.name, Member.this.description, Member.this.subjectIdentifier0, Member.this.subjectIdentifier1,
-                    Member.this.subjectIdentifier2, Member.this.email0,
-                    Member.this.getUuid());
-                List<Type> types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
-                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, 
-                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
-                    StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
-                hibernateHandlerBean.getHibernateSession().bySql().executeSql(query, bindVars, types);
-                
-                // if subject identifier is changing, we're sending that to the change log
-                if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0) ||
-                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1) ||
-                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2) ||
-                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_EMAIL0)) {
-                  ChangeLogType changeLogType = ChangeLogTypeFinder.find(ChangeLogTypeBuiltin.MEMBER_UPDATE.getChangeLogCategory(), ChangeLogTypeBuiltin.MEMBER_UPDATE.getActionName(), true);
-                  String query2 = "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string09, string10, string11, string07, string08, string06) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-                  types = HibUtils.listType(StringType.INSTANCE, StringType.INSTANCE, LongType.INSTANCE,
-                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
-                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE,
-                      StringType.INSTANCE, StringType.INSTANCE, StringType.INSTANCE);
-                  
-                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0)) {
-                    List<Object> bindVars2 = GrouperUtil.toList(
-                        (Object)GrouperUuid.getUuid(), 
-                        changeLogType.getId(),
-                        ChangeLogId.changeLogId(),
-                        Member.this.getId(),
-                        Member.this.getSubjectId(),
-                        Member.this.getSubjectSourceId(),
-                        Member.this.getSubjectTypeId(),
-                        Member.this.getSubjectIdentifier0(),
-                        Member.this.getSubjectIdentifier1(),
-                        Member.this.getSubjectIdentifier2(),
-                        Member.this.getEmail0(),
-                        Member.this.dbVersion().getSubjectIdentifier0(),
-                        Member.this.getSubjectIdentifier0(),
-                        "subjectIdentifier0");
-
-                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
-                  }
-                  
-                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1)) {
-                    List<Object> bindVars2 = GrouperUtil.toList(
-                        (Object)GrouperUuid.getUuid(), 
-                        changeLogType.getId(),
-                        ChangeLogId.changeLogId(),
-                        Member.this.getId(),
-                        Member.this.getSubjectId(),
-                        Member.this.getSubjectSourceId(),
-                        Member.this.getSubjectTypeId(),
-                        Member.this.getSubjectIdentifier0(),
-                        Member.this.getSubjectIdentifier1(),
-                        Member.this.getSubjectIdentifier2(),
-                        Member.this.getEmail0(),
-                        Member.this.dbVersion().getSubjectIdentifier1(),
-                        Member.this.getSubjectIdentifier1(),
-                        "subjectIdentifier1");
-
-                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
-                  }
-
-                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2)) {
-                    List<Object> bindVars2 = GrouperUtil.toList(
-                        (Object)GrouperUuid.getUuid(), 
-                        changeLogType.getId(),
-                        ChangeLogId.changeLogId(),
-                        Member.this.getId(),
-                        Member.this.getSubjectId(),
-                        Member.this.getSubjectSourceId(),
-                        Member.this.getSubjectTypeId(),
-                        Member.this.getSubjectIdentifier0(),
-                        Member.this.getSubjectIdentifier1(),
-                        Member.this.getSubjectIdentifier2(),
-                        Member.this.getEmail0(),
-                        Member.this.dbVersion().getSubjectIdentifier2(),
-                        Member.this.getSubjectIdentifier2(),
-                        "subjectIdentifier2");
-
-                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
-                  }
-                  
-                  if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_EMAIL0)) {
-                    List<Object> bindVars2 = GrouperUtil.toList(
-                        (Object)GrouperUuid.getUuid(), 
-                        changeLogType.getId(),
-                        ChangeLogId.changeLogId(),
-                        Member.this.getId(),
-                        Member.this.getSubjectId(),
-                        Member.this.getSubjectSourceId(),
-                        Member.this.getSubjectTypeId(),
-                        Member.this.getSubjectIdentifier0(),
-                        Member.this.getSubjectIdentifier1(),
-                        Member.this.getSubjectIdentifier2(),
-                        Member.this.getEmail0(),
-                        Member.this.dbVersion().getEmail0(),
-                        Member.this.getEmail0(),
-                        "email0");
-
-                    hibernateHandlerBean.getHibernateSession().bySql().executeSql(query2, bindVars2, types);
-                  }
-                }
-                
-                if (Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER0) ||
-                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER1) ||
-                    Member.this.dbVersionDifferentFields().contains(Member.FIELD_SUBJECT_IDENTIFIER2)) {
-                  // also check if there are duplicates with subject identifier
-                  internal_checkAndUpdateSubjectIdentifierDuplicates();
-                }
-                
-                hibernateHandlerBean.getHibernateSession().commit(GrouperCommitType.COMMIT_NOW);
-                return null;
+                });
+              } catch (Exception e) {
+                LOG.error("Error updating member attributes: ", e);
+              } finally {
+                memberAttributeUpdateInProgress = false;
               }
-            });
-          } catch (Exception e) {
-            LOG.error("Error updating member attributes: ", e);
-          } finally {
-            memberAttributeUpdateInProgress = false;
-            GrouperSession.stopQuietly(rootSession);
-          }
+              return null;
+            }
+          });
           return null;
         }
       });

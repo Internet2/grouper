@@ -85,7 +85,7 @@ public class SubjectCustomizerForDecoratorExtraAttributes extends SubjectCustomi
     final Subject subjectChecking = grouperSession.getSubject();
     
     //do all this as admin
-    GrouperSession.callbackGrouperSession(grouperSession.internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
 

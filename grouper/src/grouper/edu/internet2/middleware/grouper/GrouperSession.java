@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper;
 import java.io.Serializable;
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.LinkedHashMap;
@@ -56,8 +57,6 @@ import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.internal.util.Quote;
 import edu.internet2.middleware.grouper.misc.E;
-import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
-import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.misc.M;
@@ -137,15 +136,8 @@ public class GrouperSession implements Serializable {
    * this is only for inverse of control.  This has priority over the 
    * static session set from start()
    */
-  private static ThreadLocal<List<GrouperSession>> staticSessions = new ThreadLocal<List<GrouperSession>>();
+  private static ThreadLocal<List<WeakReference<GrouperSession>>> staticSessions = new ThreadLocal<List<WeakReference<GrouperSession>>>();
 
-  /**
-   * holds a thread local of the current grouper session.
-   * this is set from a GrouperSesssion.start().  Note the 
-   * inverse of control sessions have priority
-   */
-  private static ThreadLocal<GrouperSession> staticGrouperSession = new ThreadLocal<GrouperSession>();
-  
   /** */
   @GrouperIgnoreDbVersion
   @GrouperIgnoreFieldConstant
@@ -188,6 +180,8 @@ public class GrouperSession implements Serializable {
 
   /** */
   private String          uuid;
+
+  private boolean stopped;
 
 
   /**
@@ -505,16 +499,8 @@ public class GrouperSession implements Serializable {
       }
 
       if (addToThreadLocal) {
-        if (LOG.isDebugEnabled()) {
-          GrouperSession tempGrouperSession = staticGrouperSession.get();
-          if (tempGrouperSession == null || tempGrouperSession.getSubject() == null) {
-            debugMap.put("replacingSession", "null");
-          } else {
-            debugMap.put("replacingSession", tempGrouperSession.getSubject().getId() + ", " + tempGrouperSession.hashCode());
-          }          
-        }
         //add to threadlocal
-        staticGrouperSession.set(s);
+        addStaticHibernateSession(s, true);
       }
     } finally {
       if (LOG.isDebugEnabled()) {
@@ -533,27 +519,18 @@ public class GrouperSession implements Serializable {
    */
   private static void logAddThreadLocal(Map<String, Object> debugMap, String prefix) {
     if (LOG.isDebugEnabled()) {
-      {
-        GrouperSession grouperSession = staticGrouperSession.get();
-        Subject subject = grouperSession == null ? null : grouperSession.getSubject();
-        if (grouperSession == null || subject == null) {
-          debugMap.put(prefix + "staticSession", "null");
-        } else {
-          debugMap.put(prefix + "staticSession", subject.getId());
-        }
-      }
-      
-      List<GrouperSession> staticGrouperSessions = staticSessions.get();
+      List<WeakReference<GrouperSession>> staticGrouperSessions = staticSessions.get();
       if (GrouperUtil.length(staticGrouperSessions) == 0) {
         debugMap.put(prefix + "staticSessions", "0");
       } else {
         int i=0;
-        for (GrouperSession grouperSession : staticGrouperSessions) {
+        for (WeakReference<GrouperSession> grouperSessionReference : staticGrouperSessions) {
+          GrouperSession grouperSession = grouperSessionReference.get();
           Subject subject = grouperSession == null ? null : grouperSession.getSubject();
           if (grouperSession == null || subject == null) {
             debugMap.put(prefix + "staticSessions_" + i, "null");
           } else {
-            debugMap.put(prefix + "staticSessions_" + i, subject.getId());
+            debugMap.put(prefix + "staticSessions_" + i, subject.getId() + "_" + grouperSession.hashCode());
           }
           i++;
         }
@@ -753,6 +730,10 @@ public class GrouperSession implements Serializable {
    */
   public void stop()  throws  SessionException
   {
+    if (this.stopped) {
+      return;
+    }
+    this.stopped = true;
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     if (LOG.isDebugEnabled()) {
       debugMap.put("method", "stop()");
@@ -766,9 +747,7 @@ public class GrouperSession implements Serializable {
     try {
       //remove from threadlocal if this is the one on threadlocal (might not be due
       //to nesting)
-      if (this == staticGrouperSession.get()) {
-        staticGrouperSession.remove();
-      }
+      removeStaticGrouperSession(this);
       
       if (this.accessResolver != null) {
         this.accessResolver.stop();
@@ -781,11 +760,9 @@ public class GrouperSession implements Serializable {
       }
       
       //stop the root
-      if (this.rootSession != null) {
+      if (this.rootSession != null && this.rootSession != this) {
         this.rootSession.stop();
       }
-      
-      
       
       //set some fields to null
       this.subject = null;
@@ -844,12 +821,18 @@ public class GrouperSession implements Serializable {
   {
     // TODO 20070417 deprecate if possible
     if (this.rootSession == null) {
-      GrouperSession rs = new GrouperSession();
-      rs.setMemberUuid( MemberFinder.internal_findRootMember().getUuid() );
-      rs.setStartTimeLong( new Date().getTime() );
-      rs.setSubject( SubjectFinder.findRootSubject() );
-      rs.setUuid( GrouperUuid.getUuid() );
-      this.rootSession = rs;
+      
+      if (PrivilegeHelper.isWheelOrRoot( this.getSubject())) {
+        this.rootSession = this;
+      } else {
+
+        GrouperSession rs = new GrouperSession();
+        rs.setMemberUuid( MemberFinder.internal_findRootMember().getUuid() );
+        rs.setStartTimeLong( new Date().getTime() );
+        rs.setSubject( SubjectFinder.findRootSubject() );
+        rs.setUuid( GrouperUuid.getUuid() );
+        this.rootSession = rs;
+      }
     }
     return this.rootSession;
   } 
@@ -989,14 +972,19 @@ public class GrouperSession implements Serializable {
       }
       logAddThreadLocal(debugMap, "start_");
     }
+    if (grouperSession != null && grouperSession.stopped) {
+      throw new RuntimeException("Cannot callback a grouper session which is stopped!");
+    }
     Object ret = null;
     try {
       boolean needsToBeRemoved = false;
       try {
         //add to threadlocal
-        needsToBeRemoved = addStaticHibernateSession(grouperSession);
+        needsToBeRemoved = addStaticHibernateSession(grouperSession, false);
+        int nullSessions = clearSessionNulls();
         if (LOG.isDebugEnabled()) {
           debugMap.put("needsToBeRemoved", needsToBeRemoved);
+          debugMap.put("nullSessionsRemoved", nullSessions);
           logAddThreadLocal(debugMap, "postAdd_");
         }
         ret = grouperSessionHandler.callback(grouperSession);
@@ -1004,7 +992,7 @@ public class GrouperSession implements Serializable {
       } finally {
         //remove from threadlocal
         if (needsToBeRemoved) {
-          removeLastStaticGrouperSession(grouperSession);
+          removeStaticGrouperSession(grouperSession);
         }
       }
 
@@ -1077,23 +1065,54 @@ public class GrouperSession implements Serializable {
   }
 
   /**
+   * if sessions werent closed but were garbage collected
+   * @return how many removed
+   */
+  private static int clearSessionNulls() {
+    int removed = 0;
+    List<WeakReference<GrouperSession>> grouperSessionList = grouperSessionList();
+    synchronized (grouperSessionList) {
+
+      for (int i=grouperSessionList.size()-1;i>=0;i--) {
+        WeakReference<GrouperSession> grouperSessionReference = grouperSessionList.get(i);
+        GrouperSession thisOne = grouperSessionReference.get();
+        if (thisOne == null) {
+          grouperSessionList.remove(i);
+          removed++;
+        }
+      }
+    }
+    return removed;
+  }
+  
+  /**
    * set the threadlocal hibernate session
    * 
    * @param grouperSession
    * @return if it was added (if already last one, dont add again)
    */
-  private static boolean addStaticHibernateSession(GrouperSession grouperSession) {
-    List<GrouperSession> grouperSessionList = grouperSessionList();
-    GrouperSession lastOne = grouperSessionList.size() == 0 ? null : grouperSessionList.get(grouperSessionList.size()-1);
-    if (lastOne == grouperSession) {
-      return false;
+  private static boolean addStaticHibernateSession(GrouperSession grouperSession, boolean addEvenIfSame) {
+    List<WeakReference<GrouperSession>> grouperSessionList = grouperSessionList();
+    synchronized (grouperSessionList) {
+
+      GrouperSession lastOne = null;
+      for (int i=grouperSessionList.size()-1;i>=0;i--) {
+        WeakReference<GrouperSession> grouperSessionReference = grouperSessionList.get(i);
+        lastOne = grouperSessionReference.get();
+        if (lastOne != null) {
+          break;
+        }
+      }
+      if (!addEvenIfSame && lastOne == grouperSession) {
+        return false;
+      }
+      grouperSessionList.add(new WeakReference<GrouperSession>(grouperSession));
     }
-    grouperSessionList.add(grouperSession);
-    // cant have more than 60, something is wrong
-    if (grouperSessionList.size() > 60) {
+    // cant have more than 100, something is wrong
+    if (grouperSessionList.size() > 100) {
       grouperSessionList.clear();
       throw new RuntimeException(
-          "There is probably a problem that there are 60 nested new GrouperSessions called!");
+          "There is probably a problem that there are 100 nested new GrouperSessions called!");
     }
     return true;
   }
@@ -1103,11 +1122,11 @@ public class GrouperSession implements Serializable {
    * 
    * @return the set
    */
-  private static List<GrouperSession> grouperSessionList() {
-    List<GrouperSession> grouperSessionSet = staticSessions.get();
+  private static List<WeakReference<GrouperSession>> grouperSessionList() {
+    List<WeakReference<GrouperSession>> grouperSessionSet = staticSessions.get();
     if (grouperSessionSet == null) {
       // note the sessions are in order
-      grouperSessionSet = new ArrayList<GrouperSession>();
+      grouperSessionSet = new ArrayList<WeakReference<GrouperSession>>();
       staticSessions.set(grouperSessionSet);
     }
     return grouperSessionSet;
@@ -1119,21 +1138,25 @@ public class GrouperSession implements Serializable {
    * 
    * @param grouperSession should match the last group session
    */
-  private static void removeLastStaticGrouperSession(GrouperSession grouperSession) {
+  private static void removeStaticGrouperSession(GrouperSession grouperSession) {
     //this one better be at the end of the list
-    List<GrouperSession> grouperSessionList = grouperSessionList();
+    List<WeakReference<GrouperSession>> grouperSessionList = grouperSessionList();
     int size = grouperSessionList.size();
     if (size == 0) {
-      throw new RuntimeException("Supposed to remove a session from stack, but stack is empty");
+      return;
     }
-    GrouperSession lastOne = grouperSessionList.get(size-1);
-    //the reference must be the same
-    if (lastOne != grouperSession) {
-      //i guess just clear it out
-      grouperSessionList.clear();
-      throw new RuntimeException("Illegal state, the grouperSession threadlocal stack is out of sync!");
+    synchronized (grouperSessionList) {
+      // remove highest index
+      for (int i=grouperSessionList.size()-1;i>=0;i--) {
+        WeakReference<GrouperSession> thisOneReference = grouperSessionList.get(i);
+        GrouperSession thisOne = thisOneReference.get();
+        //the reference must be the same
+        if (thisOne == grouperSession) {
+          grouperSessionList.remove(i);
+          return;
+        }
+      }
     }
-    grouperSessionList.remove(grouperSession);
   }
 
   /**
@@ -1145,14 +1168,6 @@ public class GrouperSession implements Serializable {
    */
   public static GrouperSession staticGrouperSession() {
     return staticGrouperSession(true);
-  }
-  
-  /**
-   * clear the threadlocal grouper session (dont really need to call this, just
-   * stop the session, but this is here for testing)
-   */
-  public static void clearGrouperSession() {
-    staticGrouperSession.remove();
   }
   
   /**
@@ -1176,19 +1191,23 @@ public class GrouperSession implements Serializable {
       throws IllegalStateException {
 
     //first look at the list of threadlocals
-    List<GrouperSession> grouperSessionList = grouperSessionList();
-    int size = grouperSessionList.size();
-    String error = "There is no open GrouperSession detected.  Make sure " +
-        "to start a grouper session (e.g. GrouperSession.startRootSession() if you want to use a root session ) before calling this method";
+    List<WeakReference<GrouperSession>> grouperSessionList = grouperSessionList();
     GrouperSession grouperSession = null;
-    if (size == 0) {
-      //if nothing in the threadlocal list, then use the last one
-      //started (and added)
-      grouperSession = staticGrouperSession.get();
-      
-    } else {
-      // get the last index, return null if session closed
-      grouperSession = grouperSessionList.get(size-1);
+    synchronized (grouperSessionList) {
+      int size = grouperSessionList.size();
+      if (size != 0) {
+        for (int i=grouperSessionList.size()-1;i>=0;i--) {
+          WeakReference<GrouperSession> thisOneReference = grouperSessionList.get(i);
+          GrouperSession thisOne = thisOneReference.get();
+          //the reference must be the same
+          if (thisOne == null) {
+            continue;
+          }
+          // get the last index, return null if session closed
+          grouperSession = thisOneReference.get();
+          break;
+        }
+      }
     }
 
     if (grouperSession != null && grouperSession.subject == null) {
@@ -1196,9 +1215,37 @@ public class GrouperSession implements Serializable {
     }
     
     if (exceptionOnNull && grouperSession == null) {
+      String error = "There is no open GrouperSession detected.  Make sure " +
+          "to start a grouper session (e.g. GrouperSession.startRootSession() if you want to use a root session ) before calling this method";
       throw new IllegalStateException(error);
-      }
-      return grouperSession;
     }
+    return grouperSession;
+  }
+
+  /**
+   * get the subject by root session, then callback in a session for that subject
+   * @param sourceId
+   * @param subjectId
+   * @param grouperSessionHandler
+   */
+  public static void callbackGrouperSessionBySubjectId(String subjectId, String sourceId,
+      GrouperSessionHandler grouperSessionHandler) {
+
+    Subject subject = (Subject)internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        return SubjectFinder.findByIdAndSource(subjectId, sourceId, true);
+      }
+    });
+
+    GrouperSession grouperSession = GrouperSession.start(subject, false);
+    try {
+      callbackGrouperSession(grouperSession, grouperSessionHandler);
+    } finally {
+      stopQuietly(grouperSession);
+    }
+    
+  }
   
 }

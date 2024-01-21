@@ -85,7 +85,7 @@ public class MembershipPathGroup {
     
     final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
     final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -131,7 +131,7 @@ public class MembershipPathGroup {
   public static MembershipPathGroup analyze(final Group group, final Member member, final Field field) {
     final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
     final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -234,327 +234,313 @@ public class MembershipPathGroup {
   public static void main(String[] args) {
 
     //########################## Non composite
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    
-    Subject memberSubject = SubjectFinder.findById("test.subject.0", true);
-    Subject sessionSubject = SubjectFinder.findById("test.subject.1", true);
-    Subject sessionSubject2 = SubjectFinder.findById("test.subject.2", true);
-    Subject sessionSubject3 = SubjectFinder.findById("test.subject.3", true);
-    Subject sessionSubject4 = SubjectFinder.findById("test.subject.4", true);
-    Member memberMember = MemberFinder.findBySubject(grouperSession, memberSubject, true);
-    
-    Group endGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-        .assignName("test:mpaths:overallGroup").save();
-    
-    Group privGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths:privGroup").save();    
-    
-    Stem privStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths").save();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    AttributeDef privAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.attr).assignName("test:mpaths:privAttrDef").assignToStem(true).save();
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Subject memberSubject = SubjectFinder.findById("test.subject.0", true);
+        Subject sessionSubject = SubjectFinder.findById("test.subject.1", true);
+        Subject sessionSubject2 = SubjectFinder.findById("test.subject.2", true);
+        Subject sessionSubject3 = SubjectFinder.findById("test.subject.3", true);
+        Subject sessionSubject4 = SubjectFinder.findById("test.subject.4", true);
+        Member memberMember = MemberFinder.findBySubject(grouperSession, memberSubject, true);
+        
+        Group endGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignName("test:mpaths:overallGroup").save();
+        
+        Group privGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths:privGroup").save();    
+        
+        Stem privStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:mpaths").save();
 
-    endGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-    endGroup.grantPriv(sessionSubject2, AccessPrivilege.READ, false);
-    endGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
-    endGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
+        AttributeDef privAttributeDef = new AttributeDefSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignAttributeDefType(AttributeDefType.attr).assignName("test:mpaths:privAttrDef").assignToStem(true).save();
 
-    privGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-    privGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
-    privGroup.grantPriv(sessionSubject2, AccessPrivilege.ADMIN, false);
-    privGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
-    privGroup.grantPriv(sessionSubject4, AccessPrivilege.ADMIN, false);
+        endGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+        endGroup.grantPriv(sessionSubject2, AccessPrivilege.READ, false);
+        endGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
+        endGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
 
-    privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.READ, false);
-    privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.UPDATE, false);
-    privGroup.grantPriv(memberSubject, AccessPrivilege.VIEW, false);
+        privGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+        privGroup.grantPriv(SubjectFinder.findAllSubject(), AccessPrivilege.OPTIN, false);
+        privGroup.grantPriv(sessionSubject2, AccessPrivilege.ADMIN, false);
+        privGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
+        privGroup.grantPriv(sessionSubject4, AccessPrivilege.ADMIN, false);
 
-    privStem.grantPriv(SubjectFinder.findAllSubject(), NamingPrivilege.STEM_ATTR_READ, false);
-    privStem.grantPriv(sessionSubject2, NamingPrivilege.STEM_ADMIN, false);
-    privStem.grantPriv(sessionSubject3, NamingPrivilege.STEM_ADMIN, false);
-    privStem.grantPriv(sessionSubject4, NamingPrivilege.STEM_ADMIN, false);
-    
-    privAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
-    privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject2, AttributeDefPrivilege.ATTR_READ, false);
-    privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject3, AttributeDefPrivilege.ATTR_ADMIN, false);
-    privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject4, AttributeDefPrivilege.ATTR_READ, false);
-    
-    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM_ADMIN, false);
-    privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.CREATE, false);
-    privStem.grantPriv(memberSubject, NamingPrivilege.STEM_ATTR_READ, false);
+        privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.READ, false);
+        privGroup.grantPriv(endGroup.toSubject(), AccessPrivilege.UPDATE, false);
+        privGroup.grantPriv(memberSubject, AccessPrivilege.VIEW, false);
 
-    privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrRead"), false);
-    privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrUpdate"), false);
-    privAttributeDef.getPrivilegeDelegate().grantPriv(memberSubject, Privilege.getInstance("attrView"), false);
+        privStem.grantPriv(SubjectFinder.findAllSubject(), NamingPrivilege.STEM_ATTR_READ, false);
+        privStem.grantPriv(sessionSubject2, NamingPrivilege.STEM_ADMIN, false);
+        privStem.grantPriv(sessionSubject3, NamingPrivilege.STEM_ADMIN, false);
+        privStem.grantPriv(sessionSubject4, NamingPrivilege.STEM_ADMIN, false);
+        
+        privAttributeDef.getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_OPTIN, false);
+        privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject2, AttributeDefPrivilege.ATTR_READ, false);
+        privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject3, AttributeDefPrivilege.ATTR_ADMIN, false);
+        privAttributeDef.getPrivilegeDelegate().grantPriv(sessionSubject4, AttributeDefPrivilege.ATTR_READ, false);
+        
+        privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.STEM_ADMIN, false);
+        privStem.grantPriv(endGroup.toSubject(), NamingPrivilege.CREATE, false);
+        privStem.grantPriv(memberSubject, NamingPrivilege.STEM_ATTR_READ, false);
 
-    endGroup.addMember(memberSubject, false);
-    
-    //one hop membership
-    {
-      Group intermediateGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:intermediateGroup").save();
-  
-      intermediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-      intermediateGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
-      intermediateGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
+        privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrRead"), false);
+        privAttributeDef.getPrivilegeDelegate().grantPriv(endGroup.toSubject(), Privilege.getInstance("attrUpdate"), false);
+        privAttributeDef.getPrivilegeDelegate().grantPriv(memberSubject, Privilege.getInstance("attrView"), false);
 
-      endGroup.addMember(intermediateGroup.toSubject(), false);
-      intermediateGroup.addMember(memberSubject, false);
-
-      privGroup.grantPriv(intermediateGroup.toSubject(), AccessPrivilege.ADMIN, false);
-      privStem.grantPriv(intermediateGroup.toSubject(), NamingPrivilege.STEM_ATTR_UPDATE, false);
-      privAttributeDef.getPrivilegeDelegate().grantPriv(intermediateGroup.toSubject(), Privilege.getInstance("attrAdmin"), false);
-    }
-    
-    //two hop membership
-    {
-      Group intermediateGroup2a_member = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:intermediateGroup2a_member").save();
-      intermediateGroup2a_member.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-      Group intermediateGroup2b_owner = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:intermediateGroup2b_owner").save();
-      intermediateGroup2b_owner.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-
-      endGroup.addMember(intermediateGroup2b_owner.toSubject(), false);
-      intermediateGroup2b_owner.addMember(intermediateGroup2a_member.toSubject(), false);
-      intermediateGroup2a_member.addMember(memberSubject, false);
-    }
-
-    Group overallComposite = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-        .assignName("test:mpaths:overallComposite").save();
-    overallComposite.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-    overallComposite.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
-    overallComposite.grantPriv(endGroup.toSubject(), AccessPrivilege.OPTOUT, false);
-    
-    {
-      Group appGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:appGroup").save();
-      appGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-      appGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
-  
-      Group employeeGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:employeeGroup").save();
-      employeeGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-      employeeGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
-  
-      if (!overallComposite.hasComposite()) {
-        overallComposite.addCompositeMember( CompositeType.INTERSECTION, appGroup, employeeGroup );
-      }
-  
-      appGroup.addMember(memberSubject, false);
-      employeeGroup.addMember(memberSubject, false);
+        endGroup.addMember(memberSubject, false);
+        
+        //one hop membership
+        {
+          Group intermediateGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:intermediateGroup").save();
       
-      endGroup.addMember(overallComposite.toSubject(), false);
-    }
-    
-    Group overallCompositeDepth2owner = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-        .assignName("test:mpaths:overallCompositeDepth2owner").save();
-    overallCompositeDepth2owner.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          intermediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          intermediateGroup.grantPriv(sessionSubject3, AccessPrivilege.ADMIN, false);
+          intermediateGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
 
-    {
-      Group overallCompositeDepth2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:overallCompositeDepth2").save();
-      overallCompositeDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          endGroup.addMember(intermediateGroup.toSubject(), false);
+          intermediateGroup.addMember(memberSubject, false);
 
-      Group appGroupDepth2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:appGroupDepth2").save();
-      appGroupDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          privGroup.grantPriv(intermediateGroup.toSubject(), AccessPrivilege.ADMIN, false);
+          privStem.grantPriv(intermediateGroup.toSubject(), NamingPrivilege.STEM_ATTR_UPDATE, false);
+          privAttributeDef.getPrivilegeDelegate().grantPriv(intermediateGroup.toSubject(), Privilege.getInstance("attrAdmin"), false);
+        }
+        
+        //two hop membership
+        {
+          Group intermediateGroup2a_member = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:intermediateGroup2a_member").save();
+          intermediateGroup2a_member.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          Group intermediateGroup2b_owner = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:intermediateGroup2b_owner").save();
+          intermediateGroup2b_owner.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 
-      Group employeeGroupDepth2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:employeeGroupDepth2").save();
-      employeeGroupDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          endGroup.addMember(intermediateGroup2b_owner.toSubject(), false);
+          intermediateGroup2b_owner.addMember(intermediateGroup2a_member.toSubject(), false);
+          intermediateGroup2a_member.addMember(memberSubject, false);
+        }
 
-      overallCompositeDepth2owner.addMember(overallCompositeDepth2.toSubject(), false);
+        Group overallComposite = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignName("test:mpaths:overallComposite").save();
+        overallComposite.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+        overallComposite.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
+        overallComposite.grantPriv(endGroup.toSubject(), AccessPrivilege.OPTOUT, false);
+        
+        {
+          Group appGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:appGroup").save();
+          appGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          appGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
       
-      if (!overallCompositeDepth2.hasComposite()) {
-        overallCompositeDepth2.addCompositeMember( CompositeType.INTERSECTION, appGroupDepth2, employeeGroupDepth2 );
-      }
-  
-      appGroupDepth2.addMember(memberSubject, false);
-      employeeGroupDepth2.addMember(memberSubject, false);
+          Group employeeGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:employeeGroup").save();
+          employeeGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          employeeGroup.grantPriv(sessionSubject4, AccessPrivilege.READ, false);
       
-      endGroup.addMember(overallCompositeDepth2owner.toSubject(), false);
-    }
-    
-    Group overallEffectiveComposite = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-        .assignName("test:mpaths:overallEffectiveComposite").save();
-    overallEffectiveComposite.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          if (!overallComposite.hasComposite()) {
+            overallComposite.addCompositeMember( CompositeType.INTERSECTION, appGroup, employeeGroup );
+          }
+      
+          appGroup.addMember(memberSubject, false);
+          employeeGroup.addMember(memberSubject, false);
+          
+          endGroup.addMember(overallComposite.toSubject(), false);
+        }
+        
+        Group overallCompositeDepth2owner = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignName("test:mpaths:overallCompositeDepth2owner").save();
+        overallCompositeDepth2owner.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 
-    {
-      Group appEffectiveGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:appEffectiveGroup").save();
-      appEffectiveGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-      Group appImmediateGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:appImmediateGroup").save();
-      appImmediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+        {
+          Group overallCompositeDepth2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:overallCompositeDepth2").save();
+          overallCompositeDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 
-      Group employeeEffectiveGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:employeeEffectiveGroup").save();
-      employeeEffectiveGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
-      Group employeeImmediateGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-          .assignName("test:mpaths:employeeImmediateGroup").save();
-      employeeImmediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          Group appGroupDepth2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:appGroupDepth2").save();
+          appGroupDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
 
-      if (!overallEffectiveComposite.hasComposite()) {
-        overallEffectiveComposite.addCompositeMember( CompositeType.INTERSECTION, appEffectiveGroup, employeeEffectiveGroup );
+          Group employeeGroupDepth2 = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:employeeGroupDepth2").save();
+          employeeGroupDepth2.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
+          overallCompositeDepth2owner.addMember(overallCompositeDepth2.toSubject(), false);
+          
+          if (!overallCompositeDepth2.hasComposite()) {
+            overallCompositeDepth2.addCompositeMember( CompositeType.INTERSECTION, appGroupDepth2, employeeGroupDepth2 );
+          }
+      
+          appGroupDepth2.addMember(memberSubject, false);
+          employeeGroupDepth2.addMember(memberSubject, false);
+          
+          endGroup.addMember(overallCompositeDepth2owner.toSubject(), false);
+        }
+        
+        Group overallEffectiveComposite = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+            .assignName("test:mpaths:overallEffectiveComposite").save();
+        overallEffectiveComposite.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
+        {
+          Group appEffectiveGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:appEffectiveGroup").save();
+          appEffectiveGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          Group appImmediateGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:appImmediateGroup").save();
+          appImmediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
+          Group employeeEffectiveGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:employeeEffectiveGroup").save();
+          employeeEffectiveGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+          Group employeeImmediateGroup = new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true)
+              .assignName("test:mpaths:employeeImmediateGroup").save();
+          employeeImmediateGroup.revokePriv(SubjectFinder.findAllSubject(), AccessPrivilege.READ, false);
+
+          if (!overallEffectiveComposite.hasComposite()) {
+            overallEffectiveComposite.addCompositeMember( CompositeType.INTERSECTION, appEffectiveGroup, employeeEffectiveGroup );
+          }
+
+          appEffectiveGroup.addMember(appImmediateGroup.toSubject(), false);
+          employeeEffectiveGroup.addMember(employeeImmediateGroup.toSubject(), false);
+
+          appImmediateGroup.addMember(memberSubject, false);
+          employeeImmediateGroup.addMember(memberSubject, false);
+
+          endGroup.addMember(overallEffectiveComposite.toSubject(), false);
+        }
+        
+        MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
+        
+        System.out.println("########################## Non composite\n");
+        System.out.println("####### member #######");
+        System.out.println(membershipPathGroup.toString());
+
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
+        
+        System.out.println("####### groupPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
+        
+        System.out.println("####### stemPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
+        
+        System.out.println("####### attributeDefPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        //########################## noncomposite as test.subject.1
+        System.out.println("\n\n########################## noncomposite as test.subject.1\n");
+
+        membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
+
+        System.out.println("####### member #######");
+        System.out.println(membershipPathGroup.toString());
+
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
+        
+        System.out.println("####### groupPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
+        
+        System.out.println("####### stemPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
+        
+        System.out.println("####### attributeDefPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+
+        //########################## noncomposite as test.subject.2
+        System.out.println("\n\n########################## noncomposite as test.subject.2\n");
+
+        System.out.println("####### member #######");
+        membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
+
+        System.out.println(membershipPathGroup.toString());
+
+        System.out.println("####### groupPriv #######");
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
+        
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
+        
+        System.out.println("####### stemPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
+        
+        System.out.println("####### attributeDefPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+
+        //########################## noncomposite as test.subject.3
+        System.out.println("\n\n########################## noncomposite as test.subject.3\n");
+
+        System.out.println("####### member #######");
+        membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
+
+        System.out.println(membershipPathGroup.toString());
+
+        System.out.println("####### groupPriv #######");
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
+        
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
+        
+        System.out.println("####### stemPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
+        
+        System.out.println("####### attributeDefPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+
+        //########################## noncomposite as test.subject.4
+        System.out.println("\n\n########################## noncomposite as test.subject.4\n");
+
+        System.out.println("####### member #######");
+        membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
+
+        System.out.println(membershipPathGroup.toString());
+
+        System.out.println("####### groupPriv #######");
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
+        
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
+        
+        System.out.println("####### stemPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
+        
+        System.out.println("####### attributeDefPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        
+
+        //########################## composite
+        System.out.println("\n\n########################## composite\n");
+
+        membershipPathGroup = MembershipPathGroup.analyze(overallComposite, memberMember, Group.getDefaultList());
+
+        System.out.println("####### member #######");
+        System.out.println(membershipPathGroup.toString());
+
+        membershipPathGroup = MembershipPathGroup.analyzePrivileges(overallComposite, memberMember);
+        
+        System.out.println("####### groupPriv #######");
+        System.out.println(membershipPathGroup.toString());
+        return null;
       }
-
-      appEffectiveGroup.addMember(appImmediateGroup.toSubject(), false);
-      employeeEffectiveGroup.addMember(employeeImmediateGroup.toSubject(), false);
-
-      appImmediateGroup.addMember(memberSubject, false);
-      employeeImmediateGroup.addMember(memberSubject, false);
-
-      endGroup.addMember(overallEffectiveComposite.toSubject(), false);
-    }
-    
-    MembershipPathGroup membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
-    
-    System.out.println("########################## Non composite\n");
-    System.out.println("####### member #######");
-    System.out.println(membershipPathGroup.toString());
-
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
-    
-    System.out.println("####### groupPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
-    
-    System.out.println("####### stemPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
-    
-    System.out.println("####### attributeDefPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    //########################## noncomposite as test.subject.1
-    System.out.println("\n\n########################## noncomposite as test.subject.1\n");
-
-    GrouperSession.stopQuietly(grouperSession);
-
-    grouperSession = GrouperSession.start(sessionSubject);
-
-    membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
-
-    System.out.println("####### member #######");
-    System.out.println(membershipPathGroup.toString());
-
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
-    
-    System.out.println("####### groupPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
-    
-    System.out.println("####### stemPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
-    
-    System.out.println("####### attributeDefPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-
-    //########################## noncomposite as test.subject.2
-    System.out.println("\n\n########################## noncomposite as test.subject.2\n");
-
-    GrouperSession.stopQuietly(grouperSession);
-
-    grouperSession = GrouperSession.start(sessionSubject2);
-
-    System.out.println("####### member #######");
-    membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
-
-    System.out.println(membershipPathGroup.toString());
-
-    System.out.println("####### groupPriv #######");
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
-    
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
-    
-    System.out.println("####### stemPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
-    
-    System.out.println("####### attributeDefPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-
-    //########################## noncomposite as test.subject.3
-    System.out.println("\n\n########################## noncomposite as test.subject.3\n");
-
-    GrouperSession.stopQuietly(grouperSession);
-
-    grouperSession = GrouperSession.start(sessionSubject3);
-
-    System.out.println("####### member #######");
-    membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
-
-    System.out.println(membershipPathGroup.toString());
-
-    System.out.println("####### groupPriv #######");
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
-    
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
-    
-    System.out.println("####### stemPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
-    
-    System.out.println("####### attributeDefPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-
-    //########################## noncomposite as test.subject.4
-    System.out.println("\n\n########################## noncomposite as test.subject.4\n");
-
-    GrouperSession.stopQuietly(grouperSession);
-
-    grouperSession = GrouperSession.start(sessionSubject4);
-
-    System.out.println("####### member #######");
-    membershipPathGroup = MembershipPathGroup.analyze(endGroup, memberMember, Group.getDefaultList());
-
-    System.out.println(membershipPathGroup.toString());
-
-    System.out.println("####### groupPriv #######");
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privGroup, memberMember);
-    
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privStem, memberMember);
-    
-    System.out.println("####### stemPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(privAttributeDef, memberMember);
-    
-    System.out.println("####### attributeDefPriv #######");
-    System.out.println(membershipPathGroup.toString());
-    
-
-    //########################## composite
-    GrouperSession.stopQuietly(grouperSession);
-
-    grouperSession = GrouperSession.startRootSession();
-
-    System.out.println("\n\n########################## composite\n");
-
-    membershipPathGroup = MembershipPathGroup.analyze(overallComposite, memberMember, Group.getDefaultList());
-
-    System.out.println("####### member #######");
-    System.out.println(membershipPathGroup.toString());
-
-    membershipPathGroup = MembershipPathGroup.analyzePrivileges(overallComposite, memberMember);
-    
-    System.out.println("####### groupPriv #######");
-    System.out.println(membershipPathGroup.toString());
+    });
         
   }
 
@@ -851,6 +837,7 @@ public class MembershipPathGroup {
    * @param callingSubject is who is executing the call
    * @param timeToLive when it is less than 0, stop recursing
    */
+  @SuppressWarnings("unchecked")
   private void analyzeHelper(final GrouperObject theOwner, Member theMember, final Field field, final Subject callingSubject,
       int timeToLive){
 
@@ -943,19 +930,23 @@ public class MembershipPathGroup {
     
     //secure group query, see what the subject can READ
     GrouperSession secureSession = GrouperSession.start(callingSubject, false);
-    @SuppressWarnings("unchecked")
-    Set<Group> groupsSecure = (Set<Group>)GrouperSession.callbackGrouperSession(secureSession, new GrouperSessionHandler() {
-      
-      @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+    Set<Group> groupsSecure = null;
+    try {
+
+      groupsSecure = (Set<Group>)GrouperSession.callbackGrouperSession(secureSession, new GrouperSessionHandler() {
         
-        GroupFinder groupFinder = new GroupFinder().assignGroupIds(groupIds).assignSubject(callingSubject);
-        //this is read since it is more about the groups in groups as members
-        groupFinder.assignPrivileges(AccessPrivilege.READ_PRIVILEGES);
-        return groupFinder.findGroups();
-      }
-    });
-    GrouperSession.stopQuietly(secureSession);
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          GroupFinder groupFinder = new GroupFinder().assignGroupIds(groupIds).assignSubject(callingSubject);
+          //this is read since it is more about the groups in groups as members
+          groupFinder.assignPrivileges(AccessPrivilege.READ_PRIVILEGES);
+          return groupFinder.findGroups();
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(secureSession);
+    }
 
     Map<String, GroupSet> groupSetIdToGroupSet = new HashMap<String, GroupSet>();
     for (GroupSet groupSet : GrouperUtil.nonNull(groupSets)) {
@@ -1160,7 +1151,7 @@ public class MembershipPathGroup {
   public static MembershipPathGroup analyze(final Stem stem, final Member member, final Field field) {
     final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
     final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -1188,7 +1179,7 @@ public class MembershipPathGroup {
   public static MembershipPathGroup analyze(final AttributeDef attributeDef, final Member member, final Field field) {
     final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
     final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -1239,7 +1230,7 @@ public class MembershipPathGroup {
     
     final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
     final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -1277,7 +1268,7 @@ public class MembershipPathGroup {
     
     final MembershipPathGroup membershipPathGroup = new MembershipPathGroup();
     final GrouperSession GROUPER_SESSION = GrouperSession.staticGrouperSession();
-    GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {

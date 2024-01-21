@@ -46,10 +46,12 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.file.GrouperFile;
 import edu.internet2.middleware.grouper.internal.dao.hib3.Hib3DAOFactory;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperEmailUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -213,14 +215,18 @@ public class GrouperReportLogic {
     
     boolean sendToViewers = configBean.isReportConfigSendEmailToViewers();
     
-    Group emailGroup = null;
-    
-    if (sendToViewers) {
-      String groupId = configBean.getReportConfigViewersGroupId();
-      emailGroup = GroupFinder.findByUuid(GrouperSession.startRootSession(), groupId, false);
-    } else {
-      emailGroup = GroupFinder.findByUuid(GrouperSession.startRootSession(), configBean.getReportConfigSendEmailToGroupId(), false);
-    }
+    Group emailGroup = (Group)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        if (sendToViewers) {
+          String groupId = configBean.getReportConfigViewersGroupId();
+          return GroupFinder.findByUuidAsGrouperSystem(groupId, false);
+        }
+        return GroupFinder.findByUuidAsGrouperSystem(configBean.getReportConfigSendEmailToGroupId(), false);
+      }
+    });
     
     if (emailGroup == null) {
       LOG.error("group to send email to for config: "+configBean.getReportConfigName()+ " is null. not sending any emails");

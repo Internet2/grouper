@@ -3381,12 +3381,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
             SchemaException {
 
     try {
-      GrouperSession.callbackGrouperSession(
-          GrouperSession.staticGrouperSession().internal_getRootSession(), 
-          new GrouperSessionHandler() {
-  
-            public Object callback(GrouperSession grouperSession)
-                throws GrouperSessionException {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
               try {
                 Stem.this.revokePriv(NamingPrivilege.CREATE);
@@ -3708,12 +3706,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
   public void onPostUpdate(HibernateSession hibernateSession) {
     
     if (this.dbVersionDifferentFields().contains(FIELD_NAME)) {
-      GrouperSession.callbackGrouperSession(GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
-  
-        /**
-         * @see edu.internet2.middleware.grouper.misc.GrouperSessionHandler#callback(edu.internet2.middleware.grouper.GrouperSession)
-         */
-        public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
           // need to potentially update stem name in rules
           Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
@@ -5409,16 +5405,24 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
    * @param args
    */
   public static void main(String[] args) {
-    GrouperSession.startRootSession();
-    GrouperSession grouperSession = GrouperSession.start(SubjectFinder.findById("test.subject.0", true));
     
-    Stem stem = StemFinder.findByName(grouperSession, "test", true);
-    QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
-    Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(stem.getUuid()).assignStemScope(Scope.SUB)
-    .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES)
-    .assignQueryOptions(queryOptions).findAttributeNames();
-    System.out.println(queryOptions.getCount());
-    System.out.println(GrouperUtil.length(attributeDefNames));
+    GrouperSession.callbackGrouperSessionBySubjectId("test.subject.0", "jdbc", new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        
+        Stem stem = StemFinder.findByName(grouperSession, "test", true);
+        QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(false);
+        Set<AttributeDefName> attributeDefNames = new AttributeDefNameFinder().assignParentStemId(stem.getUuid()).assignStemScope(Scope.SUB)
+        .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES)
+        .assignQueryOptions(queryOptions).findAttributeNames();
+        System.out.println(queryOptions.getCount());
+        System.out.println(GrouperUtil.length(attributeDefNames));
+        return null;
+      }
+    });
+
+    
   }
   
   /**

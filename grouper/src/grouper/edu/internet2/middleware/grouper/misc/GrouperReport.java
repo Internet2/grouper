@@ -24,10 +24,7 @@ import java.io.PrintStream;
 import java.text.DecimalFormat;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.HashSet;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -40,6 +37,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionStat;
 import edu.internet2.middleware.grouper.app.usdu.UsduService;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -93,12 +91,14 @@ public class GrouperReport {
 
     GrouperStartup.startup();
 
-    GrouperSession grouperSession = null;
     
     StringBuilder result = new StringBuilder();
     
+    return (String)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
     try {
-      grouperSession = GrouperSession.startRootSession();
       Calendar calendar = Calendar.getInstance();
       calendar.add(Calendar.DAY_OF_YEAR, -1);
       Date yesterday = calendar.getTime(); 
@@ -291,21 +291,122 @@ public class GrouperReport {
           result.append("\n----------------\n");
           result.append("LOADER JOBS SUCCESS (max 50 of them)\n");
           result.append("----------------\n");
-          for (Hib3GrouperLoaderLog loaderLog : loaderLogs) {
-            result.append("\njob:               ").append(loaderLog.getJobName())
-              .append("\n");
-            result.append("status:            ").append(loaderLog.getStatus()).append(", started: ")
-              .append(loaderLog.getStartedTime()).append(" (")
-              .append(GrouperUtil.convertMillisToFriendlyString(loaderLog.getMillis())).append(")\n");
-            result.append("ins/upd/del/tot:   ").append(loaderLog.getInsertCount()).append("/")
-              .append(loaderLog.getUpdateCount()).append("/").append(loaderLog.getDeleteCount())
-              .append("/").append(loaderLog.getTotalCount()).append("\n");
-            if (loaderLog.getUnresolvableSubjectCount() > 0) {
-              result.append("unresolv subjects: ").append(loaderLog.getUnresolvableSubjectCount()).append("\n");
+          result.append("OVERALL:\n");
+          result.append("----------------\n");
+          
+          result.append("environment:           ").append(GrouperConfig.retrieveConfig().propertyValueString("grouper.env.name")).append("\n");
+          
+          Long membershipCountTotal = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from MembershipEntry").uniqueResult(Long.class);
+          result.append("memberships:           ").append(formatCommas(membershipCountTotal)).append("\n");
+      
+          Long groupCountTotal = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from Group").uniqueResult(Long.class);
+          result.append("groups:                ").append(formatCommas(groupCountTotal)).append("\n");
+      
+          Long memberCountTotal = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from Member").uniqueResult(Long.class);
+          result.append("members:               ").append(formatCommas(memberCountTotal)).append("\n");
+          
+          Long folderCountTotal = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from Stem").uniqueResult(Long.class);
+          result.append("folders:               ").append(formatCommas(folderCountTotal)).append("\n");
+        
+          List<SubjectResolutionStat> subjectResolutionStats = UsduService.getSubjectResolutionStats();
+          int unresolvableResultCount = 0;
+          for (SubjectResolutionStat subjectResolutionStat : subjectResolutionStats) {
+            unresolvableResultCount += subjectResolutionStat.getUnresolvedCount();
+          }
+          result.append("unresolvable subjects: ").append(formatCommas(Long.valueOf(unresolvableResultCount))).append("\n");
+          
+          
+          result.append("\n----------------\n");
+          result.append("WITHIN LAST DAY:\n");
+          result.append("----------------\n");
+          Long membershipNewCountDay = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from MembershipEntry where createTimeLong > :createTime or groupSetCreateTimeLong > :createTime")
+            .setLong("createTime", yesterday.getTime()).uniqueResult(Long.class);
+          result.append("new memberships:       ").append(formatCommas(membershipNewCountDay)).append("\n");
+        
+          Long groupNewCountDay = HibernateSession.byHqlStatic().createQuery(
+              "select count(*) from Group where createTimeLong > :createTime")
+            .setLong("createTime", yesterday.getTime()).uniqueResult(Long.class);
+          result.append("new groups:            ").append(formatCommas(groupNewCountDay)).append("\n");
+      
+          Long groupUpdatedCountDay = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from Group where createTimeLong > :createTime and modifyTimeLong < :createTime2")
+            .setLong("createTime", yesterday.getTime())
+            .setLong("createTime2", yesterday.getTime()).uniqueResult(Long.class);
+          result.append("updated groups:        ").append(formatCommas(groupUpdatedCountDay)).append("\n");
+      
+          Long stemNewCountDay = HibernateSession.byHqlStatic().createQuery(
+            "select count(*) from Stem where createTimeLong > :createTime")
+            .setLong("createTime", yesterday.getTime()).uniqueResult(Long.class);
+          result.append("new folders:           ").append(formatCommas(stemNewCountDay)).append("\n");
+
+          result.append("\n----------------\n");
+          result.append("LOADER SUMMARY WITHIN LAST DAY\n");
+          result.append("----------------\n");
+          
+          Long loaderLogCount = HibernateSession.byHqlStatic().createQuery(
+              "select count(*) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated")
+              .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+          result.append("jobs:                  ").append(formatCommas(loaderLogCount)).append("\n");
+          
+          long loaderErrorCount = -1;
+          for (GrouperLoaderStatus grouperLoaderStatus : GrouperLoaderStatus.values()) {
+            if (GrouperLoaderStatus.SUCCESS.equals(grouperLoaderStatus)) {
+              continue;
+            }
+            Long loaderCount = HibernateSession.byHqlStatic().createQuery(
+                "select count(*) from Hib3GrouperLoaderLog where status = '" + grouperLoaderStatus.name() + "' and lastUpdated > :lastUpdated")
+                .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+
+            if (grouperLoaderStatus == GrouperLoaderStatus.ERROR) {
+              loaderErrorCount = loaderCount;
+            }
+            
+            if (grouperLoaderStatus != GrouperLoaderStatus.SUCCESS 
+                && (grouperLoaderStatus == GrouperLoaderStatus.ERROR || loaderCount > 0)) {
+              String label = grouperLoaderStatus.getFriendlyString();
+              result.append(label).append(":").append(StringUtils.repeat(" ", 22-label.length()))
+                .append(formatCommas(loaderCount)).append("\n");
             }
           }
-        }
-      }
+          Long loaderUsduCount = HibernateSession.byHqlStatic().createQuery(
+            "select sum(unresolvableSubjectCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
+            " and jobType like 'SQL%' and parentJobId is null")
+            .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+          result.append("unresolvable subjects: ").append(formatCommas(loaderUsduCount)).append("\n");
+      
+          Long loaderInsertCount = HibernateSession.byHqlStatic().createQuery(
+              "select sum(insertCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
+              " and jobType like 'SQL%' and parentJobId is null")
+            .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+          result.append("inserts:               ").append(formatCommas(loaderInsertCount)).append("\n");
+      
+          Long loaderUpdateCount = HibernateSession.byHqlStatic().createQuery(
+              "select sum(updateCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
+              " and jobType like 'SQL%' and parentJobId is null")
+            .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+          result.append("updates:               ").append(formatCommas(loaderUpdateCount)).append("\n");
+      
+          Long loaderDeleteCount = HibernateSession.byHqlStatic().createQuery(
+              "select sum (deleteCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
+              " and jobType like 'SQL%' and parentJobId is null")
+            .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+          result.append("deletes:               ").append(formatCommas(loaderDeleteCount)).append("\n");
+      
+          Long loaderTotalCount = HibernateSession.byHqlStatic().createQuery(
+              "select sum (totalCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
+              " and jobType like 'SQL%' and parentJobId is null")
+            .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+          result.append("total loader mships:   ").append(formatCommas(loaderTotalCount)).append("\n");
+      
+          Long processingSum = GrouperUtil.defaultIfNull(HibernateSession.byHqlStatic().createQuery(
+              "select sum(millis) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and parentJobId is null")
+              .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class), new Long(0));
+          result.append("processing time:       ").append(GrouperUtil.convertMillisToFriendlyString(processingSum)).append("\n");
 
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -321,11 +422,11 @@ public class GrouperReport {
       GrouperReportException gre = new GrouperReportException("Problem generating daily report", e);
       gre.setResult(result.toString());
       throw gre;
-    } finally {
-      GrouperSession.stopQuietly(grouperSession);
     }
       
     return result.toString();
+  }
+    });
   }
 
 }

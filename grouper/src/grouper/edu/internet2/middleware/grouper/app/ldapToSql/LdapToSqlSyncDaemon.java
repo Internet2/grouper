@@ -20,10 +20,12 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSession;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSync;
@@ -124,93 +126,99 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
     
     internalTestLastDebugMap = debugMap;
     
-    GrouperSession.startRootSession();
-    
-    jobName = otherJobInput.getJobName();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    this.gcTableSync = new GcTableSync();
-    this.gcTableSyncAttr = new GcTableSync();
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        jobName = otherJobInput.getJobName();
 
-    configure();
-    
-    retrieveDataFromDatabase();
-    retrieveDataFromLdap();
-    
-    long nowNanos = System.nanoTime();
-    try { 
-      convertLdapDataToDatabaseFormat();
-    } finally {
-      this.debugMap.put("convertDataMillis", (System.nanoTime()-nowNanos)/1000);
-    }
+        LdapToSqlSyncDaemon.this.gcTableSync = new GcTableSync();
+        LdapToSqlSyncDaemon.this.gcTableSyncAttr = new GcTableSync();
+
+        configure();
         
-    nowNanos = System.nanoTime();
-    try { 
-      GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
-      gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
-
-      gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
-      
-      GcTableSyncSubtype.fullSyncFull.syncData(this.debugMap, gcTableSync);
-    } finally {
-      this.debugMap.put("changeSqlMainTableMillis", (System.nanoTime()-nowNanos)/1000);
-    }
-    if (this.hasMultiValuedTable) {
-      nowNanos = System.nanoTime();
-      try { 
-        GcTableSyncConfiguration gcTableSyncConfigurationAttr = new GcTableSyncConfiguration();
-        gcTableSyncAttr.setGcTableSyncConfiguration(gcTableSyncConfigurationAttr);
-
-        gcTableSyncAttr.setGcTableSyncOutput(new GcTableSyncOutput());
+        retrieveDataFromDatabase();
+        retrieveDataFromLdap();
         
-        
-        Map<String, Object> debugMapAttr = new LinkedHashMap<String, Object>();
-        GcTableSyncSubtype.fullSyncFull.syncData(debugMapAttr, gcTableSyncAttr);
+        long nowNanos = System.nanoTime();
+        try { 
+          convertLdapDataToDatabaseFormat();
+        } finally {
+          LdapToSqlSyncDaemon.this.debugMap.put("convertDataMillis", (System.nanoTime()-nowNanos)/1000);
+        }
+            
+        nowNanos = System.nanoTime();
+        try { 
+          GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
+          gcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
 
-        // merge the debug maps
-        for (String key : debugMapAttr.keySet()) {
+          gcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
           
-          Object newValue = debugMapAttr.get(key);
-          Object existingValue = this.debugMap.get(key);
+          GcTableSyncSubtype.fullSyncFull.syncData(LdapToSqlSyncDaemon.this.debugMap, gcTableSync);
+        } finally {
+          LdapToSqlSyncDaemon.this.debugMap.put("changeSqlMainTableMillis", (System.nanoTime()-nowNanos)/1000);
+        }
+        if (LdapToSqlSyncDaemon.this.hasMultiValuedTable) {
+          nowNanos = System.nanoTime();
+          try { 
+            GcTableSyncConfiguration gcTableSyncConfigurationAttr = new GcTableSyncConfiguration();
+            gcTableSyncAttr.setGcTableSyncConfiguration(gcTableSyncConfigurationAttr);
+
+            gcTableSyncAttr.setGcTableSyncOutput(new GcTableSyncOutput());
+            
+            
+            Map<String, Object> debugMapAttr = new LinkedHashMap<String, Object>();
+            GcTableSyncSubtype.fullSyncFull.syncData(debugMapAttr, gcTableSyncAttr);
+
+            // merge the debug maps
+            for (String key : debugMapAttr.keySet()) {
+              
+              Object newValue = debugMapAttr.get(key);
+              Object existingValue = LdapToSqlSyncDaemon.this.debugMap.get(key);
+              
+              if (existingValue instanceof Long) {
+                LdapToSqlSyncDaemon.this.debugMap.put(key, (Long)existingValue + GrouperUtil.longValue(newValue));
+              } else if (existingValue instanceof Integer) {
+                LdapToSqlSyncDaemon.this.debugMap.put(key, (Integer)existingValue + GrouperUtil.intValue(newValue));
+              } else if (LdapToSqlSyncDaemon.this.debugMap.containsKey(key)) {
+                LdapToSqlSyncDaemon.this.debugMap.put(key + "_attr", newValue);
+              } else {
+                LdapToSqlSyncDaemon.this.debugMap.put(key, newValue);
+              }
+
+              
+            }
           
-          if (existingValue instanceof Long) {
-            this.debugMap.put(key, (Long)existingValue + GrouperUtil.longValue(newValue));
-          } else if (existingValue instanceof Integer) {
-            this.debugMap.put(key, (Integer)existingValue + GrouperUtil.intValue(newValue));
-          } else if (this.debugMap.containsKey(key)) {
-            this.debugMap.put(key + "_attr", newValue);
-          } else {
-            this.debugMap.put(key, newValue);
+          } finally {
+            LdapToSqlSyncDaemon.this.debugMap.put("changeSqlAttributeTableMillis", (System.nanoTime()-nowNanos)/1000);
           }
-
+        }
           
+        //  dbConnection: grouper, baseDn: ou=Groups,dc=example,dc=edu, filter: (objectClass=groupOfUniqueNames), ldapConnection: personLdap, 
+        //      numberOfColumns: 3, searchScope: SUBTREE_SCOPE, tableName: testgrouper_ldapsync, extraAttributes: null, ldapRecords: 1, 
+        //      dbRows: 0, dbUniqueKeys: 0, deletesCount: 0, deletesMillis: 81, insertsCount: 1, insertsMillis: 1997, updatesCount: 0, updatesMillis: 4
+        
+        otherJobInput.getHib3GrouperLoaderLog().setInsertCount(GrouperUtil.intValue(LdapToSqlSyncDaemon.this.debugMap.get("insertsCount"), 0));
+        otherJobInput.getHib3GrouperLoaderLog().setDeleteCount(GrouperUtil.intValue(LdapToSqlSyncDaemon.this.debugMap.get("deletesCount"), 0));
+        otherJobInput.getHib3GrouperLoaderLog().setUpdateCount(GrouperUtil.intValue(LdapToSqlSyncDaemon.this.debugMap.get("updatesCount"), 0));
+        otherJobInput.getHib3GrouperLoaderLog().setTotalCount(GrouperUtil.intValue(LdapToSqlSyncDaemon.this.debugMap.get("ldapRecords"), 0) + GrouperUtil.intValue(LdapToSqlSyncDaemon.this.debugMap.get("ldapMultiValuedAttributes"), 0));
+        
+        // change micros to millis in the logs
+        for (String label : debugMap.keySet()) {
+          if (label.endsWith("Millis")) {
+            Object value = debugMap.get(label);
+            if (value instanceof Number) {
+              long millis = ((Number)value).longValue()/1000;
+              debugMap.put(label, millis);
+            }
+          }
         }
-      
-      } finally {
-        this.debugMap.put("changeSqlAttributeTableMillis", (System.nanoTime()-nowNanos)/1000);
-      }
-    }
-      
-    //  dbConnection: grouper, baseDn: ou=Groups,dc=example,dc=edu, filter: (objectClass=groupOfUniqueNames), ldapConnection: personLdap, 
-    //      numberOfColumns: 3, searchScope: SUBTREE_SCOPE, tableName: testgrouper_ldapsync, extraAttributes: null, ldapRecords: 1, 
-    //      dbRows: 0, dbUniqueKeys: 0, deletesCount: 0, deletesMillis: 81, insertsCount: 1, insertsMillis: 1997, updatesCount: 0, updatesMillis: 4
-    
-    otherJobInput.getHib3GrouperLoaderLog().setInsertCount(GrouperUtil.intValue(this.debugMap.get("insertsCount"), 0));
-    otherJobInput.getHib3GrouperLoaderLog().setDeleteCount(GrouperUtil.intValue(this.debugMap.get("deletesCount"), 0));
-    otherJobInput.getHib3GrouperLoaderLog().setUpdateCount(GrouperUtil.intValue(this.debugMap.get("updatesCount"), 0));
-    otherJobInput.getHib3GrouperLoaderLog().setTotalCount(GrouperUtil.intValue(this.debugMap.get("ldapRecords"), 0) + GrouperUtil.intValue(this.debugMap.get("ldapMultiValuedAttributes"), 0));
-    
-    // change micros to millis in the logs
-    for (String label : debugMap.keySet()) {
-      if (label.endsWith("Millis")) {
-        Object value = debugMap.get(label);
-        if (value instanceof Number) {
-          long millis = ((Number)value).longValue()/1000;
-          debugMap.put(label, millis);
-        }
-      }
-    }
 
-    otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
+        otherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
+        return null;
+      }
+    });
+    
     return null;
   }
 

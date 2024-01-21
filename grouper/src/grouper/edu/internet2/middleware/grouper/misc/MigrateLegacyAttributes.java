@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
@@ -140,51 +141,57 @@ public class MigrateLegacyAttributes {
     
     showStatus("Found " + totalCount + " legacy group types");
 
-    GrouperSession grouperSession = null;
-    try {
-      grouperSession = GrouperSession.startRootSession();
+    return (long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      reset();
-      
-      alreadyDone = 0;
-      needsMigration = 0;
-      
-      for (String[] values : results) {
-        
-      String id = values[0];
-      String name = values[1];
-      
-        GroupType type = GroupTypeFinder.findByUuid(id, false);
-        if (type != null) {
-          alreadyDone++;
-        } else {
-          needsMigration++;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+
+          reset();
+          
+          alreadyDone = 0;
+          needsMigration = 0;
+          
+          for (String[] values : results) {
+            
+          String id = values[0];
+          String name = values[1];
+          
+            GroupType type = GroupTypeFinder.findByUuid(id, false);
+            if (type != null) {
+              alreadyDone++;
+            } else {
+              needsMigration++;
+              
+              if (saveUpdates) {
+                logDetail("Migrating groupType with id=" + id + ", name=" + name);
+                type = GroupType.internal_createType(grouperSession, name, true, null, id);
+                type.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+                type.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+              } else {
+                logDetail("Would be migrating groupType with id=" + id + ", name=" + name);
+              }
+            }
+
+            processedCount++;
+          }
           
           if (saveUpdates) {
-            logDetail("Migrating groupType with id=" + id + ", name=" + name);
-            type = GroupType.internal_createType(grouperSession, name, true, null, id);
-            type.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
-            type.getAttributeDefName().getAttributeDef().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+            showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
           } else {
-            logDetail("Would be migrating groupType with id=" + id + ", name=" + name);
+            showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
           }
+          
+          return needsMigration;
+        } finally {
+          stopStatusThread();
+          
+          GrouperSession.stopQuietly(grouperSession);
         }
+      }
+    });
 
-        processedCount++;
-      }
-      
-      if (saveUpdates) {
-        showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      } else {
-        showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      }
-      
-      return needsMigration;
-    } finally {
-      stopStatusThread();
-      
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    
   }
 
   /**
@@ -200,53 +207,56 @@ public class MigrateLegacyAttributes {
     
     showStatus("Found " + totalCount + " legacy attributes");
 
-    GrouperSession grouperSession = null;
-    try {
-      grouperSession = GrouperSession.startRootSession();
+    return (long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      reset();
-      
-      alreadyDone = 0;
-      needsMigration = 0;
-      
-      for (String[] values : results) {
-        
-        String groupTypeId = values[0];
-        String name = values[1];
-        
-        String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
-        String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
-        GroupType type = GroupTypeFinder.findByUuid(groupTypeId, false);
-        if (type != null && AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + name, false) != null) {
-          alreadyDone++;
-        } else {
-          needsMigration++;
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+
+          reset();
+          
+          alreadyDone = 0;
+          needsMigration = 0;
+          
+          for (String[] values : results) {
+            
+            String groupTypeId = values[0];
+            String name = values[1];
+            
+            String stemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+            String attributePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attribute.prefix");
+            GroupType type = GroupTypeFinder.findByUuid(groupTypeId, false);
+            if (type != null && AttributeDefNameFinder.findByName(stemName + ":" + attributePrefix + name, false) != null) {
+              alreadyDone++;
+            } else {
+              needsMigration++;
+              
+              if (saveUpdates) {
+                logDetail("Migrating attribute with name=" + name);
+                type.addAttribute(grouperSession, name, true);
+                type.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+                type.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+              } else {
+                logDetail("Would be migrating attribute with name=" + name);
+              }
+            }
+            
+            processedCount++;
+          }
           
           if (saveUpdates) {
-            logDetail("Migrating attribute with name=" + name);
-            type.addAttribute(grouperSession, name, true);
-            type.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
-            type.internal_getAttributeDefForAttributes().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_UPDATE, false);
+            showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
           } else {
-            logDetail("Would be migrating attribute with name=" + name);
+            showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
           }
+          
+          return needsMigration;
+        } finally {
+          stopStatusThread();
+          
         }
-        
-        processedCount++;
       }
-      
-      if (saveUpdates) {
-        showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      } else {
-        showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      }
-      
-      return needsMigration;
-    } finally {
-      stopStatusThread();
-      
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    });
   }
   
   /**
@@ -262,54 +272,58 @@ public class MigrateLegacyAttributes {
     
     showStatus("Found " + totalCount + " lists");
 
-    GrouperSession grouperSession = null;
-    try {
-      grouperSession = GrouperSession.startRootSession();
+    return (long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      reset();
-      
-      alreadyDone = 0;
-      needsMigration = 0;
-      
-      for (String[] values : results) {
-        
-        String groupTypeId = values[0];
-        String name = values[1];
-        
-        Field field = FieldFinder.find(name, true);
-        
-        GroupType type = GroupTypeFinder.findByUuid(groupTypeId, false);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
 
-        if (type != null && type.internal_getAttributeDefNameForCustomLists() != null &&
-            type.getAttributeDefName().getAttributeDef().getAttributeValueDelegate().findValue(type.internal_getAttributeDefNameForCustomLists().getName(), field.getUuid()) != null) {
-          alreadyDone++;
-        } else {
-          needsMigration++;
+          reset();
+          
+          alreadyDone = 0;
+          needsMigration = 0;
+          
+          for (String[] values : results) {
+            
+            String groupTypeId = values[0];
+            String name = values[1];
+            
+            Field field = FieldFinder.find(name, true);
+            
+            GroupType type = GroupTypeFinder.findByUuid(groupTypeId, false);
+
+            if (type != null && type.internal_getAttributeDefNameForCustomLists() != null &&
+                type.getAttributeDefName().getAttributeDef().getAttributeValueDelegate().findValue(type.internal_getAttributeDefNameForCustomLists().getName(), field.getUuid()) != null) {
+              alreadyDone++;
+            } else {
+              needsMigration++;
+              
+              if (saveUpdates) {
+                logDetail("Migrating list with name=" + name);
+                type.internal_addList(grouperSession, name, field.getReadPriv(), field.getWritePriv(), field.getUuid(), false);
+                type.internal_getAttributeDefForCustomLists().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+              } else {
+                logDetail("Would be migrating list with name=" + name);
+              }
+            }
+
+            processedCount++;
+          }
           
           if (saveUpdates) {
-            logDetail("Migrating list with name=" + name);
-            type.internal_addList(grouperSession, name, field.getReadPriv(), field.getWritePriv(), field.getUuid(), false);
-            type.internal_getAttributeDefForCustomLists().getPrivilegeDelegate().grantPriv(SubjectFinder.findAllSubject(), AttributeDefPrivilege.ATTR_READ, false);
+            showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
           } else {
-            logDetail("Would be migrating list with name=" + name);
+            showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
           }
+          
+          return needsMigration;
+        } finally {
+          stopStatusThread();
+          
         }
+      }
+    });
 
-        processedCount++;
-      }
-      
-      if (saveUpdates) {
-        showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      } else {
-        showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      }
-      
-      return needsMigration;
-    } finally {
-      stopStatusThread();
-      
-      GrouperSession.stopQuietly(grouperSession);
-    }
   }
 
   /**
@@ -332,76 +346,80 @@ public class MigrateLegacyAttributes {
     
     showStatus("Found " + totalCount + " group type assignments");
 
-    GrouperSession grouperSession = null;
-    try {
-      grouperSession = GrouperSession.startRootSession();
+    return (long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      reset();
-      
-      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
-      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
-      
-      alreadyDone = 0;
-      needsMigration = 0;
-      
-      for (final String[] values : results) {
-        
-        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("migrateGroupTypeAssignments") {
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+
+          reset();
           
-          @Override
-          public Void callLogic() {
-
-            String groupTypeAssignmentId = values[0];
-            String groupId = values[1];
-            String typeId = values[2];
-                    
-            GroupType type = GroupTypeFinder.findByUuid(typeId, false);
-            Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
-
-            if (group == null) {
-              LOG.warn("Skipping groupType assignment for groupId=" + groupId + " and typeId=" + typeId + " since group could not be found.");
-            } else if (type != null && group.hasType(type)) {
-              incrementNumberDone();
-            } else {
-              incrementNumberNeedingMigration();
+          List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+          List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+          
+          alreadyDone = 0;
+          needsMigration = 0;
+          
+          for (final String[] values : results) {
+            
+            GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("migrateGroupTypeAssignments") {
               
-              if (saveUpdates) {
-                logDetail("Migrating group type assignment.  Group=" + group.getName() + ", type="  + type.getName());
-                group.internal_addType(type, groupTypeAssignmentId, true);
-              } else {
-                logDetail("Would be migrating group type assignment.  Group=" + group.getName() + ", type="  + typeId);
-              }
-            }
-            return null;
-          }
-        };
-        
-        if (!useThreads){
-          grouperCallable.callLogic();
-        } else {
-          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
-          futures.add(future);          
-          GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
-        }
+              @Override
+              public Void callLogic() {
 
-        processedCount++;
+                String groupTypeAssignmentId = values[0];
+                String groupId = values[1];
+                String typeId = values[2];
+                        
+                GroupType type = GroupTypeFinder.findByUuid(typeId, false);
+                Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+
+                if (group == null) {
+                  LOG.warn("Skipping groupType assignment for groupId=" + groupId + " and typeId=" + typeId + " since group could not be found.");
+                } else if (type != null && group.hasType(type)) {
+                  incrementNumberDone();
+                } else {
+                  incrementNumberNeedingMigration();
+                  
+                  if (saveUpdates) {
+                    logDetail("Migrating group type assignment.  Group=" + group.getName() + ", type="  + type.getName());
+                    group.internal_addType(type, groupTypeAssignmentId, true);
+                  } else {
+                    logDetail("Would be migrating group type assignment.  Group=" + group.getName() + ", type="  + typeId);
+                  }
+                }
+                return null;
+              }
+            };
+            
+            if (!useThreads){
+              grouperCallable.callLogic();
+            } else {
+              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+              futures.add(future);          
+              GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
+            }
+
+            processedCount++;
+          }
+          
+          GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+          GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
+          
+          if (saveUpdates) {
+            showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
+          } else {
+            showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
+          }
+          
+          return needsMigration;
+        } finally {
+          stopStatusThread();
+          
+          GrouperSession.stopQuietly(grouperSession);
+        }
       }
-      
-      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
-      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
-      
-      if (saveUpdates) {
-        showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      } else {
-        showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      }
-      
-      return needsMigration;
-    } finally {
-      stopStatusThread();
-      
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    });
   }
   
   /**
@@ -431,79 +449,82 @@ public class MigrateLegacyAttributes {
     
     showStatus("Found " + totalCount + " attribute assignments");
 
-    GrouperSession grouperSession = null;
-    try {
-      grouperSession = GrouperSession.startRootSession();
+    return (long)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-      reset();
-      
-      List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
-      List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
-      
-      alreadyDone = 0;
-      needsMigration = 0;
-      
-      for (final String[] values : results) {
-        
-        GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("migrateAttributeAssignments") {
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+
+          reset();
           
-          @Override
-          public Void callLogic() {
-            String attributeAssignmentId = values[0];
-            String groupId = values[1];
-            String attributeName = fieldIdToNameMap.get(values[2]);
-            if (attributeName == null) {
-              throw new RuntimeException("Unexpected.");
-            }
-            String attributeValue = values[3];
-                    
-            Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
-
-            if (group == null) {
-              LOG.warn("Skipping attribute assignment for groupId=" + groupId + " and attributeAssignmentId=" + attributeAssignmentId + " since group could not be found.");
-            } else if (attributeValue.equals(group.getAttributesDb().get(attributeName))) {
-              incrementNumberDone();
-            } else {
-              incrementNumberNeedingMigration();
+          List<GrouperFuture> futures = new ArrayList<GrouperFuture>();
+          List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
+          
+          alreadyDone = 0;
+          needsMigration = 0;
+          
+          for (final String[] values : results) {
+            
+            GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("migrateAttributeAssignments") {
               
-              if (saveUpdates) {
-                logDetail("Migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
-                group.internal_setAttribute(attributeName, attributeValue, false, attributeAssignmentId);
-              } else {
-                logDetail("Would be migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
+              @Override
+              public Void callLogic() {
+                String attributeAssignmentId = values[0];
+                String groupId = values[1];
+                String attributeName = fieldIdToNameMap.get(values[2]);
+                if (attributeName == null) {
+                  throw new RuntimeException("Unexpected.");
+                }
+                String attributeValue = values[3];
+                        
+                Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupId, false);
+
+                if (group == null) {
+                  LOG.warn("Skipping attribute assignment for groupId=" + groupId + " and attributeAssignmentId=" + attributeAssignmentId + " since group could not be found.");
+                } else if (attributeValue.equals(group.getAttributesDb().get(attributeName))) {
+                  incrementNumberDone();
+                } else {
+                  incrementNumberNeedingMigration();
+                  
+                  if (saveUpdates) {
+                    logDetail("Migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
+                    group.internal_setAttribute(attributeName, attributeValue, false, attributeAssignmentId);
+                  } else {
+                    logDetail("Would be migrating attribute assignment.  Group=" + group.getName() + ", attribute="  + attributeName);
+                  }
+                }
+                
+                return null;
               }
+            };
+
+            if (!useThreads){
+              grouperCallable.callLogic();
+            } else {
+              GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
+              futures.add(future);          
+              GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
             }
             
-            return null;
+            processedCount++;
           }
-        };
-
-        if (!useThreads){
-          grouperCallable.callLogic();
-        } else {
-          GrouperFuture<Void> future = GrouperUtil.executorServiceSubmit(GrouperUtil.retrieveExecutorService(), grouperCallable, true);
-          futures.add(future);          
-          GrouperFuture.waitForJob(futures, groupThreadPoolSize, callablesWithProblems);
+          
+          GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+          GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
+          
+          if (saveUpdates) {
+            showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
+          } else {
+            showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
+          }
+          
+          return needsMigration;
+        } finally {
+          stopStatusThread();
+          
         }
-        
-        processedCount++;
       }
-      
-      GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
-      GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
-      
-      if (saveUpdates) {
-        showStatus("Done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      } else {
-        showStatus("Would have done making " + needsMigration + " updates.  Number previously migrated = " + alreadyDone + ".");
-      }
-      
-      return needsMigration;
-    } finally {
-      stopStatusThread();
-      
-      GrouperSession.stopQuietly(grouperSession);
-    }
+    });
   }
   
   private void showStatus(String message) {

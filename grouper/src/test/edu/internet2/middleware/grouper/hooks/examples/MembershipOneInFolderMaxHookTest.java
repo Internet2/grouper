@@ -255,8 +255,6 @@ public class MembershipOneInFolderMaxHookTest extends GrouperTest {
       EhcacheController.ehcacheController().flushCache();
       RegistryReset.internal_resetRegistryAndAddTestSubjects();
 
-      MembershipOneInFolderMaxHook.inittedOnce = false;
-      
       GrouperTest.initGroupsAndAttributes();
 
   

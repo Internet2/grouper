@@ -59,22 +59,28 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
    */
   public static void runDaemonStandalone() {
     
-    GrouperSession grouperSession = GrouperSession.startRootSession();
-    Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
-    
-    hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
-    String jobName = "OTHER_JOB_workflowDaemom";
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
-    hib3GrouperLoaderLog.setJobName(jobName);
-    hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
-    hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
-    hib3GrouperLoaderLog.store();
-    
-    OtherJobInput otherJobInput = new OtherJobInput();
-    otherJobInput.setJobName(jobName);
-    otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
-    otherJobInput.setGrouperSession(grouperSession);
-    new GrouperWorkflowDaemonJob().run(otherJobInput);
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+        
+        hib3GrouperLoaderLog.setHost(GrouperUtil.hostname());
+        String jobName = "OTHER_JOB_workflowDaemom";
+
+        hib3GrouperLoaderLog.setJobName(jobName);
+        hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
+        hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
+        hib3GrouperLoaderLog.store();
+        
+        OtherJobInput otherJobInput = new OtherJobInput();
+        otherJobInput.setJobName(jobName);
+        otherJobInput.setHib3GrouperLoaderLog(hib3GrouperLoaderLog);
+        otherJobInput.setGrouperSession(grouperSession);
+        new GrouperWorkflowDaemonJob().run(otherJobInput);
+        return null;
+      }
+    });
   }
 
   @Override

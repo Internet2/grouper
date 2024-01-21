@@ -24,7 +24,6 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -35,11 +34,14 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.TestStem;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.subject.Subject;
+import junit.textui.TestRunner;
 
 
 /**
@@ -153,11 +155,17 @@ public class UserAuditQueryTest extends GrouperTest {
     
     String result = new UserAuditQuery().executeReport();
     result = new UserAuditQuery().executeReportExtended();
-    GrouperSession grouperSession = GrouperSession.startRootSession(false);
-    Subject subject = SubjectFinder.findByIdOrIdentifier(SubjectTestHelper.SUBJ0_ID, true);
-    Member member = MemberFinder.findBySubject(grouperSession,subject, true);
-    
-    result = new UserAuditQuery().loggedInMember(member).executeReport();
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Subject subject = SubjectFinder.findByIdOrIdentifier(SubjectTestHelper.SUBJ0_ID, true);
+        Member member = MemberFinder.findBySubject(grouperSession,subject, true);
+        
+        String result = new UserAuditQuery().loggedInMember(member).executeReport();
+        return null;
+      }
+    });
     
   }
 

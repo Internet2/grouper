@@ -115,10 +115,8 @@ public class GroupHookDbVersion extends GroupHooks {
       public Object callback(GrouperTransaction grouperTransaction)
           throws GrouperDAOException {
         
-        GrouperSession grouperSession = null;
         try {
-          grouperSession = GrouperSession.startRootSession(false);
-          Group dbGroup = GroupFinder.findByUuid(grouperSession, group.getUuid(), true);
+          Group dbGroup = GroupFinder.findByUuidAsGrouperSystem(group.getUuid(), true);
           //load from db
           dbGroup.getExtension();
           return dbGroup;
@@ -126,8 +124,6 @@ public class GroupHookDbVersion extends GroupHooks {
           return null;
         } catch (Exception e) {
           throw new RuntimeException(e);
-        } finally {
-          GrouperSession.stopQuietly(grouperSession);
         }
       }
     
