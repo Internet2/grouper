@@ -31,6 +31,7 @@
 */
 
 package edu.internet2.middleware.grouper.cfg;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -42,7 +43,6 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.attestation.GrouperAttestationJob;
 import edu.internet2.middleware.grouper.app.loader.NotificationDaemon;
@@ -705,7 +705,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
       Matcher matcher = affiliationNamePattern.matcher(affiliation);
       
       if (!matcher.matches()) {
-        LOG.error("Affiliation name configured in grouper.properties deprovisioning.affiliations is not valid: '" + affiliation + "'!!!!!!!");
+        LOG().error("Affiliation name configured in grouper.properties deprovisioning.affiliations is not valid: '" + affiliation + "'!!!!!!!");
         resultIterator.remove();
       }
       
@@ -775,7 +775,7 @@ public class GrouperConfig extends ConfigPropertiesCascadeBase {
               }
               String languageAndCountry = language + "_" + country;
               if (tempBundleFromLanguageAndCountry.containsKey(languageAndCountry)) {
-                LOG.error("Language and country already defined! " + languageAndCountry);
+                LOG().error("Language and country already defined! " + languageAndCountry);
               }
               tempBundleFromLanguageAndCountry.put(languageAndCountry, textBundleBean);
             }
