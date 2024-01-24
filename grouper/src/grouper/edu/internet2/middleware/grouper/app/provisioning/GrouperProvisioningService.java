@@ -1993,7 +1993,7 @@ public class GrouperProvisioningService {
     
     String groupAllowedToAssign = target.getGroupAllowedToAssign();
     if (StringUtils.isBlank(groupAllowedToAssign)) {
-      return PrivilegeHelper.isWheelOrRoot(subject); // only grouper system admin is allowed when no specific group is allowed to assign the given target
+      return false; // only grouper system admin is allowed when no specific group is allowed to assign the given target
     }
     
     MultiKey multiKey = new MultiKey(groupAllowedToAssign, subject.getId());
