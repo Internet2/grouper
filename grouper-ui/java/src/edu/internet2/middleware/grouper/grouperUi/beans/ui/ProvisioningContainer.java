@@ -240,8 +240,6 @@ public class ProvisioningContainer {
     }
     
     return getViewableTargets().size() > 0;
-    
-//    return false;
   }
   
   
@@ -299,17 +297,19 @@ public class ProvisioningContainer {
         return false;
       }
       
-      List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(guiGroup.getGroup());
-      boolean canViewProvisioningMenu = canViewProvisioningMenu(provisioningAttributeValues, loggedInSubject, null);
-      if (canViewProvisioningMenu) {
-        return true;
-      }
+      Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+      
+      for (String targetNameSingle: allTargets.keySet()) {
+        GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetNameSingle);
+        if (GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, guiGroup.getGroup())) {
+         return true;
+        }
+      } 
       
       return false;
     }
     
     return false;
-    
   }
   
   public boolean isCanReadProvisioningForSubject() {
@@ -367,11 +367,14 @@ public class ProvisioningContainer {
         return false;
       }
       
-      List<GrouperProvisioningAttributeValue> provisioningAttributeValues = GrouperProvisioningService.getProvisioningAttributeValues(guiStem.getStem());
-      boolean canViewProvisioningMenu = canViewProvisioningMenu(provisioningAttributeValues, loggedInSubject, guiStem.getStem());
-      if (canViewProvisioningMenu) {
-        return true;
-      }
+      Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+      
+      for (String targetNameSingle: allTargets.keySet()) {
+        GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetNameSingle);
+        if (GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, guiStem.getStem())) {
+         return true;
+        }
+      } 
       
       return false;
     }
