@@ -3439,14 +3439,6 @@ public class GrouperCheckConfig {
             
           }
           
-          if (groupLoaderTypeSave.getSaveResultType() == SaveResultType.INSERT){
-
-            AttributeDef grouperLoaderTypeDef = nameOfAttributeDefToAttributeDef.get(groupLoaderTypeSave.getName());
-            AttributeDef grouperLoaderAttributeDef = nameOfAttributeDefToAttributeDef.get(groupLoaderTypeSave.getName());
-                          
-            // add scope
-            grouperLoaderAttributeDef.getAttributeDefScopeDelegate().assignScope(AttributeDefScopeType.idEquals, grouperLoaderTypeDef.getId(), null);
-          }
 
         } finally {
           if (!wasInCheckConfig) {
@@ -4619,6 +4611,7 @@ public class GrouperCheckConfig {
                 "true or false if the script should include subjects from internal sources", attributeDefNameSaves);
 
           }
+          AttributeDefNameSave grouperLoaderTypeNameSave = null;
 
           {
 
@@ -4648,13 +4641,12 @@ public class GrouperCheckConfig {
 
             String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
             Stem legacyAttributeStem = stemNameToStem.get(legacyAttributeStemName);
-            
             {
               String legacyAttributeGroupTypeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupTypeDef.prefix");
               AttributeDef grouperLoaderTypeDef = nameOfAttributeDefToAttributeDef.get(legacyAttributeStemName + ":" + legacyAttributeGroupTypeDefPrefix + "grouperLoader");
               
               String legacyAttributeGroupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
-              checkAttribute(legacyAttributeStem, grouperLoaderTypeDef, legacyAttributeGroupTypePrefix + "grouperLoader",
+              grouperLoaderTypeNameSave = checkAttribute(legacyAttributeStem, grouperLoaderTypeDef, legacyAttributeGroupTypePrefix + "grouperLoader",
                   "true or false if the script should include subjects from internal sources", attributeDefNameSaves);
             }
             
@@ -4942,6 +4934,18 @@ public class GrouperCheckConfig {
             loaderMetadataAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(loaderMetadataTypeSave.getName());
           }
           
+          if (grouperLoaderTypeNameSave.getSaveResultType() == SaveResultType.INSERT){
+
+            String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+            String legacyAttributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+
+            AttributeDef grouperLoaderAttributeDef = nameOfAttributeDefToAttributeDef.get(legacyAttributeStemName + ":" + legacyAttributeDefPrefix + "grouperLoader");
+            AttributeDefName grouperLoaderType = nameOfAttributeDefNameToAttributeDefName.get(grouperLoaderTypeNameSave.getName()); 
+                          
+            // add scope
+            grouperLoaderAttributeDef.getAttributeDefScopeDelegate().assignScope(AttributeDefScopeType.idEquals, grouperLoaderType.getId(), null);
+          }
+
           {
             String rulesRootStemName = RuleUtils.attributeRuleStemName();
             
