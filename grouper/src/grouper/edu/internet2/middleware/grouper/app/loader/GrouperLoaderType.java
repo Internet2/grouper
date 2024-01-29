@@ -2082,11 +2082,16 @@ public enum GrouperLoaderType {
       
       if (folderNameToDisplayName.containsKey(folderName)) {
         
-        if (!StringUtils.equals(folderNameToDisplayName.get(folderName), folderDisplayName))
+        if (!StringUtils.equals(folderNameToDisplayName.get(folderName), folderDisplayName)) {
         
-        LOG.error("How can the same stem: "+folderName+" have more than one display name in the same loader run: "+folderNameToDisplayName.get(folderName) 
-        +" and "+folderDisplayName); 
-        
+          LOG.error("How can the same stem: '"+folderName+"' have more than one display name in the same loader run: '"+folderNameToDisplayName.get(folderName) 
+          +"' and '"+folderDisplayName+"'"); 
+        }        
+        continue;
+      }
+      
+      if (StringUtils.isBlank(folderDisplayName)) {
+        LOG.error("How can a group have a blank folder display name?: '"+folderName+"', '"+folderDisplayName+"'"); 
         continue;
       }
       
