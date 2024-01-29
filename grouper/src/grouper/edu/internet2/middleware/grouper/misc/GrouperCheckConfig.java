@@ -500,6 +500,8 @@ public class GrouperCheckConfig {
 
   /** if in check config */
   public static boolean inCheckConfig = false;
+
+  private static boolean firstCheckConfig = true;
   
   /**
    * check the grouper config safely, log errors
@@ -549,6 +551,7 @@ public class GrouperCheckConfig {
       });
     } finally {
       inCheckConfig = false;
+      firstCheckConfig  = false;
     }
   }
   
@@ -993,7 +996,9 @@ public class GrouperCheckConfig {
             
             for (StemSave stemSave : stemSaves) {
               if (stemSave.getSaveResultType() == SaveResultType.INSERT) {
-                LOG.warn("Auto-created folder: '" + stemSave.getName() + "'");
+                if (firstCheckConfig) {
+                  LOG.warn("Auto-created folder: '" + stemSave.getName() + "'");
+                }
               }
             }
           } else {
@@ -1089,42 +1094,34 @@ public class GrouperCheckConfig {
           }
         }
         {
-          boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
-          if (useWheel) {
-            String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
-            if (StringUtils.isBlank(wheelName)) {
-              wheelName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadmingroup";
-            }
-            groupSaves.add(new GroupSave().assignName(wheelName).assignDescription("system administrators with all privileges").assignCreateParentStemsIfNotExist(true));
+          String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
+          if (StringUtils.isBlank(wheelName)) {
+            wheelName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadmingroup";
           }
+          groupSaves.add(new GroupSave().assignName(wheelName).assignDescription("system administrators with all privileges").assignCreateParentStemsIfNotExist(true));
         }
         
         {
           String groupName = GrouperConfig.retrieveConfig().propertyValueString("jexlScriptTestingGroup");
-          if (!StringUtils.isBlank(groupName)) {
-            groupSaves.add(new GroupSave().assignName(groupName).assignDescription("members of this group can run jexl script testing from UI").assignCreateParentStemsIfNotExist(true));
+          if (StringUtils.isBlank(groupName)) {
+            groupName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":jexlScriptTestingGroup";
           }
+          groupSaves.add(new GroupSave().assignName(groupName).assignDescription("members of this group can run jexl script testing from UI").assignCreateParentStemsIfNotExist(true));
         }      
         
         {
-          boolean useViewonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false);
-          if (useViewonlyWheel) {
-            String wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
-            if (StringUtils.isBlank(wheelViewonlyName)) {
-              wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadminViewersGroup";
-            }
-            groupSaves.add(new GroupSave().assignName(wheelViewonlyName).assignDescription("system administrators with view privileges").assignCreateParentStemsIfNotExist(true));
+          String wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
+          if (StringUtils.isBlank(wheelViewonlyName)) {
+            wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadminViewersGroup";
           }
+          groupSaves.add(new GroupSave().assignName(wheelViewonlyName).assignDescription("system administrators with view privileges").assignCreateParentStemsIfNotExist(true));
         }      
         {
-          boolean useReadonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.readonly.use", false);
-          if (useReadonlyWheel) {
-            String wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
-            if (StringUtils.isBlank(wheelReadonlyName)) {
-              wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadminReadersGroup";
-            }
-            groupSaves.add(new GroupSave().assignName(wheelReadonlyName).assignDescription("system administrators with read privileges").assignCreateParentStemsIfNotExist(true));
+          String wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
+          if (StringUtils.isBlank(wheelReadonlyName)) {
+            wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadminReadersGroup";
           }
+          groupSaves.add(new GroupSave().assignName(wheelReadonlyName).assignDescription("system administrators with read privileges").assignCreateParentStemsIfNotExist(true));
         }      
         {
           // security.stem.groupAllowedToMoveStem
@@ -1144,9 +1141,7 @@ public class GrouperCheckConfig {
           String wsClientUserGroupName = GrouperWsConfigInApi.retrieveConfig().propertyValueString("ws.client.user.group.name");
     
           if (!StringUtils.isBlank(wsClientUserGroupName)) {
-            if (GroupFinder.findByName(wsClientUserGroupName, false) == null) {
-              groupSaves.add(new GroupSave().assignName(wsClientUserGroupName).assignDescription("Group contains people or subjects who can call web services").assignCreateParentStemsIfNotExist(true));
-            }
+            groupSaves.add(new GroupSave().assignName(wsClientUserGroupName).assignDescription("Group contains people or subjects who can call web services").assignCreateParentStemsIfNotExist(true));
           }
         }
         {
@@ -1345,7 +1340,9 @@ public class GrouperCheckConfig {
           
           for (GroupSave groupSave : groupSaves) {
             if (groupSave.getSaveResultType() == SaveResultType.INSERT) {
-              LOG.warn("Auto-created group: '" + groupSave.getName() + "'");
+              if (firstCheckConfig) {
+                LOG.warn("Auto-created group: '" + groupSave.getName() + "'");
+              }
             }
           }
 
@@ -3347,7 +3344,9 @@ public class GrouperCheckConfig {
             
             for (AttributeDefSave attributeDefSave : attributeDefSaves) {
               if (attributeDefSave.getSaveResultType() == SaveResultType.INSERT) {
-                LOG.warn("Auto-created attribute definition: '" + attributeDefSave.getName() + "'");
+                if (firstCheckConfig) {
+                  LOG.warn("Auto-created attribute definition: '" + attributeDefSave.getName() + "'");
+                }
               }
             }
 
@@ -4735,7 +4734,9 @@ public class GrouperCheckConfig {
             
             for (AttributeDefNameSave attributeDefNameSave : attributeDefNameSaves) {
               if (attributeDefNameSave.getSaveResultType() == SaveResultType.INSERT) {
-                LOG.warn("Auto-created attribute name: '" + attributeDefNameSave.getName() + "'");
+                if (firstCheckConfig) {
+                  LOG.warn("Auto-created attribute name: '" + attributeDefNameSave.getName() + "'");
+                }
               }
             }
 
