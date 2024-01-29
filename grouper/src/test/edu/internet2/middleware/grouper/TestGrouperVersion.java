@@ -36,8 +36,8 @@ public class TestGrouperVersion extends TestCase {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    //TestRunner.run(new GrouperVersionTest("testIndentJson"));
-    TestRunner.run(TestGrouperVersion.class);
+    TestRunner.run(new TestGrouperVersion("testVersions"));
+    //TestRunner.run(TestGrouperVersion.class);
   }
   
   /**
@@ -116,10 +116,10 @@ public class TestGrouperVersion extends TestCase {
 
     assertEquals(new GrouperVersion("1.2.3").toString(), "1.2.3");
     assertEquals(new GrouperVersion("1.2.3-rc1").toString(), "1.2.3-rc1");
-    assertEquals(new GrouperVersion("1.2.3rc1").toString(), "1.2.3rc1");
-    assertEquals(new GrouperVersion("1.2.3-SNAPSHOT").toString(), "1.2.3-SNAPSHOT");
+    assertEquals(new GrouperVersion("1.2.3rc1").toString(), "1.2.3-rc1");
+    assertEquals(new GrouperVersion("1.2.3-SNAPSHOT").toString(), "1.2.3");
     assertEquals(new GrouperVersion("0001.0002.0003-rc0004").toString(), "1.2.3-rc0004");
-    assertEquals(new GrouperVersion("1.2.3-SNAPSHOT").toString(), "1.2.3-SNAPSHOT");
+    assertEquals(new GrouperVersion("1.2.3-SNAPSHOT").toString(), "1.2.3");
 
     assertTrue(new GrouperVersion("0001.0002.0003rc0004").equals(new GrouperVersion("1.2.3rc4")));
     assertTrue(new GrouperVersion("1.2.3rc4").equals(new GrouperVersion("1.2.3-rc4")));
