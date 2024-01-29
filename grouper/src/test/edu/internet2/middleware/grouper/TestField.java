@@ -33,9 +33,8 @@
 package edu.internet2.middleware.grouper;
 import java.util.Iterator;
 import java.util.Set;
+import java.util.TreeSet;
 
-import junit.framework.Assert;
-import junit.textui.TestRunner;
 import edu.internet2.middleware.grouper.exception.SchemaException;
 import edu.internet2.middleware.grouper.helper.FieldHelper;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -45,6 +44,8 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 /**
  * Test {@link Field}.
@@ -59,7 +60,7 @@ public class TestField extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestField("testCache"));
+    TestRunner.run(new TestField("testFields"));
     //TestRunner.run(TestField.class);
   }
   
@@ -86,8 +87,9 @@ public class TestField extends GrouperTest {
   // Tests
 
   public void testFields() {
-    Set       fields  = FieldFinder.findAll();
-    Assert.assertEquals("fields", 21, fields.size());
+    Set       fields  = new TreeSet(FieldFinder.findAll());
+    Assert.assertEquals("fields", 22, fields.size());
+    System.out.println(GrouperUtil.toStringForLog(fields));
     Iterator  iter    = fields.iterator();
     FieldHelper.testField( 
       (Field) iter.next()   , 
@@ -178,17 +180,17 @@ public class TestField extends GrouperTest {
       );
     FieldHelper.testField( 
         (Field) iter.next()   , 
-        Field.FIELD_NAME_STEM_VIEWERS            , FieldType.NAMING,
-        NamingPrivilege.STEM_VIEW  , NamingPrivilege.STEM_VIEW
-      );
-    FieldHelper.testField( 
-        (Field) iter.next()   , 
         Field.FIELD_NAME_STEM_ATTR_READERS          , FieldType.NAMING,
         NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
       );
     FieldHelper.testField( 
         (Field) iter.next()   , 
         Field.FIELD_NAME_STEM_ATTR_UPDATERS            , FieldType.NAMING,
+        NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
+      );
+    FieldHelper.testField( 
+        (Field) iter.next()   , 
+        Field.FIELD_NAME_STEM_VIEWERS            , FieldType.NAMING,
         NamingPrivilege.STEM_ADMIN  , NamingPrivilege.STEM_ADMIN
       );
     FieldHelper.testField( 

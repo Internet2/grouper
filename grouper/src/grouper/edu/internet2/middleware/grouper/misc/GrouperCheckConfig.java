@@ -2373,7 +2373,6 @@ public class GrouperCheckConfig {
                     GrouperUtil.extensionFromName(grouperMessageNameOfRole));
                 if (wasInCheckConfig) {
                   String error = "auto-created role: " + groupMessagingRoleGroup.getName();
-                  System.err.println("Grouper note: " + error);
                   LOG.warn(error);
                 }
               }

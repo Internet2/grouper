@@ -647,7 +647,7 @@ public class TestGroupType extends GrouperTest {
     GrouperSession  s     = null;
     String          name  = "customType";
     try {
-      s               = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
+      s = SessionHelper.getSession(SubjectTestHelper.SUBJ0_ID);
       GroupType.createType(s, name);
       Assert.fail("created custom type as non-root: " + name);
     }

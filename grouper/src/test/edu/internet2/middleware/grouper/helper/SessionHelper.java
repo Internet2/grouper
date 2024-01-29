@@ -64,9 +64,7 @@ public class SessionHelper {
     try {
       
       GrouperSession s = StringUtils.equals(id, GrouperConfig.ROOT) ?
-          GrouperSession.startRootSession() : GrouperSession.start(
-        SubjectFinder.findById(id, true)
-      );
+          GrouperSession.startRootSession() : GrouperSession.startBySubjectIdAndSource(id, "jdbc", true);
       Assert.assertNotNull("s !null", s);
       Assert.assertNotNull("session_id !null", s.getSessionId());
       Assert.assertTrue("has sessionID", !s.getSessionId().equals(""));
@@ -93,9 +91,7 @@ public class SessionHelper {
   // @return  A {@link GrouperSession}
   public static GrouperSession getSession(String id, String type) {
     try {
-      GrouperSession s = GrouperSession.start(
-        SubjectFinder.findById(id, type, true)
-      );
+      GrouperSession s = GrouperSession.startBySubjectIdAndSource(id, null);
       Assert.assertNotNull("s !null", s);
       Assert.assertNotNull("session_id !null", s.getSessionId());
       Assert.assertTrue("has sessionID", !s.getSessionId().equals(""));

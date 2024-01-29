@@ -157,7 +157,7 @@ public class StemSave {
    * @param theGrouperSession
    */
   public StemSave() {
-    this.grouperSession = GrouperSession.staticGrouperSession();
+    this.grouperSession = GrouperSession.staticGrouperSession(false);
     GrouperUtil.assertion(this.grouperSession != null || this.runAsRoot, "grouperSession cant be null or runAsRoot must be true");
   }
 
