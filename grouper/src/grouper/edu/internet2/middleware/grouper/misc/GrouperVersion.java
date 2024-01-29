@@ -100,7 +100,7 @@ public class GrouperVersion {
   public String toString() {
     String result = this.major + "." + this.minor + "." + this.build;
     if (this.rcString != null) {
-      result+= this.rcString;
+      result+= "-rc" + this.rcString;
     }
     return result;
   }
@@ -368,7 +368,7 @@ public class GrouperVersion {
   /**
    * 1.2.3-rc4
    */
-  private static Pattern pattern3 = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)[\\.-_]?rc(\\d+)$");
+  private static Pattern pattern3 = Pattern.compile("^[vV]?(\\d+)[\\._](\\d+)[\\._](\\d+)[\\._-]?rc(\\d+)$");
   
   /**
    * 1.2.3.4
