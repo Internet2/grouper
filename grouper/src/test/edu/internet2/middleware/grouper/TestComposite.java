@@ -59,9 +59,22 @@ public class TestComposite extends GrouperTest {
 
   public static void main(String[] args) {
     //TestRunner.run(TestComposite.class);
-    TestRunner.run(new TestComposite("testXmlInsert"));
+    TestRunner.run(new TestComposite("testAddUnionWithTwoCompositeChildrenAndCompositeParent"));
   }
+  GrouperSession grouperSession = null;
+  @Override
+  protected void setUp() {
+    super.setUp();
+    grouperSession = GrouperSession.startRootSession();
+  }
+
   
+  
+  @Override
+  protected void tearDown() {
+    GrouperSession.stopQuietly(this.grouperSession);
+    super.tearDown();
+  }
   // Private Static Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestComposite.class);
 
