@@ -230,9 +230,9 @@ public class GrouperTest extends GrouperTestBase {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.create.grant.all.view", "true");
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.use", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.group", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.viewonly.group", "$$grouper.rootStemForBuiltinObjects$$:sysadminViewersGroup");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.use", "false");
-    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.group", "false");
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.readonly.group", "$$grouper.rootStemForBuiltinObjects$$:sysadminReadersGroup");
 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.create", "false");
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("stems.create.grant.all.stem", "false");
