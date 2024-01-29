@@ -34,6 +34,7 @@ package edu.internet2.middleware.grouper;
 import java.util.Date;
 
 import junit.framework.Assert;
+import junit.textui.TestRunner;
 
 import org.apache.commons.logging.Log;
 
@@ -50,6 +51,10 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class TestSession extends GrouperTest {
 
+  public static void main(String[] args) {
+    TestRunner.run(new TestSession("testStartSessionGoodSubject"));
+  }
+  
   // Private Class Constants
   private static final Log LOG = GrouperUtil.getLog(TestSession.class);
 

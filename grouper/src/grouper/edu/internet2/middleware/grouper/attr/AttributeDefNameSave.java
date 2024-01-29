@@ -112,7 +112,7 @@ public class AttributeDefNameSave {
    * @param theAttributeDef
    */
   public AttributeDefNameSave(AttributeDef theAttributeDef) {
-    this.grouperSession = GrouperSession.staticGrouperSession();
+    this.grouperSession = GrouperSession.staticGrouperSession(false);
     this.attributeDef = theAttributeDef;
   }
   

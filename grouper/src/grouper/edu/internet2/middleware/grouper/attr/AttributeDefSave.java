@@ -105,7 +105,7 @@ public class AttributeDefSave {
    * @param theGrouperSession
    */
   public AttributeDefSave() {
-    this.grouperSession = GrouperSession.staticGrouperSession();
+    this.grouperSession = GrouperSession.staticGrouperSession(false);
   }
   
   /** grouper session is required */
