@@ -4641,7 +4641,6 @@ public class GrouperCheckConfig {
 
             String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
             Stem legacyAttributeStem = stemNameToStem.get(legacyAttributeStemName);
-            
             {
               String legacyAttributeGroupTypeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupTypeDef.prefix");
               AttributeDef grouperLoaderTypeDef = nameOfAttributeDefToAttributeDef.get(legacyAttributeStemName + ":" + legacyAttributeGroupTypeDefPrefix + "grouperLoader");
