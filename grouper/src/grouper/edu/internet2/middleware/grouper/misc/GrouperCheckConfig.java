@@ -501,7 +501,7 @@ public class GrouperCheckConfig {
 
   /** if in check config */
   public static boolean inCheckConfig = false;
-  
+
   private static boolean firstCheckConfig = true;
   
   /**
