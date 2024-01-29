@@ -149,7 +149,7 @@ public class GshTemplateV2utils {
       
       GshTemplateConfig templateConfig = new GshTemplateConfig(gshTemplateV2test.getGshTemplateConfigId());
       templateConfig.populateConfiguration();
-      
+      templateConfig.setCurrentUser(gshTemplateV2test.getGshSubjectUsingApp());
       GshTemplateOwnerType gshTemplateOwnerType = null;
       
       Stem ownerStem = null;
