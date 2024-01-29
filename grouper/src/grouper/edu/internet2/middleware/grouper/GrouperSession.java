@@ -168,6 +168,12 @@ public class GrouperSession implements Serializable {
   @GrouperIgnoreClone
   private transient GrouperSession  rootSession;
 
+  /** have a link back so the parent session doesnt get garbage collected */
+  @GrouperIgnoreDbVersion
+  @GrouperIgnoreFieldConstant
+  @GrouperIgnoreClone
+  private transient GrouperSession  rootSessionParent;
+
   /** */
   private String          memberUUID;
 
@@ -519,6 +525,7 @@ public class GrouperSession implements Serializable {
    */
   private static void logAddThreadLocal(Map<String, Object> debugMap, String prefix) {
     if (LOG.isDebugEnabled()) {
+      clearSessionNulls();
       List<WeakReference<GrouperSession>> staticGrouperSessions = staticSessions.get();
       if (GrouperUtil.length(staticGrouperSessions) == 0) {
         debugMap.put(prefix + "staticSessions", "0");
@@ -762,6 +769,7 @@ public class GrouperSession implements Serializable {
       //stop the root
       if (this.rootSession != null && this.rootSession != this) {
         this.rootSession.stop();
+        this.rootSession.rootSessionParent = null;
       }
       
       //set some fields to null
@@ -832,6 +840,7 @@ public class GrouperSession implements Serializable {
         rs.setSubject( SubjectFinder.findRootSubject() );
         rs.setUuid( GrouperUuid.getUuid() );
         this.rootSession = rs;
+        rs.rootSessionParent = this;
       }
     }
     return this.rootSession;
