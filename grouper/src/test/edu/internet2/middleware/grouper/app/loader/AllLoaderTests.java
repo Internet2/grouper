@@ -43,6 +43,7 @@ public class AllLoaderTests {
     suite.addTestSuite(GrouperDaemonSchedulerCheckTest.class);
     suite.addTestSuite(NotificationDaemonTest.class);
     suite.addTestSuite(OtherJobScriptTest.class);
+    suite.addTestSuite(GrouperDaemonPausedJobsCheckThreadTest.class);
     //$JUnit-END$
     suite.addTest(AllLoaderDbTests.suite());
     suite.addTest(AllLoaderLdapTests.suite());

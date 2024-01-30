@@ -31,6 +31,7 @@ import org.hibernate.type.Type;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefValueType;
@@ -157,7 +158,8 @@ public class ChangeLogTempToEntity {
               List<ChangeLogEntry> changeLogEntriesToSave = new ArrayList<ChangeLogEntry>();
   
               for (int i = 0; i < tempChangeLogEntryList.size(); i++) {
-                
+                GrouperDaemonUtils.stopProcessingIfJobPaused("CHANGE_LOG_changeLogTempToChangeLog");
+
                 ChangeLogEntry CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(i);
                 List<ChangeLogEntry> currentTempChangeLogEntriesBatch = new ArrayList<ChangeLogEntry>();
                 currentTempChangeLogEntriesBatch.add(CHANGE_LOG_ENTRY);
