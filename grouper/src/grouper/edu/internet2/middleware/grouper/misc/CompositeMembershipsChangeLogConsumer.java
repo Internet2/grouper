@@ -322,6 +322,11 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
       return;
     }
     
+    // before we sync, make sure there aren't any pending changes
+    GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
+    GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
+    callablesWithProblems.clear();
+    
     Composite composite = ownerGroup.getComposite(false);
     if (composite == null) {
       // delete all composite memberships for this group
@@ -334,6 +339,7 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
       
       GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
       GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
+      callablesWithProblems.clear();
       
       return;
     }
@@ -376,5 +382,6 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
     
     GrouperFuture.waitForJob(futures, 0, callablesWithProblems);
     GrouperCallable.tryCallablesWithProblems(callablesWithProblems);
+    callablesWithProblems.clear();
   }
 }
