@@ -52,6 +52,21 @@ public class TestCompositeMembershipsChangeLogConsumer extends GrouperTest {
   public TestCompositeMembershipsChangeLogConsumer(String name) {
     super(name);
   }
+  
+  GrouperSession grouperSession = null;
+  @Override
+  protected void setUp() {
+    super.setUp();
+    grouperSession = GrouperSession.startRootSession();
+  }
+
+  
+  
+  @Override
+  protected void tearDown() {
+    GrouperSession.stopQuietly(this.grouperSession);
+    super.tearDown();
+  }
 
   /**
    * 
