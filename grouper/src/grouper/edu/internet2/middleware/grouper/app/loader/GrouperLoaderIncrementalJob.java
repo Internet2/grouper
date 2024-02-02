@@ -145,6 +145,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouperloaderLog.store();
       
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouperloaderLog);
+      
       String jobProperty = jobName.replaceFirst("^OTHER_JOB_", "");
 
       String databaseName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobProperty + ".databaseName");

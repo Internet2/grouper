@@ -81,7 +81,8 @@ public class GrouperLoaderJob implements Job {
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    
+    GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
+
     Group group = null;
     AttributeDef attributeDef = null;
     GrouperSession grouperSession = null;

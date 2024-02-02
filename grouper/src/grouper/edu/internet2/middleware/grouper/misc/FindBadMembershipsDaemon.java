@@ -29,6 +29,7 @@ import org.quartz.JobExecutionException;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -70,6 +71,8 @@ public class FindBadMembershipsDaemon implements Job {
       hib3GrouploaderLog.setJobType("OTHER_JOB");
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouploaderLog.store();
+      
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
       
       int runs = 0;
       

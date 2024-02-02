@@ -158,7 +158,7 @@ public class ChangeLogTempToEntity {
               List<ChangeLogEntry> changeLogEntriesToSave = new ArrayList<ChangeLogEntry>();
   
               for (int i = 0; i < tempChangeLogEntryList.size(); i++) {
-                GrouperDaemonUtils.stopProcessingIfJobPaused("CHANGE_LOG_changeLogTempToChangeLog");
+                GrouperDaemonUtils.stopProcessingIfJobPaused();
 
                 ChangeLogEntry CHANGE_LOG_ENTRY = tempChangeLogEntryList.get(i);
                 List<ChangeLogEntry> currentTempChangeLogEntriesBatch = new ArrayList<ChangeLogEntry>();

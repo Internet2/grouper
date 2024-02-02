@@ -1,11 +1,13 @@
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.util.Date;
 import java.util.List;
-import java.util.Set;
+import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
@@ -13,7 +15,9 @@ public class GrouperDaemonUtils {
 
   private static final Log LOG = GrouperUtil.getLog(GrouperDaemonUtils.class);
   
-  private static Set<String> pausedJobs = ConcurrentHashMap.newKeySet();
+  private static ThreadLocal<Hib3GrouperLoaderLog> threadLocalHib3GrouperLoaderLogOverall = new InheritableThreadLocal<Hib3GrouperLoaderLog>();
+
+  private static Map<String, Date> pausedRunningJobs = new ConcurrentHashMap<String, Date>();
   
   private static boolean daemonPausedJobsCheckThreadShouldStop = false;
 
@@ -23,12 +27,22 @@ public class GrouperDaemonUtils {
     public void run() {
       while (true) {
         try {
-          String sql = "select distinct job_name from grouper_qz_triggers where (trigger_state = 'PAUSED' or trigger_state='PAUSED_BLOCKED') and trigger_name not like 'MT_%'";
+          String sql = "select distinct gqft.job_name from grouper_QZ_TRIGGERS gqt, grouper_QZ_FIRED_TRIGGERS gqft where gqt.trigger_name=gqft.trigger_name and gqft.state='EXECUTING' and (gqt.trigger_state = 'PAUSED' or gqt.trigger_state='PAUSED_BLOCKED')";
           
           GcDbAccess gcDbAccess = new GcDbAccess();
-          List<String> currentPausedJobs = gcDbAccess.sql(sql.toString()).selectList(String.class);
-          pausedJobs.retainAll(currentPausedJobs);
-          pausedJobs.addAll(currentPausedJobs);
+          List<String> currentPausedRunningJobs = gcDbAccess.sql(sql.toString()).selectList(String.class);
+          Long currentTimeInMillis = System.currentTimeMillis();
+          for (String jobName : pausedRunningJobs.keySet()) {
+            if (!currentPausedRunningJobs.contains(jobName)) {
+              pausedRunningJobs.remove(jobName);
+            }
+          }
+          
+          for (String jobName : currentPausedRunningJobs) {
+            if (!pausedRunningJobs.containsKey(jobName)) {
+              pausedRunningJobs.put(jobName, new Date(currentTimeInMillis));
+            }
+          }
         } catch (Exception e) {
           LOG.warn("Exception checking for paused jobs", e);
         }
@@ -55,9 +69,19 @@ public class GrouperDaemonUtils {
     daemonPausedJobsCheckThread.start();
   }
   
-  public static void stopProcessingIfJobPaused(String jobName) {
-    if (pausedJobs.contains(jobName)) {
-      throw new RuntimeException("Job " + jobName + " is marked as disabled (paused in Quartz).  This was likely done from the UI.");
+  public static void stopProcessingIfJobPaused() {
+    Hib3GrouperLoaderLog hib3GrouperLoaderLog = GrouperDaemonUtils.getThreadLocalHib3GrouperLoaderLogOverall();
+    if (hib3GrouperLoaderLog == null || hib3GrouperLoaderLog.getStartedTime() == null || hib3GrouperLoaderLog.getJobName() == null) {
+      // can't do anything here
+      return;
+    }
+    
+    Date dateWhenDetectedPausedRunning = pausedRunningJobs.get(hib3GrouperLoaderLog.getJobName());
+    
+    if (dateWhenDetectedPausedRunning != null) {
+      if (hib3GrouperLoaderLog.getStartedTime().getTime() < dateWhenDetectedPausedRunning.getTime()) {
+        throw new RuntimeException("Job " + hib3GrouperLoaderLog.getJobName() + " is marked as disabled (paused in Quartz).  This was likely done from the UI.");
+      }
     }
   }
   
@@ -75,5 +99,20 @@ public class GrouperDaemonUtils {
         // ignore
       }
     }
+  }
+
+  /**
+   * Set the overall grouper loader log in a threadlocal
+   * @param hib3GrouperLoaderLog
+   */
+  public static void setThreadLocalHib3GrouperLoaderLogOverall(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    threadLocalHib3GrouperLoaderLogOverall.set(hib3GrouperLoaderLog);
+  }
+  
+  /**
+   * @return overall grouper loader log
+   */
+  public static Hib3GrouperLoaderLog getThreadLocalHib3GrouperLoaderLogOverall() {
+    return threadLocalHib3GrouperLoaderLogOverall.get();
   }
 }
