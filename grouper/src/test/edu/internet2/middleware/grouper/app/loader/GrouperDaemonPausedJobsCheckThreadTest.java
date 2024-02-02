@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import org.quartz.CronScheduleBuilder;
@@ -10,7 +11,9 @@ import org.quartz.Scheduler;
 import org.quartz.Trigger;
 import org.quartz.TriggerBuilder;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import junit.textui.TestRunner;
 
 public class GrouperDaemonPausedJobsCheckThreadTest extends GrouperTest {
@@ -46,6 +49,10 @@ public class GrouperDaemonPausedJobsCheckThreadTest extends GrouperTest {
     String jobName = "OTHER_JOB_1";
 
     try {
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
+      hib3GrouperLoaderLog.setJobName(jobName);
+      hib3GrouperLoaderLog.setStartedTime(new Timestamp(System.currentTimeMillis()));
+      
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
 
       JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
@@ -60,10 +67,29 @@ public class GrouperDaemonPausedJobsCheckThreadTest extends GrouperTest {
       
       GrouperLoader.scheduleJobIfNeeded(jobDetail, trigger);
       
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouperLoaderLog);
+      
+      // pretend like it's firing
+      new GcDbAccess().sql("insert into grouper_QZ_FIRED_TRIGGERS (sched_name, entry_id, trigger_name, trigger_group, instance_name, fired_time, sched_time, priority, state, job_name, job_group) values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        .addBindVar("DefaultQuartzScheduler")
+        .addBindVar("asdf")
+        .addBindVar("triggerOtherJob_OTHER_JOB_1")
+        .addBindVar("DEFAULT")
+        .addBindVar("asdf")
+        .addBindVar(System.currentTimeMillis())
+        .addBindVar(System.currentTimeMillis())
+        .addBindVar(5)
+        .addBindVar("EXECUTING")
+        .addBindVar("OTHER_JOB_1")
+        .addBindVar("DEFAULT")
+        .executeSql();
+      
       GrouperDaemonUtils.startDaemonPausedJobsCheckThread();
 
+      Thread.sleep(5000);
+
       // not paused
-      GrouperDaemonUtils.stopProcessingIfJobPaused(jobName);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       JobKey jobKey = new JobKey(jobName);
       scheduler.pauseJob(jobKey);
@@ -71,7 +97,21 @@ public class GrouperDaemonPausedJobsCheckThreadTest extends GrouperTest {
       
       // now this should throw an exception
       try {
-        GrouperDaemonUtils.stopProcessingIfJobPaused(jobName);
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+        fail("should have thrown exception");
+      } catch (Exception e) {
+        // ok
+      }
+      
+      // if loader log started time is after, then it's fine
+      hib3GrouperLoaderLog.setStartedTime(new Timestamp(System.currentTimeMillis()));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+      // set back and confirm error again
+      hib3GrouperLoaderLog.setStartedTime(new Timestamp(System.currentTimeMillis() - 1000000L));
+
+      try {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
         fail("should have thrown exception");
       } catch (Exception e) {
         // ok
@@ -80,8 +120,10 @@ public class GrouperDaemonPausedJobsCheckThreadTest extends GrouperTest {
       scheduler.resumeJob(jobKey);
       Thread.sleep(12000);
 
-      GrouperDaemonUtils.stopProcessingIfJobPaused(jobName);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
     } finally {
+      new GcDbAccess().sql("delete from grouper_QZ_FIRED_TRIGGERS where job_name='OTHER_JOB_1'").executeSql();
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
       GrouperLoader.schedulerFactory().getScheduler().deleteJob(new JobKey(jobName));
       GrouperLoader.schedulerFactory().getScheduler().shutdown(true);
     }    
