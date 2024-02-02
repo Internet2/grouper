@@ -485,6 +485,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       storeLogInDb(hib3GrouperloaderLog, false, startTime);
       throw jobExecutionException;
     } finally {
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }

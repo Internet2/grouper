@@ -27,7 +27,7 @@ public class GrouperDaemonUtils {
     public void run() {
       while (true) {
         try {
-          String sql = "select distinct gqft.job_name from grouper_QZ_TRIGGERS gqt, grouper_QZ_FIRED_TRIGGERS gqft where gqt.trigger_name=gqft.trigger_name and gqft.state='EXECUTING' and (gqt.trigger_state = 'PAUSED' or gqt.trigger_state='PAUSED_BLOCKED')";
+          String sql = "select distinct gqft.job_name from grouper_QZ_TRIGGERS gqt, grouper_QZ_FIRED_TRIGGERS gqft where gqt.job_name=gqft.job_name and gqft.state='EXECUTING' and (gqt.trigger_state = 'PAUSED' or gqt.trigger_state='PAUSED_BLOCKED') and gqt.trigger_name not like 'MT_%'";
           
           GcDbAccess gcDbAccess = new GcDbAccess();
           List<String> currentPausedRunningJobs = gcDbAccess.sql(sql.toString()).selectList(String.class);
@@ -114,5 +114,12 @@ public class GrouperDaemonUtils {
    */
   public static Hib3GrouperLoaderLog getThreadLocalHib3GrouperLoaderLogOverall() {
     return threadLocalHib3GrouperLoaderLogOverall.get();
+  }
+  
+  /**
+   * Clear the overall grouper loader log in a threadlocal
+   */
+  public static void clearThreadLocalHib3GrouperLoaderLogOverall() {
+    threadLocalHib3GrouperLoaderLogOverall.remove();
   }
 }

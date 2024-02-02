@@ -141,6 +141,8 @@ public class FindBadMembershipsDaemon implements Job {
       storeLogInDb(hib3GrouploaderLog, false, startTime);
       throw jobExecutionException;
     } finally {
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+
       FindBadMemberships.clearResults();
       GrouperSession.stopQuietly(grouperSession);
     }

@@ -81,12 +81,13 @@ public class GrouperLoaderJob implements Job {
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
 
     Group group = null;
     AttributeDef attributeDef = null;
     GrouperSession grouperSession = null;
     try {
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
+
       grouperSession = GrouperSession.startRootSession();
       String jobName = context.getJobDetail().getKey().getName();
   
@@ -354,6 +355,8 @@ public class GrouperLoaderJob implements Job {
       storeLogInDb(hib3GrouploaderLog, false, startTime);
       throw jobExecutionException;
     } finally {
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }

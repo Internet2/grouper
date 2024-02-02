@@ -41,7 +41,6 @@ public class GrouperReportJob implements Job {
   public static void main(String[] args) throws Exception {
     GrouperStartup.startup();
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-    GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
 
     runJob(hib3GrouploaderLog, "grouper_report_9b758c6f0eca4656bdb374c4791c5403_be81dab88d274d0ab446ee238954e5a8");
 
@@ -74,6 +73,8 @@ public class GrouperReportJob implements Job {
     GrouperSession grouperSession = null;
     GrouperReportInstance newReportInstance = new GrouperReportInstance();
     try {
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
+
       grouperSession = GrouperSession.startRootSession();
       
       if (!"STARTED".equals(hib3GrouploaderLog.getStatus()) && GrouperLoader.isJobRunning(jobName, true)) {
@@ -158,6 +159,8 @@ public class GrouperReportJob implements Job {
       throw jobExecutionException;
       
     } finally {
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+      
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("grouperReportLog");
       }

@@ -466,6 +466,8 @@ public abstract class OtherJobBase implements Job {
           throw new RuntimeException(e);
 
         } finally {
+          GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+          
           if (assignedContext) {
             GrouperContext.deleteDefaultContext();
           }
