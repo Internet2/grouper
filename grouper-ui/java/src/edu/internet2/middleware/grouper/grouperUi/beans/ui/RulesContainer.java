@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +19,9 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -34,7 +39,9 @@ public class RulesContainer {
    */
   public RulesContainer() {
   }
-
+  
+  private GuiRuleDefinition currentGuiRuleDefinition;
+  
   /**
    * if can view privilege inheritance
    * @return true if can
@@ -234,6 +241,46 @@ public class RulesContainer {
     
     return this.canUpdateRules;
   
+  }
+
+  
+  public GuiRuleDefinition getCurrentGuiRuleDefinition() {
+    return currentGuiRuleDefinition;
+  }
+
+  
+  public void setCurrentGuiRuleDefinition(GuiRuleDefinition currentGuiRuleDefinition) {
+    this.currentGuiRuleDefinition = currentGuiRuleDefinition;
+  }
+  
+  public List<String> getAllCheckTypes() {
+    RuleCheckType[] values = RuleCheckType.values();
+    List<String> checkTypes = new ArrayList<>();
+    for (RuleCheckType checkType: values) {
+      checkTypes.add(checkType.name());
+    }
+    return checkTypes;
+  }
+
+  public List<String> getAllIfConditionEnums() {
+    RuleIfConditionEnum[] ruleIfConditionEnums = RuleIfConditionEnum.values();
+    List<String> result = new ArrayList<>();
+    for (RuleIfConditionEnum ruleIfConditionEnum: ruleIfConditionEnums) {
+      result.add(ruleIfConditionEnum.name());
+    }
+    return result;
+  }
+  
+  private RuleConfig ruleConfig;
+
+  
+  public RuleConfig getRuleConfig() {
+    return ruleConfig;
+  }
+
+  
+  public void setRuleConfig(RuleConfig ruleConfig) {
+    this.ruleConfig = ruleConfig;
   }
   
   

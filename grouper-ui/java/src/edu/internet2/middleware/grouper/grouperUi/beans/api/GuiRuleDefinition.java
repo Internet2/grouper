@@ -11,11 +11,17 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -30,7 +36,7 @@ public class GuiRuleDefinition implements Serializable, Comparable {
    * rule definition this is based on
    */
   private RuleDefinition ruleDefinition;
-
+  
   /**
    * 
    */
@@ -322,7 +328,267 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     //equal?  :)
     return 0;
   }
+  
+  
+  private GuiObjectBase checkGuiObject;
+  
+  
+  public GuiObjectBase getCheckGuiObject() {
+    return checkGuiObject;
+  }
 
+  
+  public void setCheckGuiObject(GuiObjectBase checkGuiObject) {
+    this.checkGuiObject = checkGuiObject;
+  }
+  
+  private GuiObjectBase ifGuiObject;
+  
+  
+  public GuiObjectBase getIfGuiObject() {
+    return ifGuiObject;
+  }
+
+  
+  public void setIfGuiObject(GuiObjectBase ifGuiObject) {
+    this.ifGuiObject = ifGuiObject;
+  }
+  
+  private GuiObjectBase thenGuiObject;
+  
+  
+  public GuiObjectBase getThenGuiObject() {
+    return thenGuiObject;
+  }
+
+  
+  public void setThenGuiObject(GuiObjectBase thenGuiObject) {
+    this.thenGuiObject = thenGuiObject;
+  }
+
+  public String getCheck() {
+    
+    if (this.ruleDefinition.getCheck() != null && this.ruleDefinition.getCheck().checkTypeEnum() != null) {
+      
+      //e.g. flattenedMembershipAdd
+      String checkName = this.ruleDefinition.getCheck().checkTypeEnum().name();
+      
+      if (this.ruleDefinition.getCheck().checkTypeEnum().isCheckOwnerTypeGroup(this.ruleDefinition)) {
+        
+        String groupId = this.ruleDefinition.getCheck().getCheckOwnerId();
+        Group group = null;
+        if (StringUtils.isNotBlank(groupId)) {
+          group = GroupFinder.findByUuid(groupId, false);
+          if (group == null) {
+            return "Group not found: "+groupId; //TODO externalize "Group not found:"
+          }
+        }
+        if (group == null) {
+          String groupName = this.ruleDefinition.getCheck().getCheckOwnerName();
+          if (StringUtils.isNotBlank(groupName)) {
+            group = GroupFinder.findByName(groupName, false);
+            if (group == null) {
+              return "Group not found: "+groupName; //TODO externalize "Group not found:"
+            }
+          } 
+        }
+        if (group == null) {
+          if (this.ruleDefinition.getAttributeAssignType() != null) {
+            String ownerGroupId = this.ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+            if (StringUtils.isNotBlank(ownerGroupId)) {
+              group = GroupFinder.findByUuid(groupId, false);
+            }
+          }
+        } 
+        
+        if (group != null) {
+          GuiGroup guiGroup = new GuiGroup(group);
+          this.setCheckGuiObject(guiGroup);
+          return TextContainer.retrieveFromRequest().getText().get("rulesTableCheckHumanFriendlyValue_"+checkName);
+        }
+        
+      } else if (this.ruleDefinition.getCheck().checkTypeEnum().isCheckOwnerTypeStem(this.ruleDefinition)) {
+        
+        String stemId = this.ruleDefinition.getCheck().getCheckOwnerId();
+        Stem stem = null;
+        if (StringUtils.isNotBlank(stemId)) {
+          stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
+          if (stem == null) {
+            return "Folder not found: "+stemId; //TODO externalize "Group not found:"
+          }
+        } 
+        if (stem == null) {
+          String stemName = this.ruleDefinition.getCheck().getCheckOwnerName();
+          if (StringUtils.isNotBlank(stemName)) {
+            stem = StemFinder.findByName(stemName, false);
+            if (stem == null) {
+              return "Folder not found: "+stemName; //TODO externalize "Group not found:"
+            }
+          }
+        }
+        
+        if (stem == null) {
+          if (this.ruleDefinition.getAttributeAssignType() != null) {
+            String ownerStemId = this.ruleDefinition.getAttributeAssignType().getOwnerStemId();
+            if (StringUtils.isNotBlank(ownerStemId)) {
+              stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerStemId, false);
+            }
+          }
+        } 
+        
+        if (stem != null) {
+          GuiStem guiStem = new GuiStem(stem);
+          this.setCheckGuiObject(guiStem);
+          return TextContainer.retrieveFromRequest().getText().get("rulesTableCheckHumanFriendlyValue_"+checkName);
+        }
+        
+      }
+      
+    }
+    return "";
+  }
+  
+  
+  public String getCondition() {
+    
+    if (this.ruleDefinition.getIfCondition() == null) {
+      return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionAlwaysHumanFriendlyValue");
+    }
+    
+    if (StringUtils.isNotBlank(this.ruleDefinition.getIfCondition().getIfConditionEl())) {
+      //EL: value of the attribute but abbreviate it and show first 50 characters
+      return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionElPrefix")
+          + " " + GrouperUtil.abbreviate(this.ruleDefinition.getIfCondition().getIfConditionEl(), 53);
+    }
+     
+    if (this.ruleDefinition.getIfCondition().ifConditionEnum() != null) {
+      
+      //e.g. flattenedMembershipAdd
+      String ifConditionEnumName = this.ruleDefinition.getIfCondition().ifConditionEnum().name();
+      
+      if (this.ruleDefinition.getIfCondition().ifConditionEnum().isIfOwnerTypeGroup(this.ruleDefinition)) {
+        
+        String groupId = this.ruleDefinition.getIfCondition().getIfOwnerId();
+        Group group = null;
+        if (StringUtils.isNotBlank(groupId)) {
+          group = GroupFinder.findByUuid(groupId, false);
+          if (group == null) {
+            return "Group not found: "+groupId; //TODO externalize "Group not found:"
+          }
+        }
+        if (group == null) {
+          String groupName = this.ruleDefinition.getIfCondition().getIfOwnerName();
+          if (StringUtils.isNotBlank(groupName)) {
+            group = GroupFinder.findByName(groupName, false);
+            if (group == null) {
+              return "Group not found: "+groupName; //TODO externalize "Group not found:"
+            }
+          }
+        }
+        
+        if (group == null) {
+          if (this.ruleDefinition.getAttributeAssignType() != null) {
+            String ownerGroupId = this.ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+            if (StringUtils.isNotBlank(ownerGroupId)) {
+              group = GroupFinder.findByUuid(groupId, false);
+            }
+          }
+        } 
+        
+        if (group != null) {
+          GuiGroup guiGroup = new GuiGroup(group);
+          this.setIfGuiObject(guiGroup);
+          return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionHumanFriendlyValue_"+ifConditionEnumName);
+        }
+        
+      } else if (this.ruleDefinition.getIfCondition().ifConditionEnum().isIfOwnerTypeStem(this.ruleDefinition)) {
+        
+        String stemId = this.ruleDefinition.getIfCondition().getIfOwnerId();
+        Stem stem = null;
+        if (StringUtils.isNotBlank(stemId)) {
+          stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
+          if (stem == null) {
+            return "Folder not found: "+stemId; //TODO externalize "Group not found:"
+          }
+        }
+        if (stem == null) {
+          String stemName = this.ruleDefinition.getIfCondition().getIfOwnerName();
+          if (StringUtils.isNotBlank(stemName)) {
+            stem = StemFinder.findByName(stemName, false);
+            if (stem == null) {
+              return "Folder not found: "+stemName; //TODO externalize "Group not found:"
+            }
+          }
+        }
+        
+        if (stem == null) {
+          if (this.ruleDefinition.getAttributeAssignType() != null) {
+            String ownerStemId = this.ruleDefinition.getAttributeAssignType().getOwnerStemId();
+            if (StringUtils.isNotBlank(ownerStemId)) {
+              stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerStemId, false);
+            }
+          }
+        } 
+        
+        if (stem != null) {
+          GuiStem guiStem = new GuiStem(stem);
+          this.setIfGuiObject(guiStem);
+          return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionHumanFriendlyValue_"+ifConditionEnumName);
+        }
+        
+      }
+      
+    }
+    
+    return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionAlwaysHumanFriendlyValue");
+  }
+  
+  public String getResult() {
+    
+    if (this.ruleDefinition.getThen() == null) {
+      return "";
+    }
+    
+    if (StringUtils.isNotBlank(this.ruleDefinition.getThen().getThenEl())) {
+      //EL: value of the attribute but abbreviate it and show first 50 characters
+      return TextContainer.retrieveFromRequest().getText().get("rulesTableResultElPrefix")
+          + " " + GrouperUtil.abbreviate(this.ruleDefinition.getThen().getThenEl(), 53);
+    }
+    
+    
+    if (this.ruleDefinition.getAttributeAssignType() != null) {
+      String ownerGroupId = this.ruleDefinition.getAttributeAssignType().getOwnerGroupId();
+      String ownerStemId = this.ruleDefinition.getAttributeAssignType().getOwnerStemId();
+      if (StringUtils.isNotBlank(ownerGroupId)) {
+        Group group = GroupFinder.findByUuid(ownerGroupId, false);
+        GuiGroup guiGroup = new GuiGroup(group);
+        this.setThenGuiObject(guiGroup);
+      } else if (StringUtils.isNotBlank(ownerStemId)) {
+        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerStemId, false);
+        GuiStem guiStem = new GuiStem(stem);
+        this.setThenGuiObject(guiStem);
+      }
+    }
+    
+    if (this.ruleDefinition.getThen().thenEnum() != null) {
+      String thenEnumName = this.ruleDefinition.getThen().thenEnum().name();
+      return TextContainer.retrieveFromRequest().getText().get("rulesTableResultHumanFriendlyValue_"+thenEnumName);
+    }
+    
+    return "";
+  }
+
+  public boolean isCanRunDaemon() {
+    return this.ruleDefinition.getCheck().checkTypeEnum().canRunDeamon(this.ruleDefinition);
+  }
+  
+  public boolean isFiresImmeditately() {
+    if (this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd || this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAddInFolder
+        || this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove || this.ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemoveInFolder) {
+      return false;
+    }
+    return true;
+  }
 
   
 }

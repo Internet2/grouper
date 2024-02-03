@@ -55,6 +55,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
+import edu.internet2.middleware.grouper.app.reports.GrouperReportConfigurationBean;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -79,9 +80,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperReportContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.RuleConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.StemDeleteContainer;
@@ -3841,6 +3843,111 @@ public class UiV2Stem {
 
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * view rules screen on a folder
+   * @param request
+   * @param response
+   */
+  public void viewStemRules(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+
+      final Stem STEM = stem;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+//      if (!checkReportConfigActive()) {
+//        return;
+//      }
+//      
+//      List<GuiReportConfig> guiReportConfigs = buildGuiReportConfigs(STEM);
+      
+//      grouperReportContainer.setGuiReportConfigs(guiReportConfigs);
+      
+      Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(stem);
+      
+      Set<GuiRuleDefinition> guiRules = new HashSet<>();
+      
+      for (RuleDefinition ruleDefinition: ruleDefinitions) {
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        guiRules.add(guiRuleDefinition);
+      }
+      
+      rulesContainer.setGuiRuleDefinitions(guiRules);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/stemRules.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * show add rule screen
+   * @param request
+   * @param response
+   */
+  public void addRuleOnStem(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+      RuleConfig ruleConfig = new RuleConfig();
+      populateRuleConfigFromScreen(request, ruleConfig);
+      
+      rulesContainer.setRuleConfig(ruleConfig);
+      
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/addStemRule.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  private void populateRuleConfigFromScreen(HttpServletRequest request, RuleConfig ruleConfig) {
+    
   }
   
 }

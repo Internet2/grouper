@@ -20,13 +20,17 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
+import org.apache.commons.codec.binary.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
@@ -363,6 +367,67 @@ public class RuleFinder {
     
     return ruleDefinitions;
 
+  }
+  
+  /**
+   * get all the rule definitions that are associated with the given grouper object. 
+   * @param grouperObject
+   * @return
+   */
+  public static Set<RuleDefinition> retrieveRuleDefinitionsForGrouperObject(GrouperObject grouperObject) {
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<>();
+    
+    RuleEngine ruleEngine = RuleEngine.ruleEngine();
+    
+    //TODO remove it
+    ruleDefinitions.addAll(ruleEngine.getRuleDefinitions());
+    
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+      
+      {
+        AttributeAssign attributeAssignType = ruleDefinition.getAttributeAssignType();
+        if (attributeAssignType != null) {
+          if (StringUtils.equals(attributeAssignType.getOwnerGroupId(), grouperObject.getId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          } else if (StringUtils.equals(attributeAssignType.getOwnerStemId(), grouperObject.getId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          }
+        }
+      }
+      
+      {
+        RuleCheck ruleCheck = ruleDefinition.getCheck();
+        if (ruleCheck != null) {
+          if (StringUtils.equals(ruleCheck.getCheckOwnerId(), grouperObject.getId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          } else if (StringUtils.equals(ruleCheck.getCheckOwnerName(), grouperObject.getName())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          }
+        }
+      }
+      
+      {
+        RuleIfCondition ifCondition = ruleDefinition.getIfCondition();
+        if (ifCondition != null) {
+          if (StringUtils.equals(ifCondition.getIfOwnerId(), grouperObject.getId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          } else if (StringUtils.equals(ifCondition.getIfOwnerName(), grouperObject.getName())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          }
+        }
+      }
+      
+    }
+    
+    return ruleDefinitions;
+    
   }
   
   
