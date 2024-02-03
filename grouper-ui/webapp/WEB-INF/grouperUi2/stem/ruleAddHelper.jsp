@@ -28,8 +28,8 @@
                           <td>
                             
                             <select name="grouperRuleCheckIsOwner" id="grouperRuleCheckIsOwnerId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
-                              <option value="true" ${grouperRequestContainer.rulesContainer.ruleConfig.isCheckOwner == true ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperDaemonConfigEnableYes']}</option>
-                              <option value="false" ${grouperRequestContainer.rulesContainer.ruleConfig.isCheckOwner == false ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperDaemonConfigEnableNo']}</option>
+                              <option value="true" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == true ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperDaemonConfigEnableYes']}</option>
+                              <option value="false" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == false ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperDaemonConfigEnableNo']}</option>
                             </select>
                             <br />
                             <span class="description">${textContainer.text['grouperRuleCheckIsOwnerHint']}</span>
@@ -38,7 +38,7 @@
                         
                      </c:if>
                      
-                     <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.isCheckOwner}">
+                     <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner}">
                         
                          <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerTypeId">${textContainer.text['grouperRuleCheckOwnerTypeLabel']}</label></strong></td>
