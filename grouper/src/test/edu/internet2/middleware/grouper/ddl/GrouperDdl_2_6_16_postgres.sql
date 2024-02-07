@@ -1362,6 +1362,11 @@ CREATE INDEX grouper_loader_job_name_idx ON grouper_loader_log (job_name, status
 
 CREATE INDEX loader_context_idx ON grouper_loader_log (context_id);
 
+CREATE INDEX grouper_loader_log_temp_st_idx ON grouper_loader_log (job_name,started_time);
+CREATE INDEX grouper_loader_log_temp_s2_idx ON grouper_loader_log (job_name,status,last_updated);
+CREATE INDEX grouper_loader_log_temp_s3_idx ON grouper_loader_log (status,last_updated);
+CREATE INDEX grouper_loader_log_temp_s4_idx ON grouper_loader_log (parent_job_name); 
+
 CREATE TABLE grouper_message
 (
     id VARCHAR(40) NOT NULL,
@@ -4640,7 +4645,7 @@ COMMENT ON COLUMN grouper_pit_memberships_all_v.DEPTH IS 'DEPTH: depth of this m
 
 COMMENT ON COLUMN grouper_pit_memberships_all_v.GROUP_SET_PARENT_ID IS 'GROUP_SET_PARENT_ID: parent group set';
 
-CREATE VIEW grouper_memberships_lw_v (SUBJECT_ID, SUBJECT_SOURCE, GROUP_NAME, LIST_NAME, LIST_TYPE, GROUP_ID, MEMBER_ID) AS select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gg.name as group_name, gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID as group_id, gm.ID as member_id  from grouper_memberships_all_v gms, grouper_members gm, grouper_groups gg, grouper_fields gfl where gms.OWNER_GROUP_ID = gg.id and gms.FIELD_ID = gfl.ID and gms.MEMBER_ID = gm.ID and gms.IMMEDIATE_MSHIP_ENABLED = 'T';
+CREATE VIEW grouper_memberships_lw_v (SUBJECT_ID, SUBJECT_SOURCE, GROUP_NAME, LIST_NAME, LIST_TYPE, GROUP_ID, MEMBER_ID) AS select distinct gm.SUBJECT_ID, gm.SUBJECT_SOURCE, gg.name as group_name, gfl.NAME as list_name, gfl.TYPE as list_type, gg.ID as group_id, gm.ID as member_id  from grouper_memberships ms, grouper_group_set gs, grouper_members gm, grouper_groups gg, grouper_fields gfl where ms.OWNER_ID = gs.MEMBER_ID and ms.FIELD_ID = gs.MEMBER_FIELD_ID and gs.OWNER_GROUP_ID = gg.id and gs.FIELD_ID = gfl.ID and ms.MEMBER_ID = gm.ID and ms.ENABLED = 'T';
 
 COMMENT ON VIEW grouper_memberships_lw_v IS 'Grouper_memberships_lw_v unique membership records that can be read from a SQL interface outside of grouper.  Immediate and effective memberships are represented here (distinct)';
 

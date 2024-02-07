@@ -2755,7 +2755,19 @@ public enum GrouperDdl implements DdlVersionable {
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+      
       GrouperDdl2_6_18.attributeAssignDisallowNotNull(database, ddlVersionBean);
+      
+      GrouperDdl2_6_18.addGrouperSyncDepGroupUserTable(database, ddlVersionBean);
+      GrouperDdl2_6_18.addGrouperSyncDepGroupUserForeignKeys(database, ddlVersionBean);
+      GrouperDdl2_6_18.addGrouperSyncDepGroupUserIndexes(database, ddlVersionBean);
+      GrouperDdl2_6_18.addGrouperSyncDepGroupUserComments(database, ddlVersionBean);
+
+      GrouperDdl2_6_18.addGrouperSyncDepGroupGroupTable(database, ddlVersionBean);
+      GrouperDdl2_6_18.addGrouperSyncDepGroupGroupForeignKeys(database, ddlVersionBean);
+      GrouperDdl2_6_18.addGrouperSyncDepGroupGroupIndexes(database, ddlVersionBean);
+      GrouperDdl2_6_18.addGrouperSyncDepGroupGroupComments(database, ddlVersionBean);
+
     }
   },
   V45 {
@@ -6365,7 +6377,7 @@ public enum GrouperDdl implements DdlVersionable {
     GrouperDdl2_5_34.addGrouperFileComments(database, ddlVersionBean);
 
     GrouperDdl2_5_38.addGrouperSyncLogComments(database, ddlVersionBean);
-        
+
     GrouperDdl2_6_1.addGrouperProvZoomUserComments(database, ddlVersionBean);
 
     GrouperDdl2_6_5.addGrouperFailsafeComments(database, ddlVersionBean);
@@ -6374,8 +6386,11 @@ public enum GrouperDdl implements DdlVersionable {
 
     GrouperDdl2_6_14.addGrouperLoaderComments(database, ddlVersionBean);
 
+    GrouperDdl2_6_18.addGrouperSyncDepGroupGroupComments(database, ddlVersionBean);
+    GrouperDdl2_6_18.addGrouperSyncDepGroupUserComments(database, ddlVersionBean);
+
     String groupIdCol = "id";
-    
+
     String stemIdCol = "id";
     
     String memberIdCol = "id";
@@ -6687,6 +6702,9 @@ public enum GrouperDdl implements DdlVersionable {
     
     GrouperDdl2_6_5.addGrouperLastLoginForeignKey(database, ddlVersionBean);
     GrouperDdl2_6_5.addGrouperStemViewPrivilegeForeignKeys(database, ddlVersionBean);
+
+    GrouperDdl2_6_18.addGrouperSyncDepGroupGroupForeignKeys(database, ddlVersionBean);
+    GrouperDdl2_6_18.addGrouperSyncDepGroupUserForeignKeys(database, ddlVersionBean);
 
     //now lets add views
     if (buildingAudits) {

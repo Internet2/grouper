@@ -1939,6 +1939,35 @@ CREATE INDEX grouper_stem_v_priv_mem_idx ON grouper_stem_view_privilege (member_
 
 CREATE INDEX grouper_stem_v_priv_stem_idx ON grouper_stem_view_privilege (stem_uuid, object_type);
 
+CREATE TABLE grouper_sync_dep_group_user (
+  id_index BIGINT NOT NULL,
+  grouper_sync_id VARCHAR(40) NOT NULL,
+  group_id VARCHAR(40) NOT NULL,
+  field_id VARCHAR(40) NOT NULL,
+  PRIMARY KEY (id_index)
+);
+
+CREATE INDEX grouper_sync_dep_grp_user_idx0 ON grouper_sync_dep_group_user (grouper_sync_id);
+
+CREATE UNIQUE INDEX grouper_sync_dep_grp_user_idx1 ON grouper_sync_dep_group_user (grouper_sync_id,group_id,field_id);
+
+CREATE TABLE grouper_sync_dep_group_group (
+  id_index BIGINT NOT NULL,
+  grouper_sync_id VARCHAR(40) NOT NULL,
+  group_id VARCHAR(40) NOT NULL,
+  field_id VARCHAR(40) NOT NULL,
+  provisionable_group_id VARCHAR(40) NOT NULL,
+  PRIMARY KEY (id_index)
+);
+
+CREATE INDEX grouper_sync_dep_grp_grp_idx0 ON grouper_sync_dep_group_group (grouper_sync_id);
+
+CREATE UNIQUE INDEX grouper_sync_dep_grp_grp_idx1 ON grouper_sync_dep_group_group (grouper_sync_id,group_id,field_id,provisionable_group_id);
+
+CREATE INDEX grouper_sync_dep_grp_grp_idx2 ON grouper_sync_dep_group_group (grouper_sync_id,provisionable_group_id);
+
+CREATE INDEX grouper_sync_dep_grp_grp_idx3 ON grouper_sync_dep_group_group (grouper_sync_id,group_id,field_id);
+
 CREATE TABLE grouper_dictionary (
   internal_id BIGINT NOT NULL,
   created_on DATETIME NOT NULL,
@@ -2439,6 +2468,27 @@ ALTER TABLE grouper_sync_log
 ALTER TABLE grouper_last_login
     ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
 
+alter table grouper_sync_dep_group_user
+    add CONSTRAINT grouper_sync_dep_grp_user_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
+    
+alter table grouper_sync_dep_group_user
+    add CONSTRAINT grouper_sync_dep_grp_user_fk_1 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE;
+
+alter table grouper_sync_dep_group_user
+    add CONSTRAINT grouper_sync_dep_grp_user_fk_2 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE;
+    
+alter table grouper_sync_dep_group_group
+    add CONSTRAINT grouper_sync_dep_grp_grp_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
+
+alter table grouper_sync_dep_group_group
+    add CONSTRAINT grouper_sync_dep_grp_grp_fk_1 FOREIGN KEY (provisionable_group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
+
+alter table grouper_sync_dep_group_group
+    add CONSTRAINT grouper_sync_dep_grp_grp_fk_2 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE;
+  
+alter table grouper_sync_dep_group_group
+    add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE;
+    
 ALTER TABLE grouper_sql_cache_group
     ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields (internal_id);
 

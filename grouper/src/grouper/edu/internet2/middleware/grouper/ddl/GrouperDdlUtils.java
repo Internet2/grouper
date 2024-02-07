@@ -77,6 +77,7 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -399,6 +400,7 @@ public class GrouperDdlUtils {
    * @return the output
    */
   public static String sqlRun(File scriptFile, boolean fromUnitTest, boolean printErrorToStdOut) {
+    GrouperDdlUtils.cachedDdls = null;
    Properties properties = GrouperHibernateConfig.retrieveConfig().properties();
      
    String user = properties.getProperty("hibernate.connection.username");
@@ -407,8 +409,12 @@ public class GrouperDdlUtils {
    String driver = properties.getProperty("hibernate.connection.driver_class");
    pass = Morph.decryptIfFile(pass);
    driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(url, driver);
-   return GrouperDdlUtils.sqlRun(scriptFile, driver, url, user, pass, fromUnitTest, printErrorToStdOut);
+   String result = GrouperDdlUtils.sqlRun(scriptFile, driver, url, user, pass, fromUnitTest, printErrorToStdOut);
 
+   if (GrouperDdlUtils.isMysql() && fromUnitTest) {
+     GrouperUtil.sleep(3000);
+   }
+   return result;
   }
   
   /**
@@ -1970,7 +1976,11 @@ public class GrouperDdlUtils {
       Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
         null, null);
     
-      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, true);
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+      
+      if (membersTable == null) {
+        return false;
+      }
       
       index = GrouperDdlUtils.ddlutilsFindIndex(database, membersTable.getName(), indexName);
       

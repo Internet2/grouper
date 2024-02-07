@@ -284,7 +284,7 @@ public class GrouperDdl2_6_1 {
 
     {
       String scriptOverrideName = ddlVersionBean.isSmallIndexes() ? 
-          "\nCREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prod_zoom_user (email(100), config_id);\n" : null;
+          "\nCREATE UNIQUE INDEX grouper_zoom_user_email_idx ON grouper_prov_zoom_user (email(100), config_id);\n" : null;
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, grouperZoomTable.getName(), 
           "grouper_zoom_user_email_idx", scriptOverrideName, true, COLUMN_GROUPER_PROV_ZOOM_USER_EMAIL, COLUMN_GROUPER_PROV_ZOOM_USER_CONFIG_ID);
