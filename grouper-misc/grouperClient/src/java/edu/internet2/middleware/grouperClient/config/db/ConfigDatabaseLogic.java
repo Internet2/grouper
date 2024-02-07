@@ -1109,6 +1109,10 @@ public class ConfigDatabaseLogic {
       debugMap.put("exception", e.getMessage());
       debugMap.put("exceptionObject", e);
       
+      if (theConnection == null) {
+        throw new RuntimeException("Error connecting to database to get configuration", e);
+      }
+      
       String testQuery = null;
       
       if (isOracle(cachedHibernateUrl)) {
@@ -1128,7 +1132,7 @@ public class ConfigDatabaseLogic {
       } catch (Exception e2) {
         debugMap.put("exceptionTest", e.getMessage());
         debugMap.put("exceptionTestObject", e);
-        throw new RuntimeException("Error connection to database to get configuration", e2);
+        throw new RuntimeException("Error connecting to database to get configuration", e2);
       } finally {
         closeQuietly(resultSet);
         closeQuietly(preparedStatement);
