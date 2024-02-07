@@ -153,6 +153,11 @@ public class ConfigDatabaseLogic {
   private static int secondsBetweenFullRefresh = 3600;
 
   /**
+   * cache this, it doesnt change
+   */
+  private static String cachedHibernateUrl = null;
+
+  /**
    * 
    * @param theSeconds
    */
@@ -535,9 +540,10 @@ public class ConfigDatabaseLogic {
     
     GrouperHibernateConfigClient grouperHibernateConfig = GrouperHibernateConfigClient.retrieveConfig();
 
-    String dbUrl = grouperHibernateConfig.propertyValueStringRequired("hibernate.connection.url");;
-    String dbUser = grouperHibernateConfig.propertyValueString("hibernate.connection.username");;
-    String dbPass = grouperHibernateConfig.propertyValueString("hibernate.connection.password");;
+    String dbUrl = grouperHibernateConfig.propertyValueStringRequired("hibernate.connection.url");
+    cachedHibernateUrl  = dbUrl;
+    String dbUser = grouperHibernateConfig.propertyValueString("hibernate.connection.username");
+    String dbPass = grouperHibernateConfig.propertyValueString("hibernate.connection.password");
     dbPass = Morph.decryptIfFile(dbPass);
     String driver = grouperHibernateConfig.propertyValueString("hibernate.connection.driver_class");
     driver = ConfigDatabaseLogic.convertUrlToDriverClassIfNeeded(dbUrl, driver);
@@ -1101,7 +1107,40 @@ public class ConfigDatabaseLogic {
       }
     } catch (Exception e) {
       debugMap.put("exception", e.getMessage());
+
+      debugMap.put("exceptionObject", e);
+      
+      if (theConnection == null) {
+        throw new RuntimeException("Error connecting to database to get configuration", e);
+      }
+      
+      String testQuery = null;
+      
+      if (isOracle(cachedHibernateUrl)) {
+        testQuery = "select 1 from dual";
+      } else if (isMysql(cachedHibernateUrl)) {
+        testQuery = "select 1";
+      } else if (isPostgres(cachedHibernateUrl)) {
+        testQuery = "select 1";
+      }
   
+
+      try {
+        preparedStatement = theConnection.prepareStatement(testQuery);
+        resultSet = preparedStatement.executeQuery();
+        if (resultSet.next()) {
+          resultSet.getBigDecimal(1);
+        }
+      } catch (Exception e2) {
+        debugMap.put("exceptionTest", e.getMessage());
+        debugMap.put("exceptionTestObject", e);
+        throw new RuntimeException("Error connecting to database to get configuration", e2);
+    } finally {
+      closeQuietly(resultSet);
+      closeQuietly(preparedStatement);
+      closeQuietly(theConnection);
+      }
+                          
     } finally {
       closeQuietly(resultSet);
       closeQuietly(preparedStatement);
@@ -1110,6 +1149,15 @@ public class ConfigDatabaseLogic {
         debugMap.put("ms", (System.nanoTime() - now)/1000000);
 
         LOG.debug(mapToString(debugMap));
+        Exception e = (Exception)debugMap.get("exceptionObject");
+        if (e != null) {
+          LOG.debug("errorCheckTableQuery", e);
+        }
+        e = (Exception)debugMap.get("exceptionTestObject");
+        if (e != null) {
+          LOG.debug("errorTestConnectionQuery", e);
+        }
+        
       }
     }
     return false;
