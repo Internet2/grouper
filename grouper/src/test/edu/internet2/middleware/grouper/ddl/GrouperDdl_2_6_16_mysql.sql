@@ -1921,35 +1921,6 @@ CREATE INDEX grouper_stem_v_priv_mem_idx ON grouper_stem_view_privilege (member_
 
 CREATE INDEX grouper_stem_v_priv_stem_idx ON grouper_stem_view_privilege (stem_uuid, object_type);
 
-CREATE TABLE grouper_sync_dep_group_user (
-  id_index BIGINT NOT NULL,
-  grouper_sync_id VARCHAR(40) NOT NULL,
-  group_id VARCHAR(40) NOT NULL,
-  field_id VARCHAR(40) NOT NULL,
-  PRIMARY KEY (id_index)
-);
-
-CREATE INDEX grouper_sync_dep_grp_user_idx0 ON grouper_sync_dep_group_user (grouper_sync_id);
-
-CREATE UNIQUE INDEX grouper_sync_dep_grp_user_idx1 ON grouper_sync_dep_group_user (grouper_sync_id,group_id,field_id);
-
-CREATE TABLE grouper_sync_dep_group_group (
-  id_index BIGINT NOT NULL,
-  grouper_sync_id VARCHAR(40) NOT NULL,
-  group_id VARCHAR(40) NOT NULL,
-  field_id VARCHAR(40) NOT NULL,
-  provisionable_group_id VARCHAR(40) NOT NULL,
-  PRIMARY KEY (id_index)
-);
-
-CREATE INDEX grouper_sync_dep_grp_grp_idx0 ON grouper_sync_dep_group_group (grouper_sync_id);
-
-CREATE UNIQUE INDEX grouper_sync_dep_grp_grp_idx1 ON grouper_sync_dep_group_group (grouper_sync_id,group_id,field_id,provisionable_group_id);
-
-CREATE INDEX grouper_sync_dep_grp_grp_idx2 ON grouper_sync_dep_group_group (grouper_sync_id,provisionable_group_id);
-
-CREATE INDEX grouper_sync_dep_grp_grp_idx3 ON grouper_sync_dep_group_group (grouper_sync_id,group_id,field_id);
-
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
 
@@ -2277,27 +2248,6 @@ ALTER TABLE grouper_sync_log
 ALTER TABLE grouper_last_login
     ADD CONSTRAINT fk_grouper_last_login_mem FOREIGN KEY (member_uuid) REFERENCES grouper_members (id) on delete cascade;
 
-alter table grouper_sync_dep_group_user
-    add CONSTRAINT grouper_sync_dep_grp_user_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
-    
-alter table grouper_sync_dep_group_user
-    add CONSTRAINT grouper_sync_dep_grp_user_fk_1 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE;
-
-alter table grouper_sync_dep_group_user
-    add CONSTRAINT grouper_sync_dep_grp_user_fk_2 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE;
-    
-alter table grouper_sync_dep_group_group
-    add CONSTRAINT grouper_sync_dep_grp_grp_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
-
-alter table grouper_sync_dep_group_group
-    add CONSTRAINT grouper_sync_dep_grp_grp_fk_1 FOREIGN KEY (provisionable_group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
-
-alter table grouper_sync_dep_group_group
-    add CONSTRAINT grouper_sync_dep_grp_grp_fk_2 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE;
-  
-alter table grouper_sync_dep_group_group
-    add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE;
-    
 CREATE INDEX group_alternate_name_idx ON grouper_groups (alternate_name(255));
 
 CREATE INDEX member_name_idx ON grouper_members (name(255));
@@ -2551,6 +2501,6 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 44, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V44, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 43, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V43, '));
 commit;

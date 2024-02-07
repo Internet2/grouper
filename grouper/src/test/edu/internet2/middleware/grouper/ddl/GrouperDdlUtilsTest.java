@@ -30,8 +30,10 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -69,7 +71,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_14To2_6_16ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_16To2_6_18ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -331,6 +333,10 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     
     GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    
+    // ddl worker wasnt there...
+    GrouperUtil.sleep(3000);
+    
     //first make sure the DB ddl is up to date
     new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
   }
@@ -1737,7 +1743,150 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   }
+  
+  /**
+   * 
+   */
+  public void testUpgradeFrom2_6_16To2_6_18ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sync_dep_group_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_dep_group_user", "field_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_user", "grouper_sync_dep_grp_user_idx1"));
 
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sync_dep_group_group"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_dep_group_group", "field_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_group", "grouper_sync_dep_grp_grp_idx2"));
+
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    // get to 2.6.16
+    File scriptToGetTo2_6_16 = retrieveScriptFile("GrouperDdl_2_6_16_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_16, true, true);
+    
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_sync_dep_group_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_dep_group_user", "field_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_user", "grouper_sync_dep_grp_user_idx1"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_sync_dep_group_group"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_dep_group_group", "field_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_group", "grouper_sync_dep_grp_grp_idx2"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sync_dep_group_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_dep_group_user", "field_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_user", "grouper_sync_dep_grp_user_idx1"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sync_dep_group_group"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_dep_group_group", "field_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_group", "grouper_sync_dep_grp_grp_idx2"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+    
+    // try from upgrade step
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    // get to 2.6.16    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_16, true, true);
+    
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_sync_dep_group_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_dep_group_user", "field_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_user", "grouper_sync_dep_grp_user_idx1"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_sync_dep_group_group"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_sync_dep_group_group", "field_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_group", "grouper_sync_dep_grp_grp_idx2"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    UpgradeTasks.V11.updateVersionFromPrevious(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sync_dep_group_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_dep_group_user", "field_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_user", "grouper_sync_dep_grp_user_idx1"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_sync_dep_group_group"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_sync_dep_group_group", "field_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_sync_dep_group_group", "grouper_sync_dep_grp_grp_idx2"));
+  
+    scriptToGetTo2_6_16.delete();
+    
+    // get everything back
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    
+    
+  }
+
+  
   /**
    * 
    */

@@ -36,6 +36,21 @@ public class TestRegistrySubject extends GrouperTest {
     TestRunner.run(new TestRegistrySubject("testSubjects"));
   }
 
+  GrouperSession grouperSession = null;
+  @Override
+  protected void setUp() {
+    super.setUp();
+    grouperSession = GrouperSession.startRootSession();
+  }
+
+  
+  
+  @Override
+  protected void tearDown() {
+    GrouperSession.stopQuietly(this.grouperSession);
+    super.tearDown();
+  }
+
   /**
    * 
    */

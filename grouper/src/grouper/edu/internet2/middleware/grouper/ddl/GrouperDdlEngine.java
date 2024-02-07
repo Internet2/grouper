@@ -602,9 +602,10 @@ public class GrouperDdlEngine {
         //ok, we stored, are we in there?
         GrouperUtil.sleep(3000);
         
-        grouperDdlWorker = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null).get(0);
+        List<Hib3GrouperDdlWorker> ddlWorkers = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
+        grouperDdlWorker = GrouperUtil.length(ddlWorkers) > 0 ? ddlWorkers.get(0) : null;
         
-        if (!StringUtils.equals(thisDdlDatabaseLockingUuid, grouperDdlWorker.getWorkerUuid())) {
+        if (grouperDdlWorker != null && !StringUtils.equals(thisDdlDatabaseLockingUuid, grouperDdlWorker.getWorkerUuid())) {
           waitForOtherProcessesToDoDdl = true;
         }
 
@@ -624,8 +625,9 @@ public class GrouperDdlEngine {
           System.out.println(waitingErrorMessage);
         }
         GrouperUtil.sleep(5000);
-        grouperDdlWorker = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null).get(0);
-        if (grouperDdlWorker.getHeartbeat() == null) {
+        List<Hib3GrouperDdlWorker> ddlWorkers = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
+        grouperDdlWorker = GrouperUtil.length(ddlWorkers) > 0 ? ddlWorkers.get(0) : null;
+        if (grouperDdlWorker == null || grouperDdlWorker.getHeartbeat() == null) {
           return false;
         }
         if (System.currentTimeMillis() - grouperDdlWorker.getHeartbeat().getTime() > 90000) {
@@ -711,6 +713,9 @@ public class GrouperDdlEngine {
     this.done = false;
     GrouperDdlUtils.insideBootstrap = true;
     boolean didSomething = false;
+
+    // read from database again
+    GrouperDdlUtils.cachedDdls = null;
     
     try {
     
@@ -875,6 +880,9 @@ public class GrouperDdlEngine {
  
     }
 
+    // read from db again
+
+    
     // see if we are doing this with static sql
     if (!this.useDdlUtils && !this.dropOnly && !this.dropBeforeCreate && !this.deepCheck) {
       GrouperDdlEngine.addDllWorkerTableIfNeeded(this.writeAndRunScript ? this.writeAndRunScript : null);
