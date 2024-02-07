@@ -158,19 +158,19 @@ public class GrouperDdl2_6_18 {
     }
   
     //  alter table grouper_sync_dep_group_user
-    //  add CONSTRAINT grouper_sync_dep_grp_user_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
+    //  add CONSTRAINT grouper_sync_dep_grp_user_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_SYNC_DEP_GROUP_USER,
         "grouper_sync_dep_grp_user_fk_0", Group.TABLE_GROUPER_GROUPS, COLUMN_GROUPER_SYNC_DEP_GROUP_USER_GROUP_ID, Group.COLUMN_ID);
     
     //  alter table grouper_sync_dep_group_user
-    //  add CONSTRAINT grouper_sync_dep_grp_user_fk_1 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE;
+    //  add CONSTRAINT grouper_sync_dep_grp_user_fk_1 FOREIGN KEY (field_id) REFERENCES grouper_fields(id);
 
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_SYNC_DEP_GROUP_USER,
         "grouper_sync_dep_grp_user_fk_1", Field.TABLE_GROUPER_FIELDS, COLUMN_GROUPER_SYNC_DEP_GROUP_USER_FIELD_ID, Field.COLUMN_ID);
 
     //  alter table grouper_sync_dep_group_user
-    //  add CONSTRAINT grouper_sync_dep_grp_user_fk_2 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE;
+    //  add CONSTRAINT grouper_sync_dep_grp_user_fk_2 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_SYNC_DEP_GROUP_USER,
         "grouper_sync_dep_grp_user_fk_2", "grouper_sync" , COLUMN_GROUPER_SYNC_DEP_GROUP_USER_GROUPER_SYNC_ID, "id");
@@ -195,25 +195,25 @@ public class GrouperDdl2_6_18 {
   
     
     //  alter table grouper_sync_dep_group_group
-    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
+    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id);
 
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_SYNC_DEP_GROUP_GROUP,
         "grouper_sync_dep_grp_grp_fk_0", Group.TABLE_GROUPER_GROUPS, COLUMN_GROUPER_SYNC_DEP_GROUP_GROUP_GROUP_ID, Group.COLUMN_ID);
 
     //  alter table grouper_sync_dep_group_group
-    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_1 FOREIGN KEY (provisionable_group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE;
+    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_1 FOREIGN KEY (provisionable_group_id) REFERENCES grouper_groups(id);
 
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_SYNC_DEP_GROUP_GROUP,
         "grouper_sync_dep_grp_grp_fk_1", Group.TABLE_GROUPER_GROUPS, COLUMN_GROUPER_SYNC_DEP_GROUP_GROUP_PROVISIONABLE_ID, Group.COLUMN_ID);
 
     //  alter table grouper_sync_dep_group_group
-    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_2 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE;
+    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_2 FOREIGN KEY (field_id) REFERENCES grouper_fields(id);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_SYNC_DEP_GROUP_GROUP,
         "grouper_sync_dep_grp_grp_fk_2", Field.TABLE_GROUPER_FIELDS, COLUMN_GROUPER_SYNC_DEP_GROUP_GROUP_FIELD_ID, Field.COLUMN_ID);
 
     //  alter table grouper_sync_dep_group_group
-    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE;
+    //  add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id);
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, TABLE_GROUPER_SYNC_DEP_GROUP_GROUP,
         "grouper_sync_dep_grp_grp_fk_3", "grouper_sync", COLUMN_GROUPER_SYNC_DEP_GROUP_GROUP_GROUPER_SYNC_ID, "id");

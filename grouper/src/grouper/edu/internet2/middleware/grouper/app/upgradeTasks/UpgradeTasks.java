@@ -431,15 +431,15 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
                 new GcDbAccess().sql("COMMENT ON COLUMN grouper_sync_dep_group_user.field_id IS 'field uuid'").executeSql();
 
               }
-              new GcDbAccess().sql("alter table grouper_sync_dep_group_user add CONSTRAINT grouper_sync_dep_grp_user_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE").executeSql();
+              new GcDbAccess().sql("alter table grouper_sync_dep_group_user add CONSTRAINT grouper_sync_dep_grp_user_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id)").executeSql();
               if (otherJobInput != null) {
                 otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
               }
-              new GcDbAccess().sql("alter table grouper_sync_dep_group_user add CONSTRAINT grouper_sync_dep_grp_user_fk_1 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE").executeSql();
+              new GcDbAccess().sql("alter table grouper_sync_dep_group_user add CONSTRAINT grouper_sync_dep_grp_user_fk_1 FOREIGN KEY (field_id) REFERENCES grouper_fields(id)").executeSql();
               if (otherJobInput != null) {
                 otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
               }
-              new GcDbAccess().sql("alter table grouper_sync_dep_group_user add CONSTRAINT grouper_sync_dep_grp_user_fk_2 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE").executeSql();
+              new GcDbAccess().sql("alter table grouper_sync_dep_group_user add CONSTRAINT grouper_sync_dep_grp_user_fk_2 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id)").executeSql();
               if (otherJobInput != null) {
                 otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
               }
@@ -506,22 +506,22 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
                 new GcDbAccess().sql("COMMENT ON COLUMN grouper_sync_dep_group_group.provisionable_group_id IS 'group uuid of the provisionable group that uses this other group as a role'").executeSql();
               }
                 
-              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE").executeSql();
+              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_0 FOREIGN KEY (group_id) REFERENCES grouper_groups(id)").executeSql();
               if (otherJobInput != null) {
                 otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
               }
               
-              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_1 FOREIGN KEY (provisionable_group_id) REFERENCES grouper_groups(id) ON DELETE CASCADE").executeSql();
+              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_1 FOREIGN KEY (provisionable_group_id) REFERENCES grouper_groups(id)").executeSql();
               if (otherJobInput != null) {
                 otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
               }
               
-              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_2 FOREIGN KEY (field_id) REFERENCES grouper_fields(id) ON DELETE CASCADE").executeSql();
+              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_2 FOREIGN KEY (field_id) REFERENCES grouper_fields(id)").executeSql();
               if (otherJobInput != null) {
                 otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
               }
 
-              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id) ON DELETE CASCADE").executeSql();
+              new GcDbAccess().sql("alter table grouper_sync_dep_group_group add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id)").executeSql();
               if (otherJobInput != null) {
                 otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
               }
