@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import net.sf.ehcache.Cache;
 import net.sf.ehcache.CacheManager;
+import net.sf.ehcache.Status;
 import net.sf.ehcache.config.CacheConfiguration;
 import net.sf.ehcache.config.Configuration;
 import net.sf.ehcache.config.DiskStoreConfiguration;
@@ -152,7 +153,7 @@ public class EhcacheController implements CacheController {
    * @since   1.2.1
    */
   public void flushCache() {
-    if (this.mgr != null) {
+    if (this.mgr != null && this.mgr.getStatus() == Status.STATUS_ALIVE) {
       this.mgr.clearAll(); // TODO 20070823 how much of a performance hit is calling this method?
     }
   }
