@@ -72,6 +72,40 @@ public class GrouperProvisioningTranslator {
  }
 
   /**
+   * make two tables and indexes:
+   * grouper_sync_dep_group_user: if a group is here then any changes to group needs to recalculate the user (not memberships)
+   * id_index (pk)
+   * grouper_sync_id (index 1) (unq) (foreign key cascade delete) (non null)
+   * group_uuid (index 2) (unq) (foreign key cascade delete) (non null)
+   * field_uuid (index 2) (unq) (foreign key cascade delete) (non null)
+   * 
+   * grouper_sync_def_group_group: if a group is here then any changes to the group needs to recalculate the group (not memberships
+   * id_index (pk)
+   * grouper_sync_id (index 1) (unq) (foreign key cascade delete) (non null)
+   * group_id  (index 3) (unq) (foreign key cascade delete) (non null)
+   * field_id  (index 3) (unq) (foreign key cascade delete) (non null)
+   * provisionable_group_id (index 2) (unq) (foreign key cascade delete) (non null)
+   * 
+   * Get memberships for user cached groups
+   * Loop through fields
+   * Batch up groups
+   * Get memberships for certain users
+   * 
+   * Get memberships for group cached groups
+   * Loop through fields
+   * Batch up groups
+   * Get memberships for all users
+   * 
+   * Init if not inited
+   * Dont have static caches, do this in provisioner
+   * Based user stuff on fields
+   * Have a arbitrary group method for groups, and privs (4 methods)
+   * Update the dependencies as new ones found
+   * Read the dependencies if needed (all in full, certain ones for users)
+   * Cache in provisioner if retrieved, retrieve if not and update tables
+   */
+  
+  /**
    * In a provisioning run, all the members of the group that are used for entity translations (for e.g.
    *  a user is active in the target). This is initialized for all members of the group for full sync
    *  or for applicable for incremental sync

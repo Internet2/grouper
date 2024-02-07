@@ -1,10 +1,62 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.ArrayList;
+import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
+import java.util.Set;
+
+import org.apache.commons.lang.StringUtils;
+
+import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
+  private static Map<String, String> memberFieldToGrouperMembersColumn = GrouperUtil.toMap(
+      "subjectId", "subject_id",
+      "subjectIdentifier0", "subject_identifier0",
+      "subjectIdentifier1", "subject_identifier1",
+      "subjectIdentifier2", "subject_identifier2",
+      "email", "email0"
+      );
+  
+  /**
+   * get a set of members
+   * @param groupPrivilegeName admins, updaters, etc
+   * @param memberField subjectId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, email
+   * @return set of values of subjects in the subject source of the provisioner
+   */
+  public Set<String> thisGroupPrivilegeHolders(String groupPrivilegeName, String memberField) {
+
+    String column = memberFieldToGrouperMembersColumn.get(memberField);
+    if (StringUtils.isBlank(column)) {
+      throw new RuntimeException("Cant find memberField '" + memberField + "', should be one of: " + GrouperUtil.toStringForLog(memberFieldToGrouperMembersColumn.keySet()));
+    }
+
+    String sql = "select gm." + column + " from grouper_memberships_lw_v gmlv, grouper_members gm " +
+        " where gmlv.member_id = gm.id and gmlv.group_id = ? and gmlv.list_name = ? ";
+    
+    Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    
+    gcDbAccess.addBindVar(this.getGroupId());
+    gcDbAccess.addBindVar(groupPrivilegeName);
+    
+    if (GrouperUtil.length(subjectSources) > 0) {
+      sql += "and gm.subject_source in (" + GrouperClientUtils.appendQuestions(subjectSources.size()) + ")";
+      for (String subjectSourceId : subjectSources) {
+        gcDbAccess.addBindVar(subjectSourceId);
+      }
+    }
+
+    return new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
+    
+  }
+  
   private ProvisioningStateGroup provisioningStateGroup = new ProvisioningStateGroup();
 
 
