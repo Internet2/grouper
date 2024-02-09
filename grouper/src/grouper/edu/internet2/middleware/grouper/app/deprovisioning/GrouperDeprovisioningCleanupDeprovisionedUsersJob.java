@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobOutput;
@@ -35,15 +36,23 @@ public class GrouperDeprovisioningCleanupDeprovisionedUsersJob extends OtherJobB
     Set<String> affiliations = GrouperDeprovisioningAffiliation.retrieveAllAffiliations().keySet();
     
     for (String affiliation: affiliations) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Set<Subject> deprovisionedSubjectsForAffiliation = GrouperDeprovisioningLogic.deprovisionedSubjectsForAffiliation(affiliation, true);
     }
     
     Map<String,Map<String,GrouperDeprovisioningObjectAttributes>> foldersOfInterestForDeprovisioning = GrouperDeprovisioningDaemonLogic.retrieveAllFoldersOfInterestForDeprovisioning();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Map<String,Map<String,GrouperDeprovisioningObjectAttributes>> groupsOfInterestForDeprovisioning = GrouperDeprovisioningDaemonLogic.retrieveAllGroupsOfInterestForDeprovisioning(foldersOfInterestForDeprovisioning);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Map<String,Map<String,GrouperDeprovisioningObjectAttributes>> attributeDefsOfInterestForDeprovisioning = GrouperDeprovisioningDaemonLogic.retrieveAllAttributeDefsOfInterestForDeprovisioning();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     for (String affiliation: foldersOfInterestForDeprovisioning.keySet()) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Map<String, GrouperDeprovisioningObjectAttributes> stemNameToDeprovAttributes = foldersOfInterestForDeprovisioning.get(affiliation);
       
       for (String stemName : stemNameToDeprovAttributes.keySet()) {

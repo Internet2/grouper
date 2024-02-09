@@ -30,6 +30,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -114,7 +115,10 @@ public class SyncStemSets {
   public long fullSync() {
         
     long stemSetCount = HibernateSession.byHqlStatic().createQuery("select count(*) from StemSet").uniqueResult(Long.class);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     long stemCount = HibernateSession.byHqlStatic().createQuery("select count(*) from Stem").uniqueResult(Long.class);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     // if we have a lot of stems and a few stem sets, let's clear out the stem sets so we don't spend time in the second phase.
     if (stemCount > 100 && stemSetCount < 100) {
@@ -127,6 +131,7 @@ public class SyncStemSets {
       
       HibernateSession.byHqlStatic().createQuery("delete from StemSet").executeUpdate();
       stemSetCount = 0;
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
     
     long count = addMissingSelfStemSets();
@@ -148,6 +153,8 @@ public class SyncStemSets {
 
     // order by name so parent stems get fixed before child stems
     Set<Object[]> stemsAndParents = HibernateSession.byHqlStatic().createQuery("select uuid, parentUuid from Stem as ns order by name").listSet(Object[].class);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Map<String, String> stemsToParents = new LinkedHashMap<String, String>();
     for (Object[] stemAndParent : stemsAndParents) {
       stemsToParents.put((String)stemAndParent[0], (String)stemAndParent[1]);
@@ -168,6 +175,8 @@ public class SyncStemSets {
       List<String> stemIds = new ArrayList<String>(stemsToParents.keySet());
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds.size(), 100);
       for (int j = 0; j < numberOfBatches; j++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> currentBatch = GrouperUtil.batchList(stemIds, 100, j);
         List<StemSet> stemSets = new ArrayList<StemSet>(GrouperDAOFactory.getFactory().getStemSet().findByIfHasStemIds(currentBatch));
 
@@ -262,6 +271,8 @@ public class SyncStemSets {
   public long addMissingSelfStemSets() {
     showStatus("Searching for missing self stemSets");
     Set<Object[]> stemIdsAndParentIdsAndNames = GrouperDAOFactory.getFactory().getStemSet().findMissingSelfStemSets();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     totalCount = stemIdsAndParentIdsAndNames.size();
     overallTotalCount += totalCount;
     showStatus("Found " + totalCount + " missing self stemSets");
@@ -294,7 +305,8 @@ public class SyncStemSets {
           List<GrouperCallable> callablesWithProblems = new ArrayList<GrouperCallable>();
           
           for (Object[] stemIdAndParentIdAndName : currStemIdsAndParentIdsAndNames) {
-            
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+
             final String stemId = (String)stemIdAndParentIdAndName[0];
             final String parentId = (String)stemIdAndParentIdAndName[1];
             

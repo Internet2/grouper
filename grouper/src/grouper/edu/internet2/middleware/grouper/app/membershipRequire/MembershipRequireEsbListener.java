@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
@@ -156,6 +157,8 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
       }
       
       for (MultiKey attributeNameTypeOwnerId : attributeNameTypeOwnerIds) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         String attributeName = (String)attributeNameTypeOwnerId.getKey(0);
         String attributeType = (String)attributeNameTypeOwnerId.getKey(1);
         String ownerId = (String)attributeNameTypeOwnerId.getKey(2);
@@ -200,6 +203,8 @@ public class MembershipRequireEsbListener extends EsbListenerBase {
         }
       }
       for (MultiKey groupNameMemberId : groupNameMemberIds) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         String requireGroupName = (String)groupNameMemberId.getKey(0);
         String memberId = (String)groupNameMemberId.getKey(1);
         Set<MembershipRequireConfigBean> membershipRequireConfigBeans = MembershipRequireEngine.requiredGroupNameToConfigBean(requireGroupName);

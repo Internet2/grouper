@@ -23,6 +23,7 @@ import org.quartz.PersistJobDataAfterExecution;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -91,6 +92,8 @@ public class GrouperWorkflowReminderEmailJob extends OtherJobBase {
     List<String> statesToIgnore = Arrays.asList(EXCEPTION_STATE, COMPLETE_STATE, INITIATE_STATE, REJECTED_STATE);
     
     for (Group group: groups) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<GrouperWorkflowInstance> instances = GrouperWorkflowInstanceService.getWorkflowInstances(group);
       
       for (GrouperWorkflowInstance instance: instances) {

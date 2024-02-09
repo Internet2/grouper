@@ -185,7 +185,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         Map<String, Map<MultiKey, Row>> rowsByGroup = new LinkedHashMap<String, Map<MultiKey, Row>>();
         
         while (resultSet.next()) {
-          
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addTotalCount(1);
           }
@@ -279,7 +280,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         final Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
         
         for (String loaderGroupName : rowsByGroup.keySet()) {
-          
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           final Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, false);
           
           if (loaderGroup == null) {

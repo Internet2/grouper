@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -41,6 +42,9 @@ public class FindBadMembershipsChangeLogConsumer extends EsbListenerBase {
     Map<String, Set<Composite>> findAsFactorOrHasMemberOfFactorResults = new HashMap<String, Set<Composite>>();
 
     for (EsbEventContainer esbEventContainer : esbEventContainers) {
+
+      // fix after merge from v4
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       EsbEventType esbEventType = esbEventContainer.getEsbEventType();
       EsbEvent esbEvent = esbEventContainer.getEsbEvent();

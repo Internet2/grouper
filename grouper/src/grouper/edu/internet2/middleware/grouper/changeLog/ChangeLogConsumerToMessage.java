@@ -22,6 +22,7 @@ import java.util.Map;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessageQueueType;
@@ -46,7 +47,6 @@ public class ChangeLogConsumerToMessage extends ChangeLogConsumerBase {
   @Override
   public long processChangeLogEntries(List<ChangeLogEntry> changeLogEntryList,
       ChangeLogProcessorMetadata changeLogProcessorMetadata) {
-
     long lastProcessed = -1;
 
     String messagingSystemName = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer." 
@@ -82,6 +82,7 @@ public class ChangeLogConsumerToMessage extends ChangeLogConsumerBase {
     boolean autocreateObjects = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.messaging.settings.autocreate.objects", true);
     
     for (ChangeLogEntry changeLogEntry : GrouperUtil.nonNull(changeLogEntryList)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
         String json = changeLogEntry.toJson(true);

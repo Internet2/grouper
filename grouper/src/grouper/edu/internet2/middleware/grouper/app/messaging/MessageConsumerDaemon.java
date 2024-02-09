@@ -37,6 +37,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -148,6 +149,8 @@ public class MessageConsumerDaemon implements Job {
     try {
       grouperMessages = receiveMessages(messagingSystemName, queueOrTopicName, routingKey, exchangeType, messageQueueType, longPollingSeconds, queueArguments, grouperMessageSystem);
       LOG.info("Received "+grouperMessages.size() +" message(s) from "+queueOrTopicName +" for message system: "+messagingSystemName);
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
     } catch (Exception e) {
       LOG.error("Error occurred while receiving messages from "+queueOrTopicName, e);
       return;
@@ -173,7 +176,8 @@ public class MessageConsumerDaemon implements Job {
     List<GrouperMessage> messagesToBeAcknowledged = new ArrayList<GrouperMessage>();
     
     for (GrouperMessage inputMessage: grouperMessages) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String messageBody = inputMessage.getMessageBody();
       InputMessageGrouperHeader grouperHeader = null;
       

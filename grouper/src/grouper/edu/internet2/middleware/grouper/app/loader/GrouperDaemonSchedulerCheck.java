@@ -173,9 +173,16 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     boolean runNow = GrouperLoader.isJobRunningAsRunNow("OTHER_JOB_schedulerCheckDaemon");
     
     handleBlockedAndAcquiredStates(otherJobInput, runNow);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     handleErrorState(otherJobInput, runNow);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     handleMissingTriggers(otherJobInput, runNow);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     handleJobsWhereJvmDied(otherJobInput);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     LOG.info("GrouperDaemonSchedulerCheck finished successfully.");
     return null;

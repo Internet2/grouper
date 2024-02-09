@@ -28,6 +28,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
@@ -329,6 +330,7 @@ public class GroupSyncConsumer extends ChangeLogConsumerBase {
     long currentId = -1;
 
     for (final ChangeLogEntry changeLogEntry : changeLogEntryList) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       //try catch so we can track that we made some progress
       try {

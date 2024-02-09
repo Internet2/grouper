@@ -62,14 +62,24 @@ public class GrouperDaemonEnabledDisabledCheck {
       long queryTime = System.currentTimeMillis() + (1000L * GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.enabledDisabled.queryIntervalInSeconds", 3600));
       
       records += internal_groupsFixEnabledDisabled(queryTime);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       records += internal_membershipsFixEnabledDisabled(queryTime);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       records += internal_attributeAssignsFixEnabledDisabled(queryTime);
-  
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       lastQuery = queryTime;
     } else {
       records += internal_groupsFixEnabledDisabledUsingCache();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       records += internal_membershipsFixEnabledDisabledUsingCache();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       records += internal_attributeAssignsFixEnabledDisabledUsingCache();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
 
     // hopefully this is always quick anyways, if not need to adjust it

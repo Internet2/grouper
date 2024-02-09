@@ -79,6 +79,9 @@ public class GrouperDaemonDeleteOldRecords {
         jobMessage.append("\nError in deleteOldGrouperLoaderLogs: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
       }
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+      
       try {
         deleteOldChangeLogEntries(jobMessage);
       } catch (Exception e) {
@@ -88,6 +91,9 @@ public class GrouperDaemonDeleteOldRecords {
         error = true;
         
       }
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         deleteOldInstrumentationData(jobMessage);
       } catch (Exception e) {
@@ -97,6 +103,8 @@ public class GrouperDaemonDeleteOldRecords {
         error = true;
       }
       
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         deleteOldAuditEntryNoLoggedInUser(jobMessage);
       } catch (Exception e) {
@@ -106,6 +114,8 @@ public class GrouperDaemonDeleteOldRecords {
         error = true;
         
       }
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
   
       try {
         deleteOldAuditEntry(jobMessage);
@@ -116,6 +126,8 @@ public class GrouperDaemonDeleteOldRecords {
         error = true;
         
       }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
         if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
@@ -139,6 +151,8 @@ public class GrouperDaemonDeleteOldRecords {
         jobMessage.append("\nError in removeMultiAttributeValuesIfSingleValuedAttribute: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
       }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
         if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
@@ -164,6 +178,8 @@ public class GrouperDaemonDeleteOldRecords {
         error = true;
       }
 
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         deleteOldDeletedPointInTimeObjects(jobMessage);
       } catch (Exception e) {
@@ -172,6 +188,8 @@ public class GrouperDaemonDeleteOldRecords {
         jobMessage.append("\nError in deleteOldDeletedPointInTime: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
       }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
         boolean[] errorArray = new boolean[]{false};
@@ -187,6 +205,8 @@ public class GrouperDaemonDeleteOldRecords {
         error = true;
       }
       
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         verifyTableIdIndexes(jobMessage);
       } catch (Exception e) {
@@ -196,6 +216,8 @@ public class GrouperDaemonDeleteOldRecords {
         error = true;
       }
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       if (error) {
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "status", "error");

@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -309,6 +310,7 @@ public class GrouperZoomLoader extends OtherJobBase {
 
             // groups that exist in zoom
             groupsInZoom = GrouperZoomCommands.retrieveGroups(configId);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
 
             Map[] groupMaps = convertTargetNamesToGrouperNames(groupsInZoom.keySet());
 
@@ -323,6 +325,7 @@ public class GrouperZoomLoader extends OtherJobBase {
               String groupIdInZoom = (String)groupInZoom.get("id");
 
               List<Map<String, Object>> zoomUsers = GrouperZoomCommands.retrieveGroupMemberships(configId, groupIdInZoom);
+              GrouperDaemonUtils.stopProcessingIfJobPaused();
 
               for (Map<String, Object> user : GrouperUtil.nonNull(zoomUsers)) {
                 String email = (String)user.get("email");
@@ -342,6 +345,7 @@ public class GrouperZoomLoader extends OtherJobBase {
 
             // roles that exist in zoom
             rolesInZoom = GrouperZoomCommands.retrieveRoles(configId);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
 
             Map[] roleMaps = convertTargetNamesToGrouperNames(rolesInZoom.keySet());
 
@@ -356,6 +360,7 @@ public class GrouperZoomLoader extends OtherJobBase {
               String roleIdInZoom = (String)roleInZoom.get("id");
 
               List<Map<String, Object>> zoomUsers = GrouperZoomCommands.retrieveRoleMemberships(configId, roleIdInZoom);
+              GrouperDaemonUtils.stopProcessingIfJobPaused();
 
               for (Map<String, Object> user : GrouperUtil.nonNull(zoomUsers)) {
                 String email = (String)user.get("email");
@@ -375,6 +380,7 @@ public class GrouperZoomLoader extends OtherJobBase {
 
             // subaccounts that exist in zoom
             subAccountsInZoom = GrouperZoomCommands.retrieveAccounts(configId);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
 
             Map<String, String> accountIdToName = new HashMap<String, String>();
 
@@ -402,6 +408,7 @@ public class GrouperZoomLoader extends OtherJobBase {
               //Map<String, Object> subAccountInZoom = subAccountsInZoom.get(subAccountId);
 
               Map<String, Map<String, Object>> zoomUsers = GrouperZoomCommands.retrieveSubaccountUsers(configId, subAccountId);
+              GrouperDaemonUtils.stopProcessingIfJobPaused();
 
               List<Map<String, Object>> users = new ArrayList<Map<String, Object>>();
 
@@ -430,6 +437,7 @@ public class GrouperZoomLoader extends OtherJobBase {
             phoneZoomNameToMemberships = new HashMap<String, List<Map<String, Object>>>();
 
             Map<String, Map<String, Object>> phoneZoomUser = GrouperZoomCommands.retrievePhoneUsers(configId, "phone/users");
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
 
             List<Map<String, Object>> users = new ArrayList<Map<String, Object>>();
 
@@ -462,6 +470,7 @@ public class GrouperZoomLoader extends OtherJobBase {
 
             // userTypes that exist in zoom
             usersInZoom = GrouperZoomCommands.retrieveUsers(configId);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
 
             for (Map<String, Object> user : usersInZoom.values()) {
 

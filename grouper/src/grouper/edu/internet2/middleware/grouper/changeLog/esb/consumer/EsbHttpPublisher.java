@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
@@ -39,7 +40,8 @@ public class EsbHttpPublisher extends EsbListenerBase {
 
     @Override
     public boolean dispatchEvent(String eventJsonString, String consumerName) {
-
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+      
         String urlString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."
                 + consumerName + ".publisher.url");
         String username = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.consumer."

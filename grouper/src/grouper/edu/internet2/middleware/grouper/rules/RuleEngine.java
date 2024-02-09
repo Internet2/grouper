@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -554,7 +555,8 @@ public class RuleEngine {
           
           for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
               GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
-            
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+
             RuleDefinition ruleDefinition = null;
             try {
               ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);

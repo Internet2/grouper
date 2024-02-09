@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -47,6 +48,7 @@ public class FindBadGroupsUniqueExtensionInFolderDaemon extends OtherJobBase {
       Set<String> groupNamesWithProblem = new TreeSet<String>();
       
       for (String configIdAndCaseSensitive : configIdToSetOfFolderNames.keySet()) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
 
         List<String> folderNames = new ArrayList<String>(GrouperUtil.nonNull(configIdToSetOfFolderNames.get(configIdAndCaseSensitive)));
         

@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.MembershipSave;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -81,11 +82,16 @@ public class SyncMembershipToGrouperLogic {
       this.getSyncToGrouper().getSyncToGrouperFromSql().loadMembershipDataFromSql();
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     this.retrieveMembershipsFromGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.compareMemberships();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.changeGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncMembershipToGrouperBeans()));
@@ -106,6 +112,8 @@ public class SyncMembershipToGrouperLogic {
     }
 
     for (SyncMembershipToGrouperBean syncMembershipToGrouperBean : GrouperUtil.nonNull(this.membershipDeletes)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String membershipLabel = syncMembershipToGrouperBean.convertToLabel();
       try {
         
@@ -126,7 +134,8 @@ public class SyncMembershipToGrouperLogic {
     }
     
     for (SyncMembershipToGrouperBean syncMembershipToGrouperBean : GrouperUtil.nonNull(this.membershipInserts)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String membershipLabel = syncMembershipToGrouperBean.convertToLabel();
       try {
         MembershipSave membershipSave = syncMembershipToGrouperBean.convertToMembershipSave();
@@ -145,6 +154,7 @@ public class SyncMembershipToGrouperLogic {
       
     }
     for (SyncMembershipToGrouperBean syncMembershipToGrouperBean : GrouperUtil.nonNull(this.membershipUpdates)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       String membershipLabel = syncMembershipToGrouperBean.convertToLabel();
       try {

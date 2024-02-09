@@ -16,6 +16,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -123,6 +124,7 @@ public class SubjectChangeDaemon extends OtherJobBase {
       }
       
       List<GcCaseIgnoreHashMap> sqlResults = new GcDbAccess().connectionName(database).sql(sql).selectListMap();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       long millisGetData = (System.nanoTime() - now) / 1000000;
       hib3GrouperLoaderLog.setMillisGetData(GrouperUtil.intObjectValue(millisGetData, false));
@@ -140,6 +142,8 @@ public class SubjectChangeDaemon extends OtherJobBase {
         
         int numberOfBatches = GrouperUtil.batchNumberOfBatches(sqlResults, BATCH_SIZE, true);
         for (int i = 0; i < numberOfBatches; i++) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           List<GcCaseIgnoreHashMap> batchSqlResults = GrouperUtil.batchList(sqlResults, BATCH_SIZE, i);
           processBatch(hib3GrouperLoaderLog, batchSqlResults, subjectSourceId, database, useSubjectIdOrIdentifier,
               columnPrimaryKey, columnCreateTimestamp, columnSubjectValue, deleteProcessedRows, updateSql, 
