@@ -74,6 +74,16 @@ public enum RuleCheckType {
   permissionDisabledDate {
     
     
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return true;
+    }
+
     /**
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#checkKey(edu.internet2.middleware.grouper.rules.RuleDefinition)
      */
@@ -241,10 +251,25 @@ public enum RuleCheckType {
     public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       return true;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.ATTRIBUTE_DEF;
+    }
   },
   
   /** query daily for memberships that are enabled, but have a disabled date coming up */
   membershipDisabledDate {
+    
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return true;
+    }
 
     /**
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#checkKey(edu.internet2.middleware.grouper.rules.RuleDefinition)
@@ -396,10 +421,25 @@ public enum RuleCheckType {
     public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       return true;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   
   /** if there is a membership(flattened) add of a group in a stem */
   flattenedMembershipAddInFolder{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -469,10 +509,25 @@ public enum RuleCheckType {
     public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       return false;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
 
   /** if there is a membership(flattened) remove of a group in a stem */
   flattenedMembershipRemoveInFolder{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -550,10 +605,25 @@ public enum RuleCheckType {
     public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       return membershipRemoveInFolder.canRunDeamon(ruleDefinition);
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
 
   /** if there is a membership remove flattened */
   flattenedMembershipRemove {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -685,10 +755,25 @@ public enum RuleCheckType {
     public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       return membershipRemove.canRunDeamon(ruleDefinition);
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   
   /** if there is a membership remove in transaction of remove */
   membershipRemove {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -844,11 +929,26 @@ public enum RuleCheckType {
       }
       
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
 
   },
   
   /** if there is a membership remove in transaction of remove of a group in a stem */
   membershipRemoveInFolder {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
     
 
     /**
@@ -1092,10 +1192,25 @@ public enum RuleCheckType {
       }
       
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   },
   
   /** if a group is created */
   groupCreate {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
     
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -1243,10 +1358,25 @@ public enum RuleCheckType {
       }
       return true;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   
   /** if a stem is created */
   stemCreate {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
     
     /**
      * validate this check type
@@ -1408,10 +1538,25 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
   
   /** if there is a membership add in transaction */
   membershipAdd{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -1604,10 +1749,25 @@ public enum RuleCheckType {
           return false;
       }
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   }, 
   
   /** if there is a membership add, privilege add, permission add, etc in transaction */
   subjectAssignInStem {
+    
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -1770,11 +1930,26 @@ public enum RuleCheckType {
       }
       return true;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
   
   /** if there is a membership remove flattened */
   flattenedMembershipAdd{
-  
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
+ 
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
      */
@@ -1853,10 +2028,25 @@ public enum RuleCheckType {
     public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       return false;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   }, 
   
   /** if there is a membership remove in transaction of remove of a group in a stem */
   membershipAddInFolder{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -1924,10 +2114,25 @@ public enum RuleCheckType {
     public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       return false;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
   
   /** if a group is created */
   attributeDefCreate{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
     
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -2079,10 +2284,25 @@ public enum RuleCheckType {
       }
       return true;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.ATTRIBUTE_DEF;
+    }
   }, 
 
   /** if there is a permission assign in transaction to a subject, not to a role */
   permissionAssignToSubject {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -2318,7 +2538,16 @@ public enum RuleCheckType {
           return false;
       }
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.PERMISSION_DEF;
+    }
   };
+  
+  public abstract boolean usesArg0();
+
+  public abstract boolean usesArg1();
 
   /**
    * get the check key for the index
@@ -2941,5 +3170,7 @@ public enum RuleCheckType {
     return ruleCheck;
 
   }
+
+  public abstract RuleOwnerType getOwnerType();
 
 }

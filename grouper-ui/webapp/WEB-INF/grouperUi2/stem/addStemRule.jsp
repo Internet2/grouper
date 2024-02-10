@@ -25,6 +25,7 @@
                 
                 <form class="form-inline form-small form-filter" id="addRuleConfigFormId">
                   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
+                  <input type="hidden" name="ruleId" value="${grouperRequestContainer.rulesContainer.attributeAssignId}" />
                   <table class="table table-condensed table-striped">
                     <tbody>
                       <c:set var="ObjectType" 
@@ -39,9 +40,9 @@
                           <input type="submit" class="btn btn-primary"
                           aria-controls="reportConfigSubmitId" id="submitId"
                           value="${textContainer.text['reportAddConfigButtonSave'] }"
-                          onclick="ajax('../app/UiV2GrouperReport.reportOnFolderAddEditSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'addReportConfigFormId'}); return false;">
+                          onclick="ajax('../app/UiV2Stem.addRuleOnStemSubmit?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'addRuleConfigFormId'}); return false;">
                           &nbsp; <a class="btn btn-cancel" role="button"
-                          onclick="return guiV2link('operation=UiV2GrouperReport.viewReportConfigsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          onclick="return guiV2link('operation=UiV2Stem.viewStemRules&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                           >${textContainer.text['reportAddConfigButtonCancel'] }</a>
                         </td>
                       </tr>

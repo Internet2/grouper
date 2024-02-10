@@ -43,11 +43,11 @@
                           
 
                           <c:if test="${grouperRequestContainer.rulesContainer.canUpdateRules}">          
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleSettingsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                           </c:if>
                           
                            <c:if test="${grouperRequestContainer.rulesContainer.canUpdateRules}">          
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.deleteRuleSettingsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
                           </c:if>
 
                          </ul>

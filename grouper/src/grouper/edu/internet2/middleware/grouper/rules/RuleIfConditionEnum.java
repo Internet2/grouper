@@ -48,6 +48,16 @@ public enum RuleIfConditionEnum {
    * make sure no group in folder has an enabled membership
    */
   noGroupInFolderHasImmediateEnabledMembership {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -113,6 +123,11 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
     
   },
   /**
@@ -120,6 +135,16 @@ public enum RuleIfConditionEnum {
    * e.g. school:folder:whatever:%groupSuffix
    */
   nameMatchesSqlLikeString {
+    
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -187,11 +212,26 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return null;
+    }
   },
   /**
    * make sure this group and not the folder has membership
    */
   thisGroupAndNotFolderHasImmediateEnabledMembership {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -270,11 +310,28 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   /** 
    * make sure there is not a membership in folder, but does have an attributeDef
    */
   thisPermissionDefHasAssignmentAndNotFolder {
+    
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
+    
     /**
      * 
      */
@@ -344,12 +401,27 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.PERMISSION_DEF;
+    }
   },
   
   /**
    * make sure a group has no immedaite enabled membership
    */
   groupHasNoImmediateEnabledMembership {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -436,12 +508,28 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
     
   }, 
   
   
   /** if on group which has membership */
   thisGroupHasImmediateEnabledMembership {
+    
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -525,10 +613,25 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   
   /** if on group which has membership with no end date */
   thisGroupHasImmediateEnabledNoEndDateMembership {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -604,7 +707,8 @@ public enum RuleIfConditionEnum {
      */
     @Override
     public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
-      if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId()) || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
+      if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId()) 
+          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
         return true;
       }
       
@@ -618,9 +722,24 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   /** if permission def has assignment */
   thisPermissionDefHasAssignment {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -660,9 +779,24 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.PERMISSION_DEF;
+    }
   },
   /** if permission def has assignment with no end date */
   thisPermissionDefHasNoEndDateAssignment {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -702,12 +836,27 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.PERMISSION_DEF;
+    }
   }, 
   
   /**
    * make sure a group has no enabled membership
    */
   groupHasNoEnabledMembership {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * 
@@ -794,12 +943,27 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   }, 
   
   /**
    * make sure a group has no enabled membership
    */
   never {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * 
@@ -853,6 +1017,11 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return null;
+    }
     
   }, 
   
@@ -860,6 +1029,16 @@ public enum RuleIfConditionEnum {
    * make sure a group has no enabled membership
    */
   groupHasTooManyMembers {
+    
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return true;
+    }
   
     /**
      * 
@@ -963,10 +1142,24 @@ public enum RuleIfConditionEnum {
     public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   };
   
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(RuleIfConditionEnum.class);
+  
+  
+  public boolean isAdminOnly() {
+    return false;
+  }
+  
+  public abstract boolean usesArg0();
+
+  public abstract boolean usesArg1();
 
   /**
    * should fire
@@ -1043,7 +1236,8 @@ public enum RuleIfConditionEnum {
     //TODO
     return null;
   }
-  
+
+  public abstract RuleOwnerType getOwnerType();
 
   
 }
