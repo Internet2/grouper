@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -764,7 +765,8 @@ public class GrouperProvisioningService {
     targetsToRemove.removeAll(validTargets.keySet());
         
     for (String targetToRemove: targetsToRemove) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Set<AttributeAssign> assignments = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameAndValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId(), targetToRemove, null);
       for (AttributeAssign assignment : assignments) {
         assignment.getOwnerAttributeAssign().delete();

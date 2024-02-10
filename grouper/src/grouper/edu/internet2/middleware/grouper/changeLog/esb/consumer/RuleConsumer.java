@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -306,6 +307,7 @@ public class RuleConsumer extends ChangeLogConsumerBase {
     //try catch so we can track that we made some progress
     try {
       for (final ChangeLogEntry changeLogEntry : changeLogEntryList) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
 
         final ChangeLogType changeLogType = changeLogEntry.getChangeLogType();
 

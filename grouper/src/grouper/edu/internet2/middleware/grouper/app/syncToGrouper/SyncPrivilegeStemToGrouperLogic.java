@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.PrivilegeStemSave;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -93,13 +94,19 @@ public class SyncPrivilegeStemToGrouperLogic {
       this.getSyncToGrouper().getSyncToGrouperFromSql().loadPrivilegeStemDataFromSql();
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     this.convertStemmersToStemAdmin();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     this.retrievePrivilegeStemsFromGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.comparePrivilegeStems();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.changeGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncPrivilegeStemToGrouperBeans()));
@@ -120,6 +127,8 @@ public class SyncPrivilegeStemToGrouperLogic {
     }
 
     for (SyncPrivilegeStemToGrouperBean syncPrivilegeStemToGrouperBean : GrouperUtil.nonNull(this.privilegeStemDeletes)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String privilegeStemLabel = syncPrivilegeStemToGrouperBean.convertToLabel();
       try {
         
@@ -140,7 +149,8 @@ public class SyncPrivilegeStemToGrouperLogic {
     }
     
     for (SyncPrivilegeStemToGrouperBean syncPrivilegeStemToGrouperBean : GrouperUtil.nonNull(this.privilegeStemInserts)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String privilegeStemLabel = syncPrivilegeStemToGrouperBean.convertToLabel();
       try {
         PrivilegeStemSave privilegeStemSave = syncPrivilegeStemToGrouperBean.convertToPrivilegeStemSave();

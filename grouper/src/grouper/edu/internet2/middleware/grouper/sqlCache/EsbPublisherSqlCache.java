@@ -32,6 +32,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.GroupFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -148,11 +149,13 @@ public class EsbPublisherSqlCache extends EsbListenerBase {
       }
 
       Map<String, MultiKey> existingAttributeAssignIdToGroupNameFieldName = SqlCacheGroupDao.retrieveExistingAttributeAssignments(attributeAssignIdsToLookForExisting);
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       attributeAssignIdsToLookForNonExisting.removeAll(existingAttributeAssignIdToGroupNameFieldName.keySet());
       
       Map<String, Set<MultiKey>> unassignedAttributeAssignIdToGroupNameFieldName = attributeAssignIdsToLookForNonExisting.size() == 0 ?
          new HashMap<>() : SqlCacheGroupDao.retrieveNonexistingAttributeAssignments(attributeAssignIdsToLookForNonExisting, minimumEventMicros);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       Collection<MultiKey> existingGroupNamesFieldNames = existingAttributeAssignIdToGroupNameFieldName.values();
       
@@ -178,7 +181,10 @@ public class EsbPublisherSqlCache extends EsbListenerBase {
       }
 
       Map<String, Long> groupNameToInternalId = GroupFinder.findInternalIdsByNames(groupNames);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Map<String, Long> fieldNameToInternalId = FieldFinder.findInternalIdsByNames(fieldNames);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       List<SqlCacheGroup> sqlGroupCachesToCreate = new ArrayList<SqlCacheGroup>();
 
@@ -207,10 +213,12 @@ public class EsbPublisherSqlCache extends EsbListenerBase {
         }
         
         int insertedSqlCacheGroupSize = SqlCacheGroupDao.store(sqlGroupCachesToCreate);
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         // add those membership to the cache
         int membershipAdds = SqlCacheMembershipDao.insertSqlCacheMembershipsAsNeededFromSource(existingGroupNamesFieldNames);
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         debugMap.put("insertedSqlCacheGroupSize", insertedSqlCacheGroupSize);
 
         for (SqlCacheGroup sqlCacheGroup : sqlGroupCachesToCreate) {
@@ -220,7 +228,8 @@ public class EsbPublisherSqlCache extends EsbListenerBase {
 
         }
         SqlCacheGroupDao.store(sqlGroupCachesToCreate);
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         this.getChangeLogProcessorMetadata().getHib3GrouperLoaderLog().addInsertCount(membershipAdds + insertedSqlCacheGroupSize);
       }
       

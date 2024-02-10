@@ -27,6 +27,7 @@ import java.util.Map;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -127,6 +128,8 @@ public class MessagingListenerController {
       //lets only do 20000 records at a time (by 10s)
       OUTER: for (int i=0;i<maxOuterLoops;i++) {
         
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         MessagingListenerMetadata messagingListenerMetadata = new MessagingListenerMetadata();
         messagingListenerMetadata.setHib3GrouperLoaderLog(hib3GrouploaderLog);
         messagingListenerMetadata.setConsumerName(listenerName);

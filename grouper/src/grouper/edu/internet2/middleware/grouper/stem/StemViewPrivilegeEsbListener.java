@@ -16,6 +16,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
@@ -122,11 +123,22 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       if (recalcChangeLogIfNeededInLastSeconds != 0) { 
 
         removeNonPrivilegeEvents();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         removePeopleNotCalculatingEvents();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         loadStemIds();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         removeRedundantEvents();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         handleMultipleEventsForOneUser();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         handleEvents();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       }      
     } catch (RuntimeException re) {
@@ -548,6 +560,8 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(distinctSubjectsBySourceIdSubjectIdList, batchSize);
       
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<MultiKey> sourceIdSubjectIdBatch = GrouperUtil.batchList(distinctSubjectsBySourceIdSubjectIdList, batchSize, i);
         //not sure how this would be possible but...
         if (GrouperUtil.length(sourceIdSubjectIdBatch) == 0) {
@@ -693,6 +707,8 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(eventTypeMemberIdStemIdToQueryList, batchSize);
       
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<MultiKey> eventTypeMemberIdStemIdBatch = GrouperUtil.batchList(eventTypeMemberIdStemIdToQueryList, batchSize, i);
         //not sure how this would be possible but...
         if (GrouperUtil.length(eventTypeMemberIdStemIdBatch) == 0) {
@@ -844,6 +860,8 @@ public class StemViewPrivilegeEsbListener extends EsbListenerBase {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemNamesList, batchSize);
             
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> stemNameBatch = GrouperUtil.batchList(stemNamesList, batchSize, i);
         //not sure how this would be possible but...
         if (GrouperUtil.length(stemNameBatch) == 0) {

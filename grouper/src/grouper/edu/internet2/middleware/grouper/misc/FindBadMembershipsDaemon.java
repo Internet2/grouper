@@ -77,6 +77,7 @@ public class FindBadMembershipsDaemon implements Job {
       int runs = 0;
       
       while (true) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
         runs++;
         LOG.info("Checking for bad or missing memberships.");
         FindBadMemberships.clearResults();

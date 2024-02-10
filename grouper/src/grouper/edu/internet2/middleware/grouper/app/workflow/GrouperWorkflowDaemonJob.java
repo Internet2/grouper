@@ -27,6 +27,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -100,6 +101,8 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
     List<String> statesToIgnore = Arrays.asList(EXCEPTION_STATE);
     
     for (Group group: groups) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<GrouperWorkflowInstance> instances = GrouperWorkflowInstanceService.getWorkflowInstances(group);
       
       for (GrouperWorkflowInstance instance: instances) {
@@ -167,7 +170,8 @@ public class GrouperWorkflowDaemonJob extends OtherJobBase {
     Map<Subject, Set<GrouperWorkflowInstance>> addressObjects = new HashMap<Subject, Set<GrouperWorkflowInstance>>();
     
     for (GrouperWorkflowInstance instance: instancesNeedingEmail) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String currentState = instance.getWorkflowInstanceState();
       GrouperWorkflowConfig parentWorkflowConfig = instance.getGrouperWorkflowConfig(); 
         

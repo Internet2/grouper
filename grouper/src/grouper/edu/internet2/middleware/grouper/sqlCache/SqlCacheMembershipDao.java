@@ -11,6 +11,7 @@ import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -176,6 +177,8 @@ public class SqlCacheMembershipDao {
     Set<MultiKey> sqlGroupInternalIdsMemberInternalIds = new HashSet<MultiKey>();
     
     for (MultiKey groupNameFieldName : groupNamesFieldNames) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       GcDbAccess gcDbAccess = new GcDbAccess();
       StringBuilder sql = new StringBuilder("select gscg.internal_id, gm.internal_id "
           + " from grouper_memberships_lw_v gmlv, grouper_groups gg, grouper_fields gf, grouper_members gm, grouper_sql_cache_group gscg "

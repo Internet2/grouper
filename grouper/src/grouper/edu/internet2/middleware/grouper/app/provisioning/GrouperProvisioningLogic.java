@@ -17,6 +17,7 @@ import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertEntitiesRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoInsertGroupsRequest;
@@ -110,6 +111,7 @@ public class GrouperProvisioningLogic {
     
     debugMap.put("state", "retrieveSubjectLink");
     this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().retrieveSubjectLink();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     debugMap.put("state", "translateGrouperGroupsEntitiesToTarget");
 
@@ -808,7 +810,8 @@ public class GrouperProvisioningLogic {
       // ######### STEP 2: check messages
       debugMap.put("state", "incrementalCheckMessages");
       grouperProvisioningLogicIncremental.incrementalCheckMessages();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       if (this.getGrouperProvisioner().getConfigId().startsWith("junitProvisioningAttributePropagationTest")) {
         // just testing attribute propagation
         return;
@@ -817,13 +820,15 @@ public class GrouperProvisioningLogic {
       // ######### STEP 3: check for esb events
       debugMap.put("state", "incrementalCheckChangeLog");
       grouperProvisioningLogicIncremental.incrementalCheckChangeLog();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
     } finally {      
       this.getGrouperProvisioner().retrieveGrouperProvisioningObjectLog().debug(GrouperProvisioningObjectLogType.logIncomingDataUnprocessed);
     }
     
     // ######### STEP 3.5: bring groups from sql attributes
     grouperProvisioningLogicIncremental.addGroupsFromSqlAttributes();
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().isHasIncrementalDataToProcess()) {
     
       // ######### STEP 4: see if any actions happened before the last full sync
@@ -943,12 +948,16 @@ public class GrouperProvisioningLogic {
           {
             
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMemberships();
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
 
             //for any groups or entities that  are pulled back in membership recalcs, we need to retrieve grouper data
             this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities("Pass2");
             
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass2");
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass2");
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
   
           }
 
@@ -966,14 +975,20 @@ public class GrouperProvisioningLogic {
             this.grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveGrouperDataIncrementalGroupsEntities("Pass3");
             
             enhanceEntityAttributesWithSqlResolver(false);
-            
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+
             enhanceEntityAttributesWithLdapResolver(false);
-            
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+
             enhanceGroupAttributesWithSqlResolver(false);
-            
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+
 
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncGroups("Pass3");
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+
             this.getGrouperProvisioner().retrieveGrouperProvisioningSyncDao().retrieveIncrementalSyncMembers("Pass3");
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
 
             long retrieveGrouperDataMillis = System.currentTimeMillis()-start;
             debugMap.put("retrieveGrouperMembershipsMillis", retrieveGrouperDataMillis);
@@ -1538,7 +1553,8 @@ public class GrouperProvisioningLogic {
     List<ProvisioningGroupWrapper> missingGroupWrappers = new ArrayList<ProvisioningGroupWrapper>();
     
     for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       ProvisioningGroup provisioningGroup = provisioningGroupWrapper.getGrouperProvisioningGroup();
 
       boolean shouldSkip = provisioningGroup == null || !provisioningGroupWrapper.getProvisioningStateGroup().isRecalcObject();
@@ -1845,7 +1861,8 @@ public class GrouperProvisioningLogic {
     List<ProvisioningEntity> missingEntities = new ArrayList<ProvisioningEntity>();
     List<ProvisioningEntityWrapper> missingEntityWrappers = new ArrayList<ProvisioningEntityWrapper>();
     for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       ProvisioningEntity provisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
       boolean shouldSkip = provisioningEntity == null || !provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject();
@@ -2048,21 +2065,27 @@ public class GrouperProvisioningLogic {
       throw RUNTIME_EXCEPTION[0];
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     // put wrappers on the grouper objects and put in the grouper uuid maps in data object
     // put these wrapper in the GrouperProvisioningData and GrouperProvisioningDataIndex
     this.grouperProvisioner.retrieveGrouperDao().processWrappers(grouperProvisioningLists);
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     // point the membership pointers to groups and entities to what they should point to
     // and fix data problems (for instance race conditions as data was retrieved)
     this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // add / update / delete sync objects based on grouper data
     this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().fixSyncObjects();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // incrementals need to consult sync objects to know what to delete
     calculateProvisioningDataToDelete(); 
     
     this.grouperProvisioner.retrieveGrouperDao().fixGrouperProvisioningMembershipReferences();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     GcGrouperSync gcGrouperSync = this.grouperProvisioner.getGcGrouperSync();
     gcGrouperSync.setGroupCount(GrouperUtil.length(grouperProvisioningLists.getProvisioningGroups()));
@@ -2070,12 +2093,17 @@ public class GrouperProvisioningLogic {
     gcGrouperSync.setRecordsCount(GrouperUtil.length(grouperProvisioningLists.getProvisioningMemberships()));
     
     enhanceEntityAttributesWithSqlResolver(true);
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     enhanceEntityAttributesWithLdapResolver(true);
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     enhanceGroupAttributesWithSqlResolver(true);
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     GrouperProvisioningLists extraTargetData = retrieveExtraTargetData(grouperProvisioningLists);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     if (extraTargetData != null) {
       processTargetDataEntities(extraTargetData.getProvisioningEntities(), true);
       processTargetDataGroups(extraTargetData.getProvisioningGroups(), true);

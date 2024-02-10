@@ -100,6 +100,8 @@ public class ChangeLogTempToEntity {
     
     int totalCount = 0;
     while (true) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         lastTempChangeLogProcessingIfIndividual = null;
         int currentCount = convertRecordsOnePage(hib3GrouperLoaderLog, changeLogTempToChangeLogQuerySize);

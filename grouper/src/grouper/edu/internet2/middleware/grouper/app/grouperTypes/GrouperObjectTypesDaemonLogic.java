@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -1419,20 +1420,25 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
     try {
      
       populateIdsAndNamesToWorkOn();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       groupIdToNamesAddAndAttributeChange.putAll(groupIdsToNamesAdd);
       groupIdToNamesAddAndAttributeChange.putAll(groupIdsToNamesAttributeChange);
       
       populateAttributesAssignedToGroupsIncremental();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       stemIdToNamesAddAndAttributeChange.putAll(stemIdsToNamesAdd);
       stemIdToNamesAddAndAttributeChange.putAll(stemIdsToNamesAttributeChange);
       
       populateAttributesAssignedToStemsIncremental();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       populateAncestorsIncremental();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       populateChildrenWithAttributesIncremental();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       addFromOneMapOfMapsToAnother(groupsWithAttributesToProcess, groupsWithOrWithoutAttributesToProcess);
       addFromOneMapOfMapsToAnother(childrenGroupsTypeAttributes, groupsWithOrWithoutAttributesToProcess);
@@ -1465,11 +1471,14 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
       }
       
       populateEventObjectsWhichDoNotHaveAttributes();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       populateChildrenWhichMayOrMayNotHaveAttributes();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       for (String typeName: typesToProcess) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Map<String, GrouperObjectTypeObjectAttributes> grouperObjectTypesFolderAttributes = foldersWithOrWithoutAttributesToProcess.get(typeName);
         Map<String, GrouperObjectTypeObjectAttributes> grouperObjectTypesGroupAttributes = groupsWithOrWithoutAttributesToProcess.get(typeName);
         
@@ -1559,7 +1568,10 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
       
     
       Map<String, Map<String, GrouperObjectTypeObjectAttributes>> allFoldersOfInterestForTypes = retrieveAllFoldersOfInterestForTypes();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Map<String, Map<String, GrouperObjectTypeObjectAttributes>> allGroupsOfInterestForTypes = retrieveAllGroupsOfInterestForTypes(allFoldersOfInterestForTypes);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       
       Set<String> typesToProcess = new HashSet<String>();
@@ -1568,7 +1580,8 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
       
       
       for (String typeName: typesToProcess) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Map<String, GrouperObjectTypeObjectAttributes> grouperObjectTypesFolderAttributes = allFoldersOfInterestForTypes.get(typeName);
         Map<String, GrouperObjectTypeObjectAttributes> grouperObjectTypesGroupAttributes = allGroupsOfInterestForTypes.get(typeName);
         
@@ -1683,6 +1696,7 @@ public class GrouperObjectTypesDaemonLogic extends OtherJobBase {
     
     // go through each group/folder and recompute what the attributes should be by looking at ancestor folders and if it doesn't match what's in the db, then update db
     for (GrouperObjectTypeObjectAttributes grouperObjectTypesObjectAttribute : grouperObjectTypesAttributesToProcess) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if ("true".equalsIgnoreCase(grouperObjectTypesObjectAttribute.getObjectTypeDirectAssign())) {
         continue;

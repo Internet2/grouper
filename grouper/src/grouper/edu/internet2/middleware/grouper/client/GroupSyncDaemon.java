@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientConnectionConfigBean;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientConnectionSourceConfigBean;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
@@ -220,7 +221,8 @@ public class GroupSyncDaemon {
         Set<Subject> subjectsToReplace = new HashSet<Subject>();
         
         for (WsSubject wsSubject : GrouperUtil.nonNull(wsSubjects, WsSubject.class)) {
-          
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           subjectIndex++;
           
           Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
@@ -427,7 +429,8 @@ public class GroupSyncDaemon {
       Group localGroup = GroupFinder.findByName(grouperSession, localGroupName, true);
   
       Set<Member> members = localGroup.getMembers();
-  
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Set<String> unmappedSourceIds = new HashSet<String>();
   
       infoMap.put("originalMemberSize", GrouperUtil.length(members));

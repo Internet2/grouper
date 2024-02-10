@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -517,6 +518,8 @@ public class MembershipRequireEngine {
     }
     gcDbAccess.addBindVar(membershipRequireConfigBean.getRequireGroupName());
     List<Object[]> rows = gcDbAccess.selectList(Object[].class);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     if (GrouperUtil.length(rows) == 0) {
       return 0;
     }
@@ -526,6 +529,8 @@ public class MembershipRequireEngine {
     }
     int count = 0;
     for (Object[] row : GrouperUtil.nonNull(rows)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String currentMemberId = (String)row[0];
       String subjectId = (String)row[1];
       String subjectSourceId = (String)row[2];

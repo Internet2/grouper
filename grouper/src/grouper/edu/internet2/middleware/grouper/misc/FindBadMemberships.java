@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
@@ -187,7 +188,7 @@ public class FindBadMemberships {
    */
   public static long checkAll() {
     long errors = 0;
-    
+
     if (printErrorsToSTOUT) {
       out.println();
       out.println("Checking Composite Memberships");
@@ -259,8 +260,11 @@ public class FindBadMemberships {
    */
   public static long checkGroupSets() {
     Set<GroupSet> badType = GrouperDAOFactory.getFactory().getGroupSet().findTypeMismatch();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     for (GroupSet gs : badType) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       if (gs.getDepth() != 0) {
         throw new RuntimeException("Unexpected depth of " + gs.getDepth());
       }
@@ -276,8 +280,12 @@ public class FindBadMemberships {
       logGshScript("sqlRun(\"update grouper_group_set set mship_type='" + newType + "' where id='" + gs.getId() + "'\");\n");
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Set<GroupSet> badCompositeGroupSets = GrouperDAOFactory.getFactory().getGroupSet().findBadGroupSetsForCompositeGroups();
     for (GroupSet gs : badCompositeGroupSets) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Group ownerGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(gs.getOwnerGroupId(), true);
       Group memberGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(gs.getMemberGroupId(), true);
 
@@ -288,8 +296,12 @@ public class FindBadMemberships {
       logGshScript("GrouperDAOFactory.getFactory().getGroupSet().findById(\"" + gs.getId() + "\").delete(true);\n");
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Set<GroupSet> immediateGroupSetsWithMissingEffective = getImmediateGroupSetsWithMissingEffective(GrouperDAOFactory.getFactory().getGroupSet().findMissingEffectiveGroupSets());
     for (GroupSet gs : immediateGroupSetsWithMissingEffective) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       if (gs.getOwnerGroupId() == null || gs.getMemberGroupId() == null || gs.getDepth() != 1 || !gs.getFieldId().equals(Group.getDefaultList().getUuid())) {
         throw new RuntimeException("Excepted an immediate group set with an ownerGroup, memberGroup, and member field.  id=" + gs.getId());
       }
@@ -307,9 +319,10 @@ public class FindBadMemberships {
       logGshScript("addMember(\"" + ownerGroup.getName() + "\", \"" + memberGroup.getId() + "\");\n");      
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     List<GroupSet> badEffectiveGroupSets = getBadEffectiveGroupSets(new ArrayList<GroupSet>(GrouperDAOFactory.getFactory().getGroupSet().findBadEffectiveGroupSets()));
     for (GroupSet gs : badEffectiveGroupSets) {
-
       if (printErrorsToSTOUT) {
         out.println("Bad effective group set: group set id=" + gs.getId() + ", depth=" + gs.getDepth() + ", owner id=" + gs.getOwnerId() + ", member id = " + gs.getMemberId() + ".");
       }
@@ -320,6 +333,8 @@ public class FindBadMemberships {
     // note this doesn't handle if in a set of duplicates, multiple group sets have foreign keys - that seems unlikely.
     // this also doesn't fix PIT if needed.  should run pit sync after this.
     Set<GroupSet> duplicates = GrouperDAOFactory.getFactory().getGroupSet().findDuplicateSelfGroupSets();
+
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     for (GroupSet gs : duplicates) {
       if (gs.getDepth() != 0) {
@@ -348,15 +363,20 @@ public class FindBadMemberships {
       return 0;
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Set<Membership> badMemberships = new LinkedHashSet<Membership>();
     
     for (Privilege privilege : AccessPrivilege.MANAGE_PRIVILEGES) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Field field = privilege.getField();
       badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), field, false));
     }
     
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findAllImmediateByMemberAndField(grouperAll.getId(), Group.getDefaultList(), false));
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     for (Membership ms : badMemberships) {
       if (printErrorsToSTOUT) {
         out.println("Bad GrouperAll membership: groupId=" + ms.getOwnerGroupId() + ", group name=" + ms.getOwnerGroup().getName() + ", field=" + ms.getField().getName() + ".");
@@ -444,6 +464,8 @@ public class FindBadMemberships {
     {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(unionCompositeIds, batchSize, false);
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(unionCompositeIds, batchSize, i);
         badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadUnionMemberships(currentBatchOfCompositeIds));
         potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingUnionMemberships(currentBatchOfCompositeIds));
@@ -453,6 +475,8 @@ public class FindBadMemberships {
     {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(intersectionCompositeIds, batchSize, false);
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(intersectionCompositeIds, batchSize, i);
         badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadIntersectionMemberships(currentBatchOfCompositeIds));
         potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingIntersectionMemberships(currentBatchOfCompositeIds));
@@ -462,6 +486,8 @@ public class FindBadMemberships {
     {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(complementCompositeIds, batchSize, false);
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> currentBatchOfCompositeIds = GrouperUtil.batchList(complementCompositeIds, batchSize, i);
         badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadComplementMemberships(currentBatchOfCompositeIds));
         potentialMissingMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findMissingComplementMemberships(currentBatchOfCompositeIds));
@@ -481,6 +507,8 @@ public class FindBadMemberships {
     int missingMembershipsCount = 0;
     
     for (Object[] ownerAndCompositeAndMember : potentialMissingMemberships) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String ownerGroupId = (String)ownerAndCompositeAndMember[0];
       String compositeId = (String)ownerAndCompositeAndMember[1];
       String memberId = (String)ownerAndCompositeAndMember[2];
@@ -507,6 +535,7 @@ public class FindBadMemberships {
   public static long checkDeletedGroupAsMember() {
     
     Set<Membership> badMemberships = GrouperDAOFactory.getFactory().getMembership().findBadMembershipsDeletedGroupAsMember();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     for (Membership ms : badMemberships) {
       if (printErrorsToSTOUT) {

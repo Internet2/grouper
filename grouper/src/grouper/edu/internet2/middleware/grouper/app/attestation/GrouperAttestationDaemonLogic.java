@@ -20,6 +20,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -342,8 +343,11 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
       
     
       Map<String, GrouperAttestationObjectAttributes> allFoldersOfInterestForAttestation = retrieveAllFoldersOfInterestForAttestation();
-      Map<String, GrouperAttestationObjectAttributes> allGroupsOfInterestForAttestation = retrieveAllGroupsOfInterestForAttestation(allFoldersOfInterestForAttestation);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
+      Map<String, GrouperAttestationObjectAttributes> allGroupsOfInterestForAttestation = retrieveAllGroupsOfInterestForAttestation(allFoldersOfInterestForAttestation);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Set<GrouperAttestationObjectAttributes> grouperAttestationObjectAttributesToProcess = new HashSet<GrouperAttestationObjectAttributes>();
       grouperAttestationObjectAttributesToProcess.addAll(allGroupsOfInterestForAttestation.values());
       
@@ -446,6 +450,7 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
     
     // go through each group/folder and recompute what the attributes should be by looking at ancestor folders and if it doesn't match what's in the db, then update db
     for (GrouperAttestationObjectAttributes grouperAttestationObjectAttribute : grouperAttestationAttributesToProcess) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if ("true".equalsIgnoreCase(grouperAttestationObjectAttribute.getAttestationDirectAssign())) {
         continue;
@@ -1366,17 +1371,22 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
     try {
      
       populateIdsAndNamesToWorkOn();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       groupIdToNamesAddAndAttributeChange.putAll(groupIdsToNamesAdd);
       groupIdToNamesAddAndAttributeChange.putAll(groupIdsToNamesAttributeChange);
       
       populateAttributesAssignedToGroupsIncremental();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       populateAttributesAssignedToStemsIncremental();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       populateAncestorsIncremental();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       populateChildrenWithAttributesIncremental();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       groupsWithOrWithoutAttributesToProcess.putAll(groupsWithAttributesToProcess);
       groupsWithOrWithoutAttributesToProcess.putAll(childrenGroupsAttestationAttributes);
@@ -1384,6 +1394,7 @@ public class GrouperAttestationDaemonLogic extends OtherJobBase {
       populateEventObjectsWhichDoNotHaveAttributes();
       
       populateChildrenWhichMayOrMayNotHaveAttributes();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       Set<GrouperAttestationObjectAttributes> grouperAttestationObjectAttributesToProcess = new HashSet<GrouperAttestationObjectAttributes>();
       grouperAttestationObjectAttributesToProcess.addAll(groupsWithOrWithoutAttributesToProcess.values());

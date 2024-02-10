@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.PrivilegeGroupSave;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -81,11 +82,16 @@ public class SyncPrivilegeGroupToGrouperLogic {
       this.getSyncToGrouper().getSyncToGrouperFromSql().loadPrivilegeGroupDataFromSql();
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     this.retrievePrivilegeGroupsFromGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.comparePrivilegeGroups();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.changeGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncPrivilegeGroupToGrouperBeans()));
@@ -106,6 +112,8 @@ public class SyncPrivilegeGroupToGrouperLogic {
     }
 
     for (SyncPrivilegeGroupToGrouperBean syncPrivilegeGroupToGrouperBean : GrouperUtil.nonNull(this.privilegeGroupDeletes)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String privilegeGroupLabel = syncPrivilegeGroupToGrouperBean.convertToLabel();
       try {
         
@@ -126,7 +134,8 @@ public class SyncPrivilegeGroupToGrouperLogic {
     }
     
     for (SyncPrivilegeGroupToGrouperBean syncPrivilegeGroupToGrouperBean : GrouperUtil.nonNull(this.privilegeGroupInserts)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String privilegeGroupLabel = syncPrivilegeGroupToGrouperBean.convertToLabel();
       try {
         PrivilegeGroupSave privilegeGroupSave = syncPrivilegeGroupToGrouperBean.convertToPrivilegeGroupSave();

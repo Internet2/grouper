@@ -280,6 +280,7 @@ public class NotificationDaemon extends OtherJobBase {
     results = new GcDbAccess().connectionName(emailListDbConnection)
         .sql(emailListQuery)
         .selectList(Object[].class);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(emailListDbConnection, emailListQuery);
 
