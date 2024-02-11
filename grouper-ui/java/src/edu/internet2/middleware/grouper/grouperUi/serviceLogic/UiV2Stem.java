@@ -4181,15 +4181,15 @@ public class UiV2Stem {
         
         return;
       } else if (typeWithMessages.get("WARN") != null && typeWithMessages.get("WARN").size() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
         for (String warning: typeWithMessages.get("WARN")) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, warning));
         }
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
       } else if (typeWithMessages.get("SUCCESS") != null && typeWithMessages.get("SUCCESS").size() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
         for (String successMessages: typeWithMessages.get("SUCCESS")) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessages));
         }
-        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
       }
      
 //      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
