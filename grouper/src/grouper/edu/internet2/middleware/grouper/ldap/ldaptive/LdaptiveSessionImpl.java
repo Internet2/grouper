@@ -472,7 +472,11 @@ public class LdaptiveSessionImpl implements LdapSession {
       this.debugLog.append("Ldaptive searchRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
     }
     LdapEntryHandler[] entryHandlers = LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers();
-    List<SearchResultHandler> resultHandlers = new ArrayList<>(Arrays.asList(LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers()));
+    List<SearchResultHandler> resultHandlers = new ArrayList<>();
+    if (LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers() != null) {
+      resultHandlers.addAll(Arrays.asList(LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers()));
+    }
+    
     if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
       resultHandlers.add(new FollowSearchReferralHandler());
       resultHandlers.add(new FollowSearchResultReferenceHandler());
