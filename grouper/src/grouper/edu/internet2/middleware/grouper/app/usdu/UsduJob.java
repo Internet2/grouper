@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -170,6 +171,7 @@ public class UsduJob extends OtherJobBase {
       LOG.debug("Found " + memberIdsToCheck.size() + " member ids to check.");
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsToCheck.size(), batchSize);
       for (int i = 0; i < numberOfBatches; i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
         LOG.debug("Processing batch: " + i);
         List<String> currentBatch = GrouperUtil.batchList(memberIdsToCheck, batchSize, i);
         Set<Member> currentMembers = GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null);
@@ -212,6 +214,8 @@ public class UsduJob extends OtherJobBase {
       List<String> memberIdsNoLongerSubjectResolutionEligible = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible());
       numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsNoLongerSubjectResolutionEligible.size(), batchSize);
       for (int i = 0; i < numberOfBatches; i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> currentBatch = GrouperUtil.batchList(memberIdsNoLongerSubjectResolutionEligible, batchSize, i);
         List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
         
@@ -229,6 +233,8 @@ public class UsduJob extends OtherJobBase {
       List<String> deletedGroupMemberIdsIncorrectSubjectResolutionAttributes = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllDeletedGroupMemberIdsIncorrectSubjectResolutionAttributes());
       numberOfBatches = GrouperUtil.batchNumberOfBatches(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size(), batchSize);
       for (int i = 0; i < numberOfBatches; i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> currentBatch = GrouperUtil.batchList(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes, batchSize, i);
         List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
         
@@ -267,7 +273,6 @@ public class UsduJob extends OtherJobBase {
    * @return map of member id to subject for resolved members
    */
   private static Map<String, Subject> resolveMembers(Set<Member> members) {
-
     Map<String, Subject> finalResult = new LinkedHashMap<String, Subject>();
     if (members.size() == 0) {
       return finalResult;
@@ -279,6 +284,8 @@ public class UsduJob extends OtherJobBase {
     }
     
     Map<MultiKey, Subject> queryResult = SubjectFinder.findBySourceIdsAndSubjectIds(sourceIdsSubjectIds, false, true);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     for (Member member : members) {
       MultiKey multiKey = new MultiKey(member.getSubjectSourceId(), member.getSubjectId());
       Subject subject = queryResult.get(multiKey);
@@ -884,7 +891,8 @@ public class UsduJob extends OtherJobBase {
     AttributeDefName usduMarkerAttributeDefName = UsduAttributeNames.retrieveAttributeDefNameBase();
     
     for (final Member member: unresolvableMembers) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       if (deletedCount >= howMany) {
         LOG.info("Total: "+unresolvableMembers.size()+" unresolvable members, deleted: "+deletedCount);
         break;

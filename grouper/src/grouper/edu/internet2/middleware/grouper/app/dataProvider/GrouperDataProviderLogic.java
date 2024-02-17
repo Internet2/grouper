@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
@@ -97,7 +98,8 @@ public class GrouperDataProviderLogic {
 
     // get all dictionary text for field and row assignments for this data provider
     dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().putAll(GrouperDictionaryDao.selectByDataProvider(grouperDataProvider.getInternalId()));
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     // get all the members that are assigned in a data provider to fields or rows
     for (Long memberInternalId : GrouperUtil.nonNull(GrouperDAOFactory.getFactory().getMember().selectByDataProvider(grouperDataProvider.getInternalId()))) {
 
@@ -105,23 +107,31 @@ public class GrouperDataProviderLogic {
       dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       // get field assignments in the database for this provider
       List<GrouperDataFieldAssign> grouperDataFieldAssigns = GrouperDataFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId());
       processDataFieldAssignWrappers(grouperDataFieldAssigns);
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       // get row assignments in the database for this provider
       List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperUtil.nonNull(GrouperDataRowAssignDao.selectByProvider(grouperDataProvider.getInternalId()));
       processDataRowAssignWrappers(grouperDataRowAssigns);
     }    
 
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperUtil.nonNull(GrouperDataRowFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId()));
       processDataRowFieldAssignWrappers(grouperDataRowFieldAssigns);
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     indexDataByMember();
     
     
@@ -200,7 +210,8 @@ public class GrouperDataProviderLogic {
       changeLogQueryConfigIdToLowerColumnNameToZeroIndex.put(grouperDataProviderChangeLogQueryConfig.getConfigId(), lowerColumnNameToZeroIndex);
       
       List<Object[]> rows = grouperDataProviderChangeLogQuery.retrieveGrouperDataProviderQueryTargetDao().selectChangeLogData(lowerColumnNameToZeroIndex, changesFromTimestamp, changesToTimestamp);
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       if (rows.size() == 0) {
         return;
       }
@@ -248,24 +259,31 @@ public class GrouperDataProviderLogic {
     
     // get all dictionary text for field and row assignments for this data provider for the members of interest
     dataEngine.getGrouperDataProviderIndex().getDictionaryTextByInternalId().putAll(GrouperDictionaryDao.selectByDataProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       // get field assignments in the database for this provider
       List<GrouperDataFieldAssign> grouperDataFieldAssigns = GrouperDataFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds);
       processDataFieldAssignWrappers(grouperDataFieldAssigns);
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       // get row assignments in the database for this provider
       List<GrouperDataRowAssign> grouperDataRowAssigns = GrouperUtil.nonNull(GrouperDataRowAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
       processDataRowAssignWrappers(grouperDataRowAssigns);
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       List<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns = GrouperUtil.nonNull(GrouperDataRowFieldAssignDao.selectByProviderAndMembers(grouperDataProvider.getInternalId(), memberInternalIds));
       processDataRowFieldAssignWrappers(grouperDataRowFieldAssigns);
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     indexDataByMember();
     
     Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
@@ -439,6 +457,8 @@ public class GrouperDataProviderLogic {
     GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
 
     for (GrouperDataProviderQuery grouperDataProviderQuery : grouperDataProviderSync.retrieveGrouperDataProviderQueries()) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       GrouperDataProviderQueryConfig grouperDataProviderQueryConfig = grouperDataProviderQuery.retrieveGrouperDataProviderQueryConfig();
 
       Map<String, Integer> lowerColumnNameToZeroIndex = new HashMap<String, Integer>();
@@ -661,6 +681,7 @@ public class GrouperDataProviderLogic {
               GrouperDataFieldAssignWrapper grouperDataFieldAssignWrapper = valueToFieldAssignWrapper.get(value);
               GrouperDataFieldAssignDao.delete(grouperDataFieldAssignWrapper.getGrouperDataFieldAssign());
               grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
+              GrouperDaemonUtils.stopProcessingIfJobPaused();
             }
             
             Set<Object> dataToInsert = new HashSet<>(dataFromProvider);
@@ -675,6 +696,7 @@ public class GrouperDataProviderLogic {
               grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataFieldAssign, value);
               GrouperDataFieldAssignDao.store(grouperDataFieldAssign);
               grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+              GrouperDaemonUtils.stopProcessingIfJobPaused();
             }
           }
         }
@@ -740,6 +762,7 @@ public class GrouperDataProviderLogic {
 
             GrouperDataRowAssignDao.delete(grouperDataRowAssignWrapper.getGrouperDataRowAssign());
             grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
           }
 
           Set<MultiKey> rowKeyFieldsToInserts = new HashSet<>(providerDataRowKeyToDataFieldInternalIdsAndValues.keySet());
@@ -772,6 +795,7 @@ public class GrouperDataProviderLogic {
             }
 
             grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
           }
 
           // do the updates
@@ -797,6 +821,7 @@ public class GrouperDataProviderLogic {
                   } else {
                     GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign());
                     grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(1);
+                    GrouperDaemonUtils.stopProcessingIfJobPaused();
                   }
                 }
 
@@ -811,6 +836,7 @@ public class GrouperDataProviderLogic {
                     grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, valueToAdd);
                     GrouperDataRowFieldAssignDao.store(grouperDataRowFieldAssign);
                     grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(1);
+                    GrouperDaemonUtils.stopProcessingIfJobPaused();
                   }
                 }
               }

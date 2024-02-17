@@ -21,6 +21,7 @@ package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -41,6 +42,7 @@ public class EsbXmppPublisher extends EsbListenerBase {
    */
   @Override
   public boolean dispatchEvent(String eventJsonString, String consumerName) {
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     if (LOG.isDebugEnabled()) {
       LOG.debug("Consumer " + consumerName + " publishing "

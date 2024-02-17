@@ -15,6 +15,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
@@ -358,6 +359,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         if (logProvisioningLists(targetDaoSendChangesToTargetRequest.getTargetObjectDeletes())) {
           hasError = true;
         }
+        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
       } catch (RuntimeException e) {
         hasError = true;
         throw e;
@@ -428,6 +431,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           hasError = true;
         }
         
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Set<ProvisioningGroupWrapper> provisioningGroupWrappersSuccessfullyUpdated = new HashSet<ProvisioningGroupWrapper>();
         for (ProvisioningGroup provisioningGroup : targetDaoSendGroupChangesToTargetRequest.getTargetGroupInserts()) { 
           if (provisioningGroup.getProvisioned() != null && provisioningGroup.getProvisioned()) {
@@ -546,7 +551,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -564,6 +570,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateGroup(), false)) {
 
       for (ProvisioningGroup targetGroup : targetGroups) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -661,7 +669,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -678,6 +687,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteMembership(), false)) {
 
       for (ProvisioningMembership targetMembership : targetMemberships) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteMembership_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -724,7 +735,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         commandLogStarted = commandLogStartLoggingIfConfigured();
         GrouperUtil.mapAddValue(GrouperProvisionerTargetDaoAdapter.this.getGrouperProvisioner().getDebugMap(), "targetRetrieveAll", 1);
         TargetDaoRetrieveAllDataResponse targetDaoRetrieveAllDataResponse = this.wrappedDao.retrieveAllData(targetDaoRetrieveAllDataRequest);
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedEntities(true);
         this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedGroups(true);
         this.getGrouperProvisioner().getProvisioningStateGlobal().setSelectResultProcessedMemberships(true);
@@ -784,6 +796,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
       
       TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = this.retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(true));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<ProvisioningGroup> targetGroups = targetDaoRetrieveAllGroupsResponse == null ? null : targetDaoRetrieveAllGroupsResponse.getTargetGroups();
       targetObjects.setProvisioningGroups(targetGroups);
 
@@ -801,6 +815,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesAll()) {
       
       TargetDaoRetrieveAllEntitiesResponse targetDaoRetrieveAllEntitiesResponse = this.retrieveAllEntities(new TargetDaoRetrieveAllEntitiesRequest(true));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<ProvisioningEntity> targetEntities = targetDaoRetrieveAllEntitiesResponse == null ? null : targetDaoRetrieveAllEntitiesResponse.getTargetEntities();
       targetObjects.setProvisioningEntities(targetEntities);
 
@@ -842,6 +858,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           && !this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectMembershipsWithGroup()) {
         
         TargetDaoRetrieveAllMembershipsResponse targetDaoRetrieveAllMembershipsResponse = this.retrieveAllMemberships(new TargetDaoRetrieveAllMembershipsRequest());
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<ProvisioningMembership> targetMemberships = targetDaoRetrieveAllMembershipsResponse == null ? null : targetDaoRetrieveAllMembershipsResponse.getTargetMemberships();
         targetObjects.setProvisioningMemberships(targetMemberships);
   
@@ -891,6 +909,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         if (logMemberships(result.getProvisioningMemberships())) {
           hasError = true;
         }
+        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
       } catch (RuntimeException e) {
         hasError = true;
         throw e;
@@ -1228,7 +1248,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -1257,6 +1278,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveGroup(), false)) {
 
       for (ProvisioningGroup targetGroup : targetGroups) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -1456,7 +1479,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -1484,6 +1508,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByGroup(), false)) {
 
       for (ProvisioningGroup targetGroup : targetGroups) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -1773,7 +1799,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -1801,6 +1828,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveMembershipsAllByEntity(), false)) {
 
       for (ProvisioningEntity targetEntity : targetEntities) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntity_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -2122,6 +2151,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(inputGroupsWithOneMembership, batchSize, true);
 
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(inputGroupsWithOneMembership, batchSize, i);
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
@@ -2269,6 +2299,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
@@ -2302,6 +2333,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
@@ -2377,7 +2409,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
  
     for (int i=0;i<numberOfBatches;i++) {
- 
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
  
@@ -2599,7 +2632,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -2629,6 +2663,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanRetrieveEntity(), false)) {
 
       for (ProvisioningEntity targetEntity : targetEntities) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("retrieveEntity_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -3026,7 +3062,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -3044,6 +3081,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertGroup(), false)) {
 
       for (ProvisioningGroup targetGroup : targetGroups) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -3331,7 +3370,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -3348,6 +3388,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteEntity(), false)) {
 
       for (ProvisioningEntity targetEntity : targetEntities) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteEntity_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -3494,7 +3536,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -3512,6 +3555,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertEntity(), false)) {
 
       for (ProvisioningEntity targetEntity : targetEntities) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertEntity_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -3758,7 +3803,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetEntities, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(targetEntities, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateEntities_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -3776,6 +3822,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateEntity(), false)) {
 
       for (ProvisioningEntity targetEntity : targetEntities) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateEntity_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -3876,7 +3924,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetGroups, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningGroup> batchTargetGroups = GrouperUtil.batchList(targetGroups, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteGroups_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -3893,6 +3942,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanDeleteGroup(), false)) {
 
       for (ProvisioningGroup targetGroup : targetGroups) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("deleteGroup_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -4125,7 +4176,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -4143,6 +4195,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanInsertMembership(), false)) {
 
       for (ProvisioningMembership targetMembership : targetMemberships) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("insertMembership_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -4275,7 +4329,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(targetMemberships, batchSize, true);
 
       for (int i=0;i<numberOfBatches;i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         final List<ProvisioningMembership> batchTargetMemberships = GrouperUtil.batchList(targetMemberships, batchSize, i);
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
           
@@ -4293,6 +4348,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     } else if (GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanUpdateMembership(), false)) {
 
       for (ProvisioningMembership targetMembership : targetMemberships) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("updateMembership_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   
           @Override
@@ -4341,6 +4398,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           hasError = true;
         }
         
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Set<ProvisioningEntityWrapper> provisioningEntityWrappersSuccessfullyUpdated = new HashSet<ProvisioningEntityWrapper>();
         for (ProvisioningEntity provisioningEntity : targetDaoSendEntityChangesToTargetRequest.getTargetEntityInserts()) { 
           if (provisioningEntity.getProvisioned() != null && provisioningEntity.getProvisioned()) {
@@ -4419,6 +4478,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
           hasError = true;
         }
         
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Collection<List<ProvisioningMembership>> provisioningMembershipsLists = targetDaoSendMembershipChangesToTargetRequest.getTargetMembershipReplaces().values();
         
         List<ProvisioningMembership> provisioningMembershipsToLog = new ArrayList<ProvisioningMembership>();
@@ -4484,6 +4545,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         commandLogStarted = commandLogStartLoggingIfConfigured();
         TargetDaoReplaceGroupMembershipsResponse targetDaoReplaceGroupMembershipsResponse = this.wrappedDao.replaceGroupMemberships(targetDaoReplaceGroupMembershipsRequest);
         hasError = logMemberships(targetDaoReplaceGroupMembershipsRequest.getTargetMemberships());
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         for (ProvisioningMembership provisioningMembership : targetDaoReplaceGroupMembershipsRequest.getTargetMemberships()) { 
           if (provisioningMembership.getProvisioned() == null) {
             throw new RuntimeException("Dao did not set updated membership as provisioned: " + this.wrappedDao);
@@ -4558,7 +4621,8 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(inputEntitiesWithOneMembership, batchSize, true);
   
     for (int i=0;i<numberOfBatches;i++) {
-  
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final List<ProvisioningEntity> batchTargetEntities = GrouperUtil.batchList(inputEntitiesWithOneMembership, batchSize, i);
       GrouperCallable<Void> GrouperCallable = new GrouperCallable<Void>("retrieveMemberships_" + this.getGrouperProvisioner().getConfigId() + "_" + this.getGrouperProvisioner().getInstanceId()) {
   

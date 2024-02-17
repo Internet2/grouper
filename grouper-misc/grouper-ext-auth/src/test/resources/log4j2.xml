@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Configuration status="info">
+    <Properties>
+        <Property name="layout">%d{ISO8601}: [%t] %-5p %C{1}.%M(%L) - %x - %m%n</Property>
+    </Properties>
+    <Appenders>
+        <Console name="stderr" target="SYSTEM_ERR">
+            <PatternLayout pattern="${layout}"/>
+        </Console>
+    </Appenders>
+    <Loggers>
+        <Root level="error">
+            <AppenderRef ref="stderr"/>
+        </Root>
+        <Logger name="edu.internet2.middleware" level="warn" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.app.loader.GrouperLoaderLog" level="debug" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.pspng" level="info" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectLog" level="debug" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.app.syncToGrouper.SyncToGrouperFromSqlDaemon" level="debug" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLogCommands" level="debug" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.stem.StemViewPrivilegeEsbListener" level="debug" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.stem.StemViewPrivilegeFullDaemonLogic" level="debug" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="org.apache.tools.ant" level="warn" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+        <Logger name="edu.internet2.middleware.grouper.util.PerformanceLogger" level="info" additivity="false">
+            <AppenderRef ref="stderr"/>
+        </Logger>
+
+    </Loggers>
+</Configuration>

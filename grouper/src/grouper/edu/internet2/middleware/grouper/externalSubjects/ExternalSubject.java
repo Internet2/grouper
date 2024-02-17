@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCache;
@@ -1204,6 +1205,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
           || enabled != externalSubject.isEnabled()) {
         externalSubject.store(null, null, false, false, true);
         countChanged++;
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
       }
       
     }

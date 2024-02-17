@@ -13,6 +13,7 @@ import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -112,12 +113,16 @@ public class SyncStemToGrouperLogic {
     }
     
     this.calculateTopLevelStemsToSync();
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     this.retrieveStemsFromGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.compareStems();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.changeGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     // reclaim some memory
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncStemToGrouperBeans()));
@@ -138,7 +143,8 @@ public class SyncStemToGrouperLogic {
     }
 
     for (Stem stem : GrouperUtil.nonNull(this.stemDeletes)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       // get this again to reduce race conditions
       Stem stemInGrouper = StemFinder.findByName(GrouperSession.staticGrouperSession(), stem.getName(), false);
       if (stemInGrouper == null) {
@@ -155,7 +161,8 @@ public class SyncStemToGrouperLogic {
       
     }
     for (SyncStemToGrouperBean syncStemToGrouperBean : GrouperUtil.nonNull(this.stemInserts)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         StemSave stemSave = new StemSave(GrouperSession.staticGrouperSession()).assignName(syncStemToGrouperBean.getName()).assignCreateParentStemsIfNotExist(true);
         
@@ -187,7 +194,8 @@ public class SyncStemToGrouperLogic {
       
     }
     for (SyncStemToGrouperBean syncStemToGrouperBean : GrouperUtil.nonNull(this.stemUpdates)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       // get this again to reduce race conditions
       Stem stemInGrouper = StemFinder.findByName(GrouperSession.staticGrouperSession(), syncStemToGrouperBean.getName(), false);
       if (stemInGrouper == null) {

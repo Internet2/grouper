@@ -340,7 +340,8 @@ public enum GrouperLoaderType {
         } else if (StringUtils.equals(GROUPER_BUILTIN_MESSAGING_DAEMON, hib3GrouploaderLog.getJobName())) {
 
           int processedRecords = GrouperBuiltinMessagingSystem.cleanOldProcessedMessages();
-          
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           int unprocessedRecords = GrouperBuiltinMessagingSystem.cleanOldUnprocessedMessages();
           
           hib3GrouploaderLog.setUpdateCount(processedRecords + unprocessedRecords);
@@ -454,7 +455,8 @@ public enum GrouperLoaderType {
           hib3GrouploaderLogOverall.setMillisGetData((int)(System.currentTimeMillis()-startTime));
 
           grouperLoaderResultsetOverall.bulkLookupSubjects();
-          
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           //#######################################
           //Get group metadata
           int groupMetadataNumberOfRows = 0;
@@ -1995,7 +1997,8 @@ public enum GrouperLoaderType {
       final boolean approved = grouperFailsafeBean == null ? false : GrouperFailsafe.isApproved(grouperFailsafeBean.getJobName());
       
       for (final String groupName : groupNamesToSync) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         if (LOG.isDebugEnabled()) {
           LOG.debug(groupNameOverall + ": syncing membership for " + groupName + " " + count + " out of " + groupNamesToSync.size() + " groups");
         }
@@ -3265,6 +3268,8 @@ public enum GrouperLoaderType {
           + " and ms.type = 'immediate' and ms.enabledDb = 'T' "
           + " and ms.fieldId = '" + Group.getDefaultList().getUuid() + "'");
 
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Set<Object[]> results = HibernateSession.byHqlStatic().createQuery(sql.toString())
         .setString("ownerGroupId", group[0].getId()).listSet(Object[].class);
       
@@ -3343,7 +3348,8 @@ public enum GrouperLoaderType {
       numberOfRows = grouperLoaderResultset.numberOfRows();
       
       grouperLoaderResultset.bulkLookupSubjects();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count = 1;
       for (int i=0;i<numberOfRows;i++) {
         
@@ -3479,6 +3485,8 @@ public enum GrouperLoaderType {
               //first remove members
 
               for (final LoaderMemberWrapper member : membersToRemove) {
+                GrouperDaemonUtils.stopProcessingIfJobPaused();
+                
                 GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberDeleteMemberLogic: " + groupName + ", " + member.getSubjectId()) {
 
                   @Override
@@ -3516,6 +3524,7 @@ public enum GrouperLoaderType {
               //then add new members
 
               for (final Subject subject : subjectsToAdd) {
+                GrouperDaemonUtils.stopProcessingIfJobPaused();
 
                 GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("syncOneMemberAddMemberLogic: " + groupName + ", " + subject.getId()) {
                   
@@ -4011,6 +4020,7 @@ public enum GrouperLoaderType {
             ifHasAttributeAction.getAttributeAssignActionSetDelegate().addToAttributeAssignActionSet(thenHasAttributeAction);
             
             hib3GrouploaderLog.addInsertCount(1);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
           }                      
         }
         attributeActionSetResultset.remove(i);
@@ -4052,6 +4062,7 @@ public enum GrouperLoaderType {
         ifHasAttributeAction.getAttributeAssignActionSetDelegate().removeFromAttributeAssignActionSet(thenHasAttributeAction);
         
         hib3GrouploaderLog.addDeleteCount(1);
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
       }
 
       //###################################
@@ -4124,8 +4135,9 @@ public enum GrouperLoaderType {
           
           //this is an insert
           AttributeAssignAction actionInserted = theAttributeDef.getAttributeDefActionDelegate().addAction(action);
-          
+
           hib3GrouploaderLog.addInsertCount(1);
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
           
           actionsByName.put(action, actionInserted);
           actionsById.put(actionInserted.getId(), actionInserted);
@@ -4160,8 +4172,9 @@ public enum GrouperLoaderType {
         totalCount[0]--;
           
         theAttributeDef.getAttributeDefActionDelegate().removeAction(currentAction);
-        
+
         hib3GrouploaderLog.addDeleteCount(1);
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
       }
 
       
@@ -4277,8 +4290,9 @@ public enum GrouperLoaderType {
             
             //this is an insert
             ifHasAttributeDefName.getAttributeDefNameSetDelegate().addToAttributeDefNameSet(thenHasAttributeDefName);
-            
+
             hib3GrouploaderLog.addInsertCount(1);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
             
           }
           
@@ -4326,8 +4340,9 @@ public enum GrouperLoaderType {
             totalCount[0]--;
             
             ifHasAttributeDefName.getAttributeDefNameSetDelegate().removeFromAttributeDefNameSet(thenHasAttributeDefName);
-            
+
             hib3GrouploaderLog.addDeleteCount(1);
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
           } else {
             
             if (LOG.isDebugEnabled()) {
@@ -4408,7 +4423,8 @@ public enum GrouperLoaderType {
       processedCount[0] += numberOfAttributeDefNames;
       
       for (int i=0; i<attributeDefNameResultset.numberOfRows(); i++) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         //the size changes as we iterate through...  so check again
         if (i >= attributeDefNameResultset.numberOfRows()) {
           break;
@@ -4499,6 +4515,8 @@ public enum GrouperLoaderType {
       //##########################
       //## Now we can remove ones in DB that shouldnt be there
       for (AttributeDefName current : GrouperUtil.nonNull(attributeDefNamesLike)) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         if (LOG.isDebugEnabled()) {
           LOG.debug(attributeDefName + " will delete " + current.getName());
         }

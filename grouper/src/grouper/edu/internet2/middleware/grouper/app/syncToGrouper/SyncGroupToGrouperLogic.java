@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -80,12 +81,17 @@ public class SyncGroupToGrouperLogic {
     if (this.getSyncToGrouper().getSyncToGrouperBehavior().isSqlLoad()) {
       this.getSyncToGrouper().getSyncToGrouperFromSql().loadGroupDataFromSql();
     }
-    
+
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     this.retrieveGroupsFromGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.compareGroups();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.changeGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncGroupToGrouperBeans()));
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperGroupNameToGroup()));
@@ -106,7 +112,8 @@ public class SyncGroupToGrouperLogic {
     this.getSyncToGrouper().getSyncToGrouperReport().setState("changeGrouperGroups");
 
     for (Group group : GrouperUtil.nonNull(this.groupDeletes)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       // get this again to reduce race conditions
       Group groupInGrouper = GroupFinder.findByName(GrouperSession.staticGrouperSession(), group.getName(), false);
       if (groupInGrouper == null) {
@@ -123,7 +130,8 @@ public class SyncGroupToGrouperLogic {
       
     }
     for (SyncGroupToGrouperBean syncGroupToGrouperBean : GrouperUtil.nonNull(this.groupInserts)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         GroupSave groupSave = new GroupSave(GrouperSession.staticGrouperSession()).assignName(syncGroupToGrouperBean.getName()).assignCreateParentStemsIfNotExist(true);
 
@@ -162,7 +170,8 @@ public class SyncGroupToGrouperLogic {
       
     }
     for (SyncGroupToGrouperBean syncGroupToGrouperBean : GrouperUtil.nonNull(this.groupUpdates)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       // get this again to reduce race conditions
       Group groupInGrouper = GroupFinder.findByName(GrouperSession.staticGrouperSession(), syncGroupToGrouperBean.getName(), false);
       if (groupInGrouper == null) {

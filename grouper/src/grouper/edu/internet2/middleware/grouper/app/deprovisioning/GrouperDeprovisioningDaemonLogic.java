@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -564,7 +565,10 @@ public class GrouperDeprovisioningDaemonLogic extends OtherJobBase {
       
     
       Map<String, Map<String, GrouperDeprovisioningObjectAttributes>> allFoldersOfInterestForDeprovisioning = retrieveAllFoldersOfInterestForDeprovisioning();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Map<String, Map<String, GrouperDeprovisioningObjectAttributes>> allGroupsOfInterestForDeprovisioning = retrieveAllGroupsOfInterestForDeprovisioning(allFoldersOfInterestForDeprovisioning);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       
       Set<String> affiliationsToProcess = new HashSet<String>();
@@ -572,7 +576,8 @@ public class GrouperDeprovisioningDaemonLogic extends OtherJobBase {
       affiliationsToProcess.addAll(allGroupsOfInterestForDeprovisioning.keySet());
       
       for (String affiliationName: affiliationsToProcess) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Map<String, GrouperDeprovisioningObjectAttributes> grouperDeprovisioningFolderAttributes = allFoldersOfInterestForDeprovisioning.get(affiliationName);
         Map<String, GrouperDeprovisioningObjectAttributes> grouperDeprovisioningGroupAttributes = allGroupsOfInterestForDeprovisioning.get(affiliationName);
         
@@ -697,6 +702,7 @@ public class GrouperDeprovisioningDaemonLogic extends OtherJobBase {
     
     // go through each group/folder and recompute what the attributes should be by looking at ancestor folders and if it doesn't match what's in the db, then update db
     for (GrouperDeprovisioningObjectAttributes grouperDeprovisionObjectAttribute : grouperDeprovisioningAttributesToProcess) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if ("true".equalsIgnoreCase(grouperDeprovisionObjectAttribute.getDirectAssign())) {
         continue;
@@ -2122,20 +2128,25 @@ public class GrouperDeprovisioningDaemonLogic extends OtherJobBase {
     try {
      
       populateIdsAndNamesToWorkOn();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       groupIdToNamesAddAndAttributeChange.putAll(groupIdsToNamesAdd);
       groupIdToNamesAddAndAttributeChange.putAll(groupIdsToNamesAttributeChange);
       
       populateAttributesAssignedToGroupsIncremental();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       stemIdToNamesAddAndAttributeChange.putAll(stemIdsToNamesAdd);
       stemIdToNamesAddAndAttributeChange.putAll(stemIdsToNamesAttributeChange);
       
       populateAttributesAssignedToStemsIncremental();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       populateAncestorsIncremental();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       populateChildrenWithAttributesIncremental();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       addFromOneMapOfMapsToAnother(groupsWithAttributesToProcess, groupsWithOrWithoutAttributesToProcess);
       addFromOneMapOfMapsToAnother(childrenGroupsDeprovisioningAttributes, groupsWithOrWithoutAttributesToProcess);
@@ -2168,11 +2179,14 @@ public class GrouperDeprovisioningDaemonLogic extends OtherJobBase {
       }
       
       populateEventObjectsWhichDoNotHaveAttributes();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       populateChildrenWhichMayOrMayNotHaveAttributes();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       for (String affiliation: affiliationsToProcess) {
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Map<String, GrouperDeprovisioningObjectAttributes> grouperDeprovisioningFolderAttributes = foldersWithOrWithoutAttributesToProcess.get(affiliation);
         Map<String, GrouperDeprovisioningObjectAttributes> grouperDeprovisioningGroupAttributes = groupsWithOrWithoutAttributesToProcess.get(affiliation);
         

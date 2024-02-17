@@ -139,6 +139,8 @@ public class GrouperLoader {
     
     GrouperDaemonSchedulerCheck.startDaemonSchedulerCheckThreadIfNeeded();
     
+    GrouperDaemonUtils.startDaemonPausedJobsCheckThread();
+    
     // delay starting the scheduler until the end to make sure things that need to be unscheduled are taken care of first?
     try {
       schedulerFactory.getScheduler().start();

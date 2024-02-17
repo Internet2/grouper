@@ -79,7 +79,6 @@ import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiSorting;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
@@ -104,9 +103,14 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleApi;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleOwnerType;
+import edu.internet2.middleware.grouper.rules.RuleService;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -3841,6 +3845,360 @@ public class UiV2Stem {
 
       GrouperSession.stopQuietly(grouperSession);
     }
+  }
+  
+  /**
+   * view rules screen on a folder
+   * @param request
+   * @param response
+   */
+  public void viewStemRules(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+
+      final Stem STEM = stem;
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+//      if (!checkReportConfigActive()) {
+//        return;
+//      }
+//      
+//      List<GuiReportConfig> guiReportConfigs = buildGuiReportConfigs(STEM);
+      
+//      grouperReportContainer.setGuiReportConfigs(guiReportConfigs);
+      
+      Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(stem);
+      
+      Set<GuiRuleDefinition> guiRules = new HashSet<>();
+      
+      for (RuleDefinition ruleDefinition: ruleDefinitions) {
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        guiRules.add(guiRuleDefinition);
+      }
+      
+      rulesContainer.setGuiRuleDefinitions(guiRules);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/stemRules.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * show add rule screen
+   * @param request
+   * @param response
+   */
+  public void addRuleOnStem(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+      String attributeAssignId = request.getParameter("ruleId");
+      rulesContainer.setAttributeAssignId(attributeAssignId);
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
+      RuleConfig ruleConfig = new RuleConfig();
+      List<String> errors = populateRuleConfigFromScreen(request, ruleConfig);
+      if (errors.size() > 0) {
+        for (String error: errors) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+        }
+        return;
+      }
+      
+      rulesContainer.setRuleConfig(ruleConfig);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/addStemRule.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * show edit rule screen
+   * @param request
+   * @param response
+   */
+  public void editRuleOnStem(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      String attributeAssignId = request.getParameter("ruleId");
+      
+      RuleConfig ruleConfig = RuleService.getRuleConfig(stem, attributeAssignId);
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
+      
+      rulesContainer.setRuleConfig(ruleConfig);
+      rulesContainer.setAttributeAssignId(attributeAssignId);
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/stem/addStemRule.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  private List<String> populateRuleConfigFromScreen(HttpServletRequest request, RuleConfig ruleConfig) {
+    
+    List<String> errors = new ArrayList<>();
+    
+    String ruleCheckType = request.getParameter("grouperRuleCheckType");
+    ruleConfig.setCheckType(ruleCheckType);
+    
+    if (StringUtils.isNotBlank(ruleCheckType)) {
+      RuleCheckType ruleCheckTypeEnum = RuleCheckType.valueOfIgnoreCase(ruleCheckType, false);
+      if (ruleCheckTypeEnum != null) {
+        RuleOwnerType ruleOwnerType = ruleCheckTypeEnum.getOwnerType();
+        if (ruleOwnerType != RuleOwnerType.FOLDER && ruleOwnerType != RuleOwnerType.GROUP) {
+          errors.add(TextContainer.retrieveFromRequest().getText().get("grouperRuleConfigAddEditInvalidRuleCheckType"));
+          return errors;
+        }
+      }
+    }
+    
+    String grouperRuleCheckOwner = request.getParameter("grouperRuleCheckOwner");
+    ruleConfig.setCheckOwner(grouperRuleCheckOwner);
+    
+    String grouperRuleCheckOwnerUuidOrName = request.getParameter("grouperRuleCheckOwnerUuidOrName");
+    ruleConfig.setCheckOwnerUuidOrName(grouperRuleCheckOwnerUuidOrName);
+    
+    String grouperRuleCheckOwnerStemScope = request.getParameter("grouperRuleCheckOwnerStemScope");
+    ruleConfig.setCheckOwnerStemScope(grouperRuleCheckOwnerStemScope);
+    
+    String grouperRuleIfConditionOption = request.getParameter("grouperRuleIfConditionOption");
+    ruleConfig.setIfConditionOption(grouperRuleIfConditionOption);
+    
+    if (StringUtils.isNotBlank(grouperRuleIfConditionOption) && !StringUtils.equals(grouperRuleIfConditionOption, "EL")) {
+      RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(grouperRuleIfConditionOption, false);
+      if (ruleIfConditionEnum != null) {
+        RuleOwnerType ruleOwnerType = ruleIfConditionEnum.getOwnerType();
+        if (ruleOwnerType != RuleOwnerType.FOLDER && ruleOwnerType != RuleOwnerType.GROUP) {
+          errors.add(TextContainer.retrieveFromRequest().getText().get("grouperRuleConfigAddEditInvalidRuleConditionType"));
+          return errors;
+        }
+      }
+    }
+    
+    String grouperRuleIfConditionOwner = request.getParameter("grouperRuleIfConditionOwner");
+    ruleConfig.setIfConditionOwner(grouperRuleIfConditionOwner);
+    
+    String grouperRuleIfConditionEL = request.getParameter("grouperRuleIfConditionEL");
+    ruleConfig.setIfConditionEl(grouperRuleIfConditionEL);
+    
+    String grouperRuleIfConditionOwnerUuidOrName = request.getParameter("grouperRuleIfConditionOwnerUuidOrName");
+    ruleConfig.setIfConditionOwnerUuidOrName(grouperRuleIfConditionOwnerUuidOrName);
+
+    String grouperRuleIfConditionOwnerStemScope = request.getParameter("grouperRuleIfConditionOwnerStemScope");
+    ruleConfig.setIfConditionOwnerStemScope(grouperRuleIfConditionOwnerStemScope);
+    
+    String grouperRuleThenOption = request.getParameter("grouperRuleThenOption");
+    ruleConfig.setThenOption(grouperRuleThenOption);
+    
+    String grouperRuleThenEL = request.getParameter("grouperRuleThenEL");
+    ruleConfig.setThenEl(grouperRuleThenEL);
+
+    String grouperRuleCheckArg0 = request.getParameter("grouperRuleCheckArg0");
+    ruleConfig.setCheckArg0(grouperRuleCheckArg0);
+    
+    String grouperRuleCheckArg1 = request.getParameter("grouperRuleCheckArg1");
+    ruleConfig.setCheckArg1(grouperRuleCheckArg1);
+    
+    String grouperRuleIfConditionArg0 = request.getParameter("grouperRuleIfConditionArg0");
+    ruleConfig.setIfConditionArg0(grouperRuleIfConditionArg0);
+    
+    String grouperRuleIfConditionArg1 = request.getParameter("grouperRuleIfConditionArg1");
+    ruleConfig.setIfConditionArg1(grouperRuleIfConditionArg1);
+    
+    String grouperRuleThenArg0 = request.getParameter("grouperRuleThenArg0");
+    ruleConfig.setThenArg0(grouperRuleThenArg0);
+    
+    String grouperRuleThenArg1 = request.getParameter("grouperRuleThenArg1");
+    ruleConfig.setThenArg1(grouperRuleThenArg1);
+    
+    String grouperRuleThenArg2 = request.getParameter("grouperRuleThenArg2");
+    ruleConfig.setThenArg2(grouperRuleThenArg2);
+    
+    String grouperRuleRunDaemon = request.getParameter("grouperRuleRunDaemon");
+    ruleConfig.setRunDaemon(GrouperUtil.booleanValue(grouperRuleRunDaemon, true));
+    
+    return errors;
+    
+  }
+  
+  /**
+   * delete rule
+   * @param request
+   * @param response
+   */
+  public void deleteRuleOnStem(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      RuleEngine.clearRuleEngineCache();
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+      String attributeAssignId = request.getParameter("ruleId");
+      
+      RuleService.deleteRuleAttributes(stem, attributeAssignId);
+      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
+      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          TextContainer.retrieveFromRequest().getText().get("grouperRuleConfigDeleteSuccess")));
+     
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
+  }
+  
+  /**
+   * submit add rule screen
+   * @param request
+   * @param response
+   */
+  public void addRuleOnStemSubmit(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    Stem stem = null;
+
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+            
+      stem = UiV2Stem.retrieveStemHelper(request, true).getStem();
+      
+      if (stem == null) {
+        return;
+      }
+      
+      final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+      String attributeAssignId = request.getParameter("ruleId");
+      
+      RuleConfig ruleConfig = new RuleConfig();
+      List<String> errors = populateRuleConfigFromScreen(request, ruleConfig);
+      if (errors.size() > 0) {
+        for (String error: errors) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+        }
+        return;
+      }
+      
+      rulesContainer.setRuleConfig(ruleConfig);
+      
+      Map<String, List<String>> typeWithMessages = RuleService.saveOrUpdateRuleAttributes(ruleConfig, stem, attributeAssignId);
+      
+      if (typeWithMessages.get("ERROR") != null && typeWithMessages.get("ERROR").size() > 0) {
+        
+        for (String error: typeWithMessages.get("ERROR")) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+        }
+        
+        return;
+      } else if (typeWithMessages.get("WARN") != null && typeWithMessages.get("WARN").size() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
+        for (String warning: typeWithMessages.get("WARN")) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, warning));
+        }
+      } else if (typeWithMessages.get("SUCCESS") != null && typeWithMessages.get("SUCCESS").size() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
+        for (String successMessages: typeWithMessages.get("SUCCESS")) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessages));
+        }
+      }
+     
+//      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+//          TextContainer.retrieveFromRequest().getText().get("grouperReportConfigAddEditSuccess")));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+    
   }
   
 }

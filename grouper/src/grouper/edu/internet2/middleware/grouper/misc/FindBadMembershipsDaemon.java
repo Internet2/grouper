@@ -29,6 +29,7 @@ import org.quartz.JobExecutionException;
 
 import bsh.Interpreter;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -71,9 +72,12 @@ public class FindBadMembershipsDaemon implements Job {
       hib3GrouploaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouploaderLog.store();
       
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
+      
       int runs = 0;
       
       while (true) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
         runs++;
         LOG.info("Checking for bad or missing memberships.");
         FindBadMemberships.clearResults();
@@ -138,6 +142,8 @@ public class FindBadMembershipsDaemon implements Job {
       storeLogInDb(hib3GrouploaderLog, false, startTime);
       throw jobExecutionException;
     } finally {
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+
       FindBadMemberships.clearResults();
       GrouperSession.stopQuietly(grouperSession);
     }

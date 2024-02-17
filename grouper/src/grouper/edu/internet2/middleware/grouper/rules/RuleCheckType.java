@@ -31,9 +31,9 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
-import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
@@ -72,6 +72,17 @@ public enum RuleCheckType {
 
   /** query daily for permissions that are enabled, but have a disabled date coming up */
   permissionDisabledDate {
+    
+    
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return true;
+    }
 
     /**
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#checkKey(edu.internet2.middleware.grouper.rules.RuleDefinition)
@@ -235,10 +246,30 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      return true;
+    }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.ATTRIBUTE_DEF;
+    }
   },
   
   /** query daily for memberships that are enabled, but have a disabled date coming up */
   membershipDisabledDate {
+    
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return true;
+    }
 
     /**
      * @see edu.internet2.middleware.grouper.rules.RuleCheckType#checkKey(edu.internet2.middleware.grouper.rules.RuleDefinition)
@@ -385,10 +416,30 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      return true;
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   
   /** if there is a membership(flattened) add of a group in a stem */
   flattenedMembershipAddInFolder{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -452,10 +503,31 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      return false;
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
 
   /** if there is a membership(flattened) remove of a group in a stem */
   flattenedMembershipRemoveInFolder{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -527,10 +599,31 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      return membershipRemoveInFolder.canRunDeamon(ruleDefinition);
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
 
   /** if there is a membership remove flattened */
   flattenedMembershipRemove {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -657,10 +750,30 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      return membershipRemove.canRunDeamon(ruleDefinition);
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   
   /** if there is a membership remove in transaction of remove */
   membershipRemove {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -723,11 +836,7 @@ public enum RuleCheckType {
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       
-      if (ruleIfConditionEnum == null) {
-        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
-          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
-        }
-        
+      if (!canRunDeamon(ruleDefinition)) {
         return;
       }
       
@@ -788,18 +897,8 @@ public enum RuleCheckType {
       return false;
     }
 
-  },
-  
-  /** if there is a membership remove in transaction of remove of a group in a stem */
-  membershipRemoveInFolder {
-
-    /**
-     * 
-     */
     @Override
-    public void runDaemon(final RuleDefinition ruleDefinition) {
-      
-      final RuleEngine ruleEngine = RuleEngine.ruleEngine();
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       
       //lets get the if enum
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
@@ -809,8 +908,62 @@ public enum RuleCheckType {
           throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
         }
         
+        return false;
+      }
+      
+      switch (ruleIfConditionEnum) {
+        
+        case thisGroupHasImmediateEnabledMembership:
+          return true;
+        case thisGroupHasImmediateEnabledNoEndDateMembership:
+          return true;
+        case thisPermissionDefHasAssignment:
+          return true;
+        case thisPermissionDefHasNoEndDateAssignment:
+          return true;
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+          return false;
+      }
+      
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
+
+  },
+  
+  /** if there is a membership remove in transaction of remove of a group in a stem */
+  membershipRemoveInFolder {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
+    
+
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(final RuleDefinition ruleDefinition) {
+      
+      if (!this.canRunDeamon(ruleDefinition)) {
         return;
       }
+      
+      final RuleEngine ruleEngine = RuleEngine.ruleEngine();
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       
       switch (ruleIfConditionEnum) {
         
@@ -1010,10 +1163,54 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+     
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      
+      if (ruleIfConditionEnum == null) {
+        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+        }
+        
+        return false;
+      }
+      
+      switch (ruleIfConditionEnum) {
+        
+        case thisPermissionDefHasAssignmentAndNotFolder:
+          return true;
+        case thisGroupAndNotFolderHasImmediateEnabledMembership:
+          return true;
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+          return false;
+      }
+      
+    }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   },
   
   /** if a group is created */
   groupCreate {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
     
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -1039,16 +1236,7 @@ public enum RuleCheckType {
     @Override
     public void runDaemon(RuleDefinition ruleDefinition) {
       
-      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
-      
-      if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId 
-          || (ruleDefinition.getIfCondition().ifConditionEnum() != null 
-              && ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
-          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
-        if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
-          throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
-        }
-        //return, nothing to do
+      if (!canRunDeamon(ruleDefinition)) {
         return;
       }
 
@@ -1152,10 +1340,43 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleThenEnum != RuleThenEnum.assignGroupPrivilegeToGroupId 
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null 
+              && ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
+          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
+        if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
+          throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignGroupPrivilegeToGroupId);
+        }
+        //return, nothing to do
+        return false;
+      }
+      return true;
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   },
   
   /** if a stem is created */
   stemCreate {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
     
     /**
      * validate this check type
@@ -1210,12 +1431,9 @@ public enum RuleCheckType {
         }
       }
     }
-   
-    /**
-     * 
-     */
+    
     @Override
-    public void runDaemon(RuleDefinition ruleDefinition) {
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
       
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
@@ -1227,6 +1445,18 @@ public enum RuleCheckType {
           throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignStemPrivilegeToStemId);
         }
         //return, nothing to do
+        return false;
+      }
+      return true;
+    }
+   
+    /**
+     * 
+     */
+    @Override
+    public void runDaemon(RuleDefinition ruleDefinition) {
+      
+      if (!canRunDeamon(ruleDefinition)) {
         return;
       }
 
@@ -1308,10 +1538,25 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
   
   /** if there is a membership add in transaction */
   membershipAdd{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -1325,11 +1570,7 @@ public enum RuleCheckType {
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
-      if (ruleIfConditionEnum == null) {
-        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
-          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
-        }
-        
+      if (!canRunDeamon(ruleDefinition)) {
         return;
       }
       
@@ -1454,10 +1695,79 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleIfConditionEnum == null) {
+        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+        }
+        
+        return false;
+      }
+      
+      switch (ruleIfConditionEnum) {
+        
+        case groupHasNoImmediateEnabledMembership:
+          
+          switch (ruleThenEnum) {
+            
+            case veto:
+              return true;
+            default:
+              if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+                throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+              }
+              return false;
+          }
+          
+        case noGroupInFolderHasImmediateEnabledMembership:
+          
+          switch (ruleThenEnum) {
+            
+            case veto:
+
+              return true;
+            
+            default:
+              if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+                throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+              }
+              return false;
+          }
+          
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+          return false;
+      }
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   }, 
   
   /** if there is a membership add, privilege add, permission add, etc in transaction */
   subjectAssignInStem {
+    
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -1465,10 +1775,7 @@ public enum RuleCheckType {
     @Override
     public void runDaemon(final RuleDefinition ruleDefinition) {
       
-      if (!RuleConsumer.shouldContinueFixVetoIfNotInFolder(ruleDefinition)) {
-        return;
-      }
-      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouperRuleDaemon_GRP_2143_Remove_memberships_from_restricted_stem_when_removed_from_dependent_group", true)) {
+      if (!canRunDeamon(ruleDefinition)) {
         return;
       }
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -1611,11 +1918,38 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      if (!RuleConsumer.shouldContinueFixVetoIfNotInFolder(ruleDefinition)) {
+        return false;
+      }
+      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("grouperRuleDaemon_GRP_2143_Remove_memberships_from_restricted_stem_when_removed_from_dependent_group", true)) {
+        return false;
+      }
+      return true;
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
   
   /** if there is a membership remove flattened */
   flattenedMembershipAdd{
-  
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
+ 
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
      */
@@ -1689,10 +2023,30 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      return false;
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   }, 
   
   /** if there is a membership remove in transaction of remove of a group in a stem */
   membershipAddInFolder{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
   
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -1755,10 +2109,30 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      return false;
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.FOLDER;
+    }
   }, 
   
   /** if a group is created */
   attributeDefCreate{
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
     
     /**
      * @see RuleCheckType#checkKey(RuleDefinition)
@@ -1820,16 +2194,7 @@ public enum RuleCheckType {
     @Override
     public void runDaemon(RuleDefinition ruleDefinition) {
       
-      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
-      
-      if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId 
-          || (ruleDefinition.getIfCondition().ifConditionEnum() != null && 
-              ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
-          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
-        if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
-          throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
-        }
-        //return, nothing to do
+      if (!canRunDeamon(ruleDefinition)) {
         return;
       }
       
@@ -1901,10 +2266,43 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return true;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleThenEnum != RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId 
+          || (ruleDefinition.getIfCondition().ifConditionEnum() != null && 
+              ruleDefinition.getIfCondition().ifConditionEnum() != RuleIfConditionEnum.nameMatchesSqlLikeString)
+          || !StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEl())) {
+        if (StringUtils.isNotBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean() ) {
+          throw new RuntimeException("RuleThenEnum needs to be " + RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId);
+        }
+        //return, nothing to do
+        return false;
+      }
+      return true;
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.ATTRIBUTE_DEF;
+    }
   }, 
 
   /** if there is a permission assign in transaction to a subject, not to a role */
   permissionAssignToSubject {
+    
+    @Override
+    public boolean usesArg0() {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
 
     /**
      * 
@@ -1918,11 +2316,7 @@ public enum RuleCheckType {
       RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
       RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
       
-      if (ruleIfConditionEnum == null) {
-        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
-          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
-        }
-        
+      if (!canRunDeamon(ruleDefinition)) {
         return;
       }
       
@@ -2104,7 +2498,56 @@ public enum RuleCheckType {
     public boolean isCheckOwnerTypeStem(RuleDefinition ruleDefinition) {
       return false;
     }
+
+    @Override
+    public boolean canRunDeamon(RuleDefinition ruleDefinition) {
+      
+      //lets get the if enum
+      RuleIfConditionEnum ruleIfConditionEnum = ruleDefinition.getIfCondition().ifConditionEnum();
+      RuleThenEnum ruleThenEnum = ruleDefinition.getThen().thenEnum();
+      
+      if (ruleIfConditionEnum == null) {
+        if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+          throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+        }
+        
+        return false;
+      }
+      
+      switch (ruleIfConditionEnum) {
+        
+        case groupHasNoImmediateEnabledMembership:
+          
+          switch (ruleThenEnum) {
+            
+            case veto:
+
+              return true;
+            
+            default:
+              if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+                throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+              }
+              return false;
+          }
+          
+        default:
+          if (!StringUtils.isBlank(ruleDefinition.getRunDaemon()) && ruleDefinition.isRunDaemonBoolean()) {
+            throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
+          }
+          return false;
+      }
+    }
+    
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.PERMISSION_DEF;
+    }
   };
+  
+  public abstract boolean usesArg0();
+
+  public abstract boolean usesArg1();
 
   /**
    * get the check key for the index
@@ -2293,6 +2736,8 @@ public enum RuleCheckType {
       throw new RuntimeException("This rule is explicitly set to run a daemon, but it is not implemented");
     }
   }
+  
+  public abstract boolean canRunDeamon(RuleDefinition ruleDefinition);
 
   /**
    * 
@@ -2725,5 +3170,7 @@ public enum RuleCheckType {
     return ruleCheck;
 
   }
+
+  public abstract RuleOwnerType getOwnerType();
 
 }

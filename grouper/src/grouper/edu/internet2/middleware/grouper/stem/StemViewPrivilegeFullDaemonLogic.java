@@ -15,6 +15,7 @@ import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -159,6 +160,8 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + "and gmlv.subject_source != 'g:gsa' and (gll.last_stem_view_need is null or gll.last_stem_view_need < ?)")
       .addBindVar(groupName).addBindVar(recalcChangeLogIfNeededInLastMillis).selectList(String.class);
 
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     // grouperAll to update
     Member everyEntityMember = MemberFinder.internal_findAllMember();
 
@@ -166,6 +169,8 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + "where gll.member_uuid = ? "
         + "and (gll.last_stem_view_need is null or gll.last_stem_view_need < ?)")
       .addBindVar(everyEntityMember.getId()).addBindVar(recalcChangeLogIfNeededInLastMillis).selectList(String.class));
+
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesLastStemViewNeedUpdate(memberIds, "preCompute_");
     
@@ -175,11 +180,15 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         + " and not exists (select 1 from grouper_last_login gll where gmlv.member_id = gll.member_uuid)")
       .addBindVar(groupName).selectList(String.class);
 
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     // grouperAll to insert
     memberIds.addAll(new GcDbAccess().sql("select gm.id from grouper_members gm where "
         + " gm.id = ? "
         + " and not exists (select 1 from grouper_last_login gll where gm.id = gll.member_uuid)")
       .addBindVar(everyEntityMember.getId()).selectList(String.class));
+
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.stemViewPrivilegeLogic.recalculateStemViewPrivilegesLastStemViewNeedInsert(memberIds, "preCompute_");
 
@@ -227,6 +236,7 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
       List<String> results = gcDbAccess.selectList(String.class);
       this.memberIdsToRecalc.addAll(results);
       this.debugMap.put("memberIdsToRecalcCount", GrouperUtil.length(results));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
     } finally {
       this.debugMap.put("retrieveMemberIdsToRecalcMs", (System.nanoTime() - start)/1000000);
@@ -264,7 +274,8 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
       List<Object[]> results = gcDbAccess.selectList(Object[].class);
       
       this.debugMap.put("stemPrivsToDeleteCount", GrouperUtil.length(results));
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       if (GrouperUtil.length(results) > 0) {
         
         gcDbAccess = new GcDbAccess().sql("delete from grouper_stem_view_privilege where member_uuid = ? and stem_uuid = ? and object_type = ?");
@@ -277,7 +288,8 @@ public class StemViewPrivilegeFullDaemonLogic extends OtherJobBase {
         gcDbAccess.batchBindVars(listBindVars);
         
         int[] resultCounts = gcDbAccess.executeBatchSql();
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         int rowsDeleted = 0;
         for (int resultCount : resultCounts) {
           rowsDeleted += resultCount;

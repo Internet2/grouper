@@ -26,6 +26,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -164,6 +165,8 @@ public class TierInstrumentationDaemon extends OtherJobBase {
       // ignore
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     try {
       sendToTier(dataForTier);
       otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Finished successfully running TIER instrumentation daemon.");

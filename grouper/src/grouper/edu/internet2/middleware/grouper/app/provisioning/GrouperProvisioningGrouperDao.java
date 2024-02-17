@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
@@ -1146,18 +1147,24 @@ public class GrouperProvisioningGrouperDao {
       debugMap.put("retrieveGrouperGroupsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperGroupCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningGroups()));
     }
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       long start = System.currentTimeMillis();
       grouperProvisioningObjects.setProvisioningEntities(retrieveMembers(true, null));
       debugMap.put("retrieveGrouperEntitiesMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperEntityCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningEntities()));
     }
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     {
       long start = System.currentTimeMillis();
       grouperProvisioningObjects.setProvisioningMemberships(retrieveMemberships(true, null, null, null));
       debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningObjects.getProvisioningMemberships()));
     }
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     return grouperProvisioningObjects;
   }
 
@@ -1210,6 +1217,8 @@ public class GrouperProvisioningGrouperDao {
     {
       long start = System.currentTimeMillis();
       grouperProvisioningLists.setProvisioningGroups(retrieveGroups(false, groupIdsToRetrieve));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       grouperProvisioningData.getGroupIdsSelectedFromGrouper().addAll(groupIdsToRetrieve);
       debugMap.put("retrieveGrouperGroupsMillis_"+logLabel, System.currentTimeMillis() - start);
       debugMap.put("grouperGroupCount_"+logLabel, GrouperUtil.length(grouperProvisioningLists.getProvisioningGroups()));
@@ -1217,6 +1226,8 @@ public class GrouperProvisioningGrouperDao {
     {
       long start = System.currentTimeMillis();
       grouperProvisioningLists.setProvisioningEntities(retrieveMembers(false, memberIdsToRetrieve));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       grouperProvisioningData.getMemberIdsSelectedFromGrouper().addAll(memberIdsToRetrieve);
       debugMap.put("retrieveGrouperEntitiesMillis_"+logLabel, System.currentTimeMillis() - start);
       debugMap.put("grouperEntityCount_"+logLabel, GrouperUtil.length(grouperProvisioningLists.getProvisioningEntities()));
@@ -1260,9 +1271,11 @@ public class GrouperProvisioningGrouperDao {
 
       grouperProvisioningLists.setProvisioningMemberships(retrieveMemberships(false, groupIdsToRetrieveForMemberships, 
           memberIdsToRetrieveForMemberships, groupIdsMemberIdsToRetrieveForMemberships));
+      
       debugMap.put("retrieveGrouperMshipsMillis", System.currentTimeMillis() - start);
       debugMap.put("grouperMshipCount", GrouperUtil.length(grouperProvisioningLists.getProvisioningMemberships()));
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       // maybe more data came back?  fill in some pieces.  this is for instance if retrieving memberships for group or entity, get those that are retruned if not already there
       for (ProvisioningMembership provisioningMembership : grouperProvisioningLists.getProvisioningMemberships()) {
         {
@@ -1303,12 +1316,14 @@ public class GrouperProvisioningGrouperDao {
       grouperProvisioningLists.setProvisioningGroups(retrieveGroups(false, groupIdsToRetrieve));
       debugMap.put("retrieveGrouperGroups2Millis", System.currentTimeMillis() - start);
       debugMap.put("grouperGroup2Count", GrouperUtil.length(grouperProvisioningLists.getProvisioningGroups()));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
     {
       long start = System.currentTimeMillis();
       grouperProvisioningLists.setProvisioningEntities(retrieveMembers(false, memberIdsToRetrieve));
       debugMap.put("retrieveGrouperEntities2Millis", System.currentTimeMillis() - start);
       debugMap.put("grouperEntity2Count", GrouperUtil.length(grouperProvisioningLists.getProvisioningEntities()));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
     return grouperProvisioningLists;
   }

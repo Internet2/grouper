@@ -15,6 +15,7 @@ import org.quartz.DisallowConcurrentExecution;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -85,10 +86,14 @@ public class GrouperReportClearJob extends OtherJobBase {
         .assignNameOfAttributeDefName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME)
         .findStems());
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     grouperObjects.addAll(new ArrayList<GrouperObject>(new GroupFinder().assignAttributeCheckReadOnAttributeDef(false)
         .assignNameOfAttributeDefName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_CONFIG_ATTRIBUTE_NAME)
         .findGroups()));
-    
+
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     return clearOldReports(grouperObjects);
     
   }
@@ -101,7 +106,8 @@ public class GrouperReportClearJob extends OtherJobBase {
     
     int totalInstancesCleared = 0;
     for (GrouperObject grouperObject: grouperObjects) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<GrouperReportConfigurationBean> reportConfigs = GrouperReportConfigService.getGrouperReportConfigs(grouperObject);
       
       for (GrouperReportConfigurationBean configBean: reportConfigs) {

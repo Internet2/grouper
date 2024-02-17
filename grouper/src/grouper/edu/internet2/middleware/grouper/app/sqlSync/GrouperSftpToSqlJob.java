@@ -12,6 +12,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.app.file.GrouperSftp;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
@@ -138,6 +139,7 @@ public class GrouperSftpToSqlJob extends OtherJobBase {
       File sftpReceiveFile = new File(sftpReceiveFileName);
 
       GrouperSftp.receiveFile(sftpConfigId, fileNameRemote, sftpReceiveFile);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       String fileContents = GrouperUtil.readFileIntoString(sftpReceiveFile);
 

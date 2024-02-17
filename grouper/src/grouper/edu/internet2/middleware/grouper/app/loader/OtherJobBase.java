@@ -432,6 +432,8 @@ public abstract class OtherJobBase implements Job {
             hib3GrouperLoaderLog.store();
           }
           
+          GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouperLoaderLog);
+          
           OtherJobInput otherJobInput = new OtherJobInput();
           
           otherJobInput.setJobName(jobName);
@@ -464,6 +466,8 @@ public abstract class OtherJobBase implements Job {
           throw new RuntimeException(e);
 
         } finally {
+          GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+          
           if (assignedContext) {
             GrouperContext.deleteDefaultContext();
           }

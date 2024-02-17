@@ -10,6 +10,7 @@ import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -85,7 +86,6 @@ public class MembershipRequireFullSyncJob extends OtherJobBase {
       this.debugMap.put("configCount", GrouperUtil.length(membershipRequireConfigBeans));
 
       for (MembershipRequireConfigBean membershipRequireConfigBean : membershipRequireConfigBeans) {
-        
         String attributeName = membershipRequireConfigBean.getAttributeName();
         String requireGroupName = membershipRequireConfigBean.getRequireGroupName();
         Set<String> groupNames = MembershipRequireEngine.attributeDefNameNameToGroupNames(attributeName);

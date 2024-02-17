@@ -63,6 +63,11 @@ public enum RuleThenEnum {
   /** assign a disabled date if there is a permission assignment to the owner attribute def
    */
   assignDisabledDaysToOwnerPermissionDefAssignments {
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
     /**
      * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
      */
@@ -110,6 +115,14 @@ public enum RuleThenEnum {
    * ${ruleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, memberId, 7)}
    */
   assignMembershipDisabledDaysForOwnerGroupId {
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    public boolean usesArg1() {
+      return true;
+    }
     
     /**
      * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
@@ -161,7 +174,15 @@ public enum RuleThenEnum {
   
   /** veto the operation (note, must be a transactional check for this to work) */
   veto {
-
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    public boolean usesArg1() {
+      return true;
+    }
+    
     /**
      * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
      */
@@ -202,7 +223,7 @@ public enum RuleThenEnum {
   /** remove the member (the current one being acted on) from the roles and assignments associated with 
    * the owner attribute definition */
   removeMemberFromOwnerPermissionDefAssignments {
-
+    
     /**
      * 
      * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
@@ -714,7 +735,15 @@ public enum RuleThenEnum {
   
   /** assign privilege(s) to subject on the group being acted on (groupId) */
   assignGroupPrivilegeToGroupId {
-  
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    public boolean usesArg1() {
+      return true;
+    }
+    
     /**
      * @see RuleThenEnum#validate(RuleDefinition)
      */
@@ -807,7 +836,15 @@ public enum RuleThenEnum {
   
   /** assign privilege(s) to subject on the stem being acted on (stemId) */
   assignStemPrivilegeToStemId{
-  
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    public boolean usesArg1() {
+      return true;
+    }
+    
     /**
      * @see RuleThenEnum#validate(RuleDefinition)
      */
@@ -896,7 +933,15 @@ public enum RuleThenEnum {
   
   /** assign privilege(s) to subject on the attributeDef being acted on (attributeDefId) */
   assignAttributeDefPrivilegeToAttributeDefId {
-  
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    public boolean usesArg1() {
+      return true;
+    }
+    
     /**
      * @see RuleThenEnum#validate(RuleDefinition)
      */
@@ -992,6 +1037,18 @@ public enum RuleThenEnum {
    * </pre>
    */
   sendEmail {
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    public boolean usesArg1() {
+      return true;
+    }
+    
+    public boolean usesArg2() {
+      return true;
+    }
   
     /**
      * @see RuleThenEnum#validate(RuleDefinition)
@@ -1081,6 +1138,18 @@ public enum RuleThenEnum {
     }
     
   };
+  
+  public boolean usesArg0() {
+    return false;
+  }
+  
+  public boolean usesArg1() {
+    return false;
+  }
+  
+  public boolean usesArg2() {
+    return false;
+  }
   
   /**
    * do a case-insensitive matching

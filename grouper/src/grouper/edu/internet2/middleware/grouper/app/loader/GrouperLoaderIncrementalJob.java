@@ -145,6 +145,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       hib3GrouperloaderLog.setStatus(GrouperLoaderStatus.STARTED.name());
       hib3GrouperloaderLog.store();
       
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouperloaderLog);
+      
       String jobProperty = jobName.replaceFirst("^OTHER_JOB_", "");
 
       String databaseName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob." + jobProperty + ".databaseName");
@@ -183,7 +185,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         Map<String, Map<MultiKey, Row>> rowsByGroup = new LinkedHashMap<String, Map<MultiKey, Row>>();
         
         while (resultSet.next()) {
-          
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           synchronized (hib3GrouperloaderLog) {
             hib3GrouperloaderLog.addTotalCount(1);
           }
@@ -277,7 +280,8 @@ public class GrouperLoaderIncrementalJob implements Job {
         final Map<String, Set<Group>> groupsRequiringLoaderMetadataUpdates = new HashMap<String, Set<Group>>();
         
         for (String loaderGroupName : rowsByGroup.keySet()) {
-          
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           final Group loaderGroup = GroupFinder.findByName(grouperSession, loaderGroupName, false);
           
           if (loaderGroup == null) {
@@ -483,6 +487,8 @@ public class GrouperLoaderIncrementalJob implements Job {
       storeLogInDb(hib3GrouperloaderLog, false, startTime);
       throw jobExecutionException;
     } finally {
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }

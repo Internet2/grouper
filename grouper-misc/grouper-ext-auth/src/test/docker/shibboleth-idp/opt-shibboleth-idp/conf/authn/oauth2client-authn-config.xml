@@ -1,0 +1,30 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xmlns:util="http://www.springframework.org/schema/util"
+       xmlns:p="http://www.springframework.org/schema/p"
+       xmlns:c="http://www.springframework.org/schema/c"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+                           http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd
+                           http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd"
+                           
+       default-init-method="initialize"
+       default-destroy-method="destroy">
+    
+    <!--
+    By default, the system will implement support for client secret validation against client metadata
+    and signed JWT methods.
+    
+    You may uncomment and adjust this bean to define other "back-ends" for client secret validation
+    such as LDAP.
+    -->
+    
+    <!--
+    <util:list id="shibboleth.authn.OAuth2Client.Validators">
+        <ref bean="shibboleth.OIDCClientInfoValidator" />
+        <ref bean="shibboleth.JWTValidator" />
+    </util:list>
+    -->
+        
+</beans>

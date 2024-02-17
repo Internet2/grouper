@@ -1,0 +1,14 @@
+= Developer Notes
+
+* When building, there will be warnings about `Bundle edu.internet2.middleware.grouper.plugins:grouper-authentication-plugin:bundle:0.0.1-SNAPSHOT : Classes found in the wrong directory`. This can be safely ignored
+
+* During tests, there will be log messages like
++
+----
+2023-12-01T10:30:12,364: [main] WARN  ConfigUtils.checkConfig(93) - [] - you are using the config key `external.authentication.saml.keyStoreAlias`; this should be changed to `external.authentication.saml.keystoreAlias`
+2023-12-01T10:30:12,368: [main] WARN  ConfigUtils.checkConfig(93) - [] - you are using the config key `external.authentication.saml.keyStoreType`; this should be changed to `external.authentication.saml.keystoreType`
+----
++
+These can usually be safely ignored.
++
+* SPIs will not work properly if the jar is built with inline; this should be considered if this configuration is changed. Some of the included libraries/frameworks depend on this, notably opensaml.

@@ -34,6 +34,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionStat;
@@ -113,18 +114,26 @@ public class GrouperReport {
         "select count(*) from MembershipEntry").uniqueResult(Long.class);
       result.append("memberships:           ").append(formatCommas(membershipCountTotal)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long groupCountTotal = HibernateSession.byHqlStatic().createQuery(
         "select count(*) from Group").uniqueResult(Long.class);
       result.append("groups:                ").append(formatCommas(groupCountTotal)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long memberCountTotal = HibernateSession.byHqlStatic().createQuery(
         "select count(*) from Member").uniqueResult(Long.class);
       result.append("members:               ").append(formatCommas(memberCountTotal)).append("\n");
       
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long folderCountTotal = HibernateSession.byHqlStatic().createQuery(
         "select count(*) from Stem").uniqueResult(Long.class);
       result.append("folders:               ").append(formatCommas(folderCountTotal)).append("\n");
     
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<SubjectResolutionStat> subjectResolutionStats = UsduService.getSubjectResolutionStats();
       int unresolvableResultCount = 0;
       for (SubjectResolutionStat subjectResolutionStat : subjectResolutionStats) {
@@ -132,6 +141,8 @@ public class GrouperReport {
       }
       result.append("unresolvable subjects: ").append(formatCommas(Long.valueOf(unresolvableResultCount))).append("\n");
       
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       
       result.append("\n----------------\n");
       result.append("WITHIN LAST DAY:\n");
@@ -141,21 +152,29 @@ public class GrouperReport {
         .setLong("createTime", yesterday.getTime()).uniqueResult(Long.class);
       result.append("new memberships:       ").append(formatCommas(membershipNewCountDay)).append("\n");
     
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long groupNewCountDay = HibernateSession.byHqlStatic().createQuery(
           "select count(*) from Group where createTimeLong > :createTime")
         .setLong("createTime", yesterday.getTime()).uniqueResult(Long.class);
       result.append("new groups:            ").append(formatCommas(groupNewCountDay)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long groupUpdatedCountDay = HibernateSession.byHqlStatic().createQuery(
         "select count(*) from Group where createTimeLong > :createTime and modifyTimeLong < :createTime2")
         .setLong("createTime", yesterday.getTime())
         .setLong("createTime2", yesterday.getTime()).uniqueResult(Long.class);
       result.append("updated groups:        ").append(formatCommas(groupUpdatedCountDay)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long stemNewCountDay = HibernateSession.byHqlStatic().createQuery(
         "select count(*) from Stem where createTimeLong > :createTime")
         .setLong("createTime", yesterday.getTime()).uniqueResult(Long.class);
       result.append("new folders:           ").append(formatCommas(stemNewCountDay)).append("\n");
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       result.append("\n----------------\n");
       result.append("LOADER SUMMARY WITHIN LAST DAY\n");
@@ -166,6 +185,8 @@ public class GrouperReport {
           .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
       result.append("jobs:                  ").append(formatCommas(loaderLogCount)).append("\n");
       
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       long loaderErrorCount = -1;
       for (GrouperLoaderStatus grouperLoaderStatus : GrouperLoaderStatus.values()) {
         if (GrouperLoaderStatus.SUCCESS.equals(grouperLoaderStatus)) {
@@ -174,6 +195,8 @@ public class GrouperReport {
         Long loaderCount = HibernateSession.byHqlStatic().createQuery(
             "select count(*) from Hib3GrouperLoaderLog where status = '" + grouperLoaderStatus.name() + "' and lastUpdated > :lastUpdated")
             .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
+
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
 
         if (grouperLoaderStatus == GrouperLoaderStatus.ERROR) {
           loaderErrorCount = loaderCount;
@@ -192,34 +215,46 @@ public class GrouperReport {
         .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
       result.append("unresolvable subjects: ").append(formatCommas(loaderUsduCount)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long loaderInsertCount = HibernateSession.byHqlStatic().createQuery(
           "select sum(insertCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
           " and jobType like 'SQL%' and parentJobId is null")
         .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
       result.append("inserts:               ").append(formatCommas(loaderInsertCount)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long loaderUpdateCount = HibernateSession.byHqlStatic().createQuery(
           "select sum(updateCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
           " and jobType like 'SQL%' and parentJobId is null")
         .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
       result.append("updates:               ").append(formatCommas(loaderUpdateCount)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long loaderDeleteCount = HibernateSession.byHqlStatic().createQuery(
           "select sum (deleteCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
           " and jobType like 'SQL%' and parentJobId is null")
         .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
       result.append("deletes:               ").append(formatCommas(loaderDeleteCount)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long loaderTotalCount = HibernateSession.byHqlStatic().createQuery(
           "select sum (totalCount) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated" +
           " and jobType like 'SQL%' and parentJobId is null")
         .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class);
       result.append("total loader mships:   ").append(formatCommas(loaderTotalCount)).append("\n");
   
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       Long processingSum = GrouperUtil.defaultIfNull(HibernateSession.byHqlStatic().createQuery(
           "select sum(millis) from Hib3GrouperLoaderLog where lastUpdated > :lastUpdated and parentJobId is null")
           .setTimestamp("lastUpdated", yesterday).uniqueResult(Long.class), new Long(0));
       result.append("processing time:       ").append(GrouperUtil.convertMillisToFriendlyString(processingSum)).append("\n");
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if (loaderErrorCount > 0) {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
@@ -243,6 +278,8 @@ public class GrouperReport {
           result.append("error:             ").append(loaderLog.getJobDescription()).append("\n");
         }
       }
+
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if (loaderLogCount > 0) {
         List<Hib3GrouperLoaderLog> loaderLogs = HibernateSession.byHqlStatic().createQuery(
@@ -270,7 +307,8 @@ public class GrouperReport {
         }
       }
 
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       result.append("\n----------------\n");
       result.append("GROUPER INFO\n");
       result.append("----------------\n");

@@ -42,7 +42,8 @@ import org.junit.Test;
  */
 public class LdaptiveSessionImplTest {
 
-  private static final String TEST_LDAP_PROPERTIES = "ldap.testLDAP.url = ldap://localhost:%PORT%\n"
+  private static final String TEST_LDAP_PROPERTIES =
+    "ldap.testLDAP.url = ldap://localhost:%PORT%\n"
       + "ldap.testLDAP.tls = false\n"
       + "ldap.testLDAP.sizeLimit = 10\n"
       + "ldap.testLDAP.timeLimit = PT5S\n"
@@ -51,19 +52,35 @@ public class LdaptiveSessionImplTest {
       + "ldap.testLDAP.minPoolSize = 2\n"
       + "ldap.testLDAP.maxPoolSize = 5\n"
       + "ldap.testLDAP.blockWaitTime = PT1S\n"
-      + "ldap.testLDAP.pruneTimerPeriod = 420000";
+      + "ldap.testLDAP.blockWaitTime = PT1S\n"
+      + "ldap.testLDAP.pruneTimerPeriod = 420000\n"
+      + "ldap.testLDAP.searchResultHandlers = edu.vt.middleware.ldap.handler.EntryDnSearchResultHandler\n"
+      + "ldap.testPagingLDAP.url = ldap://localhost:%PORT%\n"
+      + "ldap.testPagingLDAP.tls = false\n"
+      + "ldap.testPagingLDAP.sizeLimit = 10\n"
+      + "ldap.testPagingLDAP.timeLimit = PT5S\n"
+      + "ldap.testPagingLDAP.connectTimeout = PT3S\n"
+      + "ldap.testPagingLDAP.responseTimeout = PT3S\n"
+      + "ldap.testPagingLDAP.minPoolSize = 2\n"
+      + "ldap.testPagingLDAP.maxPoolSize = 5\n"
+      + "ldap.testPagingLDAP.blockWaitTime = PT1S\n"
+      + "ldap.testPagingLDAP.blockWaitTime = PT1S\n"
+      + "ldap.testPagingLDAP.pruneTimerPeriod = 420000\n"
+      + "ldap.testPagingLDAP.pagedResultsSize = 2\n"
+      + "ldap.testPagingLDAP.searchResultHandlers = edu.vt.middleware.ldap.handler.EntryDnSearchResultHandler";
 
-  private static final String TEST_LDAP_LDIF =   "dn: dc=internet2,dc=edu\n"
+  private static final String TEST_LDAP_LDIF =
+    "dn: dc=internet2,dc=edu\n"
       + "dc: internet2\n"
       + "objectClass: dcObject\n"
       + "objectClass: organization\n"
       + "o: Internet2\n"
-      + "  \n"
+      + "\n"
       + "dn: ou=people,dc=internet2,dc=edu\n"
       + "ou: people\n"
       + "description: All people in organization\n"
       + "objectclass: organizationalunit\n"
-      + "  \n"
+      + "\n"
       + "dn: uid=bbacharach,ou=people,dc=internet2,dc=edu\n"
       + "objectclass: inetOrgPerson\n"
       + "cn: Burt Bacharach\n"
@@ -114,6 +131,9 @@ public class LdaptiveSessionImplTest {
 
   /** Properties configuration id used for testing. */
   private static final String SERVER_ID = "testLDAP";
+
+  /** Properties configuration id used for testing. */
+  private static final String SERVER_ID_PAGING = "testPagingLDAP";
 
   /** LDAP server to test against. */
   private static InMemoryDirectoryServer server;
@@ -183,13 +203,30 @@ public class LdaptiveSessionImplTest {
       "ou=people,dc=internet2,dc=edu",
       LdapSearchScope.SUBTREE_SCOPE,
       "(uid=bbacharach)",
-      new String[] {"uid", "givenName"},
+      new String[] {"uid", "givenName", "entryDn"},
       10);
     Assert.assertNotNull(entries);
     Assert.assertEquals(1, entries.size());
     Assert.assertEquals("uid=bbacharach,ou=people,dc=internet2,dc=edu", entries.get(0).getDn());
+    Assert.assertEquals(
+      "uid=bbacharach,ou=people,dc=internet2,dc=edu",
+      entries.get(0).getAttribute("entryDn").getStringValues().iterator().next());
     Assert.assertEquals("bbacharach", entries.get(0).getAttribute("uid").getStringValues().iterator().next());
     Assert.assertEquals("Burt", entries.get(0).getAttribute("givenName").getStringValues().iterator().next());
+  }
+
+  @Test
+  public void listPaging() {
+    List<LdapEntry> entries = session.list(
+      SERVER_ID_PAGING,
+      "ou=people,dc=internet2,dc=edu",
+      LdapSearchScope.SUBTREE_SCOPE,
+      "(uid=*)",
+      new String[] {"uid", "givenName", "entryDn"},
+      10);
+    Assert.assertNotNull(entries);
+    Assert.assertEquals(4, entries.size());
+    Assert.assertNotNull(entries.get(0).getAttribute("entryDn").getStringValues().iterator().next());
   }
 
   @Test
@@ -204,6 +241,22 @@ public class LdaptiveSessionImplTest {
     List<String> compare = List.of("dwarwick@internet2.edu", "dionne.warwick@internet2.edu");
     Assert.assertNotNull(mail);
     Assert.assertEquals(2, mail.size());
+    Assert.assertTrue(mail.containsAll(compare) && compare.containsAll(mail));
+  }
+
+  @Test
+  public void listAttributePaging() {
+    List<String> mail = session.list(
+      String.class,
+      SERVER_ID_PAGING,
+      "ou=people,dc=internet2,dc=edu",
+      LdapSearchScope.SUBTREE_SCOPE,
+      "(uid=b*)",
+      "mail");
+    List<String> compare = List.of(
+      "bbacharach@internet2.edu", "burt.bacharach@internet2.edu", "bmanilow@internet2.edu", "barry.manilow@internet2.edu");
+    Assert.assertNotNull(mail);
+    Assert.assertEquals(4, mail.size());
     Assert.assertTrue(mail.containsAll(compare) && compare.containsAll(mail));
   }
 
@@ -226,6 +279,27 @@ public class LdaptiveSessionImplTest {
     Assert.assertTrue(
       mail.get("uid=bmanilow,ou=people,dc=internet2,dc=edu").containsAll(compare2) &&
       compare2.containsAll(mail.get("uid=bmanilow,ou=people,dc=internet2,dc=edu")));
+  }
+
+  @Test
+  public void listInObjectsPaging() {
+    Map<String, List<String>> mail = session.listInObjects(
+      String.class,
+      SERVER_ID_PAGING,
+      "ou=people,dc=internet2,dc=edu",
+      LdapSearchScope.SUBTREE_SCOPE,
+      "(uid=*)",
+      "mail");
+    List<String> compare1 = List.of("bbacharach@internet2.edu", "burt.bacharach@internet2.edu");
+    List<String> compare2 = List.of("bmanilow@internet2.edu", "barry.manilow@internet2.edu");
+    Assert.assertNotNull(mail);
+    Assert.assertEquals(4, mail.size());
+    Assert.assertTrue(
+      mail.get("uid=bbacharach,ou=people,dc=internet2,dc=edu").containsAll(compare1) &&
+        compare1.containsAll(mail.get("uid=bbacharach,ou=people,dc=internet2,dc=edu")));
+    Assert.assertTrue(
+      mail.get("uid=bmanilow,ou=people,dc=internet2,dc=edu").containsAll(compare2) &&
+        compare2.containsAll(mail.get("uid=bmanilow,ou=people,dc=internet2,dc=edu")));
   }
 
   @Test

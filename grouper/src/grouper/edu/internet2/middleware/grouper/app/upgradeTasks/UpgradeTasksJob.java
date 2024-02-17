@@ -22,6 +22,7 @@ import org.quartz.DisallowConcurrentExecution;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -99,6 +100,8 @@ public class UpgradeTasksJob extends OtherJobBase {
     int newDBVersion = UpgradeTasks.currentVersion();
     
     for (int version = oldDBVersion + 1; version <= newDBVersion; version++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       String enumName = "V" + version;
       UpgradeTasksInterface task = Enum.valueOf(UpgradeTasks.class, enumName);
       task.updateVersionFromPrevious(otherJobInput);

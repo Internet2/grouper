@@ -14,6 +14,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderIncrementalJob;
@@ -183,6 +184,7 @@ public class GrouperRecentMembershipsChangeLogConsumer extends EsbListenerBase {
         
         // send sourceIds and subjectIds to incremental loader
         for (MultiKey subjectSourceIdAndSubjectId : subjectSourceIdAndSubjectIds) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
           test_incrementalSyncCount++;
           String sourceId = (String)subjectSourceIdAndSubjectId.getKey(0);
           String subjectId = (String)subjectSourceIdAndSubjectId.getKey(1);

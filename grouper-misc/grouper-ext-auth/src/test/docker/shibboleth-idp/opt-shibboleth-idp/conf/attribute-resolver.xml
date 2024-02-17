@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!-- 
+This file is a rudimentary example. While it is semi-functional, it isn't very
+interesting. It is here only as a starting point for your deployment process
+to avoid any dependency on components like an LDAP directory.
+
+Very few attribute definitions and data connectors are demonstrated, and the
+data is derived statically from the logged-in username and a static example
+connector.
+
+The file(s) in the examples directory contain more examples that involve more
+complex approaches. Deployers should refer to the documentation for a complete
+list of possible components and their options.
+-->
+<AttributeResolver
+        xmlns="urn:mace:shibboleth:2.0:resolver" 
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        xmlns:oidc="urn:mace:shibboleth:2.0:resolver:oidc"
+        xsi:schemaLocation="urn:mace:shibboleth:2.0:resolver http://shibboleth.net/schema/idp/shibboleth-attribute-resolver.xsd
+                            urn:mace:shibboleth:2.0:resolver:oidc http://shibboleth.net/schema/oidc/shibboleth-attribute-encoder-oidc.xsd">
+
+    <!--
+    The uid is the closest thing to a "standard" LDAP attribute
+    representing a local username, but you should generally *never*
+    expose uid to federated services, as it is rarely globally unique.
+    -->
+    <AttributeDefinition id="uid" xsi:type="PrincipalName" />
+
+    <AttributeDefinition id="subject-public" xsi:type="Scoped" scope="%{idp.scope}"
+                         activationConditionRef="shibboleth.oidc.Conditions.PublicRequired">
+        <InputAttributeDefinition ref="uid" />
+        <AttributeEncoder xsi:type="oidc:OIDCScopedString" name="sub" />
+    </AttributeDefinition>
+
+</AttributeResolver>

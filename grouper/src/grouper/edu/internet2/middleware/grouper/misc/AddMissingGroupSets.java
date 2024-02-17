@@ -46,6 +46,7 @@ import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -142,18 +143,25 @@ public class AddMissingGroupSets {
   public void addAllMissingGroupSets() {
         
     addMissingSelfGroupSetsForAttrDefs();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     addMissingSelfGroupSetsForGroups();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     addMissingSelfGroupSetsForGroupsWithCustomFields();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     addMissingSelfGroupSetsForStems();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     addMissingImmediateGroupSetsForAttrDefOwners();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     addMissingImmediateGroupSetsForGroupOwners();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     addMissingImmediateGroupSetsForStemOwners();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
   }
   
   /**
@@ -206,6 +214,8 @@ public class AddMissingGroupSets {
         logDetail("Adding self groupSet for " + group.getName() + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !groupsAndFieldsIter.hasNext()) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (saveUpdates) {
             final Set<GroupSet> theBatch = new LinkedHashSet<GroupSet>(batch);
             
@@ -278,6 +288,8 @@ public class AddMissingGroupSets {
         logDetail("Adding self groupSet for " + group.getName() + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !groupsAndFieldsIter.hasNext()) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (saveUpdates) {
             GrouperDAOFactory.getFactory().getGroupSet().saveBatch(batch);
           }
@@ -344,6 +356,8 @@ public class AddMissingGroupSets {
         logDetail("Adding self groupSet for " + stemName + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !stemsAndFieldsIter.hasNext()) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (saveUpdates) {
             final Set<GroupSet> theBatch = new LinkedHashSet<GroupSet>(batch);
             
@@ -419,6 +433,8 @@ public class AddMissingGroupSets {
             ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !mshipsIter.hasNext()) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (saveUpdates) {
             // We're not doing batch inserts here because the onPostSave 
             // of one groupSet insert might insert another groupSet in a child 
@@ -478,6 +494,8 @@ public class AddMissingGroupSets {
             ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !mshipsIter.hasNext()) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (saveUpdates) {
             // We're not doing batch inserts here because the onPostSave 
             // of one groupSet insert might insert another groupSet in a child 
@@ -504,6 +522,8 @@ public class AddMissingGroupSets {
    */
   private void cacheCompositeOwners() {
     Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().getAllComposites();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Iterator<Composite> compositesIter = composites.iterator();
     
     while (compositesIter.hasNext()) {
@@ -554,6 +574,8 @@ public class AddMissingGroupSets {
           ", memberGroupId = " + mship.getMemberSubjectId() + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !mshipsIter.hasNext()) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (saveUpdates) {
             // We're not doing batch inserts here because the onPostSave 
             // of one groupSet insert might insert another groupSet in a child 
@@ -617,6 +639,8 @@ public class AddMissingGroupSets {
         logDetail("Adding self groupSet for " + attributeDef.getName() + " for field " + field.getTypeString() + " / " + field.getName());
 
         if (batch.size() % batchSize == 0 || !attrDefsAndFieldsIter.hasNext()) {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (saveUpdates) {
             final Set<GroupSet> theBatch = new LinkedHashSet<GroupSet>(batch);
             

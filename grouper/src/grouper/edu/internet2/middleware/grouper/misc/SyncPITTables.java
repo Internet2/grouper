@@ -48,6 +48,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -190,36 +191,97 @@ public class SyncPITTables {
       }
       
       count += processMissingActivePITFields();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITMembers();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITStems();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITGroups();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITRoleSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITAttributeDefs();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITAttributeDefNames();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITAttributeDefNameSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITAttributeAssignActions();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITAttributeAssignActionSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITGroupSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITMemberships();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITAttributeAssigns();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITAttributeAssignValues();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingActivePITConfigs();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
+      
       
       count += processMissingInactivePITAttributeAssignValues();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITAttributeAssigns();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITMemberships();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITGroupSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITAttributeAssignActionSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITAttributeAssignActions();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITAttributeDefNameSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITAttributeDefNames();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITAttributeDefs();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITRoleSets();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITGroups();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITStems();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITMembers();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITFields();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       count += processMissingInactivePITConfigs();
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       
     } finally {
       GrouperSession.stopQuietly(session);
@@ -255,7 +317,8 @@ public class SyncPITTables {
     showStatus("Found " + mships.size() + " missing active point in time memberships");
 
     for (Membership mship : mships) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time membership with ownerId: " + mship.getOwnerId() + 
           ", memberId: " + mship.getMemberUuid() + ", fieldId: " + mship.getFieldId());
             
@@ -300,7 +363,8 @@ public class SyncPITTables {
     }
     
     for (AttributeAssign assign : assignsSorted) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time attribute assign with id: " + assign.getId());
             
       if (saveUpdates) {
@@ -381,7 +445,8 @@ public class SyncPITTables {
     showStatus("Found " + values.size() + " missing active point in time attribute assign values");
 
     for (AttributeAssignValue value : values) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time attribute assign value with id: " + value.getId() + ", value: " + value.getValueFriendly());
             
       if (saveUpdates) {
@@ -430,7 +495,8 @@ public class SyncPITTables {
     showStatus("Found " + attrs.size() + " missing active point in time attribute defs");
 
     for (AttributeDef attr : attrs) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time attribute def with id: " + attr.getId() + ", name: " + attr.getName());
             
       if (saveUpdates) {
@@ -487,7 +553,8 @@ public class SyncPITTables {
     showStatus("Found " + attrs.size() + " missing active point in time attribute def names");
 
     for (AttributeDefName attr : attrs) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time attribute def name with id: " + attr.getId() + ", name: " + attr.getName());
             
       if (saveUpdates) {
@@ -542,7 +609,8 @@ public class SyncPITTables {
     showStatus("Found " + attrSets.size() + " missing active point in time attribute def name sets");
 
     for (AttributeDefNameSet attrSet : attrSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time attribute def name set with id: " + attrSet.getId());
             
       if (saveUpdates) {
@@ -585,7 +653,8 @@ public class SyncPITTables {
     showStatus("Found " + groups.size() + " missing active point in time groups");
 
     for (Group group : groups) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time group with id: " + group.getId() + ", name: " + group.getName());
             
       if (saveUpdates) {
@@ -665,7 +734,8 @@ public class SyncPITTables {
     });
     
     for (GroupSet groupSet : groupSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time group set with id: " + groupSet.getId());
             
       if (saveUpdates) {
@@ -712,7 +782,8 @@ public class SyncPITTables {
     showStatus("Found " + roleSets.size() + " missing active point in time role sets");
 
     for (RoleSet roleSet : roleSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time role set with id: " + roleSet.getId());
             
       if (saveUpdates) {        
@@ -755,7 +826,8 @@ public class SyncPITTables {
     showStatus("Found " + fields.size() + " missing active point in time fields");
 
     for (Field field : fields) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time field with id: " + field.getUuid() + ", name: " + field.getName());
             
       if (saveUpdates) {
@@ -816,7 +888,8 @@ public class SyncPITTables {
     showStatus("Found " + members.size() + " missing active point in time members");
 
     for (Member member : members) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time member with id: " + member.getUuid() + ", subject id: " + member.getSubjectId());
             
       if (saveUpdates) {
@@ -880,7 +953,8 @@ public class SyncPITTables {
     showStatus("Found " + configs.size() + " missing active point in time configs");
 
     for (GrouperConfigHibernate config : configs) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time config with id: " + config.getId());
             
       if (saveUpdates) {
@@ -927,7 +1001,8 @@ public class SyncPITTables {
     stemsSorted.addAll(stems);
     
     for (Stem stem : stemsSorted) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time stem with id: " + stem.getUuid() + ", name: " + stem.getName());
             
       if (saveUpdates) {
@@ -984,7 +1059,8 @@ public class SyncPITTables {
     showStatus("Found " + actions.size() + " missing active point in time actions");
 
     for (AttributeAssignAction action : actions) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time action with id: " + action.getId() + ", name: " + action.getName());
             
       if (saveUpdates) {
@@ -1037,7 +1113,8 @@ public class SyncPITTables {
     showStatus("Found " + actionSets.size() + " missing active point in time action sets");
 
     for (AttributeAssignActionSet actionSet : actionSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found missing point in time action set with id: " + actionSet.getId());
             
       if (saveUpdates) {
@@ -1080,7 +1157,8 @@ public class SyncPITTables {
     showStatus("Found " + mships.size() + " active point in time memberships that should be inactive");
 
     for (PITMembership mship : mships) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time membership that should be inactive with id: " + mship.getId() + ", ownerId: " + mship.getOwnerId() + 
           ", memberId: " + mship.getMemberId() + ", fieldId: " + mship.getFieldId());
       
@@ -1186,7 +1264,8 @@ public class SyncPITTables {
     showStatus("Found " + assigns.size() + " active point in time attribute assigns that should be inactive");
 
     for (PITAttributeAssign assign : assigns) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time attribute assign that should be inactive with id: " + assign.getId());
       
       if (saveUpdates) {
@@ -1248,7 +1327,8 @@ public class SyncPITTables {
     showStatus("Found " + values.size() + " active point in time attribute assign values that should be inactive");
 
     for (PITAttributeAssignValue value : values) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time attribute assign value that should be inactive with id: " + value.getId());
       
       if (saveUpdates) {
@@ -1287,7 +1367,8 @@ public class SyncPITTables {
     showStatus("Found " + attrs.size() + " active point in time attribute defs that should be inactive");
 
     for (PITAttributeDef attr : attrs) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time attribute def that should be inactive with id: " + attr.getId() + ", name: " + attr.getName());
       
       if (saveUpdates) {
@@ -1322,7 +1403,8 @@ public class SyncPITTables {
     showStatus("Found " + attrs.size() + " active point in time attribute def names that should be inactive");
 
     for (PITAttributeDefName attr : attrs) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time attribute def name that should be inactive with id: " + attr.getId() + ", name: " + attr.getName());
       
       if (saveUpdates) {
@@ -1357,7 +1439,8 @@ public class SyncPITTables {
     showStatus("Found " + attrSets.size() + " active point in time attribute def name sets that should be inactive");
 
     for (PITAttributeDefNameSet attrSet : attrSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time attribute def name set that should be inactive with id: " + attrSet.getId());
       
       if (saveUpdates) {
@@ -1393,7 +1476,8 @@ public class SyncPITTables {
     showStatus("Found " + groups.size() + " active point in time groups that should be inactive");
 
     for (PITGroup group : groups) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time group that should be inactive with id: " + group.getId() + ", name: " + group.getName());
       
       if (saveUpdates) {
@@ -1429,7 +1513,8 @@ public class SyncPITTables {
     showStatus("Found " + groupSets.size() + " active point in time group sets that should be inactive");
 
     for (PITGroupSet groupSet : groupSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time group set that should be inactive with id: " + groupSet.getId());
       
       if (saveUpdates) {
@@ -1479,7 +1564,8 @@ public class SyncPITTables {
     showStatus("Found " + roleSets.size() + " active point in time role sets that should be inactive");
 
     for (PITRoleSet roleSet : roleSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time role set that should be inactive with id: " + roleSet.getId());
       
       if (saveUpdates) {
@@ -1515,7 +1601,8 @@ public class SyncPITTables {
     showStatus("Found " + fields.size() + " active point in time fields that should be inactive");
 
     for (PITField field : fields) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time field that should be inactive with id: " + field.getId() + ", name: " + field.getName());
       
       if (saveUpdates) {
@@ -1553,7 +1640,8 @@ public class SyncPITTables {
     showStatus("Found " + members.size() + " active point in time members that should be inactive");
 
     for (PITMember member : members) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time member that should be inactive with id: " + member.getId() + ", subject id: " + member.getSubjectId());
       
       if (saveUpdates) {
@@ -1592,7 +1680,8 @@ public class SyncPITTables {
     showStatus("Found " + pitConfigs.size() + " active point in time configs that should be inactive");
 
     for (PITGrouperConfigHibernate pitConfig : pitConfigs) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time config that should be inactive with id: " + pitConfig.getId());
       
       if (saveUpdates) {
@@ -1626,7 +1715,8 @@ public class SyncPITTables {
     showStatus("Found " + stems.size() + " active point in time stems that should be inactive");
 
     for (PITStem stem : stems) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time stem that should be inactive with id: " + stem.getId() + ", name: " + stem.getName());
       
       if (saveUpdates) {
@@ -1662,7 +1752,8 @@ public class SyncPITTables {
     showStatus("Found " + actions.size() + " active point in time actions that should be inactive");
 
     for (PITAttributeAssignAction action : actions) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time action that should be inactive with id: " + action.getId() + ", name: " + action.getName());
       
       if (saveUpdates) {
@@ -1695,7 +1786,8 @@ public class SyncPITTables {
     showStatus("Found " + actionSets.size() + " active point in time action sets that should be inactive");
 
     for (PITAttributeAssignActionSet actionSet : actionSets) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       logDetail("Found active point in time action set that should be inactive with id: " + actionSet.getId());
       
       if (saveUpdates) {
@@ -1782,10 +1874,14 @@ public class SyncPITTables {
     showStatus("\n\n" + className + ": Searching for point in time duplicates");
 
     Set<String> sourceIds = (Set<String>)GrouperUtil.callMethod(dao.getClass(), dao, "findActiveDuplicates", null, null, false, false);
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     showStatus("Found " + sourceIds.size() + " entries that have duplicates in point in time.");
 
     for (String sourceId : sourceIds) {
       Set<GrouperPIT> objectsSet = (Set<GrouperPIT>)GrouperUtil.callMethod(dao.getClass(), dao, "findBySourceId", new Class[] {String.class, boolean.class}, new Object[] {sourceId, true}, false, false);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<GrouperPIT> objectsList = new ArrayList<GrouperPIT>();
       for (GrouperPIT object : objectsSet) {
         if (object.isActive()) {

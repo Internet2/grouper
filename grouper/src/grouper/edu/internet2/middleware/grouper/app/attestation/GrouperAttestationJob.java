@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
@@ -1446,10 +1447,14 @@ public class GrouperAttestationJob extends OtherJobBase {
         null, 
         Boolean.TRUE, false);
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     //take out inherited
     Iterator<AttributeAssign> iterator = groupAttributeAssigns.iterator();
     
     while (iterator.hasNext()) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       AttributeAssign attributeAssign = iterator.next();
       
       // make sure type is assigned - it was added in a patch so may not be there

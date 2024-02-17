@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
@@ -842,7 +843,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       
       for (AttributeAssign attributeAssign : attributeAssigns) {
-      
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         if (StringUtils.isBlank(attributeAssign.getOwnerGroupId())) {
           continue;
         }

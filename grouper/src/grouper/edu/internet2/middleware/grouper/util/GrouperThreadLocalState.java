@@ -19,9 +19,11 @@ import org.apache.commons.logging.Log;
 import org.apache.logging.log4j.ThreadContext;
 
 import edu.internet2.middleware.grouper.GrouperSourceAdapter;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader.GrouperLoaderDryRunBean;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -71,6 +73,11 @@ public class GrouperThreadLocalState {
   private GrouperContextType grouperContextType = null;
   
   /**
+   * loader log
+   */
+  private Hib3GrouperLoaderLog hib3GrouperLoaderLogOverall = null;
+  
+  /**
    * grouper source adapter
    */
   private boolean grouperSourceAdapterSearchWithReadPrivilege = false;
@@ -91,6 +98,7 @@ public class GrouperThreadLocalState {
     this.grouperContextType = GrouperContextTypeBuiltIn._internal_getThreadLocalGrouperContextType();
     this.grouperSourceAdapterSearchWithReadPrivilege = GrouperSourceAdapter.searchForGroupsWithReadPrivilege();
     this.grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    this.hib3GrouperLoaderLogOverall = GrouperDaemonUtils.getThreadLocalHib3GrouperLoaderLogOverall();
   }
   
   /**
@@ -106,6 +114,7 @@ public class GrouperThreadLocalState {
     GrouperContextTypeBuiltIn.setThreadLocalContext(this.grouperContextType);
     GrouperSourceAdapter.searchForGroupsWithReadPrivilege(this.grouperSourceAdapterSearchWithReadPrivilege);
     GrouperProvisioner.assignCurrentGrouperProvisioner(this.grouperProvisioner);
+    GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(this.hib3GrouperLoaderLogOverall);
   }
   
   /**
@@ -126,6 +135,7 @@ public class GrouperThreadLocalState {
     ThreadContext.removeStack();
     
     GrouperProvisioner.removeCurrentGrouperProvisioner();
+    GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
 
     // edu.internet2.middleware.grouperClientExt.edu.internet2.middleware.morphString.Crypto.class, 
     for (Class theClass : new Class[]{Crypto.class}) {

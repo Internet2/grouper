@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<EntityDescriptor xmlns="urn:oasis:names:tc:SAML:2.0:metadata" xmlns:ds="http://www.w3.org/2000/09/xmldsig#" xmlns:shibmd="urn:mace:shibboleth:metadata:1.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:mdui="urn:oasis:names:tc:SAML:metadata:ui" entityID="https://idp.unicon.net/idp/shibboleth">
+
+    <IDPSSODescriptor protocolSupportEnumeration="urn:mace:shibboleth:1.0 urn:oasis:names:tc:SAML:1.1:protocol urn:oasis:names:tc:SAML:2.0:protocol">
+
+        <Extensions>
+            <shibmd:Scope regexp="false">unicon.net</shibmd:Scope>
+            <mdui:UIInfo>
+                <mdui:DisplayName xml:lang="en">Unicon, Inc.</mdui:DisplayName>
+                <mdui:Description xml:lang="en">Login service for Unicon Employees</mdui:Description>
+                <mdui:Logo height="40" width="135" xml:lang="en">https://idp.unicon.net/logo_135_0.png</mdui:Logo>
+            </mdui:UIInfo>
+        </Extensions>
+
+        <KeyDescriptor use="signing">
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>
+                        MIIDIzCCAgugAwIBAgIUIEHTfbStY0ckKZzxIgqd5p1O2K0wDQYJKoZIhvcNAQEF
+                        BQAwGTEXMBUGA1UEAxMOaWRwLnVuaWNvbi5uZXQwHhcNMTEwOTEzMDMyMzE2WhcN
+                        MzEwOTEzMDMyMzE2WjAZMRcwFQYDVQQDEw5pZHAudW5pY29uLm5ldDCCASIwDQYJ
+                        KoZIhvcNAQEBBQADggEPADCCAQoCggEBANtUsFXxlhvD3bWT5Y7TqKkf5rxa+dPA
+                        z7vpbJ6bWhDPSMXb/9MiJe/ciY5ZKKrB1rdRC04s7blrzem3YtjGihfGd4ld+NRt
+                        Pi0xoAT2YIp83CvEe5BHAKwqD7KTonN1unbN84mVo65itbme9d8lZKc0PfLM+BQp
+                        fhXKUBfYeBCkYU4YWxmgL4Vs7XBaKjEjpTN4ncar4YSrarWTTPyO5RzmVPLAcv88
+                        1OBqewTyN41+JRXt0Jopi4ZQ8JjKkm73vhoYDBPHr/VMqk1lFfrDcDwJa2ygyWCm
+                        qTlq6zyLE9Fr6sYz6CbgA2lAqu/b1rYCqVCnRpoHZKahAQ9uGQSfHD8CAwEAAaNj
+                        MGEwQAYDVR0RBDkwN4IOaWRwLnVuaWNvbi5uZXSGJWh0dHBzOi8vaWRwLnVuaWNv
+                        bi5uZXQvaWRwL3NoaWJib2xldGgwHQYDVR0OBBYEFK6yUrpGjvY3B09ke0kVl4wA
+                        CMAnMA0GCSqGSIb3DQEBBQUAA4IBAQDG/gMpr3N+nAMuo7RhtDBsckiJV2+BwT/r
+                        JmpxlHAV1Zgc3eeuOdyxm5/jA78tspLldL0+6W/LzZWov/je36IqVT1wSGy1n0Sc
+                        Pjw8DHgyEJLCij2vVScV+j/Y4Eg0bVy6pZTeQW+e3ygb6WgiVT/ARM8QBp6GjAUC
+                        qIlJCads9Rcx3vAih72I4exUUD4qMuBMeLIdY5XReHy5YHqxbkPjQhDIEORAFlzJ
+                        jLqO/Ldzn4waEa5snDZyeYjsl6pi+8CVGfXLSDVsDuk5s47B9OD+gOSJ1wEc7O/N
+                        nU9d/WCcM1V4IGZGL8TXUdfJoVXYZUFF08jUGSL2mj30WS1orIWo
+
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+
+        <KeyDescriptor use="encryption">
+            <ds:KeyInfo>
+                <ds:X509Data>
+                    <ds:X509Certificate>
+                        MIIDIzCCAgugAwIBAgIUIEHTfbStY0ckKZzxIgqd5p1O2K0wDQYJKoZIhvcNAQEF
+                        BQAwGTEXMBUGA1UEAxMOaWRwLnVuaWNvbi5uZXQwHhcNMTEwOTEzMDMyMzE2WhcN
+                        MzEwOTEzMDMyMzE2WjAZMRcwFQYDVQQDEw5pZHAudW5pY29uLm5ldDCCASIwDQYJ
+                        KoZIhvcNAQEBBQADggEPADCCAQoCggEBANtUsFXxlhvD3bWT5Y7TqKkf5rxa+dPA
+                        z7vpbJ6bWhDPSMXb/9MiJe/ciY5ZKKrB1rdRC04s7blrzem3YtjGihfGd4ld+NRt
+                        Pi0xoAT2YIp83CvEe5BHAKwqD7KTonN1unbN84mVo65itbme9d8lZKc0PfLM+BQp
+                        fhXKUBfYeBCkYU4YWxmgL4Vs7XBaKjEjpTN4ncar4YSrarWTTPyO5RzmVPLAcv88
+                        1OBqewTyN41+JRXt0Jopi4ZQ8JjKkm73vhoYDBPHr/VMqk1lFfrDcDwJa2ygyWCm
+                        qTlq6zyLE9Fr6sYz6CbgA2lAqu/b1rYCqVCnRpoHZKahAQ9uGQSfHD8CAwEAAaNj
+                        MGEwQAYDVR0RBDkwN4IOaWRwLnVuaWNvbi5uZXSGJWh0dHBzOi8vaWRwLnVuaWNv
+                        bi5uZXQvaWRwL3NoaWJib2xldGgwHQYDVR0OBBYEFK6yUrpGjvY3B09ke0kVl4wA
+                        CMAnMA0GCSqGSIb3DQEBBQUAA4IBAQDG/gMpr3N+nAMuo7RhtDBsckiJV2+BwT/r
+                        JmpxlHAV1Zgc3eeuOdyxm5/jA78tspLldL0+6W/LzZWov/je36IqVT1wSGy1n0Sc
+                        Pjw8DHgyEJLCij2vVScV+j/Y4Eg0bVy6pZTeQW+e3ygb6WgiVT/ARM8QBp6GjAUC
+                        qIlJCads9Rcx3vAih72I4exUUD4qMuBMeLIdY5XReHy5YHqxbkPjQhDIEORAFlzJ
+                        jLqO/Ldzn4waEa5snDZyeYjsl6pi+8CVGfXLSDVsDuk5s47B9OD+gOSJ1wEc7O/N
+                        nU9d/WCcM1V4IGZGL8TXUdfJoVXYZUFF08jUGSL2mj30WS1orIWo
+
+                    </ds:X509Certificate>
+                </ds:X509Data>
+            </ds:KeyInfo>
+        </KeyDescriptor>
+        <!--
+                <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.unicon.net/idp/profile/SAML2/Redirect/SLO"/>
+                <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://idp.unicon.net/idp/profile/SAML2/POST/SLO"/>
+                <SingleLogoutService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://idp.unicon.net/idp/profile/SAML2/POST-SimpleSign/SLO"/>
+        -->
+        <NameIDFormat>urn:mace:shibboleth:1.0:nameIdentifier</NameIDFormat>
+        <NameIDFormat>urn:oasis:names:tc:SAML:2.0:nameid-format:transient</NameIDFormat>
+
+        <SingleSignOnService Binding="urn:mace:shibboleth:1.0:profiles:AuthnRequest" Location="https://idp.unicon.net/idp/profile/Shibboleth/SSO"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST" Location="https://idp.unicon.net/idp/profile/SAML2/POST/SSO"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-POST-SimpleSign" Location="https://idp.unicon.net/idp/profile/SAML2/POST-SimpleSign/SSO"/>
+        <SingleSignOnService Binding="urn:oasis:names:tc:SAML:2.0:bindings:HTTP-Redirect" Location="https://idp.unicon.net/idp/profile/SAML2/Redirect/SSO"/>
+    </IDPSSODescriptor>
+
+</EntityDescriptor>

@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.ldap.ldaptive;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -470,26 +471,39 @@ public class LdaptiveSessionImpl implements LdapSession {
     if (this.debug) {
       this.debugLog.append("Ldaptive searchRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
     }
+    LdapEntryHandler[] entryHandlers = LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers();
+    List<SearchResultHandler> resultHandlers = new ArrayList<>();
+    if (LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers() != null) {
+      resultHandlers.addAll(Arrays.asList(LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers()));
+    }
+    
+    if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
+      resultHandlers.add(new FollowSearchReferralHandler());
+      resultHandlers.add(new FollowSearchResultReferenceHandler());
+    }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
       search.setThrowCondition(result -> 
         !result.getResultCode().equals(ResultCode.SUCCESS) && 
         !ldapConfig.getSearchIgnoreResultCodes().contains(result.getResultCode()));
-      LdapEntryHandler[] entryHandlers = LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers();
-
       if (entryHandlers != null) {
         search.setEntryHandlers(entryHandlers);
       }
-      SearchResultHandler[] resultHandlers = LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers();
-      if (resultHandlers != null) {
-        search.setSearchResultHandlers(resultHandlers);
-      }
-      if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-        search.setSearchResultHandlers(new FollowSearchReferralHandler(), new FollowSearchResultReferenceHandler());
+      if (!resultHandlers.isEmpty()) {
+        search.setSearchResultHandlers(resultHandlers.toArray(new SearchResultHandler[0]));
       }
       response = search.execute(searchRequest);
     } else {
       PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
+      client.setThrowCondition(result ->
+        !result.getResultCode().equals(ResultCode.SUCCESS) &&
+          !ldapConfig.getSearchIgnoreResultCodes().contains(result.getResultCode()));
+      if (entryHandlers != null) {
+        client.setEntryHandlers(entryHandlers);
+      }
+      if (!resultHandlers.isEmpty()) {
+        client.setSearchResultHandlers(resultHandlers.toArray(new SearchResultHandler[0]));
+      }
       response = client.executeToCompletion(searchRequest);
     }
     if (this.debug) {

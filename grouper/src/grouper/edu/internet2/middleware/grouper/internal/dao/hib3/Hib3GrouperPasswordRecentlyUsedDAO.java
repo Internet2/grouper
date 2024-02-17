@@ -24,6 +24,7 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.authentication.GrouperPasswordRecentlyUsed;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
@@ -168,7 +169,8 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
       .setCacheable(false)
       .list(Object[].class);
     
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     if (results.size() == 0) {
       return 0;
     }
@@ -192,7 +194,8 @@ public class Hib3GrouperPasswordRecentlyUsedDAO extends Hib3DAO implements Group
     int entriesToKeep = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.grouperPasswordRecentlyUsedCleanupDaemon.entriesToKeep", 20);
     
     for (String grouperPasswordId: grouperPasswordIdToAttemptMillis.keySet()) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       List<Long> attemptMillis = grouperPasswordIdToAttemptMillis.get(grouperPasswordId);
       
       List<Long> subList = attemptMillis.subList(0, attemptMillis.size() - entriesToKeep);

@@ -7,6 +7,7 @@ import java.util.Map;
 
 import org.quartz.DisallowConcurrentExecution;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -39,6 +40,7 @@ public class DeleteOldSyncLogsDaemon extends OtherJobBase {
       List<String> idsToDelete = new GcDbAccess().sql("select id from grouper_sync_log where last_updated < ?").addBindVar(new Timestamp(millisSince1970beforeWhichDelete)).selectList(String.class);
 
       debugMap.put("idsToDeleteSize", GrouperUtil.length(idsToDelete));
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       if (GrouperUtil.length(idsToDelete) > 0) {
         int deleted = GcGrouperSyncLogDao.internal_logDeleteByIds(idsToDelete);

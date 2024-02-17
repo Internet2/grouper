@@ -12,6 +12,7 @@ import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.CompositeSave;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -80,11 +81,16 @@ public class SyncCompositeToGrouperLogic {
       this.getSyncToGrouper().getSyncToGrouperFromSql().loadCompositeDataFromSql();
     }
     
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     this.retrieveCompositesFromGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.compareComposites();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.changeGrouper();
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getSyncToGrouper().getSyncCompositeToGrouperBeans()));
     this.getSyncToGrouper().getSyncToGrouperReport().addTotalCount(GrouperUtil.length(this.getGrouperCompositeOwnerLeftRightTypeToComposite()));
@@ -105,6 +111,7 @@ public class SyncCompositeToGrouperLogic {
     }
 
     for (SyncCompositeToGrouperBean composite : GrouperUtil.nonNull(this.compositeDeletes)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
         CompositeSave compositeSave = composite.convertToCompositeSave();
@@ -118,7 +125,8 @@ public class SyncCompositeToGrouperLogic {
       
     }
     for (SyncCompositeToGrouperBean syncCompositeToGrouperBean : GrouperUtil.nonNull(this.compositeInserts)) {
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         CompositeSave compositeSave = new CompositeSave().assignOwnerName(syncCompositeToGrouperBean.getOwnerName());
         compositeSave.assignLeftFactorName(syncCompositeToGrouperBean.getLeftFactorName());
@@ -136,6 +144,7 @@ public class SyncCompositeToGrouperLogic {
       
     }
     for (SyncCompositeToGrouperBean syncCompositeToGrouperBean : GrouperUtil.nonNull(this.compositeUpdates)) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
         CompositeSave compositeSave = new CompositeSave().assignOwnerName(syncCompositeToGrouperBean.getOwnerName());

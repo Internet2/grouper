@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.value.AttributeAssignValueContainer;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -550,6 +551,203 @@ public class RuleDefinition {
         variableMap.put(simpleName, GrouperUtil.newInstance(customClassClass));
       }
     }
+  }
+  
+  public String getPattern() {
+    
+    if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd &&
+        this.getIfCondition() == null &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+      return GrouperTextContainer.textOrNull("rulePattern_SendEmailAfterNewMembership");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId) {
+      return GrouperTextContainer.textOrNull("rulePattern_AddDisabledDateOnInvalidMembership");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipRemove &&
+        this.getIfCondition() != null && 
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisGroupHasImmediateEnabledNoEndDateMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId) {
+      return GrouperTextContainer.textOrNull("rulePattern_AddDisabledDateOnInvalidMembershipDueToGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipRemove &&
+        this.getIfCondition() != null && 
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisPermissionDefHasNoEndDateAssignment &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignDisabledDaysToOwnerPermissionDefAssignments) {
+      return GrouperTextContainer.textOrNull("rulePattern_AddDisabledDateOnInvalidPermissions");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId) {
+      return GrouperTextContainer.textOrNull("rulePattern_AddDisabledDateOnMembership");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.stemCreate &&
+        this.getIfCondition() != null && 
+        StringUtils.isNotBlank(this.getIfCondition().getIfConditionEl()) &&
+        this.getThen() != null &&
+        StringUtils.isNotBlank(this.getThen().getThenEl())) {
+      return GrouperTextContainer.textOrNull("rulePattern_AssignAttributeToFolder");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.groupCreate &&
+        this.getIfCondition() != null && 
+        StringUtils.isNotBlank(this.getIfCondition().getIfConditionEl()) &&
+        this.getThen() != null &&
+        StringUtils.isNotBlank(this.getThen().getThenEl())) {
+      return GrouperTextContainer.textOrNull("rulePattern_AssignAttributeToGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd &&
+        this.getIfCondition() != null && 
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoImmediateEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.addMemberToOwnerGroup) {
+      return GrouperTextContainer.textOrNull("rulePattern_ForeverMembership");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.attributeDefCreate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId) {
+      return GrouperTextContainer.textOrNull("rulePattern_InheritedPrivilegesOnAttributeDefinitions");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.groupCreate &&
+        this.getIfCondition() != null && 
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.nameMatchesSqlLikeString &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignGroupPrivilegeToGroupId) {
+      return GrouperTextContainer.textOrNull("rulePattern_InheritedPrivilegesOnCertainGroups");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.stemCreate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignStemPrivilegeToStemId) {
+      return GrouperTextContainer.textOrNull("rulePattern_InheritedPrivilegesOnFolders");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.groupCreate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.assignGroupPrivilegeToGroupId) {
+      return GrouperTextContainer.textOrNull("rulePattern_InheritedPrivilegesOnGroups");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.attributeDefCreate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.reassignAttributeDefPrivilegesIfFromGroup) {
+      return GrouperTextContainer.textOrNull("rulePattern_ReassignAttributeDefinitionPrivilegesIfFromGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.stemCreate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.reassignStemPrivilegesIfFromGroup) {
+      return GrouperTextContainer.textOrNull("rulePattern_ReassignFolderPrivilegesIfFromGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.groupCreate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.reassignGroupPrivilegesIfFromGroup) {
+      return GrouperTextContainer.textOrNull("rulePattern_ReassignGroupPrivilegesIfFromGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipRemoveInFolder &&
+        this.getIfCondition() != null && 
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisGroupAndNotFolderHasImmediateEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.removeMemberFromOwnerGroup) {
+      return GrouperTextContainer.textOrNull("rulePattern_RemoveInvalidMembershipDueToFolder");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
+        this.getIfCondition() != null && 
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.removeMemberFromOwnerGroup) {
+      return GrouperTextContainer.textOrNull("rulePattern_RemoveInvalidMembershipDueToGroup");
+    } else if (this.getCheck() != null &&
+      this.getCheck().checkTypeEnum() == RuleCheckType.membershipRemoveInFolder &&
+      this.getIfCondition() != null && 
+      this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisPermissionDefHasAssignmentAndNotFolder &&
+      this.getThen() != null &&
+      this.getThen().thenEnum() == RuleThenEnum.removeMemberFromOwnerPermissionDefAssignments) {
+     return GrouperTextContainer.textOrNull("rulePattern_RemoveInvalidPermissionsDueToFolder");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipRemove &&
+        this.getIfCondition() != null && 
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisPermissionDefHasAssignment &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.removeMemberFromOwnerPermissionDefAssignments) {
+       return GrouperTextContainer.textOrNull("rulePattern_RemoveInvalidPermissionsDueToGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+       return GrouperTextContainer.textOrNull("rulePattern_SendEmailAfterMembershipRemove");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipDisabledDate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+       return GrouperTextContainer.textOrNull("rulePattern_SendEmailDueToDisabledDate");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.permissionDisabledDate &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+       return GrouperTextContainer.textOrNull("rulePattern_SendEmailDueToPermissionsDisabledDate");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAddInFolder &&
+        this.getIfCondition() == null && 
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+       return GrouperTextContainer.textOrNull("rulePattern_SendEmailMembershipDueToFolder");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipRemoveInFolder &&
+        this.getIfCondition() != null &&
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+       return GrouperTextContainer.textOrNull("rulePattern_SendEmailWhenGroupMemberInvalidDueToFolder");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd &&
+        this.getIfCondition() != null &&
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.noGroupInFolderHasImmediateEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.veto) {
+       return GrouperTextContainer.textOrNull("rulePattern_VetoIfNotEligibleDueToFolder");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd &&
+        this.getIfCondition() != null &&
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoImmediateEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.veto) {
+       return GrouperTextContainer.textOrNull("rulePattern_VetoIfNotEligibleDueToGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd &&
+        this.getIfCondition() != null &&
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasTooManyMembers &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.veto) {
+       return GrouperTextContainer.textOrNull("rulePattern_VetoIfTooManyMembers");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.subjectAssignInStem &&
+        this.getIfCondition() != null &&
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.veto) {
+       return GrouperTextContainer.textOrNull("rulePattern_VetoInFolderIfNotEligibleDueToGroup");
+    } else if (this.getCheck() != null &&
+        this.getCheck().checkTypeEnum() == RuleCheckType.permissionAssignToSubject &&
+        this.getIfCondition() != null &&
+        this.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoImmediateEnabledMembership &&
+        this.getThen() != null &&
+        this.getThen().thenEnum() == RuleThenEnum.veto) {
+       return GrouperTextContainer.textOrNull("rulePattern_VetoPermissionIfNotEligibleDueToGroup");
+    }
+    
+    return "";
   }
   
 }

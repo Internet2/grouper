@@ -14,6 +14,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -202,6 +203,8 @@ public class StemViewPrivilegeLogic {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, StemViewPrivilegeLogic.BATCH_SIZE, true);
       int attrRowsDeleted = 0;
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, StemViewPrivilegeLogic.BATCH_SIZE, i);
         recalculateStemViewPrivilegesAttributeDeleteHelper2(memberIdsList, batchStemIds);
         attrDeleteTookMs += (Long)debugMap.get("attrDeleteTookMs");
@@ -218,6 +221,8 @@ public class StemViewPrivilegeLogic {
   
     final int rowsDeleted[] = new int[] {0};
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final int I = i;
       // this table locks in mysql for some reason
       GrouperUtil.tryMultipleTimes(5, new Runnable() {
@@ -385,6 +390,8 @@ public class StemViewPrivilegeLogic {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, 200, true);
       int groupRowsDeleted = 0;
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, 200, i);
         recalculateStemViewPrivilegesGroupDeleteHelper(memberIdsList, batchStemIds);
         groupDeleteTookMs += (Long)debugMap.get("groupDeleteTookMs");
@@ -403,6 +410,8 @@ public class StemViewPrivilegeLogic {
   
     int[] rowsDeleted = new int[] {0};
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final int I = i;
       // this table locks in mysql for some reason
       GrouperUtil.tryMultipleTimes(5, new Runnable() {
@@ -498,6 +507,8 @@ public class StemViewPrivilegeLogic {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, StemViewPrivilegeLogic.BATCH_SIZE, true);
       int attrRowsInserted = 0;
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, StemViewPrivilegeLogic.BATCH_SIZE, i);
         recalculateStemViewPrivilegesAttributeInsertHelper(memberIdsList, batchStemIds);
         attrInsertTookMs += (Long)debugMap.get("attrInsertTookMs");
@@ -515,6 +526,8 @@ public class StemViewPrivilegeLogic {
   
     final int[] rowsInserted = new int[] {0};
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final int I = i;
       // this table locks in mysql for some reason
       GrouperUtil.tryMultipleTimes(5, new Runnable() {
@@ -589,7 +602,8 @@ public class StemViewPrivilegeLogic {
     }
     try {
       int[] rowsInserted = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     
       for (int i=0;i<memberIdsList.size(); i++) {
         if (rowsInserted[i] != 1) {
@@ -606,6 +620,8 @@ public class StemViewPrivilegeLogic {
           
           gcDbAccess = new GcDbAccess().sql(sql.toString()).addBindVar(memberId).addBindVar(nowMillis);
           int rowCount = gcDbAccess.executeSql();
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           if (rowCount != 1) {
             memberIdsList.add(memberId);
           } else {
@@ -657,7 +673,8 @@ public class StemViewPrivilegeLogic {
     }
     
     int[] rowsUpdated = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     for (int i=0;i<memberIdsList.size(); i++) {
       if (rowsUpdated[i] != 1) {
         memberIdsToProcessAgain.add(memberIdsList.get(i));
@@ -702,7 +719,8 @@ public class StemViewPrivilegeLogic {
     }
     
     int[] rowsUpdated = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     for (int i=0;i<memberIdsList.size(); i++) {
       if (rowsUpdated[i] == 1) {
         rowsLastLoginUpdate++;
@@ -742,7 +760,8 @@ public class StemViewPrivilegeLogic {
       batchBindVariables.add(GrouperUtil.toList(memberId, nowMillis));
     }
     int[] rowsInserted = gcDbAccess.batchBindVars(batchBindVariables).sql(sql.toString()).executeBatchSql();
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     for (int i=0;i<memberIdsList.size(); i++) {
       if (rowsInserted[i] == 1) {
         rowsLastLoginInsert++;
@@ -766,6 +785,8 @@ public class StemViewPrivilegeLogic {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, 200, true);
       int groupRowsInserted = 0;
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, 200, i);
         recalculateStemViewPrivilegesGroupInsertHelper(memberIdsList, batchStemIds);
         groupInsertTookMs += (Long)debugMap.get("groupInsertTookMs");
@@ -810,6 +831,8 @@ public class StemViewPrivilegeLogic {
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsList, StemViewPrivilegeLogic.BATCH_SIZE, true);
   
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final int I = i;
       // this table locks in mysql for some reason
       GrouperUtil.tryMultipleTimes(5, new Runnable() {
@@ -893,6 +916,8 @@ public class StemViewPrivilegeLogic {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, 200, true);
       int stemRowsDeleted = 0;
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, 200, i);
         recalculateStemViewPrivilegesStemDeleteHelper(memberIdsList, batchStemIds);
         stemDeleteTookMs += (Long)debugMap.get("stemDeleteTookMs");
@@ -911,6 +936,8 @@ public class StemViewPrivilegeLogic {
   
     int[] rowsDeleted = new int[] {0};
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final int I = i;
       // this table locks in mysql for some reason
       GrouperUtil.tryMultipleTimes(5, new Runnable() {
@@ -1008,6 +1035,8 @@ public class StemViewPrivilegeLogic {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(stemIds, 200, true);
       int stemRowsInserted = 0;
       for (int i=0;i<numberOfBatches;i++) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         List<String> batchStemIds = GrouperUtil.batchList(stemIds, 200, i);
         recalculateStemViewPrivilegesStemInsertHelper(memberIdsList, batchStemIds);
         stemInsertTookMs += (Long)debugMap.get("stemInsertTookMs");
@@ -1025,6 +1054,8 @@ public class StemViewPrivilegeLogic {
     int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsList, StemViewPrivilegeLogic.BATCH_SIZE, true);
   
     for (int i=0;i<numberOfBatches;i++) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       final int I = i;
       // this table locks in mysql for some reason
       GrouperUtil.tryMultipleTimes(5, new Runnable() {
@@ -1077,7 +1108,8 @@ public class StemViewPrivilegeLogic {
     new GcDbAccess().sql("update grouper_last_login gll set last_stem_view_need = ? "
         + " where gll.member_uuid = (select gm.id from grouper_members gm where gm.subject_source = ? and gm.subject_id = ? )")
       .addBindVar(System.currentTimeMillis()).addBindVar(subject.getSourceId()).addBindVar(subject.getId()).executeSql();
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
   }
 
   /**

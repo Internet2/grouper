@@ -4,6 +4,14 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.LinkedHashMap;
+import java.util.LinkedList;
+import java.util.List;
+import java.util.Map;
+import java.util.Map.Entry;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -17,6 +25,10 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.grouper.rules.RuleCheckType;
+import edu.internet2.middleware.grouper.rules.RuleConfig;
+import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
@@ -34,7 +46,9 @@ public class RulesContainer {
    */
   public RulesContainer() {
   }
-
+  
+  private GuiRuleDefinition currentGuiRuleDefinition;
+  
   /**
    * if can view privilege inheritance
    * @return true if can
@@ -235,7 +249,107 @@ public class RulesContainer {
     return this.canUpdateRules;
   
   }
+
   
+  public GuiRuleDefinition getCurrentGuiRuleDefinition() {
+    return currentGuiRuleDefinition;
+  }
+
   
+  public void setCurrentGuiRuleDefinition(GuiRuleDefinition currentGuiRuleDefinition) {
+    this.currentGuiRuleDefinition = currentGuiRuleDefinition;
+  }
+  
+  public Map<String, String> getAllCheckTypes() {
+    RuleCheckType[] values = RuleCheckType.values();
+    Map<String, String> checkTypes = new HashMap<>();
+    for (RuleCheckType checkType: values) {
+      checkTypes.put(checkType.name(), TextContainer.textOrNull("ruleCheckTypeOptionUserFriendlyLabel_"+checkType.name()));
+    }
+    
+    List<Entry<String, String>> list = new LinkedList<>(checkTypes.entrySet());
+    Collections.sort(list, (o1, o2) -> o1.getValue().compareTo(o2.getValue()));
+
+    Map<String, String> sortedMap = new LinkedHashMap<>();
+    for (Entry<String, String> entry : list) {
+        sortedMap.put(entry.getKey(), entry.getValue());
+    }
+    
+    return sortedMap;
+  }
+
+  public Map<String, String> getAllIfConditionOptions() {
+    RuleIfConditionEnum[] ruleIfConditionEnums = RuleIfConditionEnum.values();
+    Map<String, String> result = new HashMap<>();
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    for (RuleIfConditionEnum ruleIfConditionEnum: ruleIfConditionEnums) {
+      
+      if (ruleIfConditionEnum.isAdminOnly()) {
+        if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+          result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+        }
+      } else {
+        result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+      }
+      
+    }
+    
+    List<Entry<String, String>> list = new LinkedList<>(result.entrySet());
+    Collections.sort(list, (o1, o2) -> o1.getValue().compareTo(o2.getValue()));
+
+    Map<String, String> sortedMap = new LinkedHashMap<>();
+    for (Entry<String, String> entry : list) {
+        sortedMap.put(entry.getKey(), entry.getValue());
+    }
+    
+    sortedMap.put("EL", TextContainer.textOrNull("guiCustomUiUserQueryTypeLabel_expressionlanguage")); //it's at the bottom
+    return sortedMap;
+  }
+  
+  public Map<String, String> getAllThenOptions() {
+    
+    RuleThenEnum[] ruleThenEnums = RuleThenEnum.values();
+    Map<String, String> result = new HashMap<>();
+    for (RuleThenEnum ruleThenEnum: ruleThenEnums) {
+      result.put(ruleThenEnum.name(), TextContainer.textOrNull("ruleThenOptionUserFriendlyLabel_"+ruleThenEnum.name()));
+    }
+    
+    List<Entry<String, String>> list = new LinkedList<>(result.entrySet());
+    Collections.sort(list, (o1, o2) -> o1.getValue().compareTo(o2.getValue()));
+
+    Map<String, String> sortedMap = new LinkedHashMap<>();
+    for (Entry<String, String> entry : list) {
+        sortedMap.put(entry.getKey(), entry.getValue());
+    }
+    
+    result.put("EL", TextContainer.textOrNull("guiCustomUiUserQueryTypeLabel_expressionlanguage"));
+    return sortedMap;
+    
+  }
+  
+  private RuleConfig ruleConfig;
+  private String attributeAssignId;
+
+  
+  public RuleConfig getRuleConfig() {
+    return ruleConfig;
+  }
+
+  
+  public void setRuleConfig(RuleConfig ruleConfig) {
+    this.ruleConfig = ruleConfig;
+  }
+
+  public void setAttributeAssignId(String attributeAssignId) {
+    this.attributeAssignId = attributeAssignId;
+  }
+
+  
+  public String getAttributeAssignId() {
+    return attributeAssignId;
+  }
+
   
 }

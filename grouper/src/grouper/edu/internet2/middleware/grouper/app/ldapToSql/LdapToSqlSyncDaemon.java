@@ -17,6 +17,7 @@ import org.apache.commons.lang.StringUtils;
 import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
@@ -505,7 +506,8 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
       String sql = "select " + gcTableSyncTableMetadata.columnListAll() + " from " + gcTableSyncTableMetadata.getTableName();
       
       List<Object[]> results = gcDbAccess.sql(sql).selectList(Object[].class);
-  
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       this.debugMap.put("dbRows", GrouperUtil.length(results));
   
       this.gcTableSyncTableDataSql = new GcTableSyncTableData();
@@ -538,7 +540,8 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
         sql = "select " + gcTableSyncTableMetadataAttr.columnListAll() + " from " + gcTableSyncTableMetadataAttr.getTableName();
         
         results = gcDbAccess.sql(sql).selectList(Object[].class);
-  
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         this.debugMap.put("dbRows", GrouperUtil.length(results));
   
         this.gcTableSyncTableDataSqlAttr = new GcTableSyncTableData();
@@ -599,7 +602,8 @@ public class LdapToSqlSyncDaemon extends OtherJobBase {
       }
       
       List<LdapEntry> result = ldapSession.list(this.ldapConnection, this.baseDn, LdapSearchScope.valueOfIgnoreCase(this.searchScope, true), this.filter, this.ldapAttributeNames, null);
-  
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       this.ldapData = new ArrayList<Object[]>();
   
       this.ldapDataAttr = new ArrayList<Object[]>();

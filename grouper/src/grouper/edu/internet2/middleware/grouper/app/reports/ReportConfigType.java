@@ -15,6 +15,7 @@ import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh.GrouperGroovyResult;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -99,6 +100,8 @@ public enum ReportConfigType {
           throw new RuntimeException("GSH script result code not 0: " + grouperGroovyResult.getResultCode());
         }
         
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         return grouperReportData;
       } finally {
         GshReportRuntime.removeThreadLocalGshReportRuntime();
@@ -122,9 +125,11 @@ public enum ReportConfigType {
         GcDbAccess gcDbAccess = new GcDbAccess().connectionName(dbExternalSystemConfigId);
         
         List<Object[]> results = gcDbAccess.sql(sql).selectList(Object[].class);
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         GcTableSyncTableMetadata metadataFromDatabase = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(dbExternalSystemConfigId, sql);
-        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         // set headers from metadata
         List<GcTableSyncColumnMetadata> retrieveColumnMetadataOrdered = metadataFromDatabase.retrieveColumnMetadataOrdered();
         

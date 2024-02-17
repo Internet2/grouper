@@ -20,6 +20,7 @@ import org.quartz.PersistJobDataAfterExecution;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
@@ -72,6 +73,8 @@ public class GrouperReportJob implements Job {
     GrouperSession grouperSession = null;
     GrouperReportInstance newReportInstance = new GrouperReportInstance();
     try {
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
+
       grouperSession = GrouperSession.startRootSession();
       
       if (!"STARTED".equals(hib3GrouploaderLog.getStatus()) && GrouperLoader.isJobRunning(jobName, true)) {
@@ -156,6 +159,8 @@ public class GrouperReportJob implements Job {
       throw jobExecutionException;
       
     } finally {
+      GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
+      
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("grouperReportLog");
       }
