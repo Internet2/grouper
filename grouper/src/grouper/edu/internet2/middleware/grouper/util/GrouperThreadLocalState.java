@@ -38,8 +38,14 @@ import edu.internet2.middleware.morphString.Crypto;
 public class GrouperThreadLocalState {
   
   private GrouperLoggerState grouperLoggerState = null;
-  
+
   private GrouperProvisioner grouperProvisioner = null;
+
+  
+  public void setGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+  }
+
 
   /**
    * 
