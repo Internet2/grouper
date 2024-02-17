@@ -23,6 +23,7 @@ import java.util.concurrent.ExecutionException;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -149,7 +150,7 @@ public abstract class GrouperCallable<T> implements Callable<T> {
     //store the old
     GrouperThreadLocalState oldGrouperThreadLocalState = new GrouperThreadLocalState();
     oldGrouperThreadLocalState.storeCurrentThreadLocals();
-    
+    oldGrouperThreadLocalState.setGrouperProvisioner(null);
     if (this.isWillRetry()) {
       GrouperUtil.threadLocalInRetriableCodeAssign();
     }
@@ -175,6 +176,7 @@ public abstract class GrouperCallable<T> implements Callable<T> {
       }
       //assign the old thread local state, shouldnt really matter since thread if going back in pool
       oldGrouperThreadLocalState.assignCurrentThreadLocals();
+      GrouperProvisioner.removeCurrentGrouperProvisioner();
       
       if (this.isWillRetry()) {
         GrouperUtil.threadLocalInRetriableCodeClear();
