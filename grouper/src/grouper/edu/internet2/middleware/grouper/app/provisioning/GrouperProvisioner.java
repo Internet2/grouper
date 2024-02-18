@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.lang.ref.WeakReference;
 import java.sql.Timestamp;
 import java.util.Collections;
 import java.util.HashMap;
@@ -677,14 +678,18 @@ public abstract class GrouperProvisioner {
    */
   private Map<String, Object> debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
   
-  private static ThreadLocal<GrouperProvisioner> threadLocalGrouperProvisioner = new InheritableThreadLocal<>();
+  private static ThreadLocal<WeakReference<GrouperProvisioner>> threadLocalGrouperProvisioner = new InheritableThreadLocal<>();
   
   public static GrouperProvisioner retrieveCurrentGrouperProvisioner() {
-    return threadLocalGrouperProvisioner.get();
+    WeakReference<GrouperProvisioner> ref = threadLocalGrouperProvisioner.get();
+    if (ref != null) {
+      return ref.get();
+    }
+    return null;
   }
   
   public static void assignCurrentGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
-    threadLocalGrouperProvisioner.set(grouperProvisioner);
+    threadLocalGrouperProvisioner.set(new WeakReference<GrouperProvisioner>(grouperProvisioner));
   }
   
   public static void removeCurrentGrouperProvisioner() {
@@ -769,7 +774,7 @@ public abstract class GrouperProvisioner {
 
       this.debugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
       
-      threadLocalGrouperProvisioner.set(this);
+      assignCurrentGrouperProvisioner(this);
 
       GcDbAccess.threadLocalQueryCountReset();
 
