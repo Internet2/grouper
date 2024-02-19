@@ -42,7 +42,7 @@
         <module>../grouper-misc/grouper-duo</module>
         <module>../grouper-misc/googleapps-grouper-provisioner</module>
         <module>../grouper-misc/grouper-azure</module>
-        <module>../grouper-misc/grouper-ext-auth</module>
+        <!-- module>../grouper-misc/grouper-ext-auth</module -->
     </modules>
 
     <properties>
