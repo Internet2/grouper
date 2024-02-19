@@ -51,6 +51,8 @@ import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.RegistryDAO;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupUser;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
@@ -118,6 +120,10 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3GrouperLoaderLog.reset(hibernateSession);
             Hib3GrouperPasswordRecentlyUsedDAO.reset(hibernateSession);
             Hib3GrouperPasswordDAO.reset(hibernateSession);
+            
+            GcGrouperSyncDependencyGroupGroup.reset();
+            GcGrouperSyncDependencyGroupUser.reset();
+
             Hib3GroupSetDAO.reset(hibernateSession);
             Hib3MembershipDAO.reset(hibernateSession);
             Hib3AttributeDefDAO.reset(hibernateSession);            
@@ -138,6 +144,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             
             //we need to flush since the next query will run a sql
             hibernateSession.getSession().flush();
+            Hib3MemberDAO.reset(hibernateSession);
             Hib3RegistrySubjectAttributeDAO.reset(hibernateSession);
             Hib3RegistrySubjectDAO.reset(hibernateSession);
 
@@ -155,6 +162,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             Hib3PITAttributeDefDAO.reset(hibernateSession);
             Hib3PITStemDAO.reset(hibernateSession);
             Hib3PITFieldDAO.reset(hibernateSession);
+            Hib3PITMemberDAO.reset(hibernateSession);
             Hib3PITConfigDAO.reset(hibernateSession);
 
             Hib3ExternalSubjectAttributeDAO.reset(hibernateSession);

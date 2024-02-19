@@ -67,7 +67,7 @@ public class ScimProvisionerTestUtils {
    * @param suffix
    * @param value
    */
-  private static void configureProvisionerSuffix(ScimProvisionerTestConfigInput scimProvisioningTestConfigInput, String suffix, String value) {
+  public static void configureProvisionerSuffix(ScimProvisionerTestConfigInput scimProvisioningTestConfigInput, String suffix, String value) {
     // if its overridden then dont set
     if (!scimProvisioningTestConfigInput.getExtraConfig().containsKey(suffix)) {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + scimProvisioningTestConfigInput.getConfigId() + "." + suffix).value(value).store();
@@ -181,7 +181,6 @@ public class ScimProvisionerTestUtils {
     }
 
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", provisioningTestConfigInput.isUseEmails() ? "6" : "5");
     
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "" + provisioningTestConfigInput.getGroupAttributeCount() + "");
@@ -276,12 +275,16 @@ public class ScimProvisionerTestUtils {
     }
     
     if (provisioningTestConfigInput.isUseActiveOnUser()) {
-      int attributeIndex = totalEntityAttributesSoFar + 1;
+      totalEntityAttributesSoFar++;
+      int attributeIndex = totalEntityAttributesSoFar;
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".name", "active");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".translateExpressionType", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".translateExpression", "${provisioningEntityWrapper.isInGroup('test2:testGroup2')}");
       
     }
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + totalEntityAttributesSoFar);
+
     
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "displayName");

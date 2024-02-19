@@ -214,6 +214,8 @@ public class GrouperProvisioningLogic {
         List<ProvisioningMembership> grouperProvisioningMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningData().retrieveGrouperProvisioningMemberships(false);
         List<ProvisioningMembership> grouperTargetMemberships = this.grouperProvisioner.retrieveGrouperProvisioningTranslator().translateGrouperToTargetMemberships(
             grouperProvisioningMemberships, false);
+        
+        this.grouperProvisioner.retrieveGrouperProvisioningTranslator().removeUneededDependencyRows();
       }    
 
     }
@@ -2109,6 +2111,8 @@ public class GrouperProvisioningLogic {
       processTargetDataGroups(extraTargetData.getProvisioningGroups(), true);
       processTargetDataMemberships(extraTargetData.getProvisioningMemberships(), true);
     }
+    
+    this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().retrieveAllDependenciesForFullSync();
     
     long retrieveDataPass1 = System.currentTimeMillis()-start;
     this.getGrouperProvisioner().getDebugMap().put("retrieveDataPass1_millis", retrieveDataPass1);

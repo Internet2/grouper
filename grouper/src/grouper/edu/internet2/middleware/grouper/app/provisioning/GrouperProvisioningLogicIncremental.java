@@ -13,8 +13,9 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -22,10 +23,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveIncrementalDataResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsResponse;
-import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventContainer;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEventType;
@@ -35,9 +33,13 @@ import edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingSystem;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssign;
 import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupUser;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
@@ -1097,7 +1099,8 @@ public class GrouperProvisioningLogicIncremental {
     
     int recalcEntityDueToGroupMembershipChange = 0;
     
-    Set<String> groupIdsUsedInEntityTranslation = GrouperUtil.nonNull(GrouperProvisioningTranslator.retrieveMembershipGroupIdsForProvisionerConfigId(this.grouperProvisioner.getConfigId()));
+    Set<MultiKey> groupIdFieldIds = new HashSet<MultiKey>();
+    Map<MultiKey, Set<MultiKey>> groupIdFieldIdToMemberIdCreateOns = new HashMap<>();
     
     // see if we are getting memberships or privs
     GrouperProvisioningMembershipFieldType membershipFieldType = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
@@ -1130,6 +1133,8 @@ public class GrouperProvisioningLogicIncremental {
       long createdOnMillis = esbEvent.getCreatedOnMicros()/1000;
       boolean syncThisMembership = false;
       
+      MultiKey groupIdFieldId = null;
+
       switch (esbEventType) {
         
 //        case ATTRIBUTE_ASSIGN_VALUE_ADD:
@@ -1163,6 +1168,17 @@ public class GrouperProvisioningLogicIncremental {
           // skip if wrong source
           if (!StringUtils.isBlank(esbEvent.getSourceId()) && GrouperUtil.length(sourceIdsToProvision) > 0 && !sourceIdsToProvision.contains(esbEvent.getSourceId())) {
             continue;
+          }
+          if (!StringUtils.isBlank(esbEvent.getGroupId())) {
+            Field field = FieldFinder.find(esbEvent.getPrivilegeName(), true);
+            groupIdFieldId = new MultiKey(esbEvent.getGroupId(), field.getId());
+            groupIdFieldIds.add(groupIdFieldId);
+            Set<MultiKey> memberIdCreatedOns = groupIdFieldIdToMemberIdCreateOns.get(groupIdFieldId);
+            if (memberIdCreatedOns == null) {
+              memberIdCreatedOns = new HashSet<>();
+              groupIdFieldIdToMemberIdCreateOns.put(groupIdFieldId, memberIdCreatedOns);
+            }
+            memberIdCreatedOns.add(new MultiKey(esbEvent.getMemberId(), esbEvent.getCreatedOnMicros()/1000));
           }
           
           switch (membershipFieldType) {
@@ -1221,6 +1237,16 @@ public class GrouperProvisioningLogicIncremental {
           if (!StringUtils.isBlank(esbEvent.getSourceId()) && GrouperUtil.length(sourceIdsToProvision) > 0 && !sourceIdsToProvision.contains(esbEvent.getSourceId())) {
             continue;
           }
+          
+          groupIdFieldId = new MultiKey(esbEvent.getGroupId(), Group.getDefaultList().getId());
+          groupIdFieldIds.add(groupIdFieldId);
+          Set<MultiKey> memberIdCreatedOns = groupIdFieldIdToMemberIdCreateOns.get(groupIdFieldId);
+          if (memberIdCreatedOns == null) {
+            memberIdCreatedOns = new HashSet<>();
+            groupIdFieldIdToMemberIdCreateOns.put(groupIdFieldId, memberIdCreatedOns);
+          }
+          memberIdCreatedOns.add(new MultiKey(esbEvent.getMemberId(), esbEvent.getCreatedOnMicros()/1000));
+          
           if (membershipFieldType == GrouperProvisioningMembershipFieldType.members) {
             syncThisMembership = true;
           }
@@ -1258,15 +1284,6 @@ public class GrouperProvisioningLogicIncremental {
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalEntity(esbEvent.getMemberId(), this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntitiesForRecalc()
               , this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectEntityMembershipsForRecalc(), createdOnMillis, null);
           
-        } else {
-          
-          if (groupIdsUsedInEntityTranslation.contains(esbEvent.getGroupId())) {
-            recalcEntityDueToGroupMembershipChange++;
-            this.grouperProvisioner.retrieveGrouperProvisioningData()
-              .addIncrementalEntity(esbEvent.getMemberId(), true, false, 
-                  createdOnMillis, null);
-          }
-            
         }
           
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(esbEvent.getGroupId(), esbEvent.getMemberId(),
@@ -1275,6 +1292,42 @@ public class GrouperProvisioningLogicIncremental {
         changeLogCount++;
       }
       
+    }
+    
+    boolean provisionEntities = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperEntities();
+    if (provisionEntities) {
+      
+      Map<MultiKey, GcGrouperSyncDependencyGroupUser> groupIdFieldIdToDependencyGroupUser = 
+          this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupUserDao().dependencyGroupUserRetrieveFromDbOrCacheByGroupIdsFieldIds(groupIdFieldIds);
+
+      for (MultiKey groupIdFieldId : groupIdFieldIdToDependencyGroupUser.keySet()) {
+        Set<MultiKey> memberIdCreatedOns = groupIdFieldIdToMemberIdCreateOns.get(groupIdFieldId);
+        for (MultiKey memberIdCreatedOn : GrouperUtil.nonNull(memberIdCreatedOns)) {
+          String memberId = (String)memberIdCreatedOn.getKey(0);
+          Long createdOnMillis = (Long)memberIdCreatedOn.getKey(1);
+          this.grouperProvisioner.retrieveGrouperProvisioningData().addIncrementalEntity(memberId, true, false, createdOnMillis, null);
+        }
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().getGroupIdFieldIdLookedUpForGroupUserDependencies().put(groupIdFieldId, false);
+      }
+    }
+    boolean provisionGroups = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups();
+    if (provisionGroups) {
+      
+      // TODO change to use cache
+      Map<MultiKey, GcGrouperSyncDependencyGroupGroup> groupIdFieldIdToDependencyGroupGroup = 
+          this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupGroupDao().internal_dependencyGroupGroupRetrieveFromDbByGroupIdsFieldIds(groupIdFieldIds);
+      
+      for (MultiKey groupIdFieldId : groupIdFieldIdToDependencyGroupGroup.keySet()) {
+        GcGrouperSyncDependencyGroupGroup gcGrouperSyncDependencyGroupGroup = groupIdFieldIdToDependencyGroupGroup.get(groupIdFieldId);
+        String provisionableGroupId = gcGrouperSyncDependencyGroupGroup.getProvisionableGroupId();
+        
+        Set<MultiKey> memberIdCreatedOns = groupIdFieldIdToMemberIdCreateOns.get(groupIdFieldId);
+        for (MultiKey memberIdCreatedOn : GrouperUtil.nonNull(memberIdCreatedOns)) {
+          Long createdOnMillis = (Long)memberIdCreatedOn.getKey(1);
+          this.grouperProvisioner.retrieveGrouperProvisioningData().addIncrementalGroup(provisionableGroupId, true, false, createdOnMillis, null);
+        }
+        this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().getGroupIdFieldIdLookedUpForGroupGroupDependencies().put(groupIdFieldId, false);
+      }
     }
     
     if (changeLogCount > 0) {

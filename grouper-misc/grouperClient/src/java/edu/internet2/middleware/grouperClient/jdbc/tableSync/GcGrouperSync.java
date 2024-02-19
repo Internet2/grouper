@@ -624,6 +624,8 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
     this.gcGrouperSyncJobDao.setGcGrouperSync(this);
     this.gcGrouperSyncMemberDao.setGcGrouperSync(this);
     this.gcGrouperSyncMembershipDao.setGcGrouperSync(this);
+    this.gcGrouperSyncDependencyGroupGroupDao.setGcGrouperSync(this);
+    this.gcGrouperSyncDependencyGroupUserDao.setGcGrouperSync(this);
   }
 
   /**
@@ -771,6 +773,18 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   private GcGrouperSyncLogDao gcGrouperSyncLogDao = new GcGrouperSyncLogDao();
 
   /**
+   * dao for group group dependencies operations
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private GcGrouperSyncDependencyGroupGroupDao gcGrouperSyncDependencyGroupGroupDao = new GcGrouperSyncDependencyGroupGroupDao();
+
+  /**
+   * dao for group user dependencies operations
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private GcGrouperSyncDependencyGroupUserDao gcGrouperSyncDependencyGroupUserDao = new GcGrouperSyncDependencyGroupUserDao();
+
+  /**
    * dao for job operations
    */
   @GcPersistableField(persist = GcPersist.dontPersist)
@@ -795,6 +809,23 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
    */
   public GcGrouperSyncLogDao getGcGrouperSyncLogDao() {
     return this.gcGrouperSyncLogDao;
+  }
+
+
+  /**
+   * dao for group group operations
+   * @return the dao
+   */
+  public GcGrouperSyncDependencyGroupGroupDao getGcGrouperSyncDependencyGroupGroupDao() {
+    return this.gcGrouperSyncDependencyGroupGroupDao;
+  }
+
+  /**
+   * dao for group user operations
+   * @return the dao
+   */
+  public GcGrouperSyncDependencyGroupUserDao getGcGrouperSyncDependencyGroupUserDao() {
+    return this.gcGrouperSyncDependencyGroupUserDao;
   }
 
   /**

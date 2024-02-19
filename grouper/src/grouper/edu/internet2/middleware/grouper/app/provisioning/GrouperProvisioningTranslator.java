@@ -13,29 +13,118 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
-import edu.internet2.middleware.grouper.Group;
-import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.MembershipFinder;
-import edu.internet2.middleware.grouper.membership.MembershipResult;
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupUser;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * @author shilen
  */
 public class GrouperProvisioningTranslator {
   
+  /**
+   * of the groups used in translation (user or group), this is a mapping of group name to group id
+   */
+  private Map<String, String> groupNameToGroupId = new HashMap<>();
   
-  private static Map<String, ExpirableCache<String, Boolean>> provisionerConfigIdToGroupName = new HashMap<>(); 
+  /**
+   * delete user dependencies no longer needed in full sync (if not removed, delete them).  value is id index to delete
+   */
+  private Map<MultiKey, Long> groupIdFieldIdUserDependenciesToDelete = new HashMap<>();
   
-  private static Map<String, ExpirableCache<String, Boolean>> provisionerConfigIdToGroupId = new HashMap<>(); 
+  /**
+   * delete group dependencies no longer needed in full sync (if not removed, delete them).  value is id index to delete
+   */
+  private Map<MultiKey, Long> groupIdFieldIdDependentGroupIdGroupDependenciesToDelete = new HashMap<>();
+  
+  
+  public void retrieveAllDependenciesForFullSync() {
 
+    List<GcGrouperSyncDependencyGroupUser> gcGrouperSyncDependencyGroupUsers = 
+        this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupUserDao().internal_dependencyGroupUserRetrieveFromDbAll();
+    
+    if (GrouperUtil.length(gcGrouperSyncDependencyGroupUsers) > 0) {
+      
+      for (GcGrouperSyncDependencyGroupUser gcGrouperSyncDependencyGroupUser : gcGrouperSyncDependencyGroupUsers) {
+        
+        MultiKey groupIdFieldId = new MultiKey(gcGrouperSyncDependencyGroupUser.getGroupId(), gcGrouperSyncDependencyGroupUser.getFieldId());
+        groupIdFieldIdUserDependenciesToDelete.put(groupIdFieldId, gcGrouperSyncDependencyGroupUser.getIdIndex());
+        
+        groupIdFieldIdLookedUpForGroupUserDependencies.put(groupIdFieldId, false);
+      }
+      
+    }
+    
+    List<GcGrouperSyncDependencyGroupGroup> gcGrouperSyncDependencyGroupGroups = 
+        this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupGroupDao().internal_dependencyGroupGroupRetrieveFromDbAll();
+
+    if (GrouperUtil.length(gcGrouperSyncDependencyGroupGroups) > 0) {
+      
+      for (GcGrouperSyncDependencyGroupGroup gcGrouperSyncDependencyGroupGroup : gcGrouperSyncDependencyGroupGroups) {
+        
+        MultiKey groupIdFieldIdDependentGroupId = new MultiKey(gcGrouperSyncDependencyGroupGroup.getGroupId(), gcGrouperSyncDependencyGroupGroup.getFieldId(), 
+            gcGrouperSyncDependencyGroupGroup.getProvisionableGroupId());
+        groupIdFieldIdDependentGroupIdGroupDependenciesToDelete.put(
+            groupIdFieldIdDependentGroupId, gcGrouperSyncDependencyGroupGroup.getIdIndex());
+        
+        MultiKey groupIdFieldId = new MultiKey(gcGrouperSyncDependencyGroupGroup.getGroupId(), gcGrouperSyncDependencyGroupGroup.getFieldId());
+        groupIdFieldIdLookedUpForGroupGroupDependencies.put(groupIdFieldId, false);
+        
+      }
+      
+    }
+    
+    initGroupsMembershipsOrCache();    
+  }
+  
+  /**
+   * this is for group translation, group id and field id to their identifiers
+   */
+  private Map<MultiKey, Set<MultiKey>> groupIdFieldIdToSubjectIdAndEmailAndIdentifiers = new HashMap<>();
+
+  /**
+   * this is for user translation, group id and field id to if has been looked up.  if false then it needs a look up
+   */
+  private Map<MultiKey, Boolean> groupIdFieldIdLookedUpForGroupUserDependencies = new HashMap<>();
+  
+  /**
+   * this is for group translation, group id and field id to if has been looked up.  if false then it needs a look up
+   */
+  private Map<MultiKey, Boolean> groupIdFieldIdLookedUpForGroupGroupDependencies = new HashMap<>();
+
+  /**
+   * this is for user translation, group id and field id to if has been looked up.  if false then it needs a look up
+   * @return the map
+   */
+  public Map<MultiKey, Boolean> getGroupIdFieldIdLookedUpForGroupUserDependencies() {
+    return groupIdFieldIdLookedUpForGroupUserDependencies;
+  }
+
+
+  /**
+   * this is for group translation, group id and field id to if has been looked up.  if false then it needs a look up
+   * @return
+   */
+  public Map<MultiKey, Boolean> getGroupIdFieldIdLookedUpForGroupGroupDependencies() {
+    return groupIdFieldIdLookedUpForGroupGroupDependencies;
+  }
+
+  /**
+   * this is for user translation, group id and field id to member id
+   */
+  private Map<MultiKey, Set<String>> groupIdFieldIdToMemberId = new HashMap<>();
+  
   /**
    * reference back up to the provisioner
    */
@@ -50,41 +139,6 @@ public class GrouperProvisioningTranslator {
   }
   
   /**
-   * Any group id that's been used, for e.g. in the entity translation that needs to trigger an entity recalc if
-   * a user is added or removed from the group. This is cached for 2 days.
-   * @param provisionerConfigId
-   * @return
-   */
-  public static Set<String> retrieveMembershipGroupIdsForProvisionerConfigId(String provisionerConfigId) {
-     ExpirableCache<String,Boolean> cache = provisionerConfigIdToGroupId.get(provisionerConfigId);
-     return cache == null ? new HashSet<String>() : cache.keySet();
-  }
-  
-  /**
-   * Any group name that's been used, for e.g. in the entity translation that needs to trigger an entity recalc if
-   * a user is added or removed from the group. This is cached for 2 days.
-   * @param provisionerConfigId
-   * @return
-   */
-  public static Set<String> retrieveMembershipGroupNamesForProvisionerConfigId(String provisionerConfigId) {
-    ExpirableCache<String,Boolean> cache = provisionerConfigIdToGroupName.get(provisionerConfigId);
-    return cache == null ? new HashSet<String>() : cache.keySet();
- }
-
-  /**
-   * make two tables and indexes:
-   * grouper_sync_dep_group_user: if a group is here then any changes to group needs to recalculate the user (not memberships)
-   * id_index (pk)
-   * grouper_sync_id (index 1) (unq) (foreign key cascade delete) (non null)
-   * group_uuid (index 2) (unq) (foreign key cascade delete) (non null)
-   * field_uuid (index 2) (unq) (foreign key cascade delete) (non null)
-   * 
-   * grouper_sync_def_group_group: if a group is here then any changes to the group needs to recalculate the group (not memberships
-   * id_index (pk)
-   * grouper_sync_id (index 1) (unq) (foreign key cascade delete) (non null)
-   * group_id  (index 3) (unq) (foreign key cascade delete) (non null)
-   * field_id  (index 3) (unq) (foreign key cascade delete) (non null)
-   * provisionable_group_id (index 2) (unq) (foreign key cascade delete) (non null)
    * 
    * Get memberships for user cached groups
    * Loop through fields
@@ -105,72 +159,493 @@ public class GrouperProvisioningTranslator {
    * Cache in provisioner if retrieved, retrieve if not and update tables
    */
   
-  /**
-   * In a provisioning run, all the members of the group that are used for entity translations (for e.g.
-   *  a user is active in the target). This is initialized for all members of the group for full sync
-   *  or for applicable for incremental sync
-   */
-  private Map<String, Set<String>> groupNameToMemberIds = new HashMap<>(); 
-  
   public boolean isInGroup(String groupName, String memberId) {
-    Set<String> groupMemberships = initGroupMemberships(groupName);
-    return groupMemberships.contains(memberId);
+    return isHasPrivilege(groupName, "members", memberId);
+  }
+
+  private static Map<String, Integer> memberFieldToIndex = new HashMap<>();
+  
+  static {
+    memberFieldToIndex.put("subjectid", 0);
+    memberFieldToIndex.put("email", 1);
+    memberFieldToIndex.put("subjectidentifier0", 2);
+    memberFieldToIndex.put("subjectidentifier1", 3);
+    memberFieldToIndex.put("subjectidentifier2", 4);
+  }
+
+  /**
+   * int of memberField in the set of attributes to pick
+   * @param memberField
+   * @return the index
+   */
+  private static int memberFieldToIndex(String memberField) {
+    String memberFieldLower = memberField == null ? null : memberField.toLowerCase();
+    if (!memberFieldToIndex.containsKey(memberFieldLower)) {
+      throw new RuntimeException("Invalid memberField '" + memberField 
+          + "', should be one of: subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2");
+    }
+    return memberFieldToIndex.get(memberFieldLower);
   }
   
-  public synchronized Set<String> initGroupMemberships(String groupName) {
+  /**
+   * get a set of members from another group
+   * @param provisionableGroupId
+   * @param groupName is the group name to check
+   * @param listName admins, updaters, members, etc
+   * @param memberField subjectId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, email
+   * @return set of values of subjects in the subject source of the provisioner
+   */
+  public Set<String> groupPrivilegeHolders(String groupName, String listName, String memberField, String provisionableGroupId) {
+    this.initGroupsMembershipsOrCache();
+
+    Field field = FieldFinder.find(listName, true);
+    GrouperUtil.assertion(field.isGroupAccessField() || field.isGroupListField(), "Field must be a group privilege: '" + listName + "'");
+    String fieldId = field.getId();
     
-    String provisionerConfigId = grouperProvisioner.getConfigId();
-    ExpirableCache<String,Boolean> cacheByName = provisionerConfigIdToGroupName.get(provisionerConfigId);
-    ExpirableCache<String,Boolean> cacheById = provisionerConfigIdToGroupId.get(provisionerConfigId);
-    if (cacheByName == null) {
-      cacheByName = new ExpirableCache<>(60 * 24 * 2); // 2 days
-      provisionerConfigIdToGroupName.put(provisionerConfigId, cacheByName);
+    String groupId = this.groupNameToGroupId.get(groupName);
+    if (StringUtils.isBlank(groupId)) {
       
-      cacheById = new ExpirableCache<>(60 * 24 * 2); // 2 days
-      provisionerConfigIdToGroupId.put(provisionerConfigId, cacheById);
+      this.initGroupNameToGroupId(GrouperUtil.toSet(groupName));
+
+      groupId = this.groupNameToGroupId.get(groupName);
+      
+    }
+
+    MultiKey groupIdFieldIdProvisionableGroupId = new MultiKey(groupId, fieldId, provisionableGroupId);
+
+    MultiKey groupIdFieldId = new MultiKey(groupId, fieldId);
+    
+    // keep track of old ones
+    // TODO delete old ones
+    this.groupIdFieldIdDependentGroupIdGroupDependenciesToDelete.remove(groupIdFieldIdProvisionableGroupId);
+    
+    Boolean retrieved = this.groupIdFieldIdLookedUpForGroupGroupDependencies.get(groupIdFieldId);
+    
+    if (retrieved == null || !retrieved) {
+      
+      Map<MultiKey, GcGrouperSyncDependencyGroupGroup> groupIdFieldIdProvisionableGroupIdToDependency = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupGroupDao()
+          .internal_dependencyGroupGroupRetrieveFromDbByGroupIdsFieldIdsProvisionableGroupIds(GrouperUtil.toSet(new MultiKey(groupId, fieldId, provisionableGroupId)));
+      
+      if (groupIdFieldIdProvisionableGroupIdToDependency.size() == 0) {
+        GcGrouperSyncDependencyGroupGroup gcGrouperSyncDependencyGroupGroup = new GcGrouperSyncDependencyGroupGroup();
+        gcGrouperSyncDependencyGroupGroup.setFieldId(fieldId);
+        gcGrouperSyncDependencyGroupGroup.setGroupId(groupId);
+        gcGrouperSyncDependencyGroupGroup.setProvisionableGroupId(provisionableGroupId);
+        gcGrouperSyncDependencyGroupGroup.assignIdIndexForInsert(TableIndex.reserveId(TableIndexType.syncDepGroup));
+        this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupGroupDao().internal_dependencyGroupGroupStore(gcGrouperSyncDependencyGroupGroup);
+      }
+
+      this.initGroupGroupMemberships(GrouperUtil.toSet(groupIdFieldId));
+    }
+    Set<MultiKey> subjectIdAndEmailAndIdentifiers = this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.get(groupIdFieldId);
+    HashSet<String> result = new HashSet<>();
+    int memberFieldIndex = memberFieldToIndex(memberField);
+    if (GrouperUtil.length(subjectIdAndEmailAndIdentifiers) > 0) {
+      for (MultiKey subjectIdAndEmailAndIdentifier : subjectIdAndEmailAndIdentifiers) {
+        String memberFieldValue = (String)subjectIdAndEmailAndIdentifier.getKey(memberFieldIndex);
+        if (!StringUtils.isBlank(memberFieldValue)) {
+          result.add(memberFieldValue);
+        }
+      }
+    }
+    return result;
+
+
+  }
+
+  /**
+   * list name can be admins, updaters, readers, etc
+   * @param groupName
+   * @param listName admins, updaters, members, etc
+   * @param memberId
+   * @return true if has privilege
+   */
+  public boolean isHasPrivilege(String groupName, String listName, String memberId) {
+
+    this.initGroupsMembershipsOrCache();
+    
+    Field field = FieldFinder.find(listName, true);
+    GrouperUtil.assertion(field.isGroupAccessField() || field.isGroupListField(), "Field must be a group privilege: '" + listName + "'");
+    String fieldId = field.getId();
+    
+    String groupId = this.groupNameToGroupId.get(groupName);
+    if (StringUtils.isBlank(groupId)) {
+      
+      this.initGroupNameToGroupId(GrouperUtil.toSet(groupName));
+
+      groupId = this.groupNameToGroupId.get(groupName);
+      
+    }
+
+    MultiKey groupIdFieldId = new MultiKey(groupId, fieldId);
+    
+    // keep track of old ones
+    this.groupIdFieldIdUserDependenciesToDelete.remove(groupIdFieldId);
+    
+    Boolean retrieved = this.groupIdFieldIdLookedUpForGroupUserDependencies.get(groupIdFieldId);
+    
+    if (retrieved == null || !retrieved) {
+      
+      Map<MultiKey, GcGrouperSyncDependencyGroupUser> groupIdFieldIdToDependency = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupUserDao()
+          .dependencyGroupUserRetrieveFromDbOrCacheByGroupIdsFieldIds(GrouperUtil.toSet(new MultiKey(groupId, fieldId)));
+      
+      if (groupIdFieldIdToDependency.size() == 0) {
+        GcGrouperSyncDependencyGroupUser gcGrouperSyncDependencyGroupUser = new GcGrouperSyncDependencyGroupUser();
+        gcGrouperSyncDependencyGroupUser.setFieldId(fieldId);
+        gcGrouperSyncDependencyGroupUser.setGroupId(groupId);
+        gcGrouperSyncDependencyGroupUser.assignIdIndexForInsert(TableIndex.reserveId(TableIndexType.syncDepUser));
+        this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupUserDao().internal_dependencyGroupUserStore(gcGrouperSyncDependencyGroupUser);
+      }
+
+      this.initGroupUserMemberships(GrouperUtil.toSet(groupIdFieldId));
+      
+    }
+
+    Set<String> memberIds = this.groupIdFieldIdToMemberId.get(groupIdFieldId);
+    return GrouperUtil.nonNull(memberIds).contains(memberId);
+  }
+
+  /**
+   * 
+   * @param groupIdFieldIdsInput
+   * @return groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiersTotal for groups
+   */
+  public void initGroupGroupMemberships(Set<MultiKey> groupIdFieldIdsInput) {
+
+    Set<MultiKey> groupIdFieldIdsLocal = new HashSet<MultiKey>(GrouperUtil.nonNull(groupIdFieldIdsInput));
+
+    // maybe we are done
+    if (groupIdFieldIdsLocal.size() == 0) {
+      return;
+    }
+
+    // lets loop through the rest
+    List<MultiKey> groupIdFieldIdList = new ArrayList<MultiKey>(groupIdFieldIdsLocal);
+    
+    int batchSizeGroups = 1000;
+    int numberOfBatchesGroups = GrouperUtil.batchNumberOfBatches(groupIdFieldIdList, batchSizeGroups, false);
+    
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    grouperProvisioningConfiguration.getSubjectSourcesToProvision();
+    
+    for (int i=0;i<numberOfBatchesGroups;i++) {
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+
+      List<MultiKey> groupIdFieldIdBatch = GrouperUtil.batchList(groupIdFieldIdList, batchSizeGroups, i);
+      
+      StringBuilder sqlBase = new StringBuilder("select gmlv.group_name, gmlv.group_id, gmlv.list_name, " 
+          + " gm.subject_id, gm.email0, gm.subject_identifier0, gm.subject_identifier1, gm.subject_identifier2 "
+          + " from grouper_members gm, grouper_memberships_lw_v gmlv where gmlv.member_id = gm.id ");
+
+      Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
+      
+      if (subjectSources.size() > 0) {
+        sqlBase.append(" and ");
+        if (subjectSources.size() > 1) {
+          sqlBase.append(" ( ");
+        }
+        boolean first = true;
+        for (String subjectSource : subjectSources) {
+          if (!first) {
+            sqlBase.append(" or ");
+          }
+          sqlBase.append(" gmlv.subject_source = ? ");
+          gcDbAccess.addBindVar(subjectSource);
+          first = false;
+        }
+        if (subjectSources.size() > 1) {
+          sqlBase.append(" ) ");
+        }
+
+      }
+
+      sqlBase.append(" and ( ");
+      
+      boolean first = true;
+      for (MultiKey groupIdFieldId : groupIdFieldIdBatch) {
+        if (!first) {
+          sqlBase.append(" or ");
+        }
+        String groupId = (String)groupIdFieldId.getKey(0);
+        String fieldId = (String)groupIdFieldId.getKey(1);
+        
+        Field field = FieldFinder.findById(fieldId, true);
+        
+        GrouperUtil.assertion(field.isGroupListField() || field.isGroupAccessField(), "Field name must be members or a group privilege field: admins, updaters, readers, etc");
+        
+        sqlBase.append(" ( group_id = ? and list_name = ? ) ");
+        gcDbAccess.addBindVar(groupId);
+        gcDbAccess.addBindVar(field.getName());
+        first = false;
+      }
+      
+      sqlBase.append(" ) ");
+      
+      
+      List<Object[]> groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifierss = gcDbAccess.sql(sqlBase.toString()).selectList(Object[].class);
+      for (Object[] groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers : groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifierss) {
+        String groupName = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[0];
+        String groupId = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[1];
+        String fieldName = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[2];
+        Field field = FieldFinder.find(fieldName, true);
+        String subjectId = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[3];
+        String email = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[4];
+        String subjectIdentifier0 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[5];
+        String subjectIdentifier1 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[6];
+        String subjectIdentifier2 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[7];
+        this.groupNameToGroupId.put(groupName, groupId);
+        Set<MultiKey> subjectIdAndEmailAndIdentifiers = this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.get(new MultiKey(groupId, field.getId()));
+        if (subjectIdAndEmailAndIdentifiers == null) {
+          subjectIdAndEmailAndIdentifiers = new HashSet<>();
+          this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.put(new MultiKey(groupId, field.getId()), subjectIdAndEmailAndIdentifiers);
+        }
+        subjectIdAndEmailAndIdentifiers.add(new MultiKey(subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2));
+      }
+    }
+  } 
+
+  private boolean inittedGroups = false;
+  
+  public void initGroupNameToGroupId(Collection<String> groupNames) {
+    if (GrouperUtil.nonNull(groupNames).size() > 0) {
+      groupNames.removeAll(this.groupNameToGroupId.keySet());
+      // lookup the groups
+      int batchSize = 1000;
+      List<String> groupNamesList = new ArrayList<String>(groupNames);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupNamesList, batchSize, false);
+      for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+        
+        List<String> groupNamesBatch = GrouperUtil.batchList(groupNamesList, batchSize, batchIndex);
+        Set<String> groupNamesBatchSet = new HashSet<String>(groupNamesBatch);
+        String sql = "select id, name from grouper_groups where name in ( " + GrouperClientUtils.appendQuestions(groupNamesBatch.size()) + " )";
+        
+        GcDbAccess gcDbAccess = new GcDbAccess().sql(sql);
+        for (String groupId : groupNamesBatch) {
+          gcDbAccess.addBindVar(groupId);
+        }
+        List<Object[]> groupIdGroupNames = gcDbAccess.selectList(Object[].class);
+        for (Object[] groupIdGroupName : groupIdGroupNames) {
+          String groupId = (String)groupIdGroupName[0];
+          String groupName = (String)groupIdGroupName[1];
+          groupNamesBatchSet.remove(groupName);
+
+          this.groupNameToGroupId.put(groupName, groupId);
+        }
+        for (String groupName : groupNamesBatchSet) {
+          throw new RuntimeException("Cannot find group: '" + groupName + "'");
+        }
+      }
+    }
+
+  }
+  
+  public void initGroupNameToGroupIdFromGroupIds(Collection<String> groupIds) {
+    if (GrouperUtil.nonNull(groupIds).size() > 0) {
+      groupIds.removeAll(this.groupNameToGroupId.values());
+      // lookup the groups
+      int batchSize = 1000;
+      List<String> groupIdsList = new ArrayList<String>(groupIds);
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupIdsList, batchSize, false);
+      for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+        
+        List<String> groupIdsBatch = GrouperUtil.batchList(groupIdsList, batchSize, batchIndex);
+        String sql = "select id, name from grouper_groups where id in ( " + GrouperClientUtils.appendQuestions(groupIdsBatch.size()) + " )";
+        
+        GcDbAccess gcDbAccess = new GcDbAccess().sql(sql);
+        for (String groupId : groupIdsBatch) {
+          gcDbAccess.addBindVar(groupId);
+        }
+        List<Object[]> groupIdGroupNames = gcDbAccess.selectList(Object[].class);
+        for (Object[] groupIdGroupName : groupIdGroupNames) {
+          String groupId = (String)groupIdGroupName[0];
+          String groupName = (String)groupIdGroupName[1];
+
+          this.groupNameToGroupId.put(groupName, groupId);
+        }
+      }
+    }
+
+  }
+  
+  public void initGroupsMembershipsOrCache() {
+
+    if (!inittedGroups) {
+
+      Set<String> groupIds = new HashSet<>();
+      
+      for (MultiKey groupIdFieldId : this.groupIdFieldIdLookedUpForGroupGroupDependencies.keySet()) {
+        
+        String groupId = (String)groupIdFieldId.getKey(0);
+        groupIds.add(groupId);
+      }
+      
+      for (MultiKey groupIdFieldId : this.groupIdFieldIdLookedUpForGroupUserDependencies.keySet()) {
+        
+        String groupId = (String)groupIdFieldId.getKey(0);
+        groupIds.add(groupId);
+      }
+      
+      initGroupNameToGroupIdFromGroupIds(groupIds);
+      
+      Set<MultiKey> groupIdFieldIds = new HashSet<>();
+      groupIdFieldIds.addAll(this.groupIdFieldIdLookedUpForGroupGroupDependencies.keySet());
+      
+      for (MultiKey groupIdFieldId : groupIdFieldIds) {
+        this.groupIdFieldIdLookedUpForGroupGroupDependencies.put(groupIdFieldId, true);
+      }
+      
+      groupIdFieldIds.addAll(this.groupIdFieldIdLookedUpForGroupUserDependencies.keySet());
+
+      this.initGroupGroupMemberships(groupIdFieldIds);
+
+      groupIdFieldIds.clear();
+      groupIdFieldIds.addAll(this.groupIdFieldIdLookedUpForGroupUserDependencies.keySet());
+      
+      for (MultiKey groupIdFieldId : groupIdFieldIds) {
+        this.groupIdFieldIdLookedUpForGroupUserDependencies.put(groupIdFieldId, true);
+      }
+      
+      this.initGroupUserMemberships(groupIdFieldIds);
+      
+      groupIdFieldIds.addAll(this.groupIdFieldIdLookedUpForGroupUserDependencies.keySet());
+      
+      inittedGroups = true;
     }
     
-    Set<String> memberIds = groupNameToMemberIds.get(groupName);
-    if (memberIds != null) {
-      return memberIds;
+  }
+  
+  /**
+   * 
+   * @param groupIdFieldIdsInput
+   * @param forGroups 
+   * @return groupIdFieldIdMemberId for users
+   */
+  public void initGroupUserMemberships(Set<MultiKey> groupIdFieldIdsInput) {
+
+    Set<MultiKey> groupIdFieldIdsLocal = new HashSet<MultiKey>(GrouperUtil.nonNull(groupIdFieldIdsInput));
+
+    // maybe we are done
+    if (groupIdFieldIdsLocal.size() == 0) {
+      return;
+    }
+
+    // lets loop through the rest
+    List<MultiKey> groupIdFieldIdList = new ArrayList<MultiKey>(groupIdFieldIdsLocal);
+    
+    int batchSizeGroups = 200;
+    int numberOfBatchesGroups = GrouperUtil.batchNumberOfBatches(groupIdFieldIdList, batchSizeGroups, false);
+    
+    GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    grouperProvisioningConfiguration.getSubjectSourcesToProvision();
+    
+    boolean isFullSync = this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync();
+    List<String> memberIdsForIncremental = null;
+    
+    if (!isFullSync && GrouperUtil.length(this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) < 10000) {
+      memberIdsForIncremental = new ArrayList<String>();
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
+        memberIdsForIncremental.add(provisioningEntityWrapper.getMemberId());
+      }     
     }
     
-    memberIds = new HashSet<>();
-    Group group = GroupFinder.findByName(groupName, true);
-    cacheByName.put(groupName, true);
-    cacheById.put(group.getId(), true);
-    
-    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync()) {
+    for (int i=0;i<numberOfBatchesGroups;i++) {
       
-      Set<Member> members = group.getMembers();
+      GcDbAccess gcDbAccessBase = new GcDbAccess();
+
+      List<MultiKey> groupIdFieldIdBatch = GrouperUtil.batchList(groupIdFieldIdList, batchSizeGroups, i);
       
-      for (Member member: GrouperUtil.nonNull(members)) {
-        memberIds.add(member.getId());
+      StringBuilder sqlBase = new StringBuilder("select gmlv.group_name, gmlv.group_id, gmlv.list_name, gmlv.member_id "
+          + " from grouper_members gm, grouper_memberships_lw_v gmlv where gmlv.member_id = gm.id ");
+
+      Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
+      
+      if (subjectSources.size() > 0) {
+        sqlBase.append(" and ");
+        if (subjectSources.size() > 1) {
+          sqlBase.append(" ( ");
+        }
+        boolean first = true;
+        for (String subjectSource : subjectSources) {
+          if (!first) {
+            sqlBase.append(" or ");
+          }
+          sqlBase.append(" gmlv.subject_source = ? ");
+          gcDbAccessBase.addBindVar(subjectSource);
+          first = false;
+        }
+        if (subjectSources.size() > 1) {
+          sqlBase.append(" ) ");
+        }
+
       }
-     
-    } else {
+
+      sqlBase.append(" and ( ");
       
-      MembershipFinder membershipFinder = new MembershipFinder();
-      membershipFinder.addGroup(groupName);
-      
-      Set<ProvisioningEntityWrapper> entityWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers();
-      
-      for (ProvisioningEntityWrapper provisioningEntityWrapper: entityWrappers) {
-        membershipFinder.addMemberId(provisioningEntityWrapper.getMemberId());
+      boolean first = true;
+      for (MultiKey groupIdFieldId : groupIdFieldIdBatch) {
+        if (!first) {
+          sqlBase.append(" or ");
+        }
+        String groupId = (String)groupIdFieldId.getKey(0);
+        String fieldId = (String)groupIdFieldId.getKey(1);
+        
+        Field field = FieldFinder.findById(fieldId, true);
+        
+        GrouperUtil.assertion(field.isGroupListField() || field.isGroupAccessField(), "Field name must be members or a group privilege field: admins, updaters, readers, etc");
+        
+        sqlBase.append(" ( group_id = ? and list_name = ? ) ");
+        gcDbAccessBase.addBindVar(groupId);
+        gcDbAccessBase.addBindVar(field.getName());
+        first = false;
       }
       
-      membershipFinder.assignField(Group.getDefaultList());
+      sqlBase.append(" ) ");
       
-      MembershipResult membershipResult = membershipFinder.findMembershipResult();
-      Set<Member> members = membershipResult.members();
-      for (Member member: GrouperUtil.nonNull(members)) {
-        memberIds.add(member.getId());
+      int batchSizeUsers = 600;
+      
+      int numberOfBatchesUsers = GrouperUtil.batchNumberOfBatches(memberIdsForIncremental, batchSizeUsers, true);
+      for (int j=0;j<numberOfBatchesUsers;j++) {
+
+        StringBuilder sql = new StringBuilder(sqlBase);
+        GcDbAccess gcDbAccess = new GcDbAccess();
+
+        for (Object bindVar : gcDbAccessBase.getBindVars()) {
+          gcDbAccess.addBindVar(bindVar);
+        }
+        
+        List<String> memberIdBatch = GrouperUtil.batchList(memberIdsForIncremental, batchSizeGroups, i);
+
+        if (GrouperUtil.length(memberIdsForIncremental) > 0) {
+          sql.append(" and member_id in ( " + GrouperClientUtils.appendQuestions(memberIdBatch.size()) + " ) ");
+          for (String memberId : memberIdBatch) {
+            gcDbAccess.addBindVar(memberId);
+          }
+        }
+        
+        List<Object[]> groupNameGroupidFieldNameMemberIdss = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+        for (Object[] groupNameGroupidFieldNameMemberIds : groupNameGroupidFieldNameMemberIdss) {
+          String groupName = (String)groupNameGroupidFieldNameMemberIds[0];
+          String groupId = (String)groupNameGroupidFieldNameMemberIds[1];
+          String fieldName = (String)groupNameGroupidFieldNameMemberIds[2];
+
+          Field field = FieldFinder.find(fieldName, true);
+          
+          MultiKey groupIdFieldId = new MultiKey(groupId, field.getId());
+
+          
+          this.groupIdFieldIdLookedUpForGroupUserDependencies.put(groupIdFieldId, true);
+          String memberId = (String)groupNameGroupidFieldNameMemberIds[3];
+          this.groupNameToGroupId.put(groupName, groupId);
+          Set<String> memberIds = this.groupIdFieldIdToMemberId.get(new MultiKey(groupId, field.getId()));
+          if (memberIds == null) {
+            memberIds = new HashSet<>();
+            this.groupIdFieldIdToMemberId.put(groupIdFieldId, memberIds);
+          }
+          memberIds.add(memberId);
+        }
       }
     }
-    
-    groupNameToMemberIds.put(groupName, memberIds);
-    return memberIds;
-    
   } 
 
   /**
@@ -1778,5 +2253,15 @@ public class GrouperProvisioningTranslator {
     }
 
     return staticValuesToUse;
+  }
+
+
+  public void removeUneededDependencyRows() {
+    if (this.groupIdFieldIdUserDependenciesToDelete.size() > 0) {
+      this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupUserDao().internal_dependencyGroupUserDeleteBatchByIdIndexes(this.groupIdFieldIdUserDependenciesToDelete.values());
+    }
+    if (this.groupIdFieldIdDependentGroupIdGroupDependenciesToDelete.size() > 0) {
+      this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncDependencyGroupUserDao().internal_dependencyGroupUserDeleteBatchByIdIndexes(this.groupIdFieldIdDependentGroupIdGroupDependenciesToDelete.values());
+    }
   }
 }
