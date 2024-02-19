@@ -22,6 +22,7 @@ public class GcGrouperSyncGroupDao {
    */
   @GcPersistableField(persist = GcPersist.dontPersist)
   private Map<String, GcGrouperSyncGroup> internalCacheSyncGroups = new HashMap<String, GcGrouperSyncGroup>();
+
   /**
    * keep an internal cache of groups by uuid
    */

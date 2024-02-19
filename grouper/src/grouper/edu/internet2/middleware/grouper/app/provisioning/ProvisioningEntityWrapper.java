@@ -21,6 +21,14 @@ public class ProvisioningEntityWrapper extends ProvisioningUpdatableWrapper {
         .isInGroup(groupName, this.getMemberId());
   }
 
+  public boolean isHasPrivilege(String groupName, String privilegeName) {
+    if (StringUtils.isBlank(this.getMemberId())) {
+      return false;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator()
+        .isHasPrivilege(groupName, privilegeName, this.getMemberId());
+  }
+
   /**
    * grouper member id
    */

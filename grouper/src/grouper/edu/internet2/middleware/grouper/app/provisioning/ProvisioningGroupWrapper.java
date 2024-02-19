@@ -23,38 +23,78 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
       "subjectIdentifier2", "subject_identifier2",
       "email", "email0"
       );
-  
+
   /**
-   * get a set of members
+   * get a set of members from another group
+   * @param groupName is the group name to check or null if this group
+   * @param groupPrivilegeName admins, updaters, etc
+   * @param memberField subjectId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, email
+   * @return set of values of subjects in the subject source of the provisioner
+   */
+  public Set<String> groupPrivilegeHolders(String groupName, String groupPrivilegeName, String memberField) {
+    if (StringUtils.isBlank(groupName)) {
+      if (this.getGrouperProvisioningGroup() != null) {
+        groupName = this.getGrouperProvisioningGroup().getName();
+      }
+    }
+    if (StringUtils.isBlank(groupName)) {
+      return null;
+    }
+    return this.getGrouperProvisioner().retrieveGrouperProvisioningTranslator().groupPrivilegeHolders(groupName, groupPrivilegeName, memberField, this.getGroupId());
+  }
+
+  /**
+   * get a set of members from a group
+   * @param groupPrivilegeName admins, updaters, etc
+   * @param memberField subjectId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, email
+   * @return set of values of subjects in the subject source of the provisioner
+   */
+  public Set<String> groupMembers(String groupName, String memberField) {
+    return this.groupPrivilegeHolders(groupName, "members", memberField);
+  }
+
+  /**
+   * get a set of members from this group
+   * @param memberField subjectId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, email
+   * @return set of values of subjects in the subject source of the provisioner
+   */
+  public Set<String> thisGroupMembers(String memberField) {
+    
+    return this.groupPrivilegeHolders(null, "members", memberField);
+  }
+
+  /**
+   * get a set of privilege holders from this group
    * @param groupPrivilegeName admins, updaters, etc
    * @param memberField subjectId, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, email
    * @return set of values of subjects in the subject source of the provisioner
    */
   public Set<String> thisGroupPrivilegeHolders(String groupPrivilegeName, String memberField) {
 
-    String column = memberFieldToGrouperMembersColumn.get(memberField);
-    if (StringUtils.isBlank(column)) {
-      throw new RuntimeException("Cant find memberField '" + memberField + "', should be one of: " + GrouperUtil.toStringForLog(memberFieldToGrouperMembersColumn.keySet()));
-    }
-
-    String sql = "select gm." + column + " from grouper_memberships_lw_v gmlv, grouper_members gm " +
-        " where gmlv.member_id = gm.id and gmlv.group_id = ? and gmlv.list_name = ? ";
-    
-    Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
-    GcDbAccess gcDbAccess = new GcDbAccess();
-    
-    gcDbAccess.addBindVar(this.getGroupId());
-    gcDbAccess.addBindVar(groupPrivilegeName);
-    
-    if (GrouperUtil.length(subjectSources) > 0) {
-      sql += "and gm.subject_source in (" + GrouperClientUtils.appendQuestions(subjectSources.size()) + ")";
-      for (String subjectSourceId : subjectSources) {
-        gcDbAccess.addBindVar(subjectSourceId);
-      }
-    }
-
-    return new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
-    
+//    String column = memberFieldToGrouperMembersColumn.get(memberField);
+//    if (StringUtils.isBlank(column)) {
+//      throw new RuntimeException("Cant find memberField '" + memberField + "', should be one of: " + GrouperUtil.toStringForLog(memberFieldToGrouperMembersColumn.keySet()));
+//    }
+//
+//    String sql = "select gm." + column + " from grouper_memberships_lw_v gmlv, grouper_members gm " +
+//        " where gmlv.member_id = gm.id and gmlv.group_id = ? and gmlv.list_name = ? ";
+//    
+//    Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
+//    GcDbAccess gcDbAccess = new GcDbAccess();
+//    
+//    gcDbAccess.addBindVar(this.getGroupId());
+//    gcDbAccess.addBindVar(groupPrivilegeName);
+//    
+//    if (GrouperUtil.length(subjectSources) > 0) {
+//      sql += "and gm.subject_source in (" + GrouperClientUtils.appendQuestions(subjectSources.size()) + ")";
+//      for (String subjectSourceId : subjectSources) {
+//        gcDbAccess.addBindVar(subjectSourceId);
+//      }
+//    }
+//
+//    return new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
+//    
+    return this.groupPrivilegeHolders(null, groupPrivilegeName, memberField);
   }
   
   private ProvisioningStateGroup provisioningStateGroup = new ProvisioningStateGroup();

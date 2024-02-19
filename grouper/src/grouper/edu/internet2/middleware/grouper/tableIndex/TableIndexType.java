@@ -22,6 +22,8 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.ddl.GrouperDdl2_6_16;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupUser;
 
 /**
  * 
@@ -43,6 +45,35 @@ public enum TableIndexType {
     }
   },
   
+  /** index assigned to a provisioning group group */
+  syncDepGroup {
+
+    @Override
+    public String tableName() {
+      return GcGrouperSyncDependencyGroupGroup.TABLE_GROUPER_SYNC_DEP_GROUP_GROUP;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id_index";
+    }
+  },
+  
+  /** index assigned to a provisioning group group */
+  syncDepUser {
+
+    @Override
+    public String tableName() {
+      return GcGrouperSyncDependencyGroupUser.TABLE_GROUPER_SYNC_DEP_GROUP_USER;
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "id_index";
+    }
+  },
+  
+
   /** index assigned to a member */
   member {
 

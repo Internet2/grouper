@@ -97,6 +97,8 @@ public class GcGrouperSyncDao {
    */
   public void delete() {
     this.gcGrouperSync.storePrepare();
+    this.gcGrouperSync.getGcGrouperSyncDependencyGroupGroupDao().deleteAll();
+    this.gcGrouperSync.getGcGrouperSyncDependencyGroupUserDao().deleteAll();
     new GcDbAccess().connectionName(this.gcGrouperSync.getConnectionName()).deleteFromDatabase(this.gcGrouperSync);
   }
 

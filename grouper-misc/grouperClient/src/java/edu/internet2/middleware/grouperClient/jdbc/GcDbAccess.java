@@ -311,6 +311,12 @@ public class GcDbAccess {
   }
 
 
+  
+  public List<Object> getBindVars() {
+    return bindVars;
+  }
+
+  
   /**
     /**
    * Set the list of bind variable objects, always replacing any that exist.

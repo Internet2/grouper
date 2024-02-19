@@ -11,6 +11,20 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public abstract class GrouperProvisioningBaseTest extends GrouperTest {
   
+  GrouperSession grouperSession = null;
+  
+  @Override
+  protected void setUp() {
+    super.setUp();
+    this.grouperSession = GrouperSession.startRootSession();
+  }
+
+  @Override
+  protected void tearDown() {
+    GrouperSession.stopQuietly(this.grouperSession);
+    super.tearDown();
+  }
+
   public GrouperProvisioningBaseTest(String name) {
     super(name);
   }
