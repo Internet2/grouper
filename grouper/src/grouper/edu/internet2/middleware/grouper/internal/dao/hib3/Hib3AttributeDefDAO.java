@@ -798,7 +798,7 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
     }
     Set<AttributeDef> overallResults = new LinkedHashSet<AttributeDef>();
 
-    int attributeDefNameBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefNameIds, 100);
+    int attributeDefNameBatches = GrouperUtil.batchNumberOfBatches(totalAttributeDefNameIds, 100, true);
 
     List<String> totalAttributeDefNameIdsList = new ArrayList<String>(GrouperUtil.nonNull(totalAttributeDefNameIds));
     
@@ -1743,6 +1743,16 @@ public class Hib3AttributeDefDAO extends Hib3DAO implements AttributeDefDAO {
       boolean findByUuidOrName, Collection<String> attributeDefNameIds) {
     return getAllAttributeDefsFromNamesSecureHelper(scope, GrouperSession.staticGrouperSession(), 
         subject, privileges, queryOptions, splitScope, null, null, parentStemId, stemScope, findByUuidOrName, attributeDefNameIds);
+
+  }
+
+  @Override
+  public Set<AttributeDef> findAllAttributeDefsSecure(String scope, boolean splitScope,
+      Subject subject, Set<Privilege> privileges, QueryOptions queryOptions,
+      String parentStemId, Scope stemScope, boolean findByUuidOrName,
+      Collection<String> attributeDefIds) {
+    return getAllAttributeDefsSecureHelper(scope, GrouperSession.staticGrouperSession(), 
+        subject, privileges, queryOptions, splitScope, null, null, parentStemId, stemScope, findByUuidOrName, null, null);
 
   }
 
