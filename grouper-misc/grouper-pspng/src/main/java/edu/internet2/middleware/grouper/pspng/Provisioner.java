@@ -348,8 +348,9 @@ public abstract class Provisioner
       doNotProvisionToDef.store();
     }
     
-    GrouperCheckConfig.checkAttribute(pspngManagementStem, provisionToDef, PROVISION_TO_ATTRIBUTE, PROVISION_TO_ATTRIBUTE, "Defines what provisioners should process a group or groups within a folder", true);
-    GrouperCheckConfig.checkAttribute(pspngManagementStem, doNotProvisionToDef, DO_NOT_PROVISION_TO_ATTRIBUTE, DO_NOT_PROVISION_TO_ATTRIBUTE, "Defines what provisioners should not process a group or groups within a folder. Since the default is already for provisioners to not provision any groups, this attribute is to override a provision_to attribute set on an ancestor folder. ", true);
+    // TODO add these to the built in...
+    //GrouperCheckConfig.checkAttribute(pspngManagementStem, provisionToDef, PROVISION_TO_ATTRIBUTE, PROVISION_TO_ATTRIBUTE, "Defines what provisioners should process a group or groups within a folder", true);
+    //GrouperCheckConfig.checkAttribute(pspngManagementStem, doNotProvisionToDef, DO_NOT_PROVISION_TO_ATTRIBUTE, DO_NOT_PROVISION_TO_ATTRIBUTE, "Defines what provisioners should not process a group or groups within a folder. Since the default is already for provisioners to not provision any groups, this attribute is to override a provision_to attribute set on an ancestor folder. ", true);
   }
 
 
