@@ -141,8 +141,6 @@ public enum DiagnosticType {
         diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.PSP_FULL_SYNC.name(), GrouperLoaderType.PSP_FULL_SYNC));
       }
 
-      diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.GROUPER_ENABLED_DISABLED, GrouperLoaderType.MAINTENANCE));
-
       {
         //expand these out
         Map<String, String> consumerMap = GrouperLoaderConfig.retrieveConfig().propertiesMap( 

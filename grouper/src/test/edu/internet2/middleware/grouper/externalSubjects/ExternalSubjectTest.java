@@ -209,7 +209,7 @@ public class ExternalSubjectTest extends GrouperTest {
     GrouperUtil.sleep(1000);
 
     //run the daemon
-    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_ENABLED_DISABLED);
+    String status = GrouperLoader.runOnceByJobName(grouperSession, "OTHER_JOB_enabledDisabled");
     assertTrue(status.toLowerCase().contains("success"));
 
     assertEquals(3, ExternalSubject.lastDisabledFixCount);

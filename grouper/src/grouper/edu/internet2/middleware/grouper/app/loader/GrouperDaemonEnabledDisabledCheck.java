@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
@@ -41,7 +42,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 /**
  * 
  */
-public class GrouperDaemonEnabledDisabledCheck {
+public class GrouperDaemonEnabledDisabledCheck extends OtherJobBase {
 
   private static final Log LOG = GrouperUtil.getLog(GrouperDaemonEnabledDisabledCheck.class);
    
@@ -51,6 +52,16 @@ public class GrouperDaemonEnabledDisabledCheck {
   private static Set<String> cachedAttributeAssignIds = new HashSet<String>();
   private static Set<String> cachedGroupIds = new HashSet<String>();
   
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    Hib3GrouperLoaderLog hib3GrouploaderLog = otherJobInput.getHib3GrouperLoaderLog();
+    int records = GrouperDaemonEnabledDisabledCheck.fixEnabledDisabled();
+    hib3GrouploaderLog.setUpdateCount(records);
+    hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");    
+    
+    return null;
+  }
+  
   /**
    * @param hib3GrouploaderLog
    * @return number of updates
@@ -59,7 +70,7 @@ public class GrouperDaemonEnabledDisabledCheck {
     int records = 0;
     
     if (System.currentTimeMillis() > lastQuery) {
-      long queryTime = System.currentTimeMillis() + (1000L * GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.enabledDisabled.queryIntervalInSeconds", 3600));
+      long queryTime = System.currentTimeMillis() + (1000L * GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.enabledDisabled.queryIntervalInSeconds", 3600));
       
       records += internal_groupsFixEnabledDisabled(queryTime);
       GrouperDaemonUtils.stopProcessingIfJobPaused();

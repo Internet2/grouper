@@ -331,12 +331,6 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setJobMessage("Ran the grouper report, sent to: " + emailTo);
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-        } else if (StringUtils.equals(GROUPER_ENABLED_DISABLED, hib3GrouploaderLog.getJobName())) {
-          int records = GrouperDaemonEnabledDisabledCheck.fixEnabledDisabled();
-          
-          hib3GrouploaderLog.setUpdateCount(records);
-          hib3GrouploaderLog.setJobMessage("Ran enabled/disabled daemon, changed " + records + " records");    
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_BUILTIN_MESSAGING_DAEMON, hib3GrouploaderLog.getJobName())) {
 
           int processedRecords = GrouperBuiltinMessagingSystem.cleanOldProcessedMessages();
@@ -2467,11 +2461,6 @@ public enum GrouperLoaderType {
    * maintenance grouper report name
    */
   public static final String GROUPER_REPORT = "MAINTENANCE__grouperReport";
-
-  /**
-   * maintenance enabledDisabled name
-   */
-  public static final String GROUPER_ENABLED_DISABLED = "MAINTENANCE__enabledDisabled";
 
   /**
    * maintenance builtinMessagingDaemon name

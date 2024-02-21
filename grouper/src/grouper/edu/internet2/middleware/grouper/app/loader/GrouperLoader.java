@@ -483,9 +483,6 @@ public class GrouperLoader {
     if (scheduleDailyReportJob()) {
       changesMade++;
     }
-    if (scheduleEnabledDisabledJob()) {
-      changesMade++;
-    }
     if (scheduleBuiltinMessagingDaemonJob()) {
       changesMade++;
     }
@@ -1203,72 +1200,6 @@ public class GrouperLoader {
         hib3GrouploaderLog.setHost(GrouperUtil.hostname());
         hib3GrouploaderLog.setJobMessage(errorMessage);
         hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_RULES);
-        hib3GrouploaderLog.setJobSchedulePriority(priority);
-        hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
-        hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
-        hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-        hib3GrouploaderLog.store();
-        
-      } catch (Exception e2) {
-        LOG.error("Problem logging to loader db log", e2);
-      }
-    }
-    return false;
-  }
-
-
-  
-  /**
-   * schedule enabled/disabled job
-   */
-  public static boolean scheduleEnabledDisabledJob() {
-
-    String cronString = null;
-
-    //this is a low priority job
-    int priority = 1;
-
-    //schedule the job
-    try {
-      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-      String triggerName = "triggerMaintenance_enabledDisabled";
-      
-      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.enabledDisabled.quartz.cron");
-
-      if (StringUtils.isBlank(cronString)) {
-        LOG.warn("grouper-loader.properties key: changeLog.enabledDisabled.quartz.cron is not " +
-            "filled in so the enabled/disabled daemon will not run");
-        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
-
-      }
-      
-      //at this point we have all the attributes and we know the required ones are there, and logged when 
-      //forbidden ones are there
-
-      //the name of the job must be unique, so use the group name since one job per group (at this point)
-      JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
-        .withIdentity(GrouperLoaderType.GROUPER_ENABLED_DISABLED)
-        .build();
-
-      //schedule this job daily at 6am
-      GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
-
-      Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
-
-      return scheduleJobIfNeeded(jobDetail, trigger);
-
-
-    } catch (Exception e) {
-      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.GROUPER_ENABLED_DISABLED + "'";
-      LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
-      try {
-        //lets enter a log entry so it shows up as error in the db
-        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-        hib3GrouploaderLog.setJobMessage(errorMessage);
-        hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_ENABLED_DISABLED);
         hib3GrouploaderLog.setJobSchedulePriority(priority);
         hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
         hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());

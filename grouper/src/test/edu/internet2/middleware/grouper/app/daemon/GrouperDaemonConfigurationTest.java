@@ -126,9 +126,6 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_syncGroups");
     assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogSyncGroupsConfiguration);
     
-    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE__enabledDisabled");
-    assertTrue(grouperDaemonConfig instanceof GrouperDaemonEnabledDisabledConfiguration);
-    
     grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE__rules");
     assertTrue(grouperDaemonConfig instanceof GrouperDaemonRulesConfiguration);
     
