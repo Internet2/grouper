@@ -16,6 +16,8 @@
 
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -23,13 +25,15 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.Scheduler;
+import org.quartz.TriggerKey;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
-
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
@@ -520,6 +524,31 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
       new GcDbAccess().sql("update grouper_pit_groups  pg set source_internal_id = (select g.internal_id from grouper_groups  g where pg.source_id = g.id) where pg.source_internal_id is null and pg.active='T'").executeSql();
       new GcDbAccess().sql("update grouper_pit_fields  pf set source_internal_id = (select f.internal_id from grouper_fields  f where pf.source_id = f.id) where pf.source_internal_id is null and pf.active='T'").executeSql();
       new GcDbAccess().sql("update grouper_pit_members pm set source_internal_id = (select m.internal_id from grouper_members m where pm.source_id = m.id) where pm.source_internal_id is null and pm.active='T'").executeSql();
+    }
+  }
+  ,
+  
+  /**
+   * remove old maintenance jobs
+   */
+  V15 {
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {      
+      try {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
+        triggerKeys.add(TriggerKey.triggerKey("triggerMaintenance_cleanLogs"));
+        triggerKeys.add(TriggerKey.triggerKey("triggerMaintenance_enabledDisabled"));
+        
+        for (TriggerKey triggerKey : triggerKeys) {
+          if (scheduler.checkExists(triggerKey)) {
+            scheduler.unscheduleJob(triggerKey);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", removed quartz trigger " + triggerKey.getName());
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
     }
   }
   ,

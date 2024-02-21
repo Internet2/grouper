@@ -89,7 +89,7 @@ public class GrouperLoaderCleanLogsTest extends GrouperTest {
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperBatchDeleteSelectSize", "237");
     try {
   
-      GrouperLoader.runOnceByJobName(GrouperSession.startRootSession(), GrouperLoaderType.MAINTENANCE_CLEAN_LOGS);
+      GrouperLoader.runOnceByJobName(GrouperSession.startRootSession(), "OTHER_JOB_cleanLogs");
       
       grouperLoaderLogCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_loader_log");
       grouperChangeLogEntryCount = HibernateSession.bySqlStatic().select(int.class, "select count(1) from grouper_change_log_entry");

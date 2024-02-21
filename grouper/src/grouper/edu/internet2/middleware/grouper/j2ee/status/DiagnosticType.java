@@ -129,7 +129,7 @@ public enum DiagnosticType {
       if (!StringUtils.isBlank(emailTo) ||  !StringUtils.isBlank(reportDirectory)) {
         diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__grouperReport", GrouperLoaderType.MAINTENANCE));
       }
-      diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE_cleanLogs", GrouperLoaderType.MAINTENANCE));
+
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__rules", GrouperLoaderType.MAINTENANCE));
 
       if (StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.builtinMessagingDaemon.quartz.cron"))) {

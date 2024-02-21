@@ -128,7 +128,7 @@ public class help {
       appendLine(builder, "* hasPriv(name, subject id, Privilege)"                );
       appendLine(builder, "* help()"                                              );
       appendLine(builder, "* loaderRunOneJob(loaderGroup);");
-      appendLine(builder, "* loaderRunOneJob(\"MAINTENANCE_cleanLogs\");");
+      appendLine(builder, "* loaderRunOneJob(\"OTHER_JOB_cleanLogs\");");
       appendLine(builder, "");
       appendLine(builder, "* grouperSession = GrouperSession.startRootSession();");
       appendLine(builder, "* oldSubject = findSubject(\"10021368\");");

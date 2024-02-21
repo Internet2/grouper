@@ -284,9 +284,7 @@ public enum GrouperLoaderType {
 
         Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
         
-        if (StringUtils.equals(MAINTENANCE_CLEAN_LOGS, hib3GrouploaderLog.getJobName())) {
-          GrouperDaemonDeleteOldRecords.maintenanceDeleteOldRecords(hib3GrouploaderLog);
-        } else if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
+        if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
           
           String emailTo = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.emailTo");
           String reportDirectory = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.saveInDirectory");
@@ -2451,11 +2449,6 @@ public enum GrouperLoaderType {
     }
     throw new RuntimeException("Cant find job type for this name: " + jobName);
   }
-  
-  /**
-   * maintenance clean logs name
-   */
-  public static final String MAINTENANCE_CLEAN_LOGS = "MAINTENANCE_cleanLogs";
 
   /**
    * maintenance grouper report name

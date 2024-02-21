@@ -56,11 +56,18 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 /**
  *
  */
-public class GrouperDaemonDeleteOldRecords {
+public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
 
   /** delete old records log */
   public static final String LOG_LABEL = "maintenanceDeleteOldRecords";
 
+
+
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    maintenanceDeleteOldRecords(otherJobInput.getHib3GrouperLoaderLog());
+    return null;
+  }
   
   /**
    * @param hib3GrouploaderLog
