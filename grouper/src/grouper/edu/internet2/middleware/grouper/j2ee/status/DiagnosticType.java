@@ -132,10 +132,6 @@ public enum DiagnosticType {
 
       diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__rules", GrouperLoaderType.MAINTENANCE));
 
-      if (StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.builtinMessagingDaemon.quartz.cron"))) {
-        diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.GROUPER_BUILTIN_MESSAGING_DAEMON, GrouperLoaderType.MAINTENANCE));
-      }
-
       if (StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class"))
           && StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.quartzCron"))) {
         diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.PSP_FULL_SYNC.name(), GrouperLoaderType.PSP_FULL_SYNC));

@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.daemon;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
 
 public class GrouperDaemonBuiltInMessagingConfiguration extends GrouperDaemonConfiguration {
@@ -9,11 +10,13 @@ public class GrouperDaemonBuiltInMessagingConfiguration extends GrouperDaemonCon
     return ConfigFileName.GROUPER_LOADER_PROPERTIES;
   }
 
-//  #quartz cron-like schedule for grouper messaging daemon.
-//  #leave blank to disable this, the default is every hour, 10 minutes after the hour 
-//  #this daemon does cleanup on the builtin messaging table
+//  # this daemon does cleanup on the builtin messaging table
+//  # {valueType: "class", readOnly: true, mustImplementInterface: "org.quartz.Job"}
+//  otherJob.builtinMessagingDaemon.class = edu.internet2.middleware.grouper.messaging.GrouperBuiltinMessagingDaemon
+//
+//  # quartz cron-like schedule for grouper messaging daemon.
 //  # {valueType: "cron"}
-//  changeLog.builtinMessagingDaemon.quartz.cron = 0 10 * * * ?
+//  otherJob.builtinMessagingDaemon.quartzCron = 0 10 * * * ?
 //
 //  # after three days of not consuming messages, delete them, if -1, dont run this daemon
 //  # {valueType: "integer", required: true}
@@ -30,17 +33,12 @@ public class GrouperDaemonBuiltInMessagingConfiguration extends GrouperDaemonCon
       
   @Override
   public String getConfigIdRegex() {
-    return "^(changeLog\\.builtinMessagingDaemon)\\.(.*)$";
+    return "^(otherJob\\.builtinMessagingDaemon)\\.(.*)$";
   }
 
   @Override
   public String getConfigItemPrefix() {
-    return "changeLog.builtinMessagingDaemon.";
-  }
-  
-  @Override
-  public String getDaemonJobPrefix() {
-    return "MAINTENANCE__";
+    return "otherJob.builtinMessagingDaemon.";
   }
 
   @Override
@@ -49,7 +47,12 @@ public class GrouperDaemonBuiltInMessagingConfiguration extends GrouperDaemonCon
   }
 
   @Override
+  public String getDaemonJobPrefix() {
+    return GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX;
+  }
+
+  @Override
   public boolean matchesQuartzJobName(String jobName) {
-    return "MAINTENANCE__builtinMessagingDaemon".equals(jobName);
+    return "OTHER_JOB_builtinMessagingDaemon".equals(jobName);
   }
 }
