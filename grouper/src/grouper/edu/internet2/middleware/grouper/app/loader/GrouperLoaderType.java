@@ -328,15 +328,6 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setJobMessage("Ran the grouper report, sent to: " + emailTo);
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-        } else if (StringUtils.equals(GROUPER_EXTERNAL_SUBJ_CALC_FIELDS, hib3GrouploaderLog.getJobName())) {
-
-          int records = ExternalSubject.internal_daemonCalcFields();
-
-          hib3GrouploaderLog.setUpdateCount(records);
-
-          hib3GrouploaderLog.setJobMessage("Ran ext subj calc fields daemon, changed " + records + " records");
-          
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
         } else if (StringUtils.equals(GROUPER_RULES, hib3GrouploaderLog.getJobName())) {
           RuleEngine.daemon(hib3GrouploaderLog);
         } else if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
@@ -2440,11 +2431,6 @@ public enum GrouperLoaderType {
    * maintenance grouper report name
    */
   public static final String GROUPER_REPORT = "MAINTENANCE__grouperReport";
-
-  /**
-   * maintenance, calculate enabled/disabled fields
-   */
-  public static final String GROUPER_EXTERNAL_SUBJ_CALC_FIELDS = "MAINTENANCE_externalSubjCalcFields";
   
   /**
    * maintenance rules name

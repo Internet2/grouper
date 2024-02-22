@@ -721,8 +721,7 @@ public class ExternalSubjectTest extends GrouperTest {
     assertEquals("b", externalSubject.getSearchStringLower());
     
     //run the daemon
-    String status = GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_EXTERNAL_SUBJ_CALC_FIELDS);
-    assertTrue(status.toLowerCase().contains("success"));
+    ExternalSubject.internal_daemonCalcFields();
 
     externalSubject = ExternalSubjectStorageController.findByIdentifier("a@idp.example.edu", true, new QueryOptions().secondLevelCache(false));
 
