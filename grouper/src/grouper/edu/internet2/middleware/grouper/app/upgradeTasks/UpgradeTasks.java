@@ -541,6 +541,7 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
         triggerKeys.add(TriggerKey.triggerKey("triggerMaintenance_enabledDisabled"));
         triggerKeys.add(TriggerKey.triggerKey("triggerMaintenance_Messaging"));
         triggerKeys.add(TriggerKey.triggerKey("triggerMaintenance_externalSubjCalcFields"));
+        triggerKeys.add(TriggerKey.triggerKey("triggerMaintenance_rules"));
         
         for (TriggerKey triggerKey : triggerKeys) {
           if (scheduler.checkExists(triggerKey)) {

@@ -479,9 +479,6 @@ public class GrouperLoader {
     if (scheduleDailyReportJob()) {
       changesMade++;
     }
-    if (scheduleRulesJob()) {
-      changesMade++;
-    }
     changesMade += scheduleGroupSyncJobs();
 
     return changesMade;
@@ -1118,81 +1115,6 @@ public class GrouperLoader {
         hib3GrouploaderLog.setHost(GrouperUtil.hostname());
         hib3GrouploaderLog.setJobMessage(errorMessage);
         hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_REPORT);
-        hib3GrouploaderLog.setJobSchedulePriority(priority);
-        hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
-        hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
-        hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-        hib3GrouploaderLog.store();
-        
-      } catch (Exception e2) {
-        LOG.error("Problem logging to loader db log", e2);
-      }
-    }
-    return false;
-  }
-
-  /**
-   * schedule rules job
-   */
-  public static boolean scheduleRulesJob() {
-
-    String cronString = null;
-
-    //this is a low priority job
-    int priority = 1;
-
-    //schedule the job
-    try {
-      boolean unscheduleAndReturn = false;
-      
-      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-      String triggerName = "triggerMaintenance_rules";
-
-      if (!GrouperConfig.retrieveConfig().propertyValueBoolean("rules.enable", true)) {
-        LOG.warn("grouper.properties key: rules.enable is false " +
-          "so the rules engine/daemon will not run");
-        unscheduleAndReturn = true;
-      }
-
-      cronString = GrouperLoaderConfig.retrieveConfig().propertyValueString("rules.quartz.cron");
-
-      if (StringUtils.isBlank(cronString)) {
-        LOG.warn("grouper-loader.properties key: rules.quartz.cron is not " +
-            "filled in so the rules daemon will not run");
-        unscheduleAndReturn = true;
-      }
-      
-      if (unscheduleAndReturn) {
-        return scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
-      }
-      
-      //at this point we have all the attributes and we know the required ones are there, and logged when 
-      //forbidden ones are there
-
-      //the name of the job must be unique, so use the group name since one job per group (at this point)
-      JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
-        .withIdentity(GrouperLoaderType.GROUPER_RULES)
-        .build();
-
-      //schedule this job daily at 6am
-      GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
-
-      Trigger trigger = grouperLoaderScheduleType.createTrigger(triggerName, priority, cronString, null);
-
-      return scheduleJobIfNeeded(jobDetail, trigger);
-
-
-    } catch (Exception e) {
-      String errorMessage = "Could not schedule job: '" + GrouperLoaderType.GROUPER_RULES + "'";
-      LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
-      try {
-        //lets enter a log entry so it shows up as error in the db
-        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-        hib3GrouploaderLog.setJobMessage(errorMessage);
-        hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_RULES);
         hib3GrouploaderLog.setJobSchedulePriority(priority);
         hib3GrouploaderLog.setJobScheduleQuartzCron(cronString);
         hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());

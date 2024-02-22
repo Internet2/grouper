@@ -84,7 +84,6 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.externalSubjects.ExternalSubject;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
@@ -106,7 +105,6 @@ import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperEmail;
@@ -328,8 +326,6 @@ public enum GrouperLoaderType {
           hib3GrouploaderLog.setJobMessage("Ran the grouper report, sent to: " + emailTo);
           
           hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-        } else if (StringUtils.equals(GROUPER_RULES, hib3GrouploaderLog.getJobName())) {
-          RuleEngine.daemon(hib3GrouploaderLog);
         } else if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
 
           //strip off the beginning
@@ -2433,10 +2429,10 @@ public enum GrouperLoaderType {
   public static final String GROUPER_REPORT = "MAINTENANCE__grouperReport";
   
   /**
-   * maintenance rules name
+   * rules daemon
    */
-  public static final String GROUPER_RULES = "MAINTENANCE__rules";
-
+  public static final String GROUPER_RULES = "OTHER_JOB_rules";
+  
   /**
    * group sync job name
    */

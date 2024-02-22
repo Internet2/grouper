@@ -3022,7 +3022,7 @@ public class RuleApiTest extends GrouperTest {
     
     groupEmployee.addMember(subject0, false);
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
 
     Member member0 = MemberFinder.findBySubject(grouperSession, subject0, false);
     
@@ -3032,7 +3032,7 @@ public class RuleApiTest extends GrouperTest {
     membership.setDisabledTime(new java.sql.Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -3040,7 +3040,7 @@ public class RuleApiTest extends GrouperTest {
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -3048,7 +3048,7 @@ public class RuleApiTest extends GrouperTest {
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -3056,14 +3056,14 @@ public class RuleApiTest extends GrouperTest {
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should fire
     assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
 
     groupProgrammer.addMember(subject0);
 
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);

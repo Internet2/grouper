@@ -130,8 +130,6 @@ public enum DiagnosticType {
         diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__grouperReport", GrouperLoaderType.MAINTENANCE));
       }
 
-      diagnosticsTasks.add(new DiagnosticLoaderJobTest("MAINTENANCE__rules", GrouperLoaderType.MAINTENANCE));
-
       if (StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.class"))
           && StringUtils.isNotBlank(GrouperLoaderConfig.retrieveConfig().propertyValueString("changeLog.psp.fullSync.quartzCron"))) {
         diagnosticsTasks.add(new DiagnosticLoaderJobTest(GrouperLoaderType.PSP_FULL_SYNC.name(), GrouperLoaderType.PSP_FULL_SYNC));

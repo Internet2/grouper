@@ -4204,7 +4204,7 @@ public class RuleTest extends GrouperTest {
     
     groupEmployee.addMember(subject0, false);
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
 
     Member member0 = MemberFinder.findBySubject(grouperSession, subject0, false);
     
@@ -4214,7 +4214,7 @@ public class RuleTest extends GrouperTest {
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -4222,7 +4222,7 @@ public class RuleTest extends GrouperTest {
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -4230,7 +4230,7 @@ public class RuleTest extends GrouperTest {
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -4238,14 +4238,14 @@ public class RuleTest extends GrouperTest {
     membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
     membership.update();
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should fire
     assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
 
     groupProgrammer.addMember(subject0);
 
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
@@ -4342,7 +4342,7 @@ public class RuleTest extends GrouperTest {
 
     attributeAssign = payrollGuest.getPermissionRoleDelegate().assignSubjectRolePermission(canLogin, subject0).getAttributeAssign();
 
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount, GrouperEmail.testingEmailCount);
@@ -4351,7 +4351,7 @@ public class RuleTest extends GrouperTest {
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
     attributeAssign.saveOrUpdate(true);
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -4359,7 +4359,7 @@ public class RuleTest extends GrouperTest {
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (5 * 24 * 60 * 60 * 1000)));
     attributeAssign.saveOrUpdate(true);
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -4367,7 +4367,7 @@ public class RuleTest extends GrouperTest {
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (9 * 24 * 60 * 60 * 1000)));
     attributeAssign.saveOrUpdate(true);
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 1, GrouperEmail.testingEmailCount);
@@ -4375,14 +4375,14 @@ public class RuleTest extends GrouperTest {
     attributeAssign.setDisabledTime(new Timestamp(System.currentTimeMillis() + (7 * 24 * 60 * 60 * 1000)));
     attributeAssign.saveOrUpdate(true);
     
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should fire
     assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);
   
     payrollUser.addMember(subject0, false);
   
-    GrouperLoader.runOnceByJobName(grouperSession, "MAINTENANCE__rules");
+    GrouperLoader.runOnceByJobName(grouperSession, GrouperLoaderType.GROUPER_RULES);
     
     //should not fire
     assertEquals(initialEmailCount + 2, GrouperEmail.testingEmailCount);

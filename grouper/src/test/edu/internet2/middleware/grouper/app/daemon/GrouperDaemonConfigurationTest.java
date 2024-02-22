@@ -114,7 +114,7 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     GrouperDaemonConfiguration grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_changeLogTempToChangeLog");
     assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogTempToChangeLogConfiguration);
     
-    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE__builtinMessagingDaemon");
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_builtinMessagingDaemon");
     assertTrue(grouperDaemonConfig instanceof GrouperDaemonBuiltInMessagingConfiguration);
     
     grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_grouperRules");
@@ -126,7 +126,7 @@ public class GrouperDaemonConfigurationTest extends GrouperTest {
     grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("CHANGE_LOG_consumer_syncGroups");
     assertTrue(grouperDaemonConfig instanceof GrouperDaemonChangeLogSyncGroupsConfiguration);
     
-    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MAINTENANCE__rules");
+    grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("OTHER_JOB_rules");
     assertTrue(grouperDaemonConfig instanceof GrouperDaemonRulesConfiguration);
     
     grouperDaemonConfig = GrouperDaemonConfiguration.retrieveImplementationFromJobName("MESSAGE_LISTENER_rabbitListener");
