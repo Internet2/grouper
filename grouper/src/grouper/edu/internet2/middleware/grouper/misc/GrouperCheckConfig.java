@@ -502,6 +502,8 @@ public class GrouperCheckConfig {
   /** if in check config */
   public static boolean inCheckConfig = false;
   
+  private static boolean firstCheckConfig = true;
+  
   /**
    * check the grouper config safely, log errors
    */
@@ -550,6 +552,7 @@ public class GrouperCheckConfig {
       });
     } finally {
       inCheckConfig = false;
+      firstCheckConfig  = false;
     }
   }
   
@@ -994,8 +997,10 @@ public class GrouperCheckConfig {
             
             for (StemSave stemSave : stemSaves) {
               if (stemSave.getSaveResultType() == SaveResultType.INSERT) {
+                if (firstCheckConfig) {
                 LOG.warn("Auto-created folder: '" + stemSave.getName() + "'");
               }
+            }
             }
           } else {
             // just retrieve
@@ -1090,43 +1095,35 @@ public class GrouperCheckConfig {
           }
         }
         {
-          boolean useWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.use", false);
-          if (useWheel) {
             String wheelName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.group");
             if (StringUtils.isBlank(wheelName)) {
               wheelName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadmingroup";
             }
             groupSaves.add(new GroupSave().assignName(wheelName).assignDescription("system administrators with all privileges").assignCreateParentStemsIfNotExist(true));
           }
-        }
         
         {
           String groupName = GrouperConfig.retrieveConfig().propertyValueString("jexlScriptTestingGroup");
-          if (!StringUtils.isBlank(groupName)) {
+          if (StringUtils.isBlank(groupName)) {
+            groupName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":jexlScriptTestingGroup";
+          }
             groupSaves.add(new GroupSave().assignName(groupName).assignDescription("members of this group can run jexl script testing from UI").assignCreateParentStemsIfNotExist(true));
           }
-        }      
         
         {
-          boolean useViewonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.viewonly.use", false);
-          if (useViewonlyWheel) {
             String wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.viewonly.group");
             if (StringUtils.isBlank(wheelViewonlyName)) {
               wheelViewonlyName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadminViewersGroup";
             }
             groupSaves.add(new GroupSave().assignName(wheelViewonlyName).assignDescription("system administrators with view privileges").assignCreateParentStemsIfNotExist(true));
           }
-        }      
         {
-          boolean useReadonlyWheel = GrouperConfig.retrieveConfig().propertyValueBoolean("groups.wheel.readonly.use", false);
-          if (useReadonlyWheel) {
             String wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("groups.wheel.readonly.group");
             if (StringUtils.isBlank(wheelReadonlyName)) {
               wheelReadonlyName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects", "etc") + ":sysadminReadersGroup";
             }
             groupSaves.add(new GroupSave().assignName(wheelReadonlyName).assignDescription("system administrators with read privileges").assignCreateParentStemsIfNotExist(true));
           }
-        }      
         {
           // security.stem.groupAllowedToMoveStem
           String groupAllowedToMoveStem = GrouperConfig.retrieveConfig().propertyValueString("security.stem.groupAllowedToMoveStem");
@@ -1145,11 +1142,9 @@ public class GrouperCheckConfig {
           String wsClientUserGroupName = GrouperWsConfigInApi.retrieveConfig().propertyValueString("ws.client.user.group.name");
     
           if (!StringUtils.isBlank(wsClientUserGroupName)) {
-            if (GroupFinder.findByName(wsClientUserGroupName, false) == null) {
               groupSaves.add(new GroupSave().assignName(wsClientUserGroupName).assignDescription("Group contains people or subjects who can call web services").assignCreateParentStemsIfNotExist(true));
             }
           }
-        }
         {
           String groupAllowedToCopyStem = GrouperConfig.retrieveConfig().propertyValueString("security.stem.groupAllowedToCopyStem");
           if (StringUtils.isNotBlank(groupAllowedToCopyStem)) {
@@ -1174,86 +1169,6 @@ public class GrouperCheckConfig {
             i++;
           }
         }
-        
-        //add a name
-        checkAttribute(cannotAddSelfRootStem, cannotAddSelfType, GrouperUtil.extensionFromName(MembershipCannotAddSelfToGroupHook.cannotAddSelfNameOfAttributeDefName()), 
-            "Assign this attribute to a group and users will not be able to add themself to the group for separation of duties", wasInCheckConfig);
-        
-        MembershipCannotAddSelfToGroupHook.registerHookIfNecessary();
-      }
-
-      if (MembershipCannotAddEveryEntityHook.cannotAddEveryEntityEnabled()) {
-        MembershipCannotAddEveryEntityHook.registerHookIfNecessary();
-      }
-      
-      if (GroupUniqueExtensionInFoldersHook.hasConfiguredFolders()) {
-        GroupUniqueExtensionInFoldersHook.registerHookIfNecessary();
-      }
-
-
-      // sql cacheable group
-      {
-        String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
-        Stem sqlCacheableGroupFolder = StemFinder.findByName(GrouperSession.staticGrouperSession(), 
-            sqlCacheableGroupFolderName, startedGrouperSession, new QueryOptions().secondLevelCache(false));
-
-        if (sqlCacheableGroupFolder == null) {
-          sqlCacheableGroupFolder = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-            .assignDescription("folder for built in sql cache objects").assignName(sqlCacheableGroupFolderName)
-            .save();
-        }
-
-        {
-          //see if marker attributeDef is there
-          AttributeDef sqlCacheableMarkerAttribute = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-              SqlCacheGroup.attributeDefMarkerName(), false, new QueryOptions().secondLevelCache(false));
-          if (sqlCacheableMarkerAttribute == null) {
-            sqlCacheableMarkerAttribute = sqlCacheableGroupFolder.addChildAttributeDef(
-                SqlCacheGroup.attributeDefMarkerExtension, AttributeDefType.attr);
-            //assign once for each affiliation
-            sqlCacheableMarkerAttribute.setMultiAssignable(true);
-            sqlCacheableMarkerAttribute.setAssignToGroup(true);
-            sqlCacheableMarkerAttribute.store();
-          }
-  
-          //add a name
-          checkAttribute(sqlCacheableGroupFolder, sqlCacheableMarkerAttribute, SqlCacheGroup.attributeDefNameMarkerExtension, 
-              SqlCacheGroup.attributeDefNameMarkerExtension, "The specified list of this group is sql cacheable", wasInCheckConfig);
-        }
-        
-        {
-          //see if marker attributeDef is there
-          AttributeDef sqlCacheableAttribute = GrouperDAOFactory.getFactory().getAttributeDef().findByNameSecure(
-              SqlCacheGroup.attributeDefName(), false, new QueryOptions().secondLevelCache(false));
-          if (sqlCacheableAttribute == null) {
-            sqlCacheableAttribute = sqlCacheableGroupFolder.addChildAttributeDef(
-                SqlCacheGroup.attributeDefExtension, AttributeDefType.attr);
-            //assign once for each affiliation
-            sqlCacheableAttribute.setMultiAssignable(false);
-            sqlCacheableAttribute.setAssignToGroupAssn(true);
-            sqlCacheableAttribute.setValueType(AttributeDefValueType.string);
-            sqlCacheableAttribute.store();
-          }
-
-          //add a name
-          checkAttribute(sqlCacheableGroupFolder, sqlCacheableAttribute, SqlCacheGroup.attributeDefNameExtensionListName, 
-              SqlCacheGroup.attributeDefNameExtensionListName, "This value is the cacheable list, e.g. members, admins, etc", wasInCheckConfig);
-        }
-      }
-      
-      //if (GrouperDeprovisioningSettings.deprovisioningEnabled()) {
-      // always add these objects
-      {
-        String deprovisioningRootStemName = GrouperDeprovisioningSettings.deprovisioningStemName();
-        
-        Stem deprovisioningStem = StemFinder.findByName(grouperSession, deprovisioningRootStemName, false);
-        if (deprovisioningStem == null) {
-          deprovisioningStem = new StemSave(grouperSession).assignCreateParentStemsIfNotExist(true)
-            .assignDescription("folder for built in Grouper deprovisioning objects").assignName(deprovisioningRootStemName)
-            .save();
-        }
-
-        boolean autocreate = GrouperConfig.retrieveConfig().propertyValueBoolean("deprovisioning.autocreate.groups", true);
         
         {
           //groups that manage types
@@ -1426,8 +1341,10 @@ public class GrouperCheckConfig {
           
           for (GroupSave groupSave : groupSaves) {
             if (groupSave.getSaveResultType() == SaveResultType.INSERT) {
+              if (firstCheckConfig) {
               LOG.warn("Auto-created group: '" + groupSave.getName() + "'");
             }
+          }
           }
 
         } else {
@@ -2457,7 +2374,6 @@ public class GrouperCheckConfig {
                     GrouperUtil.extensionFromName(grouperMessageNameOfRole));
                 if (wasInCheckConfig) {
                   String error = "auto-created role: " + groupMessagingRoleGroup.getName();
-                  System.err.println("Grouper note: " + error);
                   LOG.warn(error);
                 }
               }
@@ -3428,8 +3344,10 @@ public class GrouperCheckConfig {
             
             for (AttributeDefSave attributeDefSave : attributeDefSaves) {
               if (attributeDefSave.getSaveResultType() == SaveResultType.INSERT) {
+                if (firstCheckConfig) {
                 LOG.warn("Auto-created attribute definition: '" + attributeDefSave.getName() + "'");
               }
+            }
             }
 
           } else {
@@ -3521,14 +3439,6 @@ public class GrouperCheckConfig {
             
           }
           
-          if (groupLoaderTypeSave.getSaveResultType() == SaveResultType.INSERT){
-
-            AttributeDef grouperLoaderTypeDef = nameOfAttributeDefToAttributeDef.get(groupLoaderTypeSave.getName());
-            AttributeDef grouperLoaderAttributeDef = nameOfAttributeDefToAttributeDef.get(groupLoaderTypeSave.getName());
-                          
-            // add scope
-            grouperLoaderAttributeDef.getAttributeDefScopeDelegate().assignScope(AttributeDefScopeType.idEquals, grouperLoaderTypeDef.getId(), null);
-          }
 
         } finally {
           if (!wasInCheckConfig) {
@@ -4701,6 +4611,7 @@ public class GrouperCheckConfig {
                 "true or false if the script should include subjects from internal sources", attributeDefNameSaves);
 
           }
+          AttributeDefNameSave grouperLoaderTypeNameSave = null;
 
           {
 
@@ -4736,7 +4647,7 @@ public class GrouperCheckConfig {
               AttributeDef grouperLoaderTypeDef = nameOfAttributeDefToAttributeDef.get(legacyAttributeStemName + ":" + legacyAttributeGroupTypeDefPrefix + "grouperLoader");
               
               String legacyAttributeGroupTypePrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.groupType.prefix");
-              checkAttribute(legacyAttributeStem, grouperLoaderTypeDef, legacyAttributeGroupTypePrefix + "grouperLoader",
+              grouperLoaderTypeNameSave = checkAttribute(legacyAttributeStem, grouperLoaderTypeDef, legacyAttributeGroupTypePrefix + "grouperLoader",
                   "true or false if the script should include subjects from internal sources", attributeDefNameSaves);
             }
             
@@ -4816,8 +4727,10 @@ public class GrouperCheckConfig {
             
             for (AttributeDefNameSave attributeDefNameSave : attributeDefNameSaves) {
               if (attributeDefNameSave.getSaveResultType() == SaveResultType.INSERT) {
+                if (firstCheckConfig) {
                 LOG.warn("Auto-created attribute name: '" + attributeDefNameSave.getName() + "'");
               }
+            }
             }
 
           } else {
@@ -5022,6 +4935,18 @@ public class GrouperCheckConfig {
             loaderMetadataAttrType.getAttributeDefScopeDelegate().assignOwnerNameEquals(loaderMetadataTypeSave.getName());
           }
           
+          if (grouperLoaderTypeNameSave.getSaveResultType() == SaveResultType.INSERT){
+
+            String legacyAttributeStemName = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
+            String legacyAttributeDefPrefix = GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.attributeDef.prefix");
+
+            AttributeDef grouperLoaderAttributeDef = nameOfAttributeDefToAttributeDef.get(legacyAttributeStemName + ":" + legacyAttributeDefPrefix + "grouperLoader");
+            AttributeDefName grouperLoaderType = nameOfAttributeDefNameToAttributeDefName.get(grouperLoaderTypeNameSave.getName()); 
+                          
+            // add scope
+            grouperLoaderAttributeDef.getAttributeDefScopeDelegate().assignScope(AttributeDefScopeType.idEquals, grouperLoaderType.getId(), null);
+          }
+
           {
             String rulesRootStemName = RuleUtils.attributeRuleStemName();
             

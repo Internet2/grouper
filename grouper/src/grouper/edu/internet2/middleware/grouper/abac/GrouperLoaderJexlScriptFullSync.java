@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-<<<<<<< GROUPER_5_BRANCH
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
 import org.apache.commons.jexl3.internal.Engine;
@@ -25,8 +24,6 @@ import org.apache.commons.jexl3.parser.ASTReference;
 import org.apache.commons.jexl3.parser.ASTReferenceExpression;
 import org.apache.commons.jexl3.parser.ASTStringLiteral;
 import org.apache.commons.jexl3.parser.JexlNode;
-=======
->>>>>>> e04f50c temp commit on sessions and startup
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.quartz.DisallowConcurrentExecution;
@@ -47,7 +44,6 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeAssignFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
-<<<<<<< GROUPER_5_BRANCH
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
@@ -59,15 +55,14 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
-=======
-import edu.internet2.middleware.grouper.exception.GrouperSessionException;
-import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
->>>>>>> e04f50c temp commit on sessions and startup
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 
