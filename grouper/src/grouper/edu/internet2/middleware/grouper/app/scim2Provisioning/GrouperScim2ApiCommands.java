@@ -359,6 +359,96 @@ public class GrouperScim2ApiCommands {
   }
 
   /**
+   * update a group
+   * @param grouperScim2Group
+   * @return the result
+   */
+  public static void patchScimGroup(String configId, String acceptHeader,
+      GrouperScim2Group grouperScim2Group, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate) {
+
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "patchScimGroup");
+
+    long startTime = System.nanoTime();
+
+    try {
+
+      //  {
+      //    "schemas": [
+      //        "urn:ietf:params:scim:api:messages:2.0:PatchOp"
+      //    ],
+      //    "Operations": [
+      //        {
+      //            "op": "replace",
+      //            "path": "active",
+      //            "value": false
+      //        }
+      //    ]
+      // }
+
+      ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
+
+      {
+        ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
+        schemasNode.add("urn:ietf:params:scim:api:messages:2.0:PatchOp");
+        jsonToSend.set("schemas", schemasNode);
+      }
+
+      ArrayNode operationsNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      for (String fieldToUpdate : fieldsToUpdate.keySet()) {
+        
+        ProvisioningObjectChangeAction provisioningObjectChangeAction = fieldsToUpdate.get(fieldToUpdate);
+        
+        ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+        
+        switch (provisioningObjectChangeAction) {
+          case insert:
+            operationNode.put("op", "add");
+            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
+            break;
+          case update:
+            operationNode.put("op", "replace");
+            Object resolvedObject = GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate);
+            if (resolvedObject != null && resolvedObject instanceof Boolean) {
+              operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
+            } else {
+              operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
+            }
+            break;
+          case delete:
+            operationNode.put("op", "remove");
+            break;
+          default:
+            throw new RuntimeException("Not expecting object change: " + provisioningObjectChangeAction);
+        }
+        
+        if ("id".equals(fieldToUpdate)) {
+          throw new RuntimeException("Cannot patch id field");
+        }
+        operationNode.put("path", fieldToUpdate);
+        operationsNode.add(operationNode);
+        
+      }
+      
+      jsonToSend.set("Operations", operationsNode);
+      
+      String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
+
+      executeMethod(debugMap, GrouperHttpMethod.patch, configId, "/Groups/" + GrouperUtil.escapeUrlEncode(grouperScim2Group.getId()),
+          GrouperUtil.toSet(200, 204), new int[] { -1 }, jsonStringToSend, acceptHeader);
+
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperScim2Log.scimLog(debugMap, startTime);
+    }
+
+  }
+
+  /**
    * 
    * @param debugMap
    * @param configId
