@@ -101,11 +101,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-<<<<<<< GROUPER_5_BRANCH
-    TestRunner.run(new ChangeLogTest("testGroups"));
-=======
-    TestRunner.run(new ChangeLogTest("testNonFlattenedMemberships"));
->>>>>>> 8515b7b GRP-5268: Composite changes - move membership inserts and deletes to daemon
+    TestRunner.run(new ChangeLogTest("testAttributeDefPrivileges"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
