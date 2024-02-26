@@ -150,7 +150,7 @@ public class GrouperScim2User {
   public static GrouperScim2User fromJson(JsonNode entityNode) {
     GrouperScim2User grouperScimUser = new GrouperScim2User();
     
-    grouperScimUser.active = GrouperUtil.jsonJacksonGetBoolean(entityNode, "active");
+    grouperScimUser.active = GrouperUtil.booleanValue(GrouperUtil.jsonJacksonGetBoolean(entityNode, "active"), true);
     
     JsonNode enterpriseUserNode = entityNode.get("urn:ietf:params:scim:schemas:extension:enterprise:2.0:User");
     if (enterpriseUserNode != null) {
@@ -254,9 +254,9 @@ public class GrouperScim2User {
       GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
     }
     
-//    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
-//      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
-//    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+      GrouperUtil.jsonJacksonAssignBoolean(result, "active", GrouperUtil.booleanValue(this.active, true));
+    }
     
     if (fieldNamesToSet == null || (fieldNamesToSet.contains("employeeNumber") || fieldNamesToSet.contains("costCenter"))) {      
       if (!StringUtils.isBlank(this.employeeNumber) || !StringUtils.isBlank(this.costCenter)) {
@@ -698,7 +698,7 @@ public class GrouperScim2User {
     GrouperScim2User grouperScim2User = new GrouperScim2User();
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
-      grouperScim2User.setActive(GrouperUtil.booleanObjectValue(targetEntity.retrieveAttributeValueString("active")));
+      grouperScim2User.setActive(GrouperUtil.booleanValue(targetEntity.retrieveAttributeValueString("active"), true));
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("costCenter")) {      

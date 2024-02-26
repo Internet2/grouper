@@ -53,6 +53,9 @@ public class GrouperScim2Group {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       grouperScim2Group.setId(targetGroup.getId());
     }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+      grouperScim2Group.setActive(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("active"), true));
+    }
     
     return grouperScim2Group;
 
@@ -110,13 +113,14 @@ public class GrouperScim2Group {
     ProvisioningGroup targetGroup = new ProvisioningGroup();
     
     if (this.displayName != null) {
-      targetGroup.assignAttributeValue("displayName", this.displayName);
       targetGroup.setDisplayName(this.displayName);
     }
     
     if (this.id != null) {
       targetGroup.setId(this.id);
     }
+    
+    targetGroup.assignAttributeValue("active", this.active);
     
     return targetGroup;
   }
@@ -149,6 +153,7 @@ public class GrouperScim2Group {
     
     grouperScimGroup.setCreatedJson(GrouperUtil.jsonJacksonGetString(metaNode, "created"));
     grouperScimGroup.setLastModifiedJson(GrouperUtil.jsonJacksonGetString(metaNode, "lastModified"));
+    grouperScimGroup.setActive(GrouperUtil.booleanValue(GrouperUtil.jsonJacksonGetBoolean(groupNode, "active"), true));
     
     return grouperScimGroup;
   }
@@ -194,6 +199,9 @@ public class GrouperScim2Group {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       GrouperUtil.jsonJacksonAssignString(result, "displayName", this.displayName);
     }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
+      GrouperUtil.jsonJacksonAssignBoolean(result, "active", GrouperUtil.booleanValue(this.active, true));
+    }
     
     return result;
   }
@@ -216,9 +224,22 @@ public class GrouperScim2Group {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "created", Types.TIMESTAMP, null, false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, null, false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, true);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_gdisp_name_idx", false, "display_name");
     }
+  }
+
+  private Boolean active = true;
+  
+  
+  public Boolean getActive() {
+    return active;
+  }
+
+  
+  public void setActive(Boolean active) {
+    this.active = active;
   }
 
   /**
