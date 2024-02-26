@@ -603,7 +603,6 @@ public class GrouperDdlEngine {
         //ok, we stored, are we in there?
         GrouperUtil.sleep(3000);
         
-<<<<<<< GROUPER_5_BRANCH
         List<Hib3GrouperDdlWorker> ddlWorkerRows = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
         if (GrouperUtil.length(ddlWorkerRows) > 0) {
           grouperDdlWorker = ddlWorkerRows.get(0);
@@ -613,13 +612,6 @@ public class GrouperDdlEngine {
           }
         } else {
           return false;
-=======
-        List<Hib3GrouperDdlWorker> ddlWorkers = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
-        grouperDdlWorker = GrouperUtil.length(ddlWorkers) > 0 ? ddlWorkers.get(0) : null;
-        
-        if (grouperDdlWorker != null && !StringUtils.equals(thisDdlDatabaseLockingUuid, grouperDdlWorker.getWorkerUuid())) {
-          waitForOtherProcessesToDoDdl = true;
->>>>>>> 537123b GRP-5302: add tables and indexes for provisioning dependencies for group roles and user attributes based on groups
         }
 
         // lets do it!
@@ -638,7 +630,6 @@ public class GrouperDdlEngine {
           System.out.println(waitingErrorMessage);
         }
         GrouperUtil.sleep(5000);
-<<<<<<< GROUPER_5_BRANCH
         List<Hib3GrouperDdlWorker> ddlWorkerRows = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
         if (GrouperUtil.length(ddlWorkerRows) > 0) {
           grouperDdlWorker = ddlWorkerRows.get(0);
@@ -649,11 +640,6 @@ public class GrouperDdlEngine {
             throw new RuntimeException("Heartbeat of DDL worker is not updating!!!!");
           }
         } else {
-=======
-        List<Hib3GrouperDdlWorker> ddlWorkers = HibernateSession.bySqlStatic().listSelect(Hib3GrouperDdlWorker.class, "select * from grouper_ddl_worker", null, null);
-        grouperDdlWorker = GrouperUtil.length(ddlWorkers) > 0 ? ddlWorkers.get(0) : null;
-        if (grouperDdlWorker == null || grouperDdlWorker.getHeartbeat() == null) {
->>>>>>> 537123b GRP-5302: add tables and indexes for provisioning dependencies for group roles and user attributes based on groups
           return false;
         }
       }
