@@ -274,6 +274,12 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+
   },
   
   /** index assigned to a provisioning group group */
@@ -288,6 +294,12 @@ public enum TableIndexType {
     public String getIncrementingColumn() {
       return "id_index";
     }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+
   },
   
 
