@@ -16,6 +16,7 @@
 
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.lang.ref.SoftReference;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
@@ -57,8 +58,8 @@ public class GrouperLoaderLogger {
    * key is label
    * map will hold logging things
    */
-  private static ThreadLocal<Map<String, Map<String, Object>>> threadLocalMap 
-    = new ThreadLocal<Map<String, Map<String, Object>>>();
+  private static ThreadLocal<SoftReference<Map<String, Map<String, Object>>>> threadLocalMap 
+    = new ThreadLocal<SoftReference<Map<String, Map<String, Object>>>>();
 
   /**
    * threadlocal map for logging the maps
@@ -119,16 +120,18 @@ public class GrouperLoaderLogger {
    * @return uber map
    */
   private static Map<String, Map<String, Object>> retrieveUberMap() {
-    Map<String, Map<String, Object>> uberMap = threadLocalMap.get();
+    SoftReference<Map<String, Map<String, Object>>> softReference = threadLocalMap.get();
+    Map<String, Map<String, Object>> uberMap = softReference == null ? null : softReference.get();
     
     if (uberMap == null) {
       synchronized (GrouperLoaderLogger.class) {
         
-        uberMap = threadLocalMap.get();
+        softReference = threadLocalMap.get();
+        uberMap = softReference == null ? null : softReference.get();
         
         if (uberMap == null) {
           uberMap = new HashMap<String, Map<String, Object>>();
-          threadLocalMap.set(uberMap);
+          threadLocalMap.set(new SoftReference(uberMap));
         }
       }
     }

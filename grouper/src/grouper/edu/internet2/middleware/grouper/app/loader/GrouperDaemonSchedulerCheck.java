@@ -286,10 +286,10 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
       
       List<Object[]> jobIdsNamesStartedTimesBatch = GrouperUtil.batchList(jobIdsNamesStartedTimes, batchSize, batchIndex);
       
-      StringBuilder sql = new StringBuilder(" select gqft.job_name from grouper_qz_fired_triggers gqft, grouper_qz_scheduler_state gqss "
+      StringBuilder sql = new StringBuilder(" select gqft.job_name from grouper_QZ_FIRED_TRIGGERS gqft, grouper_QZ_SCHEDULER_STATE gqss "
           + " where gqft.job_name in (" + GrouperClientUtils.appendQuestions(jobIdsNamesStartedTimesBatch.size()) + ") and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > " + lastCheckinTime + " "
           + " union "
-          + " select gqft.job_name from grouper_qz_fired_triggers gqft, grouper_qz_triggers gqt, grouper_qz_scheduler_state gqss "
+          + " select gqft.job_name from grouper_QZ_FIRED_TRIGGERS gqft, grouper_QZ_TRIGGERS gqt, grouper_QZ_SCHEDULER_STATE gqss "
           + " where gqft.trigger_name = gqt.trigger_name and gqt.job_name in (" + GrouperClientUtils.appendQuestions(jobIdsNamesStartedTimesBatch.size()) + ") "
           + " and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > " + lastCheckinTime + " ");
       
@@ -369,9 +369,9 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     
     List<String> badJobs = new ArrayList<String>();
         
-    String sql = "select trigger_name from grouper_qz_triggers gqt where start_time < ? and "
-        + " (gqt.trigger_type = 'CRON' and not exists (select 1 from grouper_qz_cron_triggers gqct where gqct.trigger_name = gqt.trigger_name)) "
-        + " or (gqt.trigger_type = 'SIMPLE' and not exists (select 1 from grouper_qz_simple_triggers gqst where gqst.trigger_name = gqt.trigger_name))";
+    String sql = "select trigger_name from grouper_QZ_TRIGGERS gqt where start_time < ? and "
+        + " (gqt.trigger_type = 'CRON' and not exists (select 1 from grouper_QZ_CRON_TRIGGERS gqct where gqct.trigger_name = gqt.trigger_name)) "
+        + " or (gqt.trigger_type = 'SIMPLE' and not exists (select 1 from grouper_QZ_SIMPLE_TRIGGERS gqst where gqst.trigger_name = gqt.trigger_name))";
 
     List<String> triggerNamesMissingTriggers = new GcDbAccess().sql(sql).addBindVar(System.currentTimeMillis() - (30 * 1000)).selectList(String.class);
 
