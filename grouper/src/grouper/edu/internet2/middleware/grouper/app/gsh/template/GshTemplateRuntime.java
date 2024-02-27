@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.lang.ref.WeakReference;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -77,7 +78,7 @@ public class GshTemplateRuntime {
 
   private Subject currentSubject;
   
-  private static ThreadLocal<GshTemplateRuntime> threadLocalGshTemplateRuntime = new InheritableThreadLocal<GshTemplateRuntime>();
+  private static ThreadLocal<WeakReference<GshTemplateRuntime>> threadLocalGshTemplateRuntime = new InheritableThreadLocal<>();
 
   
   public Subject getCurrentSubject() {
@@ -100,12 +101,13 @@ public class GshTemplateRuntime {
 
   
   public static GshTemplateRuntime retrieveGshTemplateRuntime() {
-    return threadLocalGshTemplateRuntime.get();
+    WeakReference<GshTemplateRuntime> weakReference = threadLocalGshTemplateRuntime.get();
+    return weakReference == null ? null : weakReference.get();
   }
   
   
   public static void assignThreadLocalGshTemplateRuntime(GshTemplateRuntime gshTemplateRuntime) {
-    threadLocalGshTemplateRuntime.set(gshTemplateRuntime);
+    threadLocalGshTemplateRuntime.set(new WeakReference(gshTemplateRuntime));
   }
   
   public static void removeThreadLocalGshTemplateRuntime() {

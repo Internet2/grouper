@@ -1,14 +1,14 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
 public class GshTemplateOutput {
   
   private boolean isError;
   
-  private static ThreadLocal<GshTemplateOutput> threadLocalGshTemplateOutput = new InheritableThreadLocal<GshTemplateOutput>();
+  private static ThreadLocal<WeakReference<GshTemplateOutput>> threadLocalGshTemplateOutput = new InheritableThreadLocal<>();
   
   private List<GshOutputLine> outputLines = new ArrayList<GshOutputLine>();
   
@@ -113,12 +113,13 @@ public class GshTemplateOutput {
   }
 
   public static GshTemplateOutput retrieveGshTemplateOutput() {
-    return threadLocalGshTemplateOutput.get();
+    WeakReference<GshTemplateOutput> weakReference = threadLocalGshTemplateOutput.get();
+    return weakReference == null ? null : weakReference.get();
   }
   
   
   public static void assignThreadLocalGshTemplateOutput(GshTemplateOutput gshTemplateOutput) {
-    threadLocalGshTemplateOutput.set(gshTemplateOutput);
+    threadLocalGshTemplateOutput.set(new WeakReference(gshTemplateOutput));
   }
   
   public static void removeThreadLocalGshTemplateOutput() {

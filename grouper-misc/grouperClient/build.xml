@@ -35,8 +35,6 @@
     <property name="cvs.branch" value="HEAD" />
     
     <property name="main.sourceDir" value="src/java" />
-    <property name="main.sourceExtDir" value="src/ext" />
-    <property name="main.sourceExtMoreDir" value="src/extMore" />
 
     <property name="main.confDir" value="conf" />
 
@@ -47,13 +45,10 @@
     <property name="main.appName" value="grouperClient" />
     <property name="main.jarFile" value="${main.outputDir}/${main.appName}.jar" />
 
-    <path id="main.extClasspath">
+    <path id="main.mainClasspath">
       <fileset dir="target/dependency">
         <include name="**/*.jar" />
       </fileset>
-    </path>
-
-    <path id="main.mainClasspath">
     </path>
 
     <condition property="main.os" value="windows">
@@ -63,7 +58,6 @@
       <os family="unix" />
     </condition>
 
-    <pathconvert targetos="${main.os}" property="main.theExtClasspath" refid="main.extClasspath" />
     <pathconvert targetos="${main.os}" property="main.theMainClasspath" refid="main.mainClasspath" />
     
     <if><not><available file="${main.confDir}/grouper.client.properties" /></not>
@@ -99,12 +93,8 @@
     <mkdir dir="${main.outputDir}" />
     <mkdir dir="${main.binDir}" />
 
-    <javac   target="1.8"  source="1.8" 
-      srcdir="${main.sourceExtDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}" />
     <javac  target="1.8" source="1.8" 
       srcdir="${main.sourceDir}" destdir="${main.binDir}" debug="true"  classpath="${main.theMainClasspath}"/>
-    <javac  target="1.8" source="1.8" 
-      srcdir="${main.sourceExtMoreDir}" destdir="${main.binDir}" debug="true" classpath="${main.theExtClasspath}"/>
   </target>
 
   <target name="jarPrepare">
@@ -115,12 +105,6 @@
         <include name="**/*.java"/>      <!-- source -->
         <include name="**/*.txt"/>      <!-- txt -->
         <include name="**/*.html"/>      <!-- html -->
-      </fileset>
-      <fileset dir="${main.sourceExtDir}">
-        <include name="**/*.java"/>      <!-- source -->
-      </fileset>
-      <fileset dir="${main.sourceExtMoreDir}">
-        <include name="**/*.java"/>      <!-- source -->
       </fileset>
       <fileset dir="${main.confDir}">
         <include name="grouper.client.usage*.txt"/>      <!-- sample config -->
