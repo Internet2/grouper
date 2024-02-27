@@ -17,6 +17,7 @@ import com.auth0.jwt.algorithms.Algorithm;
 import com.auth0.jwt.interfaces.RSAKeyProvider;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.subject.Subject;
 
 public class GrouperPublicPrivateKeyJwtGenerateExample {
   
@@ -25,6 +26,10 @@ public class GrouperPublicPrivateKeyJwtGenerateExample {
    * @param args
    */
   public static void main(String[] args) {
+    
+    //Subject subject = new GrouperPublicPrivateKeyJwt().assignBearerTokenHeader("Bearer jwtUser_NGM3M2I5Zjk4Zjk3NDk3NWEyMjM0YTk2ZDZiZjNjNzI=_sdfsdfsdf").decode("127.0.0.1");
+    
+    //System.out.println(subject);
     
     if (args.length != 1) {
       throw new RuntimeException("Pass in one argument: the filename of the private key");

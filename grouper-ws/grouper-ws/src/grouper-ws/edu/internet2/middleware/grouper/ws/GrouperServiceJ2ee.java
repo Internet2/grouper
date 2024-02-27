@@ -225,7 +225,14 @@ public class GrouperServiceJ2ee implements Filter {
     String subjectIdPrefix = GrouperWsConfig
         .getPropertyString("ws.security.prependToUserIdForSubjectLookup");
     if (!StringUtils.isBlank(subjectIdPrefix)) {
-      userIdLoggedIn = subjectIdPrefix + userIdLoggedIn;
+      boolean skipDueToJwt = false;
+      String authorizationHeader = retrieveHttpServletRequest().getHeader("Authorization");
+      if (!StringUtils.isBlank(authorizationHeader) && authorizationHeader.startsWith("Bearer jwtUser_")) {
+        skipDueToJwt = true;
+      }
+      if (!skipDueToJwt) {
+        userIdLoggedIn = subjectIdPrefix + userIdLoggedIn;
+      }
     }
     
     //puts it in the log4j ndc context so userid is logged
