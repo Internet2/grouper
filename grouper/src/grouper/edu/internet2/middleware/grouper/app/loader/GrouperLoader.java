@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.app.loader;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.lang.ref.WeakReference;
 import java.util.Arrays;
 import java.util.Date;
 import java.util.GregorianCalendar;
@@ -1716,7 +1717,7 @@ public class GrouperLoader {
    * if there is a threadlocal, then we are in dry run mode
    */
 
-  private static ThreadLocal<GrouperLoaderDryRunBean> threadLocalGrouperLoaderDryRun = new ThreadLocal<GrouperLoaderDryRunBean>();
+  private static ThreadLocal<WeakReference<GrouperLoaderDryRunBean>> threadLocalGrouperLoaderDryRun = new ThreadLocal<WeakReference<GrouperLoaderDryRunBean>>();
   
   
   
@@ -1725,7 +1726,11 @@ public class GrouperLoader {
    * @return the threadLocalGrouperLoaderDryRun
    */
   public static GrouperLoaderDryRunBean internal_retrieveThreadLocalGrouperLoaderDryRun() {
-    return threadLocalGrouperLoaderDryRun.get();
+    WeakReference<GrouperLoaderDryRunBean> weakReference = threadLocalGrouperLoaderDryRun.get();
+    if (weakReference == null) {
+      return null;
+    }
+    return weakReference.get();
   }
 
   
@@ -1737,7 +1742,7 @@ public class GrouperLoader {
     if (theThreadLocalGrouperLoaderDryRun == null) {
       threadLocalGrouperLoaderDryRun.remove();
     } else {
-      threadLocalGrouperLoaderDryRun.set(theThreadLocalGrouperLoaderDryRun);
+      threadLocalGrouperLoaderDryRun.set(new WeakReference<GrouperLoader.GrouperLoaderDryRunBean>(theThreadLocalGrouperLoaderDryRun));
     }
   }
 
@@ -1816,9 +1821,9 @@ public class GrouperLoader {
     
     //put grouepr in readonly mode
     HibernateSession.threadLocalReadonlyAssign();
-
+    GrouperLoaderDryRunBean grouperLoaderDryRunBean = new GrouperLoaderDryRunBean(fileName);
     try {
-      threadLocalGrouperLoaderDryRun.set(new GrouperLoaderDryRunBean(fileName));
+      internal_assignThreadLocalGrouperLoaderDryRun(grouperLoaderDryRunBean);
       
       boolean success = false;
       try {
@@ -1841,12 +1846,12 @@ public class GrouperLoader {
         return result;
         
       } finally {
-        GrouperLoaderDryRunBean grouperLoaderDryRunBean = threadLocalGrouperLoaderDryRun.get();
+        grouperLoaderDryRunBean = internal_retrieveThreadLocalGrouperLoaderDryRun();
         if (grouperLoaderDryRunBean != null) {
           try {
             grouperLoaderDryRunBean.finish(success);
           } finally {
-            threadLocalGrouperLoaderDryRun.remove();
+            internal_assignThreadLocalGrouperLoaderDryRun(null);
           }
         }
       }
@@ -1861,7 +1866,7 @@ public class GrouperLoader {
    * @return true if dry run
    */
   public static boolean isDryRun() {
-    return threadLocalGrouperLoaderDryRun.get() != null;
+    return internal_retrieveThreadLocalGrouperLoaderDryRun() != null;
   }
   
   /**
@@ -1869,7 +1874,7 @@ public class GrouperLoader {
    * @param line
    */
   public static void dryRunWriteLine(String line) {
-    GrouperLoaderDryRunBean grouperLoaderDryRunBean = threadLocalGrouperLoaderDryRun.get();
+    GrouperLoaderDryRunBean grouperLoaderDryRunBean = internal_retrieveThreadLocalGrouperLoaderDryRun();
     if (grouperLoaderDryRunBean != null) {
       grouperLoaderDryRunBean.writeLine(line);
     }
@@ -2013,7 +2018,7 @@ public class GrouperLoader {
    */
   public static boolean isJobRunningAsRunNow(String jobName) {
     
-    int count = new GcDbAccess().sql("select count(1) from grouper_qz_triggers where job_name = ? "
+    int count = new GcDbAccess().sql("select count(1) from grouper_QZ_TRIGGERS where job_name = ? "
         + "and trigger_type = 'SIMPLE' and trigger_state = 'COMPLETE' and start_time > ?")
         .addBindVar(jobName)
         .addBindVar(System.currentTimeMillis() - 2000).select(int.class);
@@ -2057,10 +2062,10 @@ public class GrouperLoader {
     long lastCheckinTime = System.currentTimeMillis() - 50000;
     List<Long> counts = new GcDbAccess().sql("select count(*) from grouper_loader_log where job_name = ? and status in ('STARTED', 'RUNNING') and last_updated > ? "
         + " union all "
-        + " select count(*) from grouper_qz_fired_triggers gqft, grouper_qz_scheduler_state gqss "
+        + " select count(*) from grouper_QZ_FIRED_TRIGGERS gqft, grouper_QZ_SCHEDULER_STATE gqss "
         + " where gqft.job_name = ? and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > ? "
         + " union all "
-        + " select count(*) from grouper_qz_fired_triggers gqft, grouper_qz_triggers gqt, grouper_qz_scheduler_state gqss "
+        + " select count(*) from grouper_QZ_FIRED_TRIGGERS gqft, grouper_QZ_TRIGGERS gqt, grouper_QZ_SCHEDULER_STATE gqss "
         + " where gqft.trigger_name = gqt.trigger_name and gqt.job_name = ? "
         + " and gqft.instance_name = gqss.instance_name and gqss.last_checkin_time > ? ")
         .addBindVar(jobName)

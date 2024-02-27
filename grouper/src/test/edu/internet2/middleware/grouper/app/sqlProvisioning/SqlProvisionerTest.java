@@ -149,7 +149,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsIncremental"));
+    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
     
   }
   
@@ -5670,10 +5670,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         + " and gf.name = 'admins'").select(int.class).intValue());
     assertEquals(1,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg").select(int.class).intValue());
 
-    // TODO
-//    assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
-//    assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
-//    assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
+    assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
+    assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
+    assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
 
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   
@@ -5728,10 +5727,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         + " and gf.name = 'admins'").select(int.class).intValue());
     assertEquals(1,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg").select(int.class).intValue());
 
-    // TODO
-//    assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
-//    assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
-//    assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
+    assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
+    assertEquals(0, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
+    assertEquals(0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
 
     sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr where attribute_name = 'admins'";
     

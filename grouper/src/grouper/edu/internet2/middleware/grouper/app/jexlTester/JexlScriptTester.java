@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.jexlTester;
 
+import java.lang.ref.WeakReference;
+
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
 
@@ -14,7 +16,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class JexlScriptTester {
   
-  public static ThreadLocal<Object> outputFromGshScript = new ThreadLocal<Object>();
+  private static ThreadLocal<WeakReference<Object>> outputFromGshScript = new ThreadLocal<>();
   
   /**
    * @param scriptExample
@@ -88,11 +90,15 @@ public class JexlScriptTester {
   }
   
   public static void registerOutput(Object result) {
-    outputFromGshScript.set(result);
+    outputFromGshScript.set(new WeakReference<Object>(result));
   } 
   
   public static Object retrieveOutputFromGshScript() {
-    return outputFromGshScript.get();
+    WeakReference<Object> weakReference = outputFromGshScript.get();
+    if (weakReference != null) {
+      return weakReference.get();
+    }
+    return null;
   }
   
 }

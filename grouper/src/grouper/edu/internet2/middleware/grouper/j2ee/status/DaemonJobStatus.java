@@ -122,8 +122,8 @@ public class DaemonJobStatus {
       
       jobNameToCron = new HashMap<>();
       
-      List<Object[]> jobNameToCronList = new GcDbAccess().sql("select distinct gqt.job_name, gqct.cron_expression from grouper_qz_triggers gqt, "
-          + "grouper_qz_cron_triggers gqct where gqt.trigger_name = gqct.trigger_name").selectList(Object[].class);
+      List<Object[]> jobNameToCronList = new GcDbAccess().sql("select distinct gqt.job_name, gqct.cron_expression from grouper_QZ_TRIGGERS gqt, "
+          + "grouper_QZ_CRON_TRIGGERS gqct where gqt.trigger_name = gqct.trigger_name").selectList(Object[].class);
       for (Object[] jobNameCron : jobNameToCronList) {
         jobNameToCron.put((String)jobNameCron[0], (String)jobNameCron[1]);
       }
