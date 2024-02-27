@@ -167,7 +167,7 @@
         <groovyall.version>2.5.18</groovyall.version>
         <jline.version>2.14.5</jline.version>
         <p6spy.version>3.6.0</p6spy.version>
-        <postgresql.version>42.5.1</postgresql.version>
+        <postgresql.version>42.7.2</postgresql.version>
         <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
         <ldaptive.version>1.2.4</ldaptive.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
