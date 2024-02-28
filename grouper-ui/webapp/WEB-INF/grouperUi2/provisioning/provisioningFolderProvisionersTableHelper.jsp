@@ -98,27 +98,6 @@
                         <span> <b> ${metadataNameValue.key}: </b> ${metadataNameValue.value} </span>
                         <br/>
                       </c:forEach>
-                <c:if test="${guiGrouperProvisioningAttributeValue.provisionable}">
-               
-                    <span> <b>  ${textContainer.text['provisioningStemScopeLabel']}: </b> 
-                    
-                    <c:if test="${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.stemScopeSub}">
-                      ${textContainer.textEscapeXml['provisioningStemScopeAllLabel']}
-                    </c:if>
-                    
-                    <c:if test="${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.stemScopeSub == false}">
-                      ${textContainer.textEscapeXml['provisioningStemScopeOneLabel']}
-                    </c:if>
-                    
-                     </span>
-                     <br/>
-                
-                    <c:if test="${fn:length(guiGrouperProvisioningAttributeValue.metadataNameValuesExternalized) > 0}">
-                    
-                      <c:forEach items="${guiGrouperProvisioningAttributeValue.metadataNameValuesExternalized}" var="metadataNameValue">
-                        <span> <b> ${metadataNameValue.key}: </b> ${metadataNameValue.value} </span>
-                        <br/>
-                      </c:forEach>
                     
                     </c:if>
               </c:if>
@@ -135,9 +114,7 @@
               
               <td style="white-space: nowrap;">
                <c:choose>
-                    
-                    </c:if>
-              </c:if>
+               
                <c:when test="${guiGrouperProvisioningAttributeValue.parentWillMakeThisProvisionable}">
                  ${textContainer.text['provisioningConfigTableHeaderParentFolderIsProvisionableYesLabel']}
                </c:when>
@@ -146,27 +123,8 @@
                </c:otherwise>
                
                </c:choose>
+               
               </td>
-              <td>
-                   <div class="btn-group">
-                         <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
-                           aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
-                           ${textContainer.text['provisioningConfigTableActionsButton'] }
-                           <span class="caret"></span>
-                         </a>
-                         <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
-                         
-                          <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningConfigurationOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewConfiguration'] }</a></li>
-                          
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetLogsOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewLogs'] }</a></li> --%>
-                          
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
-
-                          <c:if test="${grouperRequestContainer.provisioningContainer.canAssignProvisioning}">          
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnFolder&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsEditProvisioning'] }</a></li>
-                          </c:if>
-
-                 </td>
               
                  </tr>
                     
