@@ -24,11 +24,12 @@
                                           property="currentGuiRuleDefinition"
                                           value="${guiRuleDefinition}" />
            <c:set var="ruleDefinition" value="${guiRuleDefinition.ruleDefinition}" />
-              <c:if test="${guiRuleDefinition.canViewRule}">
+              
+             <c:if test="${guiRuleDefinition.canEditRule}"> 
               <tr>
               
                 <td>
-                  <c:if test="${guiRuleDefinition.canEditRule}">
+                <c:if test="${guiRuleDefinition.canEditRule}">
                    <div class="btn-group">
                          <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
                            aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
@@ -37,29 +38,26 @@
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                           
-                          <c:if test="${ruleDefinition.attributeAssignType.ownerStemId == grouperRequestContainer.stemContainer.guiStem.stem.id }">
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId == grouperRequestContainer.groupContainer.guiGroup.group.id }">
+                              <li><a href="#" onclick="return guiV2link('operation=UiV2Group.deleteRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
                           </c:if>
                           
-                          
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                                    
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Group.editRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                           
                          </ul>
                        </div>
-                   </c:if>
+                  </c:if>
                  </td>
               
               
               <td style="white-space: nowrap;">
-                <c:if test="${guiRuleDefinition.ruleDefinition.pattern != null}">
-                  ${guiRuleDefinition.ruleDefinition.pattern.userFriendlyText}
-                </c:if>
-                
+                ${guiRuleDefinition.ruleDefinition.pattern}
               </td>
               
               <td style="white-space: nowrap;">
                 <c:choose>
-                  <c:when test="${ruleDefinition.attributeAssignType.ownerStemId == grouperRequestContainer.stemContainer.guiStem.stem.id }">
+                  <c:when test="${ruleDefinition.attributeAssignType.ownerGroupId == grouperRequestContainer.groupContainer.guiGroup.group.id }">
                   ${textContainer.text['provisioningConfigTableHeaderProvisionableYesLabel']}
                   </c:when>
                   <c:otherwise>

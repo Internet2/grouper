@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Subject;
 
 
 /**
@@ -45,6 +46,57 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  *
  */
 public enum RuleIfConditionEnum {
+  
+  subjectNotInSources {
+
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
+
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine, RulesBean rulesBean) {
+      
+      String sources = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      Subject subject = rulesBean.getSubject();
+      if (subject != null && StringUtils.isNotBlank(sources) ) {
+        
+        Set<String> sourcesSet = GrouperUtil.splitTrimToSet(sources, ",");
+        if (sourcesSet.contains(subject.getSourceId())) {
+          return false;
+        }
+        return true;
+        
+      }
+      return false;
+    }
+
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return null;
+    }
+    
+  },
 
   /**
    * make sure no group in folder has an enabled membership

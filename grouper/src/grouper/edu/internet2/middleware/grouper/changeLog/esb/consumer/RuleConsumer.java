@@ -216,7 +216,7 @@ public class RuleConsumer extends ChangeLogConsumerBase {
   
   public static void fixVetoIfNotInFolder(final Group group, final Subject subject, final String subjectSourceId) {
 
-    Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+    Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions(true);
 
     for (RuleDefinition definition: definitions) {
       

@@ -87,8 +87,8 @@ public class DatabaseGrouperExternalSystem extends GrouperExternalSystem {
     if (StringUtils.isNotBlank(testExpectedValue)) {
       if (!StringUtils.equals(testExpectedValue, result)) {
         String errorMessage = GrouperTextContainer.textOrNull("grouperConfigurationTestExpectedNotMatchingResult");
-        errorMessage = errorMessage.replace("$$expectedValue$$", testExpectedValue);
-        errorMessage = errorMessage.replace("$$receivedValue$$", result);
+        errorMessage = errorMessage.replace("##expectedValue##", testExpectedValue);
+        errorMessage = errorMessage.replace("##receivedValue##", result);
         return GrouperUtil.toList(errorMessage);
       }
     }

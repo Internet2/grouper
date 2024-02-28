@@ -22,7 +22,7 @@ public enum ValidationBuiltinType {
     @Override
     public String getErrorMessage(String valueFromUser) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.alpha.message");
-      errorMessage = errorMessage.replace("$$valueFromUser$$", valueFromUser);
+      errorMessage = errorMessage.replace("##valueFromUser##", valueFromUser);
       return errorMessage;
     }
   },
@@ -41,7 +41,7 @@ public enum ValidationBuiltinType {
     @Override
     public String getErrorMessage(String valueFromUser) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.alphaNumeric.message");
-      errorMessage = errorMessage.replace("$$valueFromUser$$", valueFromUser);
+      errorMessage = errorMessage.replace("##valueFromUser##", valueFromUser);
       return errorMessage;
     }
   },
@@ -60,7 +60,7 @@ public enum ValidationBuiltinType {
     @Override
     public String getErrorMessage(String valueFromUser) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.alphaNumericUnderscore.message");
-      errorMessage = errorMessage.replace("$$valueFromUser$$", valueFromUser);
+      errorMessage = errorMessage.replace("##valueFromUser##", valueFromUser);
       return errorMessage;
     }
   },
@@ -79,7 +79,7 @@ public enum ValidationBuiltinType {
     @Override
     public String getErrorMessage(String valueFromUser) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.alphaNumericDash.message");
-      errorMessage = errorMessage.replace("$$valueFromUser$$", valueFromUser);
+      errorMessage = errorMessage.replace("##valueFromUser##", valueFromUser);
       return errorMessage;
     }
   },
@@ -97,7 +97,7 @@ public enum ValidationBuiltinType {
     @Override
     public String getErrorMessage(String valueFromUser) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.alphaNumericUnderscoreDash.message");
-      errorMessage = errorMessage.replace("$$valueFromUser$$", valueFromUser);
+      errorMessage = errorMessage.replace("##valueFromUser##", valueFromUser);
       return errorMessage;
     }
   },
@@ -115,7 +115,7 @@ public enum ValidationBuiltinType {
     @Override
     public String getErrorMessage(String valueFromUser) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.noColons.message");
-      errorMessage = errorMessage.replace("$$valueFromUser$$", valueFromUser);
+      errorMessage = errorMessage.replace("##valueFromUser##", valueFromUser);
       return errorMessage;
     }
     

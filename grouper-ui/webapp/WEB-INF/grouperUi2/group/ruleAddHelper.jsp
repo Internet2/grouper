@@ -1,82 +1,11 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-
-
-                      <tr>
-                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRulePatternId">${textContainer.text['grouperRulePatternLabel']}</label></strong></td>
-                        <td>
-                          <select name="grouperRulePattern" id="grouperRulePatternId" style="width: 30em"
-                              onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
-                           
-                            <option value=""></option>
-                            <c:forEach items="${grouperRequestContainer.rulesContainer.allPatterns}" var="pattern">
-                              <option value="${pattern.key}"
-                                  ${grouperRequestContainer.rulesContainer.ruleConfig.pattern == pattern.key ? 'selected="selected"' : '' }
-                                  >${pattern.value}</option>
-                            </c:forEach>
-                          </select>
-                          <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                          data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
-                          <br />
-                          <span class="description">${textContainer.text['grouperRulePatternHint']}</span>
-                        </td>
-                      </tr>
-                      
-                      <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.pattern) and grouperRequestContainer.rulesContainer.ruleConfig.pattern != 'custom'}">
-                      
-                          <c:forEach items="${grouperRequestContainer.rulesContainer.ruleConfig.elementsToShow}" var="attribute">  
-                            
-                           <%--    <c:set target="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration}"
-                                      property="index"
-                                      value="${attribute.repeatGroupIndex}" />  
-                              <c:set target="${grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration}"
-                                      property="currentConfigSuffix"
-                                      value="${attribute.configSuffix}" />   --%>
-
-                              <%--  ajaxCallback="ajax('../app/UiV2ProvisionerConfiguration.addProvisionerConfiguration?focusOnElementName=config_${attribute.configSuffix}&provisionerConfigId=${guiProvisionerConfiguration.provisionerConfiguration.configId}&provisionerConfigType=${guiProvisionerConfiguration.provisionerConfiguration['class'].name}', {formIds: 'provisionerConfigDetails'}); return false;" --%>
-                              <grouper:configFormElement 
-                                formElementType="${attribute.formElement}" 
-                                shouldShowElCheckbox = "false"
-                                configId="${attribute.configSuffix}" 
-                                label="${attribute.label}"
-                                readOnly="${attribute.readOnly}"
-                                helperText="${attribute.description}"
-                                helperTextDefaultValue="${attribute.defaultValue}"
-                                required="${attribute.required}"
-                                shouldShow="${attribute.show}"
-                                value="${attribute.valueOrExpressionEvaluation}"
-                                hasExpressionLanguage="false"
-                                valuesAndLabels="${attribute.dropdownValuesAndLabels }"
-                                checkboxAttributes="${attribute.checkboxAttributes}"
-                                indent="${attribute.configItemMetadata.indent}"
-                              />
-                              
-                        </c:forEach>
-                        
-                         <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.canSetDaemon}">
-                            <tr>
-                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleRunDaemonId">${textContainer.text['grouperRuleRunDaemonLabel']}</label></strong></td>
-                              <td>
-                                
-                                <select name="grouperRuleRunDaemon" id="grouperRuleRunDaemonId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
-                                  <option value=""></option> 
-                                  <option value="true" ${grouperRequestContainer.rulesContainer.ruleConfig.runDaemon == true ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleRunDaemonYesLabel']}</option>
-                                  <option value="false" ${grouperRequestContainer.rulesContainer.ruleConfig.runDaemon == false ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleRunDaemonNoLabel']}</option>
-                                </select>
-                                <br />
-                                <span class="description">${textContainer.text['grouperRuleRunDaemonHint']}</span>
-                              </td>
-                            </tr>
-                        </c:if>
-                      
-                      </c:if>
                      
-                     <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.pattern) and grouperRequestContainer.rulesContainer.ruleConfig.pattern == 'custom'}">
                       <tr>
-                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckTypeId">${textContainer.text['grouperRuleCheckTypeLabel']}</label></strong></td>
+                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperReportConfigHasTypeId">${textContainer.text['grouperRuleCheckTypeLabel']}</label></strong></td>
                         <td>
                           <%-- <input type="hidden" name="grouperReportConfigTypeName" value="${grouperRequestContainer.grouperReportContainer.reportConfigType}" /> --%>
                           <select name="grouperRuleCheckType" id="grouperRuleCheckTypeId" style="width: 30em"
-                              onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
+                              onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
                            
                             <option value=""></option>
                             <c:forEach items="${grouperRequestContainer.rulesContainer.allCheckTypes}" var="checkType">
@@ -92,25 +21,8 @@
                         </td>
                       </tr>
                      
-                      <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.checkType) and grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'GROUP'}">
+                      <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.checkType) and grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'FOLDER'}">
                       
-                      <%-- since the check owner type is group and we're assigning this rule on a folder, do not show thisGroup, another group. just show text field for another group name/uuid --%>
-                     <%--    <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerId">${textContainer.text['grouperRuleCheckOwnerLabel']}</label></strong></td>
-                          <td>
-                            
-                            <select name="grouperRuleCheckOwner" id="grouperRuleCheckOwnerId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
-                              <option value=""></option>
-                              <option value="thisGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'thisGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerThisGroup']}</option>
-                              <option value="anotherGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerAnotherGroup']}</option>
-                            </select>
-                            <br />
-                            <span class="description">${textContainer.text['grouperRuleCheckOwnerHint']}</span>
-                          </td>
-                        </tr> --%>
-                        
-                        <%-- <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType) and grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'group' and grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherGroup'}"> --%>
-                          
                            <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameId">${textContainer.text['grouperRuleCheckOwnerUuidOrNameLabel']}</label></strong></td>
                             <td>
@@ -122,28 +34,39 @@
                               <span class="description">${textContainer.text['grouperRuleCheckOwnerUuidOrNameHint']}</span>
                             </td>
                           </tr>
-                        
-                        <%-- </c:if> --%>
+                          
+                          <tr>
+                              <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerStemScopeId">${textContainer.text['grouperRuleOwnerStemScopeLabel']}</label></strong></td>
+                              <td>
+                                
+                                <select name="grouperRuleCheckOwnerStemScope" id="grouperRuleCheckOwnerStemScopeId" style="width: 30em" onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
+                                  <option value="SUB" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerStemScope == 'SUB' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerSubStemScopeLabel']}</option>
+                                  <option value="ONE" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerStemScope == 'ONE' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerOneStemScopeLabel']}</option>
+                                </select>
+                                <br />
+                                <span class="description">${textContainer.text['grouperRuleOwnerStemScopeDescription']}</span>
+                              </td>
+                          </tr>
                         
                      </c:if>
                      
-                       <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType) and grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'FOLDER'}">
+                       <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType) and grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'GROUP'}">
                       
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerId">${textContainer.text['grouperRuleCheckOwnerLabel']}</label></strong></td>
                           <td>
                             
-                            <select name="grouperRuleCheckOwner" id="grouperRuleCheckOwnerId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
+                            <select name="grouperRuleCheckOwner" id="grouperRuleCheckOwnerId" style="width: 30em" onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
                               <option value=""></option>
-                              <option value="thisStem" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'thisStem' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckOwnerThisStem']}</option>
-                              <option value="anotherStem" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherStem' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckOwnerAnotherStem']}</option>
+                              <option value="thisGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'thisGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerThisGroup']}</option>
+                              <option value="anotherGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerAnotherGroup']}</option>
                             </select>
                             <br />
                             <span class="description">${textContainer.text['grouperRuleCheckOwnerHint']}</span>
                           </td>
                         </tr>
                         
-                        <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'FOLDER' and grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherStem'}">
+                        <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerType == 'GROUP' and grouperRequestContainer.rulesContainer.ruleConfig.checkOwner == 'anotherGroup'}">
                           
                            <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameId">${textContainer.text['grouperRuleCheckOwnerUuidOrNameLabel']}</label></strong></td>
@@ -158,19 +81,6 @@
                           </tr>
                         
                         </c:if>
-                        
-                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerStemScopeId">${textContainer.text['grouperRuleOwnerStemScopeLabel']}</label></strong></td>
-                          <td>
-                            
-                            <select name="grouperRuleCheckOwnerStemScope" id="grouperRuleCheckOwnerStemScopeId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
-                              <option value="SUB" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerStemScope == 'SUB' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerSubStemScopeLabel']}</option>
-                              <option value="ONE" ${grouperRequestContainer.rulesContainer.ruleConfig.checkOwnerStemScope == 'ONE' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerOneStemScopeLabel']}</option>
-                            </select>
-                            <br />
-                            <span class="description">${textContainer.text['grouperRuleOwnerStemScopeDescription']}</span>
-                          </td>
-                        </tr>
                         
                      </c:if>
                      
@@ -216,7 +126,7 @@
                         <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOptionsId">${textContainer.text['grouperRuleIfConditionOptionsLabel']}</label></strong></td>
                         <td>
                           <select name="grouperRuleIfConditionOption" id="grouperRuleIfConditionOptionsId" style="width: 30em"
-                            onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
+                            onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
                          
                           <option value=""></option>
                           <c:forEach items="${grouperRequestContainer.rulesContainer.allIfConditionOptions}" var="ifConditionOption">
@@ -247,25 +157,8 @@
                       </c:if>
                       
                       
-                      <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'GROUP'}">
+                      <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'FOLDER'}">
                       
-                      
-                        <%-- <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOwnerId">${textContainer.text['grouperRuleIfConditionOwnerLabel']}</label></strong></td>
-                          <td>
-                            
-                            <select name="grouperRuleIfConditionOwner" id="grouperRuleIfConditionOwnerId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
-                              <option value=""></option>
-                              <option value="thisGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'thisGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerThisGroup']}</option>
-                              <option value="anotherGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerAnotherGroup']}</option>
-                            </select>
-                            <br />
-                            <span class="description">${textContainer.text['grouperRuleCheckOwnerHint']}</span>
-                          </td>
-                        </tr> --%>
-                        
-                       <%--  <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'group' and grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherGroup'}"> --%>
-                          
                            <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOwnerUuidOrNameId">${textContainer.text['grouperRuleIfConditionOwnerUuidOrNameLabel']}</label></strong></td>
                             <td>
@@ -277,6 +170,19 @@
                               <span class="description">${textContainer.text['grouperRuleIfConditionOwnerUuidOrNameHint']}</span>
                             </td>
                           </tr>
+                          
+                         <tr>
+                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerStemScopeId">${textContainer.text['grouperRuleOwnerStemScopeLabel']}</label></strong></td>
+                          <td>
+                            
+                            <select name="grouperRuleIfConditionOwnerStemScope" id="grouperRuleIfConditionOwnerStemScopeId" style="width: 30em" onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
+                              <option value="SUB" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerStemScope == 'SUB' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerSubStemScopeLabel']}</option>
+                              <option value="ONE" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerStemScope == 'ONE' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerOneStemScopeLabel']}</option>
+                            </select>
+                            <br />
+                            <span class="description">${textContainer.text['grouperRuleOwnerStemScopeDescription']}</span>
+                          </td>
+                        </tr>
                         
                         </c:if>
                         
@@ -284,23 +190,23 @@
                       
                      
                      
-                     <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'FOLDER'}">
+                     <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'GROUP'}">
                       
                         <tr>
                           <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleIfConditionOwnerId">${textContainer.text['grouperRuleIfConditionOwnerLabel']}</label></strong></td>
                           <td>
                             
-                            <select name="grouperRuleIfConditionOwner" id="grouperRuleIfConditionOwnerId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
+                            <select name="grouperRuleIfConditionOwner" id="grouperRuleIfConditionOwnerId" style="width: 30em" onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
                               <option value=""></option>
-                              <option value="thisStem" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'thisStem' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckOwnerThisStem']}</option>
-                              <option value="anotherStem" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherStem' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckOwnerAnotherStem']}</option>
+                              <option value="thisGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'thisGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerThisGroup']}</option>
+                              <option value="anotherGroup" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherGroup' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleCheckGroupOwnerAnotherGroup']}</option>
                             </select>
                             <br />
                             <span class="description">${textContainer.text['grouperRuleIfConditionOwnerHint']}</span>
                           </td>
                         </tr>
                         
-                        <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'FOLDER' and grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherStem'}">
+                        <c:if test="${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerType == 'GROUP' and grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwner == 'anotherGroup'}">
                           
                            <tr>
                             <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerUuidOrNameId">${textContainer.text['grouperRuleIfConditionOwnerUuidOrNameLabel']}</label></strong></td>
@@ -315,19 +221,6 @@
                           </tr>
                         
                         </c:if>
-                        
-                         <tr>
-                          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleCheckOwnerStemScopeId">${textContainer.text['grouperRuleOwnerStemScopeLabel']}</label></strong></td>
-                          <td>
-                            
-                            <select name="grouperRuleIfConditionOwnerStemScope" id="grouperRuleIfConditionOwnerStemScopeId" style="width: 30em" onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
-                              <option value="SUB" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerStemScope == 'SUB' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerSubStemScopeLabel']}</option>
-                              <option value="ONE" ${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOwnerStemScope == 'ONE' ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleOwnerOneStemScopeLabel']}</option>
-                            </select>
-                            <br />
-                            <span class="description">${textContainer.text['grouperRuleOwnerStemScopeDescription']}</span>
-                          </td>
-                        </tr>
                         
                      </c:if>
                      
@@ -374,7 +267,7 @@
                         <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleThenOptionsId">${textContainer.text['grouperRuleThenOptionsLabel']}</label></strong></td>
                         <td>
                           <select name="grouperRuleThenOption" id="grouperRuleThenOptionsId" style="width: 30em"
-                            onchange="ajax('../app/UiV2Stem.addRuleOnStem', {formIds: 'addRuleConfigFormId'}); return false;">
+                            onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
                          
                           <option value=""></option>
                           <c:forEach items="${grouperRequestContainer.rulesContainer.allThenOptions}" var="thenOption">
@@ -460,5 +353,23 @@
                      
                      </c:if>
                      
-                     </c:if>  
+                      <tr>
+                        <td style="vertical-align: top; white-space: nowrap;"><strong><label for="grouperRuleRunDaemonId">${textContainer.text['grouperRuleRunDaemonLabel']}</label></strong></td>
+                        <td>
+                          
+                          <select name="grouperRuleRunDaemon" id="grouperRuleRunDaemonId" style="width: 30em" onchange="ajax('../app/UiV2Group.addRuleOnGroup', {formIds: 'addRuleConfigFormId'}); return false;">
+                            <option value=""></option> 
+                            <option value="true" ${grouperRequestContainer.rulesContainer.ruleConfig.runDaemon == true ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleRunDaemonYesLabel']}</option>
+                            <option value="false" ${grouperRequestContainer.rulesContainer.ruleConfig.runDaemon == false ? 'selected="selected"' : ''}>${textContainer.textEscapeXml['grouperRuleRunDaemonNoLabel']}</option>
+                          </select>
+                          <br />
+                          <span class="description">${textContainer.text['grouperRuleRunDaemonHint']}</span>
+                        </td>
+                      </tr>
+                    
+                    
+                      
+                     
+                      
+                      
                      

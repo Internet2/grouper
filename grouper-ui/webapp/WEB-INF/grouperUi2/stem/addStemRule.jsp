@@ -26,6 +26,7 @@
                 <form class="form-inline form-small form-filter" id="addRuleConfigFormId">
                   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
                   <input type="hidden" name="ruleId" value="${grouperRequestContainer.rulesContainer.attributeAssignId}" />
+                  <input type="hidden" name="previousRuleId" value="${grouperRequestContainer.rulesContainer.attributeAssignId}" />
                   <table class="table table-condensed table-striped">
                     <tbody>
                       <c:set var="ObjectType" 

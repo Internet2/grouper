@@ -31,7 +31,7 @@ public class GrouperWorkflowInstanceValidator {
       
       if (StringUtils.isBlank(paramValue) && param.isRequired()) {
         String error = contentKeys.get("workflowSubmitFormFieldRequired");
-        error = error.replace("$$fieldName$$", param.getParamName());
+        error = error.replace("##fieldName##", param.getParamName());
         errors.add(error);
       }
       

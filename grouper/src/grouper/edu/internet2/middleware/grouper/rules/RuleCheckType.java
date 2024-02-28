@@ -1361,7 +1361,7 @@ public enum RuleCheckType {
     
     @Override
     public RuleOwnerType getOwnerType() {
-      return RuleOwnerType.GROUP;
+      return RuleOwnerType.FOLDER;
     }
   },
   

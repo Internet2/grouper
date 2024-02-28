@@ -398,7 +398,7 @@ public abstract class GrouperConfigurationModuleBase {
               if (!mustExtendKlass.isAssignableFrom(childClass)) {
 
                 String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotExtendClass");
-                error = error.replace("$$mustExtendClass$$", mustExtendClass);
+                error = error.replace("##mustExtendClass##", mustExtendClass);
 
                 validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
               }
@@ -413,7 +413,7 @@ public abstract class GrouperConfigurationModuleBase {
               if (!mustImplementInterfaceClass.isAssignableFrom(childClass)) {
 
                 String error = GrouperTextContainer.textOrNull("grouperConfigurationValidationDoesNotImplementInterface");
-                error = error.replace("$$mustImplementInterface$$", mustImplementInterface);
+                error = error.replace("##mustImplementInterface##", mustImplementInterface);
 
                 validationErrorsToDisplay.put(grouperConfigModuleAttribute.getHtmlForElementIdHandle(), error);
               }

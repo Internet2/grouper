@@ -82,7 +82,7 @@ public class GshTemplateValidationService {
       Stem ownerStem = StemFinder.findByName(GrouperSession.staticGrouperSession(), ownerStemString, false);
       if (ownerStem == null) {
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerStem.notFound.message");
-        errorMessage = errorMessage.replace("$$ownerStemName$$", ownerStemString);
+        errorMessage = errorMessage.replace("##ownerStemName##", ownerStemString);
         gshTemplateOutput.addValidationLine(errorMessage);
         return false;
       }
@@ -103,7 +103,7 @@ public class GshTemplateValidationService {
       Group ownerGroup = GroupFinder.findByName(GrouperSession.staticGrouperSession(), ownerGroupString, false);
       if (ownerGroup == null) {
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerGroup.notFound.message");
-        errorMessage = errorMessage.replace("$$ownerGroupName$$", ownerGroupString);
+        errorMessage = errorMessage.replace("##ownerGroupName##", ownerGroupString);
         gshTemplateOutput.addValidationLine(errorMessage);
         return false;
       }
@@ -296,8 +296,8 @@ public class GshTemplateValidationService {
         if (!gshTemplateInputConfig.getGshTemplateInputType().canConvertToCorrectType(valueFromUser)) {
           
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");
-          errorMessage = errorMessage.replace("$$valueFromUser$$", GrouperUtil.escapeHtml(valueFromUser, true));
-          errorMessage = errorMessage.replace("$$type$$", GrouperUtil.escapeHtml(gshTemplateInputConfig.getGshTemplateInputType().name().toLowerCase(), true));
+          errorMessage = errorMessage.replace("##valueFromUser##", GrouperUtil.escapeHtml(valueFromUser, true));
+          errorMessage = errorMessage.replace("##type##", GrouperUtil.escapeHtml(gshTemplateInputConfig.getGshTemplateInputType().name().toLowerCase(), true));
           gshTemplateOutput.addValidationLine(gshTemplateInput.getName(), errorMessage);
           return false;
         }
@@ -496,7 +496,7 @@ public class GshTemplateValidationService {
   private boolean validateEnabled(GshTemplateConfig templateConfig, GshTemplateOutput gshTemplateOutput) {
     if (!templateConfig.isEnabled()) {
       String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.configId.notEnabled.message");
-      errorMessage = errorMessage.replace("$$configId$$", templateConfig.getConfigId());
+      errorMessage = errorMessage.replace("##configId##", templateConfig.getConfigId());
       gshTemplateOutput.addValidationLine(errorMessage);
       return false;
     }

@@ -553,7 +553,19 @@ public class RuleDefinition {
     }
   }
   
-  public String getPattern() {
+  public RulePattern getPattern() {
+    
+    
+    RulePattern[] rulePatterns = RulePattern.values();
+    for (RulePattern rulePattern: rulePatterns) {
+      if (rulePattern.isThisThePattern(this)) {
+        return rulePattern;
+      }
+    }
+    return null;
+  }
+  
+  public String getPattern1() {
     
     if (this.getCheck() != null &&
         this.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd &&
@@ -629,7 +641,7 @@ public class RuleDefinition {
       return GrouperTextContainer.textOrNull("rulePattern_InheritedPrivilegesOnFolders");
     } else if (this.getCheck() != null &&
         this.getCheck().checkTypeEnum() == RuleCheckType.groupCreate &&
-        this.getIfCondition() == null && 
+        (this.getIfCondition() == null || this.getIfCondition().isBlank()) &&
         this.getThen() != null &&
         this.getThen().thenEnum() == RuleThenEnum.assignGroupPrivilegeToGroupId) {
       return GrouperTextContainer.textOrNull("rulePattern_InheritedPrivilegesOnGroups");

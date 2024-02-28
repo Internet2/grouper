@@ -6284,7 +6284,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
     }
     
     // need to potentially update group name in rules
-    Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+    Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions(true);
     for (RuleDefinition definition : definitions) {
       if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
           definition.getCheck().checkTypeEnum().isCheckOwnerTypeGroup(definition) && Group.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {

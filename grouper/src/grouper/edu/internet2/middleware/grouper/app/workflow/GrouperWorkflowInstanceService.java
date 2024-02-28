@@ -1166,11 +1166,11 @@ public class GrouperWorkflowInstanceService {
     
     String auditLine = GrouperTextContainer.retrieveFromRequest().getText().get("workflowFormAuditLine");
     
-    auditLine = auditLine.replace("$$subjectSource$$", subject.getSource().getName());
-    auditLine = auditLine.replace("$$subjectId$$", subject.getId());
-    auditLine = auditLine.replace("$$subjectName$$", subject.getName());
-    auditLine = auditLine.replace("$$buttonText$$", action);
-    auditLine = auditLine.replace("$$state$$", state);
+    auditLine = auditLine.replace("##subjectSource##", subject.getSource().getName());
+    auditLine = auditLine.replace("##subjectId##", subject.getId());
+    auditLine = auditLine.replace("##subjectName##", subject.getName());
+    auditLine = auditLine.replace("##buttonText##", action);
+    auditLine = auditLine.replace("##state##", state);
     
     String timestamp = new SimpleDateFormat("yyyy/MM/dd HH:mm:ss").format(date);
     

@@ -202,8 +202,8 @@ public class UiV2Template {
       if (!gshTemplateInputConfig.getGshTemplateInputType().canConvertToCorrectType(value)) {
         
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");
-        errorMessage = errorMessage.replace("$$valueFromUser$$", GrouperUtil.escapeHtml(value, true));
-        errorMessage = errorMessage.replace("$$type$$", GrouperUtil.escapeHtml(gshTemplateInputConfig.getGshTemplateInputType().name().toLowerCase(), true));
+        errorMessage = errorMessage.replace("##valueFromUser##", GrouperUtil.escapeHtml(value, true));
+        errorMessage = errorMessage.replace("##type##", GrouperUtil.escapeHtml(gshTemplateInputConfig.getGshTemplateInputType().name().toLowerCase(), true));
         
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshTemplateInputConfig.getName()+"_id", 
             errorMessage));

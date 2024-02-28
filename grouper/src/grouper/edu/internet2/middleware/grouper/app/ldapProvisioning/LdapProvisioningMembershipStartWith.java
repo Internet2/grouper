@@ -457,7 +457,7 @@ public class LdapProvisioningMembershipStartWith extends ProvisionerStartWithBas
       
       if (!isActiveDirectory) {
         String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithLdapConfigurationValidationExternalSystemNotActiveDirectory");
-        errorMessage = errorMessage.replace("$$externalSystemId$$", ldapExternalSystemId);
+        errorMessage = errorMessage.replace("##externalSystemId##", ldapExternalSystemId);
         validationErrorsToDisplay.put(ldapExternalSystemConfigId.getHtmlForElementIdHandle(), errorMessage);
       }
       

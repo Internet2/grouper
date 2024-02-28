@@ -135,7 +135,7 @@ public enum RuleThenEnum {
       double daysInteger = GrouperUtil.doubleValue(days);
 
       String addIfNotThere = ruleDefinition.getThen().getThenEnumArg1();
-      boolean addIfNotThereBoolean = GrouperUtil.booleanValue(addIfNotThere);
+      boolean addIfNotThereBoolean = GrouperUtil.booleanValue(addIfNotThere, false);
       
       String ownerGroupId = ruleDefinition.getAttributeAssignType().getOwnerGroupId();
       return RuleElUtils.assignMembershipDisabledDaysForGroupId(ownerGroupId, rulesBean.getMemberId(), daysInteger, addIfNotThereBoolean);
@@ -162,7 +162,7 @@ public enum RuleThenEnum {
       String addIfNotThere = ruleDefinition.getThen().getThenEnumArg1();
       
       try {
-        GrouperUtil.booleanValue(addIfNotThere);
+        GrouperUtil.booleanValue(addIfNotThere, false);
       } catch (Exception e) {
         return "ruleThenEnumArg1 should be T or F for if the membership in the owner group should be created if not there: " + e.getMessage();
       }
@@ -349,7 +349,97 @@ public enum RuleThenEnum {
       return group.addMember(member.getSubject(), false);
     }
     
-  }, 
+  },
+  
+  /** add the group (the current one being acted on) to the owner group */
+  addGroupToOwnerGroup {
+
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+      
+      Group groupGettingAdded = rulesBean.getGroup();
+      
+      Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId(), true);
+      return group.addMember(groupGettingAdded.toSubject(), false);
+    }
+    
+  },
+  
+  assignSelfGroupPrivilege {
+    
+    public boolean usesArg0() {
+      return true;
+    }
+    
+    /**
+     * @see RuleThenEnum#validate(RuleDefinition)
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg2())) {
+        return "ruleThenEnumArg2 should not be entered for this ruleThenEnum: " + this.name();
+      }
+      
+      if (!StringUtils.isBlank(ruleDefinition.getThen().getThenEnumArg1())) {
+        return "ruleThenEnumArg1 should not be entered for this ruleThenEnum: " + this.name();
+      }
+
+      String privileges = ruleDefinition.getThen().getThenEnumArg0();
+      
+      if (StringUtils.isBlank(privileges)) {
+        return "ruleThenEnumArg0 are the naming privileges, e.g. read,update";
+      }
+      
+      Set<String> privilegesSet = GrouperUtil.splitTrimToSet(privileges, ",");
+      for (String privilegeString : privilegesSet) {
+        Privilege privilege = null;
+        
+        try {
+          privilege = Privilege.getInstance(privilegeString);
+        } catch (Exception e) {
+          return e.getMessage();
+        }
+        if (!Privilege.isAccess(privilege)) {
+          return "Privilege '" + privilegeString + "' must be an access privilege, e.g. read, update";
+        }
+      }
+      return null;
+    }
+    
+    /**
+     * 
+     * @see edu.internet2.middleware.grouper.rules.RuleThenEnum#fireRule(edu.internet2.middleware.grouper.rules.RuleDefinition, edu.internet2.middleware.grouper.rules.RuleEngine, edu.internet2.middleware.grouper.rules.beans.RulesBean)
+     */
+    @Override
+    public Object fireRule(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean, StringBuilder logDataForThisDefinition) {
+  
+      Group group = rulesBean.getGroup();
+      
+      String privileges = ruleDefinition.getThen().getThenEnumArg0();
+  
+      Set<String> privilegesSet = GrouperUtil.splitTrimToSet(privileges, ",");
+  
+      boolean result = false;
+  
+      for (String privilegeString : privilegesSet) {
+        Privilege privilege = Privilege.getInstance(privilegeString);
+        if (group.grantPriv(group.toSubject(), privilege, false)) {
+          result = true;
+        }
+      }
+      
+      return result;
+    }
+    
+  },
 
   /** */
   reassignGroupPrivilegesIfFromGroup {

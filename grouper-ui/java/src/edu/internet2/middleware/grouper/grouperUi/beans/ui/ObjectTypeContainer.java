@@ -213,7 +213,7 @@ public class ObjectTypeContainer {
                 if (stem != null && stem.getDisplayExtension().equals("Wiki")) {
                   String link = new GuiStem(stem).getShortLink();
                   String wikiText = TextContainer.retrieveFromRequest().getText().get("objectTypeWikiAppText");
-                  wikiText = wikiText.replace("$$folder$$", link);
+                  wikiText = wikiText.replace("##folder##", link);
                   wikiTextWithLink.append(wikiText);
                   wikiTextWithLink.append(" ");
                 }
@@ -234,7 +234,7 @@ public class ObjectTypeContainer {
                if (stem != null && stem.getDisplayExtension().equals("Student systems")) {
                  String link = new GuiStem(stem).getShortLink();
                  String studentSystemsText = TextContainer.retrieveFromRequest().getText().get("objectTypeStudentSystemsText");
-                 studentSystemsText = studentSystemsText.replace("$$folder$$", link);
+                 studentSystemsText = studentSystemsText.replace("##folder##", link);
                  studentSystemsTextWithLink.append(studentSystemsText);
                }
                return null;

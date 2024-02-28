@@ -1,5 +1,10 @@
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -7,8 +12,14 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
+import edu.internet2.middleware.subject.Subject;
 
 public class RuleConfig {
+  
+  private String pattern;
   
   private String checkType;
   
@@ -46,7 +57,86 @@ public class RuleConfig {
 
   private String thenArg2;
   
-  private boolean runDaemon = true;
+  private Boolean runDaemon;
+  
+  private GrouperObject grouperObject;
+  
+  private Map<String, String> patternPropertiesValues = new HashMap<>();
+
+  private RuleDefinition ruleDefinition;
+  
+  public RuleConfig(Subject subject, GrouperObject grouperObject) {
+    this.subject = subject;
+    this.grouperObject = grouperObject;
+  }
+  
+  private Subject subject;
+  
+  
+  /**
+   * if the logged in user can set daemon
+   * @return 
+   */
+  public boolean isCanSetDaemon() {
+    
+    if ( StringUtils.isNotBlank(this.pattern) && !StringUtils.equals(this.pattern, "custom")) {
+       RulePattern rulePattern = RulePattern.valueOf(this.pattern);
+       if (rulePattern.isDaemonApplicable()) {
+         if (PrivilegeHelper.isWheelOrRoot(subject)) {
+           return true;
+         } else if (rulePattern.isDaemonAssignableByNonAdmin()) {
+           return true;
+         }
+       }
+    }
+    
+    return false;
+  }
+  
+  
+  public Map<String, String> getPatternPropertiesValues() {
+    return patternPropertiesValues;
+  }
+
+
+
+  
+  public void setPatternPropertiesValues(Map<String, String> patternPropertiesValues) {
+    this.patternPropertiesValues = patternPropertiesValues;
+  }
+
+
+
+  public GrouperObject getGrouperObject() {
+    return grouperObject;
+  }
+
+
+  public String getPattern() {
+    return pattern;
+  }
+
+  
+  public void setPattern(String pattern) {
+    this.pattern = pattern;
+  }
+  
+  
+  public RulePattern getRulePattern() {
+    if ( StringUtils.isNotBlank(this.pattern) && !StringUtils.equals(this.pattern, "custom")) {
+      return RulePattern.valueOf(this.pattern);
+    }
+    
+    return null;
+  }
+  
+  public List<GrouperConfigurationModuleAttribute> getElementsToShow() {
+    if ( StringUtils.isNotBlank(this.pattern) && !StringUtils.equals(this.pattern, "custom")) {
+      return RulePattern.valueOf(this.pattern).getElementsToShow(this.grouperObject, this.ruleDefinition);
+    }
+    return new ArrayList<>();
+  }
+
   
   public String getCheckType() {
     return checkType;
@@ -154,6 +244,10 @@ public class RuleConfig {
   
   public boolean isCheckUsesArg0() {
     
+    if (StringUtils.equals(this.getCheckType(), "EL")) {
+      return false;
+    }
+    
     RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false);
     
     if (ruleCheckType != null) {
@@ -164,6 +258,10 @@ public class RuleConfig {
   }
   
   public boolean isCheckUsesArg1() {
+    
+    if (StringUtils.equals(this.getCheckType(), "EL")) {
+      return false;
+    }
     
     RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(this.getCheckType(), false);
     
@@ -176,6 +274,10 @@ public class RuleConfig {
   
   public boolean isIfUsesArg0() {
     
+    if (StringUtils.equals(this.getIfConditionOption(), "EL")) {
+      return false;
+    }
+    
     RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false);
     
     if (ruleIfConditionEnum != null) {
@@ -186,6 +288,10 @@ public class RuleConfig {
   }
   
   public boolean isIfUsesArg1() {
+    
+    if (StringUtils.equals(this.getIfConditionOption(), "EL")) {
+      return false;
+    }
     
     RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(this.getIfConditionOption(), false);
     
@@ -288,6 +394,10 @@ public class RuleConfig {
   
   public boolean isThenUsesArg0() {
     
+    if (StringUtils.equals(this.getThenOption(), "EL")) {
+      return false;
+    }
+    
     RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false);
     
     if (ruleThenEnum != null) {
@@ -298,6 +408,10 @@ public class RuleConfig {
   }
   
   public boolean isThenUsesArg1() {
+    
+    if (StringUtils.equals(this.getThenOption(), "EL")) {
+      return false;
+    }
     
     RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false);
     
@@ -310,6 +424,10 @@ public class RuleConfig {
   
   public boolean isThenUsesArg2() {
     
+    if (StringUtils.equals(this.getThenOption(), "EL")) {
+      return false;
+    }
+    
     RuleThenEnum ruleThenEnum = RuleThenEnum.valueOfIgnoreCase(this.getThenOption(), false);
     
     if (ruleThenEnum != null) {
@@ -320,12 +438,12 @@ public class RuleConfig {
   }
 
   
-  public boolean isRunDaemon() {
+  
+  public Boolean getRunDaemon() {
     return runDaemon;
   }
 
-  
-  public void setRunDaemon(boolean runDaemon) {
+  public void setRunDaemon(Boolean runDaemon) {
     this.runDaemon = runDaemon;
   }
 
@@ -385,5 +503,19 @@ public class RuleConfig {
       
     }
   }
+
+
+
+
+  public void setRuleDefinition(RuleDefinition ruleDef) {
+    this.ruleDefinition = ruleDef;
+  }
+
+  
+  public RuleDefinition getRuleDefinition() {
+    return ruleDefinition;
+  }
+  
+  
 
 }

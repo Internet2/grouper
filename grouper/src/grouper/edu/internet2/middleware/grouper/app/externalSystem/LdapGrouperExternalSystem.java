@@ -84,8 +84,8 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
       String result = list.get(0);
       if (!StringUtils.equals(uiTestExpectedValue, result)) {
         String errorMessage = GrouperTextContainer.textOrNull("grouperConfigurationTestExpectedNotMatchingResult");
-        errorMessage = errorMessage.replace("$$expectedValue$$", uiTestExpectedValue);
-        errorMessage = errorMessage.replace("$$receivedValue$$", result);
+        errorMessage = errorMessage.replace("##expectedValue##", uiTestExpectedValue);
+        errorMessage = errorMessage.replace("##receivedValue##", result);
         return GrouperUtil.toList(errorMessage);
       }
       return null;

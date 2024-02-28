@@ -25,6 +25,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.jsoup.internal.StringUtil;
 
 import edu.emory.mathcs.backport.java.util.Collections;
 import edu.internet2.middleware.grouper.Group;
@@ -79,6 +80,21 @@ public class RuleEngine {
     return this.ruleDefinitions;
   }
 
+  
+  public Set<RuleDefinition> getRuleDefinitions(boolean onlyValid) {
+    if (onlyValid) {
+      Set<RuleDefinition> validRuleDefinitions = new HashSet<>();
+      for (RuleDefinition ruleDefinition: GrouperUtil.nonNull(this.ruleDefinitions)) {
+        if (ruleDefinition.isValidInAttributes()) {
+          validRuleDefinitions.add(ruleDefinition);
+        }
+      }
+      return validRuleDefinitions;
+    }
+    return this.ruleDefinitions;
+  }
+
+  
   /**
    * get rule definitions from cache based on name or id
    * @param ruleCheck
@@ -226,10 +242,10 @@ public class RuleEngine {
               for (Set<AttributeAssignValueContainer> attributeAssignValueContainersSet : 
                   GrouperUtil.nonNull(attributeAssignValueContainers).values()) {
                 RuleDefinition ruleDefinition = new RuleDefinition(attributeAssignValueContainersSet);
-                if (ruleDefinition.isValidInAttributes()) {
+//                if (ruleDefinition.isValidInAttributes()) {
                   //dont validate, already validated
                   newDefinitions.add(ruleDefinition);
-                }                
+//                }                
               }
               
               newEngine.indexData();
@@ -271,6 +287,9 @@ public class RuleEngine {
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       
       RuleCheck originalRuleCheck = ruleDefinition.getCheck();
+      if (originalRuleCheck == null || StringUtil.isBlank(originalRuleCheck.getCheckType())) {
+        continue;
+      }
       RuleCheck ruleCheck = originalRuleCheck.checkTypeEnum().checkKey(ruleDefinition);
       
       if (StringUtils.isBlank(ruleCheck.getCheckOwnerId())

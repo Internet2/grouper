@@ -8,13 +8,13 @@
 
                       <ul class="dropdown-menu dropdown-menu-right" id="rules-more-options">
 
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}" > 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.addRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                        <c:if test="${grouperRequestContainer.groupContainer.canUpdate}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.addRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['rulesMoreActionsAddRule'] }</a></li>
                         </c:if>
                         
-                        <c:if test="${grouperRequestContainer.stemContainer.canCreateGroups}" >
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStemRules&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                        <c:if test="${grouperRequestContainer.rulesContainer.canReadRules}" >
+                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroupRules&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['rulesMoreActionsViewRule'] }</a></li>
                         </c:if>
 

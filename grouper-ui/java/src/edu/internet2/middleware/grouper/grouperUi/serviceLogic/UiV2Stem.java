@@ -54,6 +54,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemMove;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -104,13 +105,11 @@ import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleApi;
-import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
-import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
-import edu.internet2.middleware.grouper.rules.RuleOwnerType;
+import edu.internet2.middleware.grouper.rules.RulePattern;
 import edu.internet2.middleware.grouper.rules.RuleService;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
@@ -3871,7 +3870,7 @@ public class UiV2Stem {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, true, true).getStem();
       
       if (stem == null) {
         return;
@@ -3883,14 +3882,6 @@ public class UiV2Stem {
       
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
-      
-//      if (!checkReportConfigActive()) {
-//        return;
-//      }
-//      
-//      List<GuiReportConfig> guiReportConfigs = buildGuiReportConfigs(STEM);
-      
-//      grouperReportContainer.setGuiReportConfigs(guiReportConfigs);
       
       Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(stem);
       
@@ -3942,14 +3933,8 @@ public class UiV2Stem {
       rulesContainer.setAttributeAssignId(attributeAssignId);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
-      RuleConfig ruleConfig = new RuleConfig();
-      List<String> errors = populateRuleConfigFromScreen(request, ruleConfig);
-      if (errors.size() > 0) {
-        for (String error: errors) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
-        }
-        return;
-      }
+      RuleConfig ruleConfig = new RuleConfig(loggedInSubject, stem);
+      populateRuleConfigFromScreen(request, ruleConfig);
       
       rulesContainer.setRuleConfig(ruleConfig);
       
@@ -3987,11 +3972,35 @@ public class UiV2Stem {
       
       String attributeAssignId = request.getParameter("ruleId");
       
-      RuleConfig ruleConfig = RuleService.getRuleConfig(stem, attributeAssignId);
+      RuleConfig ruleConfig = RuleService.getRuleConfig(stem, attributeAssignId, loggedInSubject); 
       
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
+      
+      Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(stem);
+      RuleDefinition ruleDef = null;
+      for (RuleDefinition ruleDefinition: ruleDefinitions) {
+        if ( StringUtils.equals(ruleDefinition.getAttributeAssignType().getId(), attributeAssignId)) {
+          ruleDef = ruleDefinition;
+          break;
+        }
+      }
+      
+      if (ruleDef == null) {
+        throw new RuntimeException("Invalid ruleId "+attributeAssignId); 
+      }
+      
+      ruleConfig.setPattern(ruleDef.getPattern().name());
+      ruleConfig.setRuleDefinition(ruleDef);
+      
+      String previousRuleId = request.getParameter("previousRuleId");
+      
+      if (StringUtils.isBlank(previousRuleId)) {
+        // first time loading the screen. nothing to do
+      } else {
+        populateRuleConfigFromScreen(request, ruleConfig);
+      }
       
       rulesContainer.setRuleConfig(ruleConfig);
       rulesContainer.setAttributeAssignId(attributeAssignId);
@@ -4005,22 +4014,23 @@ public class UiV2Stem {
     
   }
   
-  private List<String> populateRuleConfigFromScreen(HttpServletRequest request, RuleConfig ruleConfig) {
-    
-    List<String> errors = new ArrayList<>();
+  private void populateRuleConfigFromScreen(HttpServletRequest request, RuleConfig ruleConfig) {
     
     String ruleCheckType = request.getParameter("grouperRuleCheckType");
     ruleConfig.setCheckType(ruleCheckType);
     
-    if (StringUtils.isNotBlank(ruleCheckType)) {
-      RuleCheckType ruleCheckTypeEnum = RuleCheckType.valueOfIgnoreCase(ruleCheckType, false);
-      if (ruleCheckTypeEnum != null) {
-        RuleOwnerType ruleOwnerType = ruleCheckTypeEnum.getOwnerType();
-        if (ruleOwnerType != RuleOwnerType.FOLDER && ruleOwnerType != RuleOwnerType.GROUP) {
-          errors.add(TextContainer.retrieveFromRequest().getText().get("grouperRuleConfigAddEditInvalidRuleCheckType"));
-          return errors;
-        }
+    String grouperRulePattern = request.getParameter("grouperRulePattern");
+    ruleConfig.setPattern(grouperRulePattern);
+    
+    if (StringUtils.isNotBlank(grouperRulePattern) && !StringUtils.equals(grouperRulePattern, "custom")) {
+      List<GrouperConfigurationModuleAttribute> elementsToShow = RulePattern.valueOf(grouperRulePattern).getElementsToShow(ruleConfig.getGrouperObject(), ruleConfig.getRuleDefinition());
+      
+      for (GrouperConfigurationModuleAttribute attribute: elementsToShow) {
+        String htmlElementName = "config_"+attribute.getConfigSuffix();
+        String value = request.getParameter(htmlElementName);
+        ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
       }
+      
     }
     
     String grouperRuleCheckOwner = request.getParameter("grouperRuleCheckOwner");
@@ -4034,17 +4044,6 @@ public class UiV2Stem {
     
     String grouperRuleIfConditionOption = request.getParameter("grouperRuleIfConditionOption");
     ruleConfig.setIfConditionOption(grouperRuleIfConditionOption);
-    
-    if (StringUtils.isNotBlank(grouperRuleIfConditionOption) && !StringUtils.equals(grouperRuleIfConditionOption, "EL")) {
-      RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(grouperRuleIfConditionOption, false);
-      if (ruleIfConditionEnum != null) {
-        RuleOwnerType ruleOwnerType = ruleIfConditionEnum.getOwnerType();
-        if (ruleOwnerType != RuleOwnerType.FOLDER && ruleOwnerType != RuleOwnerType.GROUP) {
-          errors.add(TextContainer.retrieveFromRequest().getText().get("grouperRuleConfigAddEditInvalidRuleConditionType"));
-          return errors;
-        }
-      }
-    }
     
     String grouperRuleIfConditionOwner = request.getParameter("grouperRuleIfConditionOwner");
     ruleConfig.setIfConditionOwner(grouperRuleIfConditionOwner);
@@ -4086,9 +4085,7 @@ public class UiV2Stem {
     ruleConfig.setThenArg2(grouperRuleThenArg2);
     
     String grouperRuleRunDaemon = request.getParameter("grouperRuleRunDaemon");
-    ruleConfig.setRunDaemon(GrouperUtil.booleanValue(grouperRuleRunDaemon, true));
-    
-    return errors;
+    ruleConfig.setRunDaemon(GrouperUtil.booleanObjectValue(grouperRuleRunDaemon));
     
   }
   
@@ -4167,18 +4164,27 @@ public class UiV2Stem {
       
       String attributeAssignId = request.getParameter("ruleId");
       
-      RuleConfig ruleConfig = new RuleConfig();
-      List<String> errors = populateRuleConfigFromScreen(request, ruleConfig);
-      if (errors.size() > 0) {
-        for (String error: errors) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
-        }
-        return;
-      }
+      RuleConfig ruleConfig = new RuleConfig(loggedInSubject, stem);
+      populateRuleConfigFromScreen(request, ruleConfig);
       
       rulesContainer.setRuleConfig(ruleConfig);
       
-      Map<String, List<String>> typeWithMessages = RuleService.saveOrUpdateRuleAttributes(ruleConfig, stem, attributeAssignId);
+      Map<String, List<String>> typeWithMessages = null;
+      if (StringUtils.isNotBlank(ruleConfig.getPattern()) && !StringUtils.equals(ruleConfig.getPattern(), "custom")) {
+        
+        List<String> errorsDuringValidation = ruleConfig.getRulePattern().validate(ruleConfig, loggedInSubject);
+        if (errorsDuringValidation.size() > 0) {
+          for (String error: errorsDuringValidation) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+          }
+          return;
+        }
+        
+        typeWithMessages = ruleConfig.getRulePattern().save(ruleConfig, attributeAssignId);
+      } else {
+                
+        typeWithMessages = RuleService.saveOrUpdateRuleAttributes(ruleConfig, stem, attributeAssignId);
+      }
       
       if (typeWithMessages.get("ERROR") != null && typeWithMessages.get("ERROR").size() > 0) {
         

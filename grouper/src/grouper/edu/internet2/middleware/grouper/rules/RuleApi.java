@@ -1101,7 +1101,7 @@ public class RuleApi {
     StringBuilder result = new StringBuilder();
     int i=0;
 
-    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions(true)) {
       
       result.append("Rule " + i + ": ");
       

@@ -89,6 +89,19 @@ public class GrouperConfigurationModuleAttribute {
    */
   private int repeatGroupIndex = -1;
   
+  private String label;
+  
+  
+  public void setLabel(String label) {
+    this.label = label;
+  }
+  
+  private String description;
+  
+  
+  public void setDescription(String description) {
+    this.description = description;
+  }
 
   public GrouperConfigurationModuleBase getGrouperConfigModule() {
     return grouperConfigModule;
@@ -194,6 +207,7 @@ public class GrouperConfigurationModuleAttribute {
    * config item metadata this attribute is backed with
    */
   private ConfigItemMetadata configItemMetadata;
+
   
   /**
    * config item metadata this attribute is backed with
@@ -216,6 +230,10 @@ public class GrouperConfigurationModuleAttribute {
    * @return
    */
   public String getLabel() {
+    
+    if (StringUtils.isNotBlank(this.label)) {
+      return this.label;
+    }
     
     String realConfigSuffix = this.getConfigSuffix();
     String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+\\.", ".i.");
@@ -241,6 +259,9 @@ public class GrouperConfigurationModuleAttribute {
    */
   public String getDescription() {
     
+    if (StringUtils.isNotBlank(this.description)) {
+      return this.description;
+    }
     
     String realConfigSuffix = this.getConfigSuffix();
     String iOrRealConfigSuffix = realConfigSuffix.replaceAll("\\.[0-9]+\\.", ".i.");

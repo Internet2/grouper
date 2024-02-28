@@ -17,11 +17,21 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
+import edu.internet2.middleware.grouper.rules.RulePattern;
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -29,6 +39,9 @@ import edu.internet2.middleware.subject.Subject;
  * rule to be displayed on screen
  */
 public class GuiRuleDefinition implements Serializable, Comparable {
+  
+  
+  private static final ExpirableCache<MultiKey, Boolean> rulesEditors = new ExpirableCache<MultiKey, Boolean>(5);
 
   /**
    * rule definition this is based on
@@ -576,8 +589,21 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     return "";
   }
 
-  public boolean isCanRunDaemon() {
-    return this.ruleDefinition.getCheck().checkTypeEnum().canRunDeamon(this.ruleDefinition);
+  public String getWillRunDaemon() {
+    
+    for (RulePattern rulePattern : RulePattern.values()) {
+      if (rulePattern.isThisThePattern(this.ruleDefinition)) {
+        if (rulePattern.isDaemonApplicable()) {
+          if (GrouperUtil.booleanValue(this.ruleDefinition.getRunDaemon(), true)) {
+            return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableYesLabel");
+          }
+          return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableNoLabel");
+        }
+      }
+    }
+    
+    return GrouperTextContainer.textOrNull("provisioningConfigTableHeaderProvisionableNotApplicableLabel");
+
   }
   
   public boolean isFiresImmeditately() {
@@ -586,6 +612,75 @@ public class GuiRuleDefinition implements Serializable, Comparable {
       return false;
     }
     return true;
+  }
+  
+  public boolean isCanViewRule() {
+    
+    AttributeAssign attributeAssignType = this.ruleDefinition.getAttributeAssignType();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    if (StringUtils.isNotBlank(attributeAssignType.getOwnerGroupId())) {
+      Group group = attributeAssignType.getOwnerGroup();
+      return group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false);
+    } else if (StringUtils.isNotBlank(attributeAssignType.getOwnerStemId())) {
+      
+      Stem stem = attributeAssignType.getOwnerStem();
+      return stem.canHavePrivilege(loggedInSubject, NamingPrivilege.CREATE.getName(), false);
+    }
+    
+    //TODO implement for attribute def
+    return false;
+    
+  }
+  
+  public boolean isCanEditRule() {
+    
+    AttributeAssign attributeAssignType = this.ruleDefinition.getAttributeAssignType();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    Boolean subjectInCache = rulesEditors.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
+    if (subjectInCache != null) {
+      if (subjectInCache == false) {
+        return false;
+      }
+    } else {
+      String restrictRulesGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesUiToMembersOfThisGroupName", "");
+      if (StringUtils.isNotBlank(restrictRulesGroupName)) {
+        Group restrictRulesGroup = GroupFinder.findByName(restrictRulesGroupName, false);
+        if (restrictRulesGroup != null) {
+          if (restrictRulesGroup.hasMember(loggedInSubject)) {
+            rulesEditors.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
+          } else {
+            rulesEditors.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
+            return false;
+          }
+          
+        } else {
+          LOG.warn("rules.restrictRulesUiToMembersOfThisGroupName is set to '"+restrictRulesGroupName+"' and it does not exist.");
+        }
+      }
+    }
+    
+    //TODO call this method from UiV2Stem and UiV2Group on editRuleOnStem, addRuleOnStemSubmit, deleteRuleOnStem
+    
+    if (StringUtils.isNotBlank(attributeAssignType.getOwnerGroupId())) {
+      Group group = attributeAssignType.getOwnerGroup();
+      return group.canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false);
+    } else if (StringUtils.isNotBlank(attributeAssignType.getOwnerStemId())) {
+      
+      Stem stem = attributeAssignType.getOwnerStem();
+      return stem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false);
+    }
+    
+    //TODO implement for attribute def
+    return false;
+    
   }
 
   

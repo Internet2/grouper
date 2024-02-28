@@ -2989,21 +2989,21 @@ public class Hib3AttributeAssignDAO extends Hib3DAO implements AttributeAssignDA
     }
     
     //lets take out invalid ones
-    Iterator<AttributeAssign> iterator = result.keySet().iterator();
-    OUTER: while (iterator.hasNext()) {
-      
-      currentContainers = result.get(iterator.next());
-      for (AttributeAssignValueContainer attributeAssignValueContainer : currentContainers) {
-        if (StringUtils.equals(RuleUtils.ruleValidName(), attributeAssignValueContainer.getAttributeDefName().getName())) {
-          if (StringUtils.equals("T", attributeAssignValueContainer.getAttributeAssignValue().getValueString())) {
-            //leave this in
-            continue OUTER;
-          }
-        }
-      }
-      //invalid, take out
-      iterator.remove();
-    }
+//    Iterator<AttributeAssign> iterator = result.keySet().iterator();
+//    OUTER: while (iterator.hasNext()) {
+//      
+//      currentContainers = result.get(iterator.next());
+//      for (AttributeAssignValueContainer attributeAssignValueContainer : currentContainers) {
+//        if (StringUtils.equals(RuleUtils.ruleValidName(), attributeAssignValueContainer.getAttributeDefName().getName())) {
+//          if (StringUtils.equals("T", attributeAssignValueContainer.getAttributeAssignValue().getValueString())) {
+//            //leave this in
+//            continue OUTER;
+//          }
+//        }
+//      }
+//      //invalid, take out
+//      iterator.remove();
+//    }
     
     return result;
   }

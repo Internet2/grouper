@@ -1987,7 +1987,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
         public Object callback(GrouperSession rootSession) throws GrouperSessionException {
 
           // need to potentially update attribute def name in rules
-          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions(true);
           for (RuleDefinition definition : definitions) {
             if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
                 definition.getCheck().checkTypeEnum().isCheckOwnerTypeAttributeDef(definition) && AttributeDef.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {

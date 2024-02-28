@@ -2671,7 +2671,7 @@ public class UiV2Provisioning {
           label = labelKey;
         }
         String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataItemRequired");
-        errorMessage = errorMessage.replace("$$metadataLabel$$", label);
+        errorMessage = errorMessage.replace("##metadataLabel##", label);
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
       }
       
@@ -2695,7 +2695,7 @@ public class UiV2Provisioning {
                     label = labelKey;
                   }
                   String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataItemNotUnique");
-                  errorMessage = errorMessage.replace("$$metadataLabel$$", label);
+                  errorMessage = errorMessage.replace("##metadataLabel##", label);
                   guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
                   errors = true;
                 }
@@ -2719,8 +2719,8 @@ public class UiV2Provisioning {
 //          }
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
-          errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");
-          errorMessage = errorMessage.replace("$$type$$", metadataItem.getValueType().name());
+          errorMessage = errorMessage.replace("##value##", "'"+value+"'");
+          errorMessage = errorMessage.replace("##type##", metadataItem.getValueType().name());
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
           errors = true;
         }
@@ -2733,8 +2733,8 @@ public class UiV2Provisioning {
           metadataNameValuesToPopulate.put(name, convertedValues);
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
-          errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");
-          errorMessage = errorMessage.replace("$$type$$", metadataItem.getValueType().name());
+          errorMessage = errorMessage.replace("##value##", "'"+value+"'");
+          errorMessage = errorMessage.replace("##type##", metadataItem.getValueType().name());
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
           errors = true;
         }

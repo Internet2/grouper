@@ -237,14 +237,14 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
           tableName.getValueOrExpressionEvaluation());
     } catch (Exception e) {
       String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithGroupTableConfigurationValidationGroupTableNotFound");
-      errorMessage = errorMessage.replace("$$tableName$$", tableName.getValueOrExpressionEvaluation());
+      errorMessage = errorMessage.replace("##tableName##", tableName.getValueOrExpressionEvaluation());
       validationErrorsToDisplay.put(tableName.getHtmlForElementIdHandle(), errorMessage);
       return;
     }
      
     if (tableMetadata == null) {
       String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithGroupTableConfigurationValidationGroupTableNotFound");
-      errorMessage = errorMessage.replace("$$tableName$$", tableName.getValueOrExpressionEvaluation());
+      errorMessage = errorMessage.replace("##tableName##", tableName.getValueOrExpressionEvaluation());
       validationErrorsToDisplay.put(tableName.getHtmlForElementIdHandle(), errorMessage);
       return;
     }
@@ -267,7 +267,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       if (colNamesSet.size() > 0) {
         String notFoundColNames = GrouperUtil.join(colNamesSet.iterator(), ',');
         String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithGroupTableConfigurationValidationGroupIdColumnNotFound");
-        errorMessage = errorMessage.replace("$$column$$", notFoundColNames);
+        errorMessage = errorMessage.replace("##column##", notFoundColNames);
         validationErrorsToDisplay.put(columnNames.getHtmlForElementIdHandle(), errorMessage);
       }
       
@@ -289,7 +289,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       
       if (!groupTableIdColumnFound) {
         String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithGroupTableConfigurationValidationGroupIdColumnNotFound");
-        errorMessage = errorMessage.replace("$$column$$", column.getValueOrExpressionEvaluation());
+        errorMessage = errorMessage.replace("##column##", column.getValueOrExpressionEvaluation());
         validationErrorsToDisplay.put(column.getHtmlForElementIdHandle(), errorMessage);
       }
       

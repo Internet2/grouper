@@ -4,7 +4,6 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -22,12 +21,16 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
+import edu.internet2.middleware.grouper.rules.RuleOwnerType;
+import edu.internet2.middleware.grouper.rules.RulePattern;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
@@ -249,7 +252,7 @@ public class RulesContainer {
     return this.canUpdateRules;
   
   }
-
+  
   
   public GuiRuleDefinition getCurrentGuiRuleDefinition() {
     return currentGuiRuleDefinition;
@@ -263,8 +266,20 @@ public class RulesContainer {
   public Map<String, String> getAllCheckTypes() {
     RuleCheckType[] values = RuleCheckType.values();
     Map<String, String> checkTypes = new HashMap<>();
+    
+    
     for (RuleCheckType checkType: values) {
-      checkTypes.put(checkType.name(), TextContainer.textOrNull("ruleCheckTypeOptionUserFriendlyLabel_"+checkType.name()));
+      
+      GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+      GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+      
+      if (guiStem != null && checkType.getOwnerType() == RuleOwnerType.FOLDER) {
+        checkTypes.put(checkType.name(), TextContainer.textOrNull("ruleCheckTypeOptionUserFriendlyLabel_"+checkType.name()));
+      } else if (guiGroup != null && checkType.getOwnerType() == RuleOwnerType.GROUP) {
+        checkTypes.put(checkType.name(), TextContainer.textOrNull("ruleCheckTypeOptionUserFriendlyLabel_"+checkType.name()));
+      }
+      
+      
     }
     
     List<Entry<String, String>> list = new LinkedList<>(checkTypes.entrySet());
@@ -277,6 +292,36 @@ public class RulesContainer {
     
     return sortedMap;
   }
+  
+  public Map<String, String> getAllPatterns() {
+    RulePattern[] values = RulePattern.values();
+    Map<String, String> rulePatterns = new HashMap<>();
+    
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    
+    for (RulePattern pattern: values) {
+      if (guiStem != null && pattern.isApplicableForFolders()) {
+        rulePatterns.put(pattern.name(), pattern.getUserFriendlyText());
+      } else if (guiGroup != null && pattern.isApplicableForGroups()) {
+        rulePatterns.put(pattern.name(), pattern.getUserFriendlyText());
+      }
+    }
+    
+    List<Entry<String, String>> list = new LinkedList<>(rulePatterns.entrySet());
+    Collections.sort(list, (o1, o2) -> o1.getValue().compareTo(o2.getValue()));
+
+    Map<String, String> sortedMap = new LinkedHashMap<>();
+    for (Entry<String, String> entry : list) {
+        sortedMap.put(entry.getKey(), entry.getValue());
+    }
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      sortedMap.put("custom", TextContainer.textOrNull("rulePatternCustomUserFriendlyText")); //Custom pattern at he the bottom
+    }    
+    return sortedMap;
+  }
 
   public Map<String, String> getAllIfConditionOptions() {
     RuleIfConditionEnum[] ruleIfConditionEnums = RuleIfConditionEnum.values();
@@ -284,14 +329,30 @@ public class RulesContainer {
     
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    
+    
     for (RuleIfConditionEnum ruleIfConditionEnum: ruleIfConditionEnums) {
       
       if (ruleIfConditionEnum.isAdminOnly()) {
         if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-          result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+          
+          if (guiStem != null && ruleIfConditionEnum.getOwnerType() == RuleOwnerType.FOLDER) {
+            result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+          } else if (guiGroup != null && ruleIfConditionEnum.getOwnerType() == RuleOwnerType.GROUP) {
+            result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+          }
+          
         }
       } else {
-        result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+        
+        if (guiStem != null && ruleIfConditionEnum.getOwnerType() == RuleOwnerType.FOLDER) {
+          result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+        } else if (guiGroup != null && ruleIfConditionEnum.getOwnerType() == RuleOwnerType.GROUP) {
+          result.put(ruleIfConditionEnum.name(), TextContainer.textOrNull("ruleIfConditionOptionUserFriendlyLabel_"+ruleIfConditionEnum.name()));
+        }
+        
       }
       
     }
@@ -313,7 +374,12 @@ public class RulesContainer {
     RuleThenEnum[] ruleThenEnums = RuleThenEnum.values();
     Map<String, String> result = new HashMap<>();
     for (RuleThenEnum ruleThenEnum: ruleThenEnums) {
-      result.put(ruleThenEnum.name(), TextContainer.textOrNull("ruleThenOptionUserFriendlyLabel_"+ruleThenEnum.name()));
+      
+      String userFriendlyLabel = TextContainer.textOrNull("ruleThenOptionUserFriendlyLabel_"+ruleThenEnum.name());
+      if (StringUtils.isBlank(userFriendlyLabel)) {
+        userFriendlyLabel = ruleThenEnum.name();
+      }
+      result.put(ruleThenEnum.name(), userFriendlyLabel);
     }
     
     List<Entry<String, String>> list = new LinkedList<>(result.entrySet());
@@ -349,6 +415,10 @@ public class RulesContainer {
   
   public String getAttributeAssignId() {
     return attributeAssignId;
+  }
+  
+  public boolean isCanViewAllRules() {
+    return true;
   }
 
   

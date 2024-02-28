@@ -20,13 +20,14 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
 
-import org.apache.commons.codec.binary.StringUtils;
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -99,7 +100,7 @@ public class RuleFinder {
 
     boolean wheelOrRoot = PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject());
 
-    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions(true)) {
       if (ruleDefinition == null || ruleDefinition.getCheck() == null || ruleDefinition.getCheck().checkTypeEnum() == null) {
         continue;
       }
@@ -210,7 +211,7 @@ public class RuleFinder {
     //if checking security
     boolean wheelOrRoot = PrivilegeHelper.isWheelOrRoot(GrouperSession.staticGrouperSession().getSubject());
 
-    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions(true)) {
       if (ruleDefinition.getThen() == null || ruleDefinition.getThen().thenEnum() == null) {
         continue;
       }
@@ -369,6 +370,21 @@ public class RuleFinder {
 
   }
   
+  
+  public static Set<RuleDefinition> retrieveRuleDefinitionsForSubject(Subject subject) {
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<>();
+    
+    RuleEngine ruleEngine = RuleEngine.ruleEngine();
+    
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions(false)) {
+      ruleDefinitions.add(ruleDefinition);
+    }
+    
+    return ruleDefinitions;
+    
+  }
+  
   /**
    * get all the rule definitions that are associated with the given grouper object. 
    * @param grouperObject
@@ -380,13 +396,20 @@ public class RuleFinder {
     
     RuleEngine ruleEngine = RuleEngine.ruleEngine();
     
-    //TODO remove it
-    ruleDefinitions.addAll(ruleEngine.getRuleDefinitions());
+    Set<String> parentStemNames = GrouperUtil.findParentStemNames(grouperObject.getName());
+    Set<Stem> parentStems = StemFinder.findByNames(parentStemNames, false);
     
-    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions()) {
+    Set<String> parentIds = new HashSet<>();
+    for (Stem stem: GrouperUtil.nonNull(parentStems)) {
+      parentIds.add(stem.getUuid());
+    }
+    
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions(false)) {
+      
+      AttributeAssign attributeAssignType = ruleDefinition.getAttributeAssignType();
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
       
       {
-        AttributeAssign attributeAssignType = ruleDefinition.getAttributeAssignType();
         if (attributeAssignType != null) {
           if (StringUtils.equals(attributeAssignType.getOwnerGroupId(), grouperObject.getId())) {
             ruleDefinitions.add(ruleDefinition);
@@ -395,11 +418,11 @@ public class RuleFinder {
             ruleDefinitions.add(ruleDefinition);
             continue;
           }
+          
         }
       }
       
       {
-        RuleCheck ruleCheck = ruleDefinition.getCheck();
         if (ruleCheck != null) {
           if (StringUtils.equals(ruleCheck.getCheckOwnerId(), grouperObject.getId())) {
             ruleDefinitions.add(ruleDefinition);
@@ -421,6 +444,14 @@ public class RuleFinder {
             ruleDefinitions.add(ruleDefinition);
             continue;
           }
+        }
+      }
+      
+      {
+        if (StringUtils.isNotBlank(attributeAssignType.getOwnerStemId()) && parentIds.contains(attributeAssignType.getOwnerStemId()) 
+            && ruleCheck != null && StringUtils.equalsIgnoreCase(ruleCheck.getCheckStemScope(), "SUB")) {
+          ruleDefinitions.add(ruleDefinition);
+          continue;
         }
       }
       

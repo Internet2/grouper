@@ -46,6 +46,11 @@
                         ${textContainer.text['adminProvisionerConfigurationsLink'] }</a>
                     </c:if>
                     
+                    <c:if test="${grouperRequestContainer.rulesContainer.canViewAllRules}">
+                      <br /><br /><a href="#" onclick="return guiV2link('operation=UiV2Rules.viewAllRules');" style="white-space: nowrap;">
+                        ${textContainer.text['adminRulesConfigurationsLink'] }</a>
+                    </c:if>
+                    
                   </div>
                 </div>
                 

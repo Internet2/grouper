@@ -3712,7 +3712,7 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
           // need to potentially update stem name in rules
-          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions();
+          Set<RuleDefinition> definitions = RuleEngine.ruleEngine().getRuleDefinitions(true);
           for (RuleDefinition definition : definitions) {
             if (definition.getCheck() != null && definition.getCheck().checkTypeEnum() != null && 
                 definition.getCheck().checkTypeEnum().isCheckOwnerTypeStem(definition) && Stem.this.dbVersion().getName().equals(definition.getCheck().getCheckOwnerName())) {

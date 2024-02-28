@@ -160,6 +160,12 @@
                             >${textContainer.text['groupViewReportButton'] }</a></li>
                         </c:if>
                         
+                         <c:if test="${isWheelGroupMember || grouperRequestContainer.groupContainer.canRead}">
+
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroupRules&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                                >${textContainer.text['stemViewRulesButton'] }</a></li>
+                        </c:if>
+                        
                         <c:if test="${grouperRequestContainer.objectTypeContainer.canReadObjectType}">
                           <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2GrouperObjectTypes.viewObjectTypesOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['objectTypeMoreActionsMenuLabel'] }</a></li>
