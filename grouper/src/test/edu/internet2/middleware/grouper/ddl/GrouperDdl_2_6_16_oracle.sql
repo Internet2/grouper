@@ -663,7 +663,7 @@ CREATE TABLE grouper_attribute_assign
     owner_member_id VARCHAR2(40),
     owner_membership_id VARCHAR2(40),
     owner_stem_id VARCHAR2(40),
-    disallowed VARCHAR2(1) DEFAULT 'F' NOT NULL,
+    disallowed VARCHAR2(1) DEFAULT 'F',
     PRIMARY KEY (id)
 );
 
@@ -1050,7 +1050,7 @@ CREATE TABLE grouper_pit_attribute_assign
     end_time NUMBER(38),
     context_id VARCHAR2(40),
     hibernate_version_number NUMBER(38),
-    disallowed VARCHAR2(1) DEFAULT 'F' NOT NULL,
+    disallowed VARCHAR2(1) DEFAULT 'F',
     PRIMARY KEY (id)
 );
 
