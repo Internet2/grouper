@@ -65,30 +65,34 @@ public class GrouperReportJob implements Job {
    */
   public static void runJob(Hib3GrouperLoaderLog hib3GrouploaderLog, String jobName) throws JobExecutionException {
  
-    Pattern grouperReportingJobNamePattern = Pattern.compile("^grouper_report_([a-zA-Z0-9]+)_(\\w+)$");
-        
-    long startTime = System.currentTimeMillis();
-        
-    boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("grouperReportLog");
-        
-    GrouperObject groupOrStem = null;
-    GrouperSession grouperSession = null;
-    GrouperReportInstance newReportInstance = new GrouperReportInstance();
     try {
-      grouperSession = GrouperSession.startRootSession();
-            
-      if (!"STARTED".equals(hib3GrouploaderLog.getStatus()) && GrouperLoader.isJobRunning(jobName, true)) {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+  
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Pattern grouperReportingJobNamePattern = Pattern.compile("^grouper_report_([a-zA-Z0-9]+)_(\\w+)$");
+              
+          long startTime = System.currentTimeMillis();
+              
+          boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("grouperReportLog");
+              
+          GrouperObject groupOrStem = null;
+          GrouperReportInstance newReportInstance = new GrouperReportInstance();
+          try {
+            GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
+                  
+            if (!"STARTED".equals(hib3GrouploaderLog.getStatus()) && GrouperLoader.isJobRunning(jobName, true)) {
               GrouperLoaderLogger.addLogEntry("grouperReportLog", "grouperReportingJobAlreadyRunningSoAborting", true);
               LOG.warn("job " + jobName + " is currently running already.  Aborting this run");
-        return;
+              return null;
             }
-            
+                  
             if (!GrouperReportSettings.grouperReportsEnabled()) {
               GrouperLoaderLogger.addLogEntry("grouperReportLog", "grouperReportingNotEnabledSoAborting", true);
               LOG.info("grouper reporting is not enabled. aborting this run");
-        return;
+              return null;
             }
-            
+                  
             hib3GrouploaderLog.setJobName(jobName);
             
             Matcher matcher = grouperReportingJobNamePattern.matcher(jobName);
@@ -102,7 +106,7 @@ public class GrouperReportJob implements Job {
             
             if (ownerGroupStemId == null || attributeAssignmentMarkerId == null) {
               LOG.error("what?? why ownerGroupStemId or attributeAssignmentMarkerId is null. job name is "+jobName);
-        return;
+              return null;
             }
             
             groupOrStem = GroupFinder.findByUuid(grouperSession, ownerGroupStemId, false);
@@ -113,7 +117,7 @@ public class GrouperReportJob implements Job {
             if (groupOrStem == null) {
               LOG.warn("owner grouper object is null for uuid: "+ownerGroupStemId+" job name is: "+jobName);
               GrouperReportConfigService.deleteJobs(ownerGroupStemId);
-        return;
+              return null;
             }
             
             hib3GrouploaderLog.setHost(GrouperUtil.hostname());
@@ -156,16 +160,25 @@ public class GrouperReportJob implements Job {
             hib3GrouploaderLog.setStatus(ERROR.name());
             hib3GrouploaderLog.setJobMessage(GrouperUtil.getFullStackTrace(e));
             storeLogInDb(hib3GrouploaderLog, false, startTime);
-      throw jobExecutionException;
+            throw new RuntimeException(jobExecutionException);
       
-    } finally {
-      if (loggerInitted) {
-        GrouperLoaderLogger.doTheLogging("grouperReportLog");
-      }
-      storeLogInDb(hib3GrouploaderLog, false, startTime);
-      GrouperSession.stopQuietly(grouperSession);
-    }
+          } finally {
+            GrouperDaemonUtils.clearThreadLocalHib3GrouperLoaderLogOverall();
 
+            if (loggerInitted) {
+              GrouperLoaderLogger.doTheLogging("grouperReportLog");
+            }
+            storeLogInDb(hib3GrouploaderLog, false, startTime);
+          }
+          return null;
+        }
+      });
+    } catch (RuntimeException re) {
+      if (re.getCause() instanceof JobExecutionException) {
+        throw (JobExecutionException)re.getCause();
+      }
+      throw re;
+    }
   }
   
   /**

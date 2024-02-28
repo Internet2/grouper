@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.loader;
 
+import java.lang.ref.WeakReference;
 import java.util.Date;
 import java.util.List;
 import java.util.Map;
@@ -15,7 +16,7 @@ public class GrouperDaemonUtils {
 
   private static final Log LOG = GrouperUtil.getLog(GrouperDaemonUtils.class);
   
-  private static ThreadLocal<Hib3GrouperLoaderLog> threadLocalHib3GrouperLoaderLogOverall = new InheritableThreadLocal<Hib3GrouperLoaderLog>();
+  private static ThreadLocal<WeakReference<Hib3GrouperLoaderLog>> threadLocalHib3GrouperLoaderLogOverall = new InheritableThreadLocal<>();
 
   private static Map<String, Date> pausedRunningJobs = new ConcurrentHashMap<String, Date>();
   
@@ -106,14 +107,15 @@ public class GrouperDaemonUtils {
    * @param hib3GrouperLoaderLog
    */
   public static void setThreadLocalHib3GrouperLoaderLogOverall(Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
-    threadLocalHib3GrouperLoaderLogOverall.set(hib3GrouperLoaderLog);
+    threadLocalHib3GrouperLoaderLogOverall.set(new WeakReference<Hib3GrouperLoaderLog>(hib3GrouperLoaderLog));
   }
   
   /**
    * @return overall grouper loader log
    */
   public static Hib3GrouperLoaderLog getThreadLocalHib3GrouperLoaderLogOverall() {
-    return threadLocalHib3GrouperLoaderLogOverall.get();
+    WeakReference<Hib3GrouperLoaderLog> weakReference = threadLocalHib3GrouperLoaderLogOverall.get();
+    return weakReference == null ? null : weakReference.get();
   }
   
   /**

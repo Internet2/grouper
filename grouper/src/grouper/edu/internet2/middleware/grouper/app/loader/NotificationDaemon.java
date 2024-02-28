@@ -77,8 +77,6 @@ public class NotificationDaemon extends OtherJobBase {
 
   private Map<String, Object> debugMap = null;
 
-  private GrouperSession grouperSession = null;
-  
   private String jobName = null;
   
   private List<Subject> emailSummaryToSubjects = null;
@@ -125,7 +123,10 @@ public class NotificationDaemon extends OtherJobBase {
     
     debugMap = new LinkedHashMap<String, Object>();
     
-    grouperSession = GrouperSession.startRootSession();
+    return (OtherJobOutput)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
 
         jobName = otherJobInput.getJobName();
         
@@ -287,38 +288,41 @@ public class NotificationDaemon extends OtherJobBase {
         results = new GcDbAccess().connectionName(emailListDbConnection)
             .sql(emailListQuery)
             .selectList(Object[].class);
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-    gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(emailListDbConnection, emailListQuery);
-
-    for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
-      GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
-      if ("subject_id".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
-        subjectIdIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
-        break;
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
+        gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(emailListDbConnection, emailListQuery);
+    
+        for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
+          GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
+          if ("subject_id".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
+            subjectIdIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
+            break;
+          }
+        }
+        
+        GrouperUtil.assertion(!isNotification || subjectIdIndex >= 0, "Cannot find a column named: subject_id: " + emailListQuery);
+        
+        
+        for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
+          GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
+          if ("email_address_to_send_to".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
+            emailAddressIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
+            break;
+          }
+        }
+        
+        otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(results));
+    
+        if (isNotification) {
+              sendNotifications(grouperSession);
+        } else if (isSummary) {
+              sendSummary(grouperSession);
+        }
+        
+        return null;
       }
-    }
+    });
     
-    GrouperUtil.assertion(!isNotification || subjectIdIndex >= 0, "Cannot find a column named: subject_id: " + emailListQuery);
-    
-    
-    for (int i=0;i<gcTableSyncTableMetadata.getColumnMetadata().size();i++) {
-      GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.getColumnMetadata().get(i);
-      if ("email_address_to_send_to".equals(gcTableSyncColumnMetadata.getColumnName().toLowerCase())) {
-        emailAddressIndex = gcTableSyncColumnMetadata.getColumnIndexZeroIndexed();
-        break;
-      }
-    }
-    
-    otherJobInput.getHib3GrouperLoaderLog().addTotalCount(GrouperUtil.length(results));
-
-    if (isNotification) {
-          sendNotifications(grouperSession);
-    } else if (isSummary) {
-          sendSummary(grouperSession);
-    }
-    
-    return null;
   }
 
   public void sendSummary(GrouperSession grouperSession) {

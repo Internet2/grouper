@@ -543,6 +543,11 @@ public class GroupSave {
   private TypeOfGroup typeOfGroup = null;
 
 
+  
+  public TypeOfGroup getTypeOfGroup() {
+    return typeOfGroup;
+  }
+
   private boolean replaceAllSettings = true;
 
 

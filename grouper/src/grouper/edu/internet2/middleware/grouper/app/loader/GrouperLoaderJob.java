@@ -85,12 +85,17 @@ public class GrouperLoaderJob implements Job {
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap("overallLog");
     
     Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-
-    Group group = null;
-    AttributeDef attributeDef = null;
-    GrouperSession grouperSession = null;
     try {
-      grouperSession = GrouperSession.startRootSession();
+
+      GrouperDaemonUtils.setThreadLocalHib3GrouperLoaderLogOverall(hib3GrouploaderLog);
+
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+  
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          Group group = null;
+          AttributeDef attributeDef = null;
           String jobName = context.getJobDetail().getKey().getName();
       
           GrouperLoaderLogger.addLogEntry("overallLog", "startTime", new Date());
@@ -98,7 +103,7 @@ public class GrouperLoaderJob implements Job {
           if (GrouperLoader.isJobRunning(jobName, true)) {
             GrouperLoaderLogger.addLogEntry("overallLog", "alreadyRunningSoAborting", true);
             LOG.warn("Data in grouper_loader_log suggests that job " + jobName + " is currently running already.  Aborting this run.");
-        return;
+            return null;
           }
           
           hib3GrouploaderLog.setJobName(jobName);
@@ -351,6 +356,9 @@ public class GrouperLoaderJob implements Job {
             //all other jobs go through here
             runJob(hib3GrouploaderLog, group, grouperSession);
           }
+        return null;
+      }
+    });
     } catch (Throwable e) {
       LOG.error("Error running up job", e);
       if (!(e instanceof JobExecutionException)) {
@@ -365,7 +373,6 @@ public class GrouperLoaderJob implements Job {
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }
-      GrouperSession.stopQuietly(grouperSession);
     }
     
     

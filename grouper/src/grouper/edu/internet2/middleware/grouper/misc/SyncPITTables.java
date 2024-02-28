@@ -192,102 +192,102 @@ public class SyncPITTables {
         }
         
        
-      
-      count += processMissingActivePITFields();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITMembers();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITStems();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITGroups();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITRoleSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITAttributeDefs();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITAttributeDefNames();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITAttributeDefNameSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITAttributeAssignActions();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITAttributeAssignActionSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITGroupSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITMemberships();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITAttributeAssigns();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITAttributeAssignValues();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingActivePITConfigs();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      
-      
-      count += processMissingInactivePITAttributeAssignValues();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITAttributeAssigns();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITMemberships();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITGroupSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITAttributeAssignActionSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITAttributeAssignActions();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITAttributeDefNameSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITAttributeDefNames();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITAttributeDefs();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITRoleSets();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITGroups();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITStems();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITMembers();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITFields();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      count += processMissingInactivePITConfigs();
-      GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-      
+        
+        count += processMissingActivePITFields();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITMembers();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITStems();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITGroups();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITRoleSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITAttributeDefs();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITAttributeDefNames();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITAttributeDefNameSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITAttributeAssignActions();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITAttributeAssignActionSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITGroupSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITMemberships();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITAttributeAssigns();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITAttributeAssignValues();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingActivePITConfigs();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        
+        
+        count += processMissingInactivePITAttributeAssignValues();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITAttributeAssigns();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITMemberships();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITGroupSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITAttributeAssignActionSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITAttributeAssignActions();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITAttributeDefNameSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITAttributeDefNames();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITAttributeDefs();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITRoleSets();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITGroups();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITStems();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITMembers();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITFields();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        count += processMissingInactivePITConfigs();
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+  
+        
     
-    return count;
+        return count;
       }
     });
 

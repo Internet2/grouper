@@ -139,7 +139,7 @@ public class UpgradeTasksJob extends OtherJobBase {
     String upgradeTasksVersionName = grouperUpgradeTasksStemName() + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
     String versionString = group.getAttributeValueDelegate().retrieveValueString(upgradeTasksVersionName);
     
-    int oldDBVersion = Integer.parseInt(versionString);  
+    int oldDBVersion = GrouperUtil.intValue(versionString, 0);
     return oldDBVersion;
   }
 }

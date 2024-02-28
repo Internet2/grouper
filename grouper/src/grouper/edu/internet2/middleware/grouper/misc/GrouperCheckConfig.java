@@ -611,6 +611,7 @@ public class GrouperCheckConfig {
                     // group that deprovisioned users go in (temporarily, but history will always be there)
                     String deprovisioningGroupWhichHasBeenDeprovisionedName = GrouperDeprovisioningJob.retrieveGroupNameWhichHasBeenDeprovisioned(affiliation);
                     
+                    // TODO do this more efficiently
                     Group group = GroupFinder.findByName(grouperSession, deprovisioningGroupWhichHasBeenDeprovisionedName, false);
                     if (group != null) {
                       GrouperDeprovisioningOverallConfiguration grouperDeprovisioningOverallConfiguration = GrouperDeprovisioningOverallConfiguration.retrieveConfiguration(group, false);
@@ -829,13 +830,6 @@ public class GrouperCheckConfig {
           }
           
           {
-            String messagesRootStemName = GrouperBuiltinMessagingSystem.messageRootStemName();
-            stemSaves.add(new StemSave().assignCreateParentStemsIfNotExist(true)
-                .assignDescription("folder for message queues and topics, topic to queue relationships and permissions")
-                .assignName(messagesRootStemName));
-          }
-          
-          {
             String topicStemName = GrouperBuiltinMessagingSystem.topicStemName();
             stemSaves.add(new StemSave().assignCreateParentStemsIfNotExist(true)
                 .assignDescription("folder for message topics, add a permission here for a topic, imply queues by the topic")
@@ -968,6 +962,14 @@ public class GrouperCheckConfig {
                 .assignDescription("folder for built in Grouper entities attributes").assignName(entitiesRootStemName));
 
           }
+
+          {
+            String sqlCacheableGroupFolderName =  SqlCacheGroup.attributeDefFolderName();
+            stemSaves.add(new StemSave().assignCreateParentStemsIfNotExist(true)
+                .assignDescription("folder for built in sql cache objects")
+                .assignName(sqlCacheableGroupFolderName));
+          }
+
           
           {
             String legacyAttributesStemName =  GrouperConfig.retrieveConfig().propertyValueStringRequired("legacyAttribute.baseStem");
@@ -1297,6 +1299,15 @@ public class GrouperCheckConfig {
         }
         
         {
+          //see if role for permissions is there
+          String grouperMessageNameOfRole = GrouperBuiltinMessagingSystem.grouperMessageNameOfRole();
+
+          groupSaves.add(new GroupSave().assignName(grouperMessageNameOfRole).assignCreateParentStemsIfNotExist(true).assignDescription(
+              "Grouper messaging role").assignTypeOfGroup(TypeOfGroup.role));
+
+        }
+        
+        {
           String recentMembershipsRootStemName = GrouperRecentMemberships.recentMembershipsStemName();
 
           String groupName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
@@ -1332,6 +1343,7 @@ public class GrouperCheckConfig {
           
           GroupSave upgradeTasksGroupSave = new GroupSave().assignName(groupName).assignCreateParentStemsIfNotExist(true);
           groupSaves.add(upgradeTasksGroupSave);
+          
         }
                 
         boolean autocreateSystemGroups = GrouperConfig.retrieveConfig().propertyValueBoolean("configuration.autocreate.system.groups", true);
@@ -1342,9 +1354,9 @@ public class GrouperCheckConfig {
           for (GroupSave groupSave : groupSaves) {
             if (groupSave.getSaveResultType() == SaveResultType.INSERT) {
               if (firstCheckConfig) {
-              LOG.warn("Auto-created group: '" + groupSave.getName() + "'");
+                LOG.warn("Auto-created " + (groupSave.getTypeOfGroup() == null ? TypeOfGroup.group.name() : groupSave.getTypeOfGroup().name()) + ": '" + groupSave.getName() + "'");
+              }
             }
-          }
           }
 
         } else {
@@ -1364,6 +1376,11 @@ public class GrouperCheckConfig {
           }
           
         }
+        
+        for (Group group : groupNameToGroup.values()) {
+          GroupFinder.groupCacheAsRootAddSystemGroup(group);
+        }
+        
         //groups auto-create
         //#configuration.autocreate.group.name.0 = etc:uiUsers
         //#configuration.autocreate.group.description.0 = users allowed to log in to the UI
@@ -2364,23 +2381,7 @@ public class GrouperCheckConfig {
             Stem messagesStem = stemNameToStem.get(messagesRootStemName);
             
             {
-              // TODO put this in group save
-              //see if role for permissions is there
-              String grouperMessageNameOfRole = GrouperBuiltinMessagingSystem.grouperMessageNameOfRole();
-              Group groupMessagingRoleGroup = GrouperDAOFactory.getFactory().getGroup().findByNameSecure(
-                  grouperMessageNameOfRole, false, new QueryOptions().secondLevelCache(false), GrouperUtil.toSet(TypeOfGroup.role));
-              if (groupMessagingRoleGroup == null) {
-                groupMessagingRoleGroup = (Group)messagesStem.addChildRole(GrouperUtil.extensionFromName(grouperMessageNameOfRole), 
-                    GrouperUtil.extensionFromName(grouperMessageNameOfRole));
-                if (wasInCheckConfig) {
-                  String error = "auto-created role: " + groupMessagingRoleGroup.getName();
-                  LOG.warn(error);
-                }
-              }
-              GroupFinder.groupCacheAsRootAddSystemGroup(groupMessagingRoleGroup);
-            }
-
-            {
+              //TODO do action lists more efficiently
               //see if attributeDef for topics is there
               String grouperMessageTopicNameOfDef = GrouperBuiltinMessagingSystem.grouperMessageTopicNameOfDef();
               AttributeDef grouperMessageTopicDef = nameOfAttributeDefToAttributeDef.get(grouperMessageTopicNameOfDef); 
@@ -2398,124 +2399,7 @@ public class GrouperCheckConfig {
             }
 
           }
-
-
-          {
-            String upgradeTasksRootStemName = UpgradeTasksJob.grouperUpgradeTasksStemName();
-            
-            Stem upgradeTasksRootStem = stemNameToStem.get(upgradeTasksRootStemName);
-
-            // check attribute def
-            String upgradeTasksDefName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_DEF;
-            AttributeDef upgradeTasksDef = nameOfAttributeDefToAttributeDef.get(upgradeTasksDefName);
-                            
-            String upgradeTasksVersionName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
-            
-            AttributeDefName upgradeTasksVersion = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-                upgradeTasksVersionName, false, new QueryOptions().secondLevelCache(false));
-            
-            if (upgradeTasksVersion == null) {
-              upgradeTasksVersion = upgradeTasksRootStem.addChildAttributeDefName(upgradeTasksDef, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR);
-            }
-            
-            String groupName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
-            Group group = groupNameToGroup.get(groupName);
-
-            if (group.getAttributeValueDelegate().retrieveValueString(upgradeTasksVersionName) == null) {
-              group.getAttributeValueDelegate().assignValue(upgradeTasksVersionName, "0");
-            }
-
-          }
                 
-          {
-            String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
-            
-            Stem instrumentationDataRootStem = stemNameToStem.get(instrumentationDataRootStemName);
-            
-            {
-              // check counts def and attr
-              String countsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF;
-              AttributeDef countsDef = nameOfAttributeDefToAttributeDef.get(countsDefName); 
-                                
-              String countsDefNameName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR;
-              
-              AttributeDefName countsAttrDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-                  countsDefNameName, false, new QueryOptions().secondLevelCache(false));
-              
-              if (countsAttrDefName == null) {
-                countsAttrDefName = instrumentationDataRootStem.addChildAttributeDefName(countsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR);
-              }
-            }
-            
-            {
-              // check instance details def and attrs
-              String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF;
-              AttributeDef detailsDef = nameOfAttributeDefToAttributeDef.get(detailsDefName); 
-                  
-              
-              {
-                String lastUpdateName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR;
-                
-                AttributeDefName lastUpdate = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-                    lastUpdateName, false, new QueryOptions().secondLevelCache(false));
-                
-                if (lastUpdate == null) {
-                  lastUpdate = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR);
-                }
-              }
-              
-              {
-                String engineNameName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR;
-                
-                AttributeDefName engineName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-                    engineNameName, false, new QueryOptions().secondLevelCache(false));
-                
-                if (engineName == null) {
-                  engineName = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR);
-                }
-              }
-              
-              {
-                String serverLabelName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR;
-                
-                AttributeDefName serverLabel = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-                    serverLabelName, false, new QueryOptions().secondLevelCache(false));
-                
-                if (serverLabel == null) {
-                  serverLabel = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR);
-                }
-              }
-            }
-            
-            {
-              // check collector details def and attrs
-              String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF;
-              AttributeDef detailsDef = nameOfAttributeDefToAttributeDef.get(detailsDefName); 
-                                
-              {
-                String lastUpdateName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR;
-                
-                AttributeDefName lastUpdate = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-                    lastUpdateName, false, new QueryOptions().secondLevelCache(false));
-                
-                if (lastUpdate == null) {
-                  lastUpdate = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR);
-                }
-              }
-              
-              {
-                String uuidName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR;
-                
-                AttributeDefName uuid = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(
-                    uuidName, false, new QueryOptions().secondLevelCache(false));
-                
-                if (uuid == null) {
-                  uuid = instrumentationDataRootStem.addChildAttributeDefName(detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR);
-                }
-              }
-            }
-            
-          }
           
           {
             String recentMembershipsRootStemName = GrouperRecentMemberships.recentMembershipsStemName();
@@ -3172,6 +3056,36 @@ public class GrouperCheckConfig {
             attributeDefSaves.add(new AttributeDefSave().assignName(upgradeTasksDefName)
                 .assignAttributeDefType(AttributeDefType.attr)
                 .assignToGroup(true)
+                .assignMultiAssignable(false)
+                .assignValueType(AttributeDefValueType.string));
+
+          }
+          
+          {
+
+            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
+
+            // check attribute def
+            String sqlCacheGroupAttributeDefMarkerName = sqlCacheableGroupFolderName + ":" + SqlCacheGroup.attributeDefMarkerExtension;
+
+            attributeDefSaves.add(new AttributeDefSave().assignName(sqlCacheGroupAttributeDefMarkerName)
+                .assignAttributeDefType(AttributeDefType.attr)
+                .assignToGroup(true)
+                .assignMultiAssignable(true)
+                .assignValueType(AttributeDefValueType.marker));
+
+          }
+          
+          {
+            
+            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
+
+            // check attribute def
+            String sqlCacheGroupAttributeDefAttrName = sqlCacheableGroupFolderName + ":" + SqlCacheGroup.attributeDefExtension;
+
+            attributeDefSaves.add(new AttributeDefSave().assignName(sqlCacheGroupAttributeDefAttrName)
+                .assignAttributeDefType(AttributeDefType.attr)
+                .assignToGroupAssn(true)
                 .assignMultiAssignable(false)
                 .assignValueType(AttributeDefValueType.string));
 
@@ -4173,7 +4087,7 @@ public class GrouperCheckConfig {
           
           {
             String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
-            Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true, new QueryOptions().secondLevelCache(false));
+            Stem limitsStem = stemNameToStem.get(limitsRootStemName);
 
             //see if attributeDef is there
             String limitDefIntName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_INT;
@@ -4191,10 +4105,134 @@ public class GrouperCheckConfig {
             }
             
           }
+          
+          { // 1
+            String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
+            Stem instrumentationDataRootStem = stemNameToStem.get(instrumentationDataRootStemName);
+
+            //see if attributeDef is there
+            String countsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_DEF;
+            AttributeDef countsDef = nameOfAttributeDefToAttributeDef.get(countsDefName); 
+                
+            checkAttribute(instrumentationDataRootStem, countsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_COUNTS_ATTR,
+                attributeDefNameSaves);
+
+          }
+          
+          { // 2
+            String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
+            Stem instrumentationDataRootStem = stemNameToStem.get(instrumentationDataRootStemName);
+
+            //see if attributeDef is there
+            String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF;
+            AttributeDef detailsDef = nameOfAttributeDefToAttributeDef.get(detailsDefName); 
+                
+            checkAttribute(instrumentationDataRootStem, detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_LAST_UPDATE_ATTR,
+                attributeDefNameSaves);
+
+          }
+          
+          { // 3
+            String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
+            Stem instrumentationDataRootStem = stemNameToStem.get(instrumentationDataRootStemName);
+
+            //see if attributeDef is there
+            String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF;
+            AttributeDef detailsDef = nameOfAttributeDefToAttributeDef.get(detailsDefName); 
+                
+            checkAttribute(instrumentationDataRootStem, detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_ENGINE_NAME_ATTR,
+                attributeDefNameSaves);
+
+          }
+          
+          { // 4
+            String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
+            Stem instrumentationDataRootStem = stemNameToStem.get(instrumentationDataRootStemName);
+
+            //see if attributeDef is there
+            String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_DETAILS_DEF;
+            AttributeDef detailsDef = nameOfAttributeDefToAttributeDef.get(detailsDefName); 
+                
+            checkAttribute(instrumentationDataRootStem, detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_INSTANCE_SERVER_LABEL_ATTR,
+                attributeDefNameSaves);
+
+          }
+          
+          { // 5
+            String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
+            Stem instrumentationDataRootStem = stemNameToStem.get(instrumentationDataRootStemName);
+
+            //see if attributeDef is there
+            String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF;
+            AttributeDef detailsDef = nameOfAttributeDefToAttributeDef.get(detailsDefName); 
+                
+            checkAttribute(instrumentationDataRootStem, detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_LAST_UPDATE_ATTR,
+                attributeDefNameSaves);
+
+          }
+
+          { // 6
+            String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
+            Stem instrumentationDataRootStem = stemNameToStem.get(instrumentationDataRootStemName);
+
+            //see if attributeDef is there
+            String detailsDefName = instrumentationDataRootStemName + ":" + InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_DETAILS_DEF;
+            AttributeDef detailsDef = nameOfAttributeDefToAttributeDef.get(detailsDefName); 
+                
+            checkAttribute(instrumentationDataRootStem, detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR,
+                attributeDefNameSaves);
+
+          }
 
           {
+
+            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
+            Stem sqlCacheableGroupFolder = stemNameToStem.get(sqlCacheableGroupFolderName);
+
+            //see if attributeDef is there
+            String sqlCacheableMarkerName = SqlCacheGroup.attributeDefMarkerName();
+            AttributeDef sqlCacheableMarkerDef = nameOfAttributeDefToAttributeDef.get(sqlCacheableMarkerName); 
+                
+            {
+              checkAttribute(sqlCacheableGroupFolder, sqlCacheableMarkerDef, SqlCacheGroup.attributeDefNameMarkerExtension, SqlCacheGroup.attributeDefNameMarkerExtension,
+                  "The specified list of this group is sql cacheable", attributeDefNameSaves);
+            }
+
+          }
+
+          {
+
+            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
+            Stem sqlCacheableGroupFolder = stemNameToStem.get(sqlCacheableGroupFolderName);
+
+            //see if attributeDef is there
+            String sqlCacheableAttrName = SqlCacheGroup.attributeDefName();
+            AttributeDef sqlCacheableAttrDef = nameOfAttributeDefToAttributeDef.get(sqlCacheableAttrName); 
+                
+            {
+              checkAttribute(sqlCacheableGroupFolder, sqlCacheableAttrDef, SqlCacheGroup.attributeDefNameExtensionListName, SqlCacheGroup.attributeDefNameExtensionListName,
+                  "This value is the cacheable list, e.g. members, admins, etc", attributeDefNameSaves);
+            }
+
+          }
+
+          {
+            String upgradeTasksRootStemName = UpgradeTasksJob.grouperUpgradeTasksStemName();
+            Stem upgradeTasksRootStem = stemNameToStem.get(upgradeTasksRootStemName);
+
+            //see if attributeDef is there
+            String upgradeTasksDefName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_DEF;
+            AttributeDef upgradeTasksDef = nameOfAttributeDefToAttributeDef.get(upgradeTasksDefName); 
+                
+            {
+              checkAttribute(upgradeTasksRootStem, upgradeTasksDef, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR, UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR,
+                  "Upgrade task version", attributeDefNameSaves);
+            }
+
+          }
+          {
             String limitsRootStemName = PermissionLimitUtils.attributeLimitStemName();
-            Stem limitsStem = StemFinder.findByName(grouperSession, limitsRootStemName, true, new QueryOptions().secondLevelCache(false));
+            Stem limitsStem = stemNameToStem.get(limitsRootStemName);
 
             //see if attributeDef is there
             String limitDefMarkerName = limitsRootStemName + ":" + PermissionLimitUtils.LIMIT_DEF_MARKER;
@@ -4707,7 +4745,7 @@ public class GrouperCheckConfig {
 
           {
             String membershipOneHookStemName = GrouperCheckConfig.attributeRootStemName() + ":hooks";
-            Stem membershipOneHookStem = StemFinder.findByName(grouperSession, membershipOneHookStemName, false);
+            Stem membershipOneHookStem = stemNameToStem.get(membershipOneHookStemName);
 
             String membershipOneDefName = membershipOneHookStemName + ":membershipOneInFolderDef";
             

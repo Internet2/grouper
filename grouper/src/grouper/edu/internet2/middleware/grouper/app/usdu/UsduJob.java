@@ -144,11 +144,13 @@ public class UsduJob extends OtherJobBase {
   @Override
   public OtherJobOutput run(OtherJobInput otherJobInput) {
     
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         try {
           runningUsduThreadLocal.set(true);
           
-      GrouperSession grouperSession = GrouperSession.startRootSession();
-      
           if (!UsduSettings.usduEnabled()) {
             LOG.info("usdu.enable is set to false. not going to run usdu daemon.");
             return null;
@@ -173,99 +175,102 @@ public class UsduJob extends OtherJobBase {
           LOG.debug("Found " + memberIdsToCheck.size() + " member ids to check.");
           int numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsToCheck.size(), batchSize);
           for (int i = 0; i < numberOfBatches; i++) {
-        GrouperDaemonUtils.stopProcessingIfJobPaused();
-        LOG.debug("Processing batch: " + i);
-        List<String> currentBatch = GrouperUtil.batchList(memberIdsToCheck, batchSize, i);
-        Set<Member> currentMembers = GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null);
-        LOG.debug("Retrieved current members of size: " + currentMembers.size());
-
-        Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
-  
-        for (Member member : currentMembers) {
-          if (!member.isSubjectResolutionEligible()) {
-            member.setSubjectResolutionEligible(true);
-            member.store();
-          }
-        }
-        
-        Map<String, Subject> currMemberIdToSubjectMap = resolveMembers(currentMembers);
-        memberIdToSubjectMap.putAll(currMemberIdToSubjectMap);
-        
-        for (Member member : currentMembers) {
-
-          if (!currMemberIdToSubjectMap.containsKey(member.getId())) {
-            LOG.debug("Found unresolvable member, subjectId=" + member.getSubjectId() + " source=" + member.getSubjectSourceId());
-            unresolvableMembers.add(member);
-          }
-        }
-        
-        totalProvisioningObjectsUpdated += syncProvisioningData(currentBatch, memberIdToSubjectMap);
-      }
-  
-      long deletedMembers = deleteUnresolvableMembers(grouperSession, unresolvableMembers, otherJobInput.getHib3GrouperLoaderLog());
-      otherJobInput.getHib3GrouperLoaderLog().store();
-      
-      long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
-      otherJobInput.getHib3GrouperLoaderLog().store();
-      
-      int updateBatchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
-      if (updateBatchSize <= 0) {
-        updateBatchSize = 1;
-      }
-
-      List<String> memberIdsNoLongerSubjectResolutionEligible = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible());
-      numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsNoLongerSubjectResolutionEligible.size(), batchSize);
-      for (int i = 0; i < numberOfBatches; i++) {
-        GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-        List<String> currentBatch = GrouperUtil.batchList(memberIdsNoLongerSubjectResolutionEligible, batchSize, i);
-        List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
-        
-        for (Member member : currentMembers) {
-          member.setSubjectResolutionEligible(false);
-        }
-        
-        int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
-        for (int j = 0; j < numberOfUpdateBatches; j++) {
-          List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
-          HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
-        }
-      }
-      
-      List<String> deletedGroupMemberIdsIncorrectSubjectResolutionAttributes = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllDeletedGroupMemberIdsIncorrectSubjectResolutionAttributes());
-      numberOfBatches = GrouperUtil.batchNumberOfBatches(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size(), batchSize);
-      for (int i = 0; i < numberOfBatches; i++) {
-        GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-        List<String> currentBatch = GrouperUtil.batchList(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes, batchSize, i);
-        List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
-        
-        for (Member member : currentMembers) {
-          member.setSubjectResolutionDeleted(true);
-          member.setSubjectResolutionResolvable(false);
-        }
-        
-        int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
-        for (int j = 0; j < numberOfUpdateBatches; j++) {
-          List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
-          HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
-        }
-      }
-          
-      otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.  Fixed subject resolution attributes for " + deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size() + " deleted groups.  ");
-      
-      int duplicateSubjectIdentifierIssuesCount = checkDuplicateSubjectIdentifiers(otherJobInput.getHib3GrouperLoaderLog());
-      
-      if (duplicateSubjectIdentifierIssuesCount > 0) {
-        // force an error
-        throw new RuntimeException("There were duplicate subject identifiers in the grouper_members table.  See job message for details.");
-      }
-      
-      LOG.info("UsduJob finished successfully.");
-    } finally {
-      runningUsduThreadLocal.remove();
-    }
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+            LOG.debug("Processing batch: " + i);
+            List<String> currentBatch = GrouperUtil.batchList(memberIdsToCheck, batchSize, i);
+            Set<Member> currentMembers = GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null);
+            LOG.debug("Retrieved current members of size: " + currentMembers.size());
     
+            Map<String, Subject> memberIdToSubjectMap = new HashMap<String, Subject>();
+      
+            for (Member member : currentMembers) {
+              if (!member.isSubjectResolutionEligible()) {
+                member.setSubjectResolutionEligible(true);
+                member.store();
+              }
+            }
+            
+            Map<String, Subject> currMemberIdToSubjectMap = resolveMembers(currentMembers);
+            memberIdToSubjectMap.putAll(currMemberIdToSubjectMap);
+            
+            for (Member member : currentMembers) {
+    
+              if (!currMemberIdToSubjectMap.containsKey(member.getId())) {
+                LOG.debug("Found unresolvable member, subjectId=" + member.getSubjectId() + " source=" + member.getSubjectSourceId());
+                unresolvableMembers.add(member);
+              }
+            }
+            
+            totalProvisioningObjectsUpdated += syncProvisioningData(currentBatch, memberIdToSubjectMap);
+          }
+      
+          long deletedMembers = deleteUnresolvableMembers(grouperSession, unresolvableMembers, otherJobInput.getHib3GrouperLoaderLog());
+          otherJobInput.getHib3GrouperLoaderLog().store();
+          
+          long nowResolvedMembers = clearMetadataFromNowResolvedMembers(grouperSession);
+          otherJobInput.getHib3GrouperLoaderLog().store();
+          
+          int updateBatchSize = GrouperConfig.getHibernatePropertyInt("hibernate.jdbc.batch_size", 200);
+          if (updateBatchSize <= 0) {
+            updateBatchSize = 1;
+          }
+    
+          List<String> memberIdsNoLongerSubjectResolutionEligible = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllMemberIdsNoLongerSubjectResolutionEligible());
+          numberOfBatches = GrouperUtil.batchNumberOfBatches(memberIdsNoLongerSubjectResolutionEligible.size(), batchSize);
+          for (int i = 0; i < numberOfBatches; i++) {
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
+            List<String> currentBatch = GrouperUtil.batchList(memberIdsNoLongerSubjectResolutionEligible, batchSize, i);
+            List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
+            
+            for (Member member : currentMembers) {
+              member.setSubjectResolutionEligible(false);
+            }
+            
+            int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
+            for (int j = 0; j < numberOfUpdateBatches; j++) {
+              List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
+              HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
+            }
+          }
+          
+          List<String> deletedGroupMemberIdsIncorrectSubjectResolutionAttributes = new ArrayList<String>(GrouperDAOFactory.getFactory().getMember().findAllDeletedGroupMemberIdsIncorrectSubjectResolutionAttributes());
+          numberOfBatches = GrouperUtil.batchNumberOfBatches(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size(), batchSize);
+          for (int i = 0; i < numberOfBatches; i++) {
+            GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
+            List<String> currentBatch = GrouperUtil.batchList(deletedGroupMemberIdsIncorrectSubjectResolutionAttributes, batchSize, i);
+            List<Member> currentMembers = new ArrayList<Member>(GrouperDAOFactory.getFactory().getMember().findByIds(currentBatch, null));
+            
+            for (Member member : currentMembers) {
+              member.setSubjectResolutionDeleted(true);
+              member.setSubjectResolutionResolvable(false);
+            }
+            
+            int numberOfUpdateBatches = GrouperUtil.batchNumberOfBatches(currentMembers.size(), updateBatchSize);
+            for (int j = 0; j < numberOfUpdateBatches; j++) {
+              List<Member> currentUpdateBatch = GrouperUtil.batchList(currentMembers, updateBatchSize, j);
+              HibernateSession.byObjectStatic().updateBatch(currentUpdateBatch);
+            }
+          }
+              
+          otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Marked " + deletedMembers + " members deleted. Cleared subject resolution attributes from "+nowResolvedMembers +" members.  Updated " + totalProvisioningObjectsUpdated + " cached provisioning objects. Marked " + memberIdsNoLongerSubjectResolutionEligible.size() + " members no longer subject resolution eligible.  Fixed subject resolution attributes for " + deletedGroupMemberIdsIncorrectSubjectResolutionAttributes.size() + " deleted groups.  ");
+          
+          int duplicateSubjectIdentifierIssuesCount = checkDuplicateSubjectIdentifiers(otherJobInput.getHib3GrouperLoaderLog());
+          
+          if (duplicateSubjectIdentifierIssuesCount > 0) {
+            // force an error
+            throw new RuntimeException("There were duplicate subject identifiers in the grouper_members table.  See job message for details.");
+          }
+          
+          LOG.info("UsduJob finished successfully.");
+        } finally {
+          runningUsduThreadLocal.remove();
+        }
+        return null;
+      }
+    });
+
     return null;
   }
   
