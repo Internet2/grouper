@@ -122,7 +122,7 @@
                             >${textContainer.text['stemViewReportButton'] }</a></li>
                         </c:if>
                         
-                        <c:if test="${grouperRequestContainer.stemContainer.canCreateGroups}">
+                        <c:if test="${isWheelGroupMember}">
 
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.viewStemRules&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                                 >${textContainer.text['stemViewRulesButton'] }</a></li>

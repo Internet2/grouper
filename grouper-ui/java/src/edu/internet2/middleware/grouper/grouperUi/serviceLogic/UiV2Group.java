@@ -114,6 +114,7 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
@@ -5503,6 +5504,10 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
+      if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+        throw new RuntimeException("Dont hack me!");
+      }
+      
       group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
       
       if (group == null) {
@@ -5551,6 +5556,10 @@ public class UiV2Group {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Group group = null;
@@ -5601,6 +5610,10 @@ public class UiV2Group {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Group group = null;
@@ -5731,6 +5744,10 @@ public class UiV2Group {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Group group = null;
@@ -5776,6 +5793,10 @@ public class UiV2Group {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Group group = null;

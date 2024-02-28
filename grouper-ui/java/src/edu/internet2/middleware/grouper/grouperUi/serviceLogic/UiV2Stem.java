@@ -3862,6 +3862,10 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Stem stem = null;
@@ -3912,6 +3916,10 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Stem stem = null;
@@ -3956,6 +3964,10 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Stem stem = null;
@@ -4098,6 +4110,10 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Stem stem = null;
@@ -4143,6 +4159,10 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
+    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+      throw new RuntimeException("Dont hack me!");
+    }
+
     GrouperSession grouperSession = null;
   
     Stem stem = null;
