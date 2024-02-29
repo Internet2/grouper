@@ -19,7 +19,6 @@
  */
 package edu.internet2.middleware.grouper.app.loader;
 
-import java.io.File;
 import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -98,8 +97,6 @@ import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafeBean;
-import edu.internet2.middleware.grouper.misc.GrouperReport;
-import edu.internet2.middleware.grouper.misc.GrouperReportException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.SaveMode;
 import edu.internet2.middleware.grouper.misc.SaveResultType;
@@ -107,7 +104,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
-import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -281,52 +277,7 @@ public enum GrouperLoaderType {
 
         Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
         
-        if (StringUtils.equals(GROUPER_REPORT, hib3GrouploaderLog.getJobName())) {
-          
-          String emailTo = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.emailTo");
-          String reportDirectory = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.saveInDirectory");
-          
-          if (StringUtils.isBlank(emailTo) && StringUtils.isBlank(reportDirectory)) {
-            throw new RuntimeException("grouper-loader.properties property daily.report.emailTo " +
-                "or daily.report.saveInDirectory needs to be filled in");
-          }
-          
-          String report = null;
-          //keep track if ends up being error
-          RuntimeException re = null;
-          try {
-            report = new GrouperReport().runReport();
-          } catch (RuntimeException e) {
-            report = e.toString() + "\n\n" + GrouperUtil.getFullStackTrace(e) + "\n\n";
-            if (e instanceof GrouperReportException) {
-              report += ((GrouperReportException)e).getResult();
-            }
-            re = e;
-          }
-          
-          //if we are emailing
-          if (!StringUtils.isBlank(emailTo)) {
-            new GrouperEmail().setBody(report).setSubject("Grouper report").setTo(emailTo).send();
-          }
-          
-          //if we are saving to dir on server
-          if (!StringUtils.isBlank(reportDirectory)) {
-            reportDirectory = GrouperUtil.stripLastSlashIfExists(reportDirectory) + File.separator;
-            GrouperUtil.mkdirs(new File(reportDirectory));
-            File reportFile = new File(reportDirectory + "grouperReport_" 
-                + new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date()) + ".txt");
-            GrouperUtil.saveStringIntoFile(reportFile, report);
-          }
-          
-          //end in error if error
-          if (re != null) {
-            throw re;
-          }
-          
-          hib3GrouploaderLog.setJobMessage("Ran the grouper report, sent to: " + emailTo);
-          
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-        } else if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
+        if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
 
           //strip off the beginning
           String localGroupName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_GROUP_SYNC.length()+2);
@@ -2393,11 +2344,6 @@ public enum GrouperLoaderType {
     }
     throw new RuntimeException("Cant find job type for this name: " + jobName);
   }
-
-  /**
-   * maintenance grouper report name
-   */
-  public static final String GROUPER_REPORT = "MAINTENANCE__grouperReport";
   
   /**
    * rules daemon

@@ -20,8 +20,10 @@
 package edu.internet2.middleware.grouper.misc;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.PrintStream;
 import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -30,9 +32,10 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.SubjectResolutionStat;
 import edu.internet2.middleware.grouper.app.usdu.UsduService;
@@ -40,13 +43,14 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.util.GrouperEmail;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
  *
  */
-public class GrouperReport {
+public class GrouperReport extends OtherJobBase {
 
   /**
    * logger 
@@ -59,6 +63,53 @@ public class GrouperReport {
    */
   public static void main(String[] args) {
     System.out.println(report());
+  }
+  
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
+    String emailTo = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.emailTo");
+    String reportDirectory = GrouperLoaderConfig.retrieveConfig().propertyValueString("daily.report.saveInDirectory");
+    
+    if (StringUtils.isBlank(emailTo) && StringUtils.isBlank(reportDirectory)) {
+      otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Not running report since both daily.report.emailTo and daily.report.saveInDirectory are null");
+      return null;
+    }
+    
+    String report = null;
+    //keep track if ends up being error
+    RuntimeException re = null;
+    try {
+      report = new GrouperReport().runReport();
+    } catch (RuntimeException e) {
+      report = e.toString() + "\n\n" + GrouperUtil.getFullStackTrace(e) + "\n\n";
+      if (e instanceof GrouperReportException) {
+        report += ((GrouperReportException)e).getResult();
+      }
+      re = e;
+    }
+    
+    //if we are emailing
+    if (!StringUtils.isBlank(emailTo)) {
+      new GrouperEmail().setBody(report).setSubject("Grouper report").setTo(emailTo).send();
+    }
+    
+    //if we are saving to dir on server
+    if (!StringUtils.isBlank(reportDirectory)) {
+      reportDirectory = GrouperUtil.stripLastSlashIfExists(reportDirectory) + File.separator;
+      GrouperUtil.mkdirs(new File(reportDirectory));
+      File reportFile = new File(reportDirectory + "grouperReport_" 
+          + new SimpleDateFormat("yyyyMMdd_HH_mm_ss").format(new Date()) + ".txt");
+      GrouperUtil.saveStringIntoFile(reportFile, report);
+    }
+    
+    //end in error if error
+    if (re != null) {
+      throw re;
+    }
+    
+    otherJobInput.getHib3GrouperLoaderLog().setJobMessage("Ran the grouper report, emailTo=" + emailTo + ", reportDirectory=" + reportDirectory);
+    
+    return null;
   }
 
   /**
@@ -326,5 +377,4 @@ public class GrouperReport {
       }
     });
   }
-
 }

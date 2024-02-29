@@ -734,6 +734,29 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
   }
   ,
+  /**
+   * remove old maintenance jobs
+   */
+  V17 {
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {      
+      try {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+        List<TriggerKey> triggerKeys = new ArrayList<TriggerKey>();
+        triggerKeys.add(TriggerKey.triggerKey("triggerMaintenance_grouperReport"));
+        
+        for (TriggerKey triggerKey : triggerKeys) {
+          if (scheduler.checkExists(triggerKey)) {
+            scheduler.unscheduleJob(triggerKey);
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", removed quartz trigger " + triggerKey.getName());
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+  ,
   ;
   
   /** logger */
