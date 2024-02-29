@@ -14,6 +14,7 @@ import org.hibernate.type.StringType;
 import edu.internet2.middleware.grouper.Composite;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbEvent;
@@ -91,6 +92,8 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
 
         if (findAsFactorResults.get(esbEvent.getGroupId()) == null) {
           Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findAsFactor(esbEvent.getGroupId());
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+
           findAsFactorResults.put(esbEvent.getGroupId(), composites);
           for (Composite composite : composites) {
             groupIdsToLookup.add(composite.getFactorOwnerUuid());
@@ -113,6 +116,8 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
     
     {
       Set<Group> groups = GrouperDAOFactory.getFactory().getGroup().findByUuids(groupIdsToLookup, false);
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       for (Group group : groups) {
         if (group != null) {
           groupIdToGroupMap.put(group.getId(), group);
@@ -160,6 +165,8 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
     {
       // query the memberships
       for (String groupId : groupIdToMemberIdSetMembershipsToQuery.keySet()) {
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+
         Set<Membership> memberships = GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndFieldAndMemberIdsAndType(groupId, Group.getDefaultList(), groupIdToMemberIdSetMembershipsToQuery.get(groupId), null, true);
         for (Membership membership : memberships) {
           MultiKey multiKey = new MultiKey(membership.getOwnerGroupId(), membership.getMemberUuid());
@@ -252,7 +259,8 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
   
   @SuppressWarnings("unchecked")
   private void saveMembership(Membership membership) {
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = this.getEsbConsumer().getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
     GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("compositeMembershipSaveOrDelete") {
       
@@ -284,7 +292,8 @@ public class CompositeMembershipsChangeLogConsumer extends EsbListenerBase {
   
   @SuppressWarnings("unchecked")
   private void deleteMembership(Membership membership) {
-    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+
     Hib3GrouperLoaderLog hib3GrouperLoaderLog = this.getEsbConsumer().getChangeLogProcessorMetadata().getHib3GrouperLoaderLog();
     GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("compositeMembershipSaveOrDelete") {
       

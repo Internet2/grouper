@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
@@ -280,6 +281,14 @@ public class ChangeLogHelper {
           Thread.sleep(longRunningSleepInBetweenMillis);
         } catch (InterruptedException e) {
           // ignore
+        }
+        
+        try {
+          GrouperDaemonUtils.stopProcessingIfJobPaused();
+        } catch (RuntimeException e) {
+          hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+          hib3GrouperLoaderLog.store();
+          throw e;
         }
       }
       
