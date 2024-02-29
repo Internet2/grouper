@@ -77,7 +77,7 @@
                       </span>
                     </div>
                     <div class="span9" style="white-space: nowrap;">
-                      <input type="checkbox" name="showSubjobsName" id="showSubjobsId" value="true" /> ${textContainer.text['grouperLoaderLogsShowSubjobsLabel'] }
+                      <input type="checkbox" name="showSubjobsName" id="showSubjobsId" value="true" ${grouperRequestContainer.adminContainer.daemonLogsShowSubJobs? 'checked="checked"' : ''} /> ${textContainer.text['grouperLoaderLogsShowSubjobsLabel'] }
                     </div>
                   </div>
 

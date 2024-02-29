@@ -283,6 +283,7 @@ public class UiV2Admin extends UiServiceLogicBase {
 
       String source = request.getParameter("source");
       if (StringUtils.equals(source, "logs")) {
+        viewLogsHelperSetup(request, response, false);
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
             "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogs.jsp"));
         guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#adminDaemonJobsMoreActionsId", 
@@ -1098,6 +1099,8 @@ public class UiV2Admin extends UiServiceLogicBase {
       guiDaemonJobs.add(new GuiDaemonJob(jobName));
       adminContainer.setGuiDaemonJobs(guiDaemonJobs);
       
+      viewLogsHelperSetup(request, response, true);
+
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#adminDaemonJobsMoreActionsId", 
           "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogsMoreActions.jsp"));
       
@@ -1113,6 +1116,29 @@ public class UiV2Admin extends UiServiceLogicBase {
     }
   }
 
+  private void viewLogsHelperSetup(HttpServletRequest request, HttpServletResponse response, boolean formSubmission) {
+    
+    //if the user is allowed
+    if (!daemonJobsAllowed()) {
+      return;
+    }
+
+    String jobName = request.getParameter("jobName");
+    
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+
+    boolean showSubJobs = false;
+    if (formSubmission) {
+      showSubJobs = StringUtils.equals("true", request.getParameter("showSubjobsName"));
+    } else {
+      if ("CHANGE_LOG_changeLogTempToChangeLog".equals(jobName) || "CHANGE_LOG_consumer_compositeMemberships".equals(jobName)) {
+        showSubJobs = true;
+      }
+    }
+    
+    adminContainer.setDaemonLogsShowSubJobs(showSubJobs);
+  }
+  
   /**
    * view logs from filter or not
    * @param request 
@@ -1129,9 +1155,11 @@ public class UiV2Admin extends UiServiceLogicBase {
 
     String jobName = request.getParameter("jobName");
 
+    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
+
     List<Criterion> criterionList = new ArrayList<Criterion>();
 
-    if (StringUtils.equals("true", request.getParameter("showSubjobsName"))) {
+    if (adminContainer.isDaemonLogsShowSubJobs()) {
 
       criterionList.add(HibUtils.listCritOr(
           Restrictions.eq("jobName", jobName),
@@ -1280,7 +1308,6 @@ public class UiV2Admin extends UiServiceLogicBase {
 
     List<GuiHib3GrouperLoaderLog> guiLoaderLogs = GuiHib3GrouperLoaderLog.convertFromHib3GrouperLoaderLogs(loaderLogs);
     
-    AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
     adminContainer.setGuiHib3GrouperLoaderLogs(guiLoaderLogs);
     
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperLoaderLogsResultsId", 
@@ -1317,6 +1344,8 @@ public class UiV2Admin extends UiServiceLogicBase {
         guiDaemonJob.assignFailsafeNeedsApproval(jobNamesNeedApprovalNotApproved.contains(guiDaemonJob.getJobName()));
       }
       
+      viewLogsHelperSetup(request, response, false);
+
       adminContainer.setGuiDaemonJobs(guiDaemonJobs);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 

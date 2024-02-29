@@ -73,6 +73,8 @@ public class AdminContainer {
   private String guiJobHistoryMinimumElapsedSeconds;
   private String guiJobHistoryNamesLikeFilter;
 
+  private boolean daemonLogsShowSubJobs = false;
+  
   /**
    * paging for daemon jobs
    */
@@ -516,5 +518,14 @@ public class AdminContainer {
   public boolean isGrouperDaemonLoader() {
     return grouperDaemonLoader;
   }
+
   
+  public boolean isDaemonLogsShowSubJobs() {
+    return daemonLogsShowSubJobs;
+  }
+
+  
+  public void setDaemonLogsShowSubJobs(boolean daemonLogsShowSubJobs) {
+    this.daemonLogsShowSubJobs = daemonLogsShowSubJobs;
+  }
 }
