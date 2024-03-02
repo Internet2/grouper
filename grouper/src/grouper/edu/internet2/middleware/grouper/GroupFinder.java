@@ -672,8 +672,9 @@ public class GroupFinder {
       //https://bugs.internet2.edu/jira/browse/GRP-36
       //Ugly... and probably breaks the abstraction but quick and easy to 
       //remove when a more elegant solution found.
-      if(s.getSubject().equals(SubjectFinder.findRootSubject()))
+      if(PrivilegeHelper.isWheelOrRootOrViewonlyRoot(s.getSubject())) {
         return g;
+      }
       
       if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
         return g;
@@ -786,8 +787,9 @@ public class GroupFinder {
     //https://bugs.internet2.edu/jira/browse/GRP-36
     //Ugly... and probably breaks the abstraction but quick and easy to 
     //remove when a more elegant solution found.
-    if(s.getSubject().equals(SubjectFinder.findRootSubject()))
+    if(PrivilegeHelper.isWheelOrRootOrViewonlyRoot(s.getSubject())) {
       return g;
+    }
     
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
@@ -831,8 +833,9 @@ public class GroupFinder {
     //https://bugs.internet2.edu/jira/browse/GRP-36
     //Ugly... and probably breaks the abstraction but quick and easy to 
     //remove when a more elegant solution found.
-    if(s.getSubject().equals(SubjectFinder.findRootSubject()))
+    if(PrivilegeHelper.isWheelOrRootOrViewonlyRoot(s.getSubject())) {
       return g;
+    }
     
     if ( PrivilegeHelper.canView( s.internal_getRootSession(), g, s.getSubject() ) ) {
       return g;
