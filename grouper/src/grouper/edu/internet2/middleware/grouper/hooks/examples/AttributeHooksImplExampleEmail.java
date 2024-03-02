@@ -75,9 +75,8 @@ public class AttributeHooksImplExampleEmail extends AttributeHooks {
 
     try {
       //start session, dont clobber existing session
-      GrouperSession grouperSession = GrouperSession.start(SubjectFinder.findRootSubject(), false);
-      GrouperSession.callbackGrouperSession(grouperSession, new GrouperSessionHandler() {
-  
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           
@@ -120,7 +119,6 @@ public class AttributeHooksImplExampleEmail extends AttributeHooks {
         }
         
       });
-      GrouperSession.stopQuietly(grouperSession);
     } catch (Exception e) {
       throw new RuntimeException("Problem checking email address: '" + emailAddress + "'", e);
     }

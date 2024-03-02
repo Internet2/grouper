@@ -486,7 +486,7 @@ public class GrouperNonDbNamingAdapter extends BaseNamingAdapter {
     
     // right now this method only gets executed as the root subject.
     // so we're not doing any privilege checking just to save on performance.
-    if (!SubjectHelper.eq(SubjectFinder.findRootSubject(), grouperSession.getSubject())) {
+    if (!PrivilegeHelper.isWheelOrRoot(grouperSession.getSubject())) {
       throw new InsufficientPrivilegeException();
     }
     
