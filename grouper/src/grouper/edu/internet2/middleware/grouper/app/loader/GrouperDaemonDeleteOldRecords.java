@@ -51,6 +51,8 @@ import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncColumnMetadata;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcTableSyncTableMetadata;
 
 
 /**
@@ -930,6 +932,16 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       }
       
       try {
+
+        // maybe this table doesnt have an id col
+        GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase("grouper", tableIndexType.tableName());
+        if (gcTableSyncTableMetadata != null) {
+          GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.lookupColumn("id", false);
+          if (gcTableSyncColumnMetadata == null) {
+            continue;
+          }
+        }
+        
         List<String> ids = HibernateSession.bySqlStatic().listSelect(
             String.class, "select " + tableIndexType.getIdColumnName() + " from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by " + tableIndexType.getIdColumnName(), null, null);
 

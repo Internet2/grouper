@@ -9,3 +9,4 @@
 /temp
 .classpath
 .project
+/dependency-reduced-pom.xml
