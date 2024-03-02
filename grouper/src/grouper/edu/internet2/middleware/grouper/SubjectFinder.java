@@ -329,7 +329,8 @@ public class SubjectFinder implements CheckboxValueDriver {
 
   }
   
-  /** */
+  /** @deprecated DONT USE THIS */
+  @Deprecated
   private static GrouperSession  rootSession;
 
   // PRIVATE INSTANCE METHODS //
@@ -337,7 +338,9 @@ public class SubjectFinder implements CheckboxValueDriver {
   // @since   1.1.0
   /**
    * @return session
+   * @deprecated DONT USE THIS
    */
+  @Deprecated
   public static GrouperSession grouperSessionOrRootForSubjectFinder() {
     //If we have a thread local session then let's use it to ensure 
     //proper VIEW privilege enforcement
