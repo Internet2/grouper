@@ -8,7 +8,7 @@
 
                       <ul class="dropdown-menu dropdown-menu-right" id="rules-more-options">
 
-                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges}" > 
+                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges && grouperRequestContainer.rulesContainer.canAddRule}" > 
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.addRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['rulesMoreActionsAddRule'] }</a></li>
                         </c:if>

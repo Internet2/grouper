@@ -3937,6 +3937,10 @@ public class UiV2Stem {
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       
+      if (!rulesContainer.isCanAddRule()) {
+        throw new RuntimeException("You don't have the right privileges to add/edit rules.");
+      }
+      
       String attributeAssignId = request.getParameter("ruleId");
       rulesContainer.setAttributeAssignId(attributeAssignId);
       
@@ -3982,12 +3986,17 @@ public class UiV2Stem {
         return;
       }
       
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+      if (!rulesContainer.isCanAddRule()) {
+        throw new RuntimeException("You don't have the right privileges to add/edit rules.");
+      }
+      
       String attributeAssignId = request.getParameter("ruleId");
       
       RuleConfig ruleConfig = RuleService.getRuleConfig(stem, attributeAssignId, loggedInSubject); 
       
-      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
       
       Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(stem);
@@ -4003,7 +4012,11 @@ public class UiV2Stem {
         throw new RuntimeException("Invalid ruleId "+attributeAssignId); 
       }
       
-      ruleConfig.setPattern(ruleDef.getPattern().name());
+      if (ruleDef.getPattern() != null) {
+        ruleConfig.setPattern(ruleDef.getPattern().name());
+      } else {
+        ruleConfig.setPattern("custom");
+      }
       ruleConfig.setRuleDefinition(ruleDef);
       
       String previousRuleId = request.getParameter("previousRuleId");
@@ -4128,14 +4141,33 @@ public class UiV2Stem {
         return;
       }
       
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       RuleEngine.clearRuleEngineCache();
       
-      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
-      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       
       String attributeAssignId = request.getParameter("ruleId");
+      
+      Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(stem);
+      RuleDefinition ruleDef = null;
+      for (RuleDefinition ruleDefinition: ruleDefinitions) {
+        if ( StringUtils.equals(ruleDefinition.getAttributeAssignType().getId(), attributeAssignId)) {
+          ruleDef = ruleDefinition;
+          break;
+        }
+      }
+      
+      if (ruleDef == null) {
+        throw new RuntimeException("Invalid ruleId "+attributeAssignId); 
+      }
+      
+      GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDef);
+      if (!guiRuleDefinition.isCanEditRule()) {
+        throw new RuntimeException("Cannot edit rule");
+      }
       
       RuleService.deleteRuleAttributes(stem, attributeAssignId);
       
@@ -4181,6 +4213,10 @@ public class UiV2Stem {
       
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+      if (!rulesContainer.isCanAddRule()) {
+        throw new RuntimeException("You don't have the right privileges to add/edit rules.");
+      }
       
       String attributeAssignId = request.getParameter("ruleId");
       

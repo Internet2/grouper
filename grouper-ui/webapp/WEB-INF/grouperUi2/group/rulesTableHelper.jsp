@@ -25,7 +25,7 @@
                                           value="${guiRuleDefinition}" />
            <c:set var="ruleDefinition" value="${guiRuleDefinition.ruleDefinition}" />
               
-             <c:if test="${guiRuleDefinition.canEditRule}"> 
+             <c:if test="${guiRuleDefinition.canViewRule}"> 
               <tr>
               
                 <td>
@@ -42,8 +42,12 @@
                               <li><a href="#" onclick="return guiV2link('operation=UiV2Group.deleteRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
                           </c:if>
                           
-                                    
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Group.editRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId != null}">
+                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.editRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                          </c:if>
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerStemId != null}">
+                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                          </c:if>
                           
                          </ul>
                        </div>
@@ -52,7 +56,9 @@
               
               
               <td style="white-space: nowrap;">
-                ${guiRuleDefinition.ruleDefinition.pattern}
+                <c:if test="${guiRuleDefinition.ruleDefinition.pattern != null}">
+                  ${guiRuleDefinition.ruleDefinition.pattern.userFriendlyText}
+                </c:if>
               </td>
               
               <td style="white-space: nowrap;">

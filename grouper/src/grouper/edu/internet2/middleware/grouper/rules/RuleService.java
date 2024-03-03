@@ -57,6 +57,13 @@ public class RuleService {
       
       //rule is being assigned on a group 
       String checkOwner = ruleConfig.getCheckOwner();
+      
+      if (StringUtils.isBlank(checkOwner) && StringUtils.isNotBlank(ruleConfig.getCheckOwnerUuidOrName())) {
+        checkOwner = "anotherGroup";
+      } else if (StringUtils.isBlank(checkOwner) && StringUtils.isBlank(ruleConfig.getCheckOwnerUuidOrName())){
+        checkOwner = "thisGroup";
+      }
+      
       if (StringUtils.isNotBlank(checkOwner)) {
         
         //value must be thisStem, anotherStem
@@ -105,6 +112,13 @@ public class RuleService {
       }
       
       String ifConditionOwner = ruleConfig.getIfConditionOwner();
+      
+      if (StringUtils.isBlank(ifConditionOwner) && StringUtils.isNotBlank(ruleConfig.getIfConditionOwnerUuidOrName())) {
+        ifConditionOwner = "anotherGroup";
+      } else if (StringUtils.isBlank(ifConditionOwner) && StringUtils.isBlank(ruleConfig.getIfConditionOwnerUuidOrName())){
+        ifConditionOwner = "thisGroup";
+      }
+      
       if (StringUtils.isNotBlank(ifConditionOwner)) {
         
         //value must be thisStem, anotherStem
