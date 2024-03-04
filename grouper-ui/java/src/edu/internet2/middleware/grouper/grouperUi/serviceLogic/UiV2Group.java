@@ -16,7 +16,6 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.sql.Timestamp;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -56,6 +55,7 @@ import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
@@ -115,13 +115,11 @@ import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
 import edu.internet2.middleware.grouper.rules.RuleFinder;
-import edu.internet2.middleware.grouper.rules.RuleIfConditionEnum;
-import edu.internet2.middleware.grouper.rules.RuleOwnerType;
+import edu.internet2.middleware.grouper.rules.RulePattern;
 import edu.internet2.middleware.grouper.rules.RuleService;
 import edu.internet2.middleware.grouper.subj.GrouperSubject;
 import edu.internet2.middleware.grouper.subj.SubjectBean;
@@ -5504,28 +5502,16 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
-        throw new RuntimeException("Dont hack me!");
-      }
-      
-      group = retrieveGroupHelper(request, AccessPrivilege.ADMIN).getGroup();
+      group = retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
         return;
       }
-
+      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs(); 
       
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
-      
-//      if (!checkReportConfigActive()) {
-//        return;
-//      }
-//      
-//      List<GuiReportConfig> guiReportConfigs = buildGuiReportConfigs(STEM);
-      
-//      grouperReportContainer.setGuiReportConfigs(guiReportConfigs);
       
       Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(group);
       
@@ -5577,18 +5563,16 @@ public class UiV2Group {
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       
+      if (!rulesContainer.isCanAddRule()) {
+        throw new RuntimeException("You don't have the right privileges to add/edit rules.");
+      }
+      
       String attributeAssignId = request.getParameter("ruleId");
       rulesContainer.setAttributeAssignId(attributeAssignId);
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
       RuleConfig ruleConfig = new RuleConfig(loggedInSubject, group);
-      List<String> errors = populateRuleConfigFromScreen(request, ruleConfig);
-      if (errors.size() > 0) {
-        for (String error: errors) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
-        }
-        return;
-      }
+      populateRuleConfigFromScreen(request, ruleConfig);
       
       rulesContainer.setRuleConfig(ruleConfig);
       
@@ -5628,13 +5612,46 @@ public class UiV2Group {
         return;
       }
       
-      String attributeAssignId = request.getParameter("ruleId");
-      
-      RuleConfig ruleConfig = RuleService.getRuleConfig(group, attributeAssignId, loggedInSubject);
-      
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
+      if (!rulesContainer.isCanAddRule()) {
+        throw new RuntimeException("You don't have the right privileges to add/edit rules.");
+      }
+      
+      String attributeAssignId = request.getParameter("ruleId");
+      
+      RuleConfig ruleConfig = RuleService.getRuleConfig(group, attributeAssignId, loggedInSubject); 
+      
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
+      
+      Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(group);
+      RuleDefinition ruleDef = null;
+      for (RuleDefinition ruleDefinition: ruleDefinitions) {
+        if ( StringUtils.equals(ruleDefinition.getAttributeAssignType().getId(), attributeAssignId)) {
+          ruleDef = ruleDefinition;
+          break;
+        }
+      }
+      
+      if (ruleDef == null) {
+        throw new RuntimeException("Invalid ruleId "+attributeAssignId); 
+      }
+      
+      if (ruleDef.getPattern() != null) {
+        ruleConfig.setPattern(ruleDef.getPattern().name());
+      } else {
+        ruleConfig.setPattern("custom");
+      }
+      ruleConfig.setRuleDefinition(ruleDef);
+      
+      String previousRuleId = request.getParameter("previousRuleId");
+      
+      if (StringUtils.isBlank(previousRuleId)) {
+        // first time loading the screen. nothing to do
+      } else {
+        populateRuleConfigFromScreen(request, ruleConfig);
+      }
       
       rulesContainer.setRuleConfig(ruleConfig);
       rulesContainer.setAttributeAssignId(attributeAssignId);
@@ -5648,22 +5665,23 @@ public class UiV2Group {
     
   }
   
-  private List<String> populateRuleConfigFromScreen(HttpServletRequest request, RuleConfig ruleConfig) {
-    
-    List<String> errors = new ArrayList<>();
+  private void populateRuleConfigFromScreen(HttpServletRequest request, RuleConfig ruleConfig) {
     
     String ruleCheckType = request.getParameter("grouperRuleCheckType");
     ruleConfig.setCheckType(ruleCheckType);
     
-    if (StringUtils.isNotBlank(ruleCheckType)) {
-      RuleCheckType ruleCheckTypeEnum = RuleCheckType.valueOfIgnoreCase(ruleCheckType, false);
-      if (ruleCheckTypeEnum != null) {
-        RuleOwnerType ruleOwnerType = ruleCheckTypeEnum.getOwnerType();
-        if (ruleOwnerType != RuleOwnerType.FOLDER && ruleOwnerType != RuleOwnerType.GROUP) {
-          errors.add(TextContainer.retrieveFromRequest().getText().get("grouperRuleConfigAddEditInvalidRuleCheckType"));
-          return errors;
-        }
+    String grouperRulePattern = request.getParameter("grouperRulePattern");
+    ruleConfig.setPattern(grouperRulePattern);
+    
+    if (StringUtils.isNotBlank(grouperRulePattern) && !StringUtils.equals(grouperRulePattern, "custom")) {
+      List<GrouperConfigurationModuleAttribute> elementsToShow = RulePattern.valueOf(grouperRulePattern).getElementsToShow(ruleConfig.getGrouperObject(), ruleConfig.getRuleDefinition());
+      
+      for (GrouperConfigurationModuleAttribute attribute: elementsToShow) {
+        String htmlElementName = "config_"+attribute.getConfigSuffix();
+        String value = request.getParameter(htmlElementName);
+        ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
       }
+      
     }
     
     String grouperRuleCheckOwner = request.getParameter("grouperRuleCheckOwner");
@@ -5677,17 +5695,6 @@ public class UiV2Group {
     
     String grouperRuleIfConditionOption = request.getParameter("grouperRuleIfConditionOption");
     ruleConfig.setIfConditionOption(grouperRuleIfConditionOption);
-    
-    if (StringUtils.isNotBlank(grouperRuleIfConditionOption) && !StringUtils.equals(grouperRuleIfConditionOption, "EL")) {
-      RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(grouperRuleIfConditionOption, false);
-      if (ruleIfConditionEnum != null) {
-        RuleOwnerType ruleOwnerType = ruleIfConditionEnum.getOwnerType();
-        if (ruleOwnerType != RuleOwnerType.FOLDER && ruleOwnerType != RuleOwnerType.GROUP) {
-          errors.add(TextContainer.retrieveFromRequest().getText().get("grouperRuleConfigAddEditInvalidRuleConditionType"));
-          return errors;
-        }
-      }
-    }
     
     String grouperRuleIfConditionOwner = request.getParameter("grouperRuleIfConditionOwner");
     ruleConfig.setIfConditionOwner(grouperRuleIfConditionOwner);
@@ -5731,8 +5738,6 @@ public class UiV2Group {
     String grouperRuleRunDaemon = request.getParameter("grouperRuleRunDaemon");
     ruleConfig.setRunDaemon(GrouperUtil.booleanObjectValue(grouperRuleRunDaemon));
     
-    return errors;
-    
   }
   
   /**
@@ -5764,14 +5769,32 @@ public class UiV2Group {
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      RuleEngine.clearRuleEngineCache();
-      
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       
       String attributeAssignId = request.getParameter("ruleId");
       
+      Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(group);
+      RuleDefinition ruleDef = null;
+      for (RuleDefinition ruleDefinition: ruleDefinitions) {
+        if ( StringUtils.equals(ruleDefinition.getAttributeAssignType().getId(), attributeAssignId)) {
+          ruleDef = ruleDefinition;
+          break;
+        }
+      }
+      
+      if (ruleDef == null) {
+        throw new RuntimeException("Invalid ruleId "+attributeAssignId); 
+      }
+      
+      GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDef);
+      if (!guiRuleDefinition.isCanEditRule()) {
+        throw new RuntimeException("Cannot edit rule");
+      }
+      
       RuleService.deleteRuleAttributes(group, attributeAssignId);
+      
+      RuleEngine.clearRuleEngineCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroupRules&groupId=" + group.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -5816,20 +5839,33 @@ public class UiV2Group {
       final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
       
+      if (!rulesContainer.isCanAddRule()) {
+        throw new RuntimeException("You don't have the right privileges to add/edit rules.");
+      }
+      
       String attributeAssignId = request.getParameter("ruleId");
       
       RuleConfig ruleConfig = new RuleConfig(loggedInSubject, group);
-      List<String> errors = populateRuleConfigFromScreen(request, ruleConfig);
-      if (errors.size() > 0) {
-        for (String error: errors) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
-        }
-        return;
-      }
+      populateRuleConfigFromScreen(request, ruleConfig);
       
       rulesContainer.setRuleConfig(ruleConfig);
       
-      Map<String, List<String>> typeWithMessages = RuleService.saveOrUpdateRuleAttributes(ruleConfig, group, attributeAssignId);
+      Map<String, List<String>> typeWithMessages = null;
+      if (StringUtils.isNotBlank(ruleConfig.getPattern()) && !StringUtils.equals(ruleConfig.getPattern(), "custom")) {
+        
+        List<String> errorsDuringValidation = ruleConfig.getRulePattern().validate(ruleConfig, loggedInSubject);
+        if (errorsDuringValidation.size() > 0) {
+          for (String error: errorsDuringValidation) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, error));
+          }
+          return;
+        }
+        
+        typeWithMessages = ruleConfig.getRulePattern().save(ruleConfig, attributeAssignId);
+      } else {
+                
+        typeWithMessages = RuleService.saveOrUpdateRuleAttributes(ruleConfig, group, attributeAssignId);
+      }
       
       if (typeWithMessages.get("ERROR") != null && typeWithMessages.get("ERROR").size() > 0) {
         
@@ -5849,6 +5885,7 @@ public class UiV2Group {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, successMessages));
         }
       }
+     
      
 //      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
 //          TextContainer.retrieveFromRequest().getText().get("grouperReportConfigAddEditSuccess")));

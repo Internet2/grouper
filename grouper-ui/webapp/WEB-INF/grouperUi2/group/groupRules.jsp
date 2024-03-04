@@ -28,7 +28,19 @@
         </div>
         
         <div class="row-fluid">
-          <div class="span9"> <p>${textContainer.text['rulesFolderDescription'] }</p></div>
+          <div class="span9"> <p>${textContainer.text['rulesGroupDescription'] }</p></div>
+        </div>
+        
+        <div class="row-fluid">
+          <div class="span9"> 
+            <a href="#" onclick="$('#documentationRulesTable').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</a>
+          </div>
+        </div>
+    
+        <div class="row-fluid">
+          <div class="span9" id="documentationRulesTable" style="display: none;"> 
+            <p>this is for testing2</p>
+          </div>
         </div>
         
         <%@ include file="rulesTableHelper.jsp"%>

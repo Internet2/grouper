@@ -24,13 +24,26 @@
                   </div>
                 </div>
                 
+                <div class="row-fluid">
+                  <div class="span9"> 
+                    <a href="#" onclick="$('#documentationRulesAddEdit').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</a>
+                  </div>
+                </div>
+            
+                <div class="row-fluid">
+                  <div class="span9" id="documentationRulesAddEdit" style="display: none;"> 
+                    <p>this is for testing2</p>
+                  </div>
+                </div>
+                
                  <form class="form-inline form-small form-filter" id="addRuleConfigFormId">
-                  <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+                  <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
                   <input type="hidden" name="ruleId" value="${grouperRequestContainer.rulesContainer.attributeAssignId}" />
+                  <input type="hidden" name="previousRuleId" value="${grouperRequestContainer.rulesContainer.attributeAssignId}" />
                   <table class="table table-condensed table-striped">
                     <tbody>
                       <c:set var="ObjectType" 
-                          value="Folder" />
+                          value="Group" />
                       <%@ include file="ruleAddHelper.jsp" %>
                       <tr>
                         <td>

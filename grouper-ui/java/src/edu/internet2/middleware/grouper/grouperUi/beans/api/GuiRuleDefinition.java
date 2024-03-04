@@ -41,7 +41,7 @@ import edu.internet2.middleware.subject.Subject;
 public class GuiRuleDefinition implements Serializable, Comparable {
   
   
-  private static final ExpirableCache<MultiKey, Boolean> rulesEditors = new ExpirableCache<MultiKey, Boolean>(5);
+  public static final ExpirableCache<MultiKey, Boolean> rulesEditors = new ExpirableCache<MultiKey, Boolean>(5);
 
   /**
    * rule definition this is based on
@@ -682,6 +682,6 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     return false;
     
   }
-
+  
   
 }
