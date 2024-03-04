@@ -160,7 +160,7 @@
                             >${textContainer.text['groupViewReportButton'] }</a></li>
                         </c:if>
                         
-                        <c:if test="${grouperRequestContainer.groupContainer.canRead}">
+                         <c:if test="${isWheelGroupMember}">
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroupRules&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                                 >${textContainer.text['stemViewRulesButton'] }</a></li>
                         </c:if>

@@ -5502,6 +5502,10 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
+      if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
+        throw new RuntimeException("Dont hack me!");
+      }
+
       group = retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
