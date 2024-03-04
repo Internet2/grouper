@@ -320,7 +320,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 //      }
 
     } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
-      theGrouperJexlScriptPart.getWhereClause().append("not ");
+      theGrouperJexlScriptPart.getWhereClause().append(" not ");
       theGrouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
       analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
       if (clonePart) {
@@ -331,7 +331,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else if (jexlNode instanceof ASTAndNode) {
       for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
         if (j>0) {
-          theGrouperJexlScriptPart.getWhereClause().append("and ");
+          theGrouperJexlScriptPart.getWhereClause().append(" and ");
           theGrouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisAnd")).append(" ");
         }
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
@@ -346,7 +346,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
         if (j>0) {
-          theGrouperJexlScriptPart.getWhereClause().append("or ");
+          theGrouperJexlScriptPart.getWhereClause().append(" or ");
           theGrouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisOr")).append(" ");
         }
         analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
@@ -449,7 +449,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       String rowAlias = astStringLiteral.getLiteral();
  
       GrouperJexlScriptPart rowJexlScriptPart = new GrouperJexlScriptPart();
-      rowJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_assign gdra where gdra.data_row_internal_id = ? and gdra.member_internal_id = gm.internal_id and ");
+      rowJexlScriptPart.getWhereClause().append(" exists (select 1 from grouper_data_row_assign gdra where gdra.data_row_internal_id = ? and gdra.member_internal_id = gm.internal_id and ( ");
       rowJexlScriptPart.getArguments().add(new MultiKey("row", rowAlias));
       rowJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRow"))
       .append(" '").append(GrouperUtil.xmlEscape(rowAlias)).append("' ");
@@ -461,7 +461,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, scriptLiteral.getLiteral(), clonePart);
     
-      grouperJexlScriptPart.getWhereClause().append(") ");
+      grouperJexlScriptPart.getWhereClause().append(" ) ) ");
     } else {
       throw new RuntimeException("Not expecting method name: '" + astIdentifierAccess.getName() + "'");
     }
@@ -550,7 +550,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 //        grouperJexlScriptPartClone.getWhereClause().append(")");
 //      }
     } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
-      grouperJexlScriptPart.getWhereClause().append("not ");
+      grouperJexlScriptPart.getWhereClause().append(" not ");
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisNot")).append(" ");
       analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
       
@@ -565,7 +565,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else if (jexlNode instanceof ASTAndNode) {
       for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
         if (i>0) {
-          grouperJexlScriptPart.getWhereClause().append("and ");
+          grouperJexlScriptPart.getWhereClause().append(" and ");
           grouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisAnd")).append(" ");
         }
         analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(i), clonePart);
@@ -580,7 +580,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
         if (i>0) {
-          grouperJexlScriptPart.getWhereClause().append("or ");
+          grouperJexlScriptPart.getWhereClause().append(" or ");
           grouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisOr")).append(" ");
         }
         analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(i), clonePart);
@@ -588,7 +588,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           grouperJexlScriptPartClone = rowJexlScriptPart.clone();
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
-          grouperJexlScriptPartClone.getWhereClause().append(")");
+          grouperJexlScriptPartClone.getWhereClause().append(" ) ) ");
         }
       }
       
