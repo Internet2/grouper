@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderLogger;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
@@ -115,6 +116,10 @@ public class ChangeLogTempToEntity {
     int longRunningRuntimeSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.changeLogTempToChangeLog.longRunningRuntimeSeconds", 3600);
     int longRunningNewLoaderLogIntervalSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.changeLogTempToChangeLog.longRunningNewLoaderLogIntervalSeconds", 60);
 
+    if (isLongRunning && GrouperLoader.isRunningJobOnceLocally()) {
+      isLongRunning = false;
+    }
+    
     int totalCount = 0;
     long startTime = System.currentTimeMillis();
     
