@@ -158,7 +158,7 @@ public enum DiagnosticType {
           matcher.matches();
           String jobName = matcher.group(1);
 
-          diagnosticsTasks.add(new DiagnosticLoaderJobTest("OTHER_JOB_" + jobName, GrouperLoaderType.MAINTENANCE));
+          diagnosticsTasks.add(new DiagnosticLoaderJobTest("OTHER_JOB_" + jobName, GrouperLoaderType.OTHER_JOB));
         }
       }
       

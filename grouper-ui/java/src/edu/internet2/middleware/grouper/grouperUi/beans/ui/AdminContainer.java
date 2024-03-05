@@ -359,7 +359,6 @@ public class AdminContainer {
       this.daemonJobsCommonFilters.add(new GuiOption("Other job", "OTHER_JOB_", null));
       this.daemonJobsCommonFilters.add(new GuiOption("Reports", "grouper_report_", null));
       this.daemonJobsCommonFilters.add(new GuiOption("Change log", "CHANGE_LOG_", null));
-      this.daemonJobsCommonFilters.add(new GuiOption("Maintenance", "MAINTENANCE_", null));
       this.daemonJobsCommonFilters.add(new GuiOption("Loader - SQL simple", "SQL_SIMPLE_", null));
       this.daemonJobsCommonFilters.add(new GuiOption("Loader - SQL group list", "SQL_GROUP_LIST_", null));
       this.daemonJobsCommonFilters.add(new GuiOption("Loader - LDAP group list", "LDAP_GROUP_LIST_", null));

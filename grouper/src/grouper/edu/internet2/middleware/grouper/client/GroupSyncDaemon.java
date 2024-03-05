@@ -31,6 +31,11 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
+import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientConnectionConfigBean;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientConnectionSourceConfigBean;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
@@ -53,11 +58,30 @@ import edu.internet2.middleware.subject.Subject;
  * @author mchyzer
  *
  */
-public class GroupSyncDaemon {
+public class GroupSyncDaemon extends OtherJobBase {
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GroupSyncDaemon.class);
+  
+  @Override
+  public OtherJobOutput run(OtherJobInput otherJobInput) {
 
+    Hib3GrouperLoaderLog hib3GrouploaderLog = otherJobInput.getHib3GrouperLoaderLog();
+    
+    String jobName = otherJobInput.getJobName();
+    String daemonName = jobName.substring(GrouperLoaderType.GROUPER_OTHER_JOB_PREFIX.length(), jobName.length());
+    String groupConfigName = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("otherJob."+daemonName+".groupConfigName");
+    
+    String localGroupName = GrouperConfig.retrieveConfig().propertyValueStringRequired("syncAnotherGrouper." + groupConfigName + ".local.groupName");
+
+    int records = GroupSyncDaemon.syncGroup(localGroupName);
+    hib3GrouploaderLog.setUpdateCount(records);
+
+    hib3GrouploaderLog.setJobMessage("Ran group sync daemon, changed " + records + " records");
+ 
+    return null;
+  }
+  
   /**
    * sync a group by config name from the cron daemon
    * @param localGroupName

@@ -78,10 +78,8 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
-import edu.internet2.middleware.grouper.client.GroupSyncDaemon;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.GrouperCommitType;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
@@ -241,58 +239,6 @@ public enum GrouperLoaderType {
     }
     
   },
-  
-  /** 
-   * various maintenance jobs on the system
-   */
-  MAINTENANCE{
-      
-      /**
-       * 
-       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeRequired(java.lang.String)
-       */
-      @Override
-      public boolean attributeRequired(String attributeName) {
-        return false;
-      }
-  
-      /**
-       * 
-       * @see edu.internet2.middleware.grouper.app.loader.GrouperLoaderType#attributeOptional(java.lang.String)
-       */
-      @Override
-      public boolean attributeOptional(String attributeName) {
-        return false;
-      }
-      
-      /**
-       * sync up a group membership based on query and db
-       * @param loaderJobBean
-       */
-      @SuppressWarnings("unchecked")
-      @Override
-      public void runJob(LoaderJobBean loaderJobBean) {
-        
-        GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.LOADER, false, true);
-
-        Hib3GrouperLoaderLog hib3GrouploaderLog = loaderJobBean.getHib3GrouploaderLogOverall();
-        
-        if (hib3GrouploaderLog.getJobName().startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC)) {
-
-          //strip off the beginning
-          String localGroupName = hib3GrouploaderLog.getJobName().substring(GrouperLoaderType.GROUPER_GROUP_SYNC.length()+2);
-          int records = GroupSyncDaemon.syncGroup(localGroupName);
-          hib3GrouploaderLog.setUpdateCount(records);
-
-          hib3GrouploaderLog.setJobMessage("Ran group sync daemon, changed " + records + " records");
-          
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
-        } else {
-          throw new RuntimeException("Cant find implementation for job: " + hib3GrouploaderLog.getJobName());
-        }
-        
-      }
-    }, 
     
     /** 
      * sql query where there is a column for group_name (which is the
@@ -2349,11 +2295,6 @@ public enum GrouperLoaderType {
    * rules daemon
    */
   public static final String GROUPER_RULES = "OTHER_JOB_rules";
-  
-  /**
-   * group sync job name
-   */
-  public static final String GROUPER_GROUP_SYNC = "MAINTENANCE__groupSync";
 
   /**
    * change log temp to change log

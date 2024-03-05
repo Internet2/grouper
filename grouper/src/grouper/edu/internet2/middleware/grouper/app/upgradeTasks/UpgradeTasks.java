@@ -25,8 +25,10 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
+import org.quartz.JobKey;
 import org.quartz.Scheduler;
 import org.quartz.TriggerKey;
+import org.quartz.impl.matchers.GroupMatcher;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -749,6 +751,29 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
           if (scheduler.checkExists(triggerKey)) {
             scheduler.unscheduleJob(triggerKey);
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", removed quartz trigger " + triggerKey.getName());
+          }
+        }
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+  }
+  ,
+  /**
+   * remove old maintenance jobs
+   */
+  V18 {
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {      
+      try {
+        Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
+
+        for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"))) {
+          String jobName = jobKey.getName();
+          if (jobName.startsWith("MAINTENANCE__groupSync__")) {
+            String triggerName = "trigger_" + jobName;
+            scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName));
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", removed quartz trigger " + triggerName);
           }
         }
       } catch (Exception e) {

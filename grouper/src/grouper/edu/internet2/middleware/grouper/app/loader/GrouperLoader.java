@@ -165,7 +165,6 @@ public class GrouperLoader {
     
     changesMade += GrouperLoaderType.scheduleLdapLoads();
 
-    changesMade += scheduleMaintenanceJobs();
     changesMade += scheduleChangeLogJobs();
     changesMade += scheduleMessagingListeners();
     
@@ -468,18 +467,6 @@ public class GrouperLoader {
       }
     }
     return schedulerFactory;
-  }
-  
-  /**
-   * schedule maintenance jobs
-   */
-  public static int scheduleMaintenanceJobs() {
-
-    int changesMade = 0;
-    
-    changesMade += scheduleGroupSyncJobs();
-
-    return changesMade;
   }
 
   /**
@@ -1442,132 +1429,6 @@ public class GrouperLoader {
     return "loader " + (isDryRun() ? "dry " : "") + "ran successfully, " + (isDryRun() ? "would have " : "") + "inserted " + hib3GrouperLoaderLog.getInsertCount()
       + " attrDefNames, " + (isDryRun() ? "would have " : "") + "deleted " + hib3GrouperLoaderLog.getDeleteCount() + " records, total record count: "
       + hib3GrouperLoaderLog.getTotalCount();
-  }
-
-  /**
-   * schedule rules job
-   */
-  public static int scheduleGroupSyncJobs() {
-  
-    Map<String, ClientGroupConfigBean> clientGroupConfigBeanCache = ClientConfig.clientGroupConfigBeanCache();
-    
-    Set<String> groupSyncJobNames = new HashSet<String>();
-    
-    int changesMade = 0;
-    
-    //loop through all of them configured
-    for (String localGroupName : clientGroupConfigBeanCache.keySet()) {
-      
-      ClientGroupConfigBean clientGroupConfigBean = clientGroupConfigBeanCache.get(localGroupName);
-      
-      if (StringUtils.isBlank(clientGroupConfigBean.getLocalGroupName())) {
-        LOG.error("Why is local group name blank? " + clientGroupConfigBean.getConfigId());
-      }
-      
-      String jobName = GrouperLoaderType.GROUPER_GROUP_SYNC + "__" + clientGroupConfigBean.getLocalGroupName();
-      groupSyncJobNames.add(jobName);
-
-      //schedule the job
-      try {
-      
-        //at this point we have all the attributes and we know the required ones are there, and logged when 
-        //forbidden ones are there
-    
-        //the name of the job must be unique, so use the group name since one job per group (at this point)
-        JobDetail jobDetail = JobBuilder.newJob(GrouperLoaderJob.class)
-          .withIdentity(jobName)
-          .build();
-    
-        //schedule this job daily at 6am
-        GrouperLoaderScheduleType grouperLoaderScheduleType = GrouperLoaderScheduleType.CRON;
-    
-        Trigger trigger = grouperLoaderScheduleType.createTrigger("trigger_" + jobName, Trigger.DEFAULT_PRIORITY, clientGroupConfigBean.getCron(), null);
-        
-        if (scheduleJobIfNeeded(jobDetail, trigger)) {
-          changesMade++;
-        }
-    
-    
-      } catch (Exception e) {
-        
-        //log and continue so we can schedule the other ones...
-        
-        String errorMessage = "Could not schedule job: " + jobName;
-        LOG.error(errorMessage, e);
-        errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
-        try {
-          //lets enter a log entry so it shows up as error in the db
-          Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-          hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-          hib3GrouploaderLog.setJobMessage(errorMessage);
-          hib3GrouploaderLog.setJobName(GrouperLoaderType.GROUPER_GROUP_SYNC);
-          hib3GrouploaderLog.setJobScheduleQuartzCron(clientGroupConfigBean.getCron());
-          hib3GrouploaderLog.setJobScheduleType(GrouperLoaderScheduleType.CRON.name());
-          hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
-          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-          hib3GrouploaderLog.store();
-          
-        } catch (Exception e2) {
-          LOG.error("Problem logging to loader db log", e2);
-        }
-      }
-      
-      
-    }
-    
-    // check to see if anything should be unscheduled.
-    try {
-      Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-
-      for (JobKey jobKey : scheduler.getJobKeys(GroupMatcher.jobGroupEquals("DEFAULT"))) {
-        
-        String jobName = jobKey.getName();
-        
-        if (jobName.startsWith(GrouperLoaderType.GROUPER_GROUP_SYNC + "__") && !groupSyncJobNames.contains(jobName)) {
-          try {
-            String triggerName = "trigger_" + jobName;
-            if (scheduler.unscheduleJob(TriggerKey.triggerKey(triggerName))) {
-              changesMade++;
-            }
-          } catch (Exception e) {
-            String errorMessage = "Could not unschedule job: '" + jobName + "'";
-            LOG.error(errorMessage, e);
-            errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
-            try {
-              //lets enter a log entry so it shows up as error in the db
-              Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-              hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-              hib3GrouploaderLog.setJobMessage(errorMessage);
-              hib3GrouploaderLog.setJobName(jobName);
-              hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
-              hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-              hib3GrouploaderLog.store();
-              
-            } catch (Exception e2) {
-              LOG.error("Problem logging to loader db log", e2);
-            }
-          }
-        }
-      }
-    } catch (Exception e) {
-      
-      String errorMessage = "Could not query group sync jobs to see if any should be unscheduled.";
-      LOG.error(errorMessage, e);
-      errorMessage += "\n" + ExceptionUtils.getFullStackTrace(e);
-      try {
-        //lets enter a log entry so it shows up as error in the db
-        Hib3GrouperLoaderLog hib3GrouploaderLog = new Hib3GrouperLoaderLog();
-        hib3GrouploaderLog.setHost(GrouperUtil.hostname());
-        hib3GrouploaderLog.setJobMessage(errorMessage);
-        hib3GrouploaderLog.setJobType(GrouperLoaderType.MAINTENANCE.name());
-        hib3GrouploaderLog.setStatus(GrouperLoaderStatus.CONFIG_ERROR.name());
-        hib3GrouploaderLog.store();
-        
-      } catch (Exception e2) {
-        LOG.error("Problem logging to loader db log", e2);
-      }
-    }
-    return changesMade;
   }
 
   /**
