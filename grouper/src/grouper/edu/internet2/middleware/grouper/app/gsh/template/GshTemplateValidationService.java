@@ -107,10 +107,11 @@ public class GshTemplateValidationService {
         gshTemplateOutput.addValidationLine(errorMessage);
         return false;
       }
-      if (!templateConfig.canGroupRunTemplate(ownerGroup)) {
-        throw new RuntimeException("ownerGroup "+ownerGroup.getName() + " is not allowed to run this gsh template");
-      }
-      
+      if (templateConfig.getGshTemplateType() != GshTemplateType.abac) {
+        if (!templateConfig.canGroupRunTemplate(ownerGroup)) {
+          throw new RuntimeException("ownerGroup "+ownerGroup.getName() + " is not allowed to run this gsh template");
+        }
+      }      
     } else {
       if (!templateConfig.isAllowWsFromNoOwner()) {
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message");

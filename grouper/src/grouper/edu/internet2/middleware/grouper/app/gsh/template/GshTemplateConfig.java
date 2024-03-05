@@ -92,6 +92,13 @@ public class GshTemplateConfig {
   
   private Stem folderForGroupsInFolder;
   
+  private GshTemplateType gshTemplateType;
+  
+  
+  public GshTemplateType getGshTemplateType() {
+    return gshTemplateType;
+  }
+
   private GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants;
   
   private GshTemplateSecurityRunType gshTemplateSecurityRunType;
@@ -350,53 +357,56 @@ public class GshTemplateConfig {
 
         String configPrefix = "grouperGshTemplate."+configId+".";
         
-        enabled = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"enabled", true);
-
-        templateVersion = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"templateVersion", "V1");
-
-        simplifiedUi = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"simplifiedUi", false);
-
-        useIndividualAudits = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"useIndividualAudits", true);
+        GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+        gshTemplateType = GshTemplateType.valueOfIgnoreCase(GrouperUtil.defaultIfBlank(grouperConfig.propertyValueString(configPrefix+"templateType"), "gsh"), true);
         
-        useExternalizedText = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"externalizedText", false);
+        enabled = grouperConfig.propertyValueBoolean(configPrefix+"enabled", true);
+
+        templateVersion = grouperConfig.propertyValueString(configPrefix+"templateVersion", "V1");
+
+        simplifiedUi = grouperConfig.propertyValueBoolean(configPrefix+"simplifiedUi", false);
+
+        useIndividualAudits = grouperConfig.propertyValueBoolean(configPrefix+"useIndividualAudits", true);
         
-        showInMoreActions = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showInMoreActions", false);
+        useExternalizedText = grouperConfig.propertyValueBoolean(configPrefix+"externalizedText", false);
+        
+        showInMoreActions = grouperConfig.propertyValueBoolean(configPrefix+"showInMoreActions", false);
         
         if (useExternalizedText) {
           
           if (showInMoreActions) {
-            moreActionsLabelExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabelExternalizedTextKey");
+            moreActionsLabelExternalizedTextKey = grouperConfig.propertyValueStringRequired(configPrefix+"moreActionsLabelExternalizedTextKey");
           }
-          templateNameExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateNameExternalizedTextKey");
-          templateDescriptionExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescriptionExternalizedTextKey");
+          templateNameExternalizedTextKey = grouperConfig.propertyValueStringRequired(configPrefix+"templateNameExternalizedTextKey");
+          templateDescriptionExternalizedTextKey = grouperConfig.propertyValueStringRequired(configPrefix+"templateDescriptionExternalizedTextKey");
           
         } else {
           if (showInMoreActions) {
-            moreActionsLabel = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"moreActionsLabel");
+            moreActionsLabel = grouperConfig.propertyValueStringRequired(configPrefix+"moreActionsLabel");
           }
-          templateName = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateName");
-          templateDescription = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"templateDescription");
+          templateName = grouperConfig.propertyValueStringRequired(configPrefix+"templateName");
+          templateDescription = grouperConfig.propertyValueStringRequired(configPrefix+"templateDescription");
         }
 
-        displayErrorOutput = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"displayErrorOutput", false);
+        displayErrorOutput = grouperConfig.propertyValueBoolean(configPrefix+"displayErrorOutput", false);
         
-        actAsGroupUUID = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"actAsGroupUUID", null);
+        actAsGroupUUID = grouperConfig.propertyValueString(configPrefix+"actAsGroupUUID", null);
         
-        String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
+        String runAsType = grouperConfig.propertyValueStringRequired(configPrefix+"runAsType");
         gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
         
         if (gshTemplateRunAsType == GshTemplateRunAsType.specifiedSubject) {
-          runAsSpecifiedSubjectSourceId = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsSpecifiedSubjectSourceId");
-          runAsSpecifiedSubjectId = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsSpecifiedSubjectId");
+          runAsSpecifiedSubjectSourceId = grouperConfig.propertyValueStringRequired(configPrefix+"runAsSpecifiedSubjectSourceId");
+          runAsSpecifiedSubjectId = grouperConfig.propertyValueStringRequired(configPrefix+"runAsSpecifiedSubjectId");
         }
         
-        showOnGroups = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showOnGroups", false);
+        showOnGroups = grouperConfig.propertyValueBoolean(configPrefix+"showOnGroups", false);
         
         if (showOnGroups) {
-          gshTemplateGroupShowType = GshTemplateGroupShowType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupShowType"), true);
+          gshTemplateGroupShowType = GshTemplateGroupShowType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"groupShowType"), true);
           
           if (gshTemplateGroupShowType == GshTemplateGroupShowType.certainGroups) {
-            String groupUuidsToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupUuidsToShow");
+            String groupUuidsToShow = grouperConfig.propertyValueStringRequired(configPrefix+"groupUuidsToShow");
             
             String[] groupUuidsOrNames = GrouperUtil.splitTrim(groupUuidsToShow, ",");
             for (String groupUuidOrName: groupUuidsOrNames) {
@@ -410,26 +420,26 @@ public class GshTemplateConfig {
             
           } else if (gshTemplateGroupShowType == GshTemplateGroupShowType.groupsInFolder) {
             
-            String folderUuidForGroupsInFolder = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidForGroupsInFolder");
+            String folderUuidForGroupsInFolder = grouperConfig.propertyValueStringRequired(configPrefix+"folderUuidForGroupsInFolder");
             folderForGroupsInFolder = StemFinder.findByUuid(grouperSession, folderUuidForGroupsInFolder, false);
             if (folderForGroupsInFolder == null) {
               folderForGroupsInFolder = StemFinder.findByName(grouperSession, folderUuidForGroupsInFolder, false);
             }
             GrouperUtil.assertion(folderForGroupsInFolder != null, "could not find folder for folderUuidForGroupsInFolder: "+folderUuidForGroupsInFolder);
-            gshTemplateGroupShowOnDescendants = GshTemplateGroupShowOnDescendants.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupShowOnDescendants"), true);
+            gshTemplateGroupShowOnDescendants = GshTemplateGroupShowOnDescendants.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"groupShowOnDescendants"), true);
           }
           
         }
         
-        allowWsFromNoOwner = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"allowWsFromNoOwner", false);
+        allowWsFromNoOwner = grouperConfig.propertyValueBoolean(configPrefix+"allowWsFromNoOwner", false);
         
-        showOnFolders = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showOnFolders", false);
+        showOnFolders = grouperConfig.propertyValueBoolean(configPrefix+"showOnFolders", false);
         
         if (showOnFolders) {
-          gshTemplateFolderShowType = GshTemplateFolderShowType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderShowType"), true);
+          gshTemplateFolderShowType = GshTemplateFolderShowType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"folderShowType"), true);
           
           if(gshTemplateFolderShowType == GshTemplateFolderShowType.certainFolders) {
-            String folderUuidsOrNamesToShow = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderUuidToShow");
+            String folderUuidsOrNamesToShow = grouperConfig.propertyValueStringRequired(configPrefix+"folderUuidToShow");
             
             String[] folderUuidsOrNames = GrouperUtil.splitTrim(folderUuidsOrNamesToShow, ",");
             for (String folderUuidOrName: folderUuidsOrNames) {
@@ -441,15 +451,15 @@ public class GshTemplateConfig {
               foldersToShow.add(folderToShow);
             }
             
-            gshTemplateFolderShowOnDescendants = GshTemplateFolderShowOnDescendants.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"folderShowOnDescendants"), true);
+            gshTemplateFolderShowOnDescendants = GshTemplateFolderShowOnDescendants.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"folderShowOnDescendants"), true);
           }
           
         }
         
-        gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"securityRunType"), true);
+        gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"securityRunType"), true);
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.specifiedGroup) {
-          String groupUuidOrNameCanRun = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupUuidCanRun");
+          String groupUuidOrNameCanRun = grouperConfig.propertyValueStringRequired(configPrefix+"groupUuidCanRun");
           groupThatCanRun = GroupFinder.findByUuid(grouperSession, groupUuidOrNameCanRun, false);
           if (groupThatCanRun == null) {
             groupThatCanRun = GroupFinder.findByName(grouperSession, groupUuidOrNameCanRun, false);
@@ -458,26 +468,26 @@ public class GshTemplateConfig {
         }
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.privilegeOnObject && showOnGroups) {
-          gshTemplateRequireGroupPrivilege =  GshTemplateRequireGroupPrivilege.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"requireGroupPrivilege"), true);
+          gshTemplateRequireGroupPrivilege =  GshTemplateRequireGroupPrivilege.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"requireGroupPrivilege"), true);
         }
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.privilegeOnObject && showOnFolders) {
-          gshTemplateRequireFolderPrivilege =  GshTemplateRequireFolderPrivilege.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"requireFolderPrivilege"), true);
+          gshTemplateRequireFolderPrivilege =  GshTemplateRequireFolderPrivilege.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"requireFolderPrivilege"), true);
         }
         
-        gshTemplate = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"gshTemplate");
+        gshTemplate = grouperConfig.propertyValueStringRequired(configPrefix+"gshTemplate");
 
-        gshLightweight = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"gshLightweight", false);
+        gshLightweight = grouperConfig.propertyValueBoolean(configPrefix+"gshLightweight", false);
 
-        runGshInTransaction = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"runGshInTransaction", true);
+        runGshInTransaction = grouperConfig.propertyValueBoolean(configPrefix+"runGshInTransaction", true);
 
-        int numberOfInputs = GrouperConfig.retrieveConfig().propertyValueInt(configPrefix+"numberOfInputs", 0);
+        int numberOfInputs = grouperConfig.propertyValueInt(configPrefix+"numberOfInputs", 0);
         
         for (int i=0; i<numberOfInputs; i++) {
           
           String inputPrefix = configPrefix + "input." + i + ".";
           
-          String inputName = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "name");
+          String inputName = grouperConfig.propertyValueStringRequired(inputPrefix + "name");
           
           GshTemplateInputConfig gshTemplateInputConfig = new GshTemplateInputConfig();
           
@@ -485,17 +495,17 @@ public class GshTemplateConfig {
           
           gshTemplateInputConfig.setName(inputName);
           
-          String valueType = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "type", "string");
+          String valueType = grouperConfig.propertyValueString(inputPrefix + "type", "string");
           GshTemplateInputType gshTemplateInputType = GshTemplateInputType.valueOfIgnoreCase(valueType, true);
           
           gshTemplateInputConfig.setUseExternalizedText(GshTemplateConfig.this.useExternalizedText);
           
           if (useExternalizedText) {
-            gshTemplateInputConfig.setLabelExternalizedTextKey(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "labelExternalizedTextKey"));
-            gshTemplateInputConfig.setDescriptionExternalizedTextKey(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "descriptionExternalizedTextKey"));
+            gshTemplateInputConfig.setLabelExternalizedTextKey(grouperConfig.propertyValueStringRequired(inputPrefix + "labelExternalizedTextKey"));
+            gshTemplateInputConfig.setDescriptionExternalizedTextKey(grouperConfig.propertyValueStringRequired(inputPrefix + "descriptionExternalizedTextKey"));
           } else {
-            gshTemplateInputConfig.setLabel(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "label"));
-            gshTemplateInputConfig.setDescription(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "description"));
+            gshTemplateInputConfig.setLabel(grouperConfig.propertyValueStringRequired(inputPrefix + "label"));
+            gshTemplateInputConfig.setDescription(grouperConfig.propertyValueStringRequired(inputPrefix + "description"));
           }
           
           gshTemplateInputConfig.setGshTemplateInputType(gshTemplateInputType);
@@ -503,73 +513,73 @@ public class GshTemplateConfig {
           if (gshTemplateInputType == GshTemplateInputType.BOOLEAN) {
             gshTemplateInputConfig.setConfigItemFormElement(ConfigItemFormElement.RADIOBUTTON);
           } else {
-            ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "formElementType", "text"), true);
+            ConfigItemFormElement configItemFormElement = ConfigItemFormElement.valueOfIgnoreCase(grouperConfig.propertyValueString(inputPrefix + "formElementType", "text"), true);
             gshTemplateInputConfig.setConfigItemFormElement(configItemFormElement);
           }
           
           if ((gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT || gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXTAREA) && gshTemplateInputType != GshTemplateInputType.BOOLEAN) {
-            GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationType"), true);
+            GshTemplateInputValidationType gshTemplateInputValidationType = GshTemplateInputValidationType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(inputPrefix + "validationType"), true);
             gshTemplateInputConfig.setGshTemplateInputValidationType(gshTemplateInputValidationType);
             
-            String validationMessage = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessage");
+            String validationMessage = grouperConfig.propertyValueString(inputPrefix + "validationMessage");
             gshTemplateInputConfig.setValidationMessage(validationMessage);
             
-            String validationMessageExternalizedTextKey = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "validationMessageExternalizedTextKey");
+            String validationMessageExternalizedTextKey = grouperConfig.propertyValueString(inputPrefix + "validationMessageExternalizedTextKey");
             gshTemplateInputConfig.setValidationMessageExternalizedTextKey(validationMessageExternalizedTextKey);
             
             if (gshTemplateInputValidationType == GshTemplateInputValidationType.regex) {
-              String validationRegex = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationRegex");
+              String validationRegex = grouperConfig.propertyValueStringRequired(inputPrefix + "validationRegex");
               gshTemplateInputConfig.setValidationRegex(validationRegex);
             } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.jexl) {
-              String validationJexl = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationJexl");
+              String validationJexl = grouperConfig.propertyValueStringRequired(inputPrefix + "validationJexl");
               gshTemplateInputConfig.setValidationJexl(validationJexl);
             } else if (gshTemplateInputValidationType == GshTemplateInputValidationType.builtin) {
-              String validationBuiltinTypeString = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "validationBuiltin");
+              String validationBuiltinTypeString = grouperConfig.propertyValueStringRequired(inputPrefix + "validationBuiltin");
               ValidationBuiltinType validationBuiltinType = ValidationBuiltinType.valueOfIgnoreCase(validationBuiltinTypeString, true);
               gshTemplateInputConfig.setValidationBuiltinType(validationBuiltinType);
             }
           }
           
-          boolean required = GrouperConfig.retrieveConfig().propertyValueBoolean(inputPrefix+"required", false);
+          boolean required = grouperConfig.propertyValueBoolean(inputPrefix+"required", false);
           gshTemplateInputConfig.setRequired(required);
           
           if (!required) {
-            String defaultValue = GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "defaultValue", null);
+            String defaultValue = grouperConfig.propertyValueString(inputPrefix + "defaultValue", null);
             gshTemplateInputConfig.setDefaultValue(defaultValue);
           }
           
-          gshTemplateInputConfig.setTrimWhitespace(GrouperConfig.retrieveConfig().propertyValueBoolean(inputPrefix+"trimWhitespace", true));
-          gshTemplateInputConfig.setShowEl(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix+"showEl", null));
-          gshTemplateInputConfig.setIndex(GrouperConfig.retrieveConfig().propertyValueInt(inputPrefix+"index", 0));
+          gshTemplateInputConfig.setTrimWhitespace(grouperConfig.propertyValueBoolean(inputPrefix+"trimWhitespace", true));
+          gshTemplateInputConfig.setShowEl(grouperConfig.propertyValueString(inputPrefix+"showEl", null));
+          gshTemplateInputConfig.setIndex(grouperConfig.propertyValueInt(inputPrefix+"index", 0));
           
           if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.DROPDOWN) {
             
-            GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType = GshTemplateDropdownValueFormatType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString(inputPrefix + "dropdownValueFormat", "csv"), true);
+            GshTemplateDropdownValueFormatType gshTemplateDropdownValueFormatType = GshTemplateDropdownValueFormatType.valueOfIgnoreCase(grouperConfig.propertyValueString(inputPrefix + "dropdownValueFormat", "csv"), true);
             gshTemplateInputConfig.setGshTemplateDropdownValueFormatType(gshTemplateDropdownValueFormatType);
             
             if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.csv) {
-             String dropdownCsvValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownCsvValue");
+             String dropdownCsvValue = grouperConfig.propertyValueStringRequired(inputPrefix + "dropdownCsvValue");
              gshTemplateInputConfig.setDropdownCsvValue(dropdownCsvValue);
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.json) {
-              String dropdownJsonValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJsonValue");
+              String dropdownJsonValue = grouperConfig.propertyValueStringRequired(inputPrefix + "dropdownJsonValue");
               gshTemplateInputConfig.setDropdownJsonValue(dropdownJsonValue);
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.dynamicFromTemplate) {
               // let this happen
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.javaclass) {
-              String dropdownJavaClassValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownJavaClassValue");
+              String dropdownJavaClassValue = grouperConfig.propertyValueStringRequired(inputPrefix + "dropdownJavaClassValue");
               gshTemplateInputConfig.setDropdownJavaClassValue(dropdownJavaClassValue);
             } else if (gshTemplateInputConfig.getGshTemplateDropdownValueFormatType() == GshTemplateDropdownValueFormatType.sql) {
-              String dropdownSqlDatabase = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownSqlDatabase");
+              String dropdownSqlDatabase = grouperConfig.propertyValueStringRequired(inputPrefix + "dropdownSqlDatabase");
               gshTemplateInputConfig.setDropdownSqlDatabase(dropdownSqlDatabase);
-              String dropdownSqlValue = GrouperConfig.retrieveConfig().propertyValueStringRequired(inputPrefix + "dropdownSqlValue");
+              String dropdownSqlValue = grouperConfig.propertyValueStringRequired(inputPrefix + "dropdownSqlValue");
               gshTemplateInputConfig.setDropdownSqlValue(dropdownSqlValue);
-              int dropdownSqlCacheForMinutes = GrouperConfig.retrieveConfig().propertyValueInt(inputPrefix + "dropdownSqlCacheForMinutes", 2);
+              int dropdownSqlCacheForMinutes = grouperConfig.propertyValueInt(inputPrefix + "dropdownSqlCacheForMinutes", 2);
               gshTemplateInputConfig.setDropdownSqlCacheForMinutes(dropdownSqlCacheForMinutes);
             } else {
               throw new RuntimeException("Not expecting drop down value format type: " + gshTemplateInputConfig.getGshTemplateDropdownValueFormatType());
             }
           } else {
-            int maxLength = GrouperConfig.retrieveConfig().propertyValueInt(inputPrefix + "maxLength", 500);
+            int maxLength = grouperConfig.propertyValueInt(inputPrefix + "maxLength", 500);
             gshTemplateInputConfig.setMaxLength(maxLength);
           }
           

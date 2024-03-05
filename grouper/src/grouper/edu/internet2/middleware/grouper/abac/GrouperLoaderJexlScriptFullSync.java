@@ -558,7 +558,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         grouperJexlScriptPartClone = rowJexlScriptPart.clone();
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
         analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(0), false);
-        grouperJexlScriptPartClone.getWhereClause().append(")");
+        
+        // TODO improve this
+        grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ", 
+            StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), "(")
+            - StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), ")")));
+        
       }
 
       
@@ -573,7 +578,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           grouperJexlScriptPartClone = rowJexlScriptPart.clone();
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
-          grouperJexlScriptPartClone.getWhereClause().append(")");
+          // TODO improve this
+          grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ", 
+              StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), "(")
+              - StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), ")")));
         }
       }
     } else if (jexlNode instanceof ASTOrNode) {
@@ -588,7 +596,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           grouperJexlScriptPartClone = rowJexlScriptPart.clone();
           grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
           analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, rowJexlScriptPart, jexlNode.jjtGetChild(i), false);
-          grouperJexlScriptPartClone.getWhereClause().append(" ) ) ");
+          // TODO improve this
+          grouperJexlScriptPartClone.getWhereClause().append(StringUtils.repeat(" ) ", 
+              StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), "(")
+              - StringUtils.countMatches(grouperJexlScriptPartClone.getWhereClause().toString(), ")")));
         }
       }
       

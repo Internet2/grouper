@@ -271,10 +271,10 @@
                               </td>
                             </tr>
                             
-                            <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.guiGshTemplateInputConfigs}" var="guiGshTemplateInputConfigMap">
+                            <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig.gshTemplateInputConfigAndValues}" var="gshTemplateInputConfigAndValueMap">
             
-                              <c:set var="guiGshTemplateInputConfigName" value="${guiGshTemplateInputConfigMap.key}"></c:set>             
-                              <c:set var="guiGshTemplateInputConfig" value="${guiGshTemplateInputConfigMap.value}"></c:set>             
+                              <c:set var="guiGshTemplateInputConfigName" value="${gshTemplateInputConfigAndValueMap.key}"></c:set>             
+                              <c:set var="guiGshTemplateInputConfig" value="${gshTemplateInputConfigAndValueMap.value}"></c:set>             
                                                   
                               <grouper:configFormElement 
                                 formElementType="${guiGshTemplateInputConfig.gshTemplateInputConfig.configItemFormElement}"
