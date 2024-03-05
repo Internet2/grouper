@@ -111,6 +111,8 @@ public class GrouperLoader {
    */
   private static final Log LOG = GrouperUtil.getLog(GrouperLoader.class);
 
+  private static ThreadLocal<Boolean> isRunningJobOnceLocally = new ThreadLocal<Boolean>();
+
   /**
    * @param args
    */
@@ -1712,6 +1714,8 @@ public class GrouperLoader {
         return runOnceByJobName(grouperSession, jobName, true);
       }
       
+      isRunningJobOnceLocally.set(true);
+      
       Hib3GrouperLoaderLog hib3GrouperLoaderLog = new Hib3GrouperLoaderLog();
       hib3GrouperLoaderLog.setJobScheduleType("MANUAL_FROM_GSH");
       hib3GrouperLoaderLog.setJobName(jobName);
@@ -1737,6 +1741,8 @@ public class GrouperLoader {
       if (loggerInitted) {
         GrouperLoaderLogger.doTheLogging("overallLog");
       }
+      
+      isRunningJobOnceLocally.remove();
     }      
   }
   
@@ -1779,6 +1785,8 @@ public class GrouperLoader {
         return "Job successfully scheduled on daemon";
       }
   
+      isRunningJobOnceLocally.set(true);
+      
       GrouperLoaderType grouperLoaderType = GrouperLoaderType.typeForThisName(jobName);
       if (grouperLoaderType.equals(GrouperLoaderType.SQL_SIMPLE) || grouperLoaderType.equals(GrouperLoaderType.SQL_GROUP_LIST)) {
         
@@ -1803,6 +1811,8 @@ public class GrouperLoader {
       return "loader ran successfully: " + hib3GrouperLoaderLog.getJobMessage();
     } catch (Exception e) {
       throw new RuntimeException(e);
+    } finally {
+      isRunningJobOnceLocally.remove();
     }
   }
   
@@ -2459,5 +2469,17 @@ public class GrouperLoader {
     } catch (SchedulerException e) {
       throw new RuntimeException(e);
     }
+  }
+  
+  /**
+   * If the threadlocal indicates that the current job should be running once
+   * @return boolean
+   */
+  public static boolean isRunningJobOnceLocally() {
+    if (isRunningJobOnceLocally.get() != null && isRunningJobOnceLocally.get()) {
+      return true;
+    }
+    
+    return false;
   }
 }

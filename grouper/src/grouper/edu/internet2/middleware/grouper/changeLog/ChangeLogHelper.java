@@ -217,6 +217,10 @@ public class ChangeLogHelper {
       int longRunningRuntimeSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer." + consumerName + ".longRunningRuntimeSeconds", 3600);
       int longRunningNewLoaderLogIntervalSeconds = GrouperLoaderConfig.retrieveConfig().propertyValueInt("changeLog.consumer." + consumerName + ".longRunningNewLoaderLogIntervalSeconds", 60);
 
+      if (isLongRunning && GrouperLoader.isRunningJobOnceLocally()) {
+        isLongRunning = false;
+      }
+      
       if (debugMap != null) {
         debugMap.put("className", theClassName);
       }
