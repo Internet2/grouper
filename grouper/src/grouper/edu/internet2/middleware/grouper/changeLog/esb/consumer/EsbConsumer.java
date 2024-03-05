@@ -470,7 +470,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     //try catch so we can track that we made some progress
     try {
       
-      debugMapOverall.put("totalCount", GrouperUtil.length(changeLogEntryList));
+      //debugMapOverall.put("totalCount", GrouperUtil.length(changeLogEntryList));
 
       //####### STEP 1: convert to esb events
       boolean sendCreatedOnMicros = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + this.consumerName
