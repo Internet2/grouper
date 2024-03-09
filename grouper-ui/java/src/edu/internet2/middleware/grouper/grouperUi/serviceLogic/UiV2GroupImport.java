@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -876,6 +877,13 @@ public class UiV2GroupImport {
         } else {
           // it is complete, leave it be
           importThreadProgress.put(reportMultiKey, null);
+          
+          if (groupImportContainer.isEndDateTooSoon()) {
+            int queryInterval = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.enabledDisabled.queryIntervalInSeconds", 3600);
+            String warningMessage = TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesEndDateBeforeChangeLogCanPickupWarn");
+            warningMessage = StringUtils.replace(warningMessage, "##minsInFuture##", String.valueOf(queryInterval/60));
+            guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, warningMessage));
+          }
         }
       }
     } catch (RuntimeException re) {
@@ -913,7 +921,7 @@ public class UiV2GroupImport {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
     debugMap.put("method", "groupImportSubmit");
-
+    
     GrouperSession grouperSession = null;
 
     int pauseBetweenRecordsMillis = GrouperUiConfig.retrieveConfig().propertyValueIntRequired("grouperUi.import.pauseInBetweenRecordsMillis");
@@ -935,6 +943,14 @@ public class UiV2GroupImport {
       
       progressBean.setProgressTotalRecords(GrouperUtil.length(groups) * GrouperUtil.length(subjectSet));
       
+      if (endDate != null) {          
+        int queryInterval = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.enabledDisabled.queryIntervalInSeconds", 3600);
+        Timestamp minAllowedInFuture = new Timestamp(System.currentTimeMillis() + queryInterval * 1000);
+        if (endDate.before(minAllowedInFuture)) {
+          groupImportContainer.setEndDateTooSoon(true);
+        }
+      }
+      
       //lets go through the groups that were submitted
       while (groupIterator.hasNext()) {
 
@@ -943,6 +959,7 @@ public class UiV2GroupImport {
         guiGroups.add(new GuiGroup(group));
 
         GroupImportGroupSummary groupImportGroupSummary = new GroupImportGroupSummary();
+        
         groupImportContainer.getGroupImportGroupSummaryForGroupMap().put(group, groupImportGroupSummary);
         
         List<Member> existingMembers = new ArrayList<Member>(GrouperUtil.nonNull(group.getImmediateMembers()));

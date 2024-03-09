@@ -161,7 +161,5 @@ public class GroupImportGroupSummary {
   public void setGroupCountOriginal(int groupCountOriginal1) {
     this.groupCountOriginal = groupCountOriginal1;
   }
-
-  
   
 }

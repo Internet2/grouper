@@ -154,6 +154,11 @@ public class GrouperProvisioningData {
     if (gcGrouperSyncGroup != null) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper().put(gcGrouperSyncGroup.getId(), provisioningGroupWrapper);
     }    
+    
+    if (provisioningGroupWrapper.getTargetProvisioningGroup() != null && StringUtils.isNotBlank(provisioningGroupWrapper.getTargetProvisioningGroup().getId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetGroupIdToProvisioningGroupWrapper()
+      .put(provisioningGroupWrapper.getTargetProvisioningGroup().getId(), provisioningGroupWrapper);
+    }
   }
   
   /**
@@ -171,6 +176,11 @@ public class GrouperProvisioningData {
     if (gcGrouperSyncMember != null) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper().put(gcGrouperSyncMember.getId(), provisioningEntityWrapper);
     }    
+    
+    if (provisioningEntityWrapper.getTargetProvisioningEntity() != null && StringUtils.isNotBlank(provisioningEntityWrapper.getTargetProvisioningEntity().getId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetEntityIdToProvisioningEntityWrapper()
+      .put(provisioningEntityWrapper.getTargetProvisioningEntity().getId(), provisioningEntityWrapper);
+    }
   }
   
   /**
@@ -188,6 +198,11 @@ public class GrouperProvisioningData {
     if (gcGrouperSyncMember != null) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper().remove(gcGrouperSyncMember.getId());
     }    
+    
+    if (provisioningEntityWrapper.getTargetProvisioningEntity() != null && StringUtils.isNotBlank(provisioningEntityWrapper.getTargetProvisioningEntity().getId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetEntityIdToProvisioningEntityWrapper().remove(provisioningEntityWrapper.getTargetProvisioningEntity().getId());
+    }
+    
   }
   
   /**
@@ -205,6 +220,11 @@ public class GrouperProvisioningData {
     if (gcGrouperSyncGroup != null) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper().remove(gcGrouperSyncGroup.getId());
     }    
+    
+    if (provisioningGroupWrapper.getTargetProvisioningGroup() != null && StringUtils.isNotBlank(provisioningGroupWrapper.getTargetProvisioningGroup().getId())) {
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetGroupIdToProvisioningGroupWrapper().remove(provisioningGroupWrapper.getTargetProvisioningGroup().getId());
+    }
+    
   }
   
   /**
@@ -233,6 +253,15 @@ public class GrouperProvisioningData {
       provisioningMembershipWrapper.setSyncGroupIdSyncMemberId(syncGroupIdSyncMemberId);
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().put(
           syncGroupIdSyncMemberId, provisioningMembershipWrapper);
+    }
+    
+    if (provisioningMembershipWrapper.getTargetProvisioningMembership() != null && StringUtils.isNotBlank(provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningEntityId())
+        && StringUtils.isNotBlank(provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningGroupId())) {
+      MultiKey groupIdEntityId = new MultiKey(provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningGroupId(), provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningEntityId());
+      
+      provisioningMembershipWrapper.setGroupIdMemberId(groupIdEntityId);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+      .getTargetGroupIdTargetEntityIdToProvisioningMembershipWrapper().put(groupIdEntityId, provisioningMembershipWrapper);
     }
   }
   
@@ -738,6 +767,15 @@ public class GrouperProvisioningData {
     if (gcGrouperSyncMembership != null) {
       this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getSyncGroupIdSyncMemberId());
     }    
+    
+    if (provisioningMembershipWrapper.getTargetProvisioningMembership() != null && StringUtils.isNotBlank(provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningEntityId())
+        && StringUtils.isNotBlank(provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningGroupId())) {
+      
+      MultiKey groupIdEntityId = new MultiKey(provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningGroupId(), provisioningMembershipWrapper.getTargetProvisioningMembership().getProvisioningEntityId());
+      
+      this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex()
+      .getTargetGroupIdTargetEntityIdToProvisioningMembershipWrapper().remove(groupIdEntityId);
+    }
   }
 
   public void setMembershipValuesThatExistInGrouper(Set<Object> membershipValuesThatExistInGrouper) {

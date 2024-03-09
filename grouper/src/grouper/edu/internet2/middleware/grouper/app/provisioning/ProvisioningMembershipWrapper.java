@@ -58,6 +58,14 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
         return provisioningGroupWrapper;
       }
     }
+    
+    if (this.groupIdMemberId != null) {
+      ProvisioningGroupWrapper provisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetGroupIdToProvisioningGroupWrapper().get(GrouperUtil.stringValue(this.groupIdMemberId.getKey(0)));
+      if (provisioningGroupWrapper != null) {
+        return provisioningGroupWrapper;
+      }
+    }
+    
     return null;
   }
 
@@ -98,6 +106,13 @@ public class ProvisioningMembershipWrapper extends ProvisioningUpdatableWrapper 
     }
     if (this.syncGroupIdSyncMemberId != null) {
       ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGrouperSyncMemberIdToProvisioningEntityWrapper().get(this.syncGroupIdSyncMemberId.getKey(1));
+      if (provisioningEntityWrapper != null) {
+        return provisioningEntityWrapper;
+      }
+    }
+    
+    if (this.groupIdMemberId != null) {
+      ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetEntityIdToProvisioningEntityWrapper().get(GrouperUtil.stringValue(this.groupIdMemberId.getKey(1)));
       if (provisioningEntityWrapper != null) {
         return provisioningEntityWrapper;
       }

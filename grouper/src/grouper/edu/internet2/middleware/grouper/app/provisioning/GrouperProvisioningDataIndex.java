@@ -32,8 +32,32 @@ public class GrouperProvisioningDataIndex {
   private Map<String, ProvisioningEntityWrapper> grouperSyncMemberIdToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
 
   private Map<MultiKey, ProvisioningMembershipWrapper> grouperSyncGroupIdGrouperSyncMemberIdToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
+  
+  
+  private Map<String, ProvisioningGroupWrapper> targetGroupIdToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
+
+  private Map<String, ProvisioningEntityWrapper> targetEntityIdToProvisioningEntityWrapper = new HashMap<String, ProvisioningEntityWrapper>();
+
+  private Map<MultiKey, ProvisioningMembershipWrapper> targetGroupIdTargetEntityIdToProvisioningMembershipWrapper = new HashMap<MultiKey, ProvisioningMembershipWrapper>();
+  
+  
+  
+  public Map<String, ProvisioningGroupWrapper> getTargetGroupIdToProvisioningGroupWrapper() {
+    return targetGroupIdToProvisioningGroupWrapper;
+  }
 
   
+  public Map<String, ProvisioningEntityWrapper> getTargetEntityIdToProvisioningEntityWrapper() {
+    return targetEntityIdToProvisioningEntityWrapper;
+  }
+
+
+  public Map<MultiKey, ProvisioningMembershipWrapper> getTargetGroupIdTargetEntityIdToProvisioningMembershipWrapper() {
+    return targetGroupIdTargetEntityIdToProvisioningMembershipWrapper;
+  }
+
+
+
   public boolean isHasIncrementalDataToProcess() {
     
     

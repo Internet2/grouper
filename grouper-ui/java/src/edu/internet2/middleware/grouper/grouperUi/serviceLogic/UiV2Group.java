@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAtt
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.ldap.LoaderLdapUtils;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -1087,12 +1088,25 @@ public class UiV2Group {
           attrUpdateChecked, startDate, endDate, false);
       
       if (madeChanges) {
+        
+        if (endDate != null) {          
+          int queryInterval = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.enabledDisabled.queryIntervalInSeconds", 3600);
+          Timestamp minAllowedInFuture = new Timestamp(System.currentTimeMillis() + queryInterval * 1000);
+          if (endDate.before(minAllowedInFuture)) {
+            
+            String warningMessage = TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesEndDateBeforeChangeLogCanPickupWarn");
+            warningMessage = StringUtils.replace(warningMessage, "##minsInFuture##", String.valueOf(queryInterval/60));
+            guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, warningMessage));
+          }
+        }
+        
         if (memberChecked && GrouperUtil.checkIfMembershipsMayPropagate(Collections.singleton(group))) {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
               TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccessButPropagating")));
         } else {
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+          guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
               TextContainer.retrieveFromRequest().getText().get("groupAddMemberMadeChangesSuccess")));
+          
         }
 
         //what subscreen are we on?
@@ -1115,7 +1129,7 @@ public class UiV2Group {
 
       } else {
 
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.info, 
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.info, 
             TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoChangesSuccess")));
 
       }
