@@ -225,7 +225,7 @@ public class XmlExport {
         startedRootSession = true;
         Subject subject = SubjectFinder.findRootSubject();
         try {
-          theGrouperSession = GrouperSession.start(subject);
+          theGrouperSession = GrouperSession.start(subject, true, false);
         } catch (SessionException gse) {
           throw new RuntimeException("Problem starting session: " + gse.getMessage(), gse);
         }

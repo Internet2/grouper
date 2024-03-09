@@ -107,7 +107,7 @@ public class HooksContext {
         && asynchronousGrouperSessionSubject != null && asynchronous) {
       try {
         asynchronousGrouperSessionStarted = true;
-        grouperSession = GrouperSession.start(asynchronousGrouperSessionSubject);
+        grouperSession = GrouperSession.start(asynchronousGrouperSessionSubject, true, false);
       } catch (SessionException se) {
         throw new RuntimeException(se);
       }
