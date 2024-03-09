@@ -2837,9 +2837,9 @@ public class GrouperProvisioningLogic {
       if (provisioningGroupWrapper == null) {
         provisioningGroupWrapper = new ProvisioningGroupWrapper();
         provisioningGroupWrapper.setGrouperProvisioner(this.grouperProvisioner);
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
       }
       provisioningGroupWrapper.setTargetProvisioningGroup(targetProvisioningGroup);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexGroupWrapper(provisioningGroupWrapper);
       provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
       
       GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
@@ -2914,10 +2914,9 @@ public class GrouperProvisioningLogic {
         // note: should any of this happen if already registered?  register again?
         provisioningEntityWrapper = new ProvisioningEntityWrapper();
         provisioningEntityWrapper.setGrouperProvisioner(this.grouperProvisioner);
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexEntityWrapper(provisioningEntityWrapper);
-  
       }
       provisioningEntityWrapper.setTargetProvisioningEntity(targetProvisioningEntity);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexEntityWrapper(provisioningEntityWrapper);
       provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
       provisioningEntityWrapper.setTargetNativeEntity(targetEntityToTargetNativeEntity.get(targetProvisioningEntity));
       
@@ -2989,9 +2988,9 @@ public class GrouperProvisioningLogic {
       if (provisioningMembershipWrapper == null) {
         provisioningMembershipWrapper = new ProvisioningMembershipWrapper();
         provisioningMembershipWrapper.setGrouperProvisioner(this.grouperProvisioner);
-        this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
       }
       provisioningMembershipWrapper.setTargetProvisioningMembership(targetProvisioningMembership);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexMembershipWrapper(provisioningMembershipWrapper);
       provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
 
