@@ -132,6 +132,11 @@ public class GrouperSession implements Serializable {
   private static final Log LOG = GrouperUtil.getLog(GrouperSession.class);
 
   /**
+   * store the current grouper session here so it is not cleaned up if not assigned to a variable
+   */
+  private static ThreadLocal<GrouperSession> currentSession = new ThreadLocal<GrouperSession>();
+  
+  /**
    * store the grouper connection in thread local so other classes can get it.
    * this is only for inverse of control.  This has priority over the 
    * static session set from start()
@@ -176,6 +181,7 @@ public class GrouperSession implements Serializable {
 
   /** */
   private String          memberUUID;
+
 
   /** */
   private long            startTimeLong;
@@ -440,6 +446,27 @@ public class GrouperSession implements Serializable {
    * // Start a Grouper API session.
    * GrouperSession s = GrouperSession.start(subject);
    * </pre>
+   * @param addToThreadLocal true to add this to the grouper session
+   * threadlocal which replaces the current one
+   * @param addToCurrentSession if the current threadlocal session is set so the session is not garbage collected
+   * @return  A Grouper API session.
+   * @throws  SessionException
+   */
+  public static GrouperSession startRootSession(boolean addToThreadLocal, boolean addToCurrentSession) throws SessionException {
+    
+    return start(SubjectFinder.findRootSubject(), addToThreadLocal, addToCurrentSession);
+  }
+
+  /**
+   * Start a session for interacting with the Grouper API.
+   * This adds the session to the threadlocal.    This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
+   * This uses 
+   * <pre class="eg">
+   * // Start a Grouper API session.
+   * GrouperSession s = GrouperSession.start(subject);
+   * </pre>
    * @return  A Grouper API session.
    * @throws  SessionException
    */
@@ -471,6 +498,28 @@ public class GrouperSession implements Serializable {
   public static GrouperSession start(Subject subject, boolean addToThreadLocal) 
     throws SessionException
   {
+    return start(subject, addToThreadLocal, addToThreadLocal);
+  }
+  
+  /**
+   * Start a session for interacting with the Grouper API.  This has 
+   * threadlocal implications, so start and stop these hierarchically,
+   * do not alternate.  If you need to, use the callback inverse of control.
+   * <pre class="eg">
+   * // Start a Grouper API session.
+   * GrouperSession s = GrouperSession.start(subject);
+   * </pre>
+   * @param   subject   Start session as this {@link Subject}.
+   * @param addToThreadLocal true to add this to the grouper session
+   * threadlocal which replaces the current one.  Though if in the context of a callback,
+   * the callback has precedence, and you should use an inner callback to preempt it (callbackGrouperSession)
+   * @param addToCurrentSession if the current threadlocal session is set so the session is not garbage collected
+   * @return  A Grouper API session.
+   * @throws  SessionException
+   */
+  public static GrouperSession start(Subject subject, boolean addToThreadLocal, boolean addToCurrentSession) 
+    throws SessionException
+  {
     if (subject == null) {
       String idLog = "(subject is null)";
       String msg = E.S_START + idLog;
@@ -491,6 +540,8 @@ public class GrouperSession implements Serializable {
       sw.start();
       
       s   =  new GrouperSession();
+
+      currentSession.set(s);
       s.setSubject(subject);
       s.getMember();
       if (LOG.isDebugEnabled()) {
@@ -741,6 +792,11 @@ public class GrouperSession implements Serializable {
       return;
     }
     this.stopped = true;
+    
+    if (this == currentSession.get()) {
+      currentSession.remove();
+    }
+    
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     if (LOG.isDebugEnabled()) {
       debugMap.put("method", "stop()");
@@ -1058,7 +1114,7 @@ public class GrouperSession implements Serializable {
     boolean startedGrouperSession = false;
     GrouperSession grouperSession = GrouperSession.staticGrouperSession(false);
     if (grouperSession == null) {
-      grouperSession = GrouperSession.startRootSession(false);
+      grouperSession = GrouperSession.startRootSession(false, false);
       startedGrouperSession = true;
     } else {
       // dont check if wheel or root since can be cached
@@ -1248,7 +1304,7 @@ public class GrouperSession implements Serializable {
       }
     });
 
-    GrouperSession grouperSession = GrouperSession.start(subject, false);
+    GrouperSession grouperSession = GrouperSession.start(subject, false, false);
     try {
       callbackGrouperSession(grouperSession, grouperSessionHandler);
     } finally {

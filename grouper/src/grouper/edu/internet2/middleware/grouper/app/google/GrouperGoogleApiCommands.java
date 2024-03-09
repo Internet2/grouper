@@ -228,7 +228,7 @@ public class GrouperGoogleApiCommands {
    * @param configId
    * @return the bearer token
    */
-  private static String retrieveBearerTokenForGoogleSettingsConfigId(Map<String, Object> debugMap, String configId) {
+  public static String retrieveBearerTokenForGoogleSettingsConfigId(Map<String, Object> debugMap, String configId) {
     
     String encryptedBearerToken = configKeyToExpiresOnAndSettingsToken.get(configId);
     
@@ -248,7 +248,7 @@ public class GrouperGoogleApiCommands {
     return accessToken;
   }
   
-  private static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String urlSuffix, boolean useSettingsBearerToken) {
+  public static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String urlSuffix, boolean useSettingsBearerToken) {
 
     int[] returnCode = new int[] { -1 };
     JsonNode jsonNode = executeMethod(debugMap, "GET", configId, urlSuffix,
@@ -261,7 +261,7 @@ public class GrouperGoogleApiCommands {
     return jsonNode;
   }
 
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
+  public static JsonNode executeMethod(Map<String, Object> debugMap,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, String body, boolean useSettingsBearerToken) {
 
