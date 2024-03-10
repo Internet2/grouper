@@ -27,7 +27,6 @@ public class GroupImportContainer {
   
   private String sourceId;
   
-  private boolean endDateTooSoon = false;
   
   public String getGroupId() {
     return groupId;
@@ -516,20 +515,4 @@ public class GroupImportContainer {
     return guiGroup.getExportSubjectIdsFileName();
   }
 
-
-
-
-  
-  public boolean isEndDateTooSoon() {
-    return endDateTooSoon;
-  }
-
-
-
-
-  
-  public void setEndDateTooSoon(boolean endDateTooSoon) {
-    this.endDateTooSoon = endDateTooSoon;
-  }
-  
 }
