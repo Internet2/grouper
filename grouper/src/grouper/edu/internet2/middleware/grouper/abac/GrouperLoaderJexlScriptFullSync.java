@@ -94,9 +94,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       //System.out.println(analyzeJexlScriptHtml("entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known && cp_org == 'Perelman School of Medicine' \") "
       //    + "&& entity.memberOf('penn:ref:member') && !entity.memberOf('penn:ref:lockout') && entity.hasAttribute('cp_role', 'desktop-user')", subject));
 
-      System.out.println(analyzeJexlScriptHtml("entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known "
-          + "&& cp_org == 'Perelman School of Medicine' \") && (!entity.memberOf('penn:ref:member') "
-          + "|| entity.memberOf('penn:ref:lockout') ) && entity.hasAttribute('cp_role', 'desktop-user')", null, null));
+      System.out.println(analyzeJexlScriptHtml("(entity.hasRow('cp_user', \"(cp_active || !cp_blocked) && cp_known "
+          + "&& cp_org == 'Perelman School of Medicine' \") "
+          + " || entity.hasRow('cp_user', \"(cp_active || !cp_blocked) && cp_known "
+          + "&& cp_org == 'Perelman School of Medicine' \")) && (!entity.memberOf('penn:ref:member') "
+          + "|| entity.memberOf('penn:ref:lockout') ) && entity.hasAttribute('cp_role', 'desktop-user')", null, subject));
       
       //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup')")));
       //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')")));
@@ -604,7 +606,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       
     } else {
-      throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
+      throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
     }
   }
   
