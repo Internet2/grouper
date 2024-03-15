@@ -58,15 +58,15 @@ public class RuleService {
       //rule is being assigned on a group 
       String checkOwner = ruleConfig.getCheckOwner();
       
-      if (StringUtils.isBlank(checkOwner) && StringUtils.isNotBlank(ruleConfig.getCheckOwnerUuidOrName())) {
-        checkOwner = "anotherGroup";
-      } else if (StringUtils.isBlank(checkOwner) && StringUtils.isBlank(ruleConfig.getCheckOwnerUuidOrName())){
-        checkOwner = "thisGroup";
-      }
+//      if (StringUtils.isBlank(checkOwner) && StringUtils.isNotBlank(ruleConfig.getCheckOwnerUuidOrName())) {
+//        checkOwner = "anotherGroup";
+//      } else if (StringUtils.isBlank(checkOwner) && StringUtils.isBlank(ruleConfig.getCheckOwnerUuidOrName())){
+//        checkOwner = "thisGroup";
+//      }
       
       if (StringUtils.isNotBlank(checkOwner)) {
         
-        //value must be thisStem, anotherStem
+        //value must be thisGroup, anotherGroup
         if (StringUtils.equals(checkOwner, "thisGroup")) {
           checkOwnerName = group.getName();
         } else if (StringUtils.equals(checkOwner, "anotherGroup")) {
@@ -113,11 +113,11 @@ public class RuleService {
       
       String ifConditionOwner = ruleConfig.getIfConditionOwner();
       
-      if (StringUtils.isBlank(ifConditionOwner) && StringUtils.isNotBlank(ruleConfig.getIfConditionOwnerUuidOrName())) {
-        ifConditionOwner = "anotherGroup";
-      } else if (StringUtils.isBlank(ifConditionOwner) && StringUtils.isBlank(ruleConfig.getIfConditionOwnerUuidOrName())){
-        ifConditionOwner = "thisGroup";
-      }
+//      if (StringUtils.isBlank(ifConditionOwner) && StringUtils.isNotBlank(ruleConfig.getIfConditionOwnerUuidOrName())) {
+//        ifConditionOwner = "anotherGroup";
+//      } else if (StringUtils.isBlank(ifConditionOwner) && StringUtils.isBlank(ruleConfig.getIfConditionOwnerUuidOrName())){
+//        ifConditionOwner = "thisGroup";
+//      }
       
       if (StringUtils.isNotBlank(ifConditionOwner)) {
         
@@ -173,11 +173,11 @@ public class RuleService {
       //rule is being assigned on a folder 
       String checkOwner = ruleConfig.getCheckOwner();
       
-      if (StringUtils.isBlank(checkOwner) && StringUtils.isNotBlank(ruleConfig.getCheckOwnerUuidOrName())) {
-        checkOwner = "anotherStem";
-      } else if (StringUtils.isBlank(checkOwner) && StringUtils.isBlank(ruleConfig.getCheckOwnerUuidOrName())){
-        checkOwner = "thisStem";
-      }
+//      if (StringUtils.isBlank(checkOwner) && StringUtils.isNotBlank(ruleConfig.getCheckOwnerUuidOrName())) {
+//        checkOwner = "anotherStem";
+//      } else if (StringUtils.isBlank(checkOwner) && StringUtils.isBlank(ruleConfig.getCheckOwnerUuidOrName())){
+//        checkOwner = "thisStem";
+//      }
       
       if (StringUtils.isNotBlank(checkOwner)) {
         
@@ -575,16 +575,11 @@ public class RuleService {
     return ruleConfig;
   }
 
-
-
-  public static void deleteRuleAttributes(Stem stem, String attributeAssignId) {
-    AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
-    attributeAssign.delete();
-  }
   
-  public static void deleteRuleAttributes(Group group, String attributeAssignId) {
+  public static void deleteRuleAttributes(String attributeAssignId) {
     AttributeAssign attributeAssign = AttributeAssignFinder.findById(attributeAssignId, true);
     attributeAssign.delete();
+    RuleEngine.clearRuleEngineCache();
   }
 
 }

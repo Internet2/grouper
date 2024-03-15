@@ -347,6 +347,11 @@ public class StemDeleteContainer {
   private int stemCountTotal;
 
   /**
+   * rules delete count - how many rules are going to be deleted
+   */
+  private int rulesDeleteCount;
+
+  /**
    * 
    * @return the obliterate count
    */
@@ -433,5 +438,14 @@ public class StemDeleteContainer {
     this.stemCountTotal = stemCountTotal1;
   }
 
+  
+  public void setRulesDeleteCount(int rulesDeleteCount) {
+    this.rulesDeleteCount = rulesDeleteCount;
+  }
+
+  
+  public int getRulesDeleteCount() {
+    return rulesDeleteCount;
+  }
   
 }

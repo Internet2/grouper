@@ -16,18 +16,22 @@
 
 package edu.internet2.middleware.grouper.rules;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -452,6 +456,152 @@ public class RuleFinder {
             && ruleCheck != null && StringUtils.equalsIgnoreCase(ruleCheck.getCheckStemScope(), "SUB")) {
           ruleDefinitions.add(ruleDefinition);
           continue;
+        }
+      }
+      
+    }
+    
+    return ruleDefinitions;
+    
+  }
+  
+  /**
+   * finding rule definitions that refer to these objects but not defined in these objects
+   * @param grouperObjects
+   * @return
+   */
+  public static Set<RuleDefinition> retrieveRuleDefinitionsDeleteCountForGrouperObjects(Set<GrouperObject> grouperObjects) {
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<>();
+    
+    RuleEngine ruleEngine = RuleEngine.ruleEngine();
+    
+    Set<String> grouperObjectIds = new HashSet<>();
+    Set<String> grouperObjectNames = new HashSet<>();
+    for (GrouperObject grouperObject: grouperObjects) {
+      grouperObjectIds.add(grouperObject.getId());
+      grouperObjectNames.add(grouperObject.getName());
+    }
+    
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions(false)) {
+      
+      AttributeAssign attributeAssignType = ruleDefinition.getAttributeAssignType();
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      
+      {
+        if (attributeAssignType != null) {
+          
+          if (grouperObjectIds.contains(attributeAssignType.getOwnerGroupId())) {
+            continue;
+          } else if (grouperObjectIds.contains(attributeAssignType.getOwnerStemId())) {
+            continue;
+          } else if (grouperObjectIds.contains(attributeAssignType.getOwnerAttributeDefId())) {
+            continue;
+          }
+        }
+      }
+      
+      {
+        if (ruleCheck != null) {
+          if (grouperObjectIds.contains(ruleCheck.getCheckOwnerId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          } else if (grouperObjectNames.contains(ruleCheck.getCheckOwnerName())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          }
+        }
+      }
+      
+      {
+        RuleIfCondition ifCondition = ruleDefinition.getIfCondition();
+        if (ifCondition != null) {
+          if (grouperObjectIds.contains(ifCondition.getIfOwnerId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          } else if (grouperObjectNames.contains(ifCondition.getIfOwnerName())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          }
+        }
+      }
+      
+    }
+    
+    return ruleDefinitions;
+    
+  }
+  
+//  /**
+//   * get the count of rule definitions that can be deleted 
+//   * @param stem
+//   * @param includeGroups
+//   * @param includeStems
+//   * @param includeAttributeDefs
+//   * @param scope
+//   * @return
+//   */
+//  public static int retrieveRuleDefinitionsDeleteCountForStem(Stem stem, boolean includeGroups, boolean includeStems, boolean includeAttributeDefs, Scope scope) {
+//    
+//    List<GrouperObject> grouperObjects = new ArrayList<>();
+//    grouperObjects.add(stem);
+//    if (includeStems) {      
+//      Set<Stem> childStems = stem.getChildStems(scope);
+//      grouperObjects.addAll(childStems);
+//    }
+//    if (includeGroups) {
+//      Set<Group> childGroups = stem.getChildGroups(scope);
+//      grouperObjects.addAll(childGroups);
+//    }
+//    
+//    if (includeAttributeDefs) {
+//      Set<AttributeDef> attributeDefs = stem.deleteAttributeDefs(false, true, scope);
+//      grouperObjects.addAll(attributeDefs);
+//    }
+//    
+//    Set<RuleDefinition> ruleDefsToBeDeleted = retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjects);
+//    
+//    return ruleDefsToBeDeleted.size();
+//    
+//  }
+  
+  /**
+   * get all the rule definitions that can be deleted when the given grouper object is deleted 
+   * @param grouperObject
+   * @return
+   */
+  public static Set<RuleDefinition> retrieveRuleDefinitionsToBeDeletedForGrouperObject(GrouperObject grouperObject) {
+    
+    Set<RuleDefinition> ruleDefinitions = new HashSet<>();
+    
+    RuleEngine ruleEngine = RuleEngine.ruleEngine();
+    
+    for (RuleDefinition ruleDefinition : ruleEngine.getRuleDefinitions(false)) {
+      
+      RuleCheck ruleCheck = ruleDefinition.getCheck();
+      
+      {
+        if (ruleCheck != null) {
+          if (StringUtils.equals(ruleCheck.getCheckOwnerId(), grouperObject.getId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          } else if (StringUtils.equals(ruleCheck.getCheckOwnerName(), grouperObject.getName())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          }
+        }
+      }
+      
+      {
+        RuleIfCondition ifCondition = ruleDefinition.getIfCondition();
+        if (ifCondition != null) {
+          if (StringUtils.equals(ifCondition.getIfOwnerId(), grouperObject.getId())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          } else if (StringUtils.equals(ifCondition.getIfOwnerName(), grouperObject.getName())) {
+            ruleDefinitions.add(ruleDefinition);
+            continue;
+          }
         }
       }
       

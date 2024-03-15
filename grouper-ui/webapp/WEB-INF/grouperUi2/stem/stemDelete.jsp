@@ -14,6 +14,9 @@ ${grouper:titleFromKeyAndText('stemDeletePageTitle', grouperRequestContainer.ste
             <div class="row-fluid">
               <div class="span12">
                 <p>${textContainer.text['stemDeleteText'] }</p>
+                 <c:if test="${grouperRequestContainer.stemDeleteContainer.rulesDeleteCount > 0}">
+                  <p>${textContainer.text['stemDeleteRulesDeleteCount'] }</p>
+                 </c:if>
                   <form class="form-inline form-small form-filter" id="deleteFolderFormId">
                     <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
                     <input type="hidden" name="formSubmitted" value="true" />

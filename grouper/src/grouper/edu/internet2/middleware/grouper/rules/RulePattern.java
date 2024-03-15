@@ -44,9 +44,11 @@ public enum RulePattern {
     
       ruleConfig.setCheckType(RuleCheckType.subjectAssignInStem.name());
       ruleConfig.setCheckOwnerStemScope(folderScope);
+      ruleConfig.setCheckOwner("thisStem");
     
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.groupHasNoEnabledMembership.name());
       ruleConfig.setIfConditionOwnerUuidOrName(groupName);
+      ruleConfig.setIfConditionOwner("anotherGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
 
@@ -201,6 +203,7 @@ public enum RulePattern {
     
       ruleConfig.setCheckType(RuleCheckType.stemCreate.name());
       ruleConfig.setCheckOwnerStemScope(folderScope);
+      ruleConfig.setCheckOwner("thisStem");
     
       ruleConfig.setThenOption(RuleThenEnum.assignStemPrivilegeToStemId.name());
       Subject subject = SubjectFinder.findByIdAndSource(subjectIdOrIdentifier, subjectSource, false);
@@ -438,6 +441,7 @@ public enum RulePattern {
     
       ruleConfig.setCheckType(RuleCheckType.attributeDefCreate.name());
       ruleConfig.setCheckOwnerStemScope(folderScope);
+      ruleConfig.setCheckOwner("thisStem");
     
       ruleConfig.setThenOption(RuleThenEnum.assignAttributeDefPrivilegeToAttributeDefId.name());
       Subject subject = SubjectFinder.findByIdAndSource(subjectIdOrIdentifier, subjectSource, false);
@@ -675,6 +679,7 @@ public enum RulePattern {
     
       ruleConfig.setCheckType(RuleCheckType.groupCreate.name());
       ruleConfig.setCheckOwnerStemScope(folderScope);
+      ruleConfig.setCheckOwner("thisStem");
     
       ruleConfig.setThenOption(RuleThenEnum.assignGroupPrivilegeToGroupId.name());
       Subject subject = SubjectFinder.findByIdAndSource(subjectIdOrIdentifier, subjectSource, false);
@@ -908,6 +913,7 @@ public enum RulePattern {
     
       ruleConfig.setCheckType(RuleCheckType.groupCreate.name());
       ruleConfig.setCheckOwnerStemScope(folderScope);
+      ruleConfig.setCheckOwner("thisStem");
     
       ruleConfig.setThenOption(RuleThenEnum.assignSelfGroupPrivilege.name());
       
@@ -1046,6 +1052,7 @@ public enum RulePattern {
       
       ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
       ruleConfig.setCheckOwnerUuidOrName(mustBeInGroup);
+      ruleConfig.setCheckOwner("anotherGroup");
 
       ruleConfig.setThenOption(RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
       ruleConfig.setThenArg0(gracePeriod);
@@ -1202,6 +1209,7 @@ public enum RulePattern {
       String expireAfterDays = patternPropertiesValues.get("AddDisabledDateOnMembership.expireAfterDays");
       
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
+      ruleConfig.setCheckOwner("thisGroup");
 
       ruleConfig.setThenOption(RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
       ruleConfig.setThenArg0(expireAfterDays);
@@ -1290,10 +1298,11 @@ public enum RulePattern {
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
-      String targetGroupName = patternPropertiesValues.get("AddMemberToGroupIfAddedToAnotherGroup.targetGroupName");
+      String targetGroupName = patternPropertiesValues.get("AddMemberToGroupIfAddedToAnotherGroup.groupName");
       
       ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAdd.name());
       ruleConfig.setCheckOwnerUuidOrName(targetGroupName);
+      ruleConfig.setCheckOwner("anotherGroup");
 
       ruleConfig.setThenOption(RuleThenEnum.addMemberToOwnerGroup.name());
       
@@ -1308,7 +1317,7 @@ public enum RulePattern {
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
-      String targetGroupName = patternPropertiesValues.get("AddMemberToGroupIfAddedToAnotherGroup.targetGroupName");
+      String targetGroupName = patternPropertiesValues.get("AddMemberToGroupIfAddedToAnotherGroup.groupName");
       
       Group group = GroupFinder.findByName(targetGroupName, false);
       if (group == null) {
@@ -1543,11 +1552,13 @@ public enum RulePattern {
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
-      String group = patternPropertiesValues.get("RemoveInvalidMembershipDueToFolder.group");
+      String group = patternPropertiesValues.get("RemoveInvalidMembershipDueToGroup.group");
       
       ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
       ruleConfig.setCheckOwnerUuidOrName(group);
+      ruleConfig.setCheckOwner("anotherGroup");
       
+      //test
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
 
       ruleConfig.setThenOption(RuleThenEnum.removeMemberFromOwnerGroup.name());
@@ -1663,6 +1674,8 @@ public enum RulePattern {
       String emailSubject = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailSubject");
       String emailBody = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailBody");
       
+      
+      ruleConfig.setCheckOwner("thisGroup");
       ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
       
       ruleConfig.setThenOption(RuleThenEnum.sendEmail.name());
@@ -1842,6 +1855,7 @@ public enum RulePattern {
       String emailBody = patternPropertiesValues.get("SendEmailAfterNewMembership.emailBody");
       
       ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAdd.name());
+      ruleConfig.setCheckOwner("thisGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.sendEmail.name());
       ruleConfig.setThenArg0(emailTo);
@@ -2025,6 +2039,7 @@ public enum RulePattern {
       ruleConfig.setCheckType(RuleCheckType.membershipDisabledDate.name());
       ruleConfig.setCheckArg0(minDays);
       ruleConfig.setCheckArg1(maxDays);
+      ruleConfig.setCheckOwner("thisGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.sendEmail.name());
       ruleConfig.setThenArg0(emailTo);
@@ -2261,7 +2276,9 @@ public enum RulePattern {
     public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
       
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
+      ruleConfig.setCheckOwner("thisGroup");
       
+      //test
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.subjectNotInSources.name());
       ruleConfig.setIfConditionArg0("g:gsa");
       
@@ -2332,6 +2349,7 @@ public enum RulePattern {
       String stemScope = patternPropertiesValues.get("VetoIfNotEligibleDueToFolder.stemScope");
       
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
+      ruleConfig.setCheckOwner("thisGroup");
       
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.noGroupInFolderHasImmediateEnabledMembership.name());
       ruleConfig.setIfConditionOwnerUuidOrName(folder);
@@ -2487,9 +2505,11 @@ public enum RulePattern {
       
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
       ruleConfig.setCheckOwnerUuidOrName(ruleConfig.getGrouperObject().getName());
+      ruleConfig.setCheckOwner("thisGroup");
       
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
       ruleConfig.setIfConditionOwnerUuidOrName(group);
+      ruleConfig.setIfConditionOwner("anotherGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
       ruleConfig.setThenArg0("rule.entity.must.be.a.member.of.stem.b");
@@ -2606,10 +2626,12 @@ public enum RulePattern {
       String limit = patternPropertiesValues.get("VetoIfTooManyMembers.limit");
       
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
+      ruleConfig.setCheckOwner("thisGroup");
       
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.groupHasTooManyMembers.name());
       ruleConfig.setIfConditionOwnerUuidOrName(ruleConfig.getGrouperObject().getName());
       ruleConfig.setIfConditionArg0(limit);
+      ruleConfig.setIfConditionOwner("thisGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
       ruleConfig.setThenArg0("rule.group.has.too.many.members");
@@ -2711,6 +2733,7 @@ public enum RulePattern {
       ruleConfig.setCheckOwnerUuidOrName(folder);
       ruleConfig.setCheckOwnerStemScope(folderScope);
       
+      //test
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.thisGroupAndNotFolderHasImmediateEnabledMembership.name());
 
       ruleConfig.setThenOption(RuleThenEnum.removeMemberFromOwnerGroup.name());

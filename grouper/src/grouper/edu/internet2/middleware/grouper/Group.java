@@ -179,6 +179,8 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleFinder;
+import edu.internet2.middleware.grouper.rules.RuleService;
 import edu.internet2.middleware.grouper.rules.RuleThenEnum;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.rules.beans.RulesMembershipBean;
@@ -2091,6 +2093,12 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               // GRP-1193 - cant delete composite group
               Group.this._revokeAllAccessPrivs();
 
+              Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsToBeDeletedForGrouperObject(Group.this);
+              for (RuleDefinition ruleDefinition: GrouperUtil.nonNull(rulesToBeDeleted)) {
+                String attributeAssignId = ruleDefinition.getAttributeAssignType().getId();
+                RuleService.deleteRuleAttributes(attributeAssignId);
+              }
+              
               //deletes.add(this);            // ... And add the group last for good luck    
               String theName = Group.this.getName(); // Preserve name for logging
               GrouperDAOFactory.getFactory().getGroup().delete(Group.this);

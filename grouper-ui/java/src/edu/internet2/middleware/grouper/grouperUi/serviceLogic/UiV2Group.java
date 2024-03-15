@@ -1804,6 +1804,12 @@ public class UiV2Group {
         }
       }
       
+      
+      Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(GrouperUtil.toSet(group));
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+      groupContainer.getGuiGroup().setRulesDeleteCount(rulesToBeDeleted.size());
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupDelete.jsp"));
   
@@ -5516,10 +5522,6 @@ public class UiV2Group {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
-        throw new RuntimeException("Dont hack me!");
-      }
-
       group = retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
@@ -5810,7 +5812,7 @@ public class UiV2Group {
         throw new RuntimeException("Cannot edit rule");
       }
       
-      RuleService.deleteRuleAttributes(group, attributeAssignId);
+      RuleService.deleteRuleAttributes(attributeAssignId);
       
       RuleEngine.clearRuleEngineCache();
       

@@ -7,7 +7,7 @@
             <tr>
               <th>${textContainer.text['rulesTableHeaderActions']}</th>
               <th>${textContainer.text['rulesTableHeaderPattern']}</th>
-              <th>${textContainer.text['rulesTableHeaderAssignedOnThisFolder']}</th>
+              <th>${textContainer.text['rulesTableHeaderAssignedOnThisGroup']}</th>
               <th>${textContainer.text['rulesTableHeaderCheck']}</th>
               <th>${textContainer.text['rulesTableHeaderCondition']}</th>
               <th>${textContainer.text['rulesTableHeaderResult']}</th>

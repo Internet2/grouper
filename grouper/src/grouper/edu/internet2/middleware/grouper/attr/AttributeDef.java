@@ -28,6 +28,7 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -77,6 +78,8 @@ import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.misc.Owner;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
+import edu.internet2.middleware.grouper.rules.RuleFinder;
+import edu.internet2.middleware.grouper.rules.RuleService;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
@@ -1585,6 +1588,11 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
             attributeDefScope.delete();
           }
           
+          Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsToBeDeletedForGrouperObject(AttributeDef.this);
+          for (RuleDefinition ruleDefinition: GrouperUtil.nonNull(rulesToBeDeleted)) {
+            String attributeAssignId = ruleDefinition.getAttributeAssignType().getId();
+            RuleService.deleteRuleAttributes(attributeAssignId);
+          }
           
           GrouperDAOFactory.getFactory().getAttributeDef().delete(AttributeDef.this);
   

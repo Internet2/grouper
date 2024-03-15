@@ -15,6 +15,7 @@ ${grouper:titleFromKeyAndText('groupDeletePageTitle', grouperRequestContainer.gr
             <div class="row-fluid">
               <div class="span12">
                 <p>${textContainer.text['groupDeleteText'] }</p>
+                <p>${textContainer.text['groupDeleteRulesDeleteCount'] }</p>
                 <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupDeleteSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupDeleteDeleteButton'] }</a> 
                 <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupDeleteCancelButton'] }</a></div>
               </div>

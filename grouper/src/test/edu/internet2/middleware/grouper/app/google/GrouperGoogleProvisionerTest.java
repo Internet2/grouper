@@ -46,7 +46,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperGoogleProvisionerTest("testIncrementalSyncGoogle"));
+    TestRunner.run(new GrouperGoogleProvisionerTest("testFullSyncGoogle"));
     
   }
   

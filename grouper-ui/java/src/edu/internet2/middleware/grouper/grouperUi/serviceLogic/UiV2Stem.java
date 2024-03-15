@@ -2158,7 +2158,12 @@ public class UiV2Stem {
     StemDeleteContainer stemDeleteContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemDeleteContainer();
     stemDeleteContainer.setEmptyStem(stem.isEmpty());
 
-    stemDeleteContainer.setCanObliterate(stem.isCanObliterate());
+    boolean deleteOneLevelOnly = GrouperUtil.booleanValue(request.getParameter("obliterateStemScopeOneName"), false);
+    String stemObliterate = request.getParameter("stemObliterateName");
+    
+    Scope scope = deleteOneLevelOnly ? Scope.ONE: Scope.SUB;
+    
+    stemDeleteContainer.setCanObliterate(stem.isCanObliterate(scope));
 
     StemObliterateResults stemObliterateResults = stem.retrieveObliterateResults();
     
@@ -2174,7 +2179,7 @@ public class UiV2Stem {
     // if we are here from form
     if (GrouperUtil.booleanValue(formSubmitted, false)) {
 
-      String stemObliterate = request.getParameter("stemObliterateName");
+      stemDeleteContainer.setRulesDeleteCount(stemObliterateResults.getRulesDeleteCount());
       
       if (StringUtils.isBlank(stemObliterate)) {
         
@@ -2185,7 +2190,7 @@ public class UiV2Stem {
         return false;
 
       }
-            
+      
       if (StringUtils.equals("deleteStem", stemObliterate)) {
         stemDeleteContainer.setObliterateType("deleteStem");
         
@@ -2234,6 +2239,9 @@ public class UiV2Stem {
       }
 
       String stemDeleteAreYouSure = request.getParameter("stemDeleteAreYouSureName");
+      
+      //boolean includeGroups, boolean includeStems, boolean includeAttributeDefs, Scope scope
+//      RuleFinder.retrieveRuleDefinitionsDeleteCountForStem(stem);
       
       stemDeleteContainer.setAreYouSure(GrouperUtil.booleanObjectValue(stemDeleteAreYouSure));
     }
@@ -3862,10 +3870,6 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
-      throw new RuntimeException("Dont hack me!");
-    }
-
     GrouperSession grouperSession = null;
   
     Stem stem = null;
@@ -4169,7 +4173,7 @@ public class UiV2Stem {
         throw new RuntimeException("Cannot edit rule");
       }
       
-      RuleService.deleteRuleAttributes(stem, attributeAssignId);
+      RuleService.deleteRuleAttributes(attributeAssignId);
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 

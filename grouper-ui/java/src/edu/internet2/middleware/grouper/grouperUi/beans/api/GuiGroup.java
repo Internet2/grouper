@@ -470,6 +470,8 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
   
   /** see if has a config url */
   private Boolean hasMembershipConfigUrl = null;
+
+  private int rulesDeleteCount;
   
   /**
    * config url if set
@@ -826,4 +828,14 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     
     return simpleDateFormat.format(this.group.getDisabledTime());
   }
+
+  public void setRulesDeleteCount(int rulesDeleteCount) {
+    this.rulesDeleteCount = rulesDeleteCount; 
+  }
+
+  
+  public int getRulesDeleteCount() {
+    return rulesDeleteCount;
+  }
+  
 }
