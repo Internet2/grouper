@@ -66,7 +66,9 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogEntry;
 import edu.internet2.middleware.grouper.client.ClientConfig;
 import edu.internet2.middleware.grouper.client.ClientConfig.ClientGroupConfigBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -78,8 +80,10 @@ import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.messaging.MessagingListenerBase;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -2481,5 +2485,111 @@ public class GrouperLoader {
     }
     
     return false;
+  }
+  
+  /**
+   * Retrieves the most recent ChangeLogTempToEntity entry and waits for it to be processed.
+   * @param exceptionIfNotProcessedAfterSeconds throw an exception if still not done after this amount of seconds pass.
+   *                                            -1 to continue indefinitely
+   */
+  public static void waitForChangeLogTempToEntityProcess(int exceptionIfNotProcessedAfterSeconds) {
+    long exceptionIfNotProcessedAfterMillis = exceptionIfNotProcessedAfterSeconds * 1000;
+    long startTime = System.currentTimeMillis();
+    
+    ChangeLogEntry tempChangeLogEntry = HibernateSession.byHqlStatic().createQuery("from ChangeLogEntryTemp order by createdOnDb desc")
+        .options(new QueryOptions().paging(1, 1, false)).uniqueResult(ChangeLogEntry.class);
+   
+    if (tempChangeLogEntry == null) {
+      return;
+    }
+    
+    LOG.debug("Waiting for change " + tempChangeLogEntry.getId() + " to be processed");
+    GrouperUtil.sleep(500);
+    
+    int iterations = 0;
+    
+    while (true) {
+      int count = new GcDbAccess().sql("select count(1) from grouper_change_log_entry_temp where created_on = ?")
+          .addBindVar(tempChangeLogEntry.getCreatedOnDb()).select(int.class);
+      
+      if (count == 0) {
+        return;
+      }
+      
+      if (exceptionIfNotProcessedAfterMillis > 0) {
+        long processedTimeMillis = System.currentTimeMillis() - startTime;
+        if (processedTimeMillis > exceptionIfNotProcessedAfterMillis) {
+          throw new RuntimeException("grouper_change_log_entry_temp still not processed after " + processedTimeMillis + " milliseconds");
+        }
+      }
+      
+      iterations++;
+      
+      long sleepTime = iterations * 2000;
+      if (sleepTime > 20000) {
+        sleepTime = 20000;
+      }
+
+      LOG.debug("Sleeping for " + sleepTime);
+      GrouperUtil.sleep(sleepTime);
+    }
+  }
+  
+  /**
+   * Retrieves the most recent change log entry and waits for it to be processed by this change log consumer
+   * @param jobName name of the job, e.g. CHANGE_LOG_consumer_compositeMemberships
+   * @param waitForChangeLogTempToEntityProcess wait for change log temp to clear first
+   * @param exceptionIfNotProcessedAfterSeconds throw an exception if still not done after this amount of seconds pass.
+   *                                            -1 to continue indefinitely
+   */
+  public static void waitForChangeLogJobProcess(String jobName, boolean waitForChangeLogTempToEntityProcess, int exceptionIfNotProcessedAfterSeconds) {
+    long exceptionIfNotProcessedAfterMillis = exceptionIfNotProcessedAfterSeconds * 1000;
+    long startTime = System.currentTimeMillis();
+    
+    if (!jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX)) {
+      throw new RuntimeException("jobName doesn't start with " + GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX);
+    }
+    
+    String consumerName = jobName.substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length());
+    
+    if (waitForChangeLogTempToEntityProcess) {
+      waitForChangeLogTempToEntityProcess(exceptionIfNotProcessedAfterSeconds);
+    }
+    
+    ChangeLogEntry changeLogEntry = HibernateSession.byHqlStatic().createQuery("from ChangeLogEntryEntity order by sequenceNumber desc")
+        .options(new QueryOptions().paging(1, 1, false)).uniqueResult(ChangeLogEntry.class);
+   
+    if (changeLogEntry == null) {
+      return;
+    }
+    
+    LOG.debug("Waiting for change " + changeLogEntry.getSequenceNumber() + " to be processed");
+    
+    int iterations = 0;
+    
+    while (true) {
+      ChangeLogConsumer changeLogConsumer = GrouperDAOFactory.getFactory().getChangeLogConsumer().findByName(consumerName, true);
+
+      if (changeLogConsumer.getLastSequenceProcessed() >= changeLogEntry.getSequenceNumber()) {
+        return;
+      }
+      
+      if (exceptionIfNotProcessedAfterMillis > 0) {
+        long processedTimeMillis = System.currentTimeMillis() - startTime;
+        if (processedTimeMillis > exceptionIfNotProcessedAfterMillis) {
+          throw new RuntimeException("change log still not processed after " + processedTimeMillis + " milliseconds");
+        }
+      }
+      
+      iterations++;
+      
+      long sleepTime = iterations * 2000;
+      if (sleepTime > 20000) {
+        sleepTime = 20000;
+      }
+
+      LOG.debug("Sleeping for " + sleepTime);
+      GrouperUtil.sleep(sleepTime);
+    }
   }
 }
