@@ -77,6 +77,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.validator.GrouperValidator;
 import edu.internet2.middleware.grouper.validator.NotNullValidator;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectUtils;
 
 
 /** 
@@ -135,6 +136,10 @@ public class GrouperSession implements Serializable {
    * store the current grouper session here so it is not cleaned up if not assigned to a variable
    */
   private static ThreadLocal<GrouperSession> currentSession = new ThreadLocal<GrouperSession>();
+  
+  public static GrouperSession internal_testingGetCurrentSession() {
+    return currentSession.get();
+  }
   
   /**
    * store the grouper connection in thread local so other classes can get it.
@@ -541,9 +546,11 @@ public class GrouperSession implements Serializable {
       
       s   =  new GrouperSession();
 
-      currentSession.set(s);
       s.setSubject(subject);
       s.getMember();
+      if (addToCurrentSession) {
+        currentSession.set(s);
+      }
       if (LOG.isDebugEnabled()) {
         debugMap.put("hash", s.hashCode());
       }
@@ -795,6 +802,7 @@ public class GrouperSession implements Serializable {
     
     if (this == currentSession.get()) {
       currentSession.remove();
+
     }
     
     Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
