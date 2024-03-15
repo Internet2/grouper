@@ -260,8 +260,7 @@ public class SourcesXmlResolver implements SubjectResolver {
   
             public T call() throws Exception {
               
-              //propagate the grouper session...  note, dont do an inverse of control, not
-              //sure if grouper session is thread safe...
+              //propagate the grouper session...  
               GrouperSession grouperSession = GrouperSession.start(GROUPER_SESSION.getSubject());
               try {
               

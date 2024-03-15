@@ -133,7 +133,7 @@ public class GshTemplateV2utils {
         subject = GrouperSession.staticGrouperSession().getSubject();
       } else if (grouperSession == null || SubjectHelper.eq(subject, grouperSession.getSubject())) {
         startedSession = true;
-        grouperSession = GrouperSession.start(subject);
+        grouperSession = GrouperSession.start(subject, true, false);
       }
     
       gshTemplateV2input.setGsh_builtin_grouperSession(grouperSession);

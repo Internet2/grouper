@@ -502,9 +502,7 @@ private static boolean handleSpecialCase(String[] args) {
         s = GrouperSession.staticGrouperSession(false);
         
         if (s == null) {
-          s = GrouperSession.start(
-            SubjectFinder.findRootSubject()
-          );
+          s = GrouperSession.startRootSession();
         }
         GrouperShell.set(i, GSH_SESSION, s);
       }
