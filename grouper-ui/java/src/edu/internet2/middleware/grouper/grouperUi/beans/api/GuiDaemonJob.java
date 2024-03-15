@@ -19,7 +19,9 @@ import java.io.Serializable;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang3.StringUtils;
@@ -36,6 +38,7 @@ import org.quartz.Trigger;
 
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogConsumer;
@@ -324,9 +327,21 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
       }
       
       {
+        boolean checkSubJobs = jobName.equals("CHANGE_LOG_changeLogTempToChangeLog") || 
+            (jobName.startsWith(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX) && 
+                GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("changeLog.consumer." + jobName.substring(GrouperLoaderType.GROUPER_CHANGE_LOG_CONSUMER_PREFIX.length()) + ".longRunning", false));
+
         List<Criterion> criterionList = new ArrayList<Criterion>();
                 
-        criterionList.add(Restrictions.eq("jobName", jobName));
+        if (checkSubJobs) {
+          Set<String> jobNames = new LinkedHashSet<String>();
+          jobNames.add(jobName);
+          jobNames.add("subjobFor_" + jobName);
+          criterionList.add(Restrictions.in("jobName", jobNames));
+        } else {
+          criterionList.add(Restrictions.eq("jobName", jobName));  
+        }
+        
         criterionList.add(Restrictions.ne("status", "STARTED"));
   
         QueryOptions queryOptions = QueryOptions.create("lastUpdated", false, 1, 1);
