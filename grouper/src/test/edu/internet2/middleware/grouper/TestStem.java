@@ -389,7 +389,7 @@ public class TestStem extends GrouperTest {
 
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
 
-    assertFalse(testStem.isCanObliterate());
+    assertFalse(testStem.isCanObliterate(Scope.ONE));
 
     int count = testStem.deleteGroups(false, false, Scope.ONE).size();
     assertEquals(0, count);
@@ -3824,7 +3824,7 @@ public class TestStem extends GrouperTest {
     int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
     assertEquals(0, count);
     
-    assertFalse(testStem.isCanObliterate());
+    assertFalse(testStem.isCanObliterate(Scope.ONE));
   }
 
   /**
@@ -3869,7 +3869,7 @@ public class TestStem extends GrouperTest {
     int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
     assertEquals(0, count);
     
-    assertFalse(testStem.isCanObliterate());
+    assertFalse(testStem.isCanObliterate(Scope.ONE));
 
   }
 
@@ -3917,7 +3917,7 @@ public class TestStem extends GrouperTest {
     
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
 
-    assertTrue(testStem.isCanObliterate());
+    assertTrue(testStem.isCanObliterate(Scope.ONE));
 
     int count = testStem.deleteAttributeDefs(false, false, Scope.ONE).size();
     assertEquals(2, count);
@@ -3974,7 +3974,7 @@ public class TestStem extends GrouperTest {
 
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
 
-    assertFalse(testStem.isCanObliterate());
+    assertFalse(testStem.isCanObliterate(Scope.ONE));
 
     Stem.StemObliterateResults stemObliterateResults = Stem.retrieveObliterateResults();
     assertEquals(2, stemObliterateResults.getStemCount());
@@ -3993,7 +3993,7 @@ public class TestStem extends GrouperTest {
     
     grouperSession = GrouperSession.startRootSession();
 
-    assertTrue(testStem.isCanObliterate());
+    assertTrue(testStem.isCanObliterate(Scope.ONE));
 
     attributeDef = AttributeDefFinder.findByName("test:someAttrDefA", false);
     assertNull(attributeDef);
@@ -4100,7 +4100,7 @@ public class TestStem extends GrouperTest {
     int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
     assertEquals(0, count);
     
-    assertFalse(testStem.isCanObliterate());
+    assertFalse(testStem.isCanObliterate(Scope.ONE));
 
   }
 
@@ -4143,7 +4143,7 @@ public class TestStem extends GrouperTest {
   
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
 
-    assertFalse(testStem.isCanObliterate());
+    assertFalse(testStem.isCanObliterate(Scope.ONE));
 
     int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
     assertEquals(0, count);
@@ -4193,7 +4193,7 @@ public class TestStem extends GrouperTest {
     
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
 
-    assertTrue(testStem.isCanObliterate());
+    assertTrue(testStem.isCanObliterate(Scope.ONE));
 
     int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
     assertEquals(2, count);
@@ -4250,7 +4250,7 @@ public class TestStem extends GrouperTest {
   
     Stem testStem = StemFinder.findByName(grouperSession, "test", true);
   
-    assertFalse(testStem.isCanObliterate());
+    assertFalse(testStem.isCanObliterate(Scope.ONE));
 
     int count = testStem.deleteAttributeDefNames(false, false, Scope.ONE).size();
     assertEquals(1, count);
