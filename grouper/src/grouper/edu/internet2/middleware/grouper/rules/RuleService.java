@@ -409,8 +409,15 @@ public class RuleService {
     
     RuleDefinition ruleDefinition = new RuleDefinition();
     AttributeAssign attributeAssign2 = new AttributeAssign();
-    attributeAssign2.setOwnerStemId(grouperObject.getId());
+    
+    if (grouperObject instanceof Group) {
+      attributeAssign2.setOwnerGroupId(grouperObject.getId());
+    } else if (grouperObject instanceof Stem){
+      attributeAssign2.setOwnerStemId(grouperObject.getId());
+    }
+    
     ruleDefinition.setAttributeAssignType(attributeAssign2);
+    
     ruleDefinition.setCheck(ruleCheck);
     ruleDefinition.setIfCondition(ruleIfCondition);
     ruleDefinition.setThen(ruleThen);

@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.Date;
@@ -72,6 +73,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.exception.GroupDeleteException;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -5698,8 +5700,19 @@ public class UiV2Group {
       
       for (GrouperConfigurationModuleAttribute attribute: elementsToShow) {
         String htmlElementName = "config_"+attribute.getConfigSuffix();
-        String value = request.getParameter(htmlElementName);
-        ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
+        
+        if (attribute.getFormElement() == ConfigItemFormElement.CHECKBOX) {
+          String[] parameterValues = request.getParameterValues(htmlElementName+"[]");
+          if (parameterValues != null) {
+            Arrays.sort(parameterValues);
+            String join = GrouperUtil.join(parameterValues, ",");
+            ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), join);
+          }
+        } else {
+          String value = request.getParameter(htmlElementName);
+          ruleConfig.getPatternPropertiesValues().put(attribute.getConfigSuffix(), value);
+        }
+        
       }
       
     }

@@ -48,7 +48,7 @@ public enum RulePattern {
     
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.groupHasNoEnabledMembership.name());
       ruleConfig.setIfConditionOwnerUuidOrName(groupName);
-      ruleConfig.setIfConditionOwner("anotherGroup");
+//      ruleConfig.setIfConditionOwner("anotherGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
 
@@ -1049,8 +1049,14 @@ public enum RulePattern {
       String mustBeInGroup = patternPropertiesValues.get("AddDisabledDateOnInvalidMembership.groupName");
       String gracePeriod = patternPropertiesValues.get("AddDisabledDateOnInvalidMembership.gracePeriod");
       String addIfNotThere = patternPropertiesValues.get("AddDisabledDateOnInvalidMembership.addIfNotThere");
+      String checkIfRemovedFromGroup = patternPropertiesValues.get("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup");
       
-      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
+      if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+        ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
+      } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+        ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAdd.name());
+      }
+      
       ruleConfig.setCheckOwnerUuidOrName(mustBeInGroup);
       ruleConfig.setCheckOwner("anotherGroup");
 
@@ -1114,6 +1120,32 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfAddedToGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove) {            
+            attribute.setValue("T");
+          } else if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd) {
+            attribute.setValue("F");
+          }
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddDisabledDateOnInvalidMembership.groupName");
@@ -1148,10 +1180,12 @@ public enum RulePattern {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
         List<MultiKey> valuesAndLabels = new ArrayList<>();
-        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.addIfNotThere.yes"));
+        MultiKey valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.addIfNotThere.no"));
         valuesAndLabels.add(valueAndLabel);
-        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.addIfNotThere.no"));
+        
+        valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.addIfNotThere.yes"));
         valuesAndLabels.add(valueAndLabel);
+      
         attribute.setDropdownValuesAndLabels(valuesAndLabels);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddDisabledDateOnInvalidMembership.addIfNotThere");
@@ -1182,7 +1216,8 @@ public enum RulePattern {
     @Override
     public boolean isThisThePattern(RuleDefinition ruleDefinition) {
       
-      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
+      if (ruleDefinition.getCheck() != null && (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove 
+            || ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd) &&
           ruleDefinition.getIfCondition().isBlank() &&
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId) {
         return true;
@@ -2275,12 +2310,17 @@ public enum RulePattern {
     @Override
     public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
       
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String subjectSources = patternPropertiesValues.get("VetoIfNewMembershipIsNotAGroup.subjectSource");
+      
       ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
       ruleConfig.setCheckOwner("thisGroup");
       
       //test
       ruleConfig.setIfConditionOption(RuleIfConditionEnum.subjectNotInSources.name());
-      ruleConfig.setIfConditionArg0("g:gsa");
+      ruleConfig.setIfConditionArg0(subjectSources); //TODO: subjectSources comma separated alphabetical
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
       ruleConfig.setThenArg0("rule.entity.must.be.a.group");
@@ -2309,6 +2349,39 @@ public enum RulePattern {
     public List<GrouperConfigurationModuleAttribute> getElementsToShow(GrouperObject grouperObject, RuleDefinition ruleDefinition) {
       
       List<GrouperConfigurationModuleAttribute> elements = new ArrayList<>();
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.CHECKBOX);
+        
+//        SourceManagerOptionValueDriver driver = new SourceManagerOptionValueDriver();
+        
+        SubjectFinder finder = new SubjectFinder();
+        List<MultiKey> checkboxAttributes = finder.retrieveCheckboxAttributes();
+        
+        attribute.setCheckboxAttributes(checkboxAttributes);
+//        attribute.setDropdownValuesAndLabels(driver.retrieveKeysAndLabels());
+        attribute.setShow(true);
+        attribute.setConfigSuffix("VetoIfNewMembershipIsNotAGroup.subjectSource");
+        attribute.setLabel(GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroup.subjectSource.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroup.subjectSource.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        
+        if (ruleDefinition != null && ruleDefinition.getThen() != null && StringUtils.isNotBlank(ruleDefinition.getThen().getThenEnumArg0())) {
+          String arg0 = ruleDefinition.getThen().getThenEnumArg0();
+          if (arg0.contains("::::::")) {
+            String[] subjectSourceAndIdentifier = GrouperUtil.splitTrim(arg0, "::::::");
+            attribute.setValue(subjectSourceAndIdentifier[0]);
+          } else if (arg0.contains("::::")) {
+            String[] subjectSourceAndIdentifier = GrouperUtil.splitTrim(arg0, "::::");
+            attribute.setValue(subjectSourceAndIdentifier[0]);
+          }
+        }
+        
+        elements.add(attribute);
+      }
       
       return elements;
     }

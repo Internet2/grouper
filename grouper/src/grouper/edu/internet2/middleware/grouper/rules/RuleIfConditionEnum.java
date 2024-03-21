@@ -75,6 +75,18 @@ public enum RuleIfConditionEnum {
       }
       return false;
     }
+    
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+      
+      String subjectSources = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      
+      if (StringUtils.isBlank(subjectSources)) {
+        return "The comma separated subject sources should be in the if arg0!";
+      }
+      
+      return null;
+    }
 
     @Override
     public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
