@@ -1429,6 +1429,109 @@ public enum RulePattern {
     
   },
   
+  AddMemberToGroupIfRemovedFromAnotherGroup {
+
+    @Override
+    public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String targetGroupName = patternPropertiesValues.get("AddMemberToGroupIfRemovedFromAnotherGroup.groupName");
+      
+      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
+      ruleConfig.setCheckOwnerUuidOrName(targetGroupName);
+      ruleConfig.setCheckOwner("anotherGroup");
+
+      ruleConfig.setThenOption(RuleThenEnum.addMemberToOwnerGroup.name());
+      
+      Map<String, List<String>> result = RuleService.saveOrUpdateRuleAttributes(ruleConfig, ruleConfig.getGrouperObject(), attributeAssignId);
+      return result;
+    }
+
+    @Override
+    public List<String> validate(RuleConfig ruleConfig, Subject loggedInSubject) {
+      
+      List<String> errorMessages = new ArrayList<>();
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String targetGroupName = patternPropertiesValues.get("AddMemberToGroupIfRemovedFromAnotherGroup.groupName");
+      
+      Group group = GroupFinder.findByName(targetGroupName, false);
+      if (group == null) {
+        group = GroupFinder.findByUuid(targetGroupName, false);
+      }
+      
+      if (group == null) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidGroup");
+        error = error.replace("##groupUuidOrName##", targetGroupName);
+        errorMessages.add(error);
+      }
+      
+      if (group != null && loggedInSubject != null) {
+        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
+          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+          error = error.replace("##groupName##", group.getName());
+          errorMessages.add(error);
+        }
+      }
+      
+      return errorMessages;
+    }
+
+    @Override
+    public String getUserFriendlyText() {
+      return GrouperTextContainer.textOrNull("AddMemberToGroupIfRemovedFromAnotherGroupUserFriendlyText");
+    }
+
+    @Override
+    public List<GrouperConfigurationModuleAttribute> getElementsToShow(GrouperObject grouperObject, RuleDefinition ruleDefinition) {
+
+      List<GrouperConfigurationModuleAttribute> elements = new ArrayList<>();
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddMemberToGroupIfRemovedFromAnotherGroup.groupName");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddMemberToGroupIfRemovedFromAnotherGroup.groupName.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddMemberToGroupIfRemovedFromAnotherGroup.groupName.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+        }
+        elements.add(attribute);
+      }
+      
+      return elements;
+    }
+
+    @Override
+    public boolean isApplicableForFolders() {
+      return false;
+    }
+
+    @Override
+    public boolean isApplicableForGroups() {
+      return true;
+    }
+
+    @Override
+    public boolean isThisThePattern(RuleDefinition ruleDefinition) {
+
+      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
+          ruleDefinition.getIfCondition().isBlank() &&
+          ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.addMemberToOwnerGroup) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+  },
+  
   AddCreatedGroupsToAnotherGroup {
 
     @Override
@@ -1588,8 +1691,14 @@ public enum RulePattern {
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
       String group = patternPropertiesValues.get("RemoveInvalidMembershipDueToGroup.group");
+      String checkIfRemovedFromGroup = patternPropertiesValues.get("RemoveInvalidMembershipDueToGroup.checkIfRemovedFromGroup");
       
-      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
+      if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+        ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
+      } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+        ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAdd.name());
+      }
+      
       ruleConfig.setCheckOwnerUuidOrName(group);
       ruleConfig.setCheckOwner("anotherGroup");
       
@@ -1645,6 +1754,32 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToGroup.checkIfRemovedFromGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToGroup.checkIfAddedToGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("RemoveInvalidMembershipDueToGroup.checkIfRemovedFromGroup");
+        attribute.setLabel(GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToGroup.checkIfRemovedFromGroup.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToGroup.checkIfRemovedFromGroup.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove) {            
+            attribute.setValue("T");
+          } else if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd) {
+            attribute.setValue("F");
+          }
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         if (grouperObject instanceof Stem) {
           attribute.setValue(grouperObject.getName());
         }
@@ -1678,7 +1813,8 @@ public enum RulePattern {
     @Override
     public boolean isThisThePattern(RuleDefinition ruleDefinition) {
       
-      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
+      if (ruleDefinition.getCheck() != null && 
+          (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove || ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd) &&
           ruleDefinition.getIfCondition() != null && ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership &&
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.removeMemberFromOwnerGroup) {
         return true;
@@ -2576,11 +2712,18 @@ public enum RulePattern {
       
       String group = patternPropertiesValues.get("VetoIfNotEligibleDueToGroup.group");
       
-      ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
+      String checkIfRemovedFromGroup = patternPropertiesValues.get("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup");
+      
+      if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+        ruleConfig.setCheckType(RuleCheckType.membershipRemove.name());
+      } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+        ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
+      }
+      
       ruleConfig.setCheckOwnerUuidOrName(ruleConfig.getGrouperObject().getName());
       ruleConfig.setCheckOwner("thisGroup");
       
-      ruleConfig.setIfConditionOption(RuleIfConditionEnum.groupHasNoImmediateEnabledMembership.name());
+      ruleConfig.setIfConditionOption(RuleIfConditionEnum.groupHasNoEnabledMembership.name());
       ruleConfig.setIfConditionOwnerUuidOrName(group);
       ruleConfig.setIfConditionOwner("anotherGroup");
       
@@ -2638,6 +2781,32 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfAddedToGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup");
+        attribute.setLabel(GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove) {            
+            attribute.setValue("T");
+          } else if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd) {
+            attribute.setValue("F");
+          }
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         if (grouperObject instanceof Stem) {
           attribute.setValue(grouperObject.getName());
         }
@@ -2671,8 +2840,10 @@ public enum RulePattern {
     @Override
     public boolean isThisThePattern(RuleDefinition ruleDefinition) {
       
-      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd &&
-          ruleDefinition.getIfCondition() != null && ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoImmediateEnabledMembership && 
+      if (ruleDefinition.getCheck() != null && 
+          (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd || ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipRemove) &&
+          ruleDefinition.getIfCondition() != null && (ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership || 
+              ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoImmediateEnabledMembership) && 
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.veto &&
           StringUtils.equals(ruleDefinition.getThen().getThenEnumArg0(), "rule.entity.must.be.a.member.of.stem.b") &&
           StringUtils.startsWith(ruleDefinition.getThen().getThenEnumArg1(), GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupArg1MessagePrefix"))) {
