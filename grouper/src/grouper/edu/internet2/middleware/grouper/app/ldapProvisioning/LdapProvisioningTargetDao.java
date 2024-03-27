@@ -811,7 +811,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       String userSearchAllFilter = ldapSyncConfiguration.getEntitySearchAllFilter();
       
       if (StringUtils.isEmpty(userSearchAllFilter)) {
-        userSearchAllFilter = this.generateUserSearchAllFilter();
+        userSearchAllFilter = this.generateUserSearchFilter(null);
       }
 
       if (StringUtils.isEmpty(userSearchAllFilter)) {
@@ -935,6 +935,8 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             if (GrouperUtil.length(batchValues) > 1) {
               filter = "(|" + filter + ")";
             }
+            
+            filter = generateUserSearchFilter(filter);
             
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, entitySearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
@@ -1446,9 +1448,12 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
   /**
    * look at object classes and the search attribute
+   * @param individualFilter - leave blank to get all or pass in a filter for an individual filter
    * @return the filter
    */
-  public String generateUserSearchAllFilter() {
+  public String generateUserSearchFilter(String individualFilter) {
+    
+    boolean useAllFilter = StringUtils.isBlank(individualFilter);
     
     LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
@@ -1457,12 +1462,14 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     // get the search attribute
     List<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributes = new ArrayList<>(ldapSyncConfiguration.getEntitySearchAttributes());
     
-    // exclude ldap_dn as a search attribute
-    Iterator<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributesIter = grouperProvisioningConfigurationAttributes.iterator();
-    while (grouperProvisioningConfigurationAttributesIter.hasNext()) {
-      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributesIter.next();
-      if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
-        grouperProvisioningConfigurationAttributesIter.remove();
+    if (useAllFilter) {
+      // exclude ldap_dn as a search attribute
+      Iterator<GrouperProvisioningConfigurationAttribute> grouperProvisioningConfigurationAttributesIter = grouperProvisioningConfigurationAttributes.iterator();
+      while (grouperProvisioningConfigurationAttributesIter.hasNext()) {
+        GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfigurationAttributesIter.next();
+        if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getName(), ldap_dn)) {
+          grouperProvisioningConfigurationAttributesIter.remove();
+        }
       }
     }
     
@@ -1487,21 +1494,32 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       }
     }
     
-    int numberOfConditions = GrouperUtil.length(objectClasses) + (grouperProvisioningConfigurationAttributes.size() > 0 ? 1 : 0);
+    int numberOfConditions = 0;
+    if (useAllFilter) {
+      numberOfConditions = GrouperUtil.length(objectClasses) + (grouperProvisioningConfigurationAttributes.size() > 0 ? 1 : 0);
+    } else {
+      numberOfConditions = GrouperUtil.length(objectClasses) + 1;
+    }
+    
     
     if (numberOfConditions > 1) {
       filterBuilder.append("(&");
     }
-
-    if (grouperProvisioningConfigurationAttributes.size() > 1) {
-      filterBuilder.append("(|");
+    
+    if (useAllFilter) {      
+      if (grouperProvisioningConfigurationAttributes.size() > 1) {
+        filterBuilder.append("(|");
+      }
+      for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
+        filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
+      }
+      if (grouperProvisioningConfigurationAttributes.size() > 1) {
+        filterBuilder.append(")");
+      }
+    } else {
+      filterBuilder.append(individualFilter);
     }
-    for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : grouperProvisioningConfigurationAttributes) {
-      filterBuilder.append("(" + GrouperUtil.ldapFilterEscape(grouperProvisioningConfigurationAttribute.getName()) + "=*)");
-    }
-    if (grouperProvisioningConfigurationAttributes.size() > 1) {
-      filterBuilder.append(")");
-    }
+    
     for (String objectClass : GrouperUtil.nonNull(objectClasses)) {
       filterBuilder.append("(objectclass=").append(GrouperUtil.ldapFilterEscape(objectClass)).append(")");
     }
