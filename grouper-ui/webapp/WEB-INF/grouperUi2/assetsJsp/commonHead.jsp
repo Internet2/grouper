@@ -5,7 +5,7 @@
 <link href="../../grouperExternal/public/assets/dojo/dijit/themes/claro/claro.css" rel="stylesheet" type="text/css" />
 <link href="../../grouperExternal/public/assets/dojo/dojo/resources/dojo.css" rel="stylesheet" type="text/css" />
 <link href="../../grouperExternal/public/assets/css/grouperTooltip.css" rel="stylesheet">
-<link href="../../grouperExternal/public/assets/css/bootstrap.css?updated=02132013_2" rel="stylesheet">
+<link href="../../grouperExternal/public/assets/css/bootstrap.css?ver=4.12.1" rel="stylesheet">
 <style>
 .container-fluid {
   max-width: ${grouperRequestContainer.indexContainer.containerFluidMaxWidth};
@@ -66,4 +66,5 @@
 require(["grouper/grouperDojo"]);
 </script>
 
-<script src="../../grouperExternal/public/assets/js/jquery.js"></script>
+<script src="../../grouperExternal/public/assets/js/jquery.js?ver=4.12.1"></script>
+<script src="../../grouperExternal/public/assets/js/bootstrap.js?ver=4.12.1"></script>

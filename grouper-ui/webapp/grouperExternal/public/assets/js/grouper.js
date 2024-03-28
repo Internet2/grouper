@@ -75,9 +75,9 @@ $(document).ready(function() {
   });
 
   // Activate tooltips
-  $('.top-container').tooltip({
-    selector: "a[rel=tooltip],span[rel=tooltip]"
-  });
+  //$('.top-container').tooltip({
+  //  selector: "a[rel=tooltip],span[rel=tooltip]"
+  //});
 
   // Show/hide bulk add options
   $('input[name="bulk-add-options"]').change(function() {
@@ -140,13 +140,6 @@ $(document).ready(function() {
     return false;
   });
 
-  // Set a max height for the explore tree based on the user's viewport size
-  $('#tree1').css('max-height',function() {
-    var viewportHeight = document.documentElement.clientHeight;
-    var maxHeight = viewportHeight - 300;
-    return maxHeight;
-  });
-
   // Show confirmation message after adding a new user
   $('#add-members-form').submit(function() {
     var newMember = $('#add-block-input').val();
@@ -196,91 +189,5 @@ $(document).ready(function() {
     $('.top-container').css({height:'auto', overflow: 'visible'});
     $.cookie('devel_notes_hide', 'yes');
   });
-
-  var data = [
-    { label: 'Root',
-      id: 'root',
-      children: [
-        {
-            label: 'Applications',
-            id: 'applications',
-            children: [
-                { label: 'Directories' },
-                { label: 'Service Q' },
-                { label: 'Virtual Private Network' },
-                { label: 'Wiki', id: 'wiki' },
-                { label: 'Wordpress' }
-            ]
-        },
-        {
-            label: 'Departments',
-            id: 'departments',
-            children: [
-                { label: 'Central Administration' },
-                { label: 'Financial Services' },
-                { label: 'Information Technology' }
-            ]
-        },
-        {
-            label: 'Reference Groups',
-            id: 'reference',
-            children: [
-                { label: 'Academic Staff' },
-                { label: 'Administrative Staff' },
-                { label: 'Faculty' },
-                { label: 'Students' }
-            ]
-        }
-      ]
-    }
-  ];
-
-  // Create Tree
-  var $tree = $('#tree1');
-  $tree.tree({
-      data: data,
-      selectable: false
-  });
-
-
-  // Get this node for use in the switch statement
-  var applicationsNode = $tree.tree('getNodeById','applications');
-  var rootNode = $tree.tree('getNodeById','root');
-  $tree.tree('openNode',rootNode,false);
-
-  // Add a highlight class if we are on a certain page
-  var href = $(location).attr('href');
-  var currentPage = href.substr(href.lastIndexOf('/') + 1);
-  switch (currentPage) {
-    case 'view-folder.html':
-    case 'view-folder-privileges.html':
-    case 'view-group.html':
-    case 'view-group-privileges.html':
-    case 'view-group-membership.html':
-    case 'view-group-group-privileges.html':
-      var wikiNode = $tree.tree('getNodeById','wiki');
-      $tree.tree('selectNode',wikiNode);
-      // Automatically open the applications folder
-      $tree.tree('openNode',applicationsNode,false);
-      break;
-    case 'view-folder-applications.html':
-      $tree.tree('selectNode',applicationsNode);
-      $tree.tree('openNode',applicationsNode,false);
-      break;
-  }
-
-  // Send user to certain pages based on where they click
-  $('#tree1').bind(
-      'tree.select',
-      function(event) {
-          var node = event.node;
-          if (node.name === 'Wiki') {
-            window.location = 'view-folder.html';
-          }
-          else if (node.name === 'Applications') {
-            window.location = 'view-folder-applications.html';
-          }
-      }
-  );
 
 });
