@@ -420,6 +420,10 @@ public class LdaptiveSessionImpl implements LdapSession {
   private SearchResponse processSearchRequest(String ldapServerId, ConnectionFactory ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Integer sizeLimit) throws LdapException {
 
     SearchRequest searchRequest = new SearchRequest();
+
+    if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("ldap." + ldapServerId + ".isActiveDirectory", false)) {
+      searchRequest.setBinaryAttributes("objectSid", "objectGUID");
+    }
     
     if (filter != null) {
       filter = filter.trim();
