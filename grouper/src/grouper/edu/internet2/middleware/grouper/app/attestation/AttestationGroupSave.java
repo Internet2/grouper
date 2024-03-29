@@ -414,6 +414,7 @@ public class AttestationGroupSave {
     
     AttributeAssign attributeAssign = (AttributeAssign)GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
     
+      @Override
         public Object callback(GrouperTransaction grouperTransaction)
             throws GrouperDAOException {
           
@@ -421,7 +422,7 @@ public class AttestationGroupSave {
           
           final Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();
 
-          return (AttributeAssign) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          return GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -525,6 +526,29 @@ public class AttestationGroupSave {
                   GrouperAttestationJob.retrieveAttributeDefNameEmailGroupId(), 
                   AttestationGroupSave.this.emailGroup == null ? null : AttestationGroupSave.this.emailGroup.getId(), AttestationGroupSave.this.emailGroupIdAssigned);
 
+              String todayDate = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+              
+              if (GrouperUtil.booleanValue(markAsAttested, false)) {
+                
+                String currentValue = markerAttributeNewlyAssigned ? null : 
+                  markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+                      GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
+                
+                if (!StringUtils.equals(currentValue, todayDate)) {
+                  hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
+                      GrouperAttestationJob.retrieveAttributeDefNameDateCertified(), todayDate, true);
+                }
+
+                String daysUntilRecertifyString = markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+                    GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+                    
+                boolean[] madeChange = new boolean[1];
+                GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, todayDate, daysUntilRecertifyString, true, madeChange);
+                if (madeChange[0]) {
+                  hasChange = true;
+                }
+              }
+
               if (!markerAttributeNewlyAssigned && !hasChange) {
                 AttestationGroupSave.this.saveResultType = SaveResultType.NO_CHANGE;
                 return markerAttributeAssign;
@@ -550,16 +574,6 @@ public class AttestationGroupSave {
           
         }
     });
-    
-    String newDateCertified = GrouperUtil.booleanValue(markAsAttested, false) ?  new SimpleDateFormat("yyyy/MM/dd").format(new Date()) : null;
-
-    if (this.saveResultType == SaveResultType.NO_CHANGE && StringUtils.isBlank(newDateCertified)) {
-      return attributeAssign;
-    }
-    
-    if (this.saveResultType == SaveResultType.NO_CHANGE) {
-      this.saveResultType = SaveResultType.UPDATE;
-    }
     
     return attributeAssign;
     

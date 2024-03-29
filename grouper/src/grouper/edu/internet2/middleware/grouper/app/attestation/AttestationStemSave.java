@@ -581,7 +581,7 @@ public class AttestationStemSave {
           
           final Subject SUBJECT_IN_SESSION = GrouperSession.staticGrouperSession().getSubject();
           
-          return (AttributeAssign) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          return GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
@@ -721,6 +721,36 @@ public class AttestationStemSave {
               hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
                   GrouperAttestationJob.retrieveAttributeDefNameReportConfigurationId(), reportMarkerAttributeAssignId, reportConfigAssigned);
               
+              String todayDate = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
+              
+              // can only mark as attested if a report
+              if (GrouperUtil.booleanValue(markAsAttested, false) && StringUtils.isBlank(reportMarkerAttributeAssignId)) {
+                
+                throw new RuntimeException("Cannot set mark as attested for a non report attestation on a folder");
+                
+              }
+              
+              if (GrouperUtil.booleanValue(markAsAttested, false) && !StringUtils.isBlank(reportMarkerAttributeAssignId)) {
+                
+                String currentValue = markerAttributeNewlyAssigned ? null : 
+                  markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+                      GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName());
+                
+                if (!StringUtils.equals(currentValue, todayDate)) {
+                  hasChange = updateAttribute(hasChange, replaceAllSettings, markerAttributeAssign, markerAttributeNewlyAssigned, 
+                      GrouperAttestationJob.retrieveAttributeDefNameDateCertified(), todayDate, true);
+                }
+
+                String daysUntilRecertifyString = markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
+                    GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
+                    
+                boolean[] madeChange = new boolean[1];
+                GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, todayDate, daysUntilRecertifyString, true, madeChange);
+                if (madeChange[0]) {
+                  hasChange = true;
+                }
+              }
+
               AttestationType theAttestationType = attestationType;
               if (theAttestationType == null) {
                 theAttestationType = AttestationType.valueOfIgnoreCase(markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
@@ -776,16 +806,6 @@ public class AttestationStemSave {
 
         }
     });
-    
-    String newDateCertified = GrouperUtil.booleanValue(markAsAttested, false) ?  new SimpleDateFormat("yyyy/MM/dd").format(new Date()) : null;
-
-    if (this.saveResultType == SaveResultType.NO_CHANGE && StringUtils.isBlank(newDateCertified)) {
-      return attributeAssign;
-    }
-    
-    if (this.saveResultType == SaveResultType.NO_CHANGE) {
-      this.saveResultType = SaveResultType.UPDATE;
-    }
     
     this.finished = true;
     return attributeAssign;
