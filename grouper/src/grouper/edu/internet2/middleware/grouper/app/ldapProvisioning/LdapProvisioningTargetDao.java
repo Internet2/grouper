@@ -2,8 +2,8 @@ package edu.internet2.middleware.grouper.app.ldapProvisioning;
 
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Iterator;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -14,6 +14,8 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.ldaptive.LdapException;
 import org.ldaptive.ResultCode;
+import org.ldaptive.ad.GlobalIdentifier;
+import org.ldaptive.ad.SecurityIdentifier;
 
 import com.unboundid.ldap.sdk.DN;
 import com.unboundid.ldap.sdk.LDAPException;
@@ -45,10 +47,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntitiesRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntitiesResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
@@ -220,6 +218,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
                 value = ldapAttribute.getValues().iterator().next();
               }
               
+              value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
               targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
             }
           }
@@ -590,6 +589,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               value = ldapAttribute.getValues().iterator().next();
             }
             
+            value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
             targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
           }
         }
@@ -675,6 +675,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               value = ldapAttribute.getValues().iterator().next();
             }
             
+            value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
             targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
           }
         }
@@ -689,6 +690,82 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
     throw new RuntimeException("Why are we here?");
 
   }
+  
+  /**
+   * convert a set to a set of string, convert an object to a string
+   * @param attributeName
+   * @param value
+   * @return
+   */
+  public static Object ldapConvertAdAttributeToString(String attributeName, Object value) {
+    
+    String attributeNameLowercase = attributeName.toLowerCase();
+    if (!StringUtils.equalsAny(attributeNameLowercase, "objectguid", "objectsid")) {
+      return value;
+    }
+    
+    if (value == null) {
+      return null;
+    }
+
+    if (value instanceof Set) {
+      Set<Object> valueSet = (Set<Object>)value;
+      if (valueSet.size() > 0) {
+        Set<String> valueSetReturn = new HashSet<String>();
+        for (Object currentValue : valueSet) {
+          if (currentValue instanceof String) {
+            currentValue = ((String)value).getBytes();
+          }
+          if (StringUtils.equals(attributeNameLowercase, "objectguid")) {
+            valueSetReturn.add(GlobalIdentifier.toString((byte[]) currentValue));
+          }
+          if (StringUtils.equals(attributeNameLowercase, "objectsid")) {
+            valueSetReturn.add(SecurityIdentifier.toString((byte[]) currentValue));
+          }
+          
+        }
+        return valueSetReturn;
+      }
+      return valueSet;
+    }
+    
+    if (value instanceof String) {
+      value = ((String)value).getBytes();
+    }
+    if (StringUtils.equals(attributeNameLowercase, "objectguid")) {
+      return GlobalIdentifier.toString((byte[]) value);
+    }
+    if (StringUtils.equals(attributeNameLowercase, "objectsid")) {
+      return SecurityIdentifier.toString((byte[]) value);
+    }
+    throw new RuntimeException("Shouldnt get here!");
+  }
+  
+  public static String ldapFilterValue(String attributeName, String value) {
+
+    String attributeNameLowercase = attributeName.toLowerCase();
+
+    if (!StringUtils.equalsAny(attributeNameLowercase, "objectguid", "objectsid")) {
+      return GrouperUtil.ldapFilterEscape(value);
+    }
+
+    byte[] bytes = null;
+    if (StringUtils.equals(attributeNameLowercase, "objectguid")) {
+      bytes = GlobalIdentifier.toBytes(value);
+    }
+    if (StringUtils.equals(attributeNameLowercase, "objectsid")) {
+      bytes = SecurityIdentifier.toBytes(value);
+    }
+    
+    StringBuilder result = new StringBuilder();
+    for (byte theByte : bytes) {
+      result.append(String.format("\\%02x", theByte));
+    }
+    return result.toString();
+  }
+  
+
+  
   
   public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
 
@@ -742,7 +819,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             for (Object attributeValueObject : GrouperUtil.nonNull(batchValues)) {
               
               String value = GrouperUtil.stringValue(attributeValueObject);
-              String searchFilter = "(" + targetDaoRetrieveGroupsRequest.getSearchAttribute() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
+              String searchFilter = "(" + targetDaoRetrieveGroupsRequest.getSearchAttribute() + "=" + ldapFilterValue(targetDaoRetrieveGroupsRequest.getSearchAttribute(), value) + ")";
     
               filterBuilder.append(searchFilter);
     
@@ -770,6 +847,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
                     value = ldapAttribute.getValues().iterator().next();
                   }
                   
+                  value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
                   targetGroup.assignAttributeValue(ldapAttribute.getName(), value);
                 }
               }
@@ -863,6 +941,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
               value = ldapAttribute.getValues().iterator().next();
             }
             
+            value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
             targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
           }
         }
@@ -929,7 +1008,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             for (Object attributeValueObject : GrouperUtil.nonNull(batchValues)) {
               
               String value = GrouperUtil.stringValue(attributeValueObject);
-              String searchFilter = "(" + targetDaoRetrieveEntitiesRequest.getSearchAttribute() + "=" + GrouperUtil.ldapFilterEscape(value) + ")";
+              String searchFilter = "(" + targetDaoRetrieveEntitiesRequest.getSearchAttribute() + "=" + ldapFilterValue(targetDaoRetrieveEntitiesRequest.getSearchAttribute(), value) + ")";
     
               filterBuilder.append(searchFilter);
     
@@ -957,6 +1036,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
                     value = ldapAttribute.getValues().iterator().next();
                   }
                   
+                  value = ldapConvertAdAttributeToString(ldapAttribute.getName(), value);
                   targetEntity.assignAttributeValue(ldapAttribute.getName(), value);
                 }
               }
@@ -987,7 +1067,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
     return targetDaoRetrieveEntitiesResponse;
   }
-  
+
   public TargetDaoInsertEntityResponse insertEntity(TargetDaoInsertEntityRequest targetDaoInsertEntityRequest) {
     long startNanos = System.nanoTime();
     ProvisioningEntity targetEntity = targetDaoInsertEntityRequest.getTargetEntity();
