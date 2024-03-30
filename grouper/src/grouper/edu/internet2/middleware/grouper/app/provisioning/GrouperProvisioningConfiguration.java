@@ -1933,27 +1933,6 @@ public abstract class GrouperProvisioningConfiguration {
     this.selectGroups = selectGroups;
   }
 
-  /**
-   * search filter to look up entity if cannot just use the matchingId
-   */
-  private String entitySearchFilter = null;
-  
-  /**
-   * search filter to look up entity if cannot just use the matchingId
-   * @return
-   */
-  public String getEntitySearchFilter() {
-    return entitySearchFilter;
-  }
-
-  /**
-   * search filter to look up entity if cannot just use the matchingId
-   * @param userSearchFilter
-   */
-  public void setEntitySearchFilter(String userSearchFilter) {
-    this.entitySearchFilter = userSearchFilter;
-  }
-
   private String entitySearchAllFilter;
 
   /**
@@ -2897,7 +2876,6 @@ public abstract class GrouperProvisioningConfiguration {
     this.scoreConvertToFullSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("scoreConvertToFullSyncThreshold", false), 10000);
     this.membershipsConvertToGroupSyncThreshold = GrouperUtil.intValue(this.retrieveConfigInt("membershipsConvertToGroupSyncThreshold", false), 500);
     
-    this.entitySearchFilter = this.retrieveConfigString("userSearchFilter", false);
     this.entitySearchAllFilter = this.retrieveConfigString("userSearchAllFilter", false);
     this.groupSearchFilter = this.retrieveConfigString("groupSearchFilter", false);
     this.groupSearchAllFilter = this.retrieveConfigString("groupSearchAllFilter", false);
