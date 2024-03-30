@@ -7,9 +7,15 @@ import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransaction;
+import edu.internet2.middleware.grouper.hibernate.GrouperTransactionHandler;
+import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDataRowConfiguration extends GrouperConfigurationModuleBase {
   
@@ -52,26 +58,121 @@ public class GrouperDataRowConfiguration extends GrouperConfigurationModuleBase 
   }
   
   @Override
+  public void validatePreSave(boolean isInsert, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
+    }
+    
+    GrouperConfigurationModuleAttribute rowdAliases = this.retrieveAttributes().get("rowAliases");
+
+    if (rowdAliases != null && StringUtils.isNotBlank(rowdAliases.getValueOrExpressionEvaluation())) {
+      
+      String fieldAliasesCommaSeparated = rowdAliases.getValueOrExpressionEvaluation();
+      Set<String> fieldAliasesSet = GrouperUtil.splitTrimToSet(fieldAliasesCommaSeparated, ",");
+      
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      grouperDataEngine.loadFieldsAndRows(grouperConfig);
+      
+      Map<String,GrouperDataFieldConfig> fieldConfigByAlias = grouperDataEngine.getFieldConfigByAlias();
+      for (String fieldAliasBeingAdded: fieldAliasesSet) {
+        if (fieldConfigByAlias.containsKey(fieldAliasBeingAdded.toLowerCase())) {
+          String errorMessage = GrouperTextContainer.retrieveFromRequest().getText().get("dataFieldRowAliasAlreadyUsedError");
+          errorMessage = errorMessage.replace("##dataFieldAlias##", fieldAliasBeingAdded);
+          errorsToDisplay.add(errorMessage);
+        }
+      }
+      
+      Map<String,GrouperDataRowConfig> rowConfigByAlias = grouperDataEngine.getRowConfigByAlias();
+      for (String fieldAliasBeingAdded: fieldAliasesSet) {
+        if (rowConfigByAlias.containsKey(fieldAliasBeingAdded.toLowerCase())) {
+          String errorMessage = GrouperTextContainer.retrieveFromRequest().getText().get("dataFieldRowAliasAlreadyUsedError");
+          errorMessage = errorMessage.replace("##dataFieldAlias##", fieldAliasBeingAdded);
+          errorsToDisplay.add(errorMessage);
+        }
+      }
+        
+    }
+    
+  }
+  
+  @Override
   public void insertConfig(boolean fromUi, StringBuilder message,
       List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay,
       List<String> actionsPerformed) {
-    super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay,
-        actionsPerformed);
     
-    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        GrouperDataRowConfiguration.super.insertConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay,
+            actionsPerformed);
+        
+        if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) {
+          GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
 
-    GrouperDataEngine.syncDataRows(grouperConfig);
-    GrouperDataEngine.syncDataAliases(grouperConfig);
+          GrouperDataEngine.syncDataRows(grouperConfig);
+          GrouperDataEngine.syncDataAliases(grouperConfig);
+        }
+        
+        return null;
+      }
+    });
+    
   }
 
   @Override
   public void deleteConfig(boolean fromUi) {
-    super.deleteConfig(fromUi);
     
-    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        GrouperDataRowConfiguration.super.deleteConfig(fromUi);
+        
+        GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+        
+        GrouperDataEngine.syncDataAliases(grouperConfig);
+        GrouperDataEngine.syncDataRows(grouperConfig);
+        
+        return null;
+      }
+    });
+    
+  }
+  
+  @Override
+  public void editConfig(boolean fromUi, StringBuilder message, List<String> errorsToDisplay, 
+      Map<String, String> validationErrorsToDisplay, List<String> actionsPerformed) {
+    
+    
+    GrouperTransaction.callbackGrouperTransaction(new GrouperTransactionHandler() {
+      
+      @Override
+      public Object callback(GrouperTransaction grouperTransaction)
+          throws GrouperDAOException {
+        
+        
+        GrouperDataRowConfiguration.super.editConfig(fromUi, message, errorsToDisplay, validationErrorsToDisplay,
+            actionsPerformed);
+        
+        if (errorsToDisplay.size() == 0 && validationErrorsToDisplay.size() == 0) {
+          GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
 
-    GrouperDataEngine.syncDataAliases(grouperConfig);
-    GrouperDataEngine.syncDataRows(grouperConfig);
+          GrouperDataEngine.syncDataRows(grouperConfig);
+          GrouperDataEngine.syncDataAliases(grouperConfig);
+        }
+        
+        return null;
+      }
+    });
+    
   }
 
 }
