@@ -4,6 +4,10 @@
  */
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.List;
+import java.util.Set;
+
+import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.subject.Subject;
@@ -347,9 +351,14 @@ public class StemDeleteContainer {
   private int stemCountTotal;
 
   /**
-   * rules delete count - how many rules are going to be deleted
+   * rules delete count - 
+   * 
+   * for folders: count of rules that are going to be deleted that are not immediately under a folder hierarchy but where the rule is referenced in the hierarchy
+   * for groups: count of rules that are going to be deleted that are referenced with the group 
    */
   private int rulesDeleteCount;
+  
+  private Set<GuiRuleDefinition> rulesToBeDeleted;
 
   /**
    * 
@@ -447,5 +456,16 @@ public class StemDeleteContainer {
   public int getRulesDeleteCount() {
     return rulesDeleteCount;
   }
+
+  
+  public Set<GuiRuleDefinition> getRulesToBeDeleted() {
+    return rulesToBeDeleted;
+  }
+
+  
+  public void setRulesToBeDeleted(Set<GuiRuleDefinition> rulesToBeDeleted) {
+    this.rulesToBeDeleted = rulesToBeDeleted;
+  }
+  
   
 }

@@ -1812,6 +1812,14 @@ public class UiV2Group {
       GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
       groupContainer.getGuiGroup().setRulesDeleteCount(rulesToBeDeleted.size());
       
+      Set<GuiRuleDefinition> guiRules = new HashSet<>();
+      
+      for (RuleDefinition ruleDefinition: rulesToBeDeleted) {
+        GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+        guiRules.add(guiRuleDefinition);
+      }
+      groupContainer.getGuiGroup().setRulesToBeDeleted(guiRules);
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupDelete.jsp"));
   

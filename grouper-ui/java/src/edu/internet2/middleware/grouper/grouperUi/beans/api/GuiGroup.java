@@ -838,4 +838,16 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
     return rulesDeleteCount;
   }
   
+  private Set<GuiRuleDefinition> rulesToBeDeleted;
+
+  
+  public Set<GuiRuleDefinition> getRulesToBeDeleted() {
+    return rulesToBeDeleted;
+  }
+
+  
+  public void setRulesToBeDeleted(Set<GuiRuleDefinition> rulesToBeDeleted) {
+    this.rulesToBeDeleted = rulesToBeDeleted;
+  }
+  
 }

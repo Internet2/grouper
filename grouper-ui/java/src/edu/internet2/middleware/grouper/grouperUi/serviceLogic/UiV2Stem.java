@@ -2200,6 +2200,14 @@ public class UiV2Stem {
         Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
         stemDeleteContainer.setRulesDeleteCount(rulesToBeDeleted.size());
         
+        Set<GuiRuleDefinition> guiRules = new HashSet<>();
+        
+        for (RuleDefinition ruleDefinition: rulesToBeDeleted) {
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          guiRules.add(guiRuleDefinition);
+        }
+        stemDeleteContainer.setRulesToBeDeleted(guiRules);
+        
       } else if (StringUtils.equals("obliterateSome", stemObliterate)) {
         stemDeleteContainer.setObliterateType("obliterateSome");
 
@@ -2246,6 +2254,13 @@ public class UiV2Stem {
         
         Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
         stemDeleteContainer.setRulesDeleteCount(rulesToBeDeleted.size());
+        Set<GuiRuleDefinition> guiRules = new HashSet<>();
+        
+        for (RuleDefinition ruleDefinition: rulesToBeDeleted) {
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          guiRules.add(guiRuleDefinition);
+        }
+        stemDeleteContainer.setRulesToBeDeleted(guiRules);
         
       } else if (StringUtils.equals("obliterateAll", stemObliterate)) {
         stemDeleteContainer.setObliterateType("obliterateAll");
@@ -2261,6 +2276,14 @@ public class UiV2Stem {
         
         Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
         stemDeleteContainer.setRulesDeleteCount(rulesToBeDeleted.size());
+        
+        Set<GuiRuleDefinition> guiRules = new HashSet<>();
+        
+        for (RuleDefinition ruleDefinition: rulesToBeDeleted) {
+          GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
+          guiRules.add(guiRuleDefinition);
+        }
+        stemDeleteContainer.setRulesToBeDeleted(guiRules);
         
       } else {
         throw new RuntimeException("Invalid stem obliterate: '" + stemObliterate + "'");

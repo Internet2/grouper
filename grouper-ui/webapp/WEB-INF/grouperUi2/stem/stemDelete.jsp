@@ -16,6 +16,55 @@ ${grouper:titleFromKeyAndText('stemDeletePageTitle', grouperRequestContainer.ste
                 <p>${textContainer.text['stemDeleteText'] }</p>
                  <c:if test="${grouperRequestContainer.stemDeleteContainer.rulesDeleteCount > 0}">
                   <p>${textContainer.text['stemDeleteRulesDeleteCount'] }</p>
+                  
+                   <div class="row-fluid">
+        
+                    <table class="table table-hover table-bordered table-striped table-condensed data-table">
+                      <thead>        
+                        <tr>
+                          <th>${textContainer.text['rulesTableHeaderPattern']}</th>
+                          <th>${textContainer.text['rulesTableHeaderCheck']}</th>
+                          <th>${textContainer.text['rulesTableHeaderCondition']}</th>
+                          <th>${textContainer.text['rulesTableHeaderResult']}</th>
+                        </tr>
+                     </thead>
+                    <tbody>
+                      <c:set var="i" value="0" />
+                       <c:forEach items="${grouperRequestContainer.stemDeleteContainer.rulesToBeDeleted}" var="guiRuleDefinition" >
+            
+                       <c:set target="${grouperRequestContainer.rulesContainer}"
+                                                      property="currentGuiRuleDefinition"
+                                                      value="${guiRuleDefinition}" />
+                       <c:set var="ruleDefinition" value="${guiRuleDefinition.ruleDefinition}" />
+                
+                      <tr>
+                          <td style="white-space: nowrap;">
+                           <c:if test="${guiRuleDefinition.ruleDefinition.pattern != null}">
+                             ${guiRuleDefinition.ruleDefinition.pattern.userFriendlyText}
+                           </c:if>
+                          </td>
+                          
+                          <td style="white-space: nowrap;">
+                            ${guiRuleDefinition.check}
+                          </td>
+                          
+                          <td style="white-space: nowrap;">
+                            ${guiRuleDefinition.condition}
+                          </td>
+                          
+                          <td style="white-space: nowrap;">
+                            ${guiRuleDefinition.result}
+                          </td>
+                          
+                       </tr>
+                            
+                      </c:forEach>
+                     
+                     </tbody>
+                 </table>
+          
+              </div>
+                  
                  </c:if>
                   <form class="form-inline form-small form-filter" id="deleteFolderFormId">
                     <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
