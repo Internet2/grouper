@@ -1404,8 +1404,7 @@ public class GrouperUserDataApi {
   @SuppressWarnings("unchecked")
   public static <T> T preferences(final String userDataGroupName, final Subject subjectToAddTo, final Class<T> preferencesClass) {
     
-    return (T)GrouperSession.callbackGrouperSession(
-        GrouperSession.staticGrouperSession().internal_getRootSession(), new GrouperSessionHandler() {
+    return (T)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
