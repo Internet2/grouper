@@ -2179,7 +2179,7 @@ public class UiV2Stem {
     // if we are here from form
     if (GrouperUtil.booleanValue(formSubmitted, false)) {
 
-      stemDeleteContainer.setRulesDeleteCount(stemObliterateResults.getRulesDeleteCount());
+//      stemDeleteContainer.setRulesDeleteCount(stemObliterateResults.getRulesDeleteCount());
       
       if (StringUtils.isBlank(stemObliterate)) {
         
@@ -2194,22 +2194,39 @@ public class UiV2Stem {
       if (StringUtils.equals("deleteStem", stemObliterate)) {
         stemDeleteContainer.setObliterateType("deleteStem");
         
+        Set<GrouperObject> grouperObjectsForRules = new HashSet<>();
+        grouperObjectsForRules.addAll(GrouperUtil.toSet(stem));
+        
+        Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
+        stemDeleteContainer.setRulesDeleteCount(rulesToBeDeleted.size());
+        
       } else if (StringUtils.equals("obliterateSome", stemObliterate)) {
         stemDeleteContainer.setObliterateType("obliterateSome");
 
+        Set<GrouperObject> grouperObjectsForRules = new HashSet<>();
+        
         {
           String stemDeleteEmptyStems = request.getParameter("stemDeleteEmptyStemsName");
           stemDeleteContainer.setObliterateEmptyStems(GrouperUtil.booleanValue(stemDeleteEmptyStems, false));
+          if (GrouperUtil.booleanValue(stemDeleteEmptyStems, false)) {
+            grouperObjectsForRules.addAll(GrouperUtil.nonNull(stemObliterateResults.getStems()));
+          }
         }
         
         {
           String stemDeleteGroups = request.getParameter("stemDeleteGroupsName");
           stemDeleteContainer.setObliterateGroups(GrouperUtil.booleanValue(stemDeleteGroups, false));
+          if (GrouperUtil.booleanValue(stemDeleteGroups, false)) {
+            grouperObjectsForRules.addAll(GrouperUtil.nonNull(stemObliterateResults.getGroups()));
+          }
         }
         
         {
           String stemDeleteAttributeDefs = request.getParameter("stemDeleteAttributeDefsName");
           stemDeleteContainer.setObliterateAttributeDefs(GrouperUtil.booleanValue(stemDeleteAttributeDefs, false));
+          if (GrouperUtil.booleanValue(stemDeleteAttributeDefs, false)) {
+            grouperObjectsForRules.addAll(GrouperUtil.nonNull(stemObliterateResults.getAttributeDefs()));
+          }
         }
         
         {
@@ -2227,12 +2244,23 @@ public class UiV2Stem {
           stemDeleteContainer.setObliterateGroupMemberships(GrouperUtil.booleanValue(stemDeleteGroupMemberships, false));
         }
         
+        Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
+        stemDeleteContainer.setRulesDeleteCount(rulesToBeDeleted.size());
         
       } else if (StringUtils.equals("obliterateAll", stemObliterate)) {
         stemDeleteContainer.setObliterateType("obliterateAll");
         
         String stemDeletePointInTime = request.getParameter("stemDeletePointInTimeName");
         stemDeleteContainer.setObliteratePointInTime(GrouperUtil.booleanObjectValue(stemDeletePointInTime));
+        
+        Set<GrouperObject> grouperObjectsForRules = new HashSet<>();
+        grouperObjectsForRules.addAll(GrouperUtil.nonNull(stemObliterateResults.getStems()));
+        grouperObjectsForRules.addAll(GrouperUtil.nonNull(stemObliterateResults.getGroups()));
+        grouperObjectsForRules.addAll(GrouperUtil.nonNull(stemObliterateResults.getAttributeDefs()));
+        grouperObjectsForRules.add(stem);
+        
+        Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
+        stemDeleteContainer.setRulesDeleteCount(rulesToBeDeleted.size());
         
       } else {
         throw new RuntimeException("Invalid stem obliterate: '" + stemObliterate + "'");

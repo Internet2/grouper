@@ -5321,8 +5321,6 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
      * attribute def name count
      */
     private int attributeDefNameCount;
-    private int rulesDeleteCount;
-
 
     
     /**
@@ -5343,15 +5341,40 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       this.attributeDefNameCount = attributeDefNameCount1;
     }
 
-    public int getRulesDeleteCount() {
-      return rulesDeleteCount;
+    private Set<AttributeDef> attributeDefs;
+    private Set<Stem> stems;
+    private Set<Group> groups;
+
+    
+    public Set<AttributeDef> getAttributeDefs() {
+      return attributeDefs;
     }
 
     
-    public void setRulesDeleteCount(int rulesDeleteCount) {
-      this.rulesDeleteCount = rulesDeleteCount;
+    public void setAttributeDefs(Set<AttributeDef> attributeDefs) {
+      this.attributeDefs = attributeDefs;
     }
 
+    
+    public Set<Stem> getStems() {
+      return stems;
+    }
+
+    
+    public void setStems(Set<Stem> stems) {
+      this.stems = stems;
+    }
+
+    
+    public Set<Group> getGroups() {
+      return groups;
+    }
+
+    
+    public void setGroups(Set<Group> groups) {
+      this.groups = groups;
+    }
+    
   }
 
   /**
@@ -5483,16 +5506,14 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     final StemObliterateResults stemObliterateResults = new StemObliterateResults();
     stemObliterateResultsThreadLocal.set(stemObliterateResults);
     
-    Set<GrouperObject> grouperObjectsForRules = new HashSet<>();
-    
     Subject subject = GrouperSession.staticGrouperSession().getSubject();
     QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(true);
     Set<AttributeDef> attributes = new AttributeDefFinder().assignParentStemId(this.uuid).assignStemScope(scope)
         .assignSubject(subject)
         .assignPrivileges(AttributeDefPrivilege.ATTR_ADMIN_PRIVILEGES)
         .assignQueryOptions(queryOptions).findAttributes();
-    grouperObjectsForRules.addAll(attributes);
     stemObliterateResults.setAttributeDefCount(GrouperUtil.intValue(queryOptions.getCount(), -1));
+    stemObliterateResults.setAttributeDefs(attributes);
     
     queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(true);
     new AttributeDefNameFinder().assignParentStemId(this.uuid).assignStemScope(scope)
@@ -5505,18 +5526,17 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
     Set<Group> groups = new GroupFinder().assignStemScope(scope).assignParentStemId(this.uuid)
         .assignPrivileges(AccessPrivilege.ADMIN_PRIVILEGES)
         .assignQueryOptions(queryOptions).findGroups();
-    grouperObjectsForRules.addAll(groups);
     stemObliterateResults.setGroupCount(GrouperUtil.intValue(queryOptions.getCount(), -1));
+    stemObliterateResults.setGroups(groups);
 
     queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(true);
     Set<Stem> stems = new StemFinder().assignStemScope(scope).assignParentStemId(this.uuid)
         .assignPrivileges(NamingPrivilege.ADMIN_PRIVILEGES)
         .assignQueryOptions(queryOptions).findStems();
-    grouperObjectsForRules.addAll(stems);
     stemObliterateResults.setStemCount(GrouperUtil.intValue(queryOptions.getCount(), -1));
+    stemObliterateResults.setStems(stems);
     if (stemObliterateResults.getStemCount() >= 0 && this.canHavePrivilege(subject, NamingPrivilege.STEM_ADMIN.toString(), false)) {
       // add one for parent folder
-//      grouperObjectsForRules.add(this);
       stemObliterateResults.setStemCount(stemObliterateResults.getStemCount()+1);
     }
     
@@ -5525,13 +5545,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
 
     if (isWheelOrRoot) {
       
-      Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
-      
       stemObliterateResults.setAttributeDefCountTotal(stemObliterateResults.getAttributeDefCount());
       stemObliterateResults.setAttributeDefNameCountTotal(stemObliterateResults.getAttributeDefNameCount());
       stemObliterateResults.setStemCountTotal(stemObliterateResults.getStemCount());
       stemObliterateResults.setGroupCountTotal(stemObliterateResults.getGroupCount());
-      stemObliterateResults.setRulesDeleteCount(rulesToBeDeleted.size());
       return true;
     }
 
@@ -5539,13 +5556,10 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
       
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        grouperObjectsForRules.clear();
-
         Subject subject = SubjectFinder.findRootSubject();
         QueryOptions queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(true);
         Set<AttributeDef> attributes2 = new AttributeDefFinder().assignParentStemId(Stem.this.uuid).assignStemScope(scope)
             .assignQueryOptions(queryOptions).findAttributes();
-        grouperObjectsForRules.addAll(attributes2);
         stemObliterateResults.setAttributeDefCountTotal(GrouperUtil.intValue(queryOptions.getCount(), -1));
         
         queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(true);
@@ -5556,23 +5570,18 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(true);
         Set<Group> groups2 = new GroupFinder().assignStemScope(scope).assignParentStemId(Stem.this.uuid)
             .assignQueryOptions(queryOptions).findGroups();
-        grouperObjectsForRules.addAll(groups2);
         stemObliterateResults.setGroupCountTotal(GrouperUtil.intValue(queryOptions.getCount(), -1));
 
         queryOptions = new QueryOptions().retrieveCount(true).retrieveResults(true);
         Set<Stem> stems2 = new StemFinder().assignStemScope(scope).assignParentStemId(Stem.this.uuid)
             .assignQueryOptions(queryOptions).findStems();
-        grouperObjectsForRules.addAll(stems2);
         stemObliterateResults.setStemCountTotal(GrouperUtil.intValue(queryOptions.getCount(), -1));
 
         if (stemObliterateResults.getStemCount() >= 0) {
           // add one for parent folder
-//          grouperObjectsForRules.add(Stem.this);
           stemObliterateResults.setStemCountTotal(stemObliterateResults.getStemCountTotal()+1);
         }
         
-        Set<RuleDefinition> rulesToBeDeleted = RuleFinder.retrieveRuleDefinitionsDeleteCountForGrouperObjects(grouperObjectsForRules);
-        stemObliterateResults.setRulesDeleteCount(rulesToBeDeleted.size());
         return null;
       }
     });
