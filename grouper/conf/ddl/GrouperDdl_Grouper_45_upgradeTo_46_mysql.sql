@@ -15,7 +15,7 @@ CREATE TABLE grouper_sql_cache_group
     membership_size_hst BIGINT NOT NULL,
     created_on DATETIME NOT NULL,
     enabled_on DATETIME NOT NULL,
-    disabled_on DATETIME NOT NULL,
+    disabled_on DATETIME,
     PRIMARY KEY (internal_id)
 );
 
