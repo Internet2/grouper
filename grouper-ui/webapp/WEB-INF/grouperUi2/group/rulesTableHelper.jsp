@@ -7,7 +7,7 @@
             <tr>
               <th>${textContainer.text['rulesTableHeaderActions']}</th>
               <th>${textContainer.text['rulesTableHeaderPattern']}</th>
-              <th>${textContainer.text['rulesTableHeaderAssignedOnThisGroup']}</th>
+               <th>${textContainer.text['rulesTableHeaderAssignedOn']}</th>
               <th>${textContainer.text['rulesTableHeaderCheck']}</th>
               <th>${textContainer.text['rulesTableHeaderCondition']}</th>
               <th>${textContainer.text['rulesTableHeaderResult']}</th>
@@ -64,10 +64,10 @@
               <td style="white-space: nowrap;">
                 <c:choose>
                   <c:when test="${ruleDefinition.attributeAssignType.ownerGroupId == grouperRequestContainer.groupContainer.guiGroup.group.id }">
-                  ${textContainer.text['provisioningConfigTableHeaderProvisionableYesLabel']}
+                  ${textContainer.text['provisioningConfigTableHeaderAssignedOnThisGroup']}
                   </c:when>
                   <c:otherwise>
-                  ${textContainer.text['provisioningConfigTableHeaderProvisionableNoLabel']}
+                  ${guiRuleDefinition.owner}
                   </c:otherwise>
                 </c:choose>
               </td>

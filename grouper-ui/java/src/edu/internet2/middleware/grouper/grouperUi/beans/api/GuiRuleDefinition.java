@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -375,6 +376,26 @@ public class GuiRuleDefinition implements Serializable, Comparable {
   
   public void setThenGuiObject(GuiObjectBase thenGuiObject) {
     this.thenGuiObject = thenGuiObject;
+  }
+  
+  public String getOwner() {
+    
+    if (this.ruleDefinition.getAttributeAssignType().getOwnerGroup() != null) {
+      Group ownerGroup = this.ruleDefinition.getAttributeAssignType().getOwnerGroup();
+      return new GuiGroup(ownerGroup).getShortLink();
+    }
+    
+    if (this.ruleDefinition.getAttributeAssignType().getOwnerStem() != null) {
+      Stem ownerStem = this.ruleDefinition.getAttributeAssignType().getOwnerStem();
+      return new GuiStem(ownerStem).getShortLink();
+    }
+    
+    if (this.ruleDefinition.getAttributeAssignType().getOwnerAttributeDef() != null) {
+      AttributeDef ownerAttributeDef = this.ruleDefinition.getAttributeAssignType().getOwnerAttributeDef();
+      return new GuiAttributeDef(ownerAttributeDef).getShortLinkWithIcon();
+    }
+    
+    return "";
   }
 
   public String getCheck() {
