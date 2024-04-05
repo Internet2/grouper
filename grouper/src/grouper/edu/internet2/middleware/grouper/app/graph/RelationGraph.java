@@ -139,6 +139,8 @@ public class RelationGraph {
   private long directMemberCount;
   private Set<GraphNode> leafParentNodes;
   private Set<GraphNode> leafChildNodes;
+  
+  private Subject subjectForIsMemberCheck;
 
   /**
    * Create a new graph with default settings. Caller should call the various
@@ -239,6 +241,16 @@ public class RelationGraph {
    */
   public RelationGraph assignShowLoaderJobs(boolean theShowLoaderJobs) {
     this.showLoaderJobs = theShowLoaderJobs;
+    return this;
+  }
+  
+  /**
+   * If we're checking whether a subject is a member of each group
+   * @param theSearchSubject
+   * @return
+   */
+  public RelationGraph assignSubjectForIsMemberCheck(Subject theSubject) {
+    this.subjectForIsMemberCheck = theSubject;
     return this;
   }
 
@@ -525,6 +537,15 @@ public class RelationGraph {
    */
   public long getDirectMemberCount() {
     return directMemberCount;
+  }
+  
+  /**
+   * If we're checking whether a subject is a member of each group
+   * 
+   * @return the subject
+   */
+  public Subject getSubjectForIsMemberCheck() {
+    return this.subjectForIsMemberCheck;
   }
 
   /**
@@ -1233,6 +1254,12 @@ public class RelationGraph {
     // do all the building of object type strings in batches
     queryObjectTypeNames();
 
+    queryGroupMemberships();
+    
+    // take care of the styles now
+    for (GraphNode node : getNodes()) {
+      node.determineStyles();
+    }
   }
 
   // once the graph is built, query counts for group objects depending on the settings
@@ -1309,6 +1336,39 @@ public class RelationGraph {
           node.setDirectMemberCount(directCountForGroup);
           this.directMemberCount += directCountForGroup;
         }
+      }
+    }
+  }
+  
+  // once the graph is built, query if subject is a member of the groups
+  private void queryGroupMemberships() {
+    if (this.subjectForIsMemberCheck == null) {
+      return;
+    }
+
+    //collect all eligible group nodes
+    Map<String, GraphNode> groupNodesByUuid = new HashMap<String, GraphNode>();
+
+    for (GraphNode node: getNodes()) {
+      if (node.isGroup() && (!node.isLoaderGroup() || node.isSimpleLoaderGroup())) {
+        groupNodesByUuid.put(node.getGrouperObjectId(), node);
+        
+        // default to false
+        node.setSubjectIsMember(false);
+      }
+    }
+
+    // no groups to count, don't need to continue
+    if (groupNodesByUuid.size() == 0) {
+      return;
+    }
+    
+    Set<Object[]> membershipDataSet = new MembershipFinder().addSubject(this.subjectForIsMemberCheck).assignGroupIds(groupNodesByUuid.keySet()).assignField(Group.getDefaultList()).findMembershipsMembers();
+    for (Object[] membershipData : membershipDataSet) {
+      Group group = (Group)membershipData[1];
+      GraphNode node = groupNodesByUuid.get(group.getId());
+      if (node != null) {
+        node.setSubjectIsMember(true);
       }
     }
   }

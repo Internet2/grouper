@@ -20,8 +20,12 @@ import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import org.apache.commons.logging.Log;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 
 /**
@@ -40,7 +44,7 @@ public class VisualStyle {
     INHERIT("inherit"), STYLE("style"), COLOR("color"), BGCOLOR("bgcolor"), BORDER("border"), FONT("font"),
     FONT_SIZE("font-size"), FONT_COLOR("font-color"), SHAPE("shape"), SHAPE_STYLE("shape-style"),
     ARROWTAIL("arrowtail"), ARROWHEAD("arrowhead"), DIR("dir"), HEADLABEL("headlabel"),
-    LABELDISTANCE("labeldistance");
+    LABELDISTANCE("labeldistance"), FILLCOLOR("fillcolor");
 
     private String name;
 
@@ -101,16 +105,22 @@ public class VisualStyle {
   }
 
   /* internal method, get the inherited style in the current module */
-  private VisualStyle fetchModuleInheritStyle() {
-    String inheritStyleName = getPropertyDirect(Property.INHERIT.getName());
-    if (inheritStyleName != null) {
-      VisualStyle inheritStyle = owningStyleSet.getStyle(inheritStyleName);
-      if (inheritStyle == null) {
-        LOG.warn("Visual style " + this.objectType.getName() + " specifies to inherit from unknown style '" + inheritStyleName + "' and will be ignored");
+  private List<VisualStyle> fetchModuleInheritStyle() {
+    List<VisualStyle> inheritStyles = new ArrayList<VisualStyle>();
+    
+    String inheritStyleNames = getPropertyDirect(Property.INHERIT.getName());
+    if (inheritStyleNames != null) {
+      for (String inheritStyleName : GrouperUtil.splitTrim(inheritStyleNames, ",")) {
+        VisualStyle inheritStyle = owningStyleSet.getStyle(inheritStyleName);
+        if (inheritStyle == null) {
+          LOG.warn("Visual style " + this.objectType.getName() + " specifies to inherit from unknown style '" + inheritStyleName + "' and will be ignored");
+        } else {
+          inheritStyles.add(inheritStyle);
+        }
       }
-      return inheritStyle;
     }
-    return null;
+    
+    return inheritStyles;
   }
 
   /**
@@ -147,10 +157,21 @@ public class VisualStyle {
       }
     }
 
-    if (fetchModuleInheritStyle() != null) {
-      result = fetchModuleInheritStyle().getProperty(name);
-      if (result != null) {
-        return result;
+    if (fetchModuleInheritStyle().size() > 0) {
+      Set<String> results = new LinkedHashSet<String>();
+      for (VisualStyle inheritStyle : fetchModuleInheritStyle()) {
+        if (inheritStyle.getProperty(name) != null) {
+          results.add(inheritStyle.getProperty(name));
+        }
+      }
+
+      // for "style" we want to concatenate the values, otherwise return the first.
+      if (results.size() > 0) {
+        if ("style".equals(name) && results.size() > 1) {
+          return "\"" + GrouperUtil.join(results.iterator(), ",") + "\"";
+        } else {
+          return results.iterator().next();
+        }
       }
     }
 
@@ -164,8 +185,8 @@ public class VisualStyle {
 
     if (owningStyleSet != defaultStyleSet
           && defaultStyleSet != null
-          && defaultStyleSet.getStyle(objectType.getName()).fetchModuleInheritStyle() != null) {
-      result = defaultStyleSet.getStyle(objectType.getName()).fetchModuleInheritStyle().getProperty(name);
+          && defaultStyleSet.getStyle(objectType.getName()).fetchModuleInheritStyle().size() > 0) {
+      result = defaultStyleSet.getStyle(objectType.getName()).fetchModuleInheritStyle().get(0).getProperty(name);
       if (result != null) {
         return result;
       }

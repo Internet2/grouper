@@ -173,8 +173,58 @@
       </tbody>
     </table>
   </div>
+
+  <c:if test="${grouperRequestContainer.visualizationContainer.objectType == 'group' || grouperRequestContainer.visualizationContainer.objectType == 'stem'}">
+    <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
+      <label for="visualizationAddMemberComboID" class="control-label">${textContainer.text['groupSearchMemberOrId'] }</label>
+      <div class="controls">
+        <div id="add-members-container">
+                           
+          <%-- placeholder: Enter the name of a person, group, or other entity --%>
+          <grouper:combobox2 idBase="visualizationAddMemberCombo" style="width: 30em"
+           filterOperation="../app/UiV2Group.addMemberFilter?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}"/>
+          ${textContainer.text['groupSearchLabelPreComboLink']} <a href="#visualization-member-search" onclick="$('#addVisualizationMemberResults').empty();" role="button" data-toggle="modal" style="text-decoration: underline !important;">${textContainer.text['groupSearchForEntityLink']}</a>
+        </div>
+      </div>
+    </div>
+  </c:if> 
+
   <input type="submit" class="btn" name="drawRefresh" value="${textContainer.text['visualization.form.submit']}" onclick="fetchGraph(); return false;" />
 </form>
+
+<div id="visualization-member-search" tabindex="-1" role="dialog" aria-labelledby="member-search-label" aria-hidden="true" class="modal hide fade lead span12">
+  <div class="modal-header"><a href="#" data-dismiss="modal" aria-hidden="true" class="close">x</a>
+    <h3 id="member-search-label">${textContainer.text['groupSearchForEntityButton'] }</h3>
+  </div>
+  <div class="modal-body">
+    <form class="form form-inline" id="addVisualizationMemberSearchFormId">
+      <input name="addMemberSubjectSearch" type="text" placeholder=""/>
+      <button class="btn" onclick="ajax('../app/UiV2Visualization.addMemberSearch?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'addVisualizationMemberSearchFormId'}); return false;" >${textContainer.text['groupSearchButton'] }</button>
+      <br />
+      <span style="white-space: nowrap;"><input type="checkbox" name="matchExactId" value="true"/> ${textContainer.text['groupLabelExactIdMatch'] }</span>
+      <br />
+      <span style="white-space: nowrap;">${textContainer.text['find.search-source'] }
+      <select name="sourceId">
+        <option value="all">${textContainer.textEscapeXml['find.search-all-sources'] }</option>
+        <c:forEach items="${grouperRequestContainer.subjectContainer.sources}" var="source" >
+          <option value="${grouper:escapeHtml(source.id)}">
+            ${grouper:escapeHtml(source.name) } (
+              <c:forEach var="subjectType" items="${source.subjectTypes}" varStatus="typeStatus">
+                <c:if test="${typeStatus.count>1}">, </c:if>
+                ${grouper:escapeHtml(subjectType)}
+              </c:forEach>
+            )
+          </option>
+        </c:forEach>
+      </select></span>
+    </form>
+    <div id="addVisualizationMemberResults">
+    </div>
+  </div>
+  <div class="modal-footer">
+    <button data-dismiss="modal" aria-hidden="true" class="btn">${textContainer.text['groupSearchCloseButton']}</button>
+  </div>
+</div>
 
 <div id="vis-copy-dot-output-btn" style="display: none; padding 3px;">
   <a href="#" aria-label="Show .dot output text" class="btn btn-medium" aria-expanded="false" onclick="setCopyWindowDot(); $('#vis-copy-dot-output').toggle('slow')">

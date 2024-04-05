@@ -22,6 +22,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
@@ -36,6 +37,7 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.graph.GraphEdge;
 import edu.internet2.middleware.grouper.app.graph.GraphNode;
 import edu.internet2.middleware.grouper.app.graph.RelationGraph;
@@ -43,6 +45,7 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSetti
 import edu.internet2.middleware.grouper.app.visualization.StyleObjectType;
 import edu.internet2.middleware.grouper.app.visualization.VisualSettings;
 import edu.internet2.middleware.grouper.app.visualization.VisualStyleSet;
+import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
@@ -70,7 +73,10 @@ import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotUniqueException;
+import edu.internet2.middleware.subject.provider.SourceManager;
 
 /**
  * Operations to display a graph of object relationships
@@ -506,6 +512,31 @@ public class UiV2Visualization {
 
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+      String searchSubjectString = request.getParameter("visualizationAddMemberComboName");
+      
+      Subject isMemberSubject = null;
+      if (StringUtils.isNotBlank(searchSubjectString)) {
+        
+        if (searchSubjectString != null && searchSubjectString.contains("||")) {
+          String sourceId = GrouperUtil.prefixOrSuffix(searchSubjectString, "||", true);
+          String subjectId = GrouperUtil.prefixOrSuffix(searchSubjectString, "||", false);
+          isMemberSubject =  SubjectFinder.findByIdOrIdentifierAndSource(subjectId, sourceId, false);
+        } else {
+          try {
+            isMemberSubject = SubjectFinder.findByIdOrIdentifier(searchSubjectString, false);
+          } catch (SubjectNotUniqueException snue) {
+            //ignore
+          }
+            
+        }
+
+        if (isMemberSubject == null) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("groupAddMemberCantFindSubject")));
+          return;
+        }    
+      }
+
       RelationGraph relationGraph = new RelationGraph()
               .assignStartObject(visualizationContainer.getGrouperObject())
               .assignParentLevels(visualizationContainer.getDrawNumParentsLevels())
@@ -517,7 +548,8 @@ public class UiV2Visualization {
               .assignShowDirectMemberCounts(visualizationContainer.isDrawShowDirectMemberCounts())
               .assignMaxSiblings(visualizationContainer.getDrawMaxSiblings())
               .assignShowObjectTypes(visualizationContainer.isDrawShowObjectTypes())
-              .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts());
+              .assignIncludeGroupsInMemberCounts(visualizationContainer.isDrawIncludeGroupsInMemberCounts())
+              .assignSubjectForIsMemberCheck(isMemberSubject);
 
       // filters on stems and groups (e.g., skip etc and the root folder by default).
       // future enhancement to make this configurable?
@@ -830,7 +862,7 @@ public class UiV2Visualization {
 
     for (StyleObjectType styleType: styleTypes) {
       for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail",
-              "dir", "linkType", "displayTag", "headlabel", "labeldistance"}) {
+              "dir", "linkType", "displayTag", "headlabel", "labeldistance", "fillcolor"}) {
         String propertyValue = styleSet.getStyleProperty(styleType.getName(), propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addStyleProperty(styleType.getName(), propertyName, propertyValue);
@@ -842,9 +874,10 @@ public class UiV2Visualization {
     // Keep them in a separate "fallbackStyles" property, so that the regular "styles" property can be used
     // to detect which ones are actually being used
     for (String styleName: new String[]{"group", "edge_complement_left", "edge_complement_right", "edge_intersect_left",
-            "edge_intersect_right", "simple_loader_group", "loader_group", "edge_loader"}) {
+            "edge_intersect_right", "simple_loader_group", "loader_group", "edge_loader", "start_group", "intersect_group", "complement_group",
+            "group_is_not_member", "group_is_member"}) {
       for (String propertyName: new String[]{"shape", "style", "nodestyle", "color", "fontcolor", "border", "arrowtail",
-              "dir", "headlabel", "labeldistance"}) {
+              "dir", "headlabel", "labeldistance", "fillcolor"}) {
         String propertyValue = styleSet.getStyleProperty(styleName, propertyName, "");
         if (!"".equals(propertyValue)) {
           graph.addFallbackStyleProperty(styleName, propertyName, propertyValue);
@@ -1200,7 +1233,94 @@ public class UiV2Visualization {
     }
   }
 
+  /**
+   * search for a subject for visualization
+   * @param request
+   * @param response
+   */
+  public void addMemberSearch(HttpServletRequest request, HttpServletResponse response) {
 
+    GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+  
+    GrouperSession grouperSession = null;
+    
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+  
+      GroupContainer groupContainer = grouperRequestContainer.getGroupContainer();
+  
+      String searchString = request.getParameter("addMemberSubjectSearch");
+      
+      boolean searchOk = GrouperUiUtils.searchStringValid(searchString);
+      if (!searchOk) {
+        
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addMemberResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberNotEnoughChars")));
+        return;
+      }
+
+      String matchExactIdString = request.getParameter("matchExactId[]");
+      boolean matchExactId = GrouperUtil.booleanValue(matchExactIdString, false);
+
+      String sourceId = request.getParameter("sourceId");
+      
+      Set<Subject> subjects = null;
+      if (matchExactId) {
+        if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouperQuerySubjectsMultipleQueriesCommaSeparated", true)) {
+          Set<String> searchStrings = GrouperUtil.splitTrimToSet(searchString, ",");
+          if (StringUtils.equals("all", sourceId)) {
+            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings)).values());
+          } else {
+            subjects = new LinkedHashSet<Subject>(GrouperUtil.nonNull(SubjectFinder.findByIdsOrIdentifiers(searchStrings, sourceId)).values());
+          }
+        } else {
+          Subject subject = null;
+          if (StringUtils.equals("all", sourceId)) {
+            try {
+              subject = SubjectFinder.findByIdOrIdentifier(searchString, false);
+            } catch (SubjectNotUniqueException snue) {
+              //ignore
+            }
+          } else {
+            subject = SubjectFinder.findByIdOrIdentifierAndSource(searchString, sourceId, false);
+          }
+
+          subjects = new LinkedHashSet<Subject>();
+          if (subject != null) {
+            subjects.add(subject);
+          }
+        }
+      } else {
+        if (StringUtils.equals("all", sourceId)) {
+          subjects = SubjectFinder.findPage(searchString).getResults();
+        } else {
+          Set<Source> sources = GrouperUtil.toSet(SourceManager.getInstance().getSource(sourceId));
+          subjects = SubjectFinder.findPage(searchString, sources).getResults();
+        }
+      }
+      
+      if (GrouperUtil.length(subjects) == 0) {
+
+        guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#addMemberResults", 
+            TextContainer.retrieveFromRequest().getText().get("groupAddMemberNoSubjectsFound")));
+        return;
+      }
+      
+      Set<GuiSubject> guiSubjects = GuiSubject.convertFromSubjects(subjects, "uiV2.subjectSearchResults", 30);
+      
+      groupContainer.setGuiSubjectsAddMember(guiSubjects);
+  
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#addVisualizationMemberResults", 
+          "/WEB-INF/grouperUi2/visualization/addVisualizationMemberResults.jsp"));
+      
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
 
 }
 

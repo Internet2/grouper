@@ -70,6 +70,10 @@ function escapeHTML(unsafe) {
 
 
 function getObjectNameUsingPrefs(node) {
+  //if (typeof node === "undefined") {
+  //  return "unknown";
+  //}
+
   var objName = ($("#vis-settings-form input[name='drawObjectNameType']:checked").val() === "path") ? node.name : node.displayExtension;
   // the root node has a blank name or display extension
   if (node.baseType === "stem" && !objName) {
@@ -80,6 +84,10 @@ function getObjectNameUsingPrefs(node) {
 
 
 function getObjectLink(node, text) {
+  //if (typeof node === "undefined") {
+  //  return text;
+  //}
+
   if (node.linkType) {
     return "<a href=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\">" + text + "</a>";
   } else {
@@ -170,7 +178,7 @@ function drawGraphModuleText() {
     }
 
     // composite owner
-    if (node.compositeLeftFactorId !== "" && node.compositeRightFactorId !== "") {
+    if (typeof node.compositeLeftFactorId !== "undefined" && typeof node.compositeRightFactorId !== "undefined" && node.compositeLeftFactorId !== "" && node.compositeRightFactorId !== "") {
       var leftNode = graph.nodes[node.compositeLeftFactorId];
       var rightNode = graph.nodes[node.compositeRightFactorId];
       contents += "Composite owner of " +  getObjectLink(leftNode, getObjectNameUsingPrefs(leftNode));
@@ -302,7 +310,7 @@ function followObject(objectType, objectId) {
 function getGraphModuleD3Legend(graph) {
   var theLegend = "";
 
-  var nodeStyles = ['shape', 'color', 'style', 'border', 'fontcolor'];
+  var nodeStyles = ['shape', 'color', 'style', 'border', 'fontcolor', 'fillcolor'];
   var edgeStyles = ["arrowtail", "dir", "color", "style", "headlabel", "labeldistance"];
   theLegend += 'subgraph cluster1 {\n';
   theLegend += '  label = "Legend" ;\n';
@@ -316,13 +324,15 @@ function getGraphModuleD3Legend(graph) {
     theLegend += '  start_folder [' + getStyleStringForType(graph, nodeStyles, 'start_stem', ['label="start folder"']) + '] ;\n';
   }
   // start group
-  if (graph.styles.hasOwnProperty("start_group")) {
+  if (graph.styles.hasOwnProperty("start_group") || graph.styles.hasOwnProperty("start_group_is_member") || graph.styles.hasOwnProperty("start_group_is_not_member") ||
+      graph.styles.hasOwnProperty("start_simple_loader_group") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member") ||
+      graph.styles.hasOwnProperty("start_loader_group") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member")) {
     theLegend += '  start_group [' + getStyleStringForType(graph, nodeStyles, 'start_group', ['label="start group"']) + '] ;\n';
   }
   // folder -- contains --> folder or group
   if (graph.styles.hasOwnProperty("stem")) {
     theLegend += '  folder [' + getStyleStringForType(graph, nodeStyles, 'stem', null) + '] ;\n';
-    if (graph.styles.hasOwnProperty("group")) {
+    if (graph.styles.hasOwnProperty("group") || graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("group_is_not_member")) {
       theLegend += '  folder_or_group [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="folder or group"']) + '] ;\n';
     } else {
       theLegend += '  folder_or_group [label="folder or group"];\n';
@@ -331,7 +341,7 @@ function getGraphModuleD3Legend(graph) {
     theLegend += '  folder -> folder_or_group [label="contains"] ;\n';
   }
   // group1 -- has member --> group2
-  if (graph.styles.hasOwnProperty("group") && graph.styles.hasOwnProperty("edge_membership")) {
+  if ((graph.styles.hasOwnProperty("group") || graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("group_is_not_member")) && graph.styles.hasOwnProperty("edge_membership")) {
     theLegend += '  group1 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 1"']) + '];\n';
     theLegend += '  group2 [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 2"']) + '];\n';
     theLegend += '  group1 -> group2 [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="has member"']) + '] ;\n';
@@ -343,19 +353,19 @@ function getGraphModuleD3Legend(graph) {
     theLegend += '  subject_member_group -> subject [' + getStyleStringForType(graph, edgeStyles, 'edge_membership', ['label="has member"']) + '] ;\n';
   }
   // loader group -- loads group --> group loaded
-  if ((graph.styles.hasOwnProperty("loader_group") || graph.styles.hasOwnProperty("start_loader_group")) /* && graph.styles.hasOwnProperty("group") */ /* && graph.styles.hasOwnProperty("edge_loader") */) {
+  if ((graph.styles.hasOwnProperty("loader_group") || graph.styles.hasOwnProperty("start_loader_group") || graph.styles.hasOwnProperty("loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("loader_group_is_not_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member")) /* && graph.styles.hasOwnProperty("group") */ /* && graph.styles.hasOwnProperty("edge_loader") */) {
     theLegend += '  loader_group [' + getStyleStringForType(graph, nodeStyles, 'loader_group', ['label="loader group"']) + '];\n';
     theLegend += '  group_loaded [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group loaded"']) + '];\n';
     theLegend += '  loader_group -> group_loaded [' + getStyleStringForType(graph, edgeStyles, 'edge_loader', ['label="loads group"']) + '] ;\n';
   }
   // simple loader group (self link)
-  if ((graph.styles.hasOwnProperty("simple_loader_group") || graph.styles.hasOwnProperty("start_simple_loader_group")) && graph.styles.hasOwnProperty("edge_loader")) {
+  if ((graph.styles.hasOwnProperty("simple_loader_group") || graph.styles.hasOwnProperty("start_simple_loader_group") || graph.styles.hasOwnProperty("simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member")) && graph.styles.hasOwnProperty("edge_loader")) {
     theLegend += '  simple_loader_group [' + getStyleStringForType(graph, nodeStyles, 'simple_loader_group', ['label="simple loader group"']) + '];\n';
     theLegend += '  simple_loader_group -> simple_loader_group [' + getStyleStringForType(graph, edgeStyles, 'edge_loader', null) + '] ;\n';
   }
 
   // complement group -- in first but not second --<= first factor/second factor
-  if (graph.styles.hasOwnProperty("complement_group") /* && graph.styles.hasOwnProperty("group")*/ ) {
+  if (graph.styles.hasOwnProperty("complement_group") || graph.styles.hasOwnProperty("complement_group_is_member") || graph.styles.hasOwnProperty("complement_group_is_not_member") /* && graph.styles.hasOwnProperty("group")*/ ) {
     theLegend += '  complement_group [' + getStyleStringForType(graph, nodeStyles, 'complement_group', ['label="complement group"']) + '];\n';
     theLegend += '  complement_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="include group"']) + '];\n';
     theLegend += '  complement_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="exclude group"']) + '];\n';
@@ -366,7 +376,7 @@ function getGraphModuleD3Legend(graph) {
   }
 
   // intersect group -- in first and in second --<= first factor/second factor
-  if (graph.styles.hasOwnProperty("intersect_group") /* && graph.styles.hasOwnProperty("group")*/) {
+  if (graph.styles.hasOwnProperty("intersect_group") || graph.styles.hasOwnProperty("intersect_group_is_member") || graph.styles.hasOwnProperty("intersect_group_is_not_member") /* && graph.styles.hasOwnProperty("group")*/) {
     theLegend += '  intersect_group [' + getStyleStringForType(graph, nodeStyles, 'intersect_group', ['label="intersect group"']) + '];\n';
     theLegend += '  intersect_left_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 1"']) + '];\n';
     theLegend += '  intersect_right_factor [' + getStyleStringForType(graph, nodeStyles, 'group', ['label="group 2"']) + '];\n';
@@ -394,6 +404,17 @@ function getGraphModuleD3Legend(graph) {
     theLegend += '  invis_node -> object_types [style=invis];\n';
 
   }
+
+  // is member
+  if (graph.styles.hasOwnProperty("group_is_member") || graph.styles.hasOwnProperty("start_group_is_member") || graph.styles.hasOwnProperty("loader_group_is_member") || graph.styles.hasOwnProperty("start_loader_group_is_member") || graph.styles.hasOwnProperty("simple_loader_group_is_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_member") || graph.styles.hasOwnProperty("complement_group_is_member") || graph.styles.hasOwnProperty("intersect_group_is_member")) {
+    theLegend += '  group_is_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_member', ['label="entity is member of group"']) + '];\n';
+  }
+
+  // is not member
+  if (graph.styles.hasOwnProperty("group_is_not_member") || graph.styles.hasOwnProperty("start_group_is_not_member") || graph.styles.hasOwnProperty("loader_group_is_not_member") || graph.styles.hasOwnProperty("start_loader_group_is_not_member") || graph.styles.hasOwnProperty("simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("start_simple_loader_group_is_not_member") || graph.styles.hasOwnProperty("complement_group_is_not_member") || graph.styles.hasOwnProperty("intersect_group_is_not_member")) {
+    theLegend += '  group_is_not_member [' + getStyleStringForType(graph, nodeStyles, 'group_is_not_member', ['label="entity is not member of group"']) + '];\n';
+  }
+
   theLegend += '}\n';
 
   return theLegend;
@@ -438,7 +459,7 @@ function drawGraphModuleD3() {
 
     Object.values(graph.nodes).forEach(
       function(node) {
-        var props = getStyleArray(graph, ["shape", "style", "color", "fontcolor", "border"], node);
+        var props = getStyleArray(graph, ["shape", "style", "color", "fontcolor", "border", "fillcolor"], node);
         if (node.linkType) {
             props.push("URL=\"javascript:followObject('" + node.linkType + "', '" + node.id + "')\"");
         }
@@ -457,7 +478,8 @@ function drawGraphModuleD3() {
           var labelCounts = [];
 
           if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group"
-               || node.type === "simple_loader_group" || node.type === "start_simple_loader_group") {
+               || node.type === "simple_loader_group" || node.type === "start_simple_loader_group"
+               || node.baseType === "group_is_member" || node.baseType === "group_is_not_member") {
             if (graph.settings.showAllMemberCounts) {
               labelCounts.push((node.allMemberCount||0)+ " member" + (node.allMemberCount === 1 ? "" : "s"));
             }

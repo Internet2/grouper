@@ -73,6 +73,7 @@ public class GraphNode {
   private Set<GraphNode> parentNodes;
   private Set<GraphNode> childNodes;
 
+  private Boolean subjectIsMember = null;;
 
   /**
    * Constructor that also marks the node as the starting node for the graph
@@ -201,20 +202,53 @@ public class GraphNode {
     if (grouperObject instanceof GrouperObjectProvisionerWrapper) {
       this.provisionerTarget = true;
     }
+  }
+  
+  public void determineStyles() {
 
     // determine the VisualStyle object type this maps to
     if (simpleLoaderGroup) {
-      styleObjectType = isStartNode() ? StyleObjectType.START_SIMPLE_LOADER_GROUP : StyleObjectType.SIMPLE_LOADER_GROUP;
+      if (this.subjectIsMember == null) {
+        styleObjectType = isStartNode() ? StyleObjectType.START_SIMPLE_LOADER_GROUP : StyleObjectType.SIMPLE_LOADER_GROUP;
+      } else if (this.subjectIsMember) {
+        styleObjectType = isStartNode() ? StyleObjectType.START_SIMPLE_LOADER_GROUP_IS_MEMBER : StyleObjectType.SIMPLE_LOADER_GROUP_IS_MEMBER;
+      } else {
+        styleObjectType = isStartNode() ? StyleObjectType.START_SIMPLE_LOADER_GROUP_IS_NOT_MEMBER : StyleObjectType.SIMPLE_LOADER_GROUP_IS_NOT_MEMBER;
+      }
     } else if (loaderGroup) {
-      styleObjectType = isStartNode() ? StyleObjectType.START_LOADER_GROUP : StyleObjectType.LOADER_GROUP;
+      if (this.subjectIsMember == null) {
+        styleObjectType = isStartNode() ? StyleObjectType.START_LOADER_GROUP : StyleObjectType.LOADER_GROUP;
+      } else if (this.subjectIsMember) {
+        styleObjectType = isStartNode() ? StyleObjectType.START_LOADER_GROUP_IS_MEMBER : StyleObjectType.LOADER_GROUP_IS_MEMBER;
+      } else {
+        styleObjectType = isStartNode() ? StyleObjectType.START_LOADER_GROUP_IS_NOT_MEMBER : StyleObjectType.LOADER_GROUP_IS_NOT_MEMBER;
+      }
     } else if (provisionerTarget) {
       styleObjectType = StyleObjectType.PROVISIONER;
     } else if (intersectGroup) {
-      styleObjectType = StyleObjectType.INTERSECT_GROUP;
+      if (this.subjectIsMember == null) {
+        styleObjectType = StyleObjectType.INTERSECT_GROUP;
+      } else if (this.subjectIsMember) {
+        styleObjectType = StyleObjectType.INTERSECT_GROUP_IS_MEMBER;
+      } else {
+        styleObjectType = StyleObjectType.INTERSECT_GROUP_IS_NOT_MEMBER;
+      }
     } else if (complementGroup) {
-      styleObjectType = StyleObjectType.COMPLEMENT_GROUP;
+      if (this.subjectIsMember == null) {
+        styleObjectType = StyleObjectType.COMPLEMENT_GROUP;
+      } else if (this.subjectIsMember) {
+        styleObjectType = StyleObjectType.COMPLEMENT_GROUP_IS_MEMBER;
+      } else {
+        styleObjectType = StyleObjectType.COMPLEMENT_GROUP_IS_NOT_MEMBER;
+      }
     } else if (group) {
-      styleObjectType = isStartNode() ? StyleObjectType.START_GROUP : StyleObjectType.GROUP;
+      if (this.subjectIsMember == null) {
+        styleObjectType = isStartNode() ? StyleObjectType.START_GROUP : StyleObjectType.GROUP;
+      } else if (this.subjectIsMember) {
+        styleObjectType = isStartNode() ? StyleObjectType.START_GROUP_IS_MEMBER : StyleObjectType.GROUP_IS_MEMBER;
+      } else {
+        styleObjectType = isStartNode() ? StyleObjectType.START_GROUP_IS_NOT_MEMBER : StyleObjectType.GROUP_IS_NOT_MEMBER;
+      }
     } else if (stem) {
       styleObjectType = isStartNode() ? StyleObjectType.START_STEM : StyleObjectType.STEM;
     } else if (subject) {
@@ -224,7 +258,6 @@ public class GraphNode {
     } else {
       styleObjectType = StyleObjectType.DEFAULT;
     }
-
   }
 
   /**
@@ -532,6 +565,23 @@ public class GraphNode {
    */
   public String getGrouperObjectName() {
     return this.getGrouperObject().getName();
+  }
+
+  /**
+   * true if this is a group node and the subject is a member of this group
+   * null is returned if the check is not being done  
+   * @return
+   */
+  public Boolean getSubjectIsMember() {
+    return subjectIsMember;
+  }
+
+  /**
+   * true if this is a group node and the subject is a member of this group
+   * null if the check is not being done  
+   */
+  public void setSubjectIsMember(Boolean subjectIsMember) {
+    this.subjectIsMember = subjectIsMember;
   }
 
   public String toString() {
