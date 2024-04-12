@@ -237,6 +237,11 @@ function drawGraphModuleText() {
       }
     });
 
+    if (node.type.endsWith("_is_member")) {
+      contents += "Entity is member of group<br/>";
+    } else if (node.type.endsWith("_is_not_member")) {
+      contents += "Entity is not member of group<br/>";
+    }
 
     contents += "</div>";
   }
@@ -479,7 +484,8 @@ function drawGraphModuleD3() {
 
           if (node.baseType === "group" || node.baseType === "complement_group" || node.baseType === "intersect_group"
                || node.type === "simple_loader_group" || node.type === "start_simple_loader_group"
-               || node.baseType === "group_is_member" || node.baseType === "group_is_not_member") {
+               || node.type === "simple_loader_group_is_member" || node.type === "simple_loader_group_is_not_member"
+               || node.type === "start_simple_loader_group_is_member" || node.type === "start_simple_loader_group_is_not_member") {
             if (graph.settings.showAllMemberCounts) {
               labelCounts.push((node.allMemberCount||0)+ " member" + (node.allMemberCount === 1 ? "" : "s"));
             }
