@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import static edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames.retrieveAttributeDefNameBase;
+
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -35,6 +37,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSett
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningTarget;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
@@ -60,6 +63,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateHandlerBean;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
+import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
@@ -1127,12 +1131,6 @@ public class UiV2Provisioning {
             return false;
           }
           
-//          if (!provisioningContainer.isCanWriteProvisioning()) {
-//            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-//                TextContainer.retrieveFromRequest().getText().get("provisioningNotAllowedToWriteStem")));
-//            return false;
-//          }
-  
           return true;
         }
       });
@@ -1142,7 +1140,7 @@ public class UiV2Provisioning {
       }
       
       final Stem STEM = stem;
-//      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
+
       final String targetName = request.getParameter("provisioningTargetName");
       
       //switch over to admin so attributes work
@@ -1167,13 +1165,11 @@ public class UiV2Provisioning {
         addProvisioningAttribute = true;
       }
       
-//      if (StringUtils.equals(targetName, previousTargetName)) {
-        String configurationType = request.getParameter("provisioningHasConfigurationName");
-        if (StringUtils.isNotBlank(configurationType)) {
-          boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
-          provisioningAttributeValue.setDirectAssignment(isDirect);
-        }
-//      }
+      String configurationType = request.getParameter("provisioningHasConfigurationName");
+      if (StringUtils.isNotBlank(configurationType)) {
+        boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
+        provisioningAttributeValue.setDirectAssignment(isDirect);
+      }
         
       String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
       if (StringUtils.isNotBlank(shouldDoProvisionString)) {
@@ -1219,10 +1215,18 @@ public class UiV2Provisioning {
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
         
+        Map<String, Object> existingDatabaseMetadataValues = new HashMap<>();
         Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           String name = metadataItem.getName();
           String value = request.getParameter(name);
+          
+          // if its an edit then keep track of the database value
+          if (!addProvisioningAttribute && metadataNameValues.containsKey(metadataItem.getName())) {
+            
+            existingDatabaseMetadataValues.put(name, metadataNameValues.get(metadataItem.getName()));
+            
+          }
           
           if (value != null) {
             elVariableMap.put(name, value);
@@ -1252,6 +1256,7 @@ public class UiV2Provisioning {
           }
           
           if (showBoolean && metadataItem.isShowForFolder()) {
+            Object existingDatabaseValue = existingDatabaseMetadataValues.get(metadataItem.getName());
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
@@ -1259,7 +1264,7 @@ public class UiV2Provisioning {
               metadataItem.setReadOnly(true);
             }
             
-            if (!metadataItem.isCanChange() && value != null) {
+            if (!metadataItem.isCanChange() && !GrouperUtil.isBlank(existingDatabaseValue)) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1427,14 +1432,6 @@ public class UiV2Provisioning {
         if (showBoolean && metadataItem.isShowForFolder()) {
           Object value = elVariableMap.get(metadataItem.getName());
           metadataItem.setDefaultValue(value);
-          
-          if (!metadataItem.isCanUpdate()) {
-            metadataItem.setReadOnly(true);
-          }
-          
-          if (!metadataItem.isCanChange() && value != null) {
-            metadataItem.setReadOnly(true);
-          }
           
           metadataItems.add(metadataItem);
         }
@@ -1746,7 +1743,6 @@ public class UiV2Provisioning {
         return;
       }
       
-      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
       final String targetName = request.getParameter("provisioningTargetName");
       
       //switch over to admin so attributes work
@@ -1808,18 +1804,59 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
+        Map<String, Object> existingDatabaseMetadataValues = new HashMap<>();
+
+        Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
-          if (metadataItem.isShowForMembership()) {
+          String name = metadataItem.getName();
+          String value = request.getParameter(name);
+
+          // add
+          // if its an edit then keep track of the database value
+          if (!addProvisioningAttribute && metadataNameValues.containsKey(metadataItem.getName())) {
+            
+            existingDatabaseMetadataValues.put(name, metadataNameValues.get(metadataItem.getName()));
+            
+          }
+          
+          if (value != null) {
+            elVariableMap.put(name, value);
+          } else if (metadataNameValues.containsKey(metadataItem.getName())) {
+            elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
+          } else {
+            elVariableMap.put(name,  "");
+          }
+//                  else {
+//                    elVariableMap.put(name,  metadataItem.getDefaultValue());
+//                  }
+          
+        }
+
+        for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          boolean showBoolean = true;
+          
+          if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
+            
+            String showElExpression = metadataItem.getShowEl();
+            
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, elVariableMap, true, false, false));
+            
+            showBoolean = GrouperUtil.booleanValue(showString, false);
+            
+          }
+          
+          if (showBoolean && metadataItem.isShowForMembership()) {
+
+            Object existingDatabaseValue = existingDatabaseMetadataValues.get(metadataItem.getName());
+
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
             if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
-              if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
-                metadataItem.setReadOnly(true);
-              }
+              metadataItem.setReadOnly(true);
             }
-            
-            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMembership == null || gcGrouperSyncMembership.isInTarget())) {
+
+            if (!metadataItem.isCanChange() && !GrouperUtil.isBlank(existingDatabaseValue)) {
               metadataItem.setReadOnly(true);
             }
             
@@ -1915,7 +1952,6 @@ public class UiV2Provisioning {
         return;
       }
       
-      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
       final String targetName = request.getParameter("provisioningTargetName");
       
       //switch over to admin so attributes work
@@ -1977,8 +2013,52 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
+        Map<String, Object> existingDatabaseMetadataValues = new HashMap<>();
+
+        Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
-          if (metadataItem.isShowForMembership()) {
+          String name = metadataItem.getName();
+          String value = request.getParameter(name);
+
+          // add
+          // if its an edit then keep track of the database value
+          if (!addProvisioningAttribute && metadataNameValues.containsKey(metadataItem.getName())) {
+            
+            existingDatabaseMetadataValues.put(name, metadataNameValues.get(metadataItem.getName()));
+            
+          }
+          
+          if (value != null) {
+            elVariableMap.put(name, value);
+          } else if (metadataNameValues.containsKey(metadataItem.getName())) {
+            elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
+          } else {
+            elVariableMap.put(name,  "");
+          }
+//                  else {
+//                    elVariableMap.put(name,  metadataItem.getDefaultValue());
+//                  }
+          
+        }
+
+        for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          
+          boolean showBoolean = true;
+          
+          if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
+            
+            String showElExpression = metadataItem.getShowEl();
+            
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, elVariableMap, true, false, false));
+            
+            showBoolean = GrouperUtil.booleanValue(showString, false);
+            
+          }
+          
+
+          if (showBoolean && metadataItem.isShowForMembership()) {
+            
+            Object existingDatabaseValue = existingDatabaseMetadataValues.get(metadataItem.getName());
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
@@ -1988,7 +2068,7 @@ public class UiV2Provisioning {
               }
             }
             
-            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMembership == null || gcGrouperSyncMembership.isInTarget())) {
+            if (!metadataItem.isCanChange() && !GrouperUtil.isBlank(existingDatabaseValue)) {
               metadataItem.setReadOnly(true);
             }
             
@@ -2080,7 +2160,6 @@ public class UiV2Provisioning {
         return;
       }
       
-      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
       final String targetName = request.getParameter("provisioningTargetName");
       
       //switch over to admin so attributes work
@@ -2108,15 +2187,7 @@ public class UiV2Provisioning {
       if (StringUtils.isNotBlank(targetName)) {
         
         Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
-        
-        GcGrouperSyncMember gcGrouperSyncMember = null;
-        
-        GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveOrCreateByProvisionerName(null, targetName);
-        
-        if (gcGrouperSync != null) {
-          gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(member.getId());
-        }
-        
+                
         GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
         if (grouperProvisioningTarget == null) {
           throw new RuntimeException("Invalid target: "+targetName);
@@ -2143,18 +2214,58 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
+        Map<String, Object> existingDatabaseMetadataValues = new HashMap<>();
+
+        Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
-          if (metadataItem.isShowForMember()) {
+          String name = metadataItem.getName();
+          String value = request.getParameter(name);
+
+          // add
+          // if its an edit then keep track of the database value
+          if (!addProvisioningAttribute && metadataNameValues.containsKey(metadataItem.getName())) {
+            
+            existingDatabaseMetadataValues.put(name, metadataNameValues.get(metadataItem.getName()));
+            
+          }
+          
+          if (value != null) {
+            elVariableMap.put(name, value);
+          } else if (metadataNameValues.containsKey(metadataItem.getName())) {
+            elVariableMap.put(name, metadataNameValues.get(metadataItem.getName()));
+          } else {
+            elVariableMap.put(name,  "");
+          }
+//                  else {
+//                    elVariableMap.put(name,  metadataItem.getDefaultValue());
+//                  }
+          
+        }
+
+        for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
+          boolean showBoolean = true;
+          
+          if (StringUtils.isNotBlank(metadataItem.getShowEl())) {
+            
+            String showElExpression = metadataItem.getShowEl();
+            
+            String showString = GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(showElExpression, elVariableMap, true, false, false));
+            
+            showBoolean = GrouperUtil.booleanValue(showString, false);
+            
+          }
+          
+          if (showBoolean && metadataItem.isShowForMember()) {
+            
+            Object existingDatabaseValue = existingDatabaseMetadataValues.get(metadataItem.getName());
             Object value = metadataNameValues.getOrDefault(metadataItem.getName(), metadataItem.getDefaultValue());
             metadataItem.setDefaultValue(value);
             
             if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
-              if (gcGrouperSync != null && gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()) {
-                metadataItem.setReadOnly(true);
-              }
+              metadataItem.setReadOnly(true);
             }
-            
-            if (!metadataItem.isCanChange() && (value != null || gcGrouperSyncMember == null || (gcGrouperSyncMember.getInTarget() != null && gcGrouperSyncMember.getInTarget()))) {
+
+            if (!metadataItem.isCanChange() && !GrouperUtil.isBlank(existingDatabaseValue)) {
               metadataItem.setReadOnly(true);
             }
             
@@ -2256,7 +2367,6 @@ public class UiV2Provisioning {
       }
       
       final Group GROUP = group;
-//      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
       final String targetName = request.getParameter("provisioningTargetName");
       
 //      if (StringUtils.isBlank(targetName)) {
@@ -2299,17 +2409,15 @@ public class UiV2Provisioning {
         addProvisioningAttribute  = true;
       }
       
-//      if (StringUtils.equals(targetName, previousTargetName)) {
-        String configurationType = request.getParameter("provisioningHasConfigurationName");
-        if (!StringUtils.isBlank(configurationType)) {
-          boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
-          provisioningAttributeValue.setDirectAssignment(isDirect);
-        }
-        String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
-        boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
-        provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
+      String configurationType = request.getParameter("provisioningHasConfigurationName");
+      if (!StringUtils.isBlank(configurationType)) {
+        boolean isDirect = GrouperUtil.booleanValue(configurationType, false);
+        provisioningAttributeValue.setDirectAssignment(isDirect);
+      }
+      String shouldDoProvisionString = request.getParameter("provisioningProvisionName");
+      boolean shouldDoProvisionBoolean = GrouperUtil.booleanValue(shouldDoProvisionString, true);
+      provisioningAttributeValue.setDoProvision(shouldDoProvisionBoolean ? targetName : null);
 
-//      }
       
       
       if (StringUtils.isNotBlank(targetName)) {
@@ -2337,11 +2445,19 @@ public class UiV2Provisioning {
         GrouperProvisioningObjectMetadata provisioningObjectMetadata = provisioner.retrieveGrouperProvisioningObjectMetadata();
         List<GrouperProvisioningObjectMetadataItem> provisioningObjectMetadataItems = provisioningObjectMetadata.getGrouperProvisioningObjectMetadataItems();
         
+        Map<String, Object> existingDatabaseMetadataValues = new HashMap<>();
         Map<String, Object> elVariableMap = new HashMap<>();
         for (GrouperProvisioningObjectMetadataItem metadataItem: provisioningObjectMetadataItems) {
           String name = metadataItem.getName();
           String value = request.getParameter(name);
           
+          // if its an edit then keep track of the database value
+          if (!addProvisioningAttribute && metadataNameValues.containsKey(metadataItem.getName())) {
+            
+            existingDatabaseMetadataValues.put(name, metadataNameValues.get(metadataItem.getName()));
+            
+          }
+
           if (value != null) {
             elVariableMap.put(name, value);
           } else if (metadataNameValues.containsKey(metadataItem.getName())) {
@@ -2375,21 +2491,20 @@ public class UiV2Provisioning {
           }
           
           if (showBoolean && metadataItem.isShowForGroup()) {
-            
+
+            Object existingDatabaseValue = existingDatabaseMetadataValues.get(metadataItem.getName());
             Object value = elVariableMap.get(metadataItem.getName());
             metadataItem.setDefaultValue(value);
             
             if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
-              if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
-                metadataItem.setReadOnly(true);
-              }
+              metadataItem.setReadOnly(true);
+            }
+
+            // edit
+            if (!metadataItem.isCanChange() && !GrouperUtil.isBlank(existingDatabaseValue)) {
+              metadataItem.setReadOnly(true);
             }
             
-            if (!metadataItem.isCanChange()) {
-              if (value != null && gcGrouperSyncGroup != null && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
-                metadataItem.setReadOnly(true);
-              }
-            }
             metadataItems.add(metadataItem);
           }
         }
@@ -2494,7 +2609,7 @@ public class UiV2Provisioning {
       }
       
       final Group GROUP = group;
-//      String previousTargetName = request.getParameter("provisioningPreviousTargetName");
+
       final String targetName = request.getParameter("provisioningTargetName");
       
       if (StringUtils.isBlank(targetName)) {
@@ -2515,7 +2630,6 @@ public class UiV2Provisioning {
       
       provisioningContainer.setTargetName(targetName);
       
-      boolean addProvisioningAttribute = true;
       GrouperProvisioningAttributeValue provisioningAttributeValue = new GrouperProvisioningAttributeValue();
       provisioningAttributeValue.setDirectAssignment(true);
       provisioningAttributeValue.setDoProvision(targetName);
@@ -2585,17 +2699,6 @@ public class UiV2Provisioning {
           Object value = elVariableMap.get(metadataItem.getName());
           metadataItem.setDefaultValue(value);
           
-          if (!addProvisioningAttribute && !metadataItem.isCanUpdate()) {
-            if (gcGrouperSyncGroup != null && gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
-              metadataItem.setReadOnly(true);
-            }
-          }
-          
-          if (!metadataItem.isCanChange()) {
-            if (value != null && gcGrouperSyncGroup != null && gcGrouperSyncGroup.getInTarget() != null && gcGrouperSyncGroup.getInTarget()) {
-              metadataItem.setReadOnly(true);
-            }
-          }
           metadataItems.add(metadataItem);
         }
       }
@@ -2642,16 +2745,19 @@ public class UiV2Provisioning {
   private boolean setMetadataValues(final HttpServletRequest request, 
       final Map<String, Object> metadataNameValuesToPopulate, 
       List<GrouperProvisioningObjectMetadataItem> metadataItems,
-      GrouperProvisioner grouperProvisioner, String groupOrFolderOrSubjectNameToSkip) {
+      GrouperProvisioner grouperProvisioner, String groupOrFolderOrSubjectNameToSkip, Map<String, Object> databaseMetadataNameValues, boolean isInsert) {
     
     boolean errors = false;
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+    
     for (GrouperProvisioningObjectMetadataItem metadataItem: metadataItems) {
 
       String name = metadataItem.getName();
       String value = null;
       String[] values = null;
-      
+
+      Object existingDatabaseValue = databaseMetadataNameValues != null ? databaseMetadataNameValues.get(metadataItem.getName()) : null;
+            
       if (metadataItem.getFormElementType() == GrouperProvisioningObjectMetadataItemFormElementType.CHECKBOX) {
         values = request.getParameterValues(name+"[]");
         if (metadataItem.isRequired() && GrouperUtil.length(values) == 0) {
@@ -2710,10 +2816,25 @@ public class UiV2Provisioning {
         
       }
       
+      boolean readonly = false;
+      
+      if (!isInsert && !metadataItem.isCanUpdate()) {
+        readonly = true;
+      }
+      
+      if (!metadataItem.isCanChange() && existingDatabaseValue != null) {
+        readonly = true;
+      }
+
+
+
       if (!errors && StringUtils.isNotBlank(value)) {
         try {          
           Object convertedValue = metadataItem.getValueType().convert(value);
-          metadataNameValuesToPopulate.put(name, convertedValue);
+          if (!readonly) {
+            metadataNameValuesToPopulate.put(name, convertedValue);
+          }
+
 //          if (!GrouperUtil.equals(convertedValue, metadataItem.getDefaultValue())) {
 //            metadataNameValuesToPopulate.put(name, convertedValue);
 //          }
@@ -2730,7 +2851,9 @@ public class UiV2Provisioning {
       if (!errors && GrouperUtil.length(values) > 0) {
         try {         
           Object convertedValues = metadataItem.getValueType().convert(values);
-          metadataNameValuesToPopulate.put(name, convertedValues);
+          if (!readonly) {
+            metadataNameValuesToPopulate.put(name, convertedValues);
+          }
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
           errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");
@@ -2739,6 +2862,12 @@ public class UiV2Provisioning {
           errors = true;
         }
         
+      }
+      
+      if (readonly) {
+        if (existingDatabaseValue != null) {
+          metadataNameValuesToPopulate.put(name, existingDatabaseValue);
+        }
       }
       
     }
@@ -2848,8 +2977,27 @@ public class UiV2Provisioning {
             .collect(Collectors.toList());
         
         Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+        boolean[] isInsert = new boolean[1];
         
-        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder, grouperProvisioner, stem.getName());
+        Map<String, Object> databaseMetadataNameValues = (Map<String, Object>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            
+            AttributeAssign attributeAssign = GrouperProvisioningService.getAttributeAssign(STEM, targetName);
+
+            if (attributeAssign != null) {
+              isInsert[0] = false;
+              GrouperProvisioningAttributeValue existingGrouperProvisioningAttributeValue = GrouperProvisioningService.buildGrouperProvisioningAttributeValue(attributeAssign);
+              return existingGrouperProvisioningAttributeValue.getMetadataNameValues();
+            } else {
+              isInsert[0] = true;
+            }
+            return null;
+          }
+        });
+        
+        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForFolder, grouperProvisioner, stem.getName(), databaseMetadataNameValues, isInsert[0] );
         if (errors) {
           return;
         }
@@ -3030,7 +3178,37 @@ public class UiV2Provisioning {
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
       
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForSubject, provisioner, subject.getName());
+      //switch over to admin so attributes work
+      final Member member = (Member)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return MemberFinder.findBySubject(theGrouperSession, SUBJECT, true);
+        }
+      });
+      
+      boolean[] isInsert = new boolean[1];
+      
+      Map<String, Object> databaseMetadataNameValues = (Map<String, Object>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          GrouperProvisioningAttributeValue existingGrouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(member, targetName);
+
+          if (existingGrouperProvisioningAttributeValue != null) {
+            isInsert[0] = false;
+
+            return existingGrouperProvisioningAttributeValue.getMetadataNameValues();
+          } else {
+            isInsert[0] = true;
+          }
+          return null;
+        }
+      });
+
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForSubject, provisioner, subject.getName(), databaseMetadataNameValues, isInsert[0]);
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -3053,7 +3231,6 @@ public class UiV2Provisioning {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
-          Member member = MemberFinder.findBySubject(theGrouperSession, SUBJECT, true);
           GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, member);
           
           return null;
@@ -3165,8 +3342,37 @@ public class UiV2Provisioning {
           .collect(Collectors.toList());
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      final Member member = (Member)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return MemberFinder.findBySubject(theGrouperSession, SUBJECT, true);
+        }
+      });
+      
+      boolean[] isInsert = new boolean[1];
+      
+      Map<String, Object> databaseMetadataNameValues = (Map<String, Object>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          GrouperProvisioningAttributeValue existingGrouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(GROUP, member, targetName);
+
+          if (existingGrouperProvisioningAttributeValue != null) {
+            isInsert[0] = false;
+
+            return existingGrouperProvisioningAttributeValue.getMetadataNameValues();
+          } else {
+            isInsert[0] = true;
+          }
+          return null;
+        }
+      });
+      
       //TODO should it be subject or group?
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName());
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -3302,8 +3508,38 @@ public class UiV2Provisioning {
           .collect(Collectors.toList());
       
       Map<String, Object> metadataNameValues = new HashMap<String, Object>();
+      
+      final Member member = (Member)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          return MemberFinder.findBySubject(theGrouperSession, SUBJECT, true);
+        }
+      });
+      
+      boolean[] isInsert = new boolean[1];
+      
+      Map<String, Object> databaseMetadataNameValues = (Map<String, Object>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          GrouperProvisioningAttributeValue existingGrouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(GROUP, member, targetName);
+
+          if (existingGrouperProvisioningAttributeValue != null) {
+            isInsert[0] = false;
+
+            return existingGrouperProvisioningAttributeValue.getMetadataNameValues();
+          } else {
+            isInsert[0] = true;
+          }
+          return null;
+        }
+      });
+      
       //TODO should the last param be group or subject?
-      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName());
+      boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForMembership, provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
       if (errors) return;
       
       Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);
@@ -3449,7 +3685,27 @@ public class UiV2Provisioning {
         
         Map<String, Object> metadataNameValues = new HashMap<String, Object>();
         
-        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForGroup, provisioner, group.getName());
+        boolean[] isInsert = new boolean[1];
+        
+        Map<String, Object> databaseMetadataNameValues = (Map<String, Object>)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            
+            GrouperProvisioningAttributeValue existingGrouperProvisioningAttributeValue = GrouperProvisioningService.getProvisioningAttributeValue(GROUP, targetName);
+
+            if (existingGrouperProvisioningAttributeValue != null) {
+              isInsert[0] = false;
+
+              return existingGrouperProvisioningAttributeValue.getMetadataNameValues();
+            } else {
+              isInsert[0] = true;
+            }
+            return null;
+          }
+        });
+
+        boolean errors = setMetadataValues(request, metadataNameValues, metadataItemsForGroup, provisioner, group.getName(), databaseMetadataNameValues, isInsert[0]);
         if (errors) return;
         
         Map<String, String> validateMetadataInputForFolder = provisioningObjectMetadata.validateMetadataInputForFolder(metadataNameValues);

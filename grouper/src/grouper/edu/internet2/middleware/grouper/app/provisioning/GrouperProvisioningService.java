@@ -469,7 +469,7 @@ public class GrouperProvisioningService {
    * @param targetName
    * @return
    */
-  private static AttributeAssign getAttributeAssign(GrouperObject grouperObject, String targetName) {
+  public static AttributeAssign getAttributeAssign(GrouperObject grouperObject, String targetName) {
     
     Set<AttributeAssign> attributeAssigns = null;
     
@@ -530,7 +530,7 @@ public class GrouperProvisioningService {
    * @param attributeAssign
    * @return
    */
-  private static GrouperProvisioningAttributeValue buildGrouperProvisioningAttributeValue(AttributeAssign attributeAssign) {
+  public static GrouperProvisioningAttributeValue buildGrouperProvisioningAttributeValue(AttributeAssign attributeAssign) {
     
     AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
     
