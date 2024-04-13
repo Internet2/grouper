@@ -1680,6 +1680,7 @@ public class GrouperProvisioningGrouperSyncDao {
         continue;
       }
 
+      boolean wasInTarget = gcGrouperSyncGroup.getInTarget() != null && !gcGrouperSyncGroup.getInTarget();
       if (gcGrouperSyncGroup.getInTarget() == null || exists !=  gcGrouperSyncGroup.getInTarget()) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -1690,11 +1691,12 @@ public class GrouperProvisioningGrouperSyncDao {
             gcGrouperSyncGroup.setInTargetInsertOrExists(false);
           }
 
-        } else {
+        } else if (wasInTarget) {
           gcGrouperSyncGroup.setInTargetEnd(nowTimestamp);
         }
       }
 
+      
     }
   }
 
@@ -1722,6 +1724,7 @@ public class GrouperProvisioningGrouperSyncDao {
         continue;
       }
 
+      boolean wasInTarget = gcGrouperSyncMember.getInTarget() != null && !gcGrouperSyncMember.getInTarget();
       if (gcGrouperSyncMember.getInTarget() == null || exists !=  gcGrouperSyncMember.getInTarget()) {
 
         Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -1731,7 +1734,7 @@ public class GrouperProvisioningGrouperSyncDao {
           if (StringUtils.isBlank(gcGrouperSyncMember.getInTargetInsertOrExistsDb())) {
             gcGrouperSyncMember.setInTargetInsertOrExists(false);
           }
-        } else {
+        } else if (wasInTarget) {
           gcGrouperSyncMember.setInTargetEnd(nowTimestamp);
         }
       }
@@ -2053,7 +2056,7 @@ public class GrouperProvisioningGrouperSyncDao {
         for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil
             .nonNull(provisioningMembershipWrappers)) {
           
-          if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
+          if (!provisioningMembershipWrapper.getProvisioningStateMembership().isSelectResultProcessed()) {
             continue;
           }
           
@@ -2068,6 +2071,7 @@ public class GrouperProvisioningGrouperSyncDao {
             continue;
           }
 
+          boolean wasInTarget = gcGrouperSyncMembership.getInTarget() != null && !gcGrouperSyncMembership.getInTarget();
           if (gcGrouperSyncMembership.getInTargetDb() == null || exists != gcGrouperSyncMembership.isInTarget()) {
 
             Timestamp nowTimestamp = new Timestamp(System.currentTimeMillis());
@@ -2079,7 +2083,7 @@ public class GrouperProvisioningGrouperSyncDao {
                 gcGrouperSyncMembership.setInTargetInsertOrExists(false);
               }
 
-            } else {
+            } else if (wasInTarget) {
               gcGrouperSyncMembership.setInTargetEnd(nowTimestamp);
             }
           }

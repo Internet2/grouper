@@ -14,8 +14,12 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttr
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
+import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -132,7 +136,20 @@ public class GuiGrouperProvisioningAttributeValue {
     
     List<GuiGrouperProvisioningAttributeValue> guiGrouperProvisioningAttributeValues = new ArrayList<GuiGrouperProvisioningAttributeValue>();
     
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
     for (GrouperProvisioningAttributeValue singleAttributeValue: attributeValues) {
+      
+      GrouperProvisioner grouperProvisioner = null;
+      
+      try {
+        grouperProvisioner = GrouperProvisioner.retrieveProvisioner(singleAttributeValue.getTargetName());
+        grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      } catch (Exception e) {
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error, "Error with provisioner: " + singleAttributeValue.getTargetName() + ", " + e.getMessage()));
+        continue;
+      }
+      
       GuiGrouperProvisioningAttributeValue guiGrouperProvisioningAttributeValue = new GuiGrouperProvisioningAttributeValue(singleAttributeValue);
       guiGrouperProvisioningAttributeValue.setProvisionable(singleAttributeValue.getDoProvision() != null);
       
@@ -161,7 +178,14 @@ public class GuiGrouperProvisioningAttributeValue {
           continue;
         }
         
-        String labelOrNull = GrouperTextContainer.textOrNull(metadataName+"_"+singleAttributeValue.getTargetName()+"_label");
+        String externalizedTextKey = metadataName+"_"+singleAttributeValue.getTargetName()+"_label";
+        
+        GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = grouperProvisioner.retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().get(metadataName);
+        if (grouperProvisioningObjectMetadataItem != null && !StringUtils.isBlank(grouperProvisioningObjectMetadataItem.getLabelKey())) {
+          externalizedTextKey = grouperProvisioningObjectMetadataItem.getLabelKey();
+        }
+        
+        String labelOrNull = GrouperTextContainer.textOrNull(externalizedTextKey);
         String stringValue = GrouperUtil.stringValue(metadataNameValues.get(metadataName));
         stringValue = GrouperUtil.defaultIfBlank(stringValue, "");
         stringValue = GrouperUtil.xmlEscape(stringValue);
