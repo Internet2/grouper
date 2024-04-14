@@ -23,6 +23,7 @@ ${grouper:titleFromKeyAndText('stemDeletePageTitle', grouperRequestContainer.ste
                       <thead>        
                         <tr>
                           <th>${textContainer.text['rulesTableHeaderPattern']}</th>
+                          <th>${textContainer.text['rulesTableHeaderAssignedOn']}</th>
                           <th>${textContainer.text['rulesTableHeaderCheck']}</th>
                           <th>${textContainer.text['rulesTableHeaderCondition']}</th>
                           <th>${textContainer.text['rulesTableHeaderResult']}</th>
@@ -42,6 +43,10 @@ ${grouper:titleFromKeyAndText('stemDeletePageTitle', grouperRequestContainer.ste
                            <c:if test="${guiRuleDefinition.ruleDefinition.pattern != null}">
                              ${guiRuleDefinition.ruleDefinition.pattern.userFriendlyText}
                            </c:if>
+                          </td>
+                          
+                          <td style="white-space: nowrap;">
+                              ${guiRuleDefinition.owner}
                           </td>
                           
                           <td style="white-space: nowrap;">
