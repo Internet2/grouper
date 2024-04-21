@@ -550,7 +550,7 @@ public class GrouperReportLogic {
       s3Client.deleteObject(s3Uri.getBucket(), s3Uri.getKey());
       
     } catch (Exception e) {
-      throw new RuntimeException("Error deleting report file from S3", e);
+      throw new RuntimeException("Error deleting report file from S3: " + reportInstance.getReportInstanceFilePointer(), e);
     }
     
   }
