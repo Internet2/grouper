@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import org.apache.commons.lang.StringUtils;
+
 /**
  * run a template
  * @author mchyzer
@@ -10,13 +12,13 @@ public class GshTemplateExecTestOutput {
   public String toString() {
     StringBuilder result = new StringBuilder();
     for (GshValidationLine gshValidationLine : this.gshTemplateOutput.getValidationLines()) {
-      result.append(gshValidationLine.toString());
+      result.append(gshValidationLine.toString()).append("\n");
     }
     for (GshOutputLine gshOutputLine : this.gshTemplateOutput.getOutputLines()) {
-      result.append(gshOutputLine.toString());
+      result.append(gshOutputLine.toString()).append("\n");
     }
     result.append(toStringSummary());
-    return result.toString();
+    return StringUtils.replace(result.toString(), "<br />", "\n");
   }
   
   public String toStringSummary() {
