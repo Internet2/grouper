@@ -8,7 +8,7 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Source;
 
 public class SourceManagerOptionValueDriver implements OptionValueDriver {
-
+  
   public SourceManagerOptionValueDriver() {
 
   }
@@ -24,6 +24,19 @@ public class SourceManagerOptionValueDriver implements OptionValueDriver {
     
     return keysAndLabels;
 
+  }
+  
+  public static String retrieveAllSourceIdsCommaSeparatedLabel() {
+    
+    List<String> sourceIds = new ArrayList<String>();
+    for (Source source: SourceManager.getInstance().getSources()) {
+      
+      String configId = source.getId();
+      sourceIds.add(configId);
+    }
+    
+    return String.join(", ", sourceIds);
+    
   }
 
 }

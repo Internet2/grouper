@@ -37,11 +37,11 @@
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                           
-                          <c:if test="${ruleDefinition.attributeAssignType.ownerStemId == grouperRequestContainer.stemContainer.guiStem.stem.id }">
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
-                          </c:if>
-                          
                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                           <c:if test="${ruleDefinition.attributeAssignType.ownerStemId == grouperRequestContainer.stemContainer.guiStem.stem.id }">
+                              <li><br/></li>
+                              <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                          </c:if>
                          </ul>
                        </div>
                    </c:if>

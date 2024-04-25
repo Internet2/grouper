@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-${grouper:titleFromKeyAndText('stemProvisioningPageTitle', grouperRequestContainer.stemContainer.guiStem.stem.displayName)}
+${grouper:titleFromKeyAndText('folderRulesPageTitle', grouperRequestContainer.stemContainer.guiStem.stem.displayName)}
 
 <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
 
@@ -34,16 +34,10 @@ ${grouper:titleFromKeyAndText('stemProvisioningPageTitle', grouperRequestContain
     
     <div class="row-fluid">
       <div class="span9"> 
-        <a href="#" onclick="$('#documentationRulesTable').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</a>
+        <a href="https://spaces.at.internet2.edu/display/Grouper/Grouper+rules+UI">${textContainer.text['rulesDocumentationLink']}</a>
       </div>
     </div>
 
-    <div class="row-fluid">
-      <div class="span9" id="documentationRulesTable" style="display: none;"> 
-        <p>this is for testing2</p>
-      </div>
-    </div>
-    
     <%@ include file="rulesTableHelper.jsp"%>
     
   </div>

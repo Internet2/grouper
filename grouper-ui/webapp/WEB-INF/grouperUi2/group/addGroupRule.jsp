@@ -18,7 +18,7 @@
                 </ul>
                
                 <div class="row-fluid">
-                  <div class="lead span9">${textContainer.text['rulesFolderSettingsTitle'] }</div>
+                  <div class="lead span9">${textContainer.text['rulesGroupSettingsTitle'] }</div>
                   <div class="span3" id="grouperRulesFolderMoreActionsButtonContentsDivId">
                     <%@ include file="rulesMoreActionsButtonContents.jsp"%>
                   </div>
@@ -26,16 +26,10 @@
                 
                 <div class="row-fluid">
                   <div class="span9"> 
-                    <a href="#" onclick="$('#documentationRulesAddEdit').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</a>
+                    <a href="https://spaces.at.internet2.edu/display/Grouper/Grouper+rules+UI">${textContainer.text['rulesDocumentationLink']}</a>
                   </div>
                 </div>
             
-                <div class="row-fluid">
-                  <div class="span9" id="documentationRulesAddEdit" style="display: none;"> 
-                    <p>this is for testing2</p>
-                  </div>
-                </div>
-                
                  <form class="form-inline form-small form-filter" id="addRuleConfigFormId">
                   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
                   <input type="hidden" name="ruleId" value="${grouperRequestContainer.rulesContainer.attributeAssignId}" />

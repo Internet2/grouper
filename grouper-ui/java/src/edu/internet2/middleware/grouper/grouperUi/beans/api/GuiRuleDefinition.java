@@ -382,12 +382,12 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     
     if (this.ruleDefinition.getAttributeAssignType().getOwnerGroup() != null) {
       Group ownerGroup = this.ruleDefinition.getAttributeAssignType().getOwnerGroup();
-      return new GuiGroup(ownerGroup).getShortLink();
+      return new GuiGroup(ownerGroup).getShortLinkWithIcon();
     }
     
     if (this.ruleDefinition.getAttributeAssignType().getOwnerStem() != null) {
       Stem ownerStem = this.ruleDefinition.getAttributeAssignType().getOwnerStem();
-      return new GuiStem(ownerStem).getShortLink();
+      return new GuiStem(ownerStem).getShortLinkWithIcon();
     }
     
     if (this.ruleDefinition.getAttributeAssignType().getOwnerAttributeDef() != null) {

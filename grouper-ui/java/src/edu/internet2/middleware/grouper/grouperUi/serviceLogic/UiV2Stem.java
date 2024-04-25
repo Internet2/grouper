@@ -3944,7 +3944,7 @@ public class UiV2Stem {
       
       Set<RuleDefinition> ruleDefinitions = RuleFinder.retrieveRuleDefinitionsForGrouperObject(stem);
       
-      Set<GuiRuleDefinition> guiRules = new HashSet<>();
+      Set<GuiRuleDefinition> guiRules = new TreeSet<>();
       
       for (RuleDefinition ruleDefinition: ruleDefinitions) {
         GuiRuleDefinition guiRuleDefinition = new GuiRuleDefinition(ruleDefinition);
@@ -3970,10 +3970,6 @@ public class UiV2Stem {
   public void addRuleOnStem(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
-      throw new RuntimeException("Dont hack me!");
-    }
 
     GrouperSession grouperSession = null;
   
@@ -4022,10 +4018,6 @@ public class UiV2Stem {
   public void editRuleOnStem(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    
-    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
-      throw new RuntimeException("Dont hack me!");
-    }
 
     GrouperSession grouperSession = null;
   
@@ -4178,10 +4170,6 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
-      throw new RuntimeException("Dont hack me!");
-    }
-
     GrouperSession grouperSession = null;
   
     Stem stem = null;
@@ -4246,10 +4234,6 @@ public class UiV2Stem {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    if (!PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject)) {
-      throw new RuntimeException("Dont hack me!");
-    }
-
     GrouperSession grouperSession = null;
   
     Stem stem = null;

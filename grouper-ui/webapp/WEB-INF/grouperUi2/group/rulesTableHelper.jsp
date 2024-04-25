@@ -38,9 +38,6 @@
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
                           
-                          <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId == grouperRequestContainer.groupContainer.guiGroup.group.id }">
-                              <li><a href="#" onclick="return guiV2link('operation=UiV2Group.deleteRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
-                          </c:if>
                           
                           <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId != null}">
                            <li><a href="#" onclick="return guiV2link('operation=UiV2Group.editRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
@@ -49,7 +46,14 @@
                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                           </c:if>
                           
+                           <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId == grouperRequestContainer.groupContainer.guiGroup.group.id }">
+                            <li><br/></li>
+                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Group.deleteRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                          </c:if>
+                          
                          </ul>
+
+                         
                        </div>
                   </c:if>
                  </td>

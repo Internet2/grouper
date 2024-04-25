@@ -1,5 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-  ${grouper:titleFromKeyAndText('groupAuditsPageTitle', grouperRequestContainer.groupContainer.guiGroup.group.displayName)}
+  ${grouper:titleFromKeyAndText('groupRulesPageTitle', grouperRequestContainer.groupContainer.guiGroup.group.displayName)}
 
             <!-- start group/groupViewAudits.jsp -->
             <%-- for the new group or new stem button --%>
@@ -21,7 +21,7 @@
             </div>
     
        <div class="row-fluid">
-          <div class="lead span9">${textContainer.text['rulesFolderSettingsTitle'] }</div>
+          <div class="lead span9">${textContainer.text['rulesGroupSettingsTitle'] }</div>
           <div class="span3" id="grouperRulesFolderMoreActionsButtonContentsDivId">
             <%@ include file="rulesMoreActionsButtonContents.jsp"%>
           </div>
@@ -33,13 +33,7 @@
         
         <div class="row-fluid">
           <div class="span9"> 
-            <a href="#" onclick="$('#documentationRulesTable').toggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryTableDocumentation']}</a>
-          </div>
-        </div>
-    
-        <div class="row-fluid">
-          <div class="span9" id="documentationRulesTable" style="display: none;"> 
-            <p>this is for testing2</p>
+            <a href="https://spaces.at.internet2.edu/display/Grouper/Grouper+rules+UI">${textContainer.text['rulesDocumentationLink']}</a>
           </div>
         </div>
         

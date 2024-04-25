@@ -1612,9 +1612,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddCreatedGroupsToAnotherGroup.folder");
@@ -1780,9 +1777,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("RemoveInvalidMembershipDueToGroup.group");
@@ -1834,20 +1828,27 @@ public enum RulePattern {
      
   },
   
-  SendEmailAfterMembershipRemove {
+  SendEmailWhenGroupMemberInvalidDueToFolder {
 
     @Override
     public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
-      String emailTo = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailTo");
-      String emailSubject = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailSubject");
-      String emailBody = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailBody");
+      String folder = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.folder");
+      String folderScope = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.stemScope");
       
+      String emailTo = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.emailBody");
       
-      ruleConfig.setCheckOwner("thisGroup");
-      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
+      ruleConfig.setCheckType(RuleCheckType.membershipRemoveInFolder.name());
+      ruleConfig.setCheckOwnerUuidOrName(folder);
+      ruleConfig.setCheckOwnerStemScope(folderScope);
+      
+      ruleConfig.setIfConditionOption(RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership.name());
+      ruleConfig.setIfConditionOwnerUuidOrName(ruleConfig.getGrouperObject().getName());
+      ruleConfig.setIfConditionOwner("thisGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.sendEmail.name());
       ruleConfig.setThenArg0(emailTo);
@@ -1899,9 +1900,41 @@ public enum RulePattern {
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
-      String emailTo = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailTo");
-      String emailSubject = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailSubject");
-      String emailBody = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailBody");
+      String emailTo = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.emailBody");
+
+      String folderName = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.folder");
+      String stemScope = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.stemScope");
+      
+      Stem stem = StemFinder.findByName(folderName, false);
+      if (stem == null) {
+        stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folderName, false);
+      }
+      
+      if (stem == null) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidFolder");
+        error = error.replace("##folderUuidOrName##", folderName);
+        errorMessages.add(error);
+      }
+      
+      if (stem != null && loggedInSubject != null) {
+        if (!stem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
+          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
+          error = error.replace("##stemName##", stem.getName());
+          errorMessages.add(error);
+        }
+      }
+      
+      if (StringUtils.isBlank(stemScope)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditFolderScopeRequired");
+        errorMessages.add(error);
+      } else {
+        if (!StringUtils.equals(stemScope, "SUB") && !StringUtils.equals(stemScope, "ONE")) {
+          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditFolderScopeInvalid");
+          errorMessages.add(error);
+        }
+      }
       
       
       if (StringUtils.isBlank(emailTo)) {
@@ -1922,7 +1955,7 @@ public enum RulePattern {
 
     @Override
     public String getUserFriendlyText() {
-      return GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemoveUserFriendlyText");
+      return GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolderUserFriendlyText");
     }
 
     @Override
@@ -1932,14 +1965,49 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
-        attribute.setConfigSuffix("SendEmailAfterMembershipRemove.emailTo");
-        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailTo.label"));
-        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailTo.description"));
+        attribute.setConfigSuffix("SendEmailWhenGroupMemberInvalidDueToFolder.folder");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.folder.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.folder.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getIfCondition() != null) {
+          attribute.setValue(ruleDefinition.getIfCondition().getIfOwnerName());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("SUB", GrouperTextContainer.textOrNull("grouperRuleOwnerSubStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("ONE", GrouperTextContainer.textOrNull("grouperRuleOwnerOneStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailWhenGroupMemberInvalidDueToFolder.stemScope");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.stemScope.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.stemScope.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getIfCondition() != null) {
+          attribute.setValue(ruleDefinition.getIfCondition().getIfStemScope());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailWhenGroupMemberInvalidDueToFolder.emailTo");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.emailTo.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.emailTo.description"));
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
@@ -1951,14 +2019,11 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
-        attribute.setConfigSuffix("SendEmailAfterMembershipRemove.emailSubject");
-        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailSubject.label"));
-        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailSubject.description"));
+        attribute.setConfigSuffix("SendEmailWhenGroupMemberInvalidDueToFolder.emailSubject");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.emailSubject.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.emailSubject.description"));
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
@@ -1970,14 +2035,11 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
-        attribute.setConfigSuffix("SendEmailAfterMembershipRemove.emailBody");
-        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailBody.label"));
-        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailBody.description"));
+        attribute.setConfigSuffix("SendEmailWhenGroupMemberInvalidDueToFolder.emailBody");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.emailBody.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolder.emailBody.description"));
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
@@ -2002,9 +2064,9 @@ public enum RulePattern {
 
     @Override
     public boolean isThisThePattern(RuleDefinition ruleDefinition) {
-
-      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
-          ruleDefinition.getIfCondition().isBlank() &&
+      
+      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipRemoveInFolder &&
+          ruleDefinition.getIfCondition().ifConditionEnum() ==  RuleIfConditionEnum.thisGroupHasImmediateEnabledMembership &&
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.sendEmail) {
         return true;
       }
@@ -2014,19 +2076,21 @@ public enum RulePattern {
     
   },
   
-  SendEmailAfterNewMembership {
+  SendEmailMembershipAddDueToFolder {
 
     @Override
     public Map<String, List<String>> save(RuleConfig ruleConfig,String attributeAssignId) {
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
-      String emailTo = patternPropertiesValues.get("SendEmailAfterNewMembership.emailTo");
-      String emailSubject = patternPropertiesValues.get("SendEmailAfterNewMembership.emailSubject");
-      String emailBody = patternPropertiesValues.get("SendEmailAfterNewMembership.emailBody");
+      String emailTo = patternPropertiesValues.get("SendEmailMembershipAddDueToFolder.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailMembershipAddDueToFolder.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailMembershipAddDueToFolder.emailBody");
+      String folderScope = patternPropertiesValues.get("SendEmailMembershipAddDueToFolder.stemScope");
       
-      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAdd.name());
-      ruleConfig.setCheckOwner("thisGroup");
+      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAddInFolder.name());
+      ruleConfig.setCheckOwner("thisStem");
+      ruleConfig.setCheckOwnerStemScope(folderScope);
       
       ruleConfig.setThenOption(RuleThenEnum.sendEmail.name());
       ruleConfig.setThenArg0(emailTo);
@@ -2078,10 +2142,9 @@ public enum RulePattern {
       
       Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
-      String emailTo = patternPropertiesValues.get("SendEmailAfterNewMembership.emailTo");
-      String emailSubject = patternPropertiesValues.get("SendEmailAfterNewMembership.emailSubject");
-      String emailBody = patternPropertiesValues.get("SendEmailAfterNewMembership.emailBody");
-      
+      String emailTo = patternPropertiesValues.get("SendEmailMembershipAddDueToFolder.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailMembershipAddDueToFolder.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailMembershipAddDueToFolder.emailBody");
       
       if (StringUtils.isBlank(emailTo)) {
         String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditEmailToRequired");
@@ -2101,7 +2164,7 @@ public enum RulePattern {
 
     @Override
     public String getUserFriendlyText() {
-      return GrouperTextContainer.textOrNull("SendEmailAfterNewMembershipUserFriendlyText");
+      return GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolderUserFriendlyText");
     }
 
     @Override
@@ -2111,14 +2174,33 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("SUB", GrouperTextContainer.textOrNull("grouperRuleOwnerSubStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("ONE", GrouperTextContainer.textOrNull("grouperRuleOwnerOneStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailMembershipAddDueToFolder.stemScope");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.stemScope.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.stemScope.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getIfCondition() != null) {
+          attribute.setValue(ruleDefinition.getIfCondition().getIfStemScope());
         }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
-        attribute.setConfigSuffix("SendEmailAfterNewMembership.emailTo");
-        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailTo.label"));
-        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailTo.description"));
+        attribute.setConfigSuffix("SendEmailMembershipAddDueToFolder.emailTo");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.emailTo.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.emailTo.description"));
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
@@ -2130,14 +2212,11 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
-        attribute.setConfigSuffix("SendEmailAfterNewMembership.emailSubject");
-        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailSubject.label"));
-        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailSubject.description"));
+        attribute.setConfigSuffix("SendEmailMembershipAddDueToFolder.emailSubject");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.emailSubject.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.emailSubject.description"));
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
@@ -2149,14 +2228,11 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
-        attribute.setConfigSuffix("SendEmailAfterNewMembership.emailBody");
-        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailBody.label"));
-        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailBody.description"));
+        attribute.setConfigSuffix("SendEmailMembershipAddDueToFolder.emailBody");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.emailBody.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolder.emailBody.description"));
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
@@ -2171,18 +2247,18 @@ public enum RulePattern {
 
     @Override
     public boolean isApplicableForFolders() {
-      return false;
+      return true;
     }
 
     @Override
     public boolean isApplicableForGroups() {
-      return true;
+      return false;
     }
 
     @Override
     public boolean isThisThePattern(RuleDefinition ruleDefinition) {
       
-      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd &&
+      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAddInFolder &&
           ruleDefinition.getIfCondition().isBlank() &&
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.sendEmail) {
         return true;
@@ -2315,9 +2391,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailDueToDisabledDate.minDays");
@@ -2334,9 +2407,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailDueToDisabledDate.maxDays");
@@ -2353,9 +2423,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailDueToDisabledDate.emailTo");
@@ -2372,9 +2439,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailDueToDisabledDate.emailSubject");
@@ -2391,9 +2455,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
         attribute.setShow(true);
         attribute.setConfigSuffix("SendEmailDueToDisabledDate.emailBody");
@@ -2630,9 +2691,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("VetoIfNotEligibleDueToFolder.folder");
@@ -2807,9 +2865,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("VetoIfNotEligibleDueToGroup.group");
@@ -2916,9 +2971,6 @@ public enum RulePattern {
             
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("VetoIfTooManyMembers.limit");
@@ -3040,9 +3092,6 @@ public enum RulePattern {
       
       {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
-        if (grouperObject instanceof Stem) {
-          attribute.setValue(grouperObject.getName());
-        }
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setShow(true);
         attribute.setConfigSuffix("RemoveInvalidMembershipDueToFolder.folder");
@@ -3111,6 +3160,343 @@ public enum RulePattern {
       return true;
     }
      
+  }, SendEmailAfterNewMembership{
+  
+    @Override
+    public Map<String, List<String>> save(RuleConfig ruleConfig,String attributeAssignId) {
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String emailTo = patternPropertiesValues.get("SendEmailAfterNewMembership.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailAfterNewMembership.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailAfterNewMembership.emailBody");
+      
+      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAdd.name());
+      ruleConfig.setCheckOwner("thisGroup");
+      
+      ruleConfig.setThenOption(RuleThenEnum.sendEmail.name());
+      ruleConfig.setThenArg0(emailTo);
+      ruleConfig.setThenArg1(emailSubject);
+      ruleConfig.setThenArg2(emailBody);
+      
+      Map<String, List<String>> result = RuleService.saveOrUpdateRuleAttributes(ruleConfig, ruleConfig.getGrouperObject(), attributeAssignId);
+      return result;
+    }
+  
+    @Override
+    public List<String> validate(RuleConfig ruleConfig, Subject loggedInSubject) {
+      
+      List<String> errorMessages = new ArrayList<>();
+      
+      boolean skipEmailSenderCheck = false;
+      if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+        skipEmailSenderCheck = true;
+      }
+      
+      if (!skipEmailSenderCheck) {
+        Boolean subjectInCache = emailSenders.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
+        if (subjectInCache != null) {
+          if (subjectInCache == false) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
+            errorMessages.add(error);
+            return errorMessages;
+          }
+        } else {
+          String emailSenderGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
+          if (StringUtils.isNotBlank(emailSenderGroupName)) {
+            Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
+            if (emailSenderGroup != null) {
+              if (emailSenderGroup.hasMember(loggedInSubject)) {
+                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
+              } else {
+                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
+                String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
+                errorMessages.add(error);
+                return errorMessages;
+              }
+              
+            } else {
+              LOG.warn("rules.restrictRulesEmailSendersToMembersOfThisGroupName is set to '"+emailSenderGroupName+"' and it does not exist.");
+            }
+          }
+        }
+      }
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String emailTo = patternPropertiesValues.get("SendEmailAfterNewMembership.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailAfterNewMembership.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailAfterNewMembership.emailBody");
+      
+      
+      if (StringUtils.isBlank(emailTo)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditEmailToRequired");
+        errorMessages.add(error);
+      }
+      if (StringUtils.isBlank(emailSubject)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditEmailSubjectRequired");
+        errorMessages.add(error);
+      }
+      if (StringUtils.isBlank(emailBody)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditEmailBodyRequired");
+        errorMessages.add(error);
+      }
+      
+      return errorMessages;
+    }
+  
+    @Override
+    public String getUserFriendlyText() {
+      return GrouperTextContainer.textOrNull("SendEmailAfterNewMembershipUserFriendlyText");
+    }
+  
+    @Override
+    public List<GrouperConfigurationModuleAttribute> getElementsToShow(GrouperObject grouperObject, RuleDefinition ruleDefinition) {
+      
+      List<GrouperConfigurationModuleAttribute> elements = new ArrayList<>();
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailAfterNewMembership.emailTo");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailTo.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailTo.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg0());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailAfterNewMembership.emailSubject");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailSubject.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailSubject.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg1());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailAfterNewMembership.emailBody");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailBody.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterNewMembership.emailBody.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg2());
+        }
+        elements.add(attribute);
+      }
+      
+      return elements;
+    }
+  
+    @Override
+    public boolean isApplicableForFolders() {
+      return false;
+    }
+  
+    @Override
+    public boolean isApplicableForGroups() {
+      return true;
+    }
+  
+    @Override
+    public boolean isThisThePattern(RuleDefinition ruleDefinition) {
+      
+      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd &&
+          ruleDefinition.getIfCondition().isBlank() &&
+          ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+        return true;
+      }
+      
+      return false;
+    }
+    
+  }, SendEmailAfterMembershipRemove{
+  
+    @Override
+    public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String emailTo = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailBody");
+      
+      
+      ruleConfig.setCheckOwner("thisStem");
+      ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemove.name());
+      
+      ruleConfig.setThenOption(RuleThenEnum.sendEmail.name());
+      ruleConfig.setThenArg0(emailTo);
+      ruleConfig.setThenArg1(emailSubject);
+      ruleConfig.setThenArg2(emailBody);
+      
+      Map<String, List<String>> result = RuleService.saveOrUpdateRuleAttributes(ruleConfig, ruleConfig.getGrouperObject(), attributeAssignId);
+      return result;
+    }
+  
+    @Override
+    public List<String> validate(RuleConfig ruleConfig, Subject loggedInSubject) {
+      
+      List<String> errorMessages = new ArrayList<>();
+      
+      boolean skipEmailSenderCheck = false;
+      if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+        skipEmailSenderCheck = true;
+      }
+      
+      if (!skipEmailSenderCheck) {
+        Boolean subjectInCache = emailSenders.get(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()));
+        if (subjectInCache != null) {
+          if (subjectInCache == false) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
+            errorMessages.add(error);
+            return errorMessages;
+          }
+        } else {
+          String emailSenderGroupName = GrouperConfig.retrieveConfig().propertyValueString("rules.restrictRulesEmailSendersToMembersOfThisGroupName", "");
+          if (StringUtils.isNotBlank(emailSenderGroupName)) {
+            Group emailSenderGroup = GroupFinder.findByName(emailSenderGroupName, false);
+            if (emailSenderGroup != null) {
+              if (emailSenderGroup.hasMember(loggedInSubject)) {
+                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), true);
+              } else {
+                emailSenders.put(new MultiKey(loggedInSubject.getSource(), loggedInSubject.getId()), false);
+                String error = GrouperTextContainer.textOrNull("grouperRuleConfigNotInEmailSenderGroup");
+                errorMessages.add(error);
+                return errorMessages;
+              }
+              
+            } else {
+              LOG.warn("rules.restrictRulesEmailSendersToMembersOfThisGroupName is set to '"+emailSenderGroupName+"' and it does not exist.");
+            }
+          }
+        }
+      }
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String emailTo = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailTo");
+      String emailSubject = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailSubject");
+      String emailBody = patternPropertiesValues.get("SendEmailAfterMembershipRemove.emailBody");
+      
+      
+      if (StringUtils.isBlank(emailTo)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditEmailToRequired");
+        errorMessages.add(error);
+      }
+      if (StringUtils.isBlank(emailSubject)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditEmailSubjectRequired");
+        errorMessages.add(error);
+      }
+      if (StringUtils.isBlank(emailBody)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditEmailBodyRequired");
+        errorMessages.add(error);
+      }
+      
+      return errorMessages;
+    }
+  
+    @Override
+    public String getUserFriendlyText() {
+      return GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemoveUserFriendlyText");
+    }
+  
+    @Override
+    public List<GrouperConfigurationModuleAttribute> getElementsToShow(GrouperObject grouperObject, RuleDefinition ruleDefinition) {
+      
+      List<GrouperConfigurationModuleAttribute> elements = new ArrayList<>();
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailAfterMembershipRemove.emailTo");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailTo.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailTo.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg0());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailAfterMembershipRemove.emailSubject");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailSubject.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailSubject.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg1());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXTAREA);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("SendEmailAfterMembershipRemove.emailBody");
+        attribute.setLabel(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailBody.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemove.emailBody.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg2());
+        }
+        elements.add(attribute);
+      }
+      
+      return elements;
+    }
+  
+    @Override
+    public boolean isApplicableForFolders() {
+      return false;
+    }
+  
+    @Override
+    public boolean isApplicableForGroups() {
+      return true;
+    }
+  
+    @Override
+    public boolean isThisThePattern(RuleDefinition ruleDefinition) {
+  
+      if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove &&
+          ruleDefinition.getIfCondition().isBlank() &&
+          ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.sendEmail) {
+        return true;
+      }
+      
+      return false;
+    }
+    
   };
   
   

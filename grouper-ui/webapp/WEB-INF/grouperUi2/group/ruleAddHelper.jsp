@@ -165,8 +165,6 @@
                           <td>
                             <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.checkArg0)}"
                                 name="grouperRuleCheckArg0" id="grouperRuleCheckArg0Id" />
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
                             
                             <c:set var="arg0TextKeyHint" value="rulesCheckArgHumanFriendlyDescription_${grouperRequestContainer.rulesContainer.ruleConfig.checkType}_Arg0" />
@@ -185,8 +183,6 @@
                           <td>
                             <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.checkArg1)}"
                                 name="grouperRuleCheckArg1" id="grouperRuleCheckArg1Id" />
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
                             <c:set var="arg1TextKeyHint" value="rulesCheckArgHumanFriendlyDescription_${grouperRequestContainer.rulesContainer.ruleConfig.checkType}_Arg1" />
                             <span class="description">${textContainer.text[arg1TextKeyHint]}</span>
@@ -307,8 +303,7 @@
                           <td>
                             <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.ifConditionArg0)}"
                                 name="grouperRuleIfConditionArg0" id="grouperRuleIfConditionArg0Id" />
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
+                           
                             <br />
                             
                             <c:set var="arg0TextKeyConditionHint" value="rulesConditionArgHumanFriendlyDescription_${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOption}_Arg0" />
@@ -327,8 +322,6 @@
                           <td>
                             <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.ifConditionArg1)}"
                                 name="grouperRuleIfConditionArg1" id="grouperRuleIfConditionArg1Id" />
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
                             <c:set var="arg1TextKeyConditionHint" value="rulesConditionArgHumanFriendlyDescription_${grouperRequestContainer.rulesContainer.ruleConfig.ifConditionOption}_Arg1" />
                             <span class="description">${textContainer.text[arg1TextKeyConditionHint]}</span>
@@ -380,8 +373,6 @@
                           <td>
                             <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.thenArg0)}"
                                 name="grouperRuleThenArg0" id="grouperRuleThenArg0Id" />
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
                             
                             <c:set var="arg0TextKeyThenHint" value="rulesThenArgHumanFriendlyDescription_${grouperRequestContainer.rulesContainer.ruleConfig.thenOption}_Arg0" />
@@ -399,8 +390,6 @@
                           <td>
                             <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.thenArg1)}"
                                 name="grouperRuleThenArg1" id="grouperRuleThenArg1Id" />
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
                             <c:set var="arg1TextKeyThenHint" value="rulesThenArgHumanFriendlyDescription_${grouperRequestContainer.rulesContainer.ruleConfig.thenOption}_Arg1" />
                             <span class="description">${textContainer.text[arg1TextKeyThenHint]}</span>
@@ -417,8 +406,6 @@
                           <td>
                             <input type="text" style="width: 30em" value="${grouper:escapeHtml(grouperRequestContainer.rulesContainer.ruleConfig.thenArg2)}"
                                 name="grouperRuleThenArg2" id="grouperRuleThenArg2Id" />
-                            <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                              data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                             <br />
                             <c:set var="arg2TextKeyThenHint" value="rulesThenArgHumanFriendlyDescription_${grouperRequestContainer.rulesContainer.ruleConfig.thenOption}_Arg2" />
                             <span class="description">${textContainer.text[arg2TextKeyThenHint]}</span>
