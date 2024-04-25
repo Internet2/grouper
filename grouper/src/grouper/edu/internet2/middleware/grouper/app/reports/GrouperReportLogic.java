@@ -157,7 +157,7 @@ public class GrouperReportLogic {
         Hib3DAOFactory.getFactory().getGrouperFile().saveOrUpdate(grouperFile);
         reportInstance.setReportInstanceFilePointer(id);
       } else {
-        throw new RuntimeException("reporting.storage.option is not valid. Use database, S3 or fileSystem");
+        throw new RuntimeException("reporting.storage.option is not valid. Use database, S3 or fileSystem '" + reportDestination + "'");
       }
       
       reportInstance.setReportInstanceFileName(reportInstance.getReportFileUnencrypted().getName());
@@ -550,7 +550,7 @@ public class GrouperReportLogic {
       s3Client.deleteObject(s3Uri.getBucket(), s3Uri.getKey());
       
     } catch (Exception e) {
-      throw new RuntimeException("Error deleting report file from S3");
+      throw new RuntimeException("Error deleting report file from S3", e);
     }
     
   }
@@ -594,11 +594,13 @@ public class GrouperReportLogic {
       
       return s3Client.getUrl(bucketName, fileObjKeyName).toString();
     } catch(AmazonServiceException e) {
-      LOG.error("Error uploading report file to S3. file name: "+file.getName());
-      throw new RuntimeException("Error uploading file to S3");
+      String errorMessage = "Error uploading report file to S3. file name: "+file.getName();
+      LOG.error(errorMessage);
+      throw new RuntimeException(errorMessage, e);
     } catch(SdkClientException e) {
-      LOG.error("Error uploading report file to S3. file name: "+file.getName());
-      throw new RuntimeException("Error uploading file to S3");
+      String errorMessage = "Error uploading report file to S3. file name: "+file.getName();
+      LOG.error(errorMessage);
+      throw new RuntimeException(errorMessage, e);
     }
     
   }

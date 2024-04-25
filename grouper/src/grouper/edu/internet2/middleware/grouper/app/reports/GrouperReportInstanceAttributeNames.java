@@ -97,20 +97,22 @@ public class GrouperReportInstanceAttributeNames {
    */
   public static AttributeDefName retrieveAttributeDefNameBase() {
     
+    final String reportInstanceAttributeName = GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_ATTRIBUTE_NAME;
+
     AttributeDefName attributeDefName = (AttributeDefName)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Object callback(GrouperSession grouperSession)
           throws GrouperSessionException {
         
-        return AttributeDefNameFinder.findByName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_ATTRIBUTE_NAME, false, new QueryOptions().secondLevelCache(false));
+        return AttributeDefNameFinder.findByName(reportInstanceAttributeName, false, new QueryOptions().secondLevelCache(false));
         
       }
       
     });
   
     if (attributeDefName == null) {
-      throw new RuntimeException("Why cant reportInstanceMarker attribute def name be found?");
+      throw new RuntimeException("Why cant reportInstanceMarker attribute def name be found? '" + reportInstanceAttributeName + "'");
     }
     
     return attributeDefName;
@@ -123,20 +125,22 @@ public class GrouperReportInstanceAttributeNames {
      */
     public static AttributeDef retrieveAttributeDefBaseDef() {
       
+      final String reportInstanceNameOfDef = GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_DEF;
+
       AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           
-          return AttributeDefFinder.findByName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_DEF, false, new QueryOptions().secondLevelCache(false));
+          return AttributeDefFinder.findByName(reportInstanceNameOfDef, false, new QueryOptions().secondLevelCache(false));
           
         }
         
       });
     
       if (attributeDef == null) {
-        throw new RuntimeException("Why cant reportInstanceDef attribute def be found?");
+        throw new RuntimeException("Why cant reportInstanceDef attribute def be found? '" + reportInstanceNameOfDef + "'");
       }
       
       return attributeDef;
@@ -148,20 +152,22 @@ public class GrouperReportInstanceAttributeNames {
      */
     public static AttributeDef retrieveAttributeDefValueDef() {
       
+      final String reportInstanceNameOfValueDef = GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_VALUE_DEF;
+
       AttributeDef attributeDef = (AttributeDef)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
         
         @Override
         public Object callback(GrouperSession grouperSession)
             throws GrouperSessionException {
           
-          return AttributeDefFinder.findByName(GrouperReportSettings.reportConfigStemName()+":"+GROUPER_REPORT_INSTANCE_VALUE_DEF, false, new QueryOptions().secondLevelCache(false));
+          return AttributeDefFinder.findByName(reportInstanceNameOfValueDef, false, new QueryOptions().secondLevelCache(false));
           
         }
         
       });
     
       if (attributeDef == null) {
-        throw new RuntimeException("Why cant reportInstanceValueDef attribute def be found?");
+        throw new RuntimeException("Why cant reportInstanceValueDef attribute def be found? '" + reportInstanceNameOfValueDef + "'");
       }
       
       return attributeDef;
