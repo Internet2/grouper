@@ -68,7 +68,7 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
     if (StringUtils.equals("Github", scimType)) {
       return null;
     } else if (StringUtils.equals("AWS", scimType)) {
-      return GrouperUtil.toSet("externalId", "formattedName", "middleName", "emailValue", "emailType", "userType", "employeeNumber", "costCenter");
+      return GrouperUtil.toSet("active", "externalId", "formattedName", "middleName", "emailValue", "emailType", "userType", "employeeNumber", "costCenter");
     } 
     return null;
   }
