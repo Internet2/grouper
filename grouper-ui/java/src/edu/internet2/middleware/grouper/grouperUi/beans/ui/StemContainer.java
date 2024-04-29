@@ -22,6 +22,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeAssign;
@@ -406,7 +407,13 @@ public class StemContainer {
             
             @Override
             public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-              return StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_VIEW.getName(), false);
+              boolean canView = StemContainer.this.getGuiStem().getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_VIEW.getName(), false);
+              if (!canView) {
+                //this will use the gui StemViewPrivilege table
+                Stem stemToFind = new StemFinder().addStemId(StemContainer.this.getGuiStem().getStem().getId()).assignSubject(loggedInSubject).findStem();
+                canView = stemToFind != null;
+              }
+              return canView;
             }
           });
       

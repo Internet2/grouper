@@ -1064,6 +1064,8 @@ public class UiV2Stem {
    * get the stem from the request
    * @param request
    * @param requireStemPrivilege
+   * @param requireCreateGroupPrivilege
+   * @param requireStem
    * @return the stem finder result
    */
   public static RetrieveStemHelperResult retrieveStemHelper(HttpServletRequest request, boolean requireStemPrivilege, 
@@ -1127,6 +1129,10 @@ public class UiV2Stem {
               TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToCreateGroupsStem")));
           addedError = true;
   
+        } else if (!grouperRequestContainer.getStemContainer().isCanViewPrivileges()) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
+          addedError = true;
         } else {
           result.setStem(stem);
           List<GrouperObjectTypesAttributeValue> attributeValuesForGroup = GrouperObjectTypesConfiguration.getGrouperObjectTypesAttributeValues(stem);
