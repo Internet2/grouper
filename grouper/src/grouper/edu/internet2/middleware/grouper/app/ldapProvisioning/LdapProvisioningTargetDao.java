@@ -204,8 +204,15 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         
         LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
   
+        int count = 0;
+        
         List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
         for (LdapEntry ldapEntry : ldapEntries) {
+          
+          // conserve memory
+          ldapEntries.set(count, null);
+          count++;
+          
           ProvisioningGroup targetGroup = new ProvisioningGroup();
           targetGroup.assignAttributeValue(ldap_dn, ldapEntry.getDn());
           
@@ -833,8 +840,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+            int count = 0;
             
             for (LdapEntry ldapEntry : ldapEntries) {
+              // conserve memory
+              ldapEntries.set(count, null);
+              count++;
+              
               ProvisioningGroup targetGroup = new ProvisioningGroup();
               targetGroup.assignAttributeValue(ldap_dn, ldapEntry.getDn());
               
@@ -927,8 +939,15 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
       List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, userSearchBaseDn, userSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
-      
+
+      int count = 0;
+
       for (LdapEntry ldapEntry : ldapEntries) {
+        
+        // conserve memory
+        ldapEntries.set(count, null);
+        count++;
+
         ProvisioningEntity targetEntity = new ProvisioningEntity();
         targetEntity.assignAttributeValue(ldap_dn, ldapEntry.getDn());
         
@@ -1024,8 +1043,13 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, entitySearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
+            int count = 0;
             
             for (LdapEntry ldapEntry : ldapEntries) {
+              // conserve memory
+              ldapEntries.set(count, null);
+              count++;
+              
               ProvisioningEntity targetEntity = new ProvisioningEntity();
               targetEntity.assignAttributeValue(ldap_dn, ldapEntry.getDn());
               

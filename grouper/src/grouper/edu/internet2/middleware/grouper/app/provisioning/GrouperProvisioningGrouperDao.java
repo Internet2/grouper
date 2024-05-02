@@ -519,24 +519,7 @@ public class GrouperProvisioningGrouperDao {
       }
     }
 
-    StringBuilder sqlInitial = new StringBuilder("select " + 
-        GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, " +
-        "    gg.id, " + 
-        "    gm.id, " + 
-        "    gm.subject_id, " + 
-        "    gm.subject_source, " + 
-        "    gm.subject_identifier0, " + 
-        "    gm.name, " +
-        "    gm.description, " +
-        "    gg.name, " + 
-        "    gg.display_name, " +
-        "    gg.description, " + 
-        "    gg.id_index, " + 
-        "    gm.subject_identifier1, " + 
-        "    gm.subject_identifier2, " + 
-        "    gm.id_index, " + 
-        "    gm.subject_resolution_resolvable " +
-        "from " + 
+    StringBuilder sqlInitial = new StringBuilder(" from " + 
         "    grouper_groups gg, " +
         "    grouper_members gm, " + 
         "    grouper_memberships ms, " +
@@ -627,11 +610,39 @@ public class GrouperProvisioningGrouperDao {
       paramsInitial.add(groupIdOfUsersToExclude);
     }
     
-    List<String[]> queryResults = null;
     if (retrieveAll) {
-      queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sqlInitial.toString(), paramsInitial, typesInitial);
+      
+      String theSql = sqlInitial.toString();
+      
+      String selectMemberships = "select " + 
+      GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, gg.id, gm.id ";
+      
+      String selectGroups = "select distinct gg.id, " + 
+      "    gg.name, " + 
+      "    gg.display_name, " +
+      "    gg.description, " + 
+      "    gg.id_index ";
+      
+      String selectMembers = "select distinct gm.id, " + 
+      "    gm.subject_id, " + 
+      "    gm.subject_source, " + 
+      "    gm.subject_identifier0, " + 
+      "    gm.name, " +
+      "    gm.description, " +
+      "    gm.subject_identifier1, " + 
+      "    gm.subject_identifier2, " + 
+      "    gm.id_index, " + 
+      "    gm.subject_resolution_resolvable ";
+      
+      String theSqlMemberships = selectMemberships + theSql;
+      String theSqlGroups = selectGroups + theSql;
+      String theSqlMembers = selectMembers + theSql;
+      
+      List<String[]> queryResultsMemberships = HibernateSession.bySqlStatic().listSelect(String[].class, theSqlMemberships, paramsInitial, typesInitial);
+      List<String[]> queryResultsGroups = HibernateSession.bySqlStatic().listSelect(String[].class, theSqlGroups, paramsInitial, typesInitial);
+      List<String[]> queryResultsMembers = HibernateSession.bySqlStatic().listSelect(String[].class, theSqlMembers, paramsInitial, typesInitial);
   
-      List<ProvisioningMembership> grouperProvisioningMemberships = getProvisioningMembershipMapFromQueryResults(queryResults);
+      List<ProvisioningMembership> grouperProvisioningMemberships = getProvisioningMembershipMapFromQueryResults(queryResultsMemberships, queryResultsGroups, queryResultsMembers);
       
       results.addAll(grouperProvisioningMemberships);
     } else {
@@ -648,6 +659,24 @@ public class GrouperProvisioningGrouperDao {
       }
       
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(groupUuidsMemberUuidsList.size(), 450);
+      
+      sqlInitial.insert(0, "select " + 
+              GrouperDdlUtils.sqlConcatenation("ms.id", "gs.id", Membership.membershipIdSeparator) + " as membership_id, " +
+              "    gg.id, " + 
+              "    gm.id, " + 
+              "    gm.subject_id, " + 
+              "    gm.subject_source, " + 
+              "    gm.subject_identifier0, " + 
+              "    gm.name, " +
+              "    gm.description, " +
+              "    gg.name, " + 
+              "    gg.display_name, " +
+              "    gg.description, " + 
+              "    gg.id_index, " + 
+              "    gm.subject_identifier1, " + 
+              "    gm.subject_identifier2, " + 
+              "    gm.id_index, " + 
+              "    gm.subject_resolution_resolvable ");
       
       for (int i = 0; i < numberOfBatches; i++) {
         List<MultiKey> currentBatchIds = GrouperUtil.batchList(groupUuidsMemberUuidsList, 450, i);
@@ -684,7 +713,7 @@ public class GrouperProvisioningGrouperDao {
           }
         }
         sql.append(" ) ");
-        queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), paramsCurrent, typesCurrent);
+        List<String[]> queryResults = HibernateSession.bySqlStatic().listSelect(String[].class, sql.toString(), paramsCurrent, typesCurrent);
         
         List<ProvisioningMembership> provisioningMembershipMapFromQueryResults = getProvisioningMembershipMapFromQueryResults(queryResults);
         results.addAll(provisioningMembershipMapFromQueryResults);
@@ -1075,7 +1104,13 @@ public class GrouperProvisioningGrouperDao {
     
     List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
 
+    int count=0;
     for (String[] queryResult : queryResults) {
+      
+      // conserve memory
+      queryResults.set(count, null);
+      count++;
+
       String membershipId = queryResult[0];
       String groupId = queryResult[1];
       String memberId = queryResult[2];
@@ -1126,6 +1161,106 @@ public class GrouperProvisioningGrouperDao {
         targetGroup.assignAttributeValue("description", groupDescription);
 
         targetGroup.setIdIndex(groupIdIndex);
+        grouperProvisioningMembership.setProvisioningGroup(targetGroup);
+        grouperProvisioningMembership.setProvisioningGroupId(groupId);
+      }
+      
+      results.add(grouperProvisioningMembership);
+    }
+    
+    return results;
+  }
+  
+  private List<ProvisioningMembership> getProvisioningMembershipMapFromQueryResults(List<String[]> queryResultsMemberships, List<String[]> queryResultsGroups, List<String[]> queryResultsMembers) {
+    
+    List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+
+    Map<String, ProvisioningGroup> groupIdToProvisioningGroup = new HashMap<String, ProvisioningGroup>();
+    int count = 0;
+    for (String[] groupQueryResult : queryResultsGroups) {
+      String groupId = groupQueryResult[0];
+      queryResultsGroups.set(count, null);
+      count++;
+      
+      String groupName = groupQueryResult[1];
+      String groupDisplayName = groupQueryResult[2];
+      String groupDescription = groupQueryResult[3];
+      Long groupIdIndex = GrouperUtil.longObjectValue(groupQueryResult[4], false);
+      
+      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      targetGroup.setId(groupId);
+      targetGroup.setName(groupName);
+      targetGroup.setDisplayName(groupDisplayName);
+      targetGroup.assignAttributeValue("description", groupDescription);
+      targetGroup.setIdIndex(groupIdIndex);
+
+      groupIdToProvisioningGroup.put(groupId, targetGroup);
+    }
+    
+    Map<String, ProvisioningEntity> memberIdToProvisioningEntity = new HashMap<String, ProvisioningEntity>();
+    count = 0;
+    for (String[] memberQueryResult : queryResultsMembers) {
+      String memberId = memberQueryResult[0];
+      queryResultsMembers.set(count, null);
+      count++;
+
+      String subjectId = memberQueryResult[1];
+      String subjectSourceId = memberQueryResult[2];
+      String subjectIdentifier0 = memberQueryResult[3];
+      String name = memberQueryResult[4];
+      String description = memberQueryResult[5];
+      String subjectIdentifier1 = memberQueryResult[6];
+      String subjectIdentifier2 = memberQueryResult[7];
+      Long memberIdIndex = GrouperUtil.longObjectValue(memberQueryResult[8], false);
+      Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(memberQueryResult[9]);
+
+      ProvisioningEntity targetEntity = new ProvisioningEntity();
+      targetEntity.setId(memberId);
+      targetEntity.setName(name);
+      targetEntity.assignAttributeValue("description", description);
+      targetEntity.setSubjectId(subjectId);
+      targetEntity.setIdIndex(memberIdIndex);
+      targetEntity.setSubjectResolutionResolvable(subjectResolutionResolvable);
+      targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
+      targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
+      targetEntity.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
+      targetEntity.assignAttributeValue("subjectIdentifier2", subjectIdentifier2);
+      
+      memberIdToProvisioningEntity.put(memberId, targetEntity);
+    }
+        
+    count=0;
+    for (String[] queryResult : queryResultsMemberships) {
+      
+      // conserve memory
+      queryResultsMemberships.set(count, null);
+      count++;
+      
+      String membershipId = queryResult[0];
+      String groupId = queryResult[1];
+      String memberId = queryResult[2];
+      
+      ProvisioningGroup targetGroup = groupIdToProvisioningGroup.get(groupId);
+      ProvisioningEntity targetEntity = memberIdToProvisioningEntity.get(memberId);
+      
+      if (targetGroup == null || targetEntity == null) {
+        // skip due to race condition
+        continue;
+      }
+
+      // check if skipping unresolvable subjects
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !targetEntity.getSubjectResolutionResolvable()) {
+        continue;
+      }
+
+      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
+      grouperProvisioningMembership.setId(membershipId);
+      
+      { 
+        grouperProvisioningMembership.setProvisioningEntity(targetEntity);
+        grouperProvisioningMembership.setProvisioningEntityId(memberId);
+      }
+      {
         grouperProvisioningMembership.setProvisioningGroup(targetGroup);
         grouperProvisioningMembership.setProvisioningGroupId(groupId);
       }

@@ -576,7 +576,13 @@ public class LdaptiveSessionImpl implements LdapSession {
 
     List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = new ArrayList<>();
 
-    for (LdapEntry searchResult : searchResults.getEntries()) {
+    int count = 0;
+    ArrayList<LdapEntry> searchResultArrayList = (ArrayList<LdapEntry>) searchResults.getEntries();
+    for (LdapEntry searchResult : searchResultArrayList) {
+      
+      // conserve memory
+      searchResultArrayList.set(count, null);
+      count++;
 
       String nameInNamespace = searchResult.getDn();
       

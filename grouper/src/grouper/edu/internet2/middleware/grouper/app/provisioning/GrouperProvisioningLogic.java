@@ -89,6 +89,8 @@ public class GrouperProvisioningLogic {
 
     this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorMessage(null);
     this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorTimestamp(null);
+    
+    garbageCollectAndLogMemoryIfDebug(debugMap, "Start");
 
     {
       debugMap.put("state", "propagateProvisioningAttributes");
@@ -108,6 +110,8 @@ public class GrouperProvisioningLogic {
     
     debugMap.put("state", "retrieveAllDataFromGrouperAndTarget");
     grouperProvisioner.retrieveGrouperProvisioningLogic().retrieveAllData();
+    
+    garbageCollectAndLogMemoryIfDebug(debugMap, "AfterRetrieveAllData");
     
     debugMap.put("state", "retrieveSubjectLink");
     this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().retrieveSubjectLink();
@@ -377,6 +381,9 @@ public class GrouperProvisioningLogic {
 //      gcGrouperSyncLog.setStatus(GcGrouperSyncLogState.INTERRUPTED);
 //      return;
 //    }
+    
+    garbageCollectAndLogMemoryIfDebug(debugMap, "End");
+    
     if (GrouperClientUtils.isBlank(this.getGrouperProvisioner().getGcGrouperSyncLog().getStatus())) {
       this.getGrouperProvisioner().getGcGrouperSyncLog().setStatus(GcGrouperSyncLogState.SUCCESS);
     }
@@ -2057,15 +2064,18 @@ public class GrouperProvisioningLogic {
     });
     
     targetQueryThread.start();
+    
+    // adjusting so that we no longer run target and grouper queries together.
+    // maybe a config option later?
+    GrouperClientUtils.join(targetQueryThread);
+    
+    if (RUNTIME_EXCEPTION[0] != null) {
+      throw RUNTIME_EXCEPTION[0];
+    }
 
     // get all grouper data for the provisioner
     // and put in GrouperProvisioningDataSyncGrouper
     GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataFull();
-
-    GrouperClientUtils.join(targetQueryThread);
-    if (RUNTIME_EXCEPTION[0] != null) {
-      throw RUNTIME_EXCEPTION[0];
-    }
     
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -4004,5 +4014,17 @@ public class GrouperProvisioningLogic {
   
   }
 
-
+  private void garbageCollectAndLogMemoryIfDebug(Map<String, Object> debugMap, String logLabel) {
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDebugLog()) {
+      debugMap.put("state", "determineMemory" + logLabel);
+      long start = System.currentTimeMillis();
+      Runtime runtime = Runtime.getRuntime();
+      runtime.gc();
+      runtime.gc();
+      long memoryBytes = runtime.totalMemory() - runtime.freeMemory();
+      long memoryCalcTimeMillis = System.currentTimeMillis() - start;
+      debugMap.put("memory" + logLabel + "Bytes", memoryBytes);
+      debugMap.put("memory" + logLabel + "CalcTimeMillis", memoryCalcTimeMillis);
+    }
+  }
 }
