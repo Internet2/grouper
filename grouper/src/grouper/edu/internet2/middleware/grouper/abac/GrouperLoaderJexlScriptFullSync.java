@@ -426,8 +426,6 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
               + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (thePart.getArguments().size()+1) + "$$ = ?) ");
           thePart.getArguments().add(new MultiKey("attribute", attributeAlias));
         }
-        
-        
        
         if (jjtGetChild instanceof ASTStringLiteral) {
           String value = ((ASTStringLiteral)jjtGetChild).getLiteral();
@@ -466,18 +464,6 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
         
       }
-//      for (int j=0;j<jexlNode.jjtGetNumChildren(); j++) {
-//        if (j>0) {
-//          theGrouperJexlScriptPart.getWhereClause().append(" or ");
-//          theGrouperJexlScriptPart.getDisplayDescription().append(" ").append(GrouperTextContainer.textOrNull("jexlAnalysisOr")).append(" ");
-//        }
-//        analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, theGrouperJexlScriptPart, jexlNode.jjtGetChild(j), clonePart);
-//        if (clonePart) {
-//          grouperJexlScriptPartClone = new GrouperJexlScriptPart();
-//          grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
-//          analyzeJexlScriptToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPartClone, jexlNode.jjtGetChild(j), false);
-//        }
-//      }
       
       grouperJexlScriptPart.getWhereClause().append(")");
       
