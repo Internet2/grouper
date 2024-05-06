@@ -35,6 +35,7 @@ import java.lang.reflect.Method;
 
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.abac.AllAbacTests;
 import edu.internet2.middleware.grouper.app.AllAppTests;
 import edu.internet2.middleware.grouper.app.duo.AllDuoProvisionerTests;
 import edu.internet2.middleware.grouper.app.duo.role.AllDuoRoleProvisionerTests;
@@ -224,6 +225,7 @@ public class AllTests extends GrouperTest {
     // All manual suites from packages in alphabetical order
     boolean testClientConfigs = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.clientConfig", false);
     suite.addTest(AllClientConfigTests.suite(testClientConfigs));
+    suite.addTest(AllAbacTests.suite());
     suite.addTest(AllAppTests.suite());
     suite.addTest(AllAttributeTests.suite());
     suite.addTest(AllAuditTests.suite());
