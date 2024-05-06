@@ -305,7 +305,7 @@ public class LdaptiveSessionImpl implements LdapSession {
           int pruneTimerPeriod = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".pruneTimerPeriod", 300000);
           int expirationTime = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".expirationTime", 600000);
           
-          int validateTimerPeriod = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".validateTimerPeriod", 0);
+          int validateTimerPeriod = GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".validateTimerPeriod", 5*60*1000);
           if (validateTimerPeriod > 0) {
             ldapPoolConfig.setValidatePeriod(Duration.ofMillis(validateTimerPeriod));
           }
