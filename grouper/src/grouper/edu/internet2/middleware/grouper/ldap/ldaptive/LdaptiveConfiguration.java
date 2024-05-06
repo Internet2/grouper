@@ -315,7 +315,7 @@ final class LdaptiveConfiguration {
       validator = "edu.internet2.middleware.grouper.ldap.ldaptive.LdaptiveConnectionValidator{{validatePeriod=%1$s}{dn=%2$s}{name=%3$s}{value=%4$s}}";
       validator = String.format(
         validator,
-        Duration.ofMillis(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".validateTimerPeriod", 1800000)),
+        Duration.ofMillis(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".validateTimerPeriod", 5*60*1000)),
         GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareDn"),
         GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareAttribute"),
         GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("ldap." + ldapServerId + ".validatorCompareValue"));
@@ -323,7 +323,7 @@ final class LdaptiveConfiguration {
       validator = "org.ldaptive.SearchConnectionValidator{{validatePeriod=%1$s}}";
       validator = String.format(
         validator,
-        Duration.ofMillis(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".validateTimerPeriod", 1800000)));
+        Duration.ofMillis(GrouperLoaderConfig.retrieveConfig().propertyValueInt("ldap." + ldapServerId + ".validateTimerPeriod", 5*60*1000)));
     }
     props.put("org.ldaptive.pool.validator", validator);
 
