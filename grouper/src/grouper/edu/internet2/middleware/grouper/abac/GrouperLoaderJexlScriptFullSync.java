@@ -65,6 +65,7 @@ import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -171,6 +172,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       GcDbAccess gcDbAccess = new GcDbAccess();
       String whereClause = grouperJexlScriptPart.getWhereClause().toString();
       int argumentIndex = 0;
+      
+      String previousAttributeAlias = null;
+      
       for (MultiKey argument : grouperJexlScriptPart.getArguments()) {
         String argumentString = (String)argument.getKey(0);
         if (StringUtils.equals(argumentString, "group")) {
@@ -209,6 +213,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
           gcDbAccess.addBindVar(grouperDataField.getInternalId());
           
+          previousAttributeAlias = attributeAlias;
+          
         } else if (StringUtils.equals(argumentString, "row")) {
           String rowAlias = (String)argument.getKey(1);
           GrouperDataRowWrapper grouperDataRowWrapper = grouperDataEngine.getGrouperDataProviderIndex().getRowWrapperByLowerAlias().get(rowAlias.toLowerCase());
@@ -218,11 +224,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         } else if (StringUtils.equals(argumentString, "attributeValue")) {
           
           MultiKey argumentNameMultiKey = grouperJexlScriptPart.getArguments().get(argumentIndex-1);
-          String attributeAlias = (String)argumentNameMultiKey.getKey(1);
-          GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
+          String argumentPreviousString = (String)argumentNameMultiKey.getKey(0);
+          boolean isAttribute = StringUtils.equals(argumentPreviousString, "attribute");
+          
+          GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(previousAttributeAlias.toLowerCase());
           GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
           
-          GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+          GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(previousAttributeAlias.toLowerCase());
           GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
           GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
           
@@ -231,11 +239,16 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           
           if (fieldDataType == GrouperDataFieldType.bool || fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
             gcDbAccess.addBindVar(grouperDataFieldAssign.getValueInteger());
-            whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_integer");
+            
+            if (isAttribute) {                
+              whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_integer");
+            }
             
           } else if (fieldDataType == GrouperDataFieldType.string) {
             gcDbAccess.addBindVar(grouperDataFieldAssign.getValueDictionaryInternalId());
-            whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id");
+            if (isAttribute) {
+              whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id");
+            }
   
           } else {
             throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
@@ -409,23 +422,22 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       String attributeAlias = astStringLiteral.getLiteral();
       
       ASTArrayLiteral astArrayLiteral = (ASTArrayLiteral)astArguments.jjtGetChild(1);
-      grouperJexlScriptPart.getWhereClause().append("(");
+      
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+          + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ in ("+ GrouperClientUtils.appendQuestions(astArrayLiteral.jjtGetNumChildren()) + ")) ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      
       for (int i=0; i<astArrayLiteral.jjtGetNumChildren(); i++) {
         
         JexlNode jjtGetChild = astArrayLiteral.jjtGetChild(i);
         
-        if (i > 0) {
-          grouperJexlScriptPart.getWhereClause().append("or ");
-        }
-        
         GrouperJexlScriptPart grouperJexlScriptPartClone = new GrouperJexlScriptPart();
         grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone);
         
-        for (GrouperJexlScriptPart thePart: new GrouperJexlScriptPart[] {grouperJexlScriptPart, grouperJexlScriptPartClone}) {
-          thePart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
-              + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (thePart.getArguments().size()+1) + "$$ = ?) ");
-          thePart.getArguments().add(new MultiKey("attribute", attributeAlias));
-        }
+        grouperJexlScriptPartClone.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPartClone.getArguments().size()+1) + "$$ = ?) ");
+        grouperJexlScriptPartClone.getArguments().add(new MultiKey("attribute", attributeAlias));
+       
        
         if (jjtGetChild instanceof ASTStringLiteral) {
           String value = ((ASTStringLiteral)jjtGetChild).getLiteral();
@@ -464,8 +476,6 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
         
       }
-      
-      grouperJexlScriptPart.getWhereClause().append(")");
       
     } else if (StringUtils.equals("hasAttribute", astIdentifierAccess.getName())) {
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
@@ -949,6 +959,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
         GcDbAccess gcDbAccess = new GcDbAccess();
         int argumentIndex = 0;
+        
+        String previousAttributeAlias = null;
+        
         for (MultiKey argument : arguments) {
           String argumentString = (String)argument.getKey(0);
           if (StringUtils.equals(argumentString, "group")) {
@@ -965,7 +978,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
             GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
             gcDbAccess.addBindVar(grouperDataField.getInternalId());
-            
+            previousAttributeAlias = attributeAlias;
           } else if (StringUtils.equals(argumentString, "row")) {
             String rowAlias = (String)argument.getKey(1);
             GrouperDataRowWrapper grouperDataRowWrapper = grouperDataEngine.getGrouperDataProviderIndex().getRowWrapperByLowerAlias().get(rowAlias.toLowerCase());
@@ -975,11 +988,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           } else if (StringUtils.equals(argumentString, "attributeValue")) {
             
             MultiKey argumentNameMultiKey = arguments.get(argumentIndex-1);
-            String attributeAlias = (String)argumentNameMultiKey.getKey(1);
-            GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
+            
+            String argumentPreviousString = (String)argumentNameMultiKey.getKey(0);
+            boolean isAttribute = StringUtils.equals(argumentPreviousString, "attribute");
+            GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(previousAttributeAlias.toLowerCase());
             GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
             
-            GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+            GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByAlias().get(previousAttributeAlias.toLowerCase());
             GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
             GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
             
@@ -988,11 +1003,15 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             
             if (fieldDataType == GrouperDataFieldType.bool || fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
               gcDbAccess.addBindVar(grouperDataFieldAssign.getValueInteger());
-              whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_integer");
+              if (isAttribute) {                
+                whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_integer");
+              }
               
             } else if (fieldDataType == GrouperDataFieldType.string) {
               gcDbAccess.addBindVar(grouperDataFieldAssign.getValueDictionaryInternalId());
-              whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id");
+              if (isAttribute) {                
+                whereClause = StringUtils.replace(whereClause, "$$ATTRIBUTE_COL_" + argumentIndex + "$$", "value_dictionary_internal_id");
+              }
 
             } else {
               throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
