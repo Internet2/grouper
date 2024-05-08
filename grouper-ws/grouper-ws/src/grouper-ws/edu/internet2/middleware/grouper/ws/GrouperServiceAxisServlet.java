@@ -34,8 +34,6 @@ import edu.internet2.middleware.grouper.instrumentation.InstrumentationDataBuilt
 import edu.internet2.middleware.grouper.instrumentation.InstrumentationThread;
 import edu.internet2.middleware.grouper.j2ee.status.GrouperStatusServlet;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
-import edu.internet2.middleware.grouper.ws.security.GrouperWssecAuthentication;
-import edu.internet2.middleware.grouper.ws.security.RampartHandlerServer;
 
 
 /**
@@ -64,17 +62,6 @@ public class GrouperServiceAxisServlet extends AxisServlet {
     //stash in threadlocal, make sure this is first in this method!
     GrouperServiceJ2ee.assignHttpServlet(this);
 
-    //if rampart, then, then make sure configured
-    if (GrouperServiceJ2ee.wssecServlet()) {
-      Class<? extends GrouperWssecAuthentication> wssecClass  = RampartHandlerServer.retrieveRampartCallbackClass();
-      if (wssecClass == null) {
-        //do a 404 if not configured, this is not found!
-        HttpServletResponse httpServletResponse = (HttpServletResponse)res;
-        httpServletResponse.setStatus(404);
-        return;
-      }
-    }
-    
     //else pass to axis
     super.service(req, res);
     

@@ -44,11 +44,6 @@ import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
 import org.apache.logging.log4j.ThreadContext;
-import org.apache.ws.security.WSConstants;
-import org.apache.ws.security.WSSecurityEngineResult;
-import org.apache.ws.security.WSUsernameTokenPrincipal;
-import org.apache.ws.security.handler.WSHandlerConstants;
-import org.apache.ws.security.handler.WSHandlerResult;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -185,46 +180,15 @@ public class GrouperServiceJ2ee implements Filter {
     // add this in for JWT
     String userIdLoggedIn = (String)retrieveHttpServletRequest().getAttribute("REMOTE_USER");
     if (StringUtils.isBlank(userIdLoggedIn)) {
-      if (wssecServlet()) {
-  
-        MessageContext msgCtx = MessageContext.getCurrentMessageContext();
-        Vector results = null;
-        if ((results = (Vector) msgCtx.getProperty(WSHandlerConstants.RECV_RESULTS)) == null) {
-          throw new RuntimeException("No Rampart security results!");
-        }
-        LOG.debug("Number of rampart results: " + results.size());
-        OUTER: for (int i = 0; i < results.size(); i++) {
-          WSHandlerResult rResult = (WSHandlerResult) results.get(i);
-          List<WSSecurityEngineResult> wsSecEngineResults = rResult.getResults();
-  
-          for (int j = 0; j < wsSecEngineResults.size(); j++) {
-            WSSecurityEngineResult wser = wsSecEngineResults
-                .get(j);
-            if (GrouperUtil.equals(wser.get(WSSecurityEngineResult.TAG_ACTION), WSConstants.UT) && wser.get(WSSecurityEngineResult.TAG_PRINCIPAL) != null) {
-  
-              //Extract the principal
-              Principal principal = (Principal) wser.get(WSSecurityEngineResult.TAG_PRINCIPAL);
-  
-              //Get user
-              userIdLoggedIn = principal.getName();
-              break OUTER;
-  
-            }
-          }
-        }
-        GrouperUtil.assertion(StringUtils.isNotBlank(userIdLoggedIn),
-            "There is no Rampart user logged in, make sure the container requires authentication");
-      } else {
-        //this is for container auth (or custom auth, non-rampart)
-        //get an instance
-        Class<? extends WsCustomAuthentication> theClass = GrouperUtil
-            .forName(authenticationClassName);
-  
-        WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
-  
-        userIdLoggedIn = wsAuthentication
-            .retrieveLoggedInSubjectId(retrieveHttpServletRequest());
-      }
+      //this is for container auth (or custom auth, non-rampart)
+      //get an instance
+      Class<? extends WsCustomAuthentication> theClass = GrouperUtil
+          .forName(authenticationClassName);
+
+      WsCustomAuthentication wsAuthentication = GrouperUtil.newInstance(theClass);
+
+      userIdLoggedIn = wsAuthentication
+          .retrieveLoggedInSubjectId(retrieveHttpServletRequest());
     }
     
     // cant be blank!
@@ -887,16 +851,6 @@ public class GrouperServiceJ2ee implements Filter {
    */
   public static HttpServlet retrieveHttpServlet() {
     return threadLocalServlet.get();
-  }
-
-  /**
-   * is this a wssec servlet?  must have servlet init param
-   * @return true if wssec
-   */
-  public static boolean wssecServlet() {
-    String wssecValue = retrieveHttpServlet().getServletConfig()
-        .getInitParameter("wssec");
-    return GrouperUtil.booleanValue(wssecValue, false);
   }
 
   /**
