@@ -14,6 +14,7 @@ import org.apache.commons.jexl3.parser.ASTAndNode;
 import org.apache.commons.jexl3.parser.ASTArguments;
 import org.apache.commons.jexl3.parser.ASTArrayLiteral;
 import org.apache.commons.jexl3.parser.ASTEQNode;
+import org.apache.commons.jexl3.parser.ASTERNode;
 import org.apache.commons.jexl3.parser.ASTIdentifier;
 import org.apache.commons.jexl3.parser.ASTIdentifierAccess;
 import org.apache.commons.jexl3.parser.ASTJexlScript;
@@ -598,11 +599,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
             + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
       }
-      if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)
-          && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral)) {
+      if ((jexlNode instanceof ASTEQNode) && !(jexlNode.jjtGetChild(1) instanceof ASTIdentifier) && !(jexlNode.jjtGetChild(1) instanceof ASTNumberLiteral)
+          && !(jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) ) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
             + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
       }
+      
       ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
       String rightPartValue = null;
       if (jexlNode.jjtGetChild(1) instanceof ASTIdentifier) {
@@ -611,7 +613,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         rightPartValue = GrouperUtil.stringValue(((ASTNumberLiteral)jexlNode.jjtGetChild(1)).getLiteral());
       } else if (jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) {
         rightPartValue = ((ASTStringLiteral)jexlNode.jjtGetChild(1)).getLiteral();
-      }
+      } 
       
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
           + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ = ?) ");
@@ -622,7 +624,91 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2")).append(" '")
         .append(GrouperUtil.xmlEscape(rightPartValue)).append("'");
 
-    } else if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
+    }  
+    
+    else if (jexlNode instanceof ASTERNode && 2==jexlNode.jjtGetNumChildren()) {
+      if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
+            + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
+      }
+      if (!(jexlNode.jjtGetChild(1) instanceof ASTArrayLiteral)) {
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
+            + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
+      }
+      
+      ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
+      
+      ASTArrayLiteral astArrayLiteral = (ASTArrayLiteral)jexlNode.jjtGetChild(1);
+      
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
+          + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ in ("+ GrouperClientUtils.appendQuestions(astArrayLiteral.jjtGetNumChildren()) +")) ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
+     
+      
+      for (int i=0; i < astArrayLiteral.jjtGetNumChildren(); i++) {
+        JexlNode jjtGetChild = astArrayLiteral.jjtGetChild(i);
+        String rightPartSingleValue = null;
+        
+//        GrouperJexlScriptPart grouperJexlScriptPartClone2 = new GrouperJexlScriptPart();
+//        grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPartClone2);
+        
+//        grouperJexlScriptPartClone2.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
+//            + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ = ? )");
+//        grouperJexlScriptPartClone2.getArguments().add(new MultiKey("attribute", leftPart.getName()));
+        
+        if (jjtGetChild instanceof ASTIdentifier) {
+          rightPartSingleValue = ((ASTIdentifier)jjtGetChild).getName();
+          
+          if (i == 0) {
+            grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeAnyValue")).append(" '")
+            .append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
+          } else {
+            grouperJexlScriptPart.getDisplayDescription().append(", '").append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
+          }
+          
+//          grouperJexlScriptPartClone2.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+//          .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2")).append(" '")
+//          .append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
+          
+        } else if (jjtGetChild instanceof ASTNumberLiteral) {
+          rightPartSingleValue = GrouperUtil.stringValue(((ASTNumberLiteral)jjtGetChild).getLiteral());
+          
+          if (i == 0) {
+            grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeAnyValue"))
+            .append(GrouperUtil.xmlEscape(rightPartSingleValue));
+          } else {
+            grouperJexlScriptPart.getDisplayDescription().append(", ").append(GrouperUtil.xmlEscape(rightPartSingleValue));
+          }
+          
+//          grouperJexlScriptPartClone2.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+//          .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2"))
+//          .append(GrouperUtil.xmlEscape(rightPartSingleValue));
+          
+        } else if (jjtGetChild instanceof ASTStringLiteral) {
+          rightPartSingleValue = ((ASTStringLiteral)jjtGetChild).getLiteral();
+          if (i == 0) {
+            grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+            .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeAnyValue")).append(" '")
+            .append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
+          } else {
+            grouperJexlScriptPart.getDisplayDescription().append(", '").append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
+          }
+          
+//          grouperJexlScriptPartClone2.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+//          .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2")).append(" '")
+//          .append(GrouperUtil.xmlEscape(rightPartSingleValue)).append("'");
+        } 
+        
+        grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPartSingleValue));
+//        grouperJexlScriptPartClone2.getArguments().add(new MultiKey("attributeValue", rightPartSingleValue));
+        
+      }
+
+    }
+    
+    else if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
       analyzeJexlRowToSqlHelper(grouperJexlScriptAnalysis, grouperJexlScriptPart, rowJexlScriptPart, jexlNode.jjtGetChild(0), clonePart);
     } else if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
       grouperJexlScriptPart.getWhereClause().append("(");
