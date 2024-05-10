@@ -1,8 +1,8 @@
 {
   "swagger" : "2.0",
   "info" : {
-    "description" : "Grouper Web Service operations.  Substitute vX_Y_AAA with the client version, e.g. v2_6_001.  Note: the base URL and authentication are institution specific.",
-    "version" : "v2.6.1",
+    "description" : "Grouper Web Service operations.  Substitute vX_Y_AAA with the client version, e.g. v4_0_001.  Note: the base URL and authentication are institution specific.",
+    "version" : "v4",
     "title" : "Grouper Web Services"
   },
   "host" : "grouper.institution.edu",
@@ -64,6 +64,62 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -127,6 +183,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -190,6 +295,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -237,6 +391,69 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -284,6 +501,62 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -331,6 +604,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -378,6 +700,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -425,6 +796,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -472,6 +892,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -519,6 +988,69 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -614,6 +1146,111 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -661,6 +1298,125 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -997,6 +1753,76 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "stemName search by stem name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Will return groups only in this stem (by name)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:parent:folder:name"
         } ],
         "responses" : {
           "200" : {
@@ -1060,6 +1886,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -1107,6 +1982,90 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1138,6 +2097,69 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1185,6 +2207,104 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1232,6 +2352,111 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1279,6 +2504,83 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1326,6 +2628,62 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1373,6 +2731,69 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1420,6 +2841,69 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1467,6 +2951,62 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1514,6 +3054,76 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -1561,6 +3171,62 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "deleteOldMember",
+          "in" : "formData",
+          "description" : "T/F or TRUE/FALSE (Case sensitive) true means delete subject that was changed, false means keep, defaults to true",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T"
         } ],
         "responses" : {
           "200" : {
@@ -1640,6 +3306,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -1687,6 +3402,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
         } ],
         "responses" : {
           "200" : {
@@ -3645,6 +5409,13 @@
         },
         "gshScriptOutput" : {
           "type" : "string"
+        },
+        "gshExitCode" : {
+          "type" : "integer",
+          "format" : "int32"
+        },
+        "wsOutput" : {
+          "type" : "object"
         }
       }
     },
