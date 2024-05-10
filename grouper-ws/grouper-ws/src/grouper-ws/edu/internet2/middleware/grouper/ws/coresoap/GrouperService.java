@@ -251,7 +251,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrieved", dataType = "String", paramType = "form", 
     value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F"),
     @ApiImplicitParam(required = false, name = "enabled", dataType = "String", paramType = "form", 
-    value = "enabled is A for all, T or null for enabled only, F for disabled", example = "A|T|F")    
+    value = "enabled is A for all, T or null for enabled only, F for disabled", example = "A|T|F")   
   })
   public WsFindGroupsResults findGroupsLite(
       final String clientVersion,
@@ -354,6 +354,7 @@ public class GrouperService {
    * @return the groups, or no groups if none found
    */
   @SuppressWarnings("unchecked")
+  
   public WsFindGroupsResults findGroups(final String clientVersion,
       WsQueryFilter wsQueryFilter, 
       WsSubjectLookup actAsSubjectLookup, 
@@ -455,8 +456,43 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
+    value = "Page number 1 indexed if paging", example = "1"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageIsCursor", dataType = "String", paramType = "form", 
+    value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorField", dataType = "String", paramType = "form", 
+    value = "Field that will be sent back for cursor based paging", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorFieldType", dataType = "String", paramType = "form", 
+    value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp"),
+    @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrieved", dataType = "String", paramType = "form", 
+    value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   })
+   
+    
   public WsGetMembersLiteResult getMembersLite(final String clientVersion,
       String groupName, String groupUuid, String memberFilter, String actAsSubjectId,
       String actAsSubjectSourceId, String actAsSubjectIdentifier, final String fieldName,
@@ -866,6 +902,23 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
   })
   public WsStemDeleteLiteResult stemDeleteLite(final String clientVersion,
       String stemName, String stemUuid, String actAsSubjectId, String actAsSubjectSourceId,
@@ -930,6 +983,27 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGroupDeleteLiteResult groupDeleteLite(final String clientVersion,
       String groupName, String groupUuid, String actAsSubjectId,
@@ -1093,6 +1167,25 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGroupSaveLiteResult groupSaveLite(final String clientVersion,
       String groupLookupUuid, String groupLookupName, String groupUuid,String groupName, 
@@ -1176,6 +1269,24 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    
   })
   public WsStemSaveLiteResult stemSaveLite(final String clientVersion,
       String stemLookupUuid, String stemLookupName, String stemUuid, String stemName, 
@@ -1623,7 +1734,38 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
+    value = "Page number 1 indexed if paging", example = "1"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageIsCursor", dataType = "String", paramType = "form", 
+    value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorField", dataType = "String", paramType = "form", 
+    value = "Field that will be sent back for cursor based paging", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorFieldType", dataType = "String", paramType = "form", 
+    value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp"),
+    @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrieved", dataType = "String", paramType = "form", 
+    value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   })
   public WsGetGroupsLiteResult getGroupsLite(final String clientVersion, String subjectId,
       String subjectSourceId, String subjectIdentifier, String memberFilter,
@@ -1743,7 +1885,25 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F")
   })
   public WsAddMemberLiteResult addMemberLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String subjectSourceId,
@@ -2039,6 +2199,30 @@ public class GrouperService {
           value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
       @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
           value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+      @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+      value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+          + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+      @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+      value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+          + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+      @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+      value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+          + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+      @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+      value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+          + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+      @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+      value = "Optional params for this request", example = "NA"),
+      @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+      value = "Optional params for this request", example = "NA"),
+      @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+      value = "Optional params for this request", example = "NA"),
+      @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+      value = "Optional params for this request", example = "NA"),
+      @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+      value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+      @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+      value = "If the group detail should be returned, default to false", example = "T|F")
     })
     public WsHasMemberLiteResult hasMemberLite(final String clientVersion, String groupName,
         String groupUuid, String subjectId, String subjectSourceId, String subjectIdentifier,
@@ -2138,6 +2322,25 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "deleteOldMember", dataType = "String", paramType = "form", 
+    value = "T/F or TRUE/FALSE (Case sensitive) true means delete subject that was changed, false means keep, defaults to true", example = "T"),
   })
   public WsMemberChangeSubjectLiteResult memberChangeSubjectLite(final String clientVersion, 
       String oldSubjectId, String oldSubjectSourceId, String oldSubjectIdentifier,
@@ -2282,7 +2485,28 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsDeleteMemberLiteResult deleteMemberLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String subjectSourceId,
@@ -2374,7 +2598,30 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+        value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
+        value = "stemName search by stem name (must match exactly), cannot use other params with this", example = "some:stem:name"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
+    value = "Will return groups only in this stem (by name)", example = "some:parent:folder:name"),
   })
   public WsFindStemsResults findStemsLite(final String clientVersion,
       String stemQueryFilterType, String stemName, String parentStemName,
@@ -2463,6 +2710,27 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(String clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
@@ -2583,7 +2851,28 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsAssignGrouperPrivilegesLiteResult assignGrouperPrivilegesLite(String clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
@@ -2913,7 +3202,32 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
+    value = "Page number 1 indexed if paging", example = "1"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String sourceId, String subjectIdentifier, 
@@ -3131,6 +3445,27 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
+    value = "groupUuid search by group uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGetSubjectsResults getSubjectsLite(final String clientVersion,
       String subjectId, String sourceId, String subjectIdentifier, String searchString,
@@ -3473,6 +3808,25 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
       String clientVersion, String attributeAssignType,
@@ -3661,7 +4015,24 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
   })
   public WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(
 		  String clientVersion, String wsNameOfAttributeDef, String wsIdOfAtttributeDef, String wsIdIndexOfAtrrbuteDef,
@@ -3915,7 +4286,23 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsAssignAttributesLiteResults assignAttributesLite(
       String clientVersion, String attributeAssignType,
@@ -4177,6 +4564,25 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGetPermissionAssignmentsResults getPermissionAssignmentsLite(
       String clientVersion, 
@@ -4394,7 +4800,26 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
+    value = "If the group detail should be returned, default to false", example = "T|F")
   })
   public WsAssignPermissionsLiteResults assignPermissionsLite(
       String clientVersion, String permissionType,
@@ -4549,7 +4974,24 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
   })
   public WsAssignAttributeDefNameInheritanceResults assignAttributeDefNameInheritanceLite(final String clientVersion,
       String attributeDefNameUuid, String attributeDefNameName, String relatedAttributeDefNameUuid, String relatedAttributeDefNameName,
@@ -4688,7 +5130,24 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
   })
   public WsAttributeDefSaveLiteResult attributeDefSaveLite(final String clientVersion,
       String attributeDefLookupUuid, String attributeDefLookupName,
@@ -4839,7 +5298,24 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
   })
   public WsAttributeDefDeleteLiteResult attributeDefDeleteLite(
       final String clientVersion,
@@ -5013,7 +5489,45 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
+    value = "Page number 1 indexed if paging", example = "1"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
+    value = "Page number 1 indexed if paging", example = "1"),
+    @ApiImplicitParam(required = false, name = "sortString", dataType = "String", paramType = "form", 
+    value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+    example = "name | displayName | extension | displayExtension"),
+    @ApiImplicitParam(required = false, name = "ascending", dataType = "String", paramType = "form", 
+    value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageIsCursor", dataType = "String", paramType = "form", 
+    value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorField", dataType = "String", paramType = "form", 
+    value = "Field that will be sent back for cursor based paging", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorFieldType", dataType = "String", paramType = "form", 
+    value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp"),
+    @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrieved", dataType = "String", paramType = "form", 
+    value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   })
   public WsFindAttributeDefsResults findAttributeDefsLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef,
@@ -5159,7 +5673,24 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
   })
   public WsAttributeDefNameDeleteLiteResult attributeDefNameDeleteLite(final String clientVersion,
       String attributeDefNameUuid, String attributeDefNameName,
@@ -5283,7 +5814,24 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
   })
   public WsAttributeDefNameSaveLiteResult attributeDefNameSaveLite(final String clientVersion,
       String attributeDefNameLookupUuid, String attributeDefNameLookupName, String attributeDefLookupUuid, 
@@ -5476,7 +6024,41 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
-        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+        value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
+    value = "Page number 1 indexed if paging", example = "1"),
+    @ApiImplicitParam(required = false, name = "sortString", dataType = "String", paramType = "form", 
+    value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+    example = "name | displayName | extension | displayExtension"),
+    @ApiImplicitParam(required = false, name = "ascending", dataType = "String", paramType = "form", 
+    value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageIsCursor", dataType = "String", paramType = "form", 
+    value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorField", dataType = "String", paramType = "form", 
+    value = "Field that will be sent back for cursor based paging", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorFieldType", dataType = "String", paramType = "form", 
+    value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp"),
+    @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrieved", dataType = "String", paramType = "form", 
+    value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F"),
   })
   public WsFindAttributeDefNamesResults findAttributeDefNamesLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
@@ -5860,6 +6442,33 @@ public class GrouperService {
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
     @ApiImplicitParam(required = false, name = "clientVersion", dataType = "String", paramType = "form", 
         value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
+        + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
+    @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramName1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
+    value = "Optional params for this request", example = "NA"),
+    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
+    value = "Page size if paging", example = "100"),
+    @ApiImplicitParam(required = false, name = "pageIsCursor", dataType = "String", paramType = "form", 
+    value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorField", dataType = "String", paramType = "form", 
+    value = "Field that will be sent back for cursor based paging", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "pageLastCursorFieldType", dataType = "String", paramType = "form", 
+    value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp"),
+    @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrieved", dataType = "String", paramType = "form", 
+    value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   })
   public WsGetAuditEntriesResults getAuditEntriesLite(final String clientVersion,
       String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier,
