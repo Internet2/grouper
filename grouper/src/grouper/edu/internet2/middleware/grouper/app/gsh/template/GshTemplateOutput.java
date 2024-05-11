@@ -4,7 +4,32 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
 public class GshTemplateOutput {
+  
+  public String toString() {
+    
+    StringBuilder result = new StringBuilder();
+
+    if (GrouperUtil.length(this.validationLines) > 0) {
+      for (GshValidationLine gshValidationLine : this.validationLines) {
+        result.append(gshValidationLine.toString()).append("\n");
+      }
+    }
+    
+    if (GrouperUtil.length(this.outputLines) > 0) {
+      for (GshOutputLine gshOutputLine : this.outputLines) {
+        result.append(gshOutputLine.toString()).append("\n");
+      }
+    }
+    
+    if (this.wsOutput != null) {
+      result.append("wsOutput: ").append(GrouperUtil.jsonConvertTo(this.wsOutput, false)).append("\n");
+    }
+    
+    return result.toString();
+  }
   
   private boolean isError;
   
