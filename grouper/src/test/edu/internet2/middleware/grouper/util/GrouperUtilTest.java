@@ -32,6 +32,10 @@ import java.util.Set;
 
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.node.ArrayNode;
+import com.fasterxml.jackson.databind.node.ObjectNode;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.AttributeNotFoundException;
@@ -59,7 +63,7 @@ public class GrouperUtilTest extends GrouperTest {
    * @throws Exception
    */
   public static void main(String[] args) throws Exception {
-    TestRunner.run(new GrouperUtilTest("testConvertJson"));
+    TestRunner.run(new GrouperUtilTest("testJsonPointerAssignAndRead"));
     //TestRunner.run(TestGroup0.class);
     //runPerfProblem();
     
@@ -68,6 +72,49 @@ public class GrouperUtilTest extends GrouperTest {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperUtilTest.class);
 
+  public void testJsonPointerAssignAndRead() {
+    ObjectNode objectNode = GrouperUtil.jsonJacksonNode();
+    
+    String employeeNumberPointer = "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/employeeNumber";
+    
+    GrouperUtil.jsonJacksonAssignJsonPointerString(objectNode, employeeNumberPointer, "123456");
+    
+    String employeeNumber = GrouperUtil.jsonJacksonGetStringFromJsonPointer(objectNode, employeeNumberPointer);
+    
+    assertEquals("123456", employeeNumber);
+
+    System.out.println(objectNode);
+
+    objectNode = GrouperUtil.jsonJacksonNode();
+    
+    String phoneNumberPointer = "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/phoneNumbers/0/value";
+    String phoneNumberTypePointer = "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/phoneNumbers/0/type";
+    
+    GrouperUtil.jsonJacksonAssignJsonPointerString(objectNode, phoneNumberPointer, "650-926-3996");
+    GrouperUtil.jsonJacksonAssignJsonPointerString(objectNode, phoneNumberTypePointer, "work");
+    
+    String phoneNumber = GrouperUtil.jsonJacksonGetStringFromJsonPointer(objectNode, phoneNumberPointer);
+    String phoneNumberType = GrouperUtil.jsonJacksonGetStringFromJsonPointer(objectNode, phoneNumberTypePointer);
+    
+    assertEquals("650-926-3996", phoneNumber);
+    assertEquals("work", phoneNumberType);
+    
+    JsonNode schemaNode = GrouperUtil.jsonJacksonGetNode(objectNode, "urn:ietf:params:scim:schemas:extension:servicenow:2.0:User");
+    ArrayNode phoneNumbersNode = GrouperUtil.jsonJacksonGetArrayNode(schemaNode, "phoneNumbers");
+    JsonNode phoneNumberNode = phoneNumbersNode.get(0);
+    phoneNumber = GrouperUtil.jsonJacksonGetString(phoneNumberNode, "value");
+    phoneNumberType = GrouperUtil.jsonJacksonGetString(phoneNumberNode, "type");
+
+    assertEquals("650-926-3996", phoneNumber);
+    assertEquals("work", phoneNumberType);
+
+    System.out.println(objectNode);
+    
+    objectNode = GrouperUtil.jsonJacksonNode();
+
+  }
+  
+  
   public void testStringFormatNameReverseTruncate() {
     assertEquals("c.b.a", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", -1));
     assertEquals("c.b.", GrouperUtil.stringFormatNameReverseReplaceTruncate("a:b:c", ".", 4));

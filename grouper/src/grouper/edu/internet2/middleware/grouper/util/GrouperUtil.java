@@ -2565,7 +2565,7 @@ public class GrouperUtil {
    * @param jsonPointer e.g. /a/b/c/d
    * @param value
    */
-  public static void jsonJacksonAssignJsonPointerString(ObjectNode objectNode, String jsonPointer, String value) {
+  public static void jsonJacksonAssignJsonPointerString(JsonNode jsonNode, String jsonPointer, Object value) {
 
     JsonPointer jsonPointerFull = JsonPointer.compile(jsonPointer);
     JsonPointer currentPointer = jsonPointerFull;
@@ -2616,22 +2616,86 @@ public class GrouperUtil {
     //  JsonPointer jsonPointerRoot = jsonPointerExtension.head();
     //  jsonPointerRoot.length() == 0 when at root
 
-    ObjectNode currentObjectNode = objectNode;
+    JsonNode currentNode = jsonNode;
     
     for (int i=0;i<jsonPointers.size();i++) {
       
       JsonPointer currentJsonPointer = jsonPointers.get(i);
-
-      ObjectNode lucidChartLicense = (ObjectNode)objectNode.at(currentJsonPointer);
       
-//      if ()
-      
-      String pointerString = currentJsonPointer.toString();
-      
-      if (pointerString.charAt(0) == '/') {
-        pointerString = pointerString.substring(1, pointerString.length());
+      if (i == jsonPointers.size()-1) {
+        if (currentNode instanceof ObjectNode) {
+          ObjectNode currentObjectNode = (ObjectNode)currentNode;
+          if (value == null) {
+            currentObjectNode.putNull(currentJsonPointer.getMatchingProperty());
+          } else if (value instanceof String) {
+            GrouperUtil.jsonJacksonAssignString(currentObjectNode, currentJsonPointer.getMatchingProperty(), (String)value);
+          } else if (value instanceof Integer || value instanceof Long) {
+            GrouperUtil.jsonJacksonAssignLong(currentObjectNode, currentJsonPointer.getMatchingProperty(), GrouperUtil.longValue(value));
+          } else if (value instanceof Boolean) {
+            GrouperUtil.jsonJacksonAssignBoolean(currentObjectNode, currentJsonPointer.getMatchingProperty(), GrouperUtil.booleanValue(value));
+          } else {
+            throw new RuntimeException("Not exppecting type: " + value.getClass().getName());
+          }
+        } else if (currentNode instanceof ObjectNode) {
+          ArrayNode currentArrayNode = (ArrayNode)currentNode;
+          int index = GrouperUtil.intValue(currentJsonPointer.getMatchingProperty());
+          if (value == null) {
+            currentArrayNode.setNull(index);
+          } else if (value instanceof String) {
+            currentArrayNode.set(index, (String)value);
+          } else if (value instanceof Integer || value instanceof Long) {
+            currentArrayNode.set(index, GrouperUtil.longValue(value));
+          } else if (value instanceof Boolean) {
+            currentArrayNode.set(index, GrouperUtil.booleanValue(value));
+          } else {
+            throw new RuntimeException("Not exppecting type: " + value.getClass().getName());
+          }
+        } else {
+          throw new RuntimeException("Not exppecting node type: " + (currentNode == null ? "null" : currentNode.getClass().getName()));
+        }
+        return;
       }
-      System.out.println(pointerString);
+
+      JsonPointer nextJsonPointer = jsonPointers.get(i+1);
+      String nextPointerProperty = nextJsonPointer.getMatchingProperty();
+      
+      boolean nextIsArray = false;
+      try {
+        GrouperUtil.intValue(nextPointerProperty);
+        nextIsArray = true;
+      } catch (Exception e) {
+        
+      }
+
+      boolean thisIsArray = currentNode instanceof ArrayNode;
+      int arrayIndex = currentJsonPointer.getMatchingIndex();
+      
+      JsonNode nextNode = thisIsArray ? ((ArrayNode)currentNode).get(arrayIndex) : currentNode.get(currentJsonPointer.getMatchingProperty());
+
+      if (nextNode == null || nextNode.isEmpty()) {
+        if (thisIsArray) {
+          JsonNode theNextNode = GrouperUtil.jsonJacksonNode();
+          ArrayNode currentArrayNode = (ArrayNode)currentNode;
+          if (currentArrayNode.size() > arrayIndex) {
+            currentArrayNode.set(arrayIndex, theNextNode);
+          } else {
+            currentArrayNode.add(theNextNode);
+          }
+          currentNode = theNextNode;
+          
+        } else if (nextIsArray) {
+          ((ObjectNode)currentNode).set(currentJsonPointer.getMatchingProperty(), GrouperUtil.jsonJacksonArrayNode());
+          currentNode = currentNode.get(currentJsonPointer.getMatchingProperty());
+          
+        } else {
+          
+          ((ObjectNode)currentNode).set(currentJsonPointer.getMatchingProperty(), GrouperUtil.jsonJacksonNode());
+          currentNode = currentNode.get(currentJsonPointer.getMatchingProperty());
+        }
+      } else {
+        currentNode = nextNode;
+      }
+        
     }
     
   }
