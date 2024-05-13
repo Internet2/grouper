@@ -3648,7 +3648,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       
-      Set<ProvisioningObjectChange> provisionObjectChanges = targetEntity.getInternal_objectChanges();
+      Collection<ProvisioningObjectChange> provisionObjectChanges = targetEntity.getInternal_objectChanges();
       for (ProvisioningObjectChange provisioningObjectChange: provisionObjectChanges) {
         if (provisioningObjectChange.getException() != null) {
           
@@ -3691,7 +3691,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       
-      Set<ProvisioningObjectChange> provisionObjectChanges = targetGroup.getInternal_objectChanges();
+      Collection<ProvisioningObjectChange> provisionObjectChanges = targetGroup.getInternal_objectChanges();
       for (ProvisioningObjectChange provisioningObjectChange: provisionObjectChanges) {
         if (provisioningObjectChange.getException() != null) {
           

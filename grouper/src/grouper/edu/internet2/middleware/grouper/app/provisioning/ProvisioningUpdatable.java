@@ -611,7 +611,7 @@ public abstract class ProvisioningUpdatable {
    */
   private Exception exception;
   
-  private Set<ProvisioningObjectChange> internal_objectChanges = null;
+  private List<ProvisioningObjectChange> internal_objectChanges = null;
   /**
    * more attributes in name/value pairs
    */
@@ -629,7 +629,7 @@ public abstract class ProvisioningUpdatable {
     }
     
     if (this.internal_objectChanges == null) {
-      this.internal_objectChanges = new LinkedHashSet<ProvisioningObjectChange>();
+      this.internal_objectChanges = new ArrayList<ProvisioningObjectChange>();
     }
     this.internal_objectChanges.add(provisioningObjectChange);
   }
@@ -640,7 +640,7 @@ public abstract class ProvisioningUpdatable {
    * and the value is the old value
    * @return
    */
-  public Set<ProvisioningObjectChange> getInternal_objectChanges() {
+  public Collection<ProvisioningObjectChange> getInternal_objectChanges() {
     return internal_objectChanges;
   }
 
