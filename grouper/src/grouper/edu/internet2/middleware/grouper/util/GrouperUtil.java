@@ -598,7 +598,7 @@ public class GrouperUtil {
     return grouperGroovyResult;
   }
 
-  public static void setClear(Set<?> set) {
+  public static void setClear(Collection<?> set) {
     if (set != null) {
       set.clear();
     }

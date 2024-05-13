@@ -364,7 +364,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
 
     try {
       ProvisioningGroup targetGroup = targetDaoUpdateGroupRequest.getTargetGroup();
-      Set<ProvisioningObjectChange> provisionObjectChanges = targetGroup.getInternal_objectChanges();
+      Collection<ProvisioningObjectChange> provisionObjectChanges = targetGroup.getInternal_objectChanges();
   
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
@@ -1308,7 +1308,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   
     try {
       ProvisioningEntity targetEntity = targetDaoUpdateEntityRequest.getTargetEntity();
-      Set<ProvisioningObjectChange> provisionObjectChanges = targetEntity.getInternal_objectChanges();
+      Collection<ProvisioningObjectChange> provisionObjectChanges = targetEntity.getInternal_objectChanges();
   
       LdapSyncConfiguration ldapSyncConfiguration = (LdapSyncConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String ldapConfigId = ldapSyncConfiguration.getLdapExternalSystemConfigId();
