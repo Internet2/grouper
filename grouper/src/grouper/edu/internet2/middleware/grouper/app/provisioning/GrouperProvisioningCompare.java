@@ -206,10 +206,10 @@ public class GrouperProvisioningCompare {
       }
     }
 
-    for (String attributeName : GrouperUtil.nonNull(GrouperUtil.nonNull(provisioningUpdatableToDelete.getAttributes()).keySet())) {
+    for (String attributeName : GrouperUtil.nonNull(GrouperUtil.nonNull(provisioningUpdatableToDelete.internal_retrieveAttributeNameToIndex()).keySet())) {
 
-      ProvisioningAttribute provisioningAttribute = provisioningUpdatableToDelete.getAttributes().get(attributeName);
-      Object grouperValue = provisioningAttribute.getValue();
+      ProvisioningAttribute provisioningAttribute = provisioningUpdatableToDelete.retrieveProvisioningAttribute(attributeName);
+      Object grouperValue = provisioningAttribute == null ? null : provisioningAttribute.getValue();
   
       if (GrouperUtil.isArrayOrCollection(grouperValue)) {
         if (grouperValue instanceof Collection) {
@@ -280,13 +280,13 @@ public class GrouperProvisioningCompare {
       }
     }
 
-    for (String attributeName : GrouperUtil.nonNull(GrouperUtil.nonNull(provisioningUpdatableToInsert.getAttributes()).keySet())) {
+    for (String attributeName : GrouperUtil.nonNull(GrouperUtil.nonNull(provisioningUpdatableToInsert.internal_retrieveAttributeNameToIndex()).keySet())) {
       if (!provisioningUpdatableToInsert.canInsertAttribute(attributeName)) {
         continue;
       }
-      ProvisioningAttribute provisioningAttribute = provisioningUpdatableToInsert.getAttributes().get(attributeName);
+      ProvisioningAttribute provisioningAttribute = provisioningUpdatableToInsert.retrieveProvisioningAttribute(attributeName);
 
-      Object grouperValue = provisioningAttribute.getValue();
+      Object grouperValue = provisioningAttribute == null ? null : provisioningAttribute.getValue();
   
       if (GrouperUtil.isArrayOrCollection(grouperValue)) {
         if (grouperValue instanceof Collection) {
@@ -1155,7 +1155,7 @@ public class GrouperProvisioningCompare {
               String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
               
               Set<?> attributeValueSet = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSetForMemberships();
-              ProvisioningAttribute provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().getAttributes().get(attributeForMemberships);
+              ProvisioningAttribute provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().retrieveProvisioningAttribute(attributeForMemberships);
               boolean deleted = false;
               for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
                 String membershipValue = GrouperUtil.stringValue(obj);
@@ -1329,8 +1329,8 @@ public class GrouperProvisioningCompare {
         ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
         ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
 
-        compareAttributesForUpdate(provisioningEntitiesToUpdate, grouperTargetEntity == null ? null : grouperTargetEntity.getAttributes(),
-            targetProvisioningEntity == null ? null : targetProvisioningEntity.getAttributes(), grouperTargetEntity);
+        compareAttributesForUpdate(provisioningEntitiesToUpdate, grouperTargetEntity == null ? null : grouperTargetEntity.retrieveAttributes(),
+            targetProvisioningEntity == null ? null : targetProvisioningEntity.retrieveAttributes(), grouperTargetEntity);
         
       }
     }
@@ -1441,7 +1441,7 @@ public class GrouperProvisioningCompare {
               String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
               
               Set<?> attributeValueSet = provisioningGroupWrapper.getGrouperTargetGroup().retrieveAttributeValueSetForMemberships();
-              ProvisioningAttribute provisioningAttribute = provisioningGroupWrapper.getGrouperTargetGroup().getAttributes().get(attributeForMemberships);
+              ProvisioningAttribute provisioningAttribute = provisioningGroupWrapper.getGrouperTargetGroup().retrieveProvisioningAttribute(attributeForMemberships);
               boolean deleted = false;
               for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
                 String membershipValue = GrouperUtil.stringValue(obj);
@@ -1638,8 +1638,8 @@ public class GrouperProvisioningCompare {
         ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
         ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
         
-        compareAttributesForUpdate(provisioningGroupsToUpdate, grouperTargetGroup == null ? null : grouperTargetGroup.getAttributes(),
-            targetProvisioningGroup == null ? null : targetProvisioningGroup.getAttributes(), grouperTargetGroup);
+        compareAttributesForUpdate(provisioningGroupsToUpdate, grouperTargetGroup == null ? null : grouperTargetGroup.retrieveAttributes(),
+            targetProvisioningGroup == null ? null : targetProvisioningGroup.retrieveAttributes(), grouperTargetGroup);
         
       }
     }
@@ -1930,8 +1930,8 @@ public class GrouperProvisioningCompare {
           ProvisioningMembership grouperTargetMembership = grouperMatchingIdToTargetMembership.get(matchingIdToUpdate);
           ProvisioningMembership targetProvisioningMembership = targetMatchingIdToTargetMembership.get(matchingIdToUpdate);
           
-          compareAttributesForUpdate(provisioningMembershipsToUpdate, grouperTargetMembership == null ? null : grouperTargetMembership.getAttributes(),
-              targetProvisioningMembership == null ? null : targetProvisioningMembership.getAttributes(), grouperTargetMembership);
+          compareAttributesForUpdate(provisioningMembershipsToUpdate, grouperTargetMembership == null ? null : grouperTargetMembership.retrieveAttributes(),
+              targetProvisioningMembership == null ? null : targetProvisioningMembership.retrieveAttributes(), grouperTargetMembership);
           
         }
         

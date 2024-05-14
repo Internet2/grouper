@@ -1002,7 +1002,7 @@ public class GrouperProvisioningGrouperDao {
       String idIndex = queryResult[4];
       String jsonMetadata = queryResult[5];
       
-      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup(true);
       grouperProvisioningGroup.setId(id);
       grouperProvisioningGroup.setName(name);
       grouperProvisioningGroup.setDisplayName(displayName);
@@ -1058,7 +1058,7 @@ public class GrouperProvisioningGrouperDao {
       
       // check if skipping unresolvable subjects
       
-      ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
+      ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity(true);
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
       grouperProvisioningEntity.setSubjectId(subjectId);
@@ -1133,11 +1133,11 @@ public class GrouperProvisioningGrouperDao {
         continue;
       }
 
-      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
+      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership(true);
       grouperProvisioningMembership.setId(membershipId);
       
       {
-        ProvisioningEntity targetEntity = new ProvisioningEntity();
+        ProvisioningEntity targetEntity = new ProvisioningEntity(true);
         targetEntity.setId(memberId);
         targetEntity.setName(name);
         targetEntity.assignAttributeValue("description", description);
@@ -1154,7 +1154,7 @@ public class GrouperProvisioningGrouperDao {
         grouperProvisioningMembership.setProvisioningEntityId(memberId);
       }
       {
-        ProvisioningGroup targetGroup = new ProvisioningGroup();
+        ProvisioningGroup targetGroup = new ProvisioningGroup(true);
         targetGroup.setId(groupId);
         targetGroup.setName(groupName);
         targetGroup.setDisplayName(groupDisplayName);
@@ -1187,7 +1187,7 @@ public class GrouperProvisioningGrouperDao {
       String groupDescription = groupQueryResult[3];
       Long groupIdIndex = GrouperUtil.longObjectValue(groupQueryResult[4], false);
       
-      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      ProvisioningGroup targetGroup = new ProvisioningGroup(true);
       targetGroup.setId(groupId);
       targetGroup.setName(groupName);
       targetGroup.setDisplayName(groupDisplayName);
@@ -1214,7 +1214,7 @@ public class GrouperProvisioningGrouperDao {
       Long memberIdIndex = GrouperUtil.longObjectValue(memberQueryResult[8], false);
       Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(memberQueryResult[9]);
 
-      ProvisioningEntity targetEntity = new ProvisioningEntity();
+      ProvisioningEntity targetEntity = new ProvisioningEntity(true);
       targetEntity.setId(memberId);
       targetEntity.setName(name);
       targetEntity.assignAttributeValue("description", description);
@@ -1253,7 +1253,7 @@ public class GrouperProvisioningGrouperDao {
         continue;
       }
 
-      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
+      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership(true);
       grouperProvisioningMembership.setId(membershipId);
       
       { 

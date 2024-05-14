@@ -2573,7 +2573,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     
     List<ProvisioningEntity> entitiesToSearch = new ArrayList<>();
     for (Object searchValue: GrouperUtil.nonNull(searchValues)) {
-      ProvisioningEntity targetEntity = new ProvisioningEntity();
+      ProvisioningEntity targetEntity = new ProvisioningEntity(false);
       targetEntity.assignAttributeValue(searchAttributeName, searchValue);
       
       ProvisioningUpdatableAttributeAndValue provisioningUpdatableAttributeAndValue = 
@@ -3655,7 +3655,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       for (ProvisioningObjectChange provisioningObjectChange: provisionObjectChanges) {
         if (provisioningObjectChange.getException() != null) {
           
-          ProvisioningAttribute provisioningAttribute = targetEntity.getAttributes().get(provisioningObjectChange.getAttributeName());
+          ProvisioningAttribute provisioningAttribute = targetEntity.retrieveProvisioningAttribute(provisioningObjectChange.getAttributeName());
           
           if (provisioningAttribute != null) {
             Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
@@ -3698,7 +3698,7 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
       for (ProvisioningObjectChange provisioningObjectChange: provisionObjectChanges) {
         if (provisioningObjectChange.getException() != null) {
           
-          ProvisioningAttribute provisioningAttribute = targetGroup.getAttributes().get(provisioningObjectChange.getAttributeName());
+          ProvisioningAttribute provisioningAttribute = targetGroup.retrieveProvisioningAttribute(provisioningObjectChange.getAttributeName());
           
           if (provisioningAttribute != null) {
             Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();

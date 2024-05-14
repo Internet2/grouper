@@ -87,7 +87,7 @@ public class GrouperRemedyGroup {
   }
 
   public ProvisioningGroup toProvisioningGroup() {
-    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    ProvisioningGroup targetGroup = new ProvisioningGroup(false);
     
     targetGroup.assignAttributeValue("permissionGroup", this.permissionGroup);
     targetGroup.assignAttributeValue("permissionGroupId", this.permissionGroupId);

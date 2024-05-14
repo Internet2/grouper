@@ -65,7 +65,7 @@ public class GrouperScim2User {
   }
 
   public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     
     if (this.active != null) {
       targetEntity.assignAttributeValue("active", this.active);

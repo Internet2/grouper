@@ -172,7 +172,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
         Set<String> groupMemberIds = GrouperGoogleApiCommands.retrieveGoogleGroupMembers(googleConfiguration.getGoogleExternalSystemConfigId(), grouperGoogleGroup.getId());
         
         for (String groupMemberId: groupMemberIds) {
-          ProvisioningMembership provisioningMembership = new ProvisioningMembership();
+          ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
           provisioningMembership.setProvisioningGroupId(grouperGoogleGroup.getId());
           provisioningMembership.setProvisioningEntityId(groupMemberId);
           targetMemberships.add(provisioningMembership);
@@ -454,7 +454,7 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (String userId : groupMembers) {
 
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(userId);
         provisioningMemberships.add(targetMembership);

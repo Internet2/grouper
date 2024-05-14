@@ -144,7 +144,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
 
     // now test retrieveMembership
     {
-      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      ProvisioningGroup targetGroup = new ProvisioningGroup(false);
       targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=jsmith,ou=People,dc=example,dc=edu");
@@ -164,7 +164,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
     }
     
     {
-      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      ProvisioningGroup targetGroup = new ProvisioningGroup(false);
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=banderson,ou=People,dc=example,dc=edu");
       targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());
@@ -181,7 +181,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
     }
     
     {
-      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      ProvisioningGroup targetGroup = new ProvisioningGroup(false);
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
       targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());
@@ -197,7 +197,7 @@ public class LdapProvisionerTargetDaoTest extends GrouperProvisioningBaseTest {
     }
     
     {
-      ProvisioningGroup targetGroup = new ProvisioningGroup();
+      ProvisioningGroup targetGroup = new ProvisioningGroup(false);
       targetGroup.assignAttributeValue("ldap_dn", "cn=test:testGroup:does:not:exist,ou=Groups,dc=example,dc=edu");
       targetGroup.addAttributeValue("member", "uid=hdavis,ou=People,dc=example,dc=edu");
       targetGroup.assignAttributeValue("businessCategory", testGroup.getIdIndex().toString());

@@ -52,7 +52,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
         membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
       }
       
-      ProvisioningAttribute provisioningAttribute = provisioningEntity.getAttributes().get(membershipAttribute);
+      ProvisioningAttribute provisioningAttribute = provisioningEntity.retrieveProvisioningAttribute(membershipAttribute);
       if (provisioningAttribute == null) {
         continue;
       }
@@ -94,7 +94,9 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
    */
   public ProvisioningEntity cloneWithoutMemberships() {
 
-    ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    ProvisioningEntity provisioningEntity = new ProvisioningEntity(grouperProvisioner != null && this.internal_retrieveAttributeNameToIndex() == grouperProvisioner.retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperEntity() );
     String membershipAttributeToIgnore = null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       membershipAttributeToIgnore = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -105,10 +107,16 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     return provisioningEntity;
   }
 
-  public ProvisioningEntity() {
-    super();
+  public ProvisioningEntity(boolean grouperFormat) {
+    super(GrouperProvisioner.retrieveCurrentGrouperProvisioner() == null ? new HashMap<>() : (grouperFormat ? 
+        GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperEntity()
+        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperEntity()));
   }
-  
+
+  public ProvisioningEntity() {
+    this(false);
+  }
+
   /**
    * id index in target (optional)
    * @return id index
@@ -417,7 +425,9 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   @Override
   public ProvisioningEntity clone() {
 
-    ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    ProvisioningEntity provisioningEntity = new ProvisioningEntity(grouperProvisioner != null && this.internal_retrieveAttributeNameToIndex() == grouperProvisioner.retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperEntity() );
 
     this.cloneUpdatable(provisioningEntity, null);
     provisioningEntity.provisioningEntityWrapper = this.provisioningEntityWrapper;
@@ -477,7 +487,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
         return true;
       }
       
-      ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
+      ProvisioningAttribute provisioningAttribute = this.retrieveProvisioningAttribute(name);
       if (provisioningAttribute == null) {
         return false;
       }

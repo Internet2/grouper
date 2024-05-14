@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.lang.reflect.Array;
 import java.util.Collection;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -23,6 +24,44 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
  */
 public class GrouperProvisioningBehavior {
   
+  private Map<String, Integer> attributeNameToIndexGrouperGroup = new LinkedHashMap<String, Integer>();
+  
+  public Map<String, Integer> getAttributeNameToIndexGrouperGroup() {
+    return attributeNameToIndexGrouperGroup;
+  }
+  
+  private Map<String, Integer> attributeNameToIndexTargetGroup = new LinkedHashMap<String, Integer>();
+  
+  public Map<String, Integer> getAttributeNameToIndexTargetGroup() {
+    return attributeNameToIndexTargetGroup;
+  }
+
+  private Map<String, Integer> attributeNameToIndexGrouperEntity = new LinkedHashMap<String, Integer>();
+  
+  public Map<String, Integer> getAttributeNameToIndexGrouperEntity() {
+    return attributeNameToIndexGrouperEntity;
+  }
+
+  private Map<String, Integer> attributeNameToIndexTargetEntity = new LinkedHashMap<String, Integer>();
+  
+  public Map<String, Integer> getAttributeNameToIndexTargetEntity() {
+    return attributeNameToIndexTargetEntity;
+  }
+  
+
+  private Map<String, Integer> attributeNameToIndexTargetMembership = new LinkedHashMap<String, Integer>();
+  
+  public Map<String, Integer> getAttributeNameToIndexTargetMembership() {
+    return attributeNameToIndexTargetMembership;
+  }
+
+
+  private Map<String, Integer> attributeNameToIndexGrouperMembership = new LinkedHashMap<String, Integer>();
+  
+  public Map<String, Integer> getAttributeNameToIndexGrouperMembership() {
+    return attributeNameToIndexGrouperMembership;
+  }
+
   private boolean createGroupsAndEntitiesBeforeTranslatingMemberships = true;
 
   /**

@@ -609,7 +609,7 @@ public class GrouperProvisioningAttributeManipulation {
         }
       }
       
-      GrouperUtil.nonNull(provisioningGroup.getAttributes()).keySet().retainAll(groupAttributeNameToConfig.keySet());
+      provisioningGroup.retainAttributes(groupAttributeNameToConfig.keySet());
 
     }
     if (filterGroupFieldsAndAttributesCount[0] > 0) {
@@ -661,7 +661,7 @@ public class GrouperProvisioningAttributeManipulation {
         }
       }
       
-      GrouperUtil.nonNull(provisioningEntity.getAttributes()).keySet().retainAll(entityAttributeNameToConfig.keySet());
+      provisioningEntity.retainAttributes(entityAttributeNameToConfig.keySet());
       
     }
     if (filterEntityFieldsAndAttributesCount[0] > 0) {
@@ -704,7 +704,7 @@ public class GrouperProvisioningAttributeManipulation {
           changedMemberships.add(provisioningMembership);
         }
       }
-      GrouperUtil.nonNull(provisioningMembership.getAttributes()).keySet().retainAll(membershipAttributeNameToConfig.keySet());
+      provisioningMembership.retainAttributes(membershipAttributeNameToConfig.keySet());
 
     }
     if (filterMembershipFieldsAndAttributesCount[0] > 0) {

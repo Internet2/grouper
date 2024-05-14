@@ -73,7 +73,7 @@ public class TeamDynamixMembership {
   }
   
   public ProvisioningMembership toProvisioningMembership() {
-    ProvisioningMembership targetMembership = new ProvisioningMembership();
+    ProvisioningMembership targetMembership = new ProvisioningMembership(false);
     
     if (this.groupId != null) {
       targetMembership.setProvisioningGroupId(this.groupId);
