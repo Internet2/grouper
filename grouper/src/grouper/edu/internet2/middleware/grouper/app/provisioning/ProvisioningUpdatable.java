@@ -60,13 +60,13 @@ public abstract class ProvisioningUpdatable {
   /**
    * matching ids
    */
-  private Set<ProvisioningUpdatableAttributeAndValue> matchingIdAttributeNameToValues = null;
+  private List<ProvisioningUpdatableAttributeAndValue> matchingIdAttributeNameToValues = null;
 
   /**
    * matching ids
    * @return
    */
-  public Set<ProvisioningUpdatableAttributeAndValue> getMatchingIdAttributeNameToValues() {
+  public List<ProvisioningUpdatableAttributeAndValue> getMatchingIdAttributeNameToValues() {
     return matchingIdAttributeNameToValues;
   }
 
@@ -75,20 +75,20 @@ public abstract class ProvisioningUpdatable {
    * @param matchingIdAttributeNameToValues
    */
   public void setMatchingIdAttributeNameToValues(
-      Set<ProvisioningUpdatableAttributeAndValue> matchingIdAttributeNameToValues) {
+      List<ProvisioningUpdatableAttributeAndValue> matchingIdAttributeNameToValues) {
     this.matchingIdAttributeNameToValues = matchingIdAttributeNameToValues;
   }
 
   /**
    * search ids
    */
-  private Set<ProvisioningUpdatableAttributeAndValue> searchIdAttributeNameToValues = null;
+  private List<ProvisioningUpdatableAttributeAndValue> searchIdAttributeNameToValues = null;
 
   /**
    * search ids
    * @return
    */
-  public Set<ProvisioningUpdatableAttributeAndValue> getSearchIdAttributeNameToValues() {
+  public List<ProvisioningUpdatableAttributeAndValue> getSearchIdAttributeNameToValues() {
     return searchIdAttributeNameToValues;
   }
 
@@ -97,7 +97,7 @@ public abstract class ProvisioningUpdatable {
    * @param searchIdAttributeNameToValues
    */
   public void setSearchIdAttributeNameToValues(
-      Set<ProvisioningUpdatableAttributeAndValue> searchIdAttributeNameToValues) {
+      List<ProvisioningUpdatableAttributeAndValue> searchIdAttributeNameToValues) {
     this.searchIdAttributeNameToValues = searchIdAttributeNameToValues;
   }
 
@@ -629,7 +629,7 @@ public abstract class ProvisioningUpdatable {
     }
     
     if (this.internal_objectChanges == null) {
-      this.internal_objectChanges = new ArrayList<ProvisioningObjectChange>();
+      this.internal_objectChanges = new ArrayList<ProvisioningObjectChange>(1);
     }
     this.internal_objectChanges.add(provisioningObjectChange);
   }
