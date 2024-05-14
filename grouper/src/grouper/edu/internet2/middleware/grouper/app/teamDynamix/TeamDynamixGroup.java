@@ -92,7 +92,7 @@ public class TeamDynamixGroup {
   }
   
   public ProvisioningGroup toProvisioningGroup() {
-    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    ProvisioningGroup targetGroup = new ProvisioningGroup(false);
     targetGroup.assignAttributeValue("Description", this.description);
     targetGroup.assignAttributeValue("Name", this.name);
     targetGroup.assignAttributeValue("ID", this.getId());

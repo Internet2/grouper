@@ -79,7 +79,7 @@ public class GrouperProvisioningData {
     }
     
     try {
-      provisioningEntity = new ProvisioningEntity();
+      provisioningEntity = new ProvisioningEntity(false);
       provisioningEntity.fromJsonForCache(json);
       
     } catch (Exception e) {
@@ -109,7 +109,7 @@ public class GrouperProvisioningData {
     }
     
     try {
-      provisioningGroup = new ProvisioningGroup();
+      provisioningGroup = new ProvisioningGroup(false);
       provisioningGroup.fromJsonForCache(json);
       
     } catch (Exception e) {

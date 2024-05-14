@@ -674,7 +674,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (String groupId : groupIds) {
 
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(groupId);
         targetMembership.setProvisioningEntityId(targetEntity.getId());
         provisioningMemberships.add(targetMembership);
@@ -731,7 +731,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (String userId : userIds) {
 
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(userId);
         provisioningMemberships.add(targetMembership);

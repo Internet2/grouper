@@ -215,7 +215,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       
       for (GrouperDigitalMarketplaceUser user: marketplaceUsers.values()) {
         for (String groupName : user.getGroups()) {
-          ProvisioningMembership targetMembership = new ProvisioningMembership();
+          ProvisioningMembership targetMembership = new ProvisioningMembership(false);
           targetMembership.assignAttributeValue("groupName", groupName);
           targetMembership.assignAttributeValue("loginName", user.getLoginName());
           results.add(targetMembership);
@@ -378,7 +378,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       
       for (String group : digitalMarketplaceUser.getGroups()) {
         
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         
         targetMembership.assignAttributeValue("groupName", group);
         targetMembership.assignAttributeValue("loginName", targetEntityId);
@@ -475,7 +475,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
         GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = (GrouperDigitalMarketplaceUser)targetEntityToTargetNativeEntity.get(provisioningEntity);
         
         for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
-          ProvisioningMembership targetMembership = new ProvisioningMembership();
+          ProvisioningMembership targetMembership = new ProvisioningMembership(false);
           targetMembership.assignAttributeValue("groupName", groupName);
           targetMembership.assignAttributeValue("loginName", grouperDigitalMarketplaceUser.getLoginName());
           allMemberships.add(targetMembership);

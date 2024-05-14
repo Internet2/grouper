@@ -217,7 +217,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       List<String> membershipTablePrimaryColNamesList) {
     
     for (Object[] membershipAttributeValue: GrouperUtil.nonNull(membershipPrimaryAttributeValues)) {
-      ProvisioningMembership provisioningMembership = new ProvisioningMembership();
+      ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
  
       for (int i=0; i<membershipTablePrimaryColNamesList.size(); i++) {
 
@@ -1613,7 +1613,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }
     
     for (Object[] groupAttributeValue: GrouperUtil.nonNull(groupPrimaryAttributeValues)) {
-      ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+      ProvisioningGroup provisioningGroup = new ProvisioningGroup(false);
  
       for (int i=0; i<groupTablePrimaryColNamesList.size(); i++) {
 
@@ -1692,7 +1692,7 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
     }
     
     for (Object[] entityAttributeValue: GrouperUtil.nonNull(entityPrimaryAttributeValues)) {
-      ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+      ProvisioningEntity provisioningEntity = new ProvisioningEntity(false);
  
       for (int i=0; i<entityTablePrimaryColNamesList.size(); i++) {
 

@@ -346,7 +346,7 @@ public class GrouperBoxTargetDao extends GrouperProvisionerTargetDaoBase {
       Map<String, String> memberIdToMembershipId = GrouperBoxApiCommands.retrieveBoxGroupMembers(boxConfiguration.getBoxExternalSystemConfigId(), targetGroup.getId());
       
       for (String userId : memberIdToMembershipId.keySet()) {
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(userId);
         provisioningMemberships.add(targetMembership);

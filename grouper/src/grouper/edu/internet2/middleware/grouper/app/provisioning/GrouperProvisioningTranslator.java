@@ -785,7 +785,7 @@ public class GrouperProvisioningTranslator {
           continue;
         }
   
-        ProvisioningMembership grouperTargetMembership = new ProvisioningMembership();
+        ProvisioningMembership grouperTargetMembership = new ProvisioningMembership(false);
         if (this.translateGrouperToTargetAutomatically) {
           grouperTargetMembership = grouperProvisioningMembership.clone();
         }
@@ -1067,7 +1067,7 @@ public class GrouperProvisioningTranslator {
     PROVISIONING_ENTITY_BLOCK: for (ProvisioningEntity grouperProvisioningEntity: GrouperUtil.nonNull(grouperProvisioningEntities)) {
       
       try {
-        ProvisioningEntity grouperTargetEntity = new ProvisioningEntity();
+        ProvisioningEntity grouperTargetEntity = new ProvisioningEntity(false);
         if (this.translateGrouperToTargetAutomatically) {
           grouperTargetEntity = grouperProvisioningEntity.clone();
         }
@@ -1256,7 +1256,7 @@ public class GrouperProvisioningTranslator {
     PROVISIONING_GROUP_BLOCK: for (ProvisioningGroup grouperProvisioningGroup: GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
       try {
-        ProvisioningGroup grouperTargetGroup = new ProvisioningGroup();
+        ProvisioningGroup grouperTargetGroup = new ProvisioningGroup(false);
         
         if (this.translateGrouperToTargetAutomatically) {
           grouperTargetGroup = grouperProvisioningGroup.clone();

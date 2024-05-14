@@ -139,7 +139,7 @@ public class GrouperExampleWsGenericTargetDao extends GrouperProvisionerTargetDa
     ProvisioningGroup targetGroup = targetDaoReplaceGroupMembershipsRequest.getTargetGroup();
 
     // the role attribute was predetermined to be in the target representation for this provisioner
-    ProvisioningAttribute roleAttribute = targetGroup.getAttributes().get("role");
+    ProvisioningAttribute roleAttribute = targetGroup.retrieveProvisioningAttribute("role");
 
     // its gotta be there
     if (roleAttribute == null || roleAttribute.getValue() == null || GrouperUtil.isBlank(roleAttribute.getValue())) {

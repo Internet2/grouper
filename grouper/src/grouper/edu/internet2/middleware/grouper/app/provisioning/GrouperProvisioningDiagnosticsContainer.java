@@ -619,7 +619,7 @@ public class GrouperProvisioningDiagnosticsContainer {
         List<ProvisioningGroup> grouperTargetGroupsToUpdate = GrouperUtil.toList(this.provisioningGroupWrapper.getGrouperTargetGroup());
         String membershipAttributeName = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         
-        ProvisioningAttribute provisioningAttribute = this.provisioningGroupWrapper.getGrouperTargetGroup().getAttributes().get(membershipAttributeName);
+        ProvisioningAttribute provisioningAttribute = this.provisioningGroupWrapper.getGrouperTargetGroup().retrieveProvisioningAttribute(membershipAttributeName);
         Collection<String> values = provisioningAttribute == null ? null : (Collection)provisioningAttribute.getValue();
         String value = values == null || values.size() == 0 ? null : values.iterator().next();
                 
@@ -627,7 +627,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='red'><b>Error:</b></font> No values to add after translation\n");
         } else if (values.size() > 1) {
           this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
-        } else if (this.provisioningGroupWrapper.getTargetProvisioningGroup().getAttributes().get(membershipAttributeName) != null && ((Collection)this.provisioningGroupWrapper.getTargetProvisioningGroup().getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+        } else if (this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + value + "\n");
         } else {
           grouperTargetGroupsToUpdate.get(0).addInternal_objectChange(
@@ -676,9 +676,9 @@ public class GrouperProvisioningDiagnosticsContainer {
           } else if (GrouperUtil.length(targetGroups) > 1) {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups after inserting membership, should be 1!\n");
           } else {
-            if (targetGroups.get(0).getAttributes().get(membershipAttributeName) == null) {
+            if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
               this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
-            } else if (targetGroups.get(0).getAttributes().get(membershipAttributeName) != null && ((Collection)targetGroups.get(0).getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+            } else if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
               this.report.append("<font color='green'><b>Success:</b></font> Found membership in target after inserting: " + value + "\n");
             } else {
               this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
@@ -1071,7 +1071,7 @@ public class GrouperProvisioningDiagnosticsContainer {
         List<ProvisioningGroup> grouperTargetGroupsToUpdate = GrouperUtil.toList(this.provisioningGroupWrapper.getGrouperTargetGroup());
         String membershipAttributeName = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         
-        ProvisioningAttribute provisioningAttribute = this.provisioningGroupWrapper.getGrouperTargetGroup().getAttributes().get(membershipAttributeName);
+        ProvisioningAttribute provisioningAttribute = this.provisioningGroupWrapper.getGrouperTargetGroup().retrieveProvisioningAttribute(membershipAttributeName);
         Collection<String> values = provisioningAttribute == null ? null : (Collection)provisioningAttribute.getValue();
         String value = values == null || values.size() == 0 ? null : values.iterator().next();
                 
@@ -1079,7 +1079,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='red'><b>Error:</b></font> No values to remove after translation\n");
         } else if (values.size() > 1) {
           this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
-        } else if (this.provisioningGroupWrapper.getTargetProvisioningGroup().getAttributes().get(membershipAttributeName) == null || !((Collection)this.provisioningGroupWrapper.getTargetProvisioningGroup().getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+        } else if (this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName) == null || !((Collection)this.provisioningGroupWrapper.getTargetProvisioningGroup().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + value + "\n");
         } else {
           grouperTargetGroupsToUpdate.get(0).addInternal_objectChange(
@@ -1128,9 +1128,9 @@ public class GrouperProvisioningDiagnosticsContainer {
           } else if (GrouperUtil.length(targetGroups) > 1) {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetGroups) + " groups after removing membership, should be 1!\n");
           } else {
-            if (targetGroups.get(0).getAttributes().get(membershipAttributeName) == null) {
+            if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
               this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");
-            } else if (targetGroups.get(0).getAttributes().get(membershipAttributeName) != null && ((Collection)targetGroups.get(0).getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+            } else if (targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetGroups.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
               this.report.append("<font color='red'><b>Error:</b></font> Found membership in target after removing: " + value + "\n");
             } else {
               this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");
@@ -2157,15 +2157,14 @@ public class GrouperProvisioningDiagnosticsContainer {
         List<ProvisioningEntity> grouperTargetEntitiesToUpdate = GrouperUtil.toList(this.provisioningEntityWrapper.getGrouperTargetEntity());
         String membershipAttributeName = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         
-        Map<String, ProvisioningAttribute> attributes = this.provisioningEntityWrapper.getGrouperTargetEntity().getAttributes();
-        Collection<String> values = attributes == null ? null : (Collection)attributes.get(membershipAttributeName).getValue();
+        Collection<String> values = (Collection<String>)(Object)this.provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSet(membershipAttributeName);
         String value = values == null || values.size() == 0 ? null : values.iterator().next();
                 
         if (values.size() == 0) {
           this.report.append("<font color='red'><b>Error:</b></font> No values to add after translation\n");
         } else if (values.size() > 1) {
           this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
-        } else if (this.provisioningEntityWrapper.getTargetProvisioningEntity().getAttributes().get(membershipAttributeName) != null && ((Collection)this.provisioningEntityWrapper.getTargetProvisioningEntity().getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+        } else if (this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target already contains value: " + value + "\n");
         } else {
           grouperTargetEntitiesToUpdate.get(0).addInternal_objectChange(
@@ -2212,9 +2211,9 @@ public class GrouperProvisioningDiagnosticsContainer {
           } else if (GrouperUtil.length(targetEntities) > 1) {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetEntities) + " entitites after inserting membership, should be 1!\n");
           } else {
-            if (targetEntities.get(0).getAttributes().get(membershipAttributeName) == null) {
+            if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
               this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
-            } else if (targetEntities.get(0).getAttributes().get(membershipAttributeName) != null && ((Collection)targetEntities.get(0).getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+            } else if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
               this.report.append("<font color='green'><b>Success:</b></font> Found membership in target after inserting: " + value + "\n");
             } else {
               this.report.append("<font color='red'><b>Error:</b></font> Did not find membership in target after inserting: " + value + "\n");
@@ -2322,7 +2321,7 @@ public class GrouperProvisioningDiagnosticsContainer {
         List<ProvisioningEntity> grouperTargetEntitiesToUpdate = GrouperUtil.toList(this.provisioningEntityWrapper.getGrouperTargetEntity());
         String membershipAttributeName = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         
-        ProvisioningAttribute provisioningAttribute = this.provisioningEntityWrapper.getGrouperTargetEntity().getAttributes().get(membershipAttributeName);
+        ProvisioningAttribute provisioningAttribute = this.provisioningEntityWrapper.getGrouperTargetEntity().retrieveProvisioningAttribute(membershipAttributeName);
         Collection<String> values = provisioningAttribute == null ? null : (Collection)provisioningAttribute.getValue();
         String value = values == null || values.size() == 0 ? null : values.iterator().next();
                 
@@ -2330,7 +2329,7 @@ public class GrouperProvisioningDiagnosticsContainer {
           this.report.append("<font color='red'><b>Error:</b></font> No values to remove after translation\n");
         } else if (values.size() > 1) {
           this.report.append("<font color='red'><b>Error:</b></font> Translation resulted in multiple values: " + values + "\n");
-        } else if (this.provisioningEntityWrapper.getTargetProvisioningEntity().getAttributes().get(membershipAttributeName) == null || !((Collection)this.provisioningEntityWrapper.getTargetProvisioningEntity().getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+        } else if (this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName) == null || !((Collection)this.provisioningEntityWrapper.getTargetProvisioningEntity().retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
           this.report.append("<font color='orange'><b>Warning:</b></font> Target does not contain value: " + value + "\n");
         } else {
           grouperTargetEntitiesToUpdate.get(0).addInternal_objectChange(
@@ -2377,9 +2376,9 @@ public class GrouperProvisioningDiagnosticsContainer {
           } else if (GrouperUtil.length(targetEntities) > 1) {
             this.report.append("<font color='red'><b>Error:</b></font> Found " + GrouperUtil.length(targetEntities) + " entities after removing membership, should be 1!\n");
           } else {
-            if (targetEntities.get(0).getAttributes().get(membershipAttributeName) == null) {
+            if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) == null) {
               this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");
-            } else if (targetEntities.get(0).getAttributes().get(membershipAttributeName) != null && ((Collection)targetEntities.get(0).getAttributes().get(membershipAttributeName).getValue()).contains(value)) {
+            } else if (targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName) != null && ((Collection)targetEntities.get(0).retrieveProvisioningAttribute(membershipAttributeName).getValue()).contains(value)) {
               this.report.append("<font color='red'><b>Error:</b></font> Found membership in target after removing: " + value + "\n");
             } else {
               this.report.append("<font color='green'><b>Success:</b></font> Did not find membership in target after removing: " + value + "\n");

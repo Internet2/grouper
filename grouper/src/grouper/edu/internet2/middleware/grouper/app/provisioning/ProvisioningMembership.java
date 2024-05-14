@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
+import java.util.HashMap;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -12,6 +14,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  */
 public class ProvisioningMembership extends ProvisioningUpdatable {
 
+  public ProvisioningMembership() {
+    this(false);
+  }
+
+  public ProvisioningMembership(boolean grouperFormat) {
+    super(GrouperProvisioner.retrieveCurrentGrouperProvisioner() == null ? new HashMap<>() : (grouperFormat ? 
+        GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperMembership()
+        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperMembership()));
+  }
+  
   public boolean isLoggableHelper() {
     if (this.provisioningEntity != null) {
       if (this.provisioningEntity.isLoggable()) {
@@ -374,7 +386,9 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
   @Override
   public ProvisioningMembership clone() {
 
-    ProvisioningMembership provisioningMembership = new ProvisioningMembership();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    ProvisioningMembership provisioningMembership = new ProvisioningMembership(grouperProvisioner != null && this.internal_retrieveAttributeNameToIndex() == grouperProvisioner.retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperMembership() );
 
     this.cloneUpdatable(provisioningMembership, null);
 //    provisioningMembership.provisioningEntityId = this.provisioningEntityId;

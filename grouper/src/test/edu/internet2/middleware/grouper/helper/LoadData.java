@@ -83,11 +83,11 @@ public class LoadData {
   public static void main (String args[]) throws Exception {
     //loadDukeData();
     //loadDukeRandomPrivileges();
-    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
-    provisioningGroup.setId("theId");
-    Map<String, Object> substituteMap = new HashMap<String, Object>();
-    substituteMap.put("grouperProvisioningGroup", provisioningGroup);
-    System.out.println(GrouperUtil.substituteExpressionLanguageScript("${grouperProvisioningGroup.getId() + '@vsachdeva.com'}", substituteMap, true, true, true));
+//    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+//    provisioningGroup.setId("theId");
+//    Map<String, Object> substituteMap = new HashMap<String, Object>();
+//    substituteMap.put("grouperProvisioningGroup", provisioningGroup);
+//    System.out.println(GrouperUtil.substituteExpressionLanguageScript("${grouperProvisioningGroup.getId() + '@vsachdeva.com'}", substituteMap, true, true, true));
     
     
 //    GrouperSession grouperSession = GrouperSession.startRootSession();

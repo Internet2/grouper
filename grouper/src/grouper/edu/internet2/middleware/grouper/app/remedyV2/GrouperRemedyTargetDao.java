@@ -204,7 +204,7 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       List<ProvisioningMembership> results = new ArrayList<>();
 
       for (GrouperRemedyMembership grouperRemedyMembership : remedyMemberships.values()) {
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         
         targetMembership.assignAttributeValue("permissionGroup", grouperRemedyMembership.getPermissionGroup());
         targetMembership.assignAttributeValue("permissionGroupId", grouperRemedyMembership.getPermissionGroupId());
@@ -345,7 +345,7 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperRemedyMembership> remedyMembershipsForGroup = GrouperRemedyApiCommands.retrieveRemedyMembershipsForGroup(remedyExternalSystemConfigId, grouperRemedyGroup);
       
       for (GrouperRemedyMembership remedyMembership : remedyMembershipsForGroup) {
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         
         targetMembership.assignAttributeValue("permissionGroup", remedyMembership.getPermissionGroup());
         targetMembership.assignAttributeValue("permissionGroupId", remedyMembership.getPermissionGroupId());

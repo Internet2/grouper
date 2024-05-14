@@ -2847,7 +2847,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // let the provisioner tell the framework how the provisioner should behave with respect to the target
     grouperProvisioner.registerProvisioningBehaviors(grouperProvisioner.retrieveGrouperProvisioningBehavior());
 
-    ProvisioningGroup provisioningGroup1 = new ProvisioningGroup();
+    ProvisioningGroup provisioningGroup1 = new ProvisioningGroup(false);
     ProvisioningGroupWrapper provisioningGroupWrapper = new ProvisioningGroupWrapper();
     provisioningGroupWrapper.setGrouperProvisioner(grouperProvisioner);
     provisioningGroup1.setProvisioningGroupWrapper(provisioningGroupWrapper);
@@ -2861,7 +2861,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId0"));
     provisioningGroup1.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId1"));
 
-    ProvisioningGroup provisioningGroup2 = new ProvisioningGroup();
+    ProvisioningGroup provisioningGroup2 = new ProvisioningGroup(false);
     provisioningGroupWrapper = new ProvisioningGroupWrapper();
     provisioningGroupWrapper.setGrouperProvisioner(grouperProvisioner);
     provisioningGroup2.setProvisioningGroupWrapper(provisioningGroupWrapper);
@@ -2875,7 +2875,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId2"));
     provisioningGroup2.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.insert, null, "subjectId3"));
     
-    ProvisioningGroup provisioningGroup3 = new ProvisioningGroup();
+    ProvisioningGroup provisioningGroup3 = new ProvisioningGroup(false);
     provisioningGroupWrapper = new ProvisioningGroupWrapper();
     provisioningGroupWrapper.setGrouperProvisioner(grouperProvisioner);
     provisioningGroup3.setProvisioningGroupWrapper(provisioningGroupWrapper);
@@ -2972,14 +2972,14 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     provisioningGroup1retrieved = idToGroup.get("abc123");
     assertEquals("abc123", provisioningGroup1retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("a:b:c", provisioningGroup1retrieved.retrieveAttributeValueString("groupName"));
-    assertFalse(provisioningGroup1retrieved.getAttributes().containsKey("subjectId"));
+    assertFalse(provisioningGroup1retrieved.hasAttribute("subjectId"));
     provisioningGroup2retrieved = idToGroup.get("def456");
     assertEquals("def456", provisioningGroup2retrieved.retrieveAttributeValueString("uuid"));
     assertEquals("d:e:f", provisioningGroup2retrieved.retrieveAttributeValueString("groupName"));
-    assertFalse(provisioningGroup2retrieved.getAttributes().containsKey("subjectId"));
+    assertFalse(provisioningGroup2retrieved.hasAttribute("subjectId"));
 
     // update groups
-    ProvisioningGroup provisioningGroup1update = new ProvisioningGroup();
+    ProvisioningGroup provisioningGroup1update = new ProvisioningGroup(false);
     provisioningGroup1update.assignAttributeValue("uuid", "abc123");
     provisioningGroup1update.assignAttributeValue("groupName", "a:b:c");
     provisioningGroup1update.assignAttributeValue("subjectId", "subjectId0");
@@ -2990,7 +2990,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.delete, "subjectId1", null));
     provisioningGroup1update.addInternal_objectChange(new ProvisioningObjectChange("subjectId", ProvisioningObjectChangeAction.update, "subjectId0", "subjectId0u"));
 
-    ProvisioningGroup provisioningGroup2update = new ProvisioningGroup();
+    ProvisioningGroup provisioningGroup2update = new ProvisioningGroup(false);
     provisioningGroup2update.assignAttributeValue("uuid", "def456");
     provisioningGroup2update.assignAttributeValue("groupName", "d:e:f");
     provisioningGroup2update.assignAttributeValue("subjectId", "subjectId2");
@@ -5328,7 +5328,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache0());
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
     String cacheJson = gcGrouperSyncMember.getEntityAttributeValueCache2();
-    ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+    ProvisioningEntity provisioningEntity = new ProvisioningEntity(false);
     provisioningEntity.fromJsonForCache(cacheJson);
     assertEquals("dn_test.subject.0", provisioningEntity.retrieveAttributeValue("dn"));
     assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());

@@ -89,7 +89,7 @@ public class GrouperAzureGroup {
   }
 
   public ProvisioningGroup toProvisioningGroup() {
-    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    ProvisioningGroup targetGroup = new ProvisioningGroup(false);
     targetGroup.assignAttributeValue("description", this.description);
     targetGroup.setDisplayName(this.displayName);
     

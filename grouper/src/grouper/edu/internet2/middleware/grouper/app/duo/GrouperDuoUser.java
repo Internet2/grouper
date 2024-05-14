@@ -175,7 +175,7 @@ public class GrouperDuoUser {
   }
   
   public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     
     targetEntity.assignAttributeValue("firstName", this.firstName);
     targetEntity.assignAttributeValue("lastName", this.lastName);

@@ -68,7 +68,7 @@ public class GrouperRemedyUser {
   public static final String fieldsToSelect="Person ID,Remedy Login ID";
   
   public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     
     targetEntity.assignAttributeValue("personId", this.personId);
     targetEntity.assignAttributeValue("remedyLoginId", this.remedyLoginId);

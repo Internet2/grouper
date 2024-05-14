@@ -110,7 +110,7 @@ public class GrouperScim2Group {
   }
 
   public ProvisioningGroup toProvisioningGroup() {
-    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    ProvisioningGroup targetGroup = new ProvisioningGroup(false);
     
     if (this.displayName != null) {
       targetGroup.setDisplayName(this.displayName);

@@ -113,7 +113,7 @@ public void setPassword(String password) {
  
  public ProvisioningEntity toProvisioningEntity() {
    
-   ProvisioningEntity targetEntity = new ProvisioningEntity();
+   ProvisioningEntity targetEntity = new ProvisioningEntity(false);
    
    targetEntity.assignAttributeValue("givenName", this.givenName);
    targetEntity.assignAttributeValue("familyName", this.familyName);

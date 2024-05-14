@@ -42,7 +42,7 @@ public class GrouperDuoGroup {
   }
 
   public ProvisioningGroup toProvisioningGroup() {
-    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    ProvisioningGroup targetGroup = new ProvisioningGroup(false);
     targetGroup.assignAttributeValue("description", this.desc);
     targetGroup.setName(this.name);
     targetGroup.setId(this.group_id);

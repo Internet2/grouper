@@ -513,7 +513,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (TeamDynamixGroup teamDynamixGroup : teamDynamixGroups) {
 
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(teamDynamixGroup.getId());
         targetMembership.setProvisioningEntityId(targetEntity.getId());
         provisioningMemberships.add(targetMembership);
@@ -574,7 +574,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (TeamDynamixUser teamDynamixUser : teamDynamixUsers) {
 
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(teamDynamixUser.getId());
         provisioningMemberships.add(targetMembership);

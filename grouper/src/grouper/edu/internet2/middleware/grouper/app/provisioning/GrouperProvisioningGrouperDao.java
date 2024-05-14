@@ -972,7 +972,7 @@ public class GrouperProvisioningGrouperDao {
       String idIndex = queryResult[4];
       String jsonMetadata = queryResult[5];
       
-      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup();
+      ProvisioningGroup grouperProvisioningGroup = new ProvisioningGroup(true);
       grouperProvisioningGroup.setId(id);
       grouperProvisioningGroup.setName(name);
       grouperProvisioningGroup.setDisplayName(displayName);
@@ -1028,7 +1028,7 @@ public class GrouperProvisioningGrouperDao {
       
       // check if skipping unresolvable subjects
       
-      ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity();
+      ProvisioningEntity grouperProvisioningEntity = new ProvisioningEntity(true);
       grouperProvisioningEntity.setId(id);
       grouperProvisioningEntity.setName(name);
       grouperProvisioningEntity.setSubjectId(subjectId);
@@ -1097,11 +1097,11 @@ public class GrouperProvisioningGrouperDao {
         continue;
       }
 
-      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership();
+      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership(true);
       grouperProvisioningMembership.setId(membershipId);
       
       {
-        ProvisioningEntity targetEntity = new ProvisioningEntity();
+        ProvisioningEntity targetEntity = new ProvisioningEntity(true);
         targetEntity.setId(memberId);
         targetEntity.setName(name);
         targetEntity.assignAttributeValue("description", description);
@@ -1118,13 +1118,113 @@ public class GrouperProvisioningGrouperDao {
         grouperProvisioningMembership.setProvisioningEntityId(memberId);
       }
       {
-        ProvisioningGroup targetGroup = new ProvisioningGroup();
+        ProvisioningGroup targetGroup = new ProvisioningGroup(true);
         targetGroup.setId(groupId);
         targetGroup.setName(groupName);
         targetGroup.setDisplayName(groupDisplayName);
         targetGroup.assignAttributeValue("description", groupDescription);
 
         targetGroup.setIdIndex(groupIdIndex);
+        grouperProvisioningMembership.setProvisioningGroup(targetGroup);
+        grouperProvisioningMembership.setProvisioningGroupId(groupId);
+      }
+      
+      results.add(grouperProvisioningMembership);
+    }
+    
+    return results;
+  }
+
+  private List<ProvisioningMembership> getProvisioningMembershipMapFromQueryResults(List<String[]> queryResultsMemberships, List<String[]> queryResultsGroups, List<String[]> queryResultsMembers) {
+    
+    List<ProvisioningMembership> results = new ArrayList<ProvisioningMembership>();
+
+    Map<String, ProvisioningGroup> groupIdToProvisioningGroup = new HashMap<String, ProvisioningGroup>();
+    int count = 0;
+    for (String[] groupQueryResult : queryResultsGroups) {
+      String groupId = groupQueryResult[0];
+      queryResultsGroups.set(count, null);
+      count++;
+      
+      String groupName = groupQueryResult[1];
+      String groupDisplayName = groupQueryResult[2];
+      String groupDescription = groupQueryResult[3];
+      Long groupIdIndex = GrouperUtil.longObjectValue(groupQueryResult[4], false);
+      
+      ProvisioningGroup targetGroup = new ProvisioningGroup(true);
+      targetGroup.setId(groupId);
+      targetGroup.setName(groupName);
+      targetGroup.setDisplayName(groupDisplayName);
+      targetGroup.assignAttributeValue("description", groupDescription);
+      targetGroup.setIdIndex(groupIdIndex);
+
+      groupIdToProvisioningGroup.put(groupId, targetGroup);
+    }
+    
+    Map<String, ProvisioningEntity> memberIdToProvisioningEntity = new HashMap<String, ProvisioningEntity>();
+    count = 0;
+    for (String[] memberQueryResult : queryResultsMembers) {
+      String memberId = memberQueryResult[0];
+      queryResultsMembers.set(count, null);
+      count++;
+
+      String subjectId = memberQueryResult[1];
+      String subjectSourceId = memberQueryResult[2];
+      String subjectIdentifier0 = memberQueryResult[3];
+      String name = memberQueryResult[4];
+      String description = memberQueryResult[5];
+      String subjectIdentifier1 = memberQueryResult[6];
+      String subjectIdentifier2 = memberQueryResult[7];
+      Long memberIdIndex = GrouperUtil.longObjectValue(memberQueryResult[8], false);
+      Boolean subjectResolutionResolvable = GrouperUtil.booleanObjectValue(memberQueryResult[9]);
+
+      ProvisioningEntity targetEntity = new ProvisioningEntity(true);
+      targetEntity.setId(memberId);
+      targetEntity.setName(name);
+      targetEntity.assignAttributeValue("description", description);
+      targetEntity.setSubjectId(subjectId);
+      targetEntity.setIdIndex(memberIdIndex);
+      targetEntity.setSubjectResolutionResolvable(subjectResolutionResolvable);
+      targetEntity.assignAttributeValue("subjectSourceId", subjectSourceId);
+      targetEntity.assignAttributeValue("subjectIdentifier0", subjectIdentifier0);
+      targetEntity.assignAttributeValue("subjectIdentifier1", subjectIdentifier1);
+      targetEntity.assignAttributeValue("subjectIdentifier2", subjectIdentifier2);
+      
+      memberIdToProvisioningEntity.put(memberId, targetEntity);
+    }
+        
+    count=0;
+    for (String[] queryResult : queryResultsMemberships) {
+      
+      // conserve memory
+      queryResultsMemberships.set(count, null);
+      count++;
+      
+      String membershipId = queryResult[0];
+      String groupId = queryResult[1];
+      String memberId = queryResult[2];
+      
+      ProvisioningGroup targetGroup = groupIdToProvisioningGroup.get(groupId);
+      ProvisioningEntity targetEntity = memberIdToProvisioningEntity.get(memberId);
+      
+      if (targetGroup == null || targetEntity == null) {
+        // skip due to race condition
+        continue;
+      }
+
+      // check if skipping unresolvable subjects
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !targetEntity.getSubjectResolutionResolvable()) {
+        continue;
+      }
+
+      ProvisioningMembership grouperProvisioningMembership = new ProvisioningMembership(true);
+      grouperProvisioningMembership.setId(membershipId);
+      
+      { 
+        grouperProvisioningMembership.setProvisioningEntity(targetEntity);
+        grouperProvisioningMembership.setProvisioningEntityId(memberId);
+      }
+      {
         grouperProvisioningMembership.setProvisioningGroup(targetGroup);
         grouperProvisioningMembership.setProvisioningGroupId(groupId);
       }

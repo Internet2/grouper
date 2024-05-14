@@ -64,7 +64,7 @@ public class GrouperGoogleGroup {
   }
 
   public ProvisioningGroup toProvisioningGroup() {
-    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    ProvisioningGroup targetGroup = new ProvisioningGroup(false);
     targetGroup.assignAttributeValue("description", this.description);
     targetGroup.setName(this.name);
     targetGroup.setId(this.id);

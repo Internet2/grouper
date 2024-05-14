@@ -67,7 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityProvisionerFullGatech"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdap"));    
   }
   
   public SimpleLdapProvisionerTest() {

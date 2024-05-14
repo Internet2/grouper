@@ -402,7 +402,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (GrouperDuoGroup duoGroup : duoGroups) {
 
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(duoGroup.getGroup_id());
         targetMembership.setProvisioningEntityId(targetEntity.getId());
         provisioningMemberships.add(targetMembership);
@@ -488,7 +488,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (GrouperDuoUser duoUser : duoUsers) {
 
-        ProvisioningMembership targetMembership = new ProvisioningMembership();
+        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
         targetMembership.setProvisioningGroupId(targetGroup.getId());
         targetMembership.setProvisioningEntityId(duoUser.getId());
         provisioningMemberships.add(targetMembership);
@@ -649,7 +649,7 @@ public class GrouperDuoTargetDao extends GrouperProvisionerTargetDaoBase {
         Set<GrouperDuoGroup> groupsPerUser = duoUser.getGroups();
         
         for (GrouperDuoGroup duoGroup: groupsPerUser) {
-          ProvisioningMembership targetMembership = new ProvisioningMembership();
+          ProvisioningMembership targetMembership = new ProvisioningMembership(false);
           targetMembership.setProvisioningEntityId(duoUser.getId());
           targetMembership.setProvisioningGroupId(duoGroup.getGroup_id());
           targetMemberships.add(targetMembership);

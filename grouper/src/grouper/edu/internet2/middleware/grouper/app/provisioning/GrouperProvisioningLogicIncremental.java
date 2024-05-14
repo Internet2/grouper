@@ -1969,7 +1969,7 @@ public class GrouperProvisioningLogicIncremental {
         
         Object attributeValue = clonedGrouperTargetGroup.retrieveAttributeValue(attributeForMemberships);
         
-        ProvisioningAttribute grouperAttribute = GrouperUtil.nonNull(clonedGrouperTargetGroup.getAttributes()).get(attributeForMemberships);
+        ProvisioningAttribute grouperAttribute = clonedGrouperTargetGroup.retrieveProvisioningAttribute(attributeForMemberships);
         
         if (attributeValue instanceof Collection) {
           
@@ -2043,7 +2043,7 @@ public class GrouperProvisioningLogicIncremental {
         
         Object attributeValue = clonedGrouperTargetEntity.retrieveAttributeValue(attributeForMemberships);
         
-        ProvisioningAttribute grouperAttribute = GrouperUtil.nonNull(clonedGrouperTargetEntity.getAttributes()).get(attributeForMemberships);
+        ProvisioningAttribute grouperAttribute = clonedGrouperTargetEntity.retrieveProvisioningAttribute(attributeForMemberships);
         
         if (attributeValue instanceof Collection) {
           
