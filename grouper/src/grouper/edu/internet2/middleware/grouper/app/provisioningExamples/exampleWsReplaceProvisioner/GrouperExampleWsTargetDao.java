@@ -113,7 +113,7 @@ public class GrouperExampleWsTargetDao extends GrouperProvisionerTargetDaoBase {
     
     ProvisioningGroup targetGroup = targetDaoReplaceGroupMembershipsRequest.getTargetGroup();
 
-    ProvisioningAttribute roleAttribute = targetGroup.getAttributes().get("role");
+    ProvisioningAttribute roleAttribute = targetGroup.retrieveProvisioningAttribute("role");
     
     if (roleAttribute == null || roleAttribute.getValue() == null || GrouperUtil.isBlank(roleAttribute.getValue())) {
       targetGroup.getProvisioningGroupWrapper().setErrorCode(GcGrouperSyncErrorCode.REQ);

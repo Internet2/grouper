@@ -432,7 +432,7 @@ public class GrouperProvisioningLogic {
         for (Object obj: GrouperUtil.nonNull(setForMemberships)) {
           if (membershipValuesThatExistInGrouper.contains(obj)) {
             
-            ProvisioningAttribute membershipAttribute = targetProvisioningGroup.getAttributes().get(membershipAttributeName);
+            ProvisioningAttribute membershipAttribute = targetProvisioningGroup.retrieveProvisioningAttribute(membershipAttributeName);
             Map<Object,ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper();
             if (valueToProvisioningMembershipWrapper != null) {
               ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper().get(obj);
@@ -484,7 +484,7 @@ public class GrouperProvisioningLogic {
         for (Object obj: GrouperUtil.nonNull(setForMemberships)) {
           if (membershipValuesThatExistInGrouper.contains(obj)) {
             
-            ProvisioningAttribute membershipAttribute = targetProvisioningEntity.getAttributes().get(membershipAttributeName);
+            ProvisioningAttribute membershipAttribute = targetProvisioningEntity.retrieveProvisioningAttribute(membershipAttributeName);
             Map<Object,ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper();
             if (valueToProvisioningMembershipWrapper != null) {
               ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper().get(obj);
@@ -3388,7 +3388,7 @@ public class GrouperProvisioningLogic {
         
         GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
         
-        grouperProvisioningEntity = new ProvisioningEntity();
+        grouperProvisioningEntity = new ProvisioningEntity(true);
         grouperProvisioningEntity.setId(gcGrouperSyncMember.getMemberId());
         grouperProvisioningEntity.setSubjectId(gcGrouperSyncMember.getSubjectId());
         grouperProvisioningEntity.assignAttributeValue("subjectSourceId", gcGrouperSyncMember.getSourceId());
@@ -3484,7 +3484,7 @@ public class GrouperProvisioningLogic {
         provisioningGroupsToDeleteCount++;
         
         // create a provisioning group to delete
-        grouperProvisioningGroup = new ProvisioningGroup();
+        grouperProvisioningGroup = new ProvisioningGroup(true);
         grouperProvisioningGroup.setId(gcGrouperSyncGroup.getGroupId());
         grouperProvisioningGroup.setName(gcGrouperSyncGroup.getGroupName());
         grouperProvisioningGroup.setIdIndex(gcGrouperSyncGroup.getGroupIdIndex());
@@ -3575,7 +3575,7 @@ public class GrouperProvisioningLogic {
 
 
         // create a provisioning group to delete
-        ProvisioningMembership provisioningMembership = new ProvisioningMembership();
+        ProvisioningMembership provisioningMembership = new ProvisioningMembership(true);
         provisioningMembership.setProvisioningGroupId(groupId);
         provisioningMembership.setProvisioningEntityId(memberId);
         

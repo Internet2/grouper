@@ -161,18 +161,13 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
 
       if (!dnOnly) {
         if (StringUtils.isEmpty(dn)) {        
-          if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
-            String groupRdnAttributeValue = null;
-  
-            if (((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes() != null 
-                && ((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName) != null) {
-              groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
-            }
+          String groupRdnAttributeValue = ((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).retrieveAttributeValueString(groupRdnAttributeName);
 
+          if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.bushy) {
+  
             dn = GrouperUtil.ldapBushyDn(provisioningGroupWrapper.getGrouperProvisioningGroup().getName(), groupRdnAttributeName, groupRdnAttributeValue, ldapSyncConfiguration.getFolderRdnAttribute(), true, false) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
           } else if (ldapSyncConfiguration.getGroupDnType() == LdapSyncGroupDnType.flat
               || (ldapSyncConfiguration.getGroupDnType() == null)) {
-            String groupRdnAttributeValue = (String)((ProvisioningGroup)elVariableMap.get("grouperTargetGroup")).getAttributes().get(groupRdnAttributeName).getValue();
             dn = GrouperUtil.ldapEscapeRdn(groupRdnAttributeName + "=" + groupRdnAttributeValue) + "," + ldapSyncConfiguration.getGroupSearchBaseDn();
           } else {
             throw new RuntimeException("Not expecting group dn type: " + ldapSyncConfiguration.getGroupDnType());
@@ -194,7 +189,7 @@ public class LdapProvisioningTranslator extends GrouperProvisioningTranslator {
       if (!StringUtils.isBlank(ldapSyncConfiguration.getUserSearchBaseDn())) {
         String dn = null;
   
-        String entityRdnAttributeValue = (String)((ProvisioningEntity)elVariableMap.get("grouperTargetEntity")).getAttributes().get(entityRdnAttributeName).getValue();
+        String entityRdnAttributeValue = ((ProvisioningEntity)elVariableMap.get("grouperTargetEntity")).retrieveAttributeValueString(entityRdnAttributeName);
         dn = GrouperUtil.ldapEscapeRdn(entityRdnAttributeName + "=" + entityRdnAttributeValue) + "," + ldapSyncConfiguration.getUserSearchBaseDn();
         attributeValue = dn;
       }

@@ -5,11 +5,9 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.TreeMap;
 import java.util.TreeSet;
 
 import org.apache.commons.lang3.StringUtils;
@@ -23,6 +21,35 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 
 public abstract class ProvisioningUpdatable {
+
+  public Map<String, ProvisioningAttribute> retrieveAttributes() {
+    Map<String, ProvisioningAttribute> result = new HashMap<>();
+    for (String attributeName : this.attributeNameToIndex.keySet()) {
+      ProvisioningAttribute provisioningAttribute = this.retrieveProvisioningAttribute(attributeName);
+      if (provisioningAttribute != null) {
+        result.put(attributeName, provisioningAttribute);
+      }
+    }
+    return result;
+  }
+  
+  /**
+   * this is the map from the behavior that says which index of the attribute list is each attribute
+   * name for the grouper or target list of attributes
+   */
+  private Map<String, Integer> attributeNameToIndex = null;
+  
+  public Map<String, Integer> internal_retrieveAttributeNameToIndex() {
+    return this.attributeNameToIndex;
+  }
+  
+  /**
+   * 
+   * @param attributeNameToIndex
+   */
+  public ProvisioningUpdatable(Map<String, Integer> attributeNameToIndex) {
+    this.attributeNameToIndex = attributeNameToIndex;
+  }
 
   /**
    * if this is the grouper translated object
@@ -183,10 +210,10 @@ public abstract class ProvisioningUpdatable {
         if (fieldNode != null) {
             
           if (fieldNode.isArray()) {
-            this.truncatedAttributeNames = new HashSet<String>();
+            this.truncatedAttributes = new ArrayList<>(1);
             for (int i=0;i<fieldNode.size();i++) {
               String truncName = fieldNode.get(i).asText();
-              this.truncatedAttributeNames.add(truncName);
+              this.truncatedAttributes.add(truncName);
             }
           }
         }
@@ -239,14 +266,11 @@ public abstract class ProvisioningUpdatable {
   /**
    * if hydrating from json cache, these are the attribute names that were truncated
    */
-  private Set<String> truncatedAttributeNames;
+  private List<String> truncatedAttributes;
 
-  /**
-   * if hydrating from json cache, these are the attribute names that were truncated
-   * @return the attribute names that were truncated
-   */
-  public Set<String> getTruncatedAttributeNames() {
-    return this.truncatedAttributeNames;
+  
+  public List<String> getTruncatedAttributes() {
+    return truncatedAttributes;
   }
 
   /**
@@ -266,16 +290,15 @@ public abstract class ProvisioningUpdatable {
           == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeName();
     }
-    return _internalal_toJsonForCache(membershipAttribute);
+    return _internal_toJsonForCache(membershipAttribute);
   }
   
   /**
    * convert to json for cache, keep under 4k, keep track of truncated fields
    * @return the json of this group for cache
    */
-  public String _internalal_toJsonForCache(String membershipAttribute) {
+  public String _internal_toJsonForCache(String membershipAttribute) {
 
-    Map<String, ProvisioningAttribute> theAttributes = this.getAttributes();
     Map<String, Integer> attributeSize = new HashMap<String, Integer>();
     Integer overByChars = null;
 
@@ -285,23 +308,16 @@ public abstract class ProvisioningUpdatable {
     // max length of each field as we try to fit into 4k
     for (int truncateTo : new int[] {-1, 2000, 1000, 500, 250, 100}) {
       
-      for (String attributeName : GrouperUtil.nonNull(theAttributes).keySet()) {
+      for (String attributeName : this.attributeNameToIndex.keySet()) {
         
         // ignore memberships
         if (StringUtils.equals(membershipAttribute, attributeName)) {
           continue;
         }
         
-        // ignore nulls
-        Object value = theAttributes.get(attributeName);
-        if (value == null) {
-          continue;
-        }
         
-        if (value instanceof ProvisioningAttribute) {
-          ProvisioningAttribute provisioningAttribute = (ProvisioningAttribute)value;
-          value = provisioningAttribute.getValue();
-        }
+        // ignore nulls
+        Object value = this.retrieveAttributeValue(attributeName);
         if (value == null) {
           continue;
         }
@@ -407,33 +423,21 @@ public abstract class ProvisioningUpdatable {
       throw new RuntimeException("Not expecting object type: " + this.getClass() + " not compatible with " + (provisioningUpdatable == null ? null : provisioningUpdatable.getClass()));
     }
     
-    Map<String, ProvisioningAttribute> thisAttributes = GrouperUtil.nonNull(this.getAttributes());
-    Map<String, ProvisioningAttribute> thatAttributes = GrouperUtil.nonNull(provisioningUpdatable.getAttributes());
-
-    Set<String> thisTruncatedAttributeNames = GrouperUtil.nonNull(this.getTruncatedAttributeNames());
-    Set<String> thatTruncatedAttributeNames = GrouperUtil.nonNull(provisioningUpdatable.getTruncatedAttributeNames());
+    Set<String> thisTruncatedAttributeNames = new HashSet(GrouperUtil.nonNull(this.truncatedAttributes));
+    Set<String> thatTruncatedAttributeNames = new HashSet(GrouperUtil.nonNull(provisioningUpdatable.truncatedAttributes));
     
     Set<String> differentAttributes = new HashSet<String>();
     
-    for (String attributeName : GrouperUtil.nonNull(thisAttributes).keySet()) {
+    for (String attributeName : this.attributeNameToIndex.keySet()) {
         
       // ignore memberships
       if (StringUtils.equals(membershipAttribute, attributeName)) {
         continue;
       }
-      
-      Object thisValue = thisAttributes.get(attributeName);
-      Object thatValue = thatAttributes.get(attributeName);
-      
-      if (thisValue instanceof ProvisioningAttribute) {
-        ProvisioningAttribute provisioningAttribute = (ProvisioningAttribute)thisValue;
-        thisValue = provisioningAttribute.getValue();
-      }
-      if (thatValue instanceof ProvisioningAttribute) {
-        ProvisioningAttribute provisioningAttribute = (ProvisioningAttribute)thatValue;
-        thatValue = provisioningAttribute.getValue();
-      }
 
+      Object thisValue = this.retrieveAttributeValue(attributeName);
+      Object thatValue = provisioningUpdatable.retrieveAttributeValue(attributeName);
+      
       // null or empty is ok
       if ((thisValue == null || GrouperUtil.isEmpty(thisValue)) && (thatValue == null || GrouperUtil.isEmpty(thatValue))) {
         continue;
@@ -615,7 +619,7 @@ public abstract class ProvisioningUpdatable {
   /**
    * more attributes in name/value pairs
    */
-  private Map<String, ProvisioningAttribute> attributes = new TreeMap<String, ProvisioningAttribute>();
+  private List<ProvisioningAttribute> attributes = new ArrayList<ProvisioningAttribute>(0);
 
   /**
    * 
@@ -644,6 +648,31 @@ public abstract class ProvisioningUpdatable {
     return internal_objectChanges;
   }
 
+  public void retainAttributes(Collection<String> attributeNames) {
+    attributeNames = GrouperUtil.nonNull(attributeNames);
+    for (String attributeName : this.attributeNameToIndex.keySet()) {
+      ProvisioningAttribute provisioningAttribute = this.retrieveProvisioningAttribute(attributeName);
+      if (provisioningAttribute != null && !attributeNames.contains(attributeName)) {
+        this.removeAttribute(attributeName);
+      }
+    }
+  }
+  
+  public ProvisioningAttribute retrieveProvisioningAttribute(String attributeName) {
+    ProvisioningAttribute provisioningAttribute = null;
+    Integer attributeIndex = this.attributeNameToIndex.get(attributeName);
+    
+    provisioningAttribute = (attributeIndex != null && this.attributes.size() > attributeIndex) ? this.attributes.get(attributeIndex) : null;
+    
+    return provisioningAttribute;
+
+  }
+  
+  public boolean hasAttribute(String attributeName) {
+    return retrieveProvisioningAttribute(attributeName) != null;
+
+  }
+  
   /**
    * add attribute value for membership, assume this happens in a translation, and link the membership with the attribute
    * (to track when it gets saved to target or error handling)
@@ -688,12 +717,14 @@ public abstract class ProvisioningUpdatable {
     
 
     // keep track of membership this attribute value represents
-    ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
+    ProvisioningAttribute provisioningAttribute = null;
     
+    provisioningAttribute = retrieveProvisioningAttribute(name);
+
     if (provisioningAttribute == null) {
       
       provisioningAttribute = new ProvisioningAttribute();
-      this.attributes.put(name, provisioningAttribute);
+      this.assignProvisioningAttributeHelper(name, provisioningAttribute);
       provisioningAttribute.setName(name);
     }
     
@@ -712,19 +743,48 @@ public abstract class ProvisioningUpdatable {
   }
 
   /**
+   * 
+   * @param name
+   * @param provisioningAttribute
+   */
+  private void assignProvisioningAttributeHelper(String name, ProvisioningAttribute provisioningAttribute) {
+    Integer attributeNameIndex = this.attributeNameToIndex.get(name);
+    if (attributeNameIndex == null) {
+      synchronized (this.attributeNameToIndex) {
+        attributeNameIndex = this.attributeNameToIndex.get(name);
+        if (attributeNameIndex == null) {
+          attributeNameIndex = this.attributeNameToIndex.size();
+          this.attributeNameToIndex.put(name, attributeNameIndex);
+        }
+      }
+    }
+    if (this.attributes.size() > attributeNameIndex) {
+      this.attributes.set(attributeNameIndex, provisioningAttribute);
+    } else {
+      // grow it
+      for (int i=this.attributes.size(); i<attributeNameIndex; i++ ) {
+        this.attributes.add(i, null);
+      }
+      this.attributes.add(attributeNameIndex, provisioningAttribute);
+    }
+  }
+  
+  /**
    * this is a multivalued attribute using sets
    * @param name
    * @param value
    */
   public void addAttributeValue(String name, Object value) {
 
-    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    ProvisioningAttribute provisioningAttribute = null;
+    
+    provisioningAttribute = retrieveProvisioningAttribute(name);
     
     Collection<Object> values = null;
     
     if (provisioningAttribute == null) {
       provisioningAttribute = new ProvisioningAttribute();
-      this.attributes.put(name, provisioningAttribute);
+      this.assignProvisioningAttributeHelper(name, provisioningAttribute);
       provisioningAttribute.setName(name);
     } else {
       values = (Collection<Object>)provisioningAttribute.getValue();
@@ -746,12 +806,14 @@ public abstract class ProvisioningUpdatable {
    */
   public void assignAttributeValue(String name, Object value) {
     
-    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
-    
+    ProvisioningAttribute provisioningAttribute = null;
+
+    provisioningAttribute = retrieveProvisioningAttribute(name);
+
     if (provisioningAttribute == null) {
       provisioningAttribute = new ProvisioningAttribute();
       provisioningAttribute.setName(name);
-      this.attributes.put(name, provisioningAttribute);
+      this.assignProvisioningAttributeHelper(name, provisioningAttribute);
     }
     
     provisioningAttribute.setValue(value);
@@ -763,13 +825,23 @@ public abstract class ProvisioningUpdatable {
    * @param name
    * @param value
    */
-  public void removeAttribute(String name) {
-    
-    if (this.attributes.containsKey(name)) {
-      this.attributes.remove(name);
+  public boolean removeAttribute(String name) {
+
+    ProvisioningAttribute provisioningAttribute = null;
+    Integer attributeIndex = this.attributeNameToIndex.get(name);
+
+    provisioningAttribute = retrieveProvisioningAttribute(name);
+
+
+    if (provisioningAttribute != null) {
+      this.attributes.set(attributeIndex, null);
+      return true;
     }
+    
+    return false;
   }
 
+  
   /**
    * 
    * @param name
@@ -777,7 +849,9 @@ public abstract class ProvisioningUpdatable {
    */
   public Object retrieveAttributeValue(String name) {
     
-    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    ProvisioningAttribute provisioningAttribute = null;
+
+    provisioningAttribute = retrieveProvisioningAttribute(name);
     
     if (provisioningAttribute == null) {
       return null;
@@ -885,14 +959,6 @@ public abstract class ProvisioningUpdatable {
   
   
   /**
-   * more attributes in name/value pairs
-   * @return attributes
-   */
-  public Map<String, ProvisioningAttribute> getAttributes() {
-    return this.attributes;
-  }
-
-  /**
    * if there is a problem syncing this object to the target set the exception here
    * @return
    */
@@ -938,7 +1004,7 @@ public abstract class ProvisioningUpdatable {
     if (GrouperUtil.length(this.attributes) > 0) {
       int attrCount = 0;
       // order these
-      Set<String> keySet = new TreeSet<String>(this.attributes.keySet());
+      Set<String> keySet = new TreeSet<String>(this.attributeNameToIndex.keySet());
       for (String key : keySet) {
         
         // dont go crazy here
@@ -947,8 +1013,8 @@ public abstract class ProvisioningUpdatable {
           break;
         }
 
-        ProvisioningAttribute attrValue = this.attributes.get(key);
-        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue.getValue(), true);
+        Object attrValue = this.retrieveAttributeValue(key);
+        firstField = toStringAppendField(result, firstField, "attr[" + key + "]", attrValue, true);
         
       }
     }
@@ -1058,27 +1124,24 @@ public abstract class ProvisioningUpdatable {
    */
   public void cloneUpdatable(ProvisioningUpdatable provisioningUpdatable, String ignoreAttribute) {
 
-    Map<String, ProvisioningAttribute> newAttributes = new TreeMap<String, ProvisioningAttribute>();
-    for (String attributeName : this.attributes.keySet()) {
+    for (String attributeName : this.attributeNameToIndex.keySet()) {
       if (StringUtils.equals(ignoreAttribute, attributeName)) {
         continue;
       }
-      ProvisioningAttribute provisioningAttributeToClone = this.attributes.get(attributeName);
+      ProvisioningAttribute provisioningAttributeToClone = this.retrieveProvisioningAttribute(attributeName);
       ProvisioningAttribute newProvisioningAttribute = null;
       if (provisioningAttributeToClone != null) {
         newProvisioningAttribute = provisioningAttributeToClone.clone();
       }
-      newAttributes.put(attributeName, newProvisioningAttribute);
+      provisioningUpdatable.assignProvisioningAttributeHelper(attributeName, newProvisioningAttribute);
     }
-    provisioningUpdatable.attributes = newAttributes;
-    provisioningUpdatable.exception = exception;
     // dont clone object changes
     provisioningUpdatable.exception = exception;
     provisioningUpdatable.provisioned = provisioned;
     provisioningUpdatable.removeFromList = removeFromList;
     provisioningUpdatable.matchingIdAttributeNameToValues = GrouperUtil.cloneValue(matchingIdAttributeNameToValues);
     provisioningUpdatable.searchIdAttributeNameToValues = GrouperUtil.cloneValue(searchIdAttributeNameToValues);
-    provisioningUpdatable.truncatedAttributeNames = GrouperUtil.cloneValue(truncatedAttributeNames);
+    provisioningUpdatable.truncatedAttributes = GrouperUtil.cloneValue(truncatedAttributes);
     
     
   }
@@ -1090,7 +1153,7 @@ public abstract class ProvisioningUpdatable {
   public void clearAttribute(String name) {
     
     
-    ProvisioningAttribute provisioningAttribute = this.attributes.get(name);
+    ProvisioningAttribute provisioningAttribute = this.retrieveProvisioningAttribute(name);
     
     if (provisioningAttribute != null) {
       Object value = provisioningAttribute.getValue();
@@ -1100,7 +1163,7 @@ public abstract class ProvisioningUpdatable {
           collection.clear();
         }
       } else {
-        this.attributes.remove(name);
+        this.removeAttribute(name);
       }
     }
     

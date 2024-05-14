@@ -86,7 +86,7 @@ public class GrouperBoxGroup {
 
   public ProvisioningGroup toProvisioningGroup() {
     
-    ProvisioningGroup targetGroup = new ProvisioningGroup();
+    ProvisioningGroup targetGroup = new ProvisioningGroup(false);
     
     targetGroup.setId(this.id);
     targetGroup.setName(this.name);

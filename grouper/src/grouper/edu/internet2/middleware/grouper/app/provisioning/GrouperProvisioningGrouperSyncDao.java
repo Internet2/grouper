@@ -1252,7 +1252,7 @@ public class GrouperProvisioningGrouperSyncDao {
       if (StringUtils.equals(membershipAttributeName, provisioningObjectChange.getAttributeName())) {
         
         ProvisioningAttribute provisioningAttribute = provisioningUpdatable
-            .getAttributes().get(provisioningObjectChange.getAttributeName());
+            .retrieveProvisioningAttribute(provisioningObjectChange.getAttributeName());
         Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute == null ? null : provisioningAttribute
             .getValueToProvisioningMembershipWrapper();
         if (valueToProvisioningMembershipWrapper != null) {

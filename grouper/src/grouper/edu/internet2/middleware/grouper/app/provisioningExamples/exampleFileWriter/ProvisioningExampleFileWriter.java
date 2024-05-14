@@ -60,7 +60,7 @@ public class ProvisioningExampleFileWriter extends GrouperProvisionerTargetDaoBa
         
         for (String email : mailListGroup.getEmailToName().keySet()) {
           String name = mailListGroup.getEmailToName().get(email);
-          ProvisioningMembership targetMembership = new ProvisioningMembership();
+          ProvisioningMembership targetMembership = new ProvisioningMembership(false);
           targetMembership.addAttributeValue("fileName", mailListGroup.getFileName());
           targetMembership.addAttributeValue("email", email);
           targetMembership.addAttributeValue("name", name);
@@ -104,7 +104,7 @@ public TargetDaoInsertMembershipResponse insertMembership(
       TargetDaoRetrieveAllGroupsResponse targetDaoRetrieveAllGroupsResponse = new TargetDaoRetrieveAllGroupsResponse();
       List<ProvisioningGroup> targetGroups = new ArrayList<>();
       for (File file : GrouperUtil.nonNull(listFiles, File.class)) {
-        ProvisioningGroup targetGroup = new ProvisioningGroup();
+        ProvisioningGroup targetGroup = new ProvisioningGroup(false);
         targetGroup.assignAttributeValue("fileName", file.getName());
         targetGroups.add(targetGroup);
       }

@@ -85,7 +85,7 @@ public class GrouperDigitalMarketplaceUser {
 
    
    public ProvisioningEntity toProvisioningEntity() {
-     ProvisioningEntity targetEntity = new ProvisioningEntity();
+     ProvisioningEntity targetEntity = new ProvisioningEntity(false);
      
      targetEntity.assignAttributeValue("loginName", this.loginName);
      targetEntity.assignAttributeValue("userId", this.userId);

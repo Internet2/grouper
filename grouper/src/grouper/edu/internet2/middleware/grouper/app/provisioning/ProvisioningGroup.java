@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -18,8 +19,15 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class ProvisioningGroup extends ProvisioningUpdatable {
   
   public ProvisioningGroup() {
-    super();
+    this(false);
   }
+
+  public ProvisioningGroup(boolean grouperFormat) {
+    super(GrouperProvisioner.retrieveCurrentGrouperProvisioner() == null ? new HashMap<>() : (grouperFormat ? 
+        GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperGroup()
+        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperGroup()));
+  }
+
 
   public boolean isLoggableHelper() {
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames().contains(this.getName())) {
@@ -37,20 +45,20 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   }
     
   public static void main(String[] args) {
-    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
-    provisioningGroup.assignAttributeValue("name", "someName");
-    provisioningGroup.assignAttributeValue("id", "abc123");
-    provisioningGroup.addAttributeValue("member", "jsmith");
-    provisioningGroup.addAttributeValue("member", "ajackson");
-    provisioningGroup.addAttributeValue("member", "tjohnson");
-    provisioningGroup.addAttributeValue("objectClass", "groupOfNames");
-    provisioningGroup.addAttributeValue("objectClass", "top");
-    provisioningGroup.addAttributeValue("objectClass", "memberGroup");
-    provisioningGroup.assignAttributeValue("description", "This is the description of the group");
-    provisioningGroup.assignAttributeValue("displayName", "Some name");
-    provisioningGroup.assignAttributeValue("uuid", "abc123xyz456");
-    String json = provisioningGroup._internalal_toJsonForCache("member");
-    System.out.println(json);    
+//    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+//    provisioningGroup.assignAttributeValue("name", "someName");
+//    provisioningGroup.assignAttributeValue("id", "abc123");
+//    provisioningGroup.addAttributeValue("member", "jsmith");
+//    provisioningGroup.addAttributeValue("member", "ajackson");
+//    provisioningGroup.addAttributeValue("member", "tjohnson");
+//    provisioningGroup.addAttributeValue("objectClass", "groupOfNames");
+//    provisioningGroup.addAttributeValue("objectClass", "top");
+//    provisioningGroup.addAttributeValue("objectClass", "memberGroup");
+//    provisioningGroup.assignAttributeValue("description", "This is the description of the group");
+//    provisioningGroup.assignAttributeValue("displayName", "Some name");
+//    provisioningGroup.assignAttributeValue("uuid", "abc123xyz456");
+//    String json = provisioningGroup._internal_toJsonForCache("member");
+//    System.out.println(json);    
   }
   
   private ProvisioningGroupWrapper provisioningGroupWrapper;
@@ -201,7 +209,9 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   @Override
   public ProvisioningGroup clone() {
 
-    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    ProvisioningGroup provisioningGroup = new ProvisioningGroup(grouperProvisioner != null && this.internal_retrieveAttributeNameToIndex() == grouperProvisioner.retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperGroup() );
 
     this.cloneUpdatable(provisioningGroup, null);
     provisioningGroup.provisioningGroupWrapper = this.provisioningGroupWrapper;
@@ -246,7 +256,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
         membershipAttribute = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
       }
       
-      ProvisioningAttribute provisioningAttribute = provisioningGroup.getAttributes().get(membershipAttribute);
+      ProvisioningAttribute provisioningAttribute = provisioningGroup.retrieveProvisioningAttribute(membershipAttribute);
       if (provisioningAttribute == null) {
         continue;
       }
@@ -271,7 +281,10 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
    */
   public ProvisioningGroup cloneWithoutMemberships() {
 
-    ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+    
+    ProvisioningGroup provisioningGroup = new ProvisioningGroup(grouperProvisioner != null && this.internal_retrieveAttributeNameToIndex() == grouperProvisioner.retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperGroup() );
+
     String membershipAttributeToIgnore = null;
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       membershipAttributeToIgnore = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
@@ -335,7 +348,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
         return true;
       }
       
-      ProvisioningAttribute provisioningAttribute = this.getAttributes().get(name);
+      ProvisioningAttribute provisioningAttribute = this.retrieveProvisioningAttribute(name);
       if (provisioningAttribute == null) {
         return false;
       }

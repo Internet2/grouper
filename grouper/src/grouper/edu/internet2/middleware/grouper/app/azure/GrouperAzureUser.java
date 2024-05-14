@@ -38,7 +38,7 @@ public class GrouperAzureUser {
   public static final String fieldsToSelect="accountEnabled,displayName,id,mailNickname,onPremisesImmutableId,userPrincipalName";
   
   public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     
     targetEntity.assignAttributeValue("accountEnabled", this.accountEnabled);
     targetEntity.assignAttributeValue("displayName", this.displayName);

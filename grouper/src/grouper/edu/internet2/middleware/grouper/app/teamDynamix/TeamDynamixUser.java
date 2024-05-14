@@ -147,7 +147,7 @@ public class TeamDynamixUser {
   
   
   public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     targetEntity.assignAttributeValue("FirstName", this.firstName);
     targetEntity.assignAttributeValue("LastName", this.lastName);
     targetEntity.setId(this.id);

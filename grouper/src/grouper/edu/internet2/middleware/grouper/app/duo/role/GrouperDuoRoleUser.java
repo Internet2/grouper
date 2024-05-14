@@ -84,7 +84,7 @@ public class GrouperDuoRoleUser {
       Iterator<String> roleIterator = roles.iterator();
       while (roleIterator.hasNext()) {
         String role = roleIterator.next();
-        ProvisioningAttribute provisioningAttribute = targetEntity.getAttributes().get("role");
+        ProvisioningAttribute provisioningAttribute = targetEntity.retrieveProvisioningAttribute("role");
         if (provisioningAttribute != null) {
           ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(role);
           if (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
@@ -106,7 +106,7 @@ public class GrouperDuoRoleUser {
   }
   
   public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     
     targetEntity.addAttributeValue("role", this.role);
     targetEntity.setId(this.id);

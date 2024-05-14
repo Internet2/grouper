@@ -245,7 +245,7 @@ public class GrouperBoxUser {
   }
 
   public ProvisioningEntity toProvisioningEntity() {
-    ProvisioningEntity targetEntity = new ProvisioningEntity();
+    ProvisioningEntity targetEntity = new ProvisioningEntity(false);
     
     targetEntity.setId(this.id);
     targetEntity.setName(this.name);
