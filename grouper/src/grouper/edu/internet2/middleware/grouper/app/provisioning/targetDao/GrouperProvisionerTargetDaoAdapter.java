@@ -2548,7 +2548,10 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
               GrouperProvisioningConfigurationAttributeType.entity);
       provisioningUpdatableAttributeAndValue.setCurrentValue(true);
       
-      targetEntity.setSearchIdAttributeNameToValues(GrouperUtil.toSet(provisioningUpdatableAttributeAndValue));
+      List<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new ArrayList<>(1);
+      provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+      
+      targetEntity.setSearchIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
       entitiesToSearch.add(targetEntity);
     }
     

@@ -1681,7 +1681,7 @@ public class GrouperProvisioningTranslator {
 
     for (ProvisioningGroup targetGroup: GrouperUtil.nonNull(targetGroups)) {
       
-      Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+      List<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new ArrayList<ProvisioningUpdatableAttributeAndValue>(1);
       targetGroup.setMatchingIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
 
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupMatchingAttributeSameAsSearchAttribute()) {
@@ -1738,7 +1738,7 @@ public class GrouperProvisioningTranslator {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isGroupMatchingAttributeSameAsSearchAttribute()) {
       for (ProvisioningGroup targetGroup: GrouperUtil.nonNull(targetGroups)) {
         
-        Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+        List<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new ArrayList<ProvisioningUpdatableAttributeAndValue>(1);
         targetGroup.setSearchIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
 
         // first do all current values, then do all past values
@@ -1796,7 +1796,7 @@ public class GrouperProvisioningTranslator {
 
     for (ProvisioningEntity targetEntity: GrouperUtil.nonNull(targetEntities)) {
       
-      Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+      List<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new ArrayList<ProvisioningUpdatableAttributeAndValue>(1);
       targetEntity.setMatchingIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
 
       if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isEntityMatchingAttributeSameAsSearchAttribute()) {
@@ -1853,7 +1853,7 @@ public class GrouperProvisioningTranslator {
     if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isEntityMatchingAttributeSameAsSearchAttribute()) {
       for (ProvisioningEntity targetEntity: GrouperUtil.nonNull(targetEntities)) {
         
-        Set<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new LinkedHashSet<ProvisioningUpdatableAttributeAndValue>();
+        List<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new ArrayList<ProvisioningUpdatableAttributeAndValue>(1);
         targetEntity.setSearchIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
 
         // first do all current values, then do all past values
@@ -2012,7 +2012,9 @@ public class GrouperProvisioningTranslator {
           GrouperProvisioningConfigurationAttributeType.membership);
       provisioningUpdatableAttributeAndValue.setCurrentValue(true);
 
-      targetMembership.setMatchingIdAttributeNameToValues(GrouperUtil.toSet(provisioningUpdatableAttributeAndValue));
+      List<ProvisioningUpdatableAttributeAndValue> provisioningUpdatableAttributeAndValues = new ArrayList<>(1);
+      provisioningUpdatableAttributeAndValues.add(provisioningUpdatableAttributeAndValue);
+      targetMembership.setMatchingIdAttributeNameToValues(provisioningUpdatableAttributeAndValues);
 
     }
 
