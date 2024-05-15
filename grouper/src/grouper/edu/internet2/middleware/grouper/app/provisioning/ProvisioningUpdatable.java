@@ -619,7 +619,7 @@ public abstract class ProvisioningUpdatable {
   /**
    * more attributes in name/value pairs
    */
-  private List<ProvisioningAttribute> attributes = new ArrayList<ProvisioningAttribute>(0);
+  private List<ProvisioningAttribute> attributes = new ArrayList<ProvisioningAttribute>(1);
 
   /**
    * 

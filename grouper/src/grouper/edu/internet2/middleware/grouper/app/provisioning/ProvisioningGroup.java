@@ -25,7 +25,7 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   public ProvisioningGroup(boolean grouperFormat) {
     super(GrouperProvisioner.retrieveCurrentGrouperProvisioner() == null ? new HashMap<>() : (grouperFormat ? 
         GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperGroup()
-        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperGroup()));
+        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexTargetGroup()));
   }
 
 

@@ -21,7 +21,7 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
   public ProvisioningMembership(boolean grouperFormat) {
     super(GrouperProvisioner.retrieveCurrentGrouperProvisioner() == null ? new HashMap<>() : (grouperFormat ? 
         GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperMembership()
-        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperMembership()));
+        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexTargetMembership()));
   }
   
   public boolean isLoggableHelper() {
