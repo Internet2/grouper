@@ -110,7 +110,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   public ProvisioningEntity(boolean grouperFormat) {
     super(GrouperProvisioner.retrieveCurrentGrouperProvisioner() == null ? new HashMap<>() : (grouperFormat ? 
         GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperEntity()
-        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexGrouperEntity()));
+        : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexTargetEntity()));
   }
 
   public ProvisioningEntity() {
