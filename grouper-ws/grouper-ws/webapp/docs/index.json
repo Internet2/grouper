@@ -109,7 +109,7 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -120,6 +120,76 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the person to be added",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of entity to be added, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId of entity to be added, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "If the member should be added to a certain field membership of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
+        }, {
+          "name" : "enabledTime",
+          "in" : "formData",
+          "description" : "date this membership will be enabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "disabledTime",
+          "in" : "formData",
+          "description" : "date this membership will be disabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "addExternalSubjectIfNotFound",
+          "in" : "formData",
+          "description" : "T or F (default F), if this is a search by id or identifier, with no source, or the external source,and the subject is not found, then add an external subject (if the user is allowed) defaults to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
         } ],
         "responses" : {
           "200" : {
@@ -232,6 +302,41 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "assign",
+          "in" : "formData",
+          "description" : "T to assign, F to remove assingment",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "F"
+        }, {
+          "name" : "attributeDefNameUuid",
+          "in" : "formData",
+          "description" : "Id of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameName",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefNameName",
+          "in" : "formData",
+          "description" : "name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameId",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "relatedAttributeDefNameUuid",
+          "in" : "formData",
+          "description" : "id of attribute def name to add or remove from inheritance from the container, mutually exclusive with relatedAttributeDefNameName",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "relatedAttributeDefNameName",
+          "in" : "formData",
+          "description" : "name of attribute def name to add or remove from inheritance from the container, mutually exclusive with relatedAttributeDefNameId",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
         } ],
         "responses" : {
           "200" : {
@@ -296,6 +401,13 @@
           "type" : "String",
           "x-example" : "v2_6_001"
         }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
           "name" : "actAsSubjectSourceId",
           "in" : "formData",
           "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
@@ -341,6 +453,229 @@
           "name" : "includeGroupDetail",
           "in" : "formData",
           "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "delegatable",
+          "in" : "formData",
+          "description" : "really only for permissions, if the assignee can delegate to someone else. TRUE|FALSE|GRANT. defaults to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "attributeAssignType",
+          "in" : "formData",
+          "description" : "Type of owner, from enum AttributeAssignType, e.g.group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn ",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "group"
+        }, {
+          "name" : "wsAttributeDefNameId",
+          "in" : "formData",
+          "description" : "attribute def Uuid to assign to the owner, mutually exclusive with wsAttributeDefNameName",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefNameName",
+          "in" : "formData",
+          "description" : "name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "attributeAssignOperation",
+          "in" : "formData",
+          "description" : "operation to perform for attribute on owners, from enum AttributeAssignOperationassign_attr, add_attr, remove_attr",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "add_attr"
+        }, {
+          "name" : "attributeAssignValueOperation",
+          "in" : "formData",
+          "description" : "operation to perform for attribute value on attributeassignments: assign_value, add_value, remove_value, replace_values",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "assign_value"
+        }, {
+          "name" : "wsAttributeAssignId",
+          "in" : "formData",
+          "description" : "if you know the assign id you want, put id here",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerGroupName",
+          "in" : "formData",
+          "description" : "is name of the group to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "wsOwnerGroupId",
+          "in" : "formData",
+          "description" : "is id of the group to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerStemName",
+          "in" : "formData",
+          "description" : "is name of the stem to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "wsOwnerStemId",
+          "in" : "formData",
+          "description" : "is id of the stem to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "valueId",
+          "in" : "formData",
+          "description" : "If removing, and id is specified, will only remove values with that id",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "valueSystem",
+          "in" : "formData",
+          "description" : "is value to add, assign, remove, etc",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "valueFormatted",
+          "in" : "formData",
+          "description" : "is value to add, assign, remove, etc though not implemented yet",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignmentNotes",
+          "in" : "formData",
+          "description" : "notes on the assignment (optional)",
+          "required" : false,
+          "type" : "String"
+        }, {
+          "name" : "assignmentEnabledTime",
+          "in" : "formData",
+          "description" : "enabled time, or null for enabled now",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "assignmentDisabledTime",
+          "in" : "formData",
+          "description" : "disabled time, or null for not disabled",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "action",
+          "in" : "formData",
+          "description" : "to assign, or assign is the default if blank",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "assign"
+        }, {
+          "name" : "wsOwnerSubjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of subject to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "wsOwnerSubjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of the subject to look in, mutually exclusive with wsOwnerSubjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "wsOwnerSubjectId",
+          "in" : "formData",
+          "description" : "subjectId of subject to look in, mutually exclusive with wsOwnerSubjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "wsOwnerMembershipId",
+          "in" : "formData",
+          "description" : "to query attributes on immediate membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "wsOwnerMembershipAnyGroupName",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "this:group:name"
+        }, {
+          "name" : "wsOwnerMembershipAnyGroupId",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerMembershipAnySubjectId",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerMembershipAnySubjectSourceId",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInsitutionPeople"
+        }, {
+          "name" : "wsOwnerMembershipAnySubjectSourceId",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "wsOwnerAttributeDefName",
+          "in" : "formData",
+          "description" : "to query attributes assigned on attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "wsOwnerAttributeDefId",
+          "in" : "formData",
+          "description" : "to query attributes assigned on attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerAttributeAssignId",
+          "in" : "formData",
+          "description" : "for assignment on assignment",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
@@ -392,6 +727,27 @@
           "type" : "String",
           "x-example" : "v2_6_001"
         }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the entity to have privileges assigned",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of entity to have privileges assigned, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId of entity to have privileges assigned, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
           "name" : "actAsSubjectId",
           "in" : "formData",
           "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
@@ -441,9 +797,16 @@
           "type" : "String",
           "x-example" : "NA"
         }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -452,6 +815,76 @@
           "in" : "formData",
           "description" : "If the group detail should be returned, default to false",
           "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return.If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the person to assign privileges",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of entity to have privileges assigned, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId of entity to have privileges assigned, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "privilegeName",
+          "in" : "formData",
+          "description" : "Name of the privilege",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate"
+        }, {
+          "name" : "privilegeType",
+          "in" : "formData",
+          "description" : "Type of privilege, (e.g. access for groups and naming for stems)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "access"
+        }, {
+          "name" : "stemUuid",
+          "in" : "formData",
+          "description" : "Id in UI, stemUuid search by stem uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "allowed",
+          "in" : "formData",
+          "description" : "T|F is this is allowing the privilege, or denying it",
+          "required" : true,
           "type" : "String",
           "x-example" : "T|F"
         } ],
@@ -557,6 +990,145 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "permissionType",
+          "in" : "formData",
+          "description" : "is role or role_subject from the PermissionType enum",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "role"
+        }, {
+          "name" : "permissionDefNameName",
+          "in" : "formData",
+          "description" : "attribute def name to assign to the owner",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "permissionDefNameId",
+          "in" : "formData",
+          "description" : "attribute def id to assign to the owner",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "permissionAssignmentOperation",
+          "in" : "formData",
+          "description" : "operation to perform for permission on role or subject, from enum PermissionAssignOperation: assign_permission, remove_permission",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "assign_permission"
+        }, {
+          "name" : "assignmentNotes",
+          "in" : "formData",
+          "description" : "notes on the assignment (optional)",
+          "required" : false,
+          "type" : "String"
+        }, {
+          "name" : "assignmentEnabledTime",
+          "in" : "formData",
+          "description" : "enabled time, or null for enabled now",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "assignmentDisabledTime",
+          "in" : "formData",
+          "description" : "disabled time, or null for not disabled",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "delegatable",
+          "in" : "formData",
+          "description" : "really only for permissions, if the assignee can delegate to someone else. TRUE|FALSE|GRANT. defaults to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "wsAttributeAssignId",
+          "in" : "formData",
+          "description" : "if you know the assign id you want, put id here. lookup to remove etc",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "roleName",
+          "in" : "formData",
+          "description" : "is name of group to assign to for permissionType 'role'",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "roleId",
+          "in" : "formData",
+          "description" : "is id of group to assign to for permissionType 'role'",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "subjectRoleName",
+          "in" : "formData",
+          "description" : "is role name if assigning to subject, in the context of a role (for permissionType \"subject_role\")",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "subjectRoleId",
+          "in" : "formData",
+          "description" : "is role id if assigning to subject, in the context of a role (for permissionType \"subject_role\")",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "subjectRoleSubjectSourceId",
+          "in" : "formData",
+          "description" : "is subject source id if assigning to subject, in the context of a role (for permissionType \"subject_role\")",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectRoleSubjectIdentifier",
+          "in" : "formData",
+          "description" : "is subject identifier if assigning to subject, in the context of a role (for permissionType \"subject_role\")",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectRoleSubjectId",
+          "in" : "formData",
+          "description" : "is subject id if assigning to subject, in the context of a role (for permissionType \"subject_role\")",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "action",
+          "in" : "formData",
+          "description" : "to assign, or assign is the default if blank",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "assign"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "disallowed",
+          "in" : "formData",
+          "description" : "T or F if the permission is disallowed",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T"
         } ],
         "responses" : {
           "200" : {
@@ -653,6 +1225,27 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "wsNameOfAttributeDef",
+          "in" : "formData",
+          "description" : "name of attribute def to be deleted",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "wsIdOfAttributeDef",
+          "in" : "formData",
+          "description" : "Id of attribute def to be deleted",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsIdIndexOfAttributeDef",
+          "in" : "formData",
+          "description" : "Id index of attribute def to be deleted",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
         } ],
         "responses" : {
           "200" : {
@@ -749,6 +1342,20 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "attributeDefNameUuid",
+          "in" : "formData",
+          "description" : "Id of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameName",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefNameName",
+          "in" : "formData",
+          "description" : "name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameId",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
         } ],
         "responses" : {
           "200" : {
@@ -845,6 +1452,75 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "attributeDefNameLookupUuid",
+          "in" : "formData",
+          "description" : "Id of attributeDefName to edit, which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameLookupName",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefNameLookupName",
+          "in" : "formData",
+          "description" : "Lookup name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameLookupUuId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "attributeDefLookupUuid",
+          "in" : "formData",
+          "description" : "to lookup the attributeDef (mutually exclusive with attributeDefName)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefLookupName",
+          "in" : "formData",
+          "description" : "to lookup the attributeDef (mutually exclusive with attributeDefUuid)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:myAttributeDef"
+        }, {
+          "name" : "attributeDefNameUuid",
+          "in" : "formData",
+          "description" : "Id of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameName",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefNameName",
+          "in" : "formData",
+          "description" : "name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "saveMode",
+          "in" : "formData",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "INSERT"
+        }, {
+          "name" : "displayExtension",
+          "in" : "formData",
+          "description" : "display name of the attributeDefName, empty will be ignored",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "description",
+          "in" : "formData",
+          "description" : "of the attributeDefName, empty will be ignored",
+          "required" : false,
+          "type" : "String"
+        }, {
+          "name" : "createParentStemsIfNotExist",
+          "in" : "formData",
+          "description" : "T or F (default F) if parent stems should be created if not exist",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -941,6 +1617,152 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "attributeDefLookupUuid",
+          "in" : "formData",
+          "description" : "to lookup the attributeDef (mutually exclusive with attributeDefName)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefLookupName",
+          "in" : "formData",
+          "description" : "to lookup the attributeDef (mutually exclusive with attributeDefUuid)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:myAttributeDef"
+        }, {
+          "name" : "createParentStemsIfNotExist",
+          "in" : "formData",
+          "description" : "T or F (default F) if parent stems should be created if not exist",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "saveMode",
+          "in" : "formData",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "INSERT"
+        }, {
+          "name" : "description",
+          "in" : "formData",
+          "description" : "of the attributeDef, empty will be ignored",
+          "required" : false,
+          "type" : "String"
+        }, {
+          "name" : "valueType",
+          "in" : "formData",
+          "description" : "what type of value on assignments: AttributeDefValueType: e.g. integer, timestamp, string, floating, marker, memberId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "marker"
+        }, {
+          "name" : "multiValued",
+          "in" : "formData",
+          "description" : "T or F, if has values, if can assign multiple values to one assignment",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "multiAssignable",
+          "in" : "formData",
+          "description" : "T of F for if can be assigned multiple times to one object",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "attributeDefType",
+          "in" : "formData",
+          "description" : "null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "attr"
+        }, {
+          "name" : "assignToStemAssignment",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToStem",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToMemberAssignment",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToMember",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToImmediateMembershipAssignment",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToImmediateMembership",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToGroupAssignment",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToGroup",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToEffectiveMembershipAssignment",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToEffectiveMembership",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToAttributeDefAssignment",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "assignToAttributeDef",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
         } ],
         "responses" : {
           "200" : {
@@ -1040,7 +1862,7 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -1051,6 +1873,62 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the entitity to be deleted",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of entity to be deleted, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId of entity to be deleted, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "If the member should be deleted from a certain field membership of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
         } ],
         "responses" : {
           "200" : {
@@ -1251,6 +2129,132 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the entity",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of entity, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId of entity, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "attributeAssignType",
+          "in" : "formData",
+          "description" : "Type of owner, from enum AttributeAssignType, e.g.group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn ",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "group"
+        }, {
+          "name" : "attributeDefNameUuid",
+          "in" : "formData",
+          "description" : "to lookup an attribute def name by id, mutually exclusive with attributeDefNameName",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefNameName",
+          "in" : "formData",
+          "description" : "to lookup an attribute def name by name, mutually exclusive with attributeDefNameId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "wsInheritanceSetRelation",
+          "in" : "formData",
+          "description" : "if there is one wsAttributeDefNameLookup, and this is specified, then findthe attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS,IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "IMPLIED_BY_THIS"
+        }, {
+          "name" : "scope",
+          "in" : "formData",
+          "description" : "search string with % as wildcards will search name, display name, description",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "splitScope",
+          "in" : "formData",
+          "description" : "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, it will returnschool:apps:pto_app:internal:the_permissions:whatever",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "scope",
+          "in" : "formData",
+          "description" : "is a DB pattern that will have % appended to it, or null for all",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "school:whatever:parent"
+        }, {
+          "name" : "splitScope",
+          "in" : "formData",
+          "description" : "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, it will return school:apps:pto_app:internal:the_permissions:whatever",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "uuidOfAttributeDef",
+          "in" : "formData",
+          "description" : "find names associated with this attribute definition, mutually exclusive with nameOfAttributeDef",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "nameOfAttributeDef",
+          "in" : "formData",
+          "description" : "find names associated with this attribute definition, mutually exclusive with idOfAttributeDef",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "attributeAssignType",
+          "in" : "formData",
+          "description" : "where can the attribute definition be assigned, e.g. any_mem, any_mem_asgn, attr_def,attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn ",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "group"
+        }, {
+          "name" : "attributeDefType",
+          "in" : "formData",
+          "description" : "null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "attr"
+        }, {
+          "name" : "attributeDefNameUuid",
+          "in" : "formData",
+          "description" : "to lookup an attribute def name by id, mutually exclusive with attributeDefNameName",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "attributeDefNameName",
+          "in" : "formData",
+          "description" : "to lookup an attribute def name by name, mutually exclusive with attributeDefNameName",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "serviceRole",
+          "in" : "formData",
+          "description" : "to filter attributes that a user has a certain role",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
         } ],
         "responses" : {
           "200" : {
@@ -1417,6 +2421,69 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "privilegeName",
+          "in" : "formData",
+          "description" : "Name of the privilege",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate"
+        }, {
+          "name" : "scope",
+          "in" : "formData",
+          "description" : "search string with % as wildcards will search name, display name, description",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "splitScope",
+          "in" : "formData",
+          "description" : "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, it will returnschool:apps:pto_app:internal:the_permissions:whatever",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "uuidOfAttributeDef",
+          "in" : "formData",
+          "description" : "find attribute defs associated with this attribute def uuid, mutually exclusive with nameOfAttributeDef",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "nameOfAttributeDef",
+          "in" : "formData",
+          "description" : "find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "idIndexOfAttributeDef",
+          "in" : "formData",
+          "description" : "find attribute defs associated with this attribute def id index",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "stemScope",
+          "in" : "formData",
+          "description" : "is if in this stem, or in any stem underneath. You must pass stemScope if you pass a stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "parentStemId",
+          "in" : "formData",
+          "description" : "will return sattribute defs in this stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "findbyUuidOrName",
+          "in" : "formData",
+          "description" : "!!",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!"
         } ],
         "responses" : {
           "200" : {
@@ -1537,7 +2604,7 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -1754,19 +2821,47 @@
           "type" : "String",
           "x-example" : "v2_6_001"
         }, {
-          "name" : "groupUuid",
+          "name" : "stemUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, stemUuid search by stem uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
         }, {
           "name" : "stemName",
           "in" : "formData",
-          "description" : "stemName search by stem name (must match exactly), cannot use other params with this",
+          "description" : "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this",
           "required" : false,
           "type" : "String",
           "x-example" : "some:stem:name"
+        }, {
+          "name" : "stemAttributeName",
+          "in" : "formData",
+          "description" : "if searching by attribute, this is name,or null for all attributes",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "stemAttributeValue",
+          "in" : "formData",
+          "description" : "if searching by attribute, this is the value",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "parentStemName",
+          "in" : "formData",
+          "description" : "will return stems in this stem. can be used with various query types",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "parentStemNameScope",
+          "in" : "formData",
+          "description" : "if searching by stem, ONE_LEVEL is for one level,ALL_IN_SUBTREE will return all in sub tree. Required ifsearching by stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "ONE_LEVEL"
         }, {
           "name" : "actAsSubjectId",
           "in" : "formData",
@@ -1817,12 +2912,12 @@
           "type" : "String",
           "x-example" : "NA"
         }, {
-          "name" : "stemName",
+          "name" : "stemQueryFilterType",
           "in" : "formData",
-          "description" : "Will return groups only in this stem (by name)",
+          "description" : "findStemType is the WsFindStemType enum for whichtype of find is happening: e.g.FIND_BY_STEM_UUID, FIND_BY_STEM_NAME, FIND_BY_PARENT_STEM_NAME, FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_STEM_NAME_APPROXIMATEAND, OR, MINUS;",
           "required" : false,
           "type" : "String",
-          "x-example" : "some:parent:folder:name"
+          "x-example" : "FIND_BY_STEM_NAME"
         } ],
         "responses" : {
           "200" : {
@@ -1935,6 +3030,34 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "action",
+          "in" : "formData",
+          "description" : "action to query, or none to query all actions",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "read"
+        }, {
+          "name" : "wsNameOfAttributeDef",
+          "in" : "formData",
+          "description" : "find assignActions in this attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "wsIdOfAttributeDef",
+          "in" : "formData",
+          "description" : "find assignActions in this attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsIdIndexOfAttributeDef",
+          "in" : "formData",
+          "description" : "find assignActions in this attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
         } ],
         "responses" : {
           "200" : {
@@ -2066,6 +3189,34 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
         } ],
         "responses" : {
           "200" : {
@@ -2149,7 +3300,7 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -2160,6 +3311,34 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "privilegeName",
+          "in" : "formData",
+          "description" : "Name of the privilege",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate"
+        }, {
+          "name" : "privilegeType",
+          "in" : "formData",
+          "description" : "Type of privilege, (e.g. access for groups and naming for stems)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "access"
         } ],
         "responses" : {
           "200" : {
@@ -2305,6 +3484,104 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "enabled",
+          "in" : "formData",
+          "description" : "enabled is A for all, T or null for enabled only, F for disabled",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "A|T|F"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "If the member is added to a certain field membership of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "memberFilter",
+          "in" : "formData",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "Effective"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "scope",
+          "in" : "formData",
+          "description" : "is a DB pattern that will have % appended to it, or null for all",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "school:whatever:parent"
+        }, {
+          "name" : "stemScope",
+          "in" : "formData",
+          "description" : "is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath. You must pass stemScope if you pass a stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "ONE_LEVEL"
+        }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource to be added",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier to be added, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId to be added, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "stemUuid",
+          "in" : "formData",
+          "description" : "Id in UI, stemUuid search by stem uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
         } ],
         "responses" : {
           "200" : {
@@ -2404,7 +3681,7 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -2426,6 +3703,13 @@
           "name" : "includeGroupDetail",
           "in" : "formData",
           "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
@@ -2457,6 +3741,34 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "If the member is part of a certain field membership of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "memberFilter",
+          "in" : "formData",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "Effective"
         } ],
         "responses" : {
           "200" : {
@@ -2554,9 +3866,16 @@
           "type" : "String",
           "x-example" : "NA"
         }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -2578,6 +3897,293 @@
           "name" : "includeGroupDetail",
           "in" : "formData",
           "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "enabled",
+          "in" : "formData",
+          "description" : "enabled is A for all, T or null for enabled only, F for disabled",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "A|T|F"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "If the member is added to a certain field membership of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
+        }, {
+          "name" : "fieldType",
+          "in" : "formData",
+          "description" : "is the type of field to look at",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "list (default, memberships),access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "sourceId",
+          "in" : "formData",
+          "description" : "sourceId of subject to search for memberships, or null to not restrict",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "sourceIds",
+          "in" : "formData",
+          "description" : "are comma separated sourceIds",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson, schoolIndividual"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "Identifier of subject to search for memberships, or null to not restrict",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "Id of subject to search for memberships, or null to not restrict",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "wsMemberFilter",
+          "in" : "formData",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "Effective"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "scope",
+          "in" : "formData",
+          "description" : "is a sql like string which will have a percent % concatenated to the end for groupnames to search in (or stem names)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Name of stem to limit the search to (in or under)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "stemUuid",
+          "in" : "formData",
+          "description" : "Id of stem to limit the search to (in or under)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "stemScope",
+          "in" : "formData",
+          "description" : "is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath. You must pass stemScope if you pass a stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "ONE_LEVEL"
+        }, {
+          "name" : "membershipIds",
+          "in" : "formData",
+          "description" : "comma separated list of membershipIds to retrieve",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "ownerStemUuid",
+          "in" : "formData",
+          "description" : "if looking for privileges on stems, put the stem uuid here",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "ownerStemName",
+          "in" : "formData",
+          "description" : "if looking for privileges on stems, put the stem name to look for here",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "nameOfOwnerAttributeDef",
+          "in" : "formData",
+          "description" : "if looking for privileges on attribute definitions, put the name of the attribute definition here",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "ownerAttributeDefUuid",
+          "in" : "formData",
+          "description" : "if looking for privileges on attribute definitions, put the uuid of the attribute definition here",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "serviceRole",
+          "in" : "formData",
+          "description" : "to filter attributes that a user has a certain role",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "serviceId",
+          "in" : "formData",
+          "description" : "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "serviceName",
+          "in" : "formData",
+          "description" : "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageSizeForMember",
+          "in" : "formData",
+          "description" : "Page size if paging in the members part",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumberForMember",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging for the mebers part",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "sortStringForMember",
+          "in" : "formData",
+          "description" : "must be an hql query field, e.g.can sort on uuid, subjectId, sourceId, sourceString0, sortString1, sortString2, sortString3, sortString4, name, descriptionin the members part",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtensionForMember"
+        }, {
+          "name" : "ascendingForMember",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending for members  part.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageIsCursorForMember",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging for members part",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorFieldForMember",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging in members part",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldTypeForMember",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp, in members part",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrievedForMember",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query permissions at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query permission at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeRetrieve",
+          "in" : "formData",
+          "description" : "true means retrieve point in time records",
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
@@ -2684,6 +4290,223 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "includePermissionDetail",
+          "in" : "formData",
+          "description" : "T or F for if the permission details should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "action",
+          "in" : "formData",
+          "description" : "to assign, or assign is the default if blank",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "assign"
+        }, {
+          "name" : "wsAttributeDefNameId",
+          "in" : "formData",
+          "description" : "attribute def Uuid to assign to the owner, mutually exclusive with wsAttributeDefNameName",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefNameName",
+          "in" : "formData",
+          "description" : "name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "wsAttributeDefName",
+          "in" : "formData",
+          "description" : "find assignments in this attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "wsAttributeDefId",
+          "in" : "formData",
+          "description" : "find assignments in this attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "roleName",
+          "in" : "formData",
+          "description" : "Id of role to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "roleId",
+          "in" : "formData",
+          "description" : "Name of role to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsSubjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the person to be added",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "wsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "Identifier of subject to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "wsSubjectId",
+          "in" : "formData",
+          "description" : "Id of subject to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "wsSubjectId",
+          "in" : "formData",
+          "description" : "Id of subject to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "includeAttributeDefNames",
+          "in" : "formData",
+          "description" : "T or F for if attributeDefName objects should be returned",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeAttributeAssignments",
+          "in" : "formData",
+          "description" : "T or F for if attributeDefName objects should be returned",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeAssignmentsOnAssignments",
+          "in" : "formData",
+          "description" : "if this is not querying assignments on assignments directly, but the assignmentsand assignments on those assignments should be returned, enter true. default to false.",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeAttributeAssignments",
+          "in" : "formData",
+          "description" : "T or F for if attributeDefName objects should be returned",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "enabled",
+          "in" : "formData",
+          "description" : "enabled is A for all, T or null for enabled only, F for disabled",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "A|T|F"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query permissions at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query permissions at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "immediateOnly",
+          "in" : "formData",
+          "description" : "T of F (defaults to F) if we should filter out non immediate permissions",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "permissionType",
+          "in" : "formData",
+          "description" : "are we looking for role permissions or subject permissions? fromenum PermissionType: role, or role_subject. defaults to role_subject permissions",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "role"
+        }, {
+          "name" : "permissionProcessor",
+          "in" : "formData",
+          "description" : "if we should find the best answer, or process limits, etc. From the enumPermissionProcessor. example values are: FILTER_REDUNDANT_PERMISSIONS,FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES,FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "PROCESS_LIMITS"
+        }, {
+          "name" : "limitEnvVarName0",
+          "in" : "formData",
+          "description" : "limitEnvVars if processing limits, pass in a set of limits. The name is thename of the variable, and the value is the value. Note, you can typecast thevalues by putting a valid type in parens in front of the param name",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "(int)amount"
+        }, {
+          "name" : "limitEnvVarValue0",
+          "in" : "formData",
+          "description" : "first limit env var value",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "50"
+        }, {
+          "name" : "limitEnvVarType0",
+          "in" : "formData",
+          "description" : "first limit env var type",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "int"
+        }, {
+          "name" : "limitEnvVarName1",
+          "in" : "formData",
+          "description" : "second limit env var name",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "amount"
+        }, {
+          "name" : "limitEnvVarValue1",
+          "in" : "formData",
+          "description" : "second limit env var value",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "50"
+        }, {
+          "name" : "limitEnvVarType1",
+          "in" : "formData",
+          "description" : "second limit env var type",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "int"
+        }, {
+          "name" : "includeLimits",
+          "in" : "formData",
+          "description" : "T or F (default to F) for if limits should be returned with the results.Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -2783,10 +4606,87 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "sourceId",
+          "in" : "formData",
+          "description" : "the Id of the subject to be found",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "Identifier of the subject to be found, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "Id of subject to be found, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "If the entity added to a certain field membership of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
+        }, {
+          "name" : "searchString",
+          "in" : "formData",
+          "description" : "free form string query to find a list of subjects (exact behavior depends on source)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "sourceIds",
+          "in" : "formData",
+          "description" : "are comma separated sourceIds for a searchString",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "wsMemberFilter",
+          "in" : "formData",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "Effective"
         }, {
           "name" : "includeGroupDetail",
           "in" : "formData",
@@ -2893,7 +4793,7 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -2904,6 +4804,13 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
         } ],
         "responses" : {
           "200" : {
@@ -3007,6 +4914,81 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "saveMode",
+          "in" : "formData",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "INSERT"
+        }, {
+          "name" : "groupLookupUuid",
+          "in" : "formData",
+          "description" : "the uuid of the group to edit (mutually exclusive with groupLookupName)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "groupLookupName",
+          "in" : "formData",
+          "description" : "the name of the group to edit (mutually exclusive with groupLookupUuid)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "displayExtension",
+          "in" : "formData",
+          "description" : "display name of the group, empty will be ignored",
+          "required" : false,
+          "type" : "String"
+        }, {
+          "name" : "description",
+          "in" : "formData",
+          "description" : "descirption of the group, empty will be ignored",
+          "required" : false,
+          "type" : "String"
+        }, {
+          "name" : "enabledTime",
+          "in" : "formData",
+          "description" : "date this will be enabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "disabledTime",
+          "in" : "formData",
+          "description" : "date this will be disabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "typeOfGroup1",
+          "in" : "formData",
+          "description" : "type of group can be an enum of TypeOfGroup, e.g. group, role, entity",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "entity"
+        }, {
+          "name" : "alternateName",
+          "in" : "formData",
+          "description" : "the alternate name of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:othername"
         } ],
         "responses" : {
           "200" : {
@@ -3113,7 +5095,7 @@
         }, {
           "name" : "groupUuid",
           "in" : "formData",
-          "description" : "groupUuid search by group uuid (must match exactly)",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
           "required" : false,
           "type" : "String",
           "x-example" : "abc123"
@@ -3124,6 +5106,55 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "is if the Group.hasMember() method with field is to be called",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "memberFilter",
+          "in" : "formData",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "Effective"
         } ],
         "responses" : {
           "200" : {
@@ -3221,12 +5252,68 @@
           "type" : "String",
           "x-example" : "NA"
         }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
           "name" : "deleteOldMember",
           "in" : "formData",
           "description" : "T/F or TRUE/FALSE (Case sensitive) true means delete subject that was changed, false means keep, defaults to true",
           "required" : false,
           "type" : "String",
           "x-example" : "T"
+        }, {
+          "name" : "oldSubjectSourceId",
+          "in" : "formData",
+          "description" : "the old Id of the subjectSource of the person to be added, recommended",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "oldSubjectIdentifier",
+          "in" : "formData",
+          "description" : "Old subjectIdentifier of entity to be added, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "oldsubjectId",
+          "in" : "formData",
+          "description" : "Old subjectId of entity to be added, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "newSubjectSourceId",
+          "in" : "formData",
+          "description" : "the new Id of the subjectSource of the person to be added, recommended",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "newSubjectIdentifier",
+          "in" : "formData",
+          "description" : "New subjectIdentifier of entity to be added, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "newSubjectId",
+          "in" : "formData",
+          "description" : "New subjectId of entity to be added, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
         } ],
         "responses" : {
           "200" : {
@@ -3355,6 +5442,20 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "stemUuid",
+          "in" : "formData",
+          "description" : "Id in UI, stemUuid search by stem uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
         } ],
         "responses" : {
           "200" : {
@@ -3451,6 +5552,54 @@
           "required" : false,
           "type" : "String",
           "x-example" : "NA"
+        }, {
+          "name" : "stemUuid",
+          "in" : "formData",
+          "description" : "Id in UI, stemUuid search by stem uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "displayExtension",
+          "in" : "formData",
+          "description" : "display name of the stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "!!"
+        }, {
+          "name" : "description",
+          "in" : "formData",
+          "description" : "descirption of the stem, empty will be ignored",
+          "required" : false,
+          "type" : "String"
+        }, {
+          "name" : "saveMode",
+          "in" : "formData",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "INSERT"
+        }, {
+          "name" : "stemLookupUuid",
+          "in" : "formData",
+          "description" : "the uuid of the stem to save (mutually exclusive with stemLookupName), null for insert",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "stemLookupName",
+          "in" : "formData",
+          "description" : "the name of the stam to save (mutually exclusive with stemLookupUuid), null for insert",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
         } ],
         "responses" : {
           "200" : {
