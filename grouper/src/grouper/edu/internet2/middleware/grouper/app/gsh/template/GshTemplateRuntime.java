@@ -90,6 +90,17 @@ public class GshTemplateRuntime {
     this.currentSubject = currentSubject;
   }
 
+  private Subject authenticatedSubject;
+  
+  public Subject getAuthenticatedSubject() {
+    return authenticatedSubject;
+  }
+
+  
+  public void setAuthenticatedSubject(Subject authenticatedSubject) {
+    this.authenticatedSubject = authenticatedSubject;
+  }
+
   
   public GrouperSession getGrouperSession() {
     GrouperGroovyRuntime grouperGroovyRuntime = GrouperGroovyRuntime.retrieveGrouperGroovyRuntime();

@@ -17,6 +17,8 @@ import org.apache.commons.logging.Log;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyExit;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
@@ -28,6 +30,7 @@ import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibernateHandler;
@@ -201,8 +204,6 @@ public class GshTemplateExec {
   
   private Subject actAsSubject; // only for WS
   
-  private Subject originalCurrentUser; // user is the current user or if there's an actAs, it's the user calling the web service
-  
   private List<GshTemplateInput> gshTemplateInputs = new ArrayList<GshTemplateInput>();
   
   public GshTemplateExec assignActAsSubject(Subject actAsSubject) {
@@ -322,17 +323,23 @@ public class GshTemplateExec {
     GshTemplateConfig templateConfig = new GshTemplateConfig(configId);
     
     final GshTemplateExec THIS = this;
+
+    // logged in member if different than act as user
+    Member[] originalCurrentMember = new Member[1]; 
+    Member[] currentMember = new Member[1]; 
+    Subject[] theCurrentUser = new Subject[] {currentUser}; 
     
     Subject grouperSessionSubject = (Subject) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       @Override
       public Subject callback(GrouperSession grouperSession) throws GrouperSessionException {
         
-        originalCurrentUser = currentUser;
-        
         templateConfig.populateConfiguration();
         
         if (actAsSubject != null) {
+          
+          theCurrentUser[0] = actAsSubject;
+          gshTemplateRuntime.setAuthenticatedSubject(currentUser);
           String actAsGroupUUID = templateConfig.getActAsGroupUUID();
           if (actAsGroupUUID == null) {
             throw new RuntimeException("actAsGroupUUID has not been configured in the template");
@@ -346,12 +353,14 @@ public class GshTemplateExec {
             throw new RuntimeException(currentUser.getId()+ " is not a member of "+actAsGroup.getName());
           }
           
-          currentUser = actAsSubject;
+          originalCurrentMember[0] = MemberFinder.findBySubject(grouperSession, currentUser, true);
           
         }
+
+        currentMember[0] = MemberFinder.findBySubject(grouperSession, theCurrentUser[0], true);
         
-        gshTemplateRuntime.setCurrentSubject(currentUser);
-        templateConfig.setCurrentUser(currentUser);
+        gshTemplateRuntime.setCurrentSubject(theCurrentUser[0]);
+        templateConfig.setCurrentUser(theCurrentUser[0]);
         if (!new GshTemplateValidationService().validate(templateConfig, THIS, gshTemplateExecOutput.getGshTemplateOutput())) {
           return null;
         }
@@ -361,7 +370,7 @@ public class GshTemplateExec {
         if (templateConfig.getGshTemplateRunAsType() == GshTemplateRunAsType.GrouperSystem) {
           grouperSessionSubject = SubjectFinder.findRootSubject();
         } else if (templateConfig.getGshTemplateRunAsType() == GshTemplateRunAsType.currentUser) {
-          grouperSessionSubject = currentUser;
+          grouperSessionSubject = theCurrentUser[0];
         } else if (templateConfig.getGshTemplateRunAsType() == GshTemplateRunAsType.specifiedSubject) {
           
           String subjectId = templateConfig.getRunAsSpecifiedSubjectId();
@@ -491,6 +500,16 @@ public class GshTemplateExec {
       GshTemplateOutput.assignThreadLocalGshTemplateOutput(gshTemplateOutput);
       GshTemplateRuntime.assignThreadLocalGshTemplateRuntime(gshTemplateRuntime);
       
+      GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+
+      if (theCurrentUser[0] != currentUser && originalCurrentMember[0] != null && grouperContext != null) {
+        if (!StringUtils.isBlank(grouperContext.getLoggedInMemberId()) && !StringUtils.equals(grouperContext.getLoggedInMemberId(), grouperContext.getLoggedInMemberIdActAs())) {
+          throw new RuntimeException("You cannot act as another user in the WS and act as another user in the template");
+        }
+        grouperContext.setLoggedInMemberId(originalCurrentMember[0].getId());
+        grouperContext.setLoggedInMemberIdActAs(currentMember[0].getId());
+      }
+      
       grouperSession = GrouperSession.start(grouperSessionSubject, false);
       if (templateVersionV2) {
         gshTemplateV2input.setGsh_builtin_grouperSession(grouperSession);
@@ -570,8 +589,8 @@ public class GshTemplateExec {
                 AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.GSH_TEMPLATE_EXEC,
                     "gshTemplateConfigId", configId, "status",
                     success[0] ? "success": "error");
-                String actAsAdditionalLine = originalCurrentUser == currentUser ? "" : ("(WsUser: "+SubjectHelper.getPretty(originalCurrentUser) + ") ");
-                auditEntry.setDescription("Execute gsh template "+actAsAdditionalLine + "with configId: " + configId + ", status: " + (success[0] ? "success": "error") + ", inputs: "+inputsStringBuilder.toString());
+                String actAsAdditionalLine =  theCurrentUser[0] == currentUser ? "" : ("(WsUser: "+SubjectHelper.getPretty(currentUser) + ") ");
+                auditEntry.setDescription("Execute gsh template " + actAsAdditionalLine + "with configId: " + configId + ", status: " + (success[0] ? "success": "error") + ", inputs: "+inputsStringBuilder.toString());
                 auditEntry.saveOrUpdate(true);
               }
               
