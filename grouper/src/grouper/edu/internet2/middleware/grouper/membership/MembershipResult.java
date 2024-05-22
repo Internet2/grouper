@@ -380,6 +380,30 @@ public class MembershipResult {
   }
 
   /**
+   * get the groups from the result
+   * @return the groups
+   */
+  public Set<Group> groups() {
+    return new HashSet(this.groups.values());
+  }
+
+  
+  /**
+   * get the group ids from the result
+   * @return the group ids
+   */
+  public Set<String> groupIds() {
+    
+    Set<String> groupIds = new HashSet<>();
+    for (Group group: groups()) {
+      groupIds.add(group.getId());
+    }
+    
+    return groupIds;
+  }
+
+  
+  /**
    * find the group names for the membership result in a certain stem
    * @param subject
    * @param stemName
