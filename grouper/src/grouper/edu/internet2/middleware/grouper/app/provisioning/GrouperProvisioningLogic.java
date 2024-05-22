@@ -2063,11 +2063,12 @@ public class GrouperProvisioningLogic {
       }
     });
     
-    targetQueryThread.start();
+    targetQueryThread.run();
     
     // adjusting so that we no longer run target and grouper queries together.
     // maybe a config option later?
-    GrouperClientUtils.join(targetQueryThread);
+    //targetQueryThread.start();
+    //GrouperClientUtils.join(targetQueryThread);
     
     if (RUNTIME_EXCEPTION[0] != null) {
       throw RUNTIME_EXCEPTION[0];
@@ -2078,7 +2079,7 @@ public class GrouperProvisioningLogic {
     GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataFull();
     
     GrouperDaemonUtils.stopProcessingIfJobPaused();
-
+    
     // put wrappers on the grouper objects and put in the grouper uuid maps in data object
     // put these wrapper in the GrouperProvisioningData and GrouperProvisioningDataIndex
     this.grouperProvisioner.retrieveGrouperDao().processWrappers(grouperProvisioningLists);

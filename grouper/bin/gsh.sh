@@ -217,7 +217,7 @@ fi
 
 GSH=edu.internet2.middleware.grouper.app.gsh.GrouperShellWrapper
 
-"${JAVA}" -Xms$MEM_START -Xmx$MEM_MAX $GROUPER_ADD_OPENS -Dgrouper.home="$GROUPER_HOME/" -Dfile.encoding=utf-8 $GSH_JVMARGS $GROUPER_GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
+"${JAVA}" -Xms$MEM_START -Xmx$MEM_MAX $GROUPER_ADD_OPENS -Dgrouper.home="$GROUPER_HOME/" -Dfile.encoding=utf-8 -XX:+UseG1GC -XX:+UseStringDeduplication $GSH_JVMARGS $GROUPER_GSH_JVMARGS -classpath "${GROUPER_CP}" $GSH "$@"
 retVal=$?
 
 # handle return from either execution or bash source
