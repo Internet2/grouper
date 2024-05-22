@@ -106,9 +106,9 @@ public class GrouperDataRowAssignWrapper {
         } else {
           keyValues[i] = grouperDataRowFieldAssignWrappers.get(0).getGrouperDataRowFieldAssign().getValueInteger();
         }
-        GrouperUtil.assertion(keyValues[i] != null, 
-            "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
-            + ", rowAssignId: " + this.grouperDataRowAssign.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
+//        GrouperUtil.assertion(keyValues[i] != null, 
+//            "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
+//            + ", rowAssignId: " + this.grouperDataRowAssign.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
         i++;
       }
       

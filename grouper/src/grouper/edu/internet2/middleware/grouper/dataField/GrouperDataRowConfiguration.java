@@ -65,19 +65,19 @@ public class GrouperDataRowConfiguration extends GrouperConfigurationModuleBase 
       return;
     }
     
-    GrouperConfigurationModuleAttribute rowdAliases = this.retrieveAttributes().get("rowAliases");
+    GrouperConfigurationModuleAttribute rowAliases = this.retrieveAttributes().get("rowAliases");
 
-    if (rowdAliases != null && StringUtils.isNotBlank(rowdAliases.getValueOrExpressionEvaluation())) {
+    if (rowAliases != null && StringUtils.isNotBlank(rowAliases.getValueOrExpressionEvaluation())) {
       
-      String fieldAliasesCommaSeparated = rowdAliases.getValueOrExpressionEvaluation();
-      Set<String> fieldAliasesSet = GrouperUtil.splitTrimToSet(fieldAliasesCommaSeparated, ",");
+      String rowAliasesCommaSeparated = rowAliases.getValueOrExpressionEvaluation();
+      Set<String> rowAliasesSet = GrouperUtil.splitTrimToSet(rowAliasesCommaSeparated, ",");
       
       GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
       GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
       grouperDataEngine.loadFieldsAndRows(grouperConfig);
       
       Map<String,GrouperDataFieldConfig> fieldConfigByAlias = grouperDataEngine.getFieldConfigByAlias();
-      for (String fieldAliasBeingAdded: fieldAliasesSet) {
+      for (String fieldAliasBeingAdded: rowAliasesSet) {
         if (fieldConfigByAlias.containsKey(fieldAliasBeingAdded.toLowerCase())) {
           String errorMessage = GrouperTextContainer.retrieveFromRequest().getText().get("dataFieldRowAliasAlreadyUsedError");
           errorMessage = errorMessage.replace("##dataFieldAlias##", fieldAliasBeingAdded);
@@ -86,8 +86,21 @@ public class GrouperDataRowConfiguration extends GrouperConfigurationModuleBase 
       }
       
       Map<String,GrouperDataRowConfig> rowConfigByAlias = grouperDataEngine.getRowConfigByAlias();
-      for (String fieldAliasBeingAdded: fieldAliasesSet) {
-        if (rowConfigByAlias.containsKey(fieldAliasBeingAdded.toLowerCase())) {
+
+      GrouperDataRowConfig grouperDataRowConfig = grouperDataEngine.getRowConfigByConfigId().get(this.getConfigId());
+
+      for (String fieldAliasBeingAdded: rowAliasesSet) {
+        
+        GrouperDataRowConfig thisGrouperDataRowConfig = rowConfigByAlias.get(fieldAliasBeingAdded);
+
+        boolean conflicts = rowConfigByAlias.containsKey(fieldAliasBeingAdded.toLowerCase()) && isInsert;
+        if (!isInsert) {
+          if (thisGrouperDataRowConfig != null && grouperDataRowConfig != null 
+              && !StringUtils.equals(thisGrouperDataRowConfig.getConfigId(), grouperDataRowConfig.getConfigId())) {
+            conflicts = true;
+          }
+        }
+        if (conflicts) {
           String errorMessage = GrouperTextContainer.retrieveFromRequest().getText().get("dataFieldRowAliasAlreadyUsedError");
           errorMessage = errorMessage.replace("##dataFieldAlias##", fieldAliasBeingAdded);
           errorsToDisplay.add(errorMessage);

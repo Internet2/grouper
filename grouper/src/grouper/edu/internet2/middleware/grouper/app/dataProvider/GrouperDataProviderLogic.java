@@ -740,9 +740,9 @@ public class GrouperDataProviderLogic {
 
               keyValues[i] = grouperDataFieldConfig.getFieldDataType().convertValue(values.iterator().next());
 
-              GrouperUtil.assertion(keyValues[i] != null && keyValues[i] != Void.TYPE, 
-                  "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
-                  + ", rowAssignId: " + grouperDataRow.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
+//              GrouperUtil.assertion(keyValues[i] != null && keyValues[i] != Void.TYPE, 
+//                  "Data row field key must not have a null value: " + grouperDataRowConfig.getConfigId() 
+//                  + ", rowAssignId: " + grouperDataRow.getInternalId() + ", field: " + grouperDataFieldConfig.getConfigId());
               i++;
             }
             MultiKey rowKey = new MultiKey(keyValues);
