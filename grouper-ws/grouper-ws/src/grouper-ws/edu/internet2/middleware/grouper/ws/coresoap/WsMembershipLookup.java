@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -208,6 +209,7 @@ public class WsMembershipLookup implements GrouperWsToStringCompact {
    * uuid of the membership to find
    * @return the uuid
    */
+  @ApiModelProperty(value = "Uuid of the membership to be looked up", example = "a1b2c3d4")
   public String getUuid() {
     return this.uuid;
   }

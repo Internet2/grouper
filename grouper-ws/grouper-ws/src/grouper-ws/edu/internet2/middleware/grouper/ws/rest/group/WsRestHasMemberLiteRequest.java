@@ -22,6 +22,7 @@ package edu.internet2.middleware.grouper.ws.rest.group;
 import edu.internet2.middleware.grouper.ws.GrouperServiceLogic;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 
 
@@ -257,6 +258,7 @@ public class WsRestHasMemberLiteRequest implements WsRequestBean {
    * 
    * @return field
    */
+  @ApiModelProperty(value = "If the group detail should be returned, default to false", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }

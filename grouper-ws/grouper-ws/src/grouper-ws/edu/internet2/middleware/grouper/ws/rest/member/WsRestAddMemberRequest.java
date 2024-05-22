@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * bean that will be the data from rest request
@@ -83,6 +84,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
    * and the subject is not found, then add an external subject (if the user is allowed
    * @return T or F or blank
    */
+  @ApiModelProperty(value = "T or F (default F), if this is a search by id or identifier, with no source, or the external source,and the subject is not found, then add an external subject (if the user is allowed) defaults to false", example = "T")
   public String getAddExternalSubjectIfNotFound() {
     return this.addExternalSubjectIfNotFound;
   }
@@ -102,6 +104,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
    * date this membership will be disabled, yyyy/MM/dd HH:mm:ss.SSS
    * @return disabled time
    */
+  @ApiModelProperty(value = "date this membership will be disabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000")
   public String getDisabledTime() {
     return this.disabledTime;
   }
@@ -120,6 +123,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
    * date this membership will be enabled, yyyy/MM/dd HH:mm:ss.SSS
    * @return date
    */
+  @ApiModelProperty(value = "date this membership will be enabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000")
   public String getEnabledTime() {
     return this.enabledTime;
   }
@@ -137,6 +141,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /**
    * @return the clientVersion
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -204,6 +209,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
    * who to act as if not the connecting user
    * @return the actAsSubjectLookup
    */
+  @ApiModelProperty(value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user")
   public WsSubjectLookup getActAsSubjectLookup() {
     return this.actAsSubjectLookup;
   }
@@ -221,6 +227,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /**
    * @return the fieldName
    */
+  @ApiModelProperty(value = "If the member should be added to a certain field membership of the group", example = "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate")
   public String getFieldName() {
     return this.fieldName;
   }
@@ -253,6 +260,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /**
    * @return the includeGroupDetail
    */
+  @ApiModelProperty(value = "If the group detail should be returned, default to false", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -269,6 +277,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /**
    * @return the includeSubjectDetail
    */
+  @ApiModelProperty(value = "If the subject detail should be returned (anything more than ID), default to false", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -277,6 +286,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /**
    * @param includeSubjectDetail1 the includeSubjectDetail to set
    */
+ 
   public void setIncludeSubjectDetail(String includeSubjectDetail1) {
     this.includeSubjectDetail = includeSubjectDetail1;
   }
@@ -285,6 +295,7 @@ public class WsRestAddMemberRequest implements WsRequestBean {
   /**
    * @return the subjectAttributeNames
    */
+  @ApiModelProperty( value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
