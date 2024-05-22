@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemDeleteResult.WsStemDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -56,6 +57,7 @@ public class WsStemLookup implements GrouperWsToStringCompact {
    * integer ID for object
    * @return the id
    */
+  @ApiModelProperty(value = "integer ID for the stem we are looking for", example = "1009")
   public String getIdIndex() {
     return this.idIndex;
   }
@@ -297,6 +299,7 @@ public class WsStemLookup implements GrouperWsToStringCompact {
    * uuid of the stem to find
    * @return the uuid
    */
+  @ApiModelProperty(value = "Uuid of the stem we are looking for", example = "a1b2c3d4")
   public String getUuid() {
     return this.uuid;
   }
@@ -314,6 +317,7 @@ public class WsStemLookup implements GrouperWsToStringCompact {
    * name of the stem to find (includes stems, e.g. stem1:stem2:stemName
    * @return the theName
    */
+  @ApiModelProperty(value = "Name for the stem we are looking for", example = "other:some:stemName")
   public String getStemName() {
     return this.stemName;
   }

@@ -45,6 +45,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsAttributeDefNameDeleteResu
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -79,6 +80,7 @@ public class WsAttributeDefNameLookup implements GrouperWsToStringCompact {
    * integer ID for object
    * @return the id
    */
+  @ApiModelProperty(value = "Id index of the attribute def name to be looked up, each wsAttributeDefLookup is mutually exclusive with the others", example = "1009")
   public String getIdIndex() {
     return this.idIndex;
   }
@@ -423,6 +425,7 @@ public class WsAttributeDefNameLookup implements GrouperWsToStringCompact {
    * uuid of the attributeDefName to find
    * @return the uuid
    */
+  @ApiModelProperty(value = "Uuid of the attribute def name to be looked up, each wsAttributeDefLookup is mutually exclusive with the others", example = "a1b2c3d4")
   public String getUuid() {
     return this.uuid;
   }
@@ -440,6 +443,7 @@ public class WsAttributeDefNameLookup implements GrouperWsToStringCompact {
    * name of the attributeDefName to find (includes stems, e.g. stem1:stem2:attributeDefNameName
    * @return the theName
    */
+  @ApiModelProperty(value = "Name of the attribute def name to be looked up, each wsAttributeDefLookup is mutually exclusive with the others", example = "some:stem:names:myAttributeDefNameName")
   public String getName() {
     return this.name;
   }

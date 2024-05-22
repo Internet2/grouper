@@ -30,6 +30,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 
 /**
@@ -48,6 +49,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * floating, integer, memberId, string, timestamp
    * @return attributeDefValueType
    */
+  @ApiModelProperty(value = "required if sending theValue", example = "floating, integer, memberId, string, timestamp")
   public String getAttributeDefValueType() {
     return this.attributeDefValueType;
   }
@@ -70,6 +72,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
    * @return attributeDefValueType
    */
+  @ApiModelProperty(value = "null for all, or specify an AttributeDefType", example = "attr, limit, service, type, limit, permp")
   public String getAttributeDefType() {
     return this.attributeDefType;
   }
@@ -97,6 +100,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * value if you are passing in one attributeDefNameLookup
    * @return value
    */
+  @ApiModelProperty(value = "value assigned to an attribute that you are searching for if you are passing in one attributeDefNameLookup", example = "myValue")
   public String getTheValue() {
     return this.theValue;
   }
@@ -114,6 +118,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * then get the assignment which tells you the owner as well
    * @return if include assignments from assignments
    */
+  @ApiModelProperty(value = "T|F if you are finding an assignment that is an assignmentOnAssignment, then get the assignment which tells you the owner as well", example = "T|F")
   public String getIncludeAssignmentsFromAssignments() {
     return this.includeAssignmentsFromAssignments;
   }
@@ -141,6 +146,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -160,6 +166,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * is the attribute assign type we are looking for
    * @return attribute assign type
    */
+  @ApiModelProperty(value = " is the attribute assign type we are looking for", example = "group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn")
   public String getAttributeAssignType() {
     return this.attributeAssignType;
   }
@@ -390,6 +397,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * and assignments on those assignments should be returned, enter true.  default to false.
    * @return if include assignments on assignments
    */
+  @ApiModelProperty(value = "if this is not querying assignments on assignments directly, but the assignments and assignments on those assignments should be returned, enter true.  default to false", example = "T|F")
   public String getIncludeAssignmentsOnAssignments() {
     return this.includeAssignmentsOnAssignments;
   }
@@ -433,6 +441,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return T|F
    */
+  @ApiModelProperty(value = "T|F, for if the extended subject information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -458,6 +467,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @return subject attribute names
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent", example = "LastName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -480,6 +490,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * T or F as to if the group detail should be returned
    * @return T|F
    */
+  @ApiModelProperty(value = "T or F as to if the group detail should be returned", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -520,6 +531,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * A for all, T or null for enabled only, F for disabled 
    * @return enabled
    */
+  @ApiModelProperty(value = "A for all, T or null for enabled only, F for disabled ", example = "A, T, F")
   public String getEnabled() {
     return this.enabled;
   }

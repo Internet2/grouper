@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * request bean in body of rest request
@@ -32,12 +33,14 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
   }
 
   /** actions to be added/removed/replaced **/
+  
   private String[] actions;
 
   /**
    * actions to be added/removed/replaced
    * @return actions
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String[] getActions() {
     return this.actions;
   }
@@ -64,6 +67,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
    * T to assign, or F to remove assignment
    * @return assign
    */
+  @ApiModelProperty(value = "T to assign, or F to remove assignment", example = "T|F")
   public String getAssign() {
     return this.assign;
   }
@@ -80,6 +84,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
    * T if assigning, if this list should replace all existing immediately inherited attribute def names
    * @return replaceAllExisting
    */
+  @ApiModelProperty(value = "T if assigning, if this list should replace all existing immediately inherited attribute def names", example = "T|F")
   public String getReplaceAllExisting() {
     return this.replaceAllExisting;
   }
@@ -99,6 +104,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }

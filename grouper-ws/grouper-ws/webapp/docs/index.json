@@ -12,12 +12,20 @@
   } ],
   "schemes" : [ "https" ],
   "paths" : {
-    "/grouper-ws/servicesRest/vA_A_MAF" : {
+    "/grouper-ws/servicesRest/vA_A_MAF/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Acknowledge message",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Acknowledge a message was processed or not.  This service is available in version v2.3.0+.  There is no lite version for this service.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Message+Acknowledge'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "acknowledgeMessage",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAcknowledgeMessageRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -28,12 +36,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_A_MEF" : {
+    "/grouper-ws/servicesRest/vA_A_MEF/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "addMember",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAddMemberRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -44,11 +60,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_A_MEL" : {
+    "/grouper-ws/servicesRest/vA_A_MEL/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "addMemberLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -78,6 +94,13 @@
           "required" : false,
           "type" : "String",
           "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
         }, {
           "name" : "paramName0",
           "in" : "formData",
@@ -201,12 +224,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_D_ACF" : {
+    "/grouper-ws/servicesRest/vA_D_ACF/attributeDefActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def actions",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Acknowledge a message was processed or not.  This service is available in version v2.3.0+.  There is no lite version for this service.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attribute+Def+Actions'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignAttributeDefActions",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAssignAttributeDefActionsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -217,12 +248,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_D_ANF" : {
+    "/grouper-ws/servicesRest/vA_D_ANF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def name inheritance",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Assign attribute definition name inheritance based on lookups by name or ID. This is new as of Grouper v2.1.  Note: attribute definition name inheritance is only used for permissions (e.g. if the permission names are an org chart there would be inheritance)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attribute+Definition+Name+Inheritance'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignAttributeDefNameInheritance",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAssignAttributeDefNameInheritanceRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -233,11 +272,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_D_ANL" : {
+    "/grouper-ws/servicesRest/vA_D_ANL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def name inheritance lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Assign attribute definition name inheritance based on lookups by name or ID. This is new as of Grouper v2.1.  Note: attribute definition name inheritance is only used for permissions (e.g. if the permission names are an org chart there would be inheritance)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attribute+Definition+Name+Inheritance'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignAttributeDefNameInheritanceLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -348,12 +387,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_E_ATF" : {
+    "/grouper-ws/servicesRest/vA_E_ATF/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Assign or remove attributes and values of attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), attribute definitions, or on assignments of attributes (one level deep).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attributes'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignAttributes",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAssignAttributesRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -364,12 +411,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_E_ATG" : {
+    "/grouper-ws/servicesRest/vA_E_ATG/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes batch",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: This operation is available in servers v2.1.2+. Assign or remove attributes and values of attribute assignments.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attributes+Batch'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignAttributesBatch",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAssignAttributesBatchRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -380,11 +435,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_E_ATL" : {
+    "/grouper-ws/servicesRest/vA_E_ATL/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Assign or remove attributes and values of attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), attribute definitions, or on assignments of attributes (one level deep).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attributes'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignAttributesLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -553,14 +608,14 @@
           "description" : "is value to add, assign, remove, etc",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "myValue"
         }, {
           "name" : "valueFormatted",
           "in" : "formData",
           "description" : "is value to add, assign, remove, etc though not implemented yet",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "myValue"
         }, {
           "name" : "assignmentNotes",
           "in" : "formData",
@@ -643,13 +698,6 @@
           "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
           "required" : false,
           "type" : "String",
-          "x-example" : "myInsitutionPeople"
-        }, {
-          "name" : "wsOwnerMembershipAnySubjectSourceId",
-          "in" : "formData",
-          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
-          "required" : false,
-          "type" : "String",
           "x-example" : "jsmith"
         }, {
           "name" : "wsOwnerAttributeDefName",
@@ -657,7 +705,7 @@
           "description" : "to query attributes assigned on attribute def",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myAttributeDef"
         }, {
           "name" : "wsOwnerAttributeDefId",
           "in" : "formData",
@@ -679,6 +727,13 @@
           "required" : false,
           "type" : "String",
           "x-example" : "T|F"
+        }, {
+          "name" : "wsOwnerMembershipAnySubjectIdentifier",
+          "in" : "formData",
+          "description" : "to query attributes in \"any\" membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
         } ],
         "responses" : {
           "200" : {
@@ -690,12 +745,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_G_PRF" : {
+    "/grouper-ws/servicesRest/vA_G_PRF/grouperPriveleges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign grouper privileges",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Will assign privileges for a subject and (group or stem).  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+or+remove+grouper+privileges'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignGrouperPrivileges",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAssignGrouperPrivilegesRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -706,11 +769,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_G_PRL" : {
+    "/grouper-ws/servicesRest/vA_G_PRL/grouperPrivileges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign grouper privileges lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Will assign privileges for a subject and (group or stem).  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+or+remove+grouper+privileges'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignGrouperPrivilegesLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -830,28 +893,7 @@
           "description" : "are the additional subject attributes (data) to return.If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
-        }, {
-          "name" : "subjectSourceId",
-          "in" : "formData",
-          "description" : "the Id of the subjectSource of the person to assign privileges",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "schoolPerson"
-        }, {
-          "name" : "subjectIdentifier",
-          "in" : "formData",
-          "description" : "subjectIdentifier of entity to have privileges assigned, mutually exclusive with subjectId, one of the two is required",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "subjIdent0"
-        }, {
-          "name" : "subjectId",
-          "in" : "formData",
-          "description" : "subjectId of entity to have privileges assigned, mutually exclusive with subjectIdentifier, one of the two is required",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "12345678"
+          "x-example" : "lastName"
         }, {
           "name" : "privilegeName",
           "in" : "formData",
@@ -898,12 +940,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_H_PRF" : {
+    "/grouper-ws/servicesRest/vA_H_PRF/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign permissions",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Assign or remove permissions.  These permissions can be on roles or subjects (in the context of a role).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Permissions'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignPermissions",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAssignPermissionsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -914,11 +964,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_H_PRL" : {
+    "/grouper-ws/servicesRest/vA_H_PRL/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign permissions lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Assign or remove permissions.  These permissions can be on roles or subjects (in the context of a role).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Permissions'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "assignPermissionsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -1003,14 +1053,14 @@
           "description" : "attribute def name to assign to the owner",
           "required" : true,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myPermissionDef"
         }, {
           "name" : "permissionDefNameId",
           "in" : "formData",
           "description" : "attribute def id to assign to the owner",
           "required" : true,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a1b2c3d4"
         }, {
           "name" : "permissionAssignmentOperation",
           "in" : "formData",
@@ -1058,7 +1108,7 @@
           "description" : "is name of group to assign to for permissionType 'role'",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "member"
         }, {
           "name" : "roleId",
           "in" : "formData",
@@ -1072,7 +1122,7 @@
           "description" : "is role name if assigning to subject, in the context of a role (for permissionType \"subject_role\")",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "member"
         }, {
           "name" : "subjectRoleId",
           "in" : "formData",
@@ -1140,12 +1190,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_I_DEF" : {
+    "/grouper-ws/servicesRest/vA_I_DEF/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def delete",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Delete attribute definitions based on name or ID. This is new as of Grouper v2.3.0<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefDelete",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAttributeDefDeleteRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1156,11 +1214,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_I_DEL" : {
+    "/grouper-ws/servicesRest/vA_I_DEL/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def delete lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Delete attribute definitions based on name or ID. This is new as of Grouper v2.3.0<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefDeleteLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -1231,7 +1289,7 @@
           "description" : "name of attribute def to be deleted",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myAttributeDef"
         }, {
           "name" : "wsIdOfAttributeDef",
           "in" : "formData",
@@ -1245,7 +1303,7 @@
           "description" : "Id index of attribute def to be deleted",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "10009"
         } ],
         "responses" : {
           "200" : {
@@ -1257,12 +1315,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_J_DEF" : {
+    "/grouper-ws/servicesRest/vA_J_DEF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name delete",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Delete attribute definition names based on name or ID. This is new as of Grouper v2.1<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefNameDelete",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAttributeDefNameDeleteRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1273,11 +1339,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_J_DEL" : {
+    "/grouper-ws/servicesRest/vA_J_DEL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name delete lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Delete attribute definition names based on name or ID. This is new as of Grouper v2.1<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefNameDeleteLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -1367,12 +1433,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_K_SAF" : {
+    "/grouper-ws/servicesRest/vA_K_SAF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name save",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Add or edit attribute definition names based on name or ID. This is new as of Grouper v2.1<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefNameSave",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAttributeDefNameSaveRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1383,11 +1457,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_K_SAL" : {
+    "/grouper-ws/servicesRest/vA_K_SAL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name save lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Add or edit attribute definition names based on name or ID. This is new as of Grouper v2.1<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefNameSaveLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -1507,7 +1581,7 @@
           "description" : "display name of the attributeDefName, empty will be ignored",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "My Attribute Name"
         }, {
           "name" : "description",
           "in" : "formData",
@@ -1532,12 +1606,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_L_SAF" : {
+    "/grouper-ws/servicesRest/vA_L_SAF/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def save",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Add or edit attribute definitions based on name or ID. This is new as of Grouper v2.3.0<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefSave",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestAttributeDefSaveRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1548,11 +1630,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_L_SAL" : {
+    "/grouper-ws/servicesRest/vA_L_SAL/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def save lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Add or edit attribute definitions based on name or ID. This is new as of Grouper v2.3.0<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "attributeDefSaveLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -1682,87 +1764,101 @@
         }, {
           "name" : "assignToStemAssignment",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to a stem assignment",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToStem",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to a stem",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToMemberAssignment",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to a member assignment",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToMember",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to a member",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToImmediateMembershipAssignment",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to an immediate membership assignment",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToImmediateMembership",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to an immediate membership",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToGroupAssignment",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to a group assignment",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToGroup",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to a group",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToEffectiveMembershipAssignment",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to an effective membership assignment",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToEffectiveMembership",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to an effective membership",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToAttributeDefAssignment",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to an attribute def assignment",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
         }, {
           "name" : "assignToAttributeDef",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "T|F if can assign this attribute to an attribute def",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "T|F"
+        }, {
+          "name" : "uuidOfAttributeDef",
+          "in" : "formData",
+          "description" : "find attribute defs associated with this attribute def uuid, mutually exclusive with nameOfAttributeDef",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "nameOfAttributeDef",
+          "in" : "formData",
+          "description" : "find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a:b:c:myAttributeDef"
         } ],
         "responses" : {
           "200" : {
@@ -1774,12 +1870,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vD_M_EMF" : {
+    "/grouper-ws/servicesRest/vD_M_EMF/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "deleteMember",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestDeleteMemberRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1790,11 +1894,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vD_M_EML" : {
+    "/grouper-ws/servicesRest/vD_M_EML/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "deleteMemberLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -1902,13 +2006,6 @@
           "type" : "String",
           "x-example" : "12345678"
         }, {
-          "name" : "groupUuid",
-          "in" : "formData",
-          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "abc123"
-        }, {
           "name" : "groupName",
           "in" : "formData",
           "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
@@ -1944,8 +2041,16 @@
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Execute GSH template",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Execute a GrouperShell template.",
         "operationId" : "executeGshTemplate",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGshTemplateExecRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1956,12 +2061,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vE_S_DEL" : {
+    "/grouper-ws/servicesRest/vE_S_DEL/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "External subject delete",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Delete external subjects.  This service is available in version v2.3.0.patch+<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/External+Subject+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "externalSubjectDelete",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestExternalSubjectDeleteRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1972,12 +2085,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vE_S_SAV" : {
+    "/grouper-ws/servicesRest/vE_S_SAV/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "External subject save",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Save external subjects.  This service is available in version v2.3.0.patch+<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/External+Subject+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "externalSubjectSave",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestExternalSubjectSaveRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -1988,12 +2109,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DNF" : {
+    "/grouper-ws/servicesRest/vF_A_DNF/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute def names",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Find attribute definition names based on name, search filter, permission name inheritance, etc. This is new as of Grouper v2.1<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definition+Names'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findAttributeDefNames",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestFindAttributeDefNamesRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -2004,11 +2133,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DNL" : {
+    "/grouper-ws/servicesRest/vF_A_DNL/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute def names lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Find attribute definition names based on name, search filter, permission name inheritance, etc. This is new as of Grouper v2.1<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definition+Names'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findAttributeDefNamesLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -2151,47 +2280,12 @@
           "type" : "String",
           "x-example" : "12345678"
         }, {
-          "name" : "attributeAssignType",
-          "in" : "formData",
-          "description" : "Type of owner, from enum AttributeAssignType, e.g.group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn ",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "group"
-        }, {
-          "name" : "attributeDefNameUuid",
-          "in" : "formData",
-          "description" : "to lookup an attribute def name by id, mutually exclusive with attributeDefNameName",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "a1b2c3d4"
-        }, {
-          "name" : "attributeDefNameName",
-          "in" : "formData",
-          "description" : "to lookup an attribute def name by name, mutually exclusive with attributeDefNameId",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
-        }, {
           "name" : "wsInheritanceSetRelation",
           "in" : "formData",
           "description" : "if there is one wsAttributeDefNameLookup, and this is specified, then findthe attribute def names which are related to the lookup by this relation, e.g. IMPLIED_BY_THIS,IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE",
           "required" : false,
           "type" : "String",
           "x-example" : "IMPLIED_BY_THIS"
-        }, {
-          "name" : "scope",
-          "in" : "formData",
-          "description" : "search string with % as wildcards will search name, display name, description",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "!!"
-        }, {
-          "name" : "splitScope",
-          "in" : "formData",
-          "description" : "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, it will returnschool:apps:pto_app:internal:the_permissions:whatever",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
         }, {
           "name" : "scope",
           "in" : "formData",
@@ -2219,7 +2313,7 @@
           "description" : "find names associated with this attribute definition, mutually exclusive with idOfAttributeDef",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myAttributeDef"
         }, {
           "name" : "attributeAssignType",
           "in" : "formData",
@@ -2254,7 +2348,7 @@
           "description" : "to filter attributes that a user has a certain role",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "member"
         } ],
         "responses" : {
           "200" : {
@@ -2266,12 +2360,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DSF" : {
+    "/grouper-ws/servicesRest/vF_A_DSF/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute defs",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Find attribute definitions based on name or ID or other criteria. This is new as of Grouper v2.3.0<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definitions'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findAttributeDefs",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestFindAttributeDefsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -2282,11 +2384,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DSL" : {
+    "/grouper-ws/servicesRest/vF_A_DSL/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute defs lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Find attribute definitions based on name or ID or other criteria. This is new as of Grouper v2.3.0<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definitions'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findAttributeDefsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -2366,20 +2468,6 @@
           "type" : "String",
           "x-example" : "NA"
         }, {
-          "name" : "pageSize",
-          "in" : "formData",
-          "description" : "Page size if paging",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "100"
-        }, {
-          "name" : "pageNumber",
-          "in" : "formData",
-          "description" : "Page number 1 indexed if paging",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "1"
-        }, {
           "name" : "sortString",
           "in" : "formData",
           "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
@@ -2434,7 +2522,7 @@
           "description" : "search string with % as wildcards will search name, display name, description",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "someApp someAttributeDefExtension"
         }, {
           "name" : "splitScope",
           "in" : "formData",
@@ -2455,35 +2543,35 @@
           "description" : "find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myAttributeDef"
         }, {
           "name" : "idIndexOfAttributeDef",
           "in" : "formData",
           "description" : "find attribute defs associated with this attribute def id index",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "10009"
         }, {
           "name" : "stemScope",
           "in" : "formData",
           "description" : "is if in this stem, or in any stem underneath. You must pass stemScope if you pass a stem",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "this:stem:name"
         }, {
           "name" : "parentStemId",
           "in" : "formData",
-          "description" : "will return sattribute defs in this stem",
+          "description" : "will return attribute defs in this stem",
           "required" : false,
           "type" : "String",
           "x-example" : "a1b2c3d4"
         }, {
-          "name" : "findbyUuidOrName",
+          "name" : "findByUuidOrName",
           "in" : "formData",
-          "description" : "!!",
+          "description" : "True for Uuid, false for name, defaults to name",
           "required" : false,
           "type" : "String",
-          "x-example" : "!"
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -2495,12 +2583,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_E_SUB" : {
+    "/grouper-ws/servicesRest/vF_E_SUB/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find external subjects",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Find external subjects.  This service is available in version v2.3.0.patch+.  There is no lite version for this service.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+External+Subjects'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findExternalSubjects",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestFindExternalSubjectsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -2515,7 +2611,7 @@
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups",
-        "description" : "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br />{<br>  &quot;WsRestFindGroupsRequest&quot;:{<br>    &quot;wsQueryFilter&quot;:{<br>      &quot;queryFilterType&quot;:&quot;FIND_BY_GROUP_NAME_APPROXIMATE&quot;,<br>      &quot;stemName&quot;:&quot;aStem&quot;,<br>      &quot;groupName&quot;:&quot;aGr&quot;<br>    }<br>  }<br>}</pre>",
+        "description" : "<b>Description</b>: Will assign privileges for a subject and (group or stem).  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Groups'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findGroups",
         "parameters" : [ {
           "in" : "body",
@@ -2557,7 +2653,7 @@
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups lite",
-        "description" : "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br /><b>wsLiteObjectType</b>=WsRestFindGroupsLiteRequest&amp;<b>groupName</b>=aGr&amp;<b>queryFilterType</b>=FIND_BY_GROUP_NAME_APPROXIMATE&amp;<b>stemName</b>=aStem</pre>",
+        "description" : "<b>Description</b>: Find groups search for groups based on name, attribute, parent stem, etc. Can build queries with group math (AND / OR / MINUS)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Groups'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findGroupsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -2784,12 +2880,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_S_EMF" : {
+    "/grouper-ws/servicesRest/vF_S_EMF/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find stems",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Find stems search for stems based on name, attribute, parent stem, etc. Can build queries with group math (AND / OR / MINUS)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Stems'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findStems",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestFindStemsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -2800,11 +2904,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_S_EML" : {
+    "/grouper-ws/servicesRest/vF_S_EML/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find stems lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Find stems search for stems based on name, attribute, parent stem, etc. Can build queries with group math (AND / OR / MINUS)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Stems'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "findStemsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -2840,14 +2944,14 @@
           "description" : "if searching by attribute, this is name,or null for all attributes",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "etc:attributes:someAttributeName"
         }, {
           "name" : "stemAttributeValue",
           "in" : "formData",
           "description" : "if searching by attribute, this is the value",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "someValue"
         }, {
           "name" : "parentStemName",
           "in" : "formData",
@@ -2929,12 +3033,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_AAF" : {
+    "/grouper-ws/servicesRest/vG_E_ABF/attributeAssignActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assign actions",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get attribute assign actions will give you the permission actions associated with a Permission Definition (AttributeDef).  This service is available in version v2.3.0+.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assign+Actions'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getAttributeAssignActions",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetAttributeAssignActionsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -2945,12 +3057,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_ABF" : {
+    "/grouper-ws/servicesRest/vG_E_ABF/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assignments",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), or attribute definitions.  If you want to retrieve attribute assignments assigned to other attributes, then pass a flag to the assignment lookup to include assignments on the returned assignments.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assignments'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getAttributeAssignments",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetAttributeAssignmentsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -2961,11 +3081,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_ABL" : {
+    "/grouper-ws/servicesRest/vG_E_ABL/attributeAssignActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assign actions lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get attribute assign actions will give you the permission actions associated with a Permission Definition (AttributeDef).  This service is available in version v2.3.0+.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assign+Actions'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getAttributeAssignActionsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -3043,7 +3163,7 @@
           "description" : "find assignActions in this attribute def",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myAttributeDef"
         }, {
           "name" : "wsIdOfAttributeDef",
           "in" : "formData",
@@ -3057,7 +3177,7 @@
           "description" : "find assignActions in this attribute def",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "10009"
         } ],
         "responses" : {
           "200" : {
@@ -3069,12 +3189,359 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_AEF" : {
+    "/grouper-ws/servicesRest/vG_E_ABL/attributeAssignments" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get attribute assignments lite",
+        "description" : "<b>Description</b>: Get attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), or attribute definitions.  If you want to retrieve attribute assignments assigned to other attributes, then pass a flag to the assignment lookup to include assignments on the returned assignments.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assignments'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "getAttributeAssignmentsLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "enabled",
+          "in" : "formData",
+          "description" : "enabled is A for all, T or null for enabled only, F for disabled",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "A|T|F"
+        }, {
+          "name" : "wsOwnerGroupName",
+          "in" : "formData",
+          "description" : "is name of the group to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "wsOwnerGroupId",
+          "in" : "formData",
+          "description" : "is id of the group to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerStemName",
+          "in" : "formData",
+          "description" : "is name of the stem to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "wsOwnerStemId",
+          "in" : "formData",
+          "description" : "is id of the stem to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefName",
+          "in" : "formData",
+          "description" : "find assignments in this attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "wsAttributeDefId",
+          "in" : "formData",
+          "description" : "find assignments in this attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefNameId",
+          "in" : "formData",
+          "description" : "attribute def Uuid to assign to the owner, mutually exclusive with wsAttributeDefNameName",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefNameName",
+          "in" : "formData",
+          "description" : "name of attributeDefName which is the container for the inherited attribute def names, mutually exclusive with attributeDefNameId",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:folder:attributes:nameOfMyAttributeDef"
+        }, {
+          "name" : "attributeAssignType",
+          "in" : "formData",
+          "description" : "Type of owner, from enum AttributeAssignType, e.g.group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn ",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "group"
+        }, {
+          "name" : "attributeAssignId",
+          "in" : "formData",
+          "description" : "if you know the assign id you want, put it here",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerSubjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of subject to look in",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "wsOwnerSubjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of the subject to look in, mutually exclusive with wsOwnerSubjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "wsOwnerSubjectId",
+          "in" : "formData",
+          "description" : "subjectId of subject to look in, mutually exclusive with wsOwnerSubjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "wsOwnerMembershipAnySubjectIdentifier",
+          "in" : "formData",
+          "description" : "to query attributes in \"any\" membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "wsOwnerMembershipId",
+          "in" : "formData",
+          "description" : "to query attributes on immediate membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "wsOwnerMembershipAnyGroupName",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "this:group:name"
+        }, {
+          "name" : "wsOwnerMembershipAnyGroupId",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerMembershipAnySubjectId",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsOwnerMembershipAnySubjectSourceId",
+          "in" : "formData",
+          "description" : "to query attributes in 'any' membership which is on immediate or effective membership",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInsitutionPeople"
+        }, {
+          "name" : "wsOwnerAttributeDefName",
+          "in" : "formData",
+          "description" : "to query attributes assigned on attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a:b:c:myAttributeName"
+        }, {
+          "name" : "wsOwnerAttributeDefId",
+          "in" : "formData",
+          "description" : "to query attributes assigned on attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "action",
+          "in" : "formData",
+          "description" : "action to query, or none to query all actions",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "action"
+        }, {
+          "name" : "includeAssignmentsOnAssignments",
+          "in" : "formData",
+          "description" : "if this is not querying assignments on assignments directly, but the assignmentsand assignments on those assignments should be returned, enter true. default to false.",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "attributeDefValueType",
+          "in" : "formData",
+          "description" : "required if sending theValue, can be:floating, integer, memberId, string, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "integer"
+        }, {
+          "name" : "theValue",
+          "in" : "formData",
+          "description" : "value assigned to an attribute that you are searching for",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myValue"
+        }, {
+          "name" : "includeAssignmentsFromAssignments",
+          "in" : "formData",
+          "description" : "T|F if you are finding an assignment that is an assignmentOnAssignment,then get the assignment which tells you the owner as well",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "attributeDefType",
+          "in" : "formData",
+          "description" : "null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "attr"
+        }, {
+          "name" : "wsAssignAssignOwnerAttributeAssignId",
+          "in" : "formData",
+          "description" : "if looking for assignments on assignments, this is the assignment the assignment is assigned to",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAssignAssignOwnerIdOfAttributeDef",
+          "in" : "formData",
+          "description" : "if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAssignAssignOwnerNameOfAttributeDef",
+          "in" : "formData",
+          "description" : "if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a:b:c:myAttributeDef"
+        }, {
+          "name" : "wsAssignAssignOwnerIdOfAttributeDefName",
+          "in" : "formData",
+          "description" : "if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAssignAssignOwnerNameOfAttributeDefName",
+          "in" : "formData",
+          "description" : "if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a:b:c:myAttributeName"
+        }, {
+          "name" : "wsAssignAssignOwnerAction",
+          "in" : "formData",
+          "description" : "if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "canLogin"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetAttributeAssignmentsResults"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/vG_E_AEF/audits" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get audit entries",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get audit entries for groups, stems, and subjects. Available in Grouper v2.5 or later.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Audit+Entries'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getAuditEntries",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetAuditEntriesRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -3085,11 +3552,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_AEL" : {
+    "/grouper-ws/servicesRest/vG_E_AEL/audits" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get audit entries lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get audit entries for groups, stems, and subjects. Available in Grouper v2.5 or later.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Audit+Entries'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getAuditEntriesLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -3228,11 +3695,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_GPL" : {
+    "/grouper-ws/servicesRest/vG_E_GPL/grouperPrivileges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get grouper privileges lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: \"Get grouper privileges\" will retrieve the privileges for a subject and or (group or stem).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+grouper+privileges'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getGrouperPrivilegesLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -3339,6 +3806,48 @@
           "required" : false,
           "type" : "String",
           "x-example" : "access"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "stemUuid",
+          "in" : "formData",
+          "description" : "Id in UI, stemUuid search by stem uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "stemName",
+          "in" : "formData",
+          "description" : "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the entity to get privileges of",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of entity to get privileges of, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId of entity to get privileges of, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
         } ],
         "responses" : {
           "200" : {
@@ -3350,12 +3859,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_GRF" : {
+    "/grouper-ws/servicesRest/vG_E_GRF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get groups",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get groups will get the groups that a subject is in<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Groups'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getGroups",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetGroupsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -3366,11 +3883,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_GRL" : {
+    "/grouper-ws/servicesRest/vG_E_GRL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get groups lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get groups will get the groups that a subject is in<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Groups'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getGroupsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -3543,21 +4060,21 @@
         }, {
           "name" : "subjectSourceId",
           "in" : "formData",
-          "description" : "the Id of the subjectSource to be added",
+          "description" : "the Id of the subjectSource to be found",
           "required" : false,
           "type" : "String",
           "x-example" : "schoolPerson"
         }, {
           "name" : "subjectIdentifier",
           "in" : "formData",
-          "description" : "subjectIdentifier to be added, mutually exclusive with subjectId, one of the two is required",
+          "description" : "subjectIdentifier to be found, mutually exclusive with subjectId, one of the two is required",
           "required" : false,
           "type" : "String",
           "x-example" : "subjIdent0"
         }, {
           "name" : "subjectId",
           "in" : "formData",
-          "description" : "subjectId to be added, mutually exclusive with subjectIdentifier, one of the two is required",
+          "description" : "subjectId to be found, mutually exclusive with subjectIdentifier, one of the two is required",
           "required" : false,
           "type" : "String",
           "x-example" : "12345678"
@@ -3582,6 +4099,20 @@
           "required" : false,
           "type" : "String",
           "x-example" : "some:stem:name"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -3593,12 +4124,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MEF" : {
+    "/grouper-ws/servicesRest/vG_E_MEF/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
-        "summary" : "Get memebers",
-        "description" : "<b>Sample 1</b>: ",
+        "summary" : "Get members",
+        "description" : "<b>Description</b>: Get members will retrieve subjects assigned to a group.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getMembers",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetMembersRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -3609,11 +4148,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MEL" : {
+    "/grouper-ws/servicesRest/vG_E_MEL/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get members lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get members will retrieve subjects assigned to a group.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getMembersLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -3769,6 +4308,48 @@
           "required" : false,
           "type" : "String",
           "x-example" : "Effective"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "sourceIds",
+          "in" : "formData",
+          "description" : "comma separated source ids or null for all",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson, g:gsa"
+        }, {
+          "name" : "pointInTimeRetrieve",
+          "in" : "formData",
+          "description" : "true means retrieve point in time records",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -3780,12 +4361,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MSF" : {
+    "/grouper-ws/servicesRest/vG_E_MSF/memberships" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get memberships",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get memberships will retrieve membership objects by group, by subject, or by id (or a combination).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Memberships'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getMemberships",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetMembershipsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -3796,11 +4385,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MSL" : {
+    "/grouper-ws/servicesRest/vG_E_MSL/memberships" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get memberships lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get memberships will retrieve membership objects by group, by subject, or by id (or a combination).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Memberships'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getMembershipsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -3983,7 +4572,7 @@
           "description" : "are comma separated sourceIds",
           "required" : false,
           "type" : "String",
-          "x-example" : "schoolPerson, schoolIndividual"
+          "x-example" : "schoolPerson, g:gsa"
         }, {
           "name" : "subjectIdentifier",
           "in" : "formData",
@@ -4018,7 +4607,7 @@
           "description" : "is a sql like string which will have a percent % concatenated to the end for groupnames to search in (or stem names)",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "someApp someGroupExtension"
         }, {
           "name" : "stemName",
           "in" : "formData",
@@ -4046,7 +4635,7 @@
           "description" : "comma separated list of membershipIds to retrieve",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a1b2, c3d4, e5f6"
         }, {
           "name" : "ownerStemUuid",
           "in" : "formData",
@@ -4067,35 +4656,35 @@
           "description" : "if looking for privileges on attribute definitions, put the name of the attribute definition here",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myAttributeDef"
         }, {
           "name" : "ownerAttributeDefUuid",
           "in" : "formData",
           "description" : "if looking for privileges on attribute definitions, put the uuid of the attribute definition here",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a1b2c3d4"
         }, {
           "name" : "serviceRole",
           "in" : "formData",
           "description" : "to filter attributes that a user has a certain role",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "member"
         }, {
           "name" : "serviceId",
           "in" : "formData",
           "description" : "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a1b2c3d4"
         }, {
           "name" : "serviceName",
           "in" : "formData",
           "description" : "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:myService"
         }, {
           "name" : "sortString",
           "in" : "formData",
@@ -4167,20 +4756,6 @@
           "type" : "String",
           "x-example" : "T|F"
         }, {
-          "name" : "pointInTimeFrom",
-          "in" : "formData",
-          "description" : "To query permissions at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "1970/01/01 00:00:00.000"
-        }, {
-          "name" : "pointInTimeTo",
-          "in" : "formData",
-          "description" : "To query permission at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "1970/01/01 00:00:00.000"
-        }, {
           "name" : "pointInTimeRetrieve",
           "in" : "formData",
           "description" : "true means retrieve point in time records",
@@ -4198,12 +4773,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_PAF" : {
+    "/grouper-ws/servicesRest/vG_E_PAF/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get permission assignments",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get permission assignments.  These permissions can be on roles or subjects (note if assignment is assigned directly to a subject, it is in the context of a role).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Permission+Assignments'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getPermissionAssignments",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetPermissionAssignmentsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -4214,11 +4797,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_PAL" : {
+    "/grouper-ws/servicesRest/vG_E_PAL/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get permission assignments lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get permission assignments.  These permissions can be on roles or subjects (note if assignment is assigned directly to a subject, it is in the context of a role).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Permission+Assignments'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getPermissionAssignmentsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -4338,7 +4921,7 @@
           "description" : "Id of role to look in",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "a:b:c:powerUsers"
         }, {
           "name" : "roleId",
           "in" : "formData",
@@ -4349,7 +4932,7 @@
         }, {
           "name" : "wsSubjectSourceId",
           "in" : "formData",
-          "description" : "the Id of the subjectSource of the person to be added",
+          "description" : "the Id of the subjectSource to look in",
           "required" : false,
           "type" : "String",
           "x-example" : "schoolPerson"
@@ -4368,21 +4951,7 @@
           "type" : "String",
           "x-example" : "12345678"
         }, {
-          "name" : "wsSubjectId",
-          "in" : "formData",
-          "description" : "Id of subject to look in",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "12345678"
-        }, {
           "name" : "includeAttributeDefNames",
-          "in" : "formData",
-          "description" : "T or F for if attributeDefName objects should be returned",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        }, {
-          "name" : "includeAttributeAssignments",
           "in" : "formData",
           "description" : "T or F for if attributeDefName objects should be returned",
           "required" : false,
@@ -4518,12 +5087,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_SUF" : {
+    "/grouper-ws/servicesRest/vG_E_SUF/subjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get subjects",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get subjects will retrieve subject objects by subject lookups (source (optional), id or identifier), or by search string (free-form string that sources can search on), and optionally a list of sources to narrow the search<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Subjects'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getSubjects",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetSubjectsRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -4534,11 +5111,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_SUL" : {
+    "/grouper-ws/servicesRest/vG_E_SUL/subjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get subjects lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Get subjects will retrieve subject objects by subject lookups (source (optional), id or identifier), or by search string (free-form string that sources can search on), and optionally a list of sources to narrow the search<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Subjects'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "getSubjectsLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -4651,14 +5228,14 @@
           "description" : "free form string query to find a list of subjects (exact behavior depends on source)",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "john smith"
         }, {
           "name" : "sourceIds",
           "in" : "formData",
           "description" : "are comma separated sourceIds for a searchString",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "schoolPerson, g:gsa"
         }, {
           "name" : "includeSubjectDetail",
           "in" : "formData",
@@ -4687,13 +5264,6 @@
           "required" : false,
           "type" : "String",
           "x-example" : "Effective"
-        }, {
-          "name" : "includeGroupDetail",
-          "in" : "formData",
-          "description" : "If the group detail should be returned, default to false",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
         } ],
         "responses" : {
           "200" : {
@@ -4705,12 +5275,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_DEF" : {
+    "/grouper-ws/servicesRest/vG_R_DEF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group delete",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Group delete will insert or update a group's uuid, extension, display name, or description (with restrictions)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "groupDelete",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGroupDeleteRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -4721,11 +5299,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_DEL" : {
+    "/grouper-ws/servicesRest/vG_R_DEL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group delete lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Group delete will insert or update a group's uuid, extension, display name, or description (with restrictions)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "groupDeleteLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -4822,12 +5400,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_SAF" : {
+    "/grouper-ws/servicesRest/vG_R_SAF/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group save",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Group save will insert or update a group's uuid, extension, display name, or description (with restrictions).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "groupSave",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGroupSaveRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -4838,11 +5424,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_SAL" : {
+    "/grouper-ws/servicesRest/vG_R_SAL/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group save lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Group save will insert or update a group's uuid, extension, display name, or description (with restrictions).<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "groupSaveLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -4954,7 +5540,8 @@
           "in" : "formData",
           "description" : "display name of the group, empty will be ignored",
           "required" : false,
-          "type" : "String"
+          "type" : "String",
+          "x-example" : "My Group"
         }, {
           "name" : "description",
           "in" : "formData",
@@ -5000,27 +5587,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vH_M_EMF" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Has member",
-        "description" : "<b>Sample 1</b>: ",
-        "operationId" : "hasMember",
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsHasMemberResults"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/vH_M_EML" : {
+    "/grouper-ws/servicesRest/vH_M_EML/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Has member lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Has member will see if a group contains a subject as a member<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "hasMemberLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -5050,13 +5621,6 @@
           "required" : false,
           "type" : "String",
           "x-example" : "myInstitutionPeople"
-        }, {
-          "name" : "actAsSubjectIdentifier",
-          "in" : "formData",
-          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "jsmith"
         }, {
           "name" : "actAsSubjectIdentifier",
           "in" : "formData",
@@ -5155,6 +5719,27 @@
           "required" : false,
           "type" : "String",
           "x-example" : "Effective"
+        }, {
+          "name" : "subjectSourceId",
+          "in" : "formData",
+          "description" : "the Id of the subjectSource of the entitity to be found",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson"
+        }, {
+          "name" : "subjectIdentifier",
+          "in" : "formData",
+          "description" : "subjectIdentifier of entity to be found, mutually exclusive with subjectId, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "subjIdent0"
+        }, {
+          "name" : "subjectId",
+          "in" : "formData",
+          "description" : "subjectId of entity to be found, mutually exclusive with subjectIdentifier, one of the two is required",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
         } ],
         "responses" : {
           "200" : {
@@ -5166,27 +5751,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vM_C_SUF" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Member change subject",
-        "description" : "<b>Sample 1</b>: ",
-        "operationId" : "memberChangeSubject",
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsMemberChangeSubjectResults"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/vM_C_SUL" : {
+    "/grouper-ws/servicesRest/vM_C_SUL/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Member change subject lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "memberChangeSubjectLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -5268,42 +5837,42 @@
         }, {
           "name" : "oldSubjectSourceId",
           "in" : "formData",
-          "description" : "the old Id of the subjectSource of the person to be added, recommended",
+          "description" : "the old Id of the subjectSource of the person to be changed, recommended",
           "required" : false,
           "type" : "String",
           "x-example" : "schoolPerson"
         }, {
           "name" : "oldSubjectIdentifier",
           "in" : "formData",
-          "description" : "Old subjectIdentifier of entity to be added, mutually exclusive with subjectId, one of the two is required",
+          "description" : "Old subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required",
           "required" : false,
           "type" : "String",
           "x-example" : "subjIdent0"
         }, {
           "name" : "oldsubjectId",
           "in" : "formData",
-          "description" : "Old subjectId of entity to be added, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
+          "description" : "Old subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
           "required" : false,
           "type" : "String",
           "x-example" : "12345678"
         }, {
           "name" : "newSubjectSourceId",
           "in" : "formData",
-          "description" : "the new Id of the subjectSource of the person to be added, recommended",
+          "description" : "the new Id of the subjectSource of the person to be changed, recommended",
           "required" : false,
           "type" : "String",
           "x-example" : "schoolPerson"
         }, {
           "name" : "newSubjectIdentifier",
           "in" : "formData",
-          "description" : "New subjectIdentifier of entity to be added, mutually exclusive with subjectId, one of the two is required",
+          "description" : "New subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required",
           "required" : false,
           "type" : "String",
           "x-example" : "subjIdent0"
         }, {
           "name" : "newSubjectId",
           "in" : "formData",
-          "description" : "New subjectId of entity to be added, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
+          "description" : "New subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)",
           "required" : false,
           "type" : "String",
           "x-example" : "12345678"
@@ -5325,12 +5894,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vR_C_MES" : {
+    "/grouper-ws/servicesRest/vR_C_MES/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Receive message",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Receive a message to a queue or topic.  This service is available in version v2.3.0+.  There is no lite version for this service.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Message+Send'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "receiveMessage",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestReceiveMessageRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -5341,12 +5918,20 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vS_E_MES" : {
+    "/grouper-ws/servicesRest/vS_E_MES/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Send message",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Send a message to a queue or topic.  This service is available in version v2.3.0+.  There is no lite version for this service<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+External+Subjects'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "sendMessage",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestSendMessageRequestWrapper"
+          }
+        } ],
         "responses" : {
           "200" : {
             "description" : "successful operation",
@@ -5357,27 +5942,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vS_T_DEF" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Stem delete",
-        "description" : "<b>Sample 1</b>: ",
-        "operationId" : "stemDelete",
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsStemDeleteResults"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/vS_T_DEL" : {
+    "/grouper-ws/servicesRest/vS_T_DEL/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Stem delete lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Stem delete will insert or update a stem's uuid, extension, display name, or description (with restrictions)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Delete'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "stemDeleteLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -5467,27 +6036,11 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vS_T_SAF" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Stem save",
-        "description" : "<b>Sample 1</b>: ",
-        "operationId" : "stemSave",
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsStemSaveResults"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/vS_T_SAL" : {
+    "/grouper-ws/servicesRest/vS_T_SAL/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Stem save lite",
-        "description" : "<b>Sample 1</b>: ",
+        "description" : "<b>Description</b>: Stem save will insert or update a stem's uuid, extension, display name, or description (with restrictions)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Save'>wiki</a> and go to samples to see requests and responses",
         "operationId" : "stemSaveLite",
         "parameters" : [ {
           "name" : "wsLiteObjectType",
@@ -5572,7 +6125,7 @@
           "description" : "display name of the stem",
           "required" : false,
           "type" : "String",
-          "x-example" : "!!"
+          "x-example" : "My Folder"
         }, {
           "name" : "description",
           "in" : "formData",
@@ -5613,6 +6166,9 @@
     }
   },
   "definitions" : {
+    "GrouperServiceRest" : {
+      "type" : "object"
+    },
     "WsAddMemberLiteResult" : {
       "type" : "object",
       "properties" : {
@@ -5670,6 +6226,83 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAssignAttributeBatchEntry" : {
+      "type" : "object",
+      "properties" : {
+        "attributeAssignType" : {
+          "type" : "string",
+          "example" : "group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn, stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn",
+          "description" : "Type of owner, from enum AttributeAssignType"
+        },
+        "wsAttributeDefNameLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefNameLookup"
+        },
+        "attributeAssignOperation" : {
+          "type" : "string",
+          "example" : "assign_attr, add_attr, remove_attr",
+          "description" : "operation to perform for attribute on owners, from enum AttributeAssignOperation"
+        },
+        "values" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignValue"
+          }
+        },
+        "assignmentNotes" : {
+          "type" : "string",
+          "description" : "notes on the assignment (optional)"
+        },
+        "assignmentEnabledTime" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "enabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS"
+        },
+        "assignmentDisabledTime" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "disabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS"
+        },
+        "delegatable" : {
+          "type" : "string",
+          "example" : "TRUE|FALSE|GRANT",
+          "description" : "really only for permissions, if the assignee can delegate to someone else"
+        },
+        "attributeAssignValueOperation" : {
+          "type" : "string",
+          "example" : "assign_value, add_value, remove_value, replace_values",
+          "description" : "operation to perform for attribute value on attribute"
+        },
+        "wsAttributeAssignLookup" : {
+          "$ref" : "#/definitions/WsAttributeAssignLookup"
+        },
+        "wsOwnerGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "wsOwnerStemLookup" : {
+          "$ref" : "#/definitions/WsStemLookup"
+        },
+        "wsOwnerSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "wsOwnerMembershipLookup" : {
+          "$ref" : "#/definitions/WsMembershipLookup"
+        },
+        "wsOwnerMembershipAnyLookup" : {
+          "$ref" : "#/definitions/WsMembershipAnyLookup"
+        },
+        "wsOwnerAttributeDefLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefLookup"
+        },
+        "wsOwnerAttributeAssignLookup" : {
+          "$ref" : "#/definitions/WsAttributeAssignLookup"
+        },
+        "action" : {
+          "type" : "string",
+          "example" : "assign",
+          "description" : "action to assign, or \"assign\" is the default if blank"
         }
       }
     },
@@ -6202,6 +6835,17 @@
         }
       }
     },
+    "WsAttributeAssignLookup" : {
+      "type" : "object",
+      "properties" : {
+        "uuid" : {
+          "type" : "string"
+        },
+        "batchIndex" : {
+          "type" : "string"
+        }
+      }
+    },
     "WsAttributeAssignValue" : {
       "type" : "object",
       "properties" : {
@@ -6371,6 +7015,26 @@
         }
       }
     },
+    "WsAttributeDefLookup" : {
+      "type" : "object",
+      "properties" : {
+        "idIndex" : {
+          "type" : "string",
+          "example" : "1009",
+          "description" : "Id index of attribute def to be found"
+        },
+        "uuid" : {
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "Uuid of attribute def to be found"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "stem1:stem2:attributeDef",
+          "description" : "Name of attribute def to be found"
+        }
+      }
+    },
     "WsAttributeDefName" : {
       "type" : "object",
       "properties" : {
@@ -6445,6 +7109,26 @@
         }
       }
     },
+    "WsAttributeDefNameLookup" : {
+      "type" : "object",
+      "properties" : {
+        "idIndex" : {
+          "type" : "string",
+          "example" : "1009",
+          "description" : "Id index of the attribute def name to be looked up, each wsAttributeDefLookup is mutually exclusive with the others"
+        },
+        "uuid" : {
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "Uuid of the attribute def name to be looked up, each wsAttributeDefLookup is mutually exclusive with the others"
+        },
+        "name" : {
+          "type" : "string",
+          "example" : "some:stem:names:myAttributeDefNameName",
+          "description" : "Name of the attribute def name to be looked up, each wsAttributeDefLookup is mutually exclusive with the others"
+        }
+      }
+    },
     "WsAttributeDefNameSaveLiteResult" : {
       "type" : "object",
       "properties" : {
@@ -6487,6 +7171,23 @@
         }
       }
     },
+    "WsAttributeDefNameToSave" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefNameLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefNameLookup"
+        },
+        "wsAttributeDefName" : {
+          "$ref" : "#/definitions/WsAttributeDefName"
+        },
+        "createParentStemsIfNotExist" : {
+          "type" : "string"
+        },
+        "saveMode" : {
+          "type" : "string"
+        }
+      }
+    },
     "WsAttributeDefSaveLiteResult" : {
       "type" : "object",
       "properties" : {
@@ -6526,6 +7227,23 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefToSave" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefLookup"
+        },
+        "wsAttributeDef" : {
+          "$ref" : "#/definitions/WsAttributeDef"
+        },
+        "createParentStemsIfNotExist" : {
+          "type" : "string"
+        },
+        "saveMode" : {
+          "type" : "string"
         }
       }
     },
@@ -6706,6 +7424,14 @@
         }
       }
     },
+    "WsExternalSubjectLookup" : {
+      "type" : "object",
+      "properties" : {
+        "identifier" : {
+          "type" : "string"
+        }
+      }
+    },
     "WsExternalSubjectSaveResult" : {
       "type" : "object",
       "properties" : {
@@ -6731,6 +7457,20 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsExternalSubjectToSave" : {
+      "type" : "object",
+      "properties" : {
+        "wsExternalSubjectLookup" : {
+          "$ref" : "#/definitions/WsExternalSubjectLookup"
+        },
+        "wsExternalSubject" : {
+          "$ref" : "#/definitions/WsExternalSubject"
+        },
+        "saveMode" : {
+          "type" : "string"
         }
       }
     },
@@ -6796,7 +7536,6 @@
       "properties" : {
         "groupResults" : {
           "type" : "array",
-          "description" : "has 0 to many groups that match the query",
           "items" : {
             "$ref" : "#/definitions/WsGroup"
           }
@@ -6810,7 +7549,7 @@
           "$ref" : "#/definitions/WsResponseMeta"
         }
       },
-      "description" : "Groups returned from the group find query"
+      "description" : "Groups returned from the group find query <br /> <br /> <b>groupResults</b>: The groups that were found based on the input<br /><b>"
     },
     "WsFindGroupsResultsWrapper" : {
       "type" : "object",
@@ -7492,6 +8231,23 @@
         }
       }
     },
+    "WsGroupToSave" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "wsGroup" : {
+          "$ref" : "#/definitions/WsGroup"
+        },
+        "createParentStemsIfNotExist" : {
+          "type" : "string"
+        },
+        "saveMode" : {
+          "type" : "string"
+        }
+      }
+    },
     "WsGrouperPrivilegeResult" : {
       "type" : "object",
       "properties" : {
@@ -7565,6 +8321,17 @@
         },
         "wsOutput" : {
           "type" : "object"
+        }
+      }
+    },
+    "WsGshTemplateInput" : {
+      "type" : "object",
+      "properties" : {
+        "name" : {
+          "type" : "string"
+        },
+        "value" : {
+          "type" : "string"
         }
       }
     },
@@ -7642,6 +8409,20 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsMemberChangeSubject" : {
+      "type" : "object",
+      "properties" : {
+        "oldSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "newSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "deleteOldMember" : {
+          "type" : "string"
         }
       }
     },
@@ -7761,6 +8542,27 @@
         },
         "createTime" : {
           "type" : "string"
+        }
+      }
+    },
+    "WsMembershipAnyLookup" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "wsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        }
+      }
+    },
+    "WsMembershipLookup" : {
+      "type" : "object",
+      "properties" : {
+        "uuid" : {
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "Uuid of the membership to be looked up"
         }
       }
     },
@@ -7941,6 +8743,20 @@
         }
       }
     },
+    "WsPermissionEnvVar" : {
+      "type" : "object",
+      "properties" : {
+        "paramName" : {
+          "type" : "string"
+        },
+        "paramValue" : {
+          "type" : "string"
+        },
+        "paramType" : {
+          "type" : "string"
+        }
+      }
+    },
     "WsPermissionLimit" : {
       "type" : "object",
       "properties" : {
@@ -8090,6 +8906,1193 @@
       },
       "description" : "Response metadata (version, warnings, millis, etc)"
     },
+    "WsRestAcknowledgeMessageRequest" : {
+      "type" : "object",
+      "properties" : {
+        "queueOrTopicName" : {
+          "type" : "string"
+        },
+        "messageSystemName" : {
+          "type" : "string"
+        },
+        "acknowledgeType" : {
+          "type" : "string"
+        },
+        "messageIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "anotherQueueOrTopicName" : {
+          "type" : "string"
+        },
+        "anotherQueueType" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAcknowledgeMessageRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAcknowledgeMessageRequest" : {
+          "description" : "Identifies the request as an acknowledge message request",
+          "$ref" : "#/definitions/WsRestAcknowledgeMessageRequest"
+        }
+      },
+      "description" : "Request body to acknowledge a message"
+    },
+    "WsRestAddMemberRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "subjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "replaceAllExisting" : {
+          "type" : "string"
+        },
+        "actAsSubjectLookup" : {
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user",
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "fieldName" : {
+          "type" : "string",
+          "example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate",
+          "description" : "If the member should be added to a certain field membership of the group"
+        },
+        "txType" : {
+          "type" : "string"
+        },
+        "includeGroupDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the group detail should be returned, default to false"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "disabledTime" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "date this membership will be disabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS"
+        },
+        "enabledTime" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "date this membership will be enabled (for future provisioning): yyyy/MM/dd HH:mm:ss.SSS"
+        },
+        "addExternalSubjectIfNotFound" : {
+          "type" : "string",
+          "example" : "T",
+          "description" : "T or F (default F), if this is a search by id or identifier, with no source, or the external source,and the subject is not found, then add an external subject (if the user is allowed) defaults to false"
+        }
+      }
+    },
+    "WsRestAddMemberRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAddMemberRequest" : {
+          "description" : "Identifies the request as a add member request",
+          "$ref" : "#/definitions/WsRestAddMemberRequest"
+        }
+      },
+      "description" : "Request body to add member"
+    },
+    "WsRestAssignAttributeDefActionsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefLookup"
+        },
+        "actions" : {
+          "type" : "array",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "assign" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T to assign, or F to remove assignment"
+        },
+        "replaceAllExisting" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T if assigning, if this list should replace all existing immediately inherited attribute def names"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAssignAttributeDefActionsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAssignAttributeDefActionsRequest" : {
+          "description" : "Identifies the request as an assign attribute def actions request",
+          "$ref" : "#/definitions/WsRestAssignAttributeDefActionsRequest"
+        }
+      },
+      "description" : "Request body to assign attribute def actions"
+    },
+    "WsRestAssignAttributeDefNameInheritanceRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefNameLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefNameLookup"
+        },
+        "relatedWsAttributeDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "assign" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T to assign, or F to remove assignment"
+        },
+        "replaceAllExisting" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T if assigning, if this list should replace all existing immediately inherited attribute def names"
+        },
+        "txType" : {
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAssignAttributeDefNameInheritanceRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAttributeDefDeleteRequest" : {
+          "description" : "Identifies the request as an assign attribute def name inheritence request",
+          "$ref" : "#/definitions/WsRestAssignAttributeDefNameInheritanceRequest"
+        }
+      },
+      "description" : "Request body to assign attribute def name inheritence"
+    },
+    "WsRestAssignAttributesBatchRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsAssignAttributeBatchEntries" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAssignAttributeBatchEntry"
+          }
+        },
+        "txType" : {
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended subject information should be returned (anything more than just the id)"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "example" : "lastName",
+          "description" : "are the additional subject attributes (data) to return",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeGroupDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended subject information should be returned (anything more than just the id)"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAssignAttributesBatchRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAssignAttributesBatchRequest" : {
+          "description" : "Identifies the request as an assign attribute batch request",
+          "$ref" : "#/definitions/WsRestAssignAttributesBatchRequest"
+        }
+      },
+      "description" : "Request body to assign attribute batch"
+    },
+    "WsRestAssignAttributesRequest" : {
+      "type" : "object",
+      "properties" : {
+        "attributeAssignOperation" : {
+          "type" : "string",
+          "example" : "assign_attr, add_attr, remove_attr",
+          "description" : "operation to perform for attribute on owners, from enum AttributeAssignOperation"
+        },
+        "assignmentNotes" : {
+          "type" : "string",
+          "description" : "notes on the assignment (optional)"
+        },
+        "attributeDefsToReplace" : {
+          "type" : "array",
+          "description" : "if replacing attributeDefNames, then these  are the related attributeDefs, if blank, then just do all",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "actionsToReplace" : {
+          "type" : "array",
+          "description" : "if replacing attributeDefNames, then these are the related actions, if blank, then just do all",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "attributeDefTypesToReplace" : {
+          "type" : "array",
+          "description" : "if replacing attributeDefNames, then these are the related attributeDefTypes, if blank, then just do all",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "assignmentEnabledTime" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "enabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS"
+        },
+        "assignmentDisabledTime" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "disabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS"
+        },
+        "delegatable" : {
+          "type" : "string",
+          "example" : "TRUE|FALSE|GRANT",
+          "description" : "really only for permissions, if the assignee can delegate to someone else"
+        },
+        "attributeAssignValueOperation" : {
+          "type" : "string",
+          "example" : "assign_value, add_value, remove_value, replace_values",
+          "description" : "operation to perform for attribute value on attribute"
+        },
+        "wsOwnerAttributeAssignLookups" : {
+          "type" : "array",
+          "description" : "for assignment on assignment",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignLookup"
+          }
+        },
+        "values" : {
+          "type" : "array",
+          "example" : "a1b2c3d4",
+          "description" : "are the values to assign, replace, remove, etc.  If removing, and id is specified, will only remove values with that id",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignValue"
+          }
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "attributeAssignType" : {
+          "type" : "string",
+          "example" : "group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn",
+          "description" : " is the attribute assign type we are looking for"
+        },
+        "wsAttributeAssignLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignLookup"
+          }
+        },
+        "wsAttributeDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "wsOwnerGroupLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        },
+        "wsOwnerStemLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStemLookup"
+          }
+        },
+        "wsOwnerSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "wsOwnerMembershipLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembershipLookup"
+          }
+        },
+        "wsOwnerMembershipAnyLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembershipAnyLookup"
+          }
+        },
+        "wsOwnerAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "actions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended subject information should be returned (anything more than just the id)"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeGroupDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the group detail should be returned"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAssignAttributesRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAssignAttributesRequest" : {
+          "description" : "Identifies the request as an assign attributes request",
+          "$ref" : "#/definitions/WsRestAssignAttributesRequest"
+        }
+      },
+      "description" : "Request body to assign attributes"
+    },
+    "WsRestAssignGrouperPrivilegesRequest" : {
+      "type" : "object",
+      "properties" : {
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "replaceAllExisting" : {
+          "type" : "string"
+        },
+        "allowed" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "wsStemLookup" : {
+          "$ref" : "#/definitions/WsStemLookup"
+        },
+        "privilegeType" : {
+          "type" : "string"
+        },
+        "privilegeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "wsSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "txType" : {
+          "type" : "string"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAssignGrouperPrivilegesRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAssignGrouperPrivilegesRequest" : {
+          "description" : "Identifies the request as an assign grouper privileges request",
+          "$ref" : "#/definitions/WsRestAssignGrouperPrivilegesRequest"
+        }
+      },
+      "description" : "Request body to assign grouper privileges"
+    },
+    "WsRestAssignPermissionsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "disallowed" : {
+          "type" : "string"
+        },
+        "permissionAssignOperation" : {
+          "type" : "string"
+        },
+        "assignmentNotes" : {
+          "type" : "string"
+        },
+        "assignmentEnabledTime" : {
+          "type" : "string"
+        },
+        "assignmentDisabledTime" : {
+          "type" : "string"
+        },
+        "delegatable" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "permissionType" : {
+          "type" : "string"
+        },
+        "wsAttributeAssignLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignLookup"
+          }
+        },
+        "permissionDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "roleLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        },
+        "subjectRoleLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembershipAnyLookup"
+          }
+        },
+        "actions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "actionsToReplace" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "attributeDefsToReplace" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        }
+      }
+    },
+    "WsRestAssignPermissionsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAssignPermissionsRequest" : {
+          "description" : "Identifies the request as an assign a permission request",
+          "$ref" : "#/definitions/WsRestAssignPermissionsRequest"
+        }
+      },
+      "description" : "Request body to assign a permission"
+    },
+    "WsRestAttributeDefDeleteRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "txType" : {
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user",
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      },
+      "description" : "bean that will be the data from rest request for deleting attribute defs"
+    },
+    "WsRestAttributeDefDeleteRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAttributeDefDeleteRequest" : {
+          "description" : "Identifies the request as an attribute delete request",
+          "$ref" : "#/definitions/WsRestAttributeDefDeleteRequest"
+        }
+      },
+      "description" : "Request body to delete attribute defs"
+    },
+    "WsRestAttributeDefNameDeleteRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "txType" : {
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      },
+      "description" : "bean that will be the data from rest request for deleting attribute def names"
+    },
+    "WsRestAttributeDefNameDeleteRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAttributeDefNameDeleteRequest" : {
+          "description" : "Identifies the request as an attribute def name delete request",
+          "$ref" : "#/definitions/WsRestAttributeDefNameDeleteRequest"
+        }
+      },
+      "description" : "Request body to delete attribute def names"
+    },
+    "WsRestAttributeDefNameSaveRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefNameToSaves" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameToSave"
+          }
+        },
+        "txType" : {
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAttributeDefNameSaveRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAttributeDefNameSaveRequest" : {
+          "description" : "Identifies the request as a save attribute def names request",
+          "$ref" : "#/definitions/WsRestAttributeDefNameSaveRequest"
+        }
+      },
+      "description" : "Request body to save attribute def names"
+    },
+    "WsRestAttributeDefSaveRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsAttributeDefsToSave" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefToSave"
+          }
+        },
+        "txType" : {
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestAttributeDefSaveRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestAttributeDefSaveRequest" : {
+          "description" : "Identifies the request as an attribute save request",
+          "$ref" : "#/definitions/WsRestAttributeDefSaveRequest"
+        }
+      },
+      "description" : "Request body to save attribute defs"
+    },
+    "WsRestDeleteMemberRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "subjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "fieldName" : {
+          "type" : "string"
+        },
+        "txType" : {
+          "type" : "string"
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestDeleteMemberRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestDeleteMemberRequest" : {
+          "description" : "Identifies the request as a delete member request",
+          "$ref" : "#/definitions/WsRestDeleteMemberRequest"
+        }
+      },
+      "description" : "Request body to delete member"
+    },
+    "WsRestExternalSubjectDeleteRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsExternalSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsExternalSubjectLookup"
+          }
+        },
+        "txType" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestExternalSubjectDeleteRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestExternalSubjectDeleteRequest" : {
+          "description" : "Identifies the request as a delete external subject request",
+          "$ref" : "#/definitions/WsRestExternalSubjectDeleteRequest"
+        }
+      },
+      "description" : "Request body to delete an external subject"
+    },
+    "WsRestExternalSubjectSaveRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsExternalSubjectToSaves" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsExternalSubjectToSave"
+          }
+        },
+        "txType" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestExternalSubjectSaveRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestExternalSubjectSaveRequest" : {
+          "description" : "Identifies the request as a save external subject request",
+          "$ref" : "#/definitions/WsRestExternalSubjectSaveRequest"
+        }
+      },
+      "description" : "Request body to save an external subject"
+    },
+    "WsRestFindAttributeDefNamesRequest" : {
+      "type" : "object",
+      "properties" : {
+        "subjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "serviceRole" : {
+          "type" : "string",
+          "example" : "admin or user",
+          "description" : "from ServiceRole enum, which service role you are querying"
+        },
+        "scope" : {
+          "type" : "string",
+          "example" : "!!",
+          "description" : "search string with % as wildcards will search name, display name, description"
+        },
+        "splitScope" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "splitScope T or F, if T will split the scope by whitespace, and find attribute def names with each token. e.g. if you have a scope of \"pto permissions\", and split scope T, it will return school:apps:pto_app:internal:the_permissions:whatever"
+        },
+        "wsAttributeDefLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefLookup"
+        },
+        "attributeAssignType" : {
+          "type" : "string",
+          "example" : "any_mem, any_mem_asgn, attr_def, attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn",
+          "description" : "where can the attribute definition be assigned"
+        },
+        "attributeDefType" : {
+          "type" : "string",
+          "example" : "attr, domain, limit, perm, type",
+          "description" : "type of attribute definition"
+        },
+        "wsAttributeDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "pageSize" : {
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size if paging"
+        },
+        "pageNumber" : {
+          "type" : "string",
+          "example" : "1",
+          "description" : "Page number 1 indexed if paging"
+        },
+        "sortString" : {
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
+        },
+        "ascending" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string"
+        },
+        "wsInheritanceSetRelation" : {
+          "type" : "string",
+          "example" : "IMPLIED_BY_THIS, IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE",
+          "description" : "wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find the attribute def names which are related to the lookup by this relation"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "pageIsCursor" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging"
+        },
+        "pageLastCursorField" : {
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
+        },
+        "pageLastCursorFieldType" : {
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
+        },
+        "pageCursorFieldIncludesLastRetrieved" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
+        }
+      }
+    },
+    "WsRestFindAttributeDefNamesRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestFindAttributeDefNamesRequest" : {
+          "description" : "Identifies the request as a find attribute def names request",
+          "$ref" : "#/definitions/WsRestFindAttributeDefNamesRequest"
+        }
+      },
+      "description" : "Request body to delete find attribute def names"
+    },
+    "WsRestFindAttributeDefsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "subjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "privilegeName" : {
+          "type" : "string",
+          "example" : "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate",
+          "description" : "Name of the privilege"
+        },
+        "scope" : {
+          "type" : "string",
+          "example" : "someApp someAttributeDefExtension",
+          "description" : "search string with % as wildcards will search name, display name, description"
+        },
+        "splitScope" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, it will returnschool:apps:pto_app:internal:the_permissions:whatever"
+        },
+        "wsAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "stemScope" : {
+          "type" : "string",
+          "example" : "this:stem:name",
+          "description" : "is if in this stem, or in any stem underneath. You must pass stemScope if you pass a stem"
+        },
+        "parentStemId" : {
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "will return attribute defs in this stem"
+        },
+        "findByUuidOrName" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T for find by Uuid"
+        },
+        "pageSize" : {
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size if paging"
+        },
+        "pageNumber" : {
+          "type" : "string",
+          "example" : "1",
+          "description" : "Page number 1 indexed if paging"
+        },
+        "sortString" : {
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
+        },
+        "ascending" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "pageIsCursor" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging"
+        },
+        "pageLastCursorField" : {
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
+        },
+        "pageLastCursorFieldType" : {
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
+        },
+        "pageCursorFieldIncludesLastRetrieved" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
+        }
+      }
+    },
+    "WsRestFindAttributeDefsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestFindAttributeDefsRequest" : {
+          "description" : "Identifies the request as a find attribute defs request",
+          "$ref" : "#/definitions/WsRestFindAttributeDefsRequest"
+        }
+      },
+      "description" : "Request body to find attribute defs"
+    },
+    "WsRestFindExternalSubjectsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsExternalSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsExternalSubjectLookup"
+          }
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestFindExternalSubjectsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestFindExternalSubjectsRequest" : {
+          "description" : "Identifies the request as a find external subjects request",
+          "$ref" : "#/definitions/WsRestFindExternalSubjectsRequest"
+        }
+      },
+      "description" : "Request body to find external subjects"
+    },
     "WsRestFindGroupsRequest" : {
       "type" : "object",
       "properties" : {
@@ -8138,6 +10141,1154 @@
         }
       },
       "description" : "Request body to find groups"
+    },
+    "WsRestFindStemsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsStemQueryFilter" : {
+          "$ref" : "#/definitions/WsStemQueryFilter"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "wsStemLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStemLookup"
+          }
+        }
+      },
+      "description" : "bean that will be the data from rest request for finding stems"
+    },
+    "WsRestFindStemsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestFindStemsRequest" : {
+          "description" : "Identifies the request as a find stems request",
+          "$ref" : "#/definitions/WsRestFindStemsRequest"
+        }
+      },
+      "description" : "Request body to find stems"
+    },
+    "WsRestGetAttributeAssignActionsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "actions" : {
+          "type" : "array",
+          "example" : "read",
+          "description" : "action to query, or none to query all actions",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestGetAttributeAssignActionsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGetAttributeAssignActionsRequest" : {
+          "description" : "Identifies the request as a get attribute assign actions request",
+          "$ref" : "#/definitions/WsRestGetAttributeAssignActionsRequest"
+        }
+      },
+      "description" : "Request body to get attribute assign actions"
+    },
+    "WsRestGetAttributeAssignmentsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "attributeDefValueType" : {
+          "type" : "string",
+          "example" : "floating, integer, memberId, string, timestamp",
+          "description" : "required if sending theValue"
+        },
+        "attributeDefType" : {
+          "type" : "string",
+          "example" : "attr, limit, service, type, limit, permp",
+          "description" : "null for all, or specify an AttributeDefType"
+        },
+        "theValue" : {
+          "type" : "string",
+          "example" : "myValue",
+          "description" : "value assigned to an attribute that you are searching for if you are passing in one attributeDefNameLookup"
+        },
+        "includeAssignmentsFromAssignments" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if you are finding an assignment that is an assignmentOnAssignment, then get the assignment which tells you the owner as well"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "attributeAssignType" : {
+          "type" : "string",
+          "example" : "group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn",
+          "description" : " is the attribute assign type we are looking for"
+        },
+        "wsAttributeAssignLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignLookup"
+          }
+        },
+        "wsAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "wsAttributeDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "wsOwnerGroupLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        },
+        "wsOwnerStemLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStemLookup"
+          }
+        },
+        "wsOwnerSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "wsOwnerMembershipLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembershipLookup"
+          }
+        },
+        "wsOwnerMembershipAnyLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMembershipAnyLookup"
+          }
+        },
+        "wsOwnerAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "actions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeAssignmentsOnAssignments" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "if this is not querying assignments on assignments directly, but the assignments and assignments on those assignments should be returned, enter true.  default to false"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended subject information should be returned (anything more than just the id)"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "example" : "LastName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeGroupDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the group detail should be returned"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "enabled" : {
+          "type" : "string",
+          "example" : "A, T, F",
+          "description" : "A for all, T or null for enabled only, F for disabled "
+        },
+        "wsAssignAssignOwnerAttributeAssignLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeAssignLookup"
+          }
+        },
+        "wsAssignAssignOwnerAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "wsAssignAssignOwnerAttributeDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "wsAssignAssignOwnerActions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        }
+      }
+    },
+    "WsRestGetAttributeAssignmentsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGetAttributeAssignmentsRequest" : {
+          "description" : "Identifies the request as a get attribute assign actions request",
+          "$ref" : "#/definitions/WsRestGetAttributeAssignmentsRequest"
+        }
+      },
+      "description" : "Request body to get attribute assign actions"
+    },
+    "WsRestGetAuditEntriesRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "auditType" : {
+          "type" : "string"
+        },
+        "auditActionId" : {
+          "type" : "string"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "wsStemLookup" : {
+          "$ref" : "#/definitions/WsStemLookup"
+        },
+        "wsAttributeDefLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefLookup"
+        },
+        "wsAttributeDefNameLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefNameLookup"
+        },
+        "wsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "actionsPerformedByWsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "pageSize" : {
+          "type" : "string"
+        },
+        "sortString" : {
+          "type" : "string"
+        },
+        "ascending" : {
+          "type" : "string"
+        },
+        "pageIsCursor" : {
+          "type" : "string"
+        },
+        "pageLastCursorField" : {
+          "type" : "string"
+        },
+        "pageLastCursorFieldType" : {
+          "type" : "string"
+        },
+        "pageCursorFieldIncludesLastRetrieved" : {
+          "type" : "string"
+        },
+        "fromDate" : {
+          "type" : "string"
+        },
+        "toDate" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestGetAuditEntriesRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGetAuditEntriesRequest" : {
+          "description" : "Identifies the request as a get audit entries request",
+          "$ref" : "#/definitions/WsRestGetAuditEntriesRequest"
+        }
+      },
+      "description" : "Request body to get audit entries"
+    },
+    "WsRestGetGroupsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "subjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "memberFilter" : {
+          "type" : "string"
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "scope" : {
+          "type" : "string"
+        },
+        "wsStemLookup" : {
+          "$ref" : "#/definitions/WsStemLookup"
+        },
+        "stemScope" : {
+          "type" : "string"
+        },
+        "enabled" : {
+          "type" : "string"
+        },
+        "pageSize" : {
+          "type" : "string"
+        },
+        "pageNumber" : {
+          "type" : "string"
+        },
+        "sortString" : {
+          "type" : "string"
+        },
+        "ascending" : {
+          "type" : "string"
+        },
+        "pageIsCursor" : {
+          "type" : "string"
+        },
+        "pageLastCursorField" : {
+          "type" : "string"
+        },
+        "pageLastCursorFieldType" : {
+          "type" : "string"
+        },
+        "pageCursorFieldIncludesLastRetrieved" : {
+          "type" : "string"
+        },
+        "fieldName" : {
+          "type" : "string"
+        },
+        "pointInTimeFrom" : {
+          "type" : "string"
+        },
+        "pointInTimeTo" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestGetGroupsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestgetGroupsRequest" : {
+          "description" : "Identifies the request as a getGroups request",
+          "$ref" : "#/definitions/WsRestGetGroupsRequest"
+        }
+      },
+      "description" : "Request body to get groups"
+    },
+    "WsRestGetMembersRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsGroupLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        },
+        "memberFilter" : {
+          "type" : "string"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "fieldName" : {
+          "type" : "string"
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "sourceIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "pageSize" : {
+          "type" : "string"
+        },
+        "pageNumber" : {
+          "type" : "string"
+        },
+        "sortString" : {
+          "type" : "string"
+        },
+        "ascending" : {
+          "type" : "string"
+        },
+        "pageIsCursor" : {
+          "type" : "string"
+        },
+        "pageLastCursorField" : {
+          "type" : "string"
+        },
+        "pageLastCursorFieldType" : {
+          "type" : "string"
+        },
+        "pageCursorFieldIncludesLastRetrieved" : {
+          "type" : "string"
+        },
+        "pointInTimeRetrieve" : {
+          "type" : "string"
+        },
+        "pointInTimeFrom" : {
+          "type" : "string"
+        },
+        "pointInTimeTo" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestGetMembersRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGetMembersRequest" : {
+          "description" : "Identifies the request as a get members request",
+          "$ref" : "#/definitions/WsRestGetMembersRequest"
+        }
+      },
+      "description" : "Request body to get members"
+    },
+    "WsRestGetMembershipsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsGroupLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        },
+        "wsOwnerStemLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsStemLookup"
+          }
+        },
+        "wsOwnerAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "memberFilter" : {
+          "type" : "string"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "fieldName" : {
+          "type" : "string"
+        },
+        "fieldType" : {
+          "type" : "string"
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "sourceIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "wsSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "scope" : {
+          "type" : "string"
+        },
+        "wsStemLookup" : {
+          "$ref" : "#/definitions/WsStemLookup"
+        },
+        "stemScope" : {
+          "type" : "string"
+        },
+        "enabled" : {
+          "type" : "string"
+        },
+        "membershipIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "serviceRole" : {
+          "type" : "string"
+        },
+        "serviceLookup" : {
+          "$ref" : "#/definitions/WsAttributeDefNameLookup"
+        },
+        "pageSize" : {
+          "type" : "string"
+        },
+        "pageNumber" : {
+          "type" : "string"
+        },
+        "sortString" : {
+          "type" : "string"
+        },
+        "ascending" : {
+          "type" : "string"
+        },
+        "pageIsCursor" : {
+          "type" : "string"
+        },
+        "pageLastCursorField" : {
+          "type" : "string"
+        },
+        "pageLastCursorFieldType" : {
+          "type" : "string"
+        },
+        "pageCursorFieldIncludesLastRetrieved" : {
+          "type" : "string"
+        },
+        "pageSizeForMember" : {
+          "type" : "string"
+        },
+        "pageNumberForMember" : {
+          "type" : "string"
+        },
+        "sortStringForMember" : {
+          "type" : "string"
+        },
+        "ascendingForMember" : {
+          "type" : "string"
+        },
+        "pageIsCursorForMember" : {
+          "type" : "string"
+        },
+        "pageLastCursorFieldForMember" : {
+          "type" : "string"
+        },
+        "pageLastCursorFieldTypeForMember" : {
+          "type" : "string"
+        },
+        "pageCursorFieldIncludesLastRetrievedForMember" : {
+          "type" : "string"
+        },
+        "pointInTimeRetrieve" : {
+          "type" : "string"
+        },
+        "pointInTimeFrom" : {
+          "type" : "string"
+        },
+        "pointInTimeTo" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestGetMembershipsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGetMembershipsRequest" : {
+          "description" : "Identifies the request as a get memberships request",
+          "$ref" : "#/definitions/WsRestGetMembershipsRequest"
+        }
+      },
+      "description" : "Request body to get memberships"
+    },
+    "WsRestGetPermissionAssignmentsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "includeLimits" : {
+          "type" : "string"
+        },
+        "immediateOnly" : {
+          "type" : "string"
+        },
+        "permissionType" : {
+          "type" : "string"
+        },
+        "limitEnvVars" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsPermissionEnvVar"
+          }
+        },
+        "permissionProcessor" : {
+          "type" : "string"
+        },
+        "includeAttributeDefNames" : {
+          "type" : "string"
+        },
+        "pointInTimeFrom" : {
+          "type" : "string"
+        },
+        "pointInTimeTo" : {
+          "type" : "string"
+        },
+        "includePermissionAssignDetail" : {
+          "type" : "string"
+        },
+        "includeAttributeAssignments" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsAttributeDefLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefLookup"
+          }
+        },
+        "wsAttributeDefNameLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsAttributeDefNameLookup"
+          }
+        },
+        "roleLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        },
+        "wsSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "actions" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeAssignmentsOnAssignments" : {
+          "type" : "string"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "enabled" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestGetPermissionAssignmentsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGetPermissionAssignmentsRequest" : {
+          "description" : "Identifies the request as a get permission assignments request",
+          "$ref" : "#/definitions/WsRestGetPermissionAssignmentsRequest"
+        }
+      },
+      "description" : "Request body to get permission assignments"
+    },
+    "WsRestGetSubjectsRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "memberFilter" : {
+          "type" : "string"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "fieldName" : {
+          "type" : "string"
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "sourceIds" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "wsSubjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "searchString" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestGetSubjectsRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGetSubjectsRequest" : {
+          "description" : "Identifies the request as a get subjects request",
+          "$ref" : "#/definitions/WsRestGetSubjectsRequest"
+        }
+      },
+      "description" : "Request body to get subjects"
+    },
+    "WsRestGroupDeleteRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroupLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupLookup"
+          }
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        },
+        "txType" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestGroupDeleteRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGroupDeleteRequest" : {
+          "description" : "Identifies the request as a delete groups request",
+          "$ref" : "#/definitions/WsRestGroupDeleteRequest"
+        }
+      },
+      "description" : "Request body to delete a group"
+    },
+    "WsRestGroupSaveRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsGroupToSaves" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGroupToSave"
+          }
+        },
+        "txType" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "includeGroupDetail" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestGroupSaveRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGroupSaveRequest" : {
+          "description" : "Identifies the request as a save group request",
+          "$ref" : "#/definitions/WsRestGroupSaveRequest"
+        }
+      },
+      "description" : "Request body to save a group"
+    },
+    "WsRestGshTemplateExecRequest" : {
+      "type" : "object",
+      "properties" : {
+        "wsInput" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        },
+        "configId" : {
+          "type" : "string"
+        },
+        "ownerType" : {
+          "type" : "string"
+        },
+        "ownerGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "ownerStemLookup" : {
+          "$ref" : "#/definitions/WsStemLookup"
+        },
+        "gshTemplateActAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "inputs" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsGshTemplateInput"
+          }
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestGshTemplateExecRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestGshTemplateExecRequest" : {
+          "description" : "Identifies the request as an execute GSH template request",
+          "$ref" : "#/definitions/WsRestGshTemplateExecRequest"
+        }
+      },
+      "description" : "Request body to execute GSH template"
+    },
+    "WsRestMemberChangeSubjectRequest" : {
+      "type" : "object",
+      "properties" : {
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "wsMemberChangeSubjects" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMemberChangeSubject"
+          }
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "txType" : {
+          "type" : "string"
+        }
+      }
+    },
+    "WsRestMemberChangeSubjectRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestMemberChangeSubjectRequest" : {
+          "description" : "Identifies the request as a member change subjects request",
+          "$ref" : "#/definitions/WsRestMemberChangeSubjectRequest"
+        }
+      },
+      "description" : "Request body to member change subjects"
+    },
+    "WsRestReceiveMessageRequest" : {
+      "type" : "object",
+      "properties" : {
+        "queueType" : {
+          "type" : "string"
+        },
+        "queueOrTopicName" : {
+          "type" : "string"
+        },
+        "messageSystemName" : {
+          "type" : "string"
+        },
+        "routingKey" : {
+          "type" : "string"
+        },
+        "exchangeType" : {
+          "type" : "string"
+        },
+        "queueArguments" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        },
+        "blockMillis" : {
+          "type" : "string"
+        },
+        "maxMessagesToReceiveAtOnce" : {
+          "type" : "string"
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestReceiveMessageRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestReceiveMessageRequest" : {
+          "description" : "Identifies the request as an receive message request",
+          "$ref" : "#/definitions/WsRestReceiveMessageRequest"
+        }
+      },
+      "description" : "Request body to receive a message"
+    },
+    "WsRestSendMessageRequest" : {
+      "type" : "object",
+      "properties" : {
+        "queueType" : {
+          "type" : "string"
+        },
+        "queueOrTopicName" : {
+          "type" : "string"
+        },
+        "messageSystemName" : {
+          "type" : "string"
+        },
+        "routingKey" : {
+          "type" : "string"
+        },
+        "exchangeType" : {
+          "type" : "string"
+        },
+        "queueArguments" : {
+          "type" : "object",
+          "additionalProperties" : {
+            "type" : "object"
+          }
+        },
+        "messages" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsMessage"
+          }
+        },
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        }
+      }
+    },
+    "WsRestSendMessageRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestSendMessageRequest" : {
+          "description" : "Identifies the request as an send message request",
+          "$ref" : "#/definitions/WsRestSendMessageRequest"
+        }
+      },
+      "description" : "Request body to send a message"
     },
     "WsResultMeta" : {
       "type" : "object",
@@ -8249,6 +11400,73 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsStemLookup" : {
+      "type" : "object",
+      "properties" : {
+        "idIndex" : {
+          "type" : "string",
+          "example" : "1009",
+          "description" : "integer ID for the stem we are looking for"
+        },
+        "uuid" : {
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "Uuid of the stem we are looking for"
+        },
+        "stemName" : {
+          "type" : "string",
+          "example" : "other:some:stemName",
+          "description" : "Name for the stem we are looking for"
+        }
+      }
+    },
+    "WsStemQueryFilter" : {
+      "type" : "object",
+      "properties" : {
+        "stemQueryFilterType" : {
+          "type" : "string"
+        },
+        "stemName" : {
+          "type" : "string"
+        },
+        "parentStemName" : {
+          "type" : "string"
+        },
+        "parentStemNameScope" : {
+          "type" : "string"
+        },
+        "stemUuid" : {
+          "type" : "string"
+        },
+        "stemAttributeValue" : {
+          "type" : "string"
+        },
+        "stemAttributeName" : {
+          "type" : "string"
+        },
+        "stemQueryFilter0" : {
+          "$ref" : "#/definitions/WsStemQueryFilter"
+        },
+        "stemQueryFilter1" : {
+          "$ref" : "#/definitions/WsStemQueryFilter"
+        },
+        "ascending" : {
+          "type" : "string"
+        },
+        "pageNumber" : {
+          "type" : "string"
+        },
+        "pageSize" : {
+          "type" : "string"
+        },
+        "sortString" : {
+          "type" : "string"
+        },
+        "queryTerm" : {
+          "type" : "string"
         }
       }
     },

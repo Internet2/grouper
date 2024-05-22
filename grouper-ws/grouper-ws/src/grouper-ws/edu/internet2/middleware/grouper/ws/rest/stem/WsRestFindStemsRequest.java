@@ -26,12 +26,15 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemQueryFilter;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * bean that will be the data from rest request
  * @see GrouperServiceLogic#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, boolean, boolean, String[], WsParam[])
  * for method
  */
+@ApiModel(description = "bean that will be the data from rest request for finding stems")
 public class WsRestFindStemsRequest implements WsRequestBean {
   
   /** query filter for request */
@@ -72,6 +75,7 @@ public class WsRestFindStemsRequest implements WsRequestBean {
   /**
    * @return the clientVersion
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }

@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 
 /**
@@ -71,6 +72,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * are the related attributeDefs, if blank, then just do all
    * @return the attributeDefsToReplace
    */
+  @ApiModelProperty(value = "if replacing attributeDefNames, then these  are the related attributeDefs, if blank, then just do all")
   public WsAttributeDefLookup[] getAttributeDefsToReplace() {
     return this.attributeDefsToReplace;
   }
@@ -91,6 +93,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * related actions, if blank, then just do all
    * @return the actionsToReplace
    */
+  @ApiModelProperty(value = "if replacing attributeDefNames, then these are the related actions, if blank, then just do all")
   public String[] getActionsToReplace() {
     return this.actionsToReplace;
   }
@@ -111,6 +114,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * related attributeDefTypes, if blank, then just do all
    * @return the attributeDefTypesToReplace
    */
+  @ApiModelProperty(value = "if replacing attributeDefNames, then these are the related attributeDefTypes, if blank, then just do all")
   public String[] getAttributeDefTypesToReplace() {
     return this.attributeDefTypesToReplace;
   }
@@ -129,6 +133,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * notes on the assignment (optional)
    * @return notes
    */
+  @ApiModelProperty(value = "notes on the assignment (optional)")
   public String getAssignmentNotes() {
     return this.assignmentNotes;
   }
@@ -145,6 +150,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * enabled time, or null for enabled now
    * @return enabled time
    */
+  @ApiModelProperty(value = "enabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000")
   public String getAssignmentEnabledTime() {
     return this.assignmentEnabledTime;
   }
@@ -161,6 +167,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * disabled time, or null for not disabled
    * @return disabled time
    */
+  @ApiModelProperty(value = "disabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000")
   public String getAssignmentDisabledTime() {
     return this.assignmentDisabledTime;
   }
@@ -177,6 +184,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * really only for permissions, if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
    * @return delegatable
    */
+  @ApiModelProperty(value = "really only for permissions, if the assignee can delegate to someone else", example = "TRUE|FALSE|GRANT")
   public String getDelegatable() {
     return this.delegatable;
   }
@@ -194,6 +202,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * assignments: assign_value, add_value, remove_value, replace_values
    * @return operation
    */
+  @ApiModelProperty(value = "operation to perform for attribute value on attribute", example = "assign_value, add_value, remove_value, replace_values")
   public String getAttributeAssignValueOperation() {
     return this.attributeAssignValueOperation;
   }
@@ -211,6 +220,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * for assignment on assignment
    * @return assignment lookup
    */
+  @ApiModelProperty(value = "for assignment on assignment")
   public WsAttributeAssignLookup[] getWsOwnerAttributeAssignLookups() {
     return this.wsOwnerAttributeAssignLookups;
   }
@@ -255,10 +265,10 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * assign_attr, add_attr, remove_attr
    * @return operation
    */
+  @ApiModelProperty(value = "operation to perform for attribute on owners, from enum AttributeAssignOperation", example = "assign_attr, add_attr, remove_attr")
   public String getAttributeAssignOperation() {
     return this.attributeAssignOperation;
   }
-
   /**
    * operation to perform for attribute on owners, from enum AttributeAssignOperation
    * assign_attr, add_attr, remove_attr
@@ -279,6 +289,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * only remove values with that id.
    * @return values
    */
+  @ApiModelProperty(value = "are the values to assign, replace, remove, etc.  If removing, and id is specified, will only remove values with that id", example = "a1b2c3d4")
   public WsAttributeAssignValue[] getValues() {
     return this.values;
   }
@@ -306,6 +317,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -325,6 +337,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * is the attribute assign type we are looking for
    * @return attribute assign type
    */
+  @ApiModelProperty(value = " is the attribute assign type we are looking for", example = "group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn")
   public String getAttributeAssignType() {
     return this.attributeAssignType;
   }
@@ -551,6 +564,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return T|F
    */
+  @ApiModelProperty(value = "T|F, for if the extended subject information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -598,6 +612,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * T or F as to if the group detail should be returned
    * @return T|F
    */
+  @ApiModelProperty(value = "T or F as to if the group detail should be returned", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }

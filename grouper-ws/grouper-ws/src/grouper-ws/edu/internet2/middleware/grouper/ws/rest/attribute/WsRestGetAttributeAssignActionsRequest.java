@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 
 /**
@@ -46,6 +47,7 @@ public class WsRestGetAttributeAssignActionsRequest implements WsRequestBean {
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -88,6 +90,7 @@ public class WsRestGetAttributeAssignActionsRequest implements WsRequestBean {
    * actions to query, or none to query all actions
    * @return actions
    */
+  @ApiModelProperty(value = "action to query, or none to query all actions", example = "read")
   public String[] getActions() {
     return this.actions;
   }

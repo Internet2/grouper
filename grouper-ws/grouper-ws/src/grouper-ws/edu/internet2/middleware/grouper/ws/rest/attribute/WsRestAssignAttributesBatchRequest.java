@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 
 /**
@@ -61,6 +62,7 @@ public class WsRestAssignAttributesBatchRequest implements WsRequestBean {
    * are NONE (or blank), and READ_WRITE_NEW.
    * @return tx type
    */
+  @ApiModelProperty(value = "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW.", example = "READ_WRITE_NEW")
   public String getTxType() {
     return this.txType;
   }
@@ -96,6 +98,7 @@ public class WsRestAssignAttributesBatchRequest implements WsRequestBean {
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -138,6 +141,7 @@ public class WsRestAssignAttributesBatchRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return T|F
    */
+  @ApiModelProperty(value = "T|F, for if the extended subject information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -163,6 +167,7 @@ public class WsRestAssignAttributesBatchRequest implements WsRequestBean {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @return subject attribute names
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return", example = "lastName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -185,6 +190,7 @@ public class WsRestAssignAttributesBatchRequest implements WsRequestBean {
    * T or F as to if the group detail should be returned
    * @return T|F
    */
+  @ApiModelProperty(value = "T|F, for if the extended subject information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }

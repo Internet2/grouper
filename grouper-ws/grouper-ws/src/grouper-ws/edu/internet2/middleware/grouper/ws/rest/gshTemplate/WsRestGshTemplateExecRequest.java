@@ -9,6 +9,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 public class WsRestGshTemplateExecRequest implements WsRequestBean {
   
@@ -116,8 +117,8 @@ public class WsRestGshTemplateExecRequest implements WsRequestBean {
 
 
 
-  
-  public String getClientVersion() {
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  public String getClientVersion(){
     return clientVersion;
   }
 
