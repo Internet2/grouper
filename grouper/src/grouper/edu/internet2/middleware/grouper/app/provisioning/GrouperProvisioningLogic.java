@@ -2039,13 +2039,14 @@ public class GrouperProvisioningLogic {
       }
     });
     
-    targetQueryThread.start();
+    targetQueryThread.run();
 
     // get all grouper data for the provisioner
     // and put in GrouperProvisioningDataSyncGrouper
     GrouperProvisioningLists grouperProvisioningLists = this.grouperProvisioner.retrieveGrouperDao().retrieveGrouperDataFull();
 
-    GrouperClientUtils.join(targetQueryThread);
+    //targetQueryThread.start();
+    //GrouperClientUtils.join(targetQueryThread);
     if (RUNTIME_EXCEPTION[0] != null) {
       throw RUNTIME_EXCEPTION[0];
     }
