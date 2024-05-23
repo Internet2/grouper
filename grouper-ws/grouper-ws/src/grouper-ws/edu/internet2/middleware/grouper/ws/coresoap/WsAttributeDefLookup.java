@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -61,6 +62,7 @@ public class WsAttributeDefLookup implements GrouperWsToStringCompact {
    * integer ID for object
    * @return the id
    */
+  @ApiModelProperty(value = "Id index of attribute def to be found", example = "1009")
   public String getIdIndex() {
     return this.idIndex;
   }
@@ -351,6 +353,7 @@ public class WsAttributeDefLookup implements GrouperWsToStringCompact {
    * uuid of the attributeDef to find
    * @return the uuid
    */
+  @ApiModelProperty(value = "Uuid of attribute def to be found", example = "a1b2c3d4")
   public String getUuid() {
     return this.uuid;
   }
@@ -368,6 +371,7 @@ public class WsAttributeDefLookup implements GrouperWsToStringCompact {
    * name of the attributeDef to find (includes stems, e.g. stem1:stem2:attributeDef
    * @return the theName
    */
+  @ApiModelProperty(value = "Name of attribute def to be found", example = "stem1:stem2:attributeDef")
   public String getName() {
     return this.name;
   }

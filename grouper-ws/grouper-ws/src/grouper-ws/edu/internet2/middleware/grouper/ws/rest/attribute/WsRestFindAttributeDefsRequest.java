@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * request bean in body of rest request
@@ -55,6 +56,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   *  privilege name to be checked for the logged in user or for actAsSubjectLookup
   * @return privilegeName
   */
+  @ApiModelProperty(value = "Name of the privilege", example = "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate")
   public String getPrivilegeName() {
     return this.privilegeName;
   }
@@ -76,6 +78,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * search string with % as wildcards will search name, display name, description
    * @return the scope
    */
+  @ApiModelProperty(value = "search string with % as wildcards will search name, display name, description", example = "someApp someAttributeDefExtension")
   public String getScope() {
     return this.scope;
   }
@@ -94,6 +97,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * school:apps:pto_app:internal:the_permissions:whatever
    * @return the splitScope
    */
+  @ApiModelProperty(value = "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, it will returnschool:apps:pto_app:internal:the_permissions:whatever", example = "T|F")
   public String getSplitScope() {
     return this.splitScope;
   }
@@ -111,6 +115,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   /**
    * @return the stemScope
    */
+  @ApiModelProperty(value = "is if in this stem, or in any stem underneath. You must pass stemScope if you pass a stem", example = "this:stem:name")
   public String getStemScope() {
     return this.stemScope;
   }
@@ -125,6 +130,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   /**
    * @return the parentStemId
    */
+  @ApiModelProperty(value = "will return attribute defs in this stem", example = "a1b2c3d4")
   public String getParentStemId() {
     return this.parentStemId;
   }
@@ -156,6 +162,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * page size if paging on a sort filter or parent
    * @return the pageSize
    */
+  @ApiModelProperty(value = "Page size if paging", example = "100")
   public String getPageSize() {
     return this.pageSize;
   }
@@ -172,6 +179,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * page number 1 indexed if paging on a sort filter or parent
    * @return the pageNumber
    */
+  @ApiModelProperty(value = "Page number 1 indexed if paging", example = "1")
   public String getPageNumber() {
     return this.pageNumber;
   }
@@ -189,6 +197,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * can sort on name, displayName, extension, displayExtension
    * @return the sortString
    */
+  @ApiModelProperty(value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", example = "name | displayName | extension | displayExtension")
   public String getSortString() {
     return this.sortString;
   }
@@ -206,6 +215,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * ascending or null for ascending, F for descending.  
    * @return the ascending
    */
+  @ApiModelProperty(value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }
@@ -221,6 +231,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   /**
    * @return the findByUuidOrName
    */
+  @ApiModelProperty(value = "T for find by Uuid", example = "T|F")
   public String getFindByUuidOrName() {
     return this.findByUuidOrName;
   }
@@ -293,6 +304,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -366,6 +378,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   /**
    * @return the pageIsCursor
    */
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F")
   public String getPageIsCursor() {
     return this.pageIsCursor;
   }
@@ -380,6 +393,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorField
    */
+  @ApiModelProperty(value = "Field that will be sent back for cursor based paging", example = "abc123")
   public String getPageLastCursorField() {
     return this.pageLastCursorField;
   }
@@ -394,6 +408,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorFieldType
    */
+  @ApiModelProperty(value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp")
   public String getPageLastCursorFieldType() {
     return this.pageLastCursorFieldType;
   }
@@ -408,6 +423,7 @@ public class WsRestFindAttributeDefsRequest implements WsRequestBean {
   /**
    * @return the pageCursorFieldIncludesLastRetrieved
    */
+  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrieved() {
     return this.pageCursorFieldIncludesLastRetrieved;
   }

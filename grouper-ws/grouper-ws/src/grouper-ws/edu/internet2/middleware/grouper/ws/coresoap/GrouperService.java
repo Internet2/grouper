@@ -15,17 +15,27 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import java.io.File;
+import java.lang.annotation.Annotation;
+import java.lang.reflect.Method;
+import java.nio.charset.StandardCharsets;
 import java.sql.Timestamp;
+import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
+import javax.tools.JavaCompiler;
+import javax.tools.JavaFileObject;
+import javax.tools.StandardJavaFileManager;
+import javax.tools.ToolProvider;
 import javax.ws.rs.POST;
 import javax.ws.rs.Path;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldType;
@@ -104,6 +114,67 @@ import io.swagger.annotations.SwaggerDefinition;
 @Api(value = "Grouper", description = "Integrate with the Grouper registry")
 public class GrouperService {
 
+//  public static void main(String[] args) throws Exception {
+//    Class clazz = GrouperService.class;
+//    //    JavaCompiler compiler = ToolProvider.getSystemJavaCompiler();
+//    //    StandardJavaFileManager fileManager = compiler.getStandardFileManager(null, null, StandardCharsets.UTF_8);
+//    //    Iterable<? extends JavaFileObject> compilationUnits = fileManager.getJavaFileObjectsFromFiles(Arrays.asList(new File(filename)));
+//    //    JavacTask javacTask = 
+//    //        (JavacTask) compiler.getTask(null, fileManager, null, null, null, compilationUnits);
+//    //      Iterable<? extends CompilationUnitTree> compilationUnitTrees = javacTask.parse();
+//    String methodIn = "clientVersion, String attributeAssignType, String wsAttributeDefNameName, String wsAttributeDefNameId, String attributeAssignOperation, String valueId, String valueSystem, String valueFormatted, String assignmentNotes, String assignmentEnabledTime, String assignmentDisabledTime, String delegatable, String attributeAssignValueOperation, String wsAttributeAssignId, String wsOwnerGroupName, String wsOwnerGroupId, String wsOwnerStemName, String wsOwnerStemId, String wsOwnerSubjectId, String wsOwnerSubjectSourceId, String wsOwnerSubjectIdentifier, String wsOwnerMembershipId, String wsOwnerMembershipAnyGroupName, String wsOwnerMembershipAnyGroupId, String wsOwnerMembershipAnySubjectId, String wsOwnerMembershipAnySubjectSourceId, String wsOwnerMembershipAnySubjectIdentifier, String wsOwnerAttributeDefName, String wsOwnerAttributeDefId, String wsOwnerAttributeAssignId, String action, String actAsSubjectId, String actAsSubjectSourceId, String actAsSubjectIdentifier, String includeSubjectDetail, String subjectAttributeNames, String includeGroupDetail, String paramName0, String paramValue0, String paramName1, String paramValue1";
+//    String[] methodSplit = methodIn.split(", String ");
+//
+//    for (Method method : clazz.getMethods()) {
+//
+//      if (!method.getName().endsWith("Lite")) {
+//        continue;
+//      }
+//
+//      Set<String> paramNames = new HashSet<String>();
+//      for (Annotation annotation : method.getAnnotations()) {
+//
+//        //        @ApiImplicitParams({
+//        //          @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
+//        //              value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
+//
+//        if (annotation instanceof ApiImplicitParams) {
+//          ApiImplicitParams apiImplicitParams = (ApiImplicitParams) annotation;
+//          if (apiImplicitParams.value() == null) {
+//            continue;
+//          }
+//          for (ApiImplicitParam apiImplicitParam : apiImplicitParams.value()) {
+//            if (paramNames.contains(apiImplicitParam.name())) {
+//              System.out.println("duplicateParamName: " + method.getName() + ": "
+//                  + apiImplicitParam.name());
+//            } else {
+//              paramNames.add(apiImplicitParam.name());
+//            }
+//          }
+//
+//        }
+//
+//      }
+//      //only print problematic methods and desired method
+//      if ((method.getParameterCount() != paramNames.size() - 1)
+//          && method.getName().equals("assignAttributesLite")) {
+//
+//        System.out.println("Method: " + method.getName() + ", params: "
+//            + method.getParameterCount() + ", swaggerParams: " + paramNames.size());
+//
+//        for (String par : methodSplit) {
+//          if (!paramNames.contains(par)) {
+//            System.out.println("Swagger is missing: " + par);
+//          }
+//        }
+//      }
+//    }
+//  }
+  
+
+    
+  
+  
   /** 
    * default
    */
@@ -186,8 +257,8 @@ public class GrouperService {
   @POST
   @Path("/grouper-ws/servicesRest/vF_G_UPL/groups")
   @ApiOperation(httpMethod = "POST", value = "Find groups lite", nickname = "findGroupsLite", response = WsFindGroupsResultsWrapper.class,
-  notes = "<b>Sample 1</b>: Find by substring in a folder<br /><pre>POST /grouper-ws/servicesRest/v2_6_001/groups<br /><b>wsLiteObjectType</b>=WsRestFindGroupsLiteRequest&amp;<b>"
-      + "groupName</b>=aGr&amp;<b>queryFilterType</b>=FIND_BY_GROUP_NAME_APPROXIMATE&amp;<b>stemName</b>=aStem</pre>") 
+  notes = "<b>Description</b>: Find groups search for groups based on name, attribute, parent stem, etc. Can build queries with group math (AND / OR / MINUS)"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Groups'>wiki</a> and go to samples to see requests and responses") 
   @ApiResponses({@ApiResponse(code = 200, message = "SUCCESS", response = WsFindGroupsResultsWrapper.class),
                 @ApiResponse(code = 400, message = "INVALID_QUERY", response = WsFindGroupsResultsWrapperError.class),
                 @ApiResponse(code = 404, message = "STEM_NOT_FOUND", response = WsFindGroupsResultsWrapperError.class),
@@ -473,9 +544,10 @@ public class GrouperService {
    * @return the members, or no members if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_MEL/")
+  @Path("/grouper-ws/servicesRest/vG_E_MEL/members")
   @ApiOperation(httpMethod = "POST", value = "Get members lite", nickname = "getMembersLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get members will retrieve subjects assigned to a group."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -527,7 +599,21 @@ public class GrouperService {
         + "This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now."
         + "Format: yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000"),
     @ApiImplicitParam(required = false, name = "memberFilter", dataType = "String", paramType = "form", 
-    value = "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)", example = "Effective")
+    value = "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)", example = "Effective"),
+    @ApiImplicitParam(required = false, name = "sortString", dataType = "String", paramType = "form", 
+    value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+    example = "name | displayName | extension | displayExtension"),
+    @ApiImplicitParam(required = false, name = "ascending", dataType = "String", paramType = "form", 
+    value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "groupName", dataType = "String", paramType = "form", 
+    value = "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this", example = "some:group:name"),
+    @ApiImplicitParam(required = false, name = "subjectAttributeNames", dataType = "String", paramType = "form", 
+    value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). "
+        + "Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName"),
+    @ApiImplicitParam(required = false, name = "sourceIds", dataType = "String", paramType = "form", 
+    value = "comma separated source ids or null for all", example = "schoolPerson, g:gsa"),
+    @ApiImplicitParam(required = false, name = "pointInTimeRetrieve", dataType = "String", paramType = "form", 
+    value = "true means retrieve point in time records", example = "T|F"),
   })
    
     
@@ -956,9 +1042,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vS_T_DEL/")
+  @Path("/grouper-ws/servicesRest/vS_T_DEL/stems")
   @ApiOperation(httpMethod = "POST", value = "Stem delete lite", nickname = "stemDeleteLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Stem delete will insert or update a stem's uuid, extension, display name, or description (with restrictions)"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -1047,9 +1134,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_R_DEL/")
+  @Path("/grouper-ws/servicesRest/vG_R_DEL/groups")
   @ApiOperation(httpMethod = "POST", value = "Group delete lite", nickname = "groupDeleteLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Group delete will insert or update a group's uuid, extension, display name, or description (with restrictions)"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -1239,9 +1327,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_R_SAL/")
+  @Path("/grouper-ws/servicesRest/vG_R_SAL/groups")
   @ApiOperation(httpMethod = "POST", value = "Group save lite", nickname = "groupSaveLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Group save will insert or update a group's uuid, extension, display name, or description (with restrictions)."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -1277,7 +1366,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
     value = "Id in UI, groupUuid search by group uuid (must match exactly)", example = "abc123"),
     @ApiImplicitParam(required = false, name = "displayExtension", dataType = "String", paramType = "form", 
-    value = "display name of the group, empty will be ignored", example = ""),
+    value = "display name of the group, empty will be ignored", example = "My Group"),
     @ApiImplicitParam(required = false, name = "description", dataType = "String", paramType = "form", 
     value = "descirption of the group, empty will be ignored", example = ""),
     @ApiImplicitParam(required = false, name = "enabledTime", dataType = "String", paramType = "form", 
@@ -1369,9 +1458,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vS_T_SAL/")
+  @Path("/grouper-ws/servicesRest/vS_T_SAL/stems")
   @ApiOperation(httpMethod = "POST", value = "Stem save lite", nickname = "stemSaveLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Stem save will insert or update a stem's uuid, extension, display name, or description (with restrictions)"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -1399,7 +1489,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
     value = "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this", example = "some:stem:name"),
     @ApiImplicitParam(required = false, name = "displayExtension", dataType = "String", paramType = "form", 
-    value = "display name of the stem", example = "!!"),
+    value = "display name of the stem", example = "My Folder"),
     @ApiImplicitParam(required = false, name = "description", dataType = "String", paramType = "form", 
     value = "descirption of the stem, empty will be ignored", example = ""),
     @ApiImplicitParam(required = false, name = "saveMode", dataType = "String", paramType = "form", 
@@ -1891,9 +1981,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_GRL/")
+  @Path("/grouper-ws/servicesRest/vG_E_GRL/groups")
   @ApiOperation(httpMethod = "POST", value = "Get groups lite", nickname = "getGroupsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get groups will get the groups that a subject is in"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Groups'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -1952,18 +2043,22 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "stemScope", dataType = "String", paramType = "form", 
     value = "is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath. You must pass stemScope if you pass a stem", example = "ONE_LEVEL"),
     @ApiImplicitParam(required = false, name = "subjectSourceId", dataType = "String", paramType = "form", 
-    value = "the Id of the subjectSource to be added", example = "schoolPerson"),
+    value = "the Id of the subjectSource to be found", example = "schoolPerson"),
     @ApiImplicitParam(required = false, name = "subjectIdentifier", dataType = "String", paramType = "form", 
-    value = "subjectIdentifier to be added, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
+    value = "subjectIdentifier to be found, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "subjectId", dataType = "String", paramType = "form", 
-    value = "subjectId to be added, mutually exclusive with subjectIdentifier, one of the two is required", example = "12345678"),
+    value = "subjectId to be found, mutually exclusive with subjectIdentifier, one of the two is required", example = "12345678"),
     @ApiImplicitParam(required = false, name = "includeSubjectDetail", dataType = "String", paramType = "form", 
     value = "If the subject detail should be returned (anything more than ID), default to false", example = "T|F"),
     @ApiImplicitParam(required = false, name = "stemUuid", dataType = "String", paramType = "form", 
     value = "Id in UI, stemUuid search by stem uuid (must match exactly)", example = "abc123"),
     @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
     value = "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this", example = "some:stem:name"),
-
+    @ApiImplicitParam(required = false, name = "sortString", dataType = "String", paramType = "form", 
+    value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+    example = "name | displayName | extension | displayExtension"),
+    @ApiImplicitParam(required = false, name = "ascending", dataType = "String", paramType = "form", 
+    value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F"),
   })
   public WsGetGroupsLiteResult getGroupsLite(final String clientVersion, String subjectId,
       String subjectSourceId, String subjectIdentifier, String memberFilter,
@@ -2082,9 +2177,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_A_MEL/")
+  @Path("/grouper-ws/servicesRest/vA_A_MEL/members")
   @ApiOperation(httpMethod = "POST", value = "Add member lite", nickname = "addMemberLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -2096,6 +2192,9 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
     value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
         + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
+    @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
+        + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
     @ApiImplicitParam(required = false, name = "paramName0", dataType = "String", paramType = "form", 
     value = "Optional params for this request", example = "NA"),
     @ApiImplicitParam(required = false, name = "paramValue0", dataType = "String", paramType = "form", 
@@ -2128,6 +2227,7 @@ public class GrouperService {
     value = "T or F (default F), if this is a search by id or identifier, with no source, or the external source,and the subject is not found, then add an external subject (if the user is allowed) defaults to false", example = "T"),
     @ApiImplicitParam(required = false, name = "subjectAttributeNames", dataType = "String", paramType = "form", 
     value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
+    
   })
   public WsAddMemberLiteResult addMemberLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String subjectSourceId,
@@ -2421,9 +2521,10 @@ public class GrouperService {
      * @return the result of one member query
      */
     @POST
-    @Path("/grouper-ws/servicesRest/vH_M_EML/")
+    @Path("/grouper-ws/servicesRest/vH_M_EML/members")
     @ApiOperation(httpMethod = "POST", value = "Has member lite", nickname = "hasMemberLite", //response = .class,
-    notes = "<b>Sample 1</b>: ") 
+    notes = "<b>Description</b>: Has member will see if a group contains a subject as a member"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses") 
     @ApiImplicitParams({
       @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
           value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -2435,9 +2536,6 @@ public class GrouperService {
       @ApiImplicitParam(required = false, name = "actAsSubjectSourceId", dataType = "String", paramType = "form", 
       value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), "
           + "specify the subject source ID (get this from the UI or your Grouper admin)", example = "myInstitutionPeople"),
-      @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
-      value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
-          + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
       @ApiImplicitParam(required = false, name = "actAsSubjectIdentifier", dataType = "String", paramType = "form", 
       value = "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user "
           + "subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)", example = "jsmith"),
@@ -2470,8 +2568,13 @@ public class GrouperService {
           + "This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now."
           + "Format: yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000"),
       @ApiImplicitParam(required = false, name = "memberFilter", dataType = "String", paramType = "form", 
-      value = "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)", example = "Effective")
-
+      value = "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)", example = "Effective"),
+      @ApiImplicitParam(required = false, name = "subjectSourceId", dataType = "String", paramType = "form", 
+      value = "the Id of the subjectSource of the entitity to be found", example = "schoolPerson"),
+      @ApiImplicitParam(required = false, name = "subjectIdentifier", dataType = "String", paramType = "form", 
+      value = "subjectIdentifier of entity to be found, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
+      @ApiImplicitParam(required = false, name = "subjectId", dataType = "String", paramType = "form", 
+      value = "subjectId of entity to be found, mutually exclusive with subjectIdentifier, one of the two is required", example = "12345678"),
     })
     public WsHasMemberLiteResult hasMemberLite(final String clientVersion, String groupName,
         String groupUuid, String subjectId, String subjectSourceId, String subjectIdentifier,
@@ -2569,9 +2672,10 @@ public class GrouperService {
    * @return the result of one member query
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vM_C_SUL/")
+  @Path("/grouper-ws/servicesRest/vM_C_SUL/members")
   @ApiOperation(httpMethod = "POST", value = "Member change subject lite", nickname = "memberChangeSubjectLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -2599,17 +2703,17 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "deleteOldMember", dataType = "String", paramType = "form", 
     value = "T/F or TRUE/FALSE (Case sensitive) true means delete subject that was changed, false means keep, defaults to true", example = "T"),
     @ApiImplicitParam(required = false, name = "oldSubjectSourceId", dataType = "String", paramType = "form", 
-    value = "the old Id of the subjectSource of the person to be added, recommended", example = "schoolPerson"),
+    value = "the old Id of the subjectSource of the person to be changed, recommended", example = "schoolPerson"),
     @ApiImplicitParam(required = false, name = "oldSubjectIdentifier", dataType = "String", paramType = "form", 
-    value = "Old subjectIdentifier of entity to be added, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
+    value = "Old subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "oldsubjectId", dataType = "String", paramType = "form", 
-    value = "Old subjectId of entity to be added, mutually exclusive with subjectIdentifier, one of the two is required (preferred)", example = "12345678"),
+    value = "Old subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)", example = "12345678"),
     @ApiImplicitParam(required = false, name = "newSubjectSourceId", dataType = "String", paramType = "form", 
-    value = "the new Id of the subjectSource of the person to be added, recommended", example = "schoolPerson"),
+    value = "the new Id of the subjectSource of the person to be changed, recommended", example = "schoolPerson"),
     @ApiImplicitParam(required = false, name = "newSubjectIdentifier", dataType = "String", paramType = "form", 
-    value = "New subjectIdentifier of entity to be added, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
+    value = "New subjectIdentifier of entity to be changed, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "newSubjectId", dataType = "String", paramType = "form", 
-    value = "New subjectId of entity to be added, mutually exclusive with subjectIdentifier, one of the two is required (preferred)", example = "12345678"),
+    value = "New subjectId of entity to be changed, mutually exclusive with subjectIdentifier, one of the two is required (preferred)", example = "12345678"),
     @ApiImplicitParam(required = false, name = "subjectAttributeNames", dataType = "String", paramType = "form", 
     value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName"),
   })
@@ -2761,9 +2865,10 @@ public class GrouperService {
    * @return the result of one member delete
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vD_M_EML/")
+  @Path("/grouper-ws/servicesRest/vD_M_EML/members")
   @ApiOperation(httpMethod = "POST", value = "Delete member lite", nickname = "deleteMemberLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -2798,8 +2903,6 @@ public class GrouperService {
     value = "subjectIdentifier of entity to be deleted, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "subjectId", dataType = "String", paramType = "form", 
     value = "subjectId of entity to be deleted, mutually exclusive with subjectIdentifier, one of the two is required", example = "12345678"),
-    @ApiImplicitParam(required = false, name = "groupUuid", dataType = "String", paramType = "form", 
-    value = "Id in UI, groupUuid search by group uuid (must match exactly)", example = "abc123"),
     @ApiImplicitParam(required = false, name = "groupName", dataType = "String", paramType = "form", 
     value = "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this", example = "some:group:name"),
     @ApiImplicitParam(required = false, name = "subjectAttributeNames", dataType = "String", paramType = "form", 
@@ -2896,9 +2999,10 @@ public class GrouperService {
    * @return the stems, or no stems if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_S_EML/")
+  @Path("/grouper-ws/servicesRest/vF_S_EML/stems")
   @ApiOperation(httpMethod = "POST", value = "Find stems lite", nickname = "findStemsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Find stems search for stems based on name, attribute, parent stem, etc. Can build queries with group math (AND / OR / MINUS)"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Stems'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -2909,9 +3013,9 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
     value = "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this", example = "some:stem:name"),
     @ApiImplicitParam(required = false, name = "stemAttributeName", dataType = "String", paramType = "form", 
-    value = "if searching by attribute, this is name,or null for all attributes", example = "!!"),
+    value = "if searching by attribute, this is name,or null for all attributes", example = "etc:attributes:someAttributeName"),
     @ApiImplicitParam(required = false, name = "stemAttributeValue", dataType = "String", paramType = "form", 
-    value = "if searching by attribute, this is the value", example = "!!"),
+    value = "if searching by attribute, this is the value", example = "someValue"),
     @ApiImplicitParam(required = false, name = "parentStemName", dataType = "String", paramType = "form", 
     value = "will return stems in this stem. can be used with various query types", example = "some:stem:name"),
     @ApiImplicitParam(required = false, name = "parentStemNameScope", dataType = "String", paramType = "form", 
@@ -3023,9 +3127,10 @@ public class GrouperService {
    * @return the result of one member query
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_GPL/")
+  @Path("/grouper-ws/servicesRest/vG_E_GPL/grouperPrivileges")
   @ApiOperation(httpMethod = "POST", value = "Get grouper privileges lite", nickname = "getGrouperPrivilegesLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: \"Get grouper privileges\" will retrieve the privileges for a subject and or (group or stem)."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+grouper+privileges'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -3060,6 +3165,18 @@ public class GrouperService {
     value = "Name of the privilege", example = "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate"),
     @ApiImplicitParam(required = false, name = "privilegeType", dataType = "String", paramType = "form", 
     value = "Type of privilege, (e.g. access for groups and naming for stems)", example = "access"),
+    @ApiImplicitParam(required = false, name = "groupName", dataType = "String", paramType = "form", 
+    value = "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this", example = "some:group:name"),
+    @ApiImplicitParam(required = false, name = "stemUuid", dataType = "String", paramType = "form", 
+    value = "Id in UI, stemUuid search by stem uuid (must match exactly)", example = "abc123"),
+    @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
+    value = "Id path in UI, stemName search by stem name (must match exactly), cannot use other params with this", example = "some:stem:name"),
+    @ApiImplicitParam(required = false, name = "subjectSourceId", dataType = "String", paramType = "form", 
+    value = "the Id of the subjectSource of the entity to get privileges of", example = "schoolPerson"),
+    @ApiImplicitParam(required = false, name = "subjectIdentifier", dataType = "String", paramType = "form", 
+    value = "subjectIdentifier of entity to get privileges of, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
+    @ApiImplicitParam(required = false, name = "subjectId", dataType = "String", paramType = "form", 
+    value = "subjectId of entity to get privileges of, mutually exclusive with subjectIdentifier, one of the two is required", example = "12345678"),
   })
   public WsGetGrouperPrivilegesLiteResult getGrouperPrivilegesLite(String clientVersion, 
       String subjectId, String subjectSourceId, String subjectIdentifier,
@@ -3179,9 +3296,10 @@ public class GrouperService {
    * @return the result of one member query
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_G_PRL/")
+  @Path("/grouper-ws/servicesRest/vA_G_PRL/grouperPrivileges")
   @ApiOperation(httpMethod = "POST", value = "Assign grouper privileges lite", nickname = "assignGrouperPrivilegesLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Will assign privileges for a subject and (group or stem).  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+or+remove+grouper+privileges'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -3219,13 +3337,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "includeSubjectDetail", dataType = "String", paramType = "form", 
     value = "If the subject detail should be returned (anything more than ID), default to false", example = "T|F"),
     @ApiImplicitParam(required = false, name = "subjectAttributeNames", dataType = "String", paramType = "form", 
-    value = "are the additional subject attributes (data) to return.If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)", example = "!!"),
-    @ApiImplicitParam(required = false, name = "subjectSourceId", dataType = "String", paramType = "form", 
-    value = "the Id of the subjectSource of the person to assign privileges", example = "schoolPerson"),
-    @ApiImplicitParam(required = false, name = "subjectIdentifier", dataType = "String", paramType = "form", 
-    value = "subjectIdentifier of entity to have privileges assigned, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
-    @ApiImplicitParam(required = false, name = "subjectId", dataType = "String", paramType = "form", 
-    value = "subjectId of entity to have privileges assigned, mutually exclusive with subjectIdentifier, one of the two is required", example = "12345678"),
+    value = "are the additional subject attributes (data) to return.If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated)", example = "lastName"),
     @ApiImplicitParam(required = false, name = "privilegeName", dataType = "String", paramType = "form", 
     value = "Name of the privilege", example = "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate"),
     @ApiImplicitParam(required = false, name = "privilegeType", dataType = "String", paramType = "form", 
@@ -3570,9 +3682,10 @@ public class GrouperService {
    * @return the memberships, or none if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_MSL/")
+  @Path("/grouper-ws/servicesRest/vG_E_MSL/memberships")
   @ApiOperation(httpMethod = "POST", value = "Get memberships lite", nickname = "getMembershipsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get memberships will retrieve membership objects by group, by subject, or by id (or a combination)."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Memberships'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -3632,7 +3745,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "sourceId", dataType = "String", paramType = "form", 
     value = "sourceId of subject to search for memberships, or null to not restrict", example = "schoolPerson"),
     @ApiImplicitParam(required = false, name = "sourceIds", dataType = "String", paramType = "form", 
-    value = "are comma separated sourceIds", example = "schoolPerson, schoolIndividual"),
+    value = "are comma separated sourceIds", example = "schoolPerson, g:gsa"),
     @ApiImplicitParam(required = false, name = "subjectIdentifier", dataType = "String", paramType = "form", 
     value = "Identifier of subject to search for memberships, or null to not restrict", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "subjectId", dataType = "String", paramType = "form", 
@@ -3643,7 +3756,7 @@ public class GrouperService {
     value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). "
         + "Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName"),
     @ApiImplicitParam(required = false, name = "scope", dataType = "String", paramType = "form", 
-    value = "is a sql like string which will have a percent % concatenated to the end for groupnames to search in (or stem names)", example = "!!"),
+    value = "is a sql like string which will have a percent % concatenated to the end for groupnames to search in (or stem names)", example = "someApp someGroupExtension"),
     @ApiImplicitParam(required = false, name = "stemName", dataType = "String", paramType = "form", 
     value = "Name of stem to limit the search to (in or under)", example = "some:stem:name"),
     @ApiImplicitParam(required = false, name = "stemUuid", dataType = "String", paramType = "form", 
@@ -3651,21 +3764,21 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "stemScope", dataType = "String", paramType = "form", 
     value = "is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath. You must pass stemScope if you pass a stem", example = "ONE_LEVEL"),
     @ApiImplicitParam(required = false, name = "membershipIds", dataType = "String", paramType = "form", 
-    value = "comma separated list of membershipIds to retrieve", example = "!!"),
+    value = "comma separated list of membershipIds to retrieve", example = "a1b2, c3d4, e5f6"),
     @ApiImplicitParam(required = false, name = "ownerStemUuid", dataType = "String", paramType = "form", 
     value = "if looking for privileges on stems, put the stem uuid here", example = "abc123"),
     @ApiImplicitParam(required = false, name = "ownerStemName", dataType = "String", paramType = "form", 
     value = "if looking for privileges on stems, put the stem name to look for here", example = "some:stem:name"),
     @ApiImplicitParam(required = false, name = "nameOfOwnerAttributeDef", dataType = "String", paramType = "form", 
-    value = "if looking for privileges on attribute definitions, put the name of the attribute definition here", example = "!!"),
+    value = "if looking for privileges on attribute definitions, put the name of the attribute definition here", example = "a:b:c:myAttributeDef"),
     @ApiImplicitParam(required = false, name = "ownerAttributeDefUuid", dataType = "String", paramType = "form", 
-    value = "if looking for privileges on attribute definitions, put the uuid of the attribute definition here", example = "!!"),
+    value = "if looking for privileges on attribute definitions, put the uuid of the attribute definition here", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "serviceRole", dataType = "String", paramType = "form", 
-    value = "to filter attributes that a user has a certain role", example = "!!"),
+    value = "to filter attributes that a user has a certain role", example = "member"),
     @ApiImplicitParam(required = false, name = "serviceId", dataType = "String", paramType = "form", 
-    value = "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName", example = "!!"),
+    value = "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceName", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "serviceName", dataType = "String", paramType = "form", 
-    value = "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId", example = "!!"),
+    value = "if filtering by users in a service, then this is the service to look in, mutually exclusive with serviceId", example = "a:b:c:myService"),
     @ApiImplicitParam(required = false, name = "sortString", dataType = "String", paramType = "form", 
     value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
     example = "name | displayName | extension | displayExtension"),
@@ -3689,16 +3802,9 @@ public class GrouperService {
     value = "Could be: string, int, long, date, timestamp, in members part", example = "string|int|long|date|timestamp"),
     @ApiImplicitParam(required = false, name = "pageCursorFieldIncludesLastRetrievedForMember", dataType = "String", paramType = "form", 
     value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F"),
-    @ApiImplicitParam(required = false, name = "pointInTimeFrom", dataType = "String", paramType = "form", 
-    value = "To query permissions at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. "
-        + "This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now."
-        + "Format: yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000"),
-    @ApiImplicitParam(required = false, name = "pointInTimeTo", dataType = "String", paramType = "form", 
-    value = "To query permission at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. "
-        + "This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now."
-        + "Format: yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000"),
-    @ApiImplicitParam(required = false, name = "pointInTimeRetrieve", dataType = "String", paramType = "form", 
+        @ApiImplicitParam(required = false, name = "pointInTimeRetrieve", dataType = "String", paramType = "form", 
     value = "true means retrieve point in time records", example = "T|F"),
+        
   })
   public WsGetMembershipsResults getMembershipsLite(final String clientVersion,
       String groupName, String groupUuid, String subjectId, String sourceId, String subjectIdentifier, 
@@ -3920,9 +4026,10 @@ public class GrouperService {
    * @return the results or none if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_SUL/")
+  @Path("/grouper-ws/servicesRest/vG_E_SUL/subjects")
   @ApiOperation(httpMethod = "POST", value = "Get subjects lite", nickname = "getSubjectsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get subjects will retrieve subject objects by subject lookups (source (optional), id or identifier), or by search string (free-form string that sources can search on), and optionally a list of sources to narrow the search"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Subjects'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -3958,9 +4065,9 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "fieldName", dataType = "String", paramType = "form", 
     value = "If the entity added to a certain field membership of the group", example = "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"),
     @ApiImplicitParam(required = false, name = "searchString", dataType = "String", paramType = "form", 
-    value = "free form string query to find a list of subjects (exact behavior depends on source)", example = "!!"),
+    value = "free form string query to find a list of subjects (exact behavior depends on source)", example = "john smith"),
     @ApiImplicitParam(required = false, name = "sourceIds", dataType = "String", paramType = "form", 
-    value = "are comma separated sourceIds for a searchString", example = "!!"),
+    value = "are comma separated sourceIds for a searchString", example = "schoolPerson, g:gsa"),
     @ApiImplicitParam(required = false, name = "includeSubjectDetail", dataType = "String", paramType = "form", 
     value = "If the subject detail should be returned (anything more than ID), default to false", example = "T|F"),
     @ApiImplicitParam(required = false, name = "subjectAttributeNames", dataType = "String", paramType = "form", 
@@ -3970,8 +4077,6 @@ public class GrouperService {
     value = "groupName search by group name (must match exactly), cannot use other params with this", example = "some:group:name"),
     @ApiImplicitParam(required = false, name = "wsMemberFilter", dataType = "String", paramType = "form", 
     value = "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)", example = "Effective"),
-    @ApiImplicitParam(required = false, name = "includeGroupDetail", dataType = "String", paramType = "form", 
-    value = "If the group detail should be returned, default to false", example = "T|F"),
   })
   public WsGetSubjectsResults getSubjectsLite(final String clientVersion,
       String subjectId, String sourceId, String subjectIdentifier, String searchString,
@@ -4311,7 +4416,7 @@ public class GrouperService {
    * floating, integer, memberId, string, timestamp
    * @param attributeDefValueType required if sending theValue, can be:
    * floating, integer, memberId, string, timestamp
-   * @param theValue value if you are passing in one attributeDefNameLookup
+   * @param theValue value assigned to an attribute that you are searching for
    * @param includeAssignmentsFromAssignments T|F if you are finding an assignment that is an assignmentOnAssignment,
    * then get the assignment which tells you the owner as well
    * @param attributeDefType null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm
@@ -4325,9 +4430,10 @@ public class GrouperService {
    */
   @SuppressWarnings("unchecked")
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_ABL/")
+  @Path("/grouper-ws/servicesRest/vG_E_ABL/attributeAssignments")
   @ApiOperation(httpMethod = "POST", value = "Get attribute assignments lite", nickname = "getAttributeAssignmentsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), or attribute definitions.  If you want to retrieve attribute assignments assigned to other attributes, then pass a flag to the assignment lookup to include assignments on the returned assignments."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assignments'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -4380,6 +4486,8 @@ public class GrouperService {
     value = "subjectIdentifier of the subject to look in, mutually exclusive with wsOwnerSubjectId, one of the two is required", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "wsOwnerSubjectId", dataType = "String", paramType = "form", 
     value = "subjectId of subject to look in, mutually exclusive with wsOwnerSubjectIdentifier, one of the two is required", example = "12345678"),
+    @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnySubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "to query attributes in \"any\" membership which is on immediate or effective membership", example = "12345678"),
     @ApiImplicitParam(required = false, name = "wsOwnerMembershipId", dataType = "String", paramType = "form", 
     value = "to query attributes on immediate membership", example = "12345678"),
     @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnyGroupName", dataType = "String", paramType = "form", 
@@ -4390,10 +4498,8 @@ public class GrouperService {
     value = "to query attributes in 'any' membership which is on immediate or effective membership", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnySubjectSourceId", dataType = "String", paramType = "form", 
     value = "to query attributes in 'any' membership which is on immediate or effective membership", example = "myInsitutionPeople"),
-    @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnySubjectSourceId", dataType = "String", paramType = "form", 
-    value = "to query attributes in 'any' membership which is on immediate or effective membership", example = "jsmith"),
     @ApiImplicitParam(required = false, name = "wsOwnerAttributeDefName", dataType = "String", paramType = "form", 
-    value = "to query attributes assigned on attribute def", example = "!!"),
+    value = "to query attributes assigned on attribute def", example = "a:b:c:myAttributeName"),
     @ApiImplicitParam(required = false, name = "wsOwnerAttributeDefId", dataType = "String", paramType = "form", 
     value = "to query attributes assigned on attribute def", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "action", dataType = "String", paramType = "form", 
@@ -4408,7 +4514,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "attributeDefValueType", dataType = "String", paramType = "form", 
     value = "required if sending theValue, can be:floating, integer, memberId, string, timestamp", example = "integer"),
     @ApiImplicitParam(required = false, name = "theValue", dataType = "String", paramType = "form", 
-    value = "value if you are passing in one attributeDefNameLookup", example = "!!"),
+    value = "value assigned to an attribute that you are searching for", example = "myValue"),
     @ApiImplicitParam(required = false, name = "includeAssignmentsFromAssignments", dataType = "String", paramType = "form", 
     value = "T|F if you are finding an assignment that is an assignmentOnAssignment,then get the assignment which tells you the owner as well", example = "T|F"),
     @ApiImplicitParam(required = false, name = "attributeDefType", dataType = "String", paramType = "form", 
@@ -4418,13 +4524,13 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "wsAssignAssignOwnerIdOfAttributeDef", dataType = "String", paramType = "form", 
     value = "if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsAssignAssignOwnerNameOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to", example = "!!"),
+    value = "if looking for assignments on assignments, this is the attribute definition of the assignment the assignment is assigned to", example = "a:b:c:myAttributeDef"),
     @ApiImplicitParam(required = false, name = "wsAssignAssignOwnerIdOfAttributeDefName", dataType = "String", paramType = "form", 
     value = "if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsAssignAssignOwnerNameOfAttributeDefName", dataType = "String", paramType = "form", 
-    value = "if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to", example = "!!"),
+    value = "if looking for assignments on assignments, this is the attribute def name of the assignment the assignment is assigned to", example = "a:b:c:myAttributeName"),
     @ApiImplicitParam(required = false, name = "wsAssignAssignOwnerAction", dataType = "String", paramType = "form", 
-    value = "if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to", example = "!!"),
+    value = "if looking for assignments on assignments, this is the action of the assignment the assignment is assigned to", example = "canLogin"),
  
   })
   public WsGetAttributeAssignmentsResults getAttributeAssignmentsLite(
@@ -4625,9 +4731,10 @@ public class GrouperService {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_ABL/")
+  @Path("/grouper-ws/servicesRest/vG_E_ABL/attributeAssignActions")
   @ApiOperation(httpMethod = "POST", value = "Get attribute assign actions lite", nickname = "getAttributeAssignActionsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get attribute assign actions will give you the permission actions associated with a Permission Definition (AttributeDef).  This service is available in version v2.3.0+."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assign+Actions'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -4653,11 +4760,11 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "action", dataType = "String", paramType = "form", 
     value = "action to query, or none to query all actions", example = "read"),
     @ApiImplicitParam(required = false, name = "wsNameOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "find assignActions in this attribute def", example = "!!"),
+    value = "find assignActions in this attribute def", example = "a:b:c:myAttributeDef"),
     @ApiImplicitParam(required = false, name = "wsIdOfAttributeDef", dataType = "String", paramType = "form", 
     value = "find assignActions in this attribute def", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsIdIndexOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "find assignActions in this attribute def", example = "!!"),
+    value = "find assignActions in this attribute def", example = "10009"),
     
   })
   public WsGetAttributeAssignActionsResults getAttributeAssignActionsLite(
@@ -4923,9 +5030,10 @@ public class GrouperService {
    */
   @SuppressWarnings("unchecked")
   @POST
-  @Path("/grouper-ws/servicesRest/vA_E_ATL/")
+  @Path("/grouper-ws/servicesRest/vA_E_ATL/attributeAssignments")
   @ApiOperation(httpMethod = "POST", value = "Assign attributes lite", nickname = "assignAttributesLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Assign or remove attributes and values of attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), attribute definitions, or on assignments of attributes (one level deep)."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attributes'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -4978,9 +5086,9 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "valueId", dataType = "String", paramType = "form", 
     value = "If removing, and id is specified, will only remove values with that id", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "valueSystem", dataType = "String", paramType = "form", 
-    value = "is value to add, assign, remove, etc", example = "!!"),
+    value = "is value to add, assign, remove, etc", example = "myValue"),
     @ApiImplicitParam(required = false, name = "valueFormatted", dataType = "String", paramType = "form", 
-    value = "is value to add, assign, remove, etc though not implemented yet", example = "!!"),
+    value = "is value to add, assign, remove, etc though not implemented yet", example = "myValue"),
     @ApiImplicitParam(required = false, name = "assignmentNotes", dataType = "String", paramType = "form", 
     value = "notes on the assignment (optional)", example = ""),
     @ApiImplicitParam(required = false, name = "assignmentEnabledTime", dataType = "String", paramType = "form", 
@@ -5004,17 +5112,17 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnySubjectId", dataType = "String", paramType = "form", 
     value = "to query attributes in 'any' membership which is on immediate or effective membership", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnySubjectSourceId", dataType = "String", paramType = "form", 
-    value = "to query attributes in 'any' membership which is on immediate or effective membership", example = "myInsitutionPeople"),
-    @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnySubjectSourceId", dataType = "String", paramType = "form", 
     value = "to query attributes in 'any' membership which is on immediate or effective membership", example = "jsmith"),
     @ApiImplicitParam(required = false, name = "wsOwnerAttributeDefName", dataType = "String", paramType = "form", 
-    value = "to query attributes assigned on attribute def", example = "!!"),
+    value = "to query attributes assigned on attribute def", example = "a:b:c:myAttributeDef"),
     @ApiImplicitParam(required = false, name = "wsOwnerAttributeDefId", dataType = "String", paramType = "form", 
     value = "to query attributes assigned on attribute def", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsOwnerAttributeAssignId", dataType = "String", paramType = "form", 
     value = "for assignment on assignment", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "includeSubjectDetail", dataType = "String", paramType = "form", 
     value = "If the subject detail should be returned (anything more than ID), default to false", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "wsOwnerMembershipAnySubjectIdentifier", dataType = "String", paramType = "form", 
+    value = "to query attributes in \"any\" membership which is on immediate or effective membership", example = "12345678"),
   })
   public WsAssignAttributesLiteResults assignAttributesLite(
       String clientVersion, String attributeAssignType,
@@ -5280,9 +5388,10 @@ public class GrouperService {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_PAL/")
+  @Path("/grouper-ws/servicesRest/vG_E_PAL/permissionAssignments")
   @ApiOperation(httpMethod = "POST", value = "Get permission assignments lite", nickname = "getPermissionAssignmentsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get permission assignments.  These permissions can be on roles or subjects (note if assignment is assigned directly to a subject, it is in the context of a role)."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Permission+Assignments'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -5320,20 +5429,16 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "wsAttributeDefId", dataType = "String", paramType = "form", 
     value = "find assignments in this attribute def", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "roleName", dataType = "String", paramType = "form", 
-    value = "Id of role to look in", example = "!!"),
+    value = "Id of role to look in", example = "a:b:c:powerUsers"),
     @ApiImplicitParam(required = false, name = "roleId", dataType = "String", paramType = "form", 
     value = "Name of role to look in", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsSubjectSourceId", dataType = "String", paramType = "form", 
-    value = "the Id of the subjectSource of the person to be added", example = "schoolPerson"),
+    value = "the Id of the subjectSource to look in", example = "schoolPerson"),
     @ApiImplicitParam(required = false, name = "wsSubjectIdentifier", dataType = "String", paramType = "form", 
     value = "Identifier of subject to look in", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "wsSubjectId", dataType = "String", paramType = "form", 
     value = "Id of subject to look in", example = "12345678"),
-    @ApiImplicitParam(required = false, name = "wsSubjectId", dataType = "String", paramType = "form", 
-    value = "Id of subject to look in", example = "12345678"),
     @ApiImplicitParam(required = false, name = "includeAttributeDefNames", dataType = "String", paramType = "form", 
-    value = "T or F for if attributeDefName objects should be returned", example = "T|F"),
-    @ApiImplicitParam(required = false, name = "includeAttributeAssignments", dataType = "String", paramType = "form", 
     value = "T or F for if attributeDefName objects should be returned", example = "T|F"),
     @ApiImplicitParam(required = false, name = "includeAssignmentsOnAssignments", dataType = "String", paramType = "form", 
     value = "if this is not querying assignments on assignments directly, but the assignmentsand assignments on those assignments should be returned, enter true. default to false.", example = "T|F"),
@@ -5597,9 +5702,10 @@ public class GrouperService {
    */
   @SuppressWarnings("unchecked")
   @POST
-  @Path("/grouper-ws/servicesRest/vA_H_PRL/")
+  @Path("/grouper-ws/servicesRest/vA_H_PRL/permissionAssignments")
   @ApiOperation(httpMethod = "POST", value = "Assign permissions lite", nickname = "assignPermissionsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Assign or remove permissions.  These permissions can be on roles or subjects (in the context of a role)."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Permissions'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -5627,9 +5733,9 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "permissionType", dataType = "String", paramType = "form", 
     value = "is role or role_subject from the PermissionType enum", example = "role"),
     @ApiImplicitParam(required = true, name = "permissionDefNameName", dataType = "String", paramType = "form", 
-    value = "attribute def name to assign to the owner", example = "!!"),
+    value = "attribute def name to assign to the owner", example = "a:b:c:myPermissionDef"),
     @ApiImplicitParam(required = true, name = "permissionDefNameId", dataType = "String", paramType = "form", 
-    value = "attribute def id to assign to the owner", example = "!!"),
+    value = "attribute def id to assign to the owner", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "permissionAssignmentOperation", dataType = "String", paramType = "form", 
     value = "operation to perform for permission on role or subject, from enum PermissionAssignOperation: assign_permission, remove_permission", example = "assign_permission"),
     @ApiImplicitParam(required = false, name = "assignmentNotes", dataType = "String", paramType = "form", 
@@ -5643,11 +5749,11 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "wsAttributeAssignId", dataType = "String", paramType = "form", 
     value = "if you know the assign id you want, put id here. lookup to remove etc", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "roleName", dataType = "String", paramType = "form", 
-    value = "is name of group to assign to for permissionType 'role'", example = "!!"),
+    value = "is name of group to assign to for permissionType 'role'", example = "member"),
     @ApiImplicitParam(required = false, name = "roleId", dataType = "String", paramType = "form", 
     value = "is id of group to assign to for permissionType 'role'", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "subjectRoleName", dataType = "String", paramType = "form", 
-    value = "is role name if assigning to subject, in the context of a role (for permissionType \"subject_role\")", example = "!!"),
+    value = "is role name if assigning to subject, in the context of a role (for permissionType \"subject_role\")", example = "member"),
     @ApiImplicitParam(required = false, name = "subjectRoleId", dataType = "String", paramType = "form", 
     value = "is role id if assigning to subject, in the context of a role (for permissionType \"subject_role\")", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "subjectRoleSubjectSourceId", dataType = "String", paramType = "form", 
@@ -5824,9 +5930,10 @@ public class GrouperService {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_D_ANL/")
+  @Path("/grouper-ws/servicesRest/vA_D_ANL/attributeDefNames")
   @ApiOperation(httpMethod = "POST", value = "Assign attribute def name inheritance lite", nickname = "assignAttributeDefNameInheritanceLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Assign attribute definition name inheritance based on lookups by name or ID. This is new as of Grouper v2.1.  Note: attribute definition name inheritance is only used for permissions (e.g. if the permission names are an org chart there would be inheritance)"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attribute+Definition+Name+Inheritance'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -6002,9 +6109,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_L_SAL/")
+  @Path("/grouper-ws/servicesRest/vA_L_SAL/attributeDefs")
   @ApiOperation(httpMethod = "POST", value = "Attribute def save lite", nickname = "attributeDefSaveLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Add or edit attribute definitions based on name or ID. This is new as of Grouper v2.3.0"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -6046,30 +6154,33 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "attributeDefType", dataType = "String", paramType = "form", 
     value = "null for all, or specify an AttributeDefType e.g. attr, limit, service, type, limit, perm", example = "attr"),
     @ApiImplicitParam(required = false, name = "assignToStemAssignment", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to a stem assignment", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToStem", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to a stem", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToMemberAssignment", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to a member assignment", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToMember", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to a member", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToImmediateMembershipAssignment", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to an immediate membership assignment", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToImmediateMembership", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to an immediate membership", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToGroupAssignment", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to a group assignment", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToGroup", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to a group", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToEffectiveMembershipAssignment", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to an effective membership assignment", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToEffectiveMembership", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to an effective membership", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToAttributeDefAssignment", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
+    value = "T|F if can assign this attribute to an attribute def assignment", example = "T|F"),
     @ApiImplicitParam(required = false, name = "assignToAttributeDef", dataType = "String", paramType = "form", 
-    value = "!!", example = "!!"),
-    
+    value = "T|F if can assign this attribute to an attribute def", example = "T|F"),
+    @ApiImplicitParam(required = false, name = "uuidOfAttributeDef", dataType = "String", paramType = "form", 
+    value = "find attribute defs associated with this attribute def uuid, mutually exclusive with nameOfAttributeDef", example = "a1b2c3d4"),
+    @ApiImplicitParam(required = false, name = "nameOfAttributeDef", dataType = "String", paramType = "form", 
+    value = "find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef", example = "a:b:c:myAttributeDef"),
   })
   public WsAttributeDefSaveLiteResult attributeDefSaveLite(final String clientVersion,
       String attributeDefLookupUuid, String attributeDefLookupName,
@@ -6091,7 +6202,7 @@ public class GrouperService {
 
     GrouperVersion grouperWsVersion = null;
 
-    try {
+    try { 
 
       if (GrouperServiceJ2ee.retrieveHttpServlet() instanceof GrouperServiceAxisServlet) {
         if (shouldLogSOAPDeprecationForSubject(GrouperServiceJ2ee.retrieveSubjectLoggedIn())) {
@@ -6225,9 +6336,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_I_DEL/")
+  @Path("/grouper-ws/servicesRest/vA_I_DEL/attributeDefs")
   @ApiOperation(httpMethod = "POST", value = "Attribute def delete lite", nickname = "attributeDefDeleteLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Delete attribute definitions based on name or ID. This is new as of Grouper v2.3.0"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -6251,11 +6363,11 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
     value = "Optional params for this request", example = "NA"),
     @ApiImplicitParam(required = false, name = "wsNameOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "name of attribute def to be deleted", example = "!!"),
+    value = "name of attribute def to be deleted", example = "a:b:c:myAttributeDef"),
     @ApiImplicitParam(required = false, name = "wsIdOfAttributeDef", dataType = "String", paramType = "form", 
     value = "Id of attribute def to be deleted", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "wsIdIndexOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "Id index of attribute def to be deleted", example = "!!"),
+    value = "Id index of attribute def to be deleted", example = "10009"),
   })
   public WsAttributeDefDeleteLiteResult attributeDefDeleteLite(
       final String clientVersion,
@@ -6434,9 +6546,10 @@ public class GrouperService {
    * @return the attribute defs, or no attribute defs if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_A_DSL/")
+  @Path("/grouper-ws/servicesRest/vF_A_DSL/attributeDefs")
   @ApiOperation(httpMethod = "POST", value = "Find attribute defs lite", nickname = "findAttributeDefsLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Find attribute definitions based on name or ID or other criteria. This is new as of Grouper v2.3.0"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definitions'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -6463,10 +6576,6 @@ public class GrouperService {
     value = "Optional params for this request", example = "NA"),
     @ApiImplicitParam(required = false, name = "paramValue1", dataType = "String", paramType = "form", 
     value = "Optional params for this request", example = "NA"),
-    @ApiImplicitParam(required = false, name = "pageSize", dataType = "String", paramType = "form", 
-    value = "Page size if paging", example = "100"),
-    @ApiImplicitParam(required = false, name = "pageNumber", dataType = "String", paramType = "form", 
-    value = "Page number 1 indexed if paging", example = "1"),
     @ApiImplicitParam(required = false, name = "sortString", dataType = "String", paramType = "form", 
     value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
     example = "name | displayName | extension | displayExtension"),
@@ -6483,22 +6592,22 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "privilegeName", dataType = "String", paramType = "form", 
     value = "Name of the privilege", example = "for groups: read, view, update, admin, optin, optout, groupAttrRead, groupAttrUpdate.  for stems: create, stemAttrRead, stemAdmin, stemView, stemAttrUpdate"),
     @ApiImplicitParam(required = false, name = "scope", dataType = "String", paramType = "form", 
-    value = "search string with % as wildcards will search name, display name, description", example = "!!"),
+    value = "search string with % as wildcards will search name, display name, description", example = "someApp someAttributeDefExtension"),
     @ApiImplicitParam(required = false, name = "splitScope", dataType = "String", paramType = "form", 
     value = "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, "
         + "it will returnschool:apps:pto_app:internal:the_permissions:whatever", example = "T|F"),
     @ApiImplicitParam(required = false, name = "uuidOfAttributeDef", dataType = "String", paramType = "form", 
     value = "find attribute defs associated with this attribute def uuid, mutually exclusive with nameOfAttributeDef", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "nameOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef", example = "!!"),
+    value = "find attribute defs associated with this attribute def name, mutually exclusive with idOfAttributeDef", example = "a:b:c:myAttributeDef"),
     @ApiImplicitParam(required = false, name = "idIndexOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "find attribute defs associated with this attribute def id index", example = "!!"),
+    value = "find attribute defs associated with this attribute def id index", example = "10009"),
     @ApiImplicitParam(required = false, name = "stemScope", dataType = "String", paramType = "form", 
-    value = "is if in this stem, or in any stem underneath. You must pass stemScope if you pass a stem", example = "!!"),
+    value = "is if in this stem, or in any stem underneath. You must pass stemScope if you pass a stem", example = "this:stem:name"),
     @ApiImplicitParam(required = false, name = "parentStemId", dataType = "String", paramType = "form", 
-    value = "will return sattribute defs in this stem", example = "a1b2c3d4"),
-    @ApiImplicitParam(required = false, name = "findbyUuidOrName", dataType = "String", paramType = "form", 
-    value = "!!", example = "!"),
+    value = "will return attribute defs in this stem", example = "a1b2c3d4"),
+    @ApiImplicitParam(required = false, name = "findByUuidOrName", dataType = "String", paramType = "form", 
+    value = "True for Uuid, false for name, defaults to name", example = "T|F"),
   })
   public WsFindAttributeDefsResults findAttributeDefsLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef,
@@ -6649,9 +6758,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_J_DEL/")
+  @Path("/grouper-ws/servicesRest/vA_J_DEL/attributeDefNames")
   @ApiOperation(httpMethod = "POST", value = "Attribute def name delete lite", nickname = "attributeDefNameDeleteLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Delete attribute definition names based on name or ID. This is new as of Grouper v2.1"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -6806,9 +6916,10 @@ public class GrouperService {
    * @return the result of one member add
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_K_SAL/")
+  @Path("/grouper-ws/servicesRest/vA_K_SAL/attributeDefNames")
   @ApiOperation(httpMethod = "POST", value = "Attribute def name save lite", nickname = "attributeDefNameSaveLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Add or edit attribute definition names based on name or ID. This is new as of Grouper v2.1"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -6846,7 +6957,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "saveMode", dataType = "String", paramType = "form", 
     value = "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)", example = "INSERT"),
     @ApiImplicitParam(required = false, name = "displayExtension", dataType = "String", paramType = "form", 
-    value = "display name of the attributeDefName, empty will be ignored", example = "!!"),
+    value = "display name of the attributeDefName, empty will be ignored", example = "My Attribute Name"),
     @ApiImplicitParam(required = false, name = "description", dataType = "String", paramType = "form", 
     value = "of the attributeDefName, empty will be ignored", example = ""),
     @ApiImplicitParam(required = false, name = "createParentStemsIfNotExist", dataType = "String", paramType = "form", 
@@ -7048,9 +7159,10 @@ public class GrouperService {
    * @return the attribute def names, or no attribute def names if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_A_DNL/")
+  @Path("/grouper-ws/servicesRest/vF_A_DNL/attributeDefNames")
   @ApiOperation(httpMethod = "POST", value = "Find attribute def names lite", nickname = "findAttributeDefNamesLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Find attribute definition names based on name, search filter, permission name inheritance, etc. This is new as of Grouper v2.1"
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definition+Names'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),
@@ -7096,20 +7208,9 @@ public class GrouperService {
     value = "subjectIdentifier of entity, mutually exclusive with subjectId, one of the two is required", example = "subjIdent0"),
     @ApiImplicitParam(required = false, name = "subjectId", dataType = "String", paramType = "form", 
     value = "subjectId of entity, mutually exclusive with subjectIdentifier, one of the two is required", example = "12345678"),
-    @ApiImplicitParam(required = false, name = "attributeAssignType", dataType = "String", paramType = "form", 
-    value = "Type of owner, from enum AttributeAssignType, e.g.group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn,stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn ", example = "group"),
-    @ApiImplicitParam(required = false, name = "attributeDefNameUuid", dataType = "String", paramType = "form", 
-    value = "to lookup an attribute def name by id, mutually exclusive with attributeDefNameName", example = "a1b2c3d4"),
-    @ApiImplicitParam(required = false, name = "attributeDefNameName", dataType = "String", paramType = "form", 
-    value = "to lookup an attribute def name by name, mutually exclusive with attributeDefNameId", example = "some:folder:attributes:nameOfMyAttributeDef"),
     @ApiImplicitParam(required = false, name = "wsInheritanceSetRelation", dataType = "String", paramType = "form", 
     value = "if there is one wsAttributeDefNameLookup, and this is specified, then findthe attribute def names which are related to the lookup by this relation,"
         + " e.g. IMPLIED_BY_THIS,IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE", example = "IMPLIED_BY_THIS"),
-    @ApiImplicitParam(required = false, name = "scope", dataType = "String", paramType = "form", 
-    value = "search string with % as wildcards will search name, display name, description", example = "!!"),
-    @ApiImplicitParam(required = false, name = "splitScope", dataType = "String", paramType = "form", 
-    value = "T or F, if T will split the scope by whitespace, and find attribute def names with each token.e.g. if you have a scope of \"pto permissions\", and split scope T, "
-        + "it will returnschool:apps:pto_app:internal:the_permissions:whatever", example = "T|F"),
     @ApiImplicitParam(required = false, name = "scope", dataType = "String", paramType = "form", 
     value = "is a DB pattern that will have % appended to it, or null for all", example = "school:whatever:parent"),
     @ApiImplicitParam(required = false, name = "splitScope", dataType = "String", paramType = "form", 
@@ -7118,7 +7219,7 @@ public class GrouperService {
     @ApiImplicitParam(required = false, name = "uuidOfAttributeDef", dataType = "String", paramType = "form", 
     value = "find names associated with this attribute definition, mutually exclusive with nameOfAttributeDef", example = "a1b2c3d4"),
     @ApiImplicitParam(required = false, name = "nameOfAttributeDef", dataType = "String", paramType = "form", 
-    value = "find names associated with this attribute definition, mutually exclusive with idOfAttributeDef", example = "!!"),
+    value = "find names associated with this attribute definition, mutually exclusive with idOfAttributeDef", example = "a:b:c:myAttributeDef"),
     @ApiImplicitParam(required = false, name = "attributeAssignType", dataType = "String", paramType = "form", 
     value = "where can the attribute definition be assigned, e.g. any_mem, any_mem_asgn, attr_def,attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn ", example = "group"),
     @ApiImplicitParam(required = false, name = "attributeDefType", dataType = "String", paramType = "form", 
@@ -7128,7 +7229,7 @@ public class GrouperService {
     @ApiImplicitParam(required = true, name = "attributeDefNameName", dataType = "String", paramType = "form", 
     value = "to lookup an attribute def name by name, mutually exclusive with attributeDefNameName", example = "some:folder:attributes:nameOfMyAttributeDef"),
     @ApiImplicitParam(required = false, name = "serviceRole", dataType = "String", paramType = "form", 
-    value = "to filter attributes that a user has a certain role", example = "!!"),
+    value = "to filter attributes that a user has a certain role", example = "member"),
   })
   public WsFindAttributeDefNamesResults findAttributeDefNamesLite(final String clientVersion,
       String scope, String splitScope, String uuidOfAttributeDef, String nameOfAttributeDef,
@@ -7547,9 +7648,10 @@ public class GrouperService {
    * @return audit entries result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_AEL/")
+  @Path("/grouper-ws/servicesRest/vG_E_AEL/audits")
   @ApiOperation(httpMethod = "POST", value = "Get audit entries lite", nickname = "getAuditEntriesLite", //response = .class,
-  notes = "<b>Sample 1</b>: ") 
+  notes = "<b>Description</b>: Get audit entries for groups, stems, and subjects. Available in Grouper v2.5 or later."
+      + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Audit+Entries'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, name = "wsLiteObjectType", dataType = "String", paramType = "form", 
         value = "WsRestFindGroupsLiteRequest", example = "WsRestFindGroupsLiteRequest"),

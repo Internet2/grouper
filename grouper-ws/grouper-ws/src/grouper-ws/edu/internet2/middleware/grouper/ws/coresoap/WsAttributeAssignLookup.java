@@ -207,6 +207,7 @@ public class WsAttributeAssignLookup implements GrouperWsToStringCompact {
    * uuid of the attributeAssign to find
    * @return the uuid
    */
+  
   public String getUuid() {
     return this.uuid;
   }

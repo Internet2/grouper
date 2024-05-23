@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModelProperty;
 
 
 /**
@@ -66,6 +67,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * e.g. admin or user
    * @return service role
    */
+  @ApiModelProperty(value = "from ServiceRole enum, which service role you are querying", example = "admin or user")
   public String getServiceRole() {
     return this.serviceRole;
   }
@@ -89,6 +91,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * search string with % as wildcards will search name, display name, description
    * @return the scope
    */
+  @ApiModelProperty(value = "search string with % as wildcards will search name, display name, description", example = "!!")
   public String getScope() {
     return this.scope;
   }
@@ -109,6 +112,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * school:apps:pto_app:internal:the_permissions:whatever
    * @return the splitScope
    */
+  @ApiModelProperty(value = "splitScope T or F, if T will split the scope by whitespace, and find attribute def names with each token. e.g. if you have a scope of \"pto permissions\", and split scope T, it will return school:apps:pto_app:internal:the_permissions:whatever", example = "T|F")
   public String getSplitScope() {
     return this.splitScope;
   }
@@ -148,6 +152,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn
    * @return the attributeAssignType
    */
+  @ApiModelProperty(value = "where can the attribute definition be assigned", example = "any_mem, any_mem_asgn, attr_def, attr_def_asgn, group, group_asgn, imm_mem, imm_mem_asgn, mem_asgn, member, stem, stem_asgn")
   public String getAttributeAssignType() {
     return this.attributeAssignType;
   }
@@ -167,6 +172,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * type of attribute definition, e.g. attr, domain, limit, perm, type
    * @return the attributeDefType
    */
+  @ApiModelProperty(value = "type of attribute definition", example = "attr, domain, limit, perm, type")
   public String getAttributeDefType() {
     return this.attributeDefType;
   }
@@ -204,6 +210,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * page size if paging on a sort filter or parent
    * @return the pageSize
    */
+  @ApiModelProperty(value = "Page size if paging", example = "100")
   public String getPageSize() {
     return this.pageSize;
   }
@@ -222,6 +229,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * page number 1 indexed if paging on a sort filter or parent
    * @return the pageNumber
    */
+  @ApiModelProperty(value = "Page number 1 indexed if paging", example = "1")
   public String getPageNumber() {
     return this.pageNumber;
   }
@@ -241,6 +249,8 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * can sort on name, displayName, extension, displayExtension
    * @return the sortString
    */
+  @ApiModelProperty(value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+      example = "name | displayName | extension | displayExtension")
   public String getSortString() {
     return this.sortString;
   }
@@ -260,6 +270,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * ascending or null for ascending, F for descending.  
    * @return the ascending
    */
+  @ApiModelProperty(value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }
@@ -280,6 +291,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE
    * @return the wsInheritanceSetRelation
    */
+  @ApiModelProperty(value = "wsInheritanceSetRelation if there is one wsAttributeDefNameLookup, and this is specified, then find the attribute def names which are related to the lookup by this relation", example = "IMPLIED_BY_THIS, IMPLIED_BY_THIS_IMMEDIATE, THAT_IMPLY_THIS, THAT_IMPLY_THIS_IMMEDIATE")
   public String getWsInheritanceSetRelation() {
     return this.wsInheritanceSetRelation;
   }
@@ -366,6 +378,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
    * is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000
    * @return version
    */
+  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
   public String getClientVersion() {
     return this.clientVersion;
   }
@@ -441,6 +454,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
   /**
    * @return the pageIsCursor
    */
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F")
   public String getPageIsCursor() {
     return this.pageIsCursor;
   }
@@ -455,6 +469,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorField
    */
+  @ApiModelProperty(value = "Field that will be sent back for cursor based paging", example = "abc123")
   public String getPageLastCursorField() {
     return this.pageLastCursorField;
   }
@@ -469,6 +484,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorFieldType
    */
+  @ApiModelProperty(value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp")
   public String getPageLastCursorFieldType() {
     return this.pageLastCursorFieldType;
   }
@@ -483,6 +499,7 @@ public class WsRestFindAttributeDefNamesRequest implements WsRequestBean {
   /**
    * @return the pageCursorFieldIncludesLastRetrieved
    */
+  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrieved() {
     return this.pageCursorFieldIncludesLastRetrieved;
   }

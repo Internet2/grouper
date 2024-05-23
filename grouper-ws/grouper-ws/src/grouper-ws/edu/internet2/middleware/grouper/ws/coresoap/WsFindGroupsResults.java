@@ -34,7 +34,7 @@ import io.swagger.annotations.ApiModelProperty;
  * @author mchyzer
  * 
  */
-@ApiModel(description = "Groups returned from the group find query")
+@ApiModel(description = "Groups returned from the group find query <br /> <br /> <b>groupResults</b>: The groups that were found based on the input<br /><b>")
 public class WsFindGroupsResults implements WsResponseBean, ResultMetadataHolder {
 
   /**
@@ -136,7 +136,7 @@ public class WsFindGroupsResults implements WsResponseBean, ResultMetadataHolder
    * 
    * @return the groupResults
    */
-  @ApiModelProperty(value = "has 0 to many groups that match the query")
+  //@ApiModelProperty(value = "has 0 to many groups that match the query")
   public WsGroup[] getGroupResults() {
     return this.groupResults;
   }

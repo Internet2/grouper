@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * If sending in attribute assignments in batch, this is one of the entries
@@ -39,6 +40,7 @@ public class WsAssignAttributeBatchEntry {
    * stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn  
    * @return type
    */
+  @ApiModelProperty(value = "Type of owner, from enum AttributeAssignType", example = "group, member, stem, any_mem, imm_mem, attr_def, group_asgn, mem_asgn, stem_asgn, any_mem_asgn, imm_mem_asgn, attr_def_asgn")
   public String getAttributeAssignType() {
     return this.attributeAssignType;
   }
@@ -64,6 +66,7 @@ public class WsAssignAttributeBatchEntry {
    * attribute def names to assign to the owners
    * @return attribute def name
    */
+  
   public WsAttributeDefNameLookup getWsAttributeDefNameLookup() {
     return this.wsAttributeDefNameLookup;
   }
@@ -89,6 +92,7 @@ public class WsAssignAttributeBatchEntry {
    * assign_attr, add_attr, remove_attr
    * @return operation
    */
+  @ApiModelProperty(value = "operation to perform for attribute on owners, from enum AttributeAssignOperation", example = "assign_attr, add_attr, remove_attr")
   public String getAttributeAssignOperation() {
     return this.attributeAssignOperation;
   }
@@ -139,6 +143,7 @@ public class WsAssignAttributeBatchEntry {
    * notes on the assignment (optional)
    * @return assignment notes
    */
+  @ApiModelProperty(value = "notes on the assignment (optional)")
   public String getAssignmentNotes() {
     return this.assignmentNotes;
   }
@@ -160,6 +165,7 @@ public class WsAssignAttributeBatchEntry {
    * enabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS
    * @return enabled time, or null for enabled now
    */
+  @ApiModelProperty(value = "enabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000")
   public String getAssignmentEnabledTime() {
     return this.assignmentEnabledTime;
   }
@@ -183,6 +189,7 @@ public class WsAssignAttributeBatchEntry {
    * disabled time, or null for not disabled.  yyyy/MM/dd HH:mm:ss.SSS
    * @return disabled time
    */
+  @ApiModelProperty(value = "disabled time, or null for enabled now.  yyyy/MM/dd HH:mm:ss.SSS", example = "1970/01/01 00:00:00.000")
   public String getAssignmentDisabledTime() {
     return this.assignmentDisabledTime;
   }
@@ -206,6 +213,7 @@ public class WsAssignAttributeBatchEntry {
    * really only for permissions, if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
    * @return delegatable
    */
+  @ApiModelProperty(value = "really only for permissions, if the assignee can delegate to someone else", example = "TRUE|FALSE|GRANT")
   public String getDelegatable() {
     return this.delegatable;
   }
@@ -229,6 +237,7 @@ public class WsAssignAttributeBatchEntry {
    * assignments: assign_value, add_value, remove_value, replace_values
    * @return operation
    */
+  @ApiModelProperty(value = "operation to perform for attribute value on attribute", example = "assign_value, add_value, remove_value, replace_values")
   public String getAttributeAssignValueOperation() {
     return this.attributeAssignValueOperation;
   }
@@ -425,6 +434,7 @@ public class WsAssignAttributeBatchEntry {
    * action to assign, or "assign" is the default if blank
    * @return action
    */
+  @ApiModelProperty(value = "action to assign, or \"assign\" is the default if blank", example = "assign")
   public String getAction() {
     return this.action;
   }
