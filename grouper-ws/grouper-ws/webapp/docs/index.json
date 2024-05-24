@@ -639,7 +639,7 @@
         }, {
           "name" : "action",
           "in" : "formData",
-          "description" : "to assign, or assign is the default if blank",
+          "description" : "to assign, or rescind assign is the default if blank",
           "required" : false,
           "type" : "String",
           "x-example" : "assign"
@@ -3684,6 +3684,62 @@
           "required" : false,
           "type" : "String",
           "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "wsGroupName",
+          "in" : "formData",
+          "description" : "fetch audit entries for this group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "wsGroupId",
+          "in" : "formData",
+          "description" : "fetch audit entries for this group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsStemName",
+          "in" : "formData",
+          "description" : "fetch audit entries for this stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:stem:name"
+        }, {
+          "name" : "wsStemId",
+          "in" : "formData",
+          "description" : "fetch audit entries for this stem",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefName",
+          "in" : "formData",
+          "description" : "fetch audit entries for attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:other:myAttributeDef"
+        }, {
+          "name" : "wsAttributeDefId",
+          "in" : "formData",
+          "description" : "fetch audit entries for attribute def",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefNameId",
+          "in" : "formData",
+          "description" : "fetch audit entries for attribute def name",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "a1b2c3d4"
+        }, {
+          "name" : "wsAttributeDefNameName",
+          "in" : "formData",
+          "description" : "fetch audit entries for attribute def name",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:other:myAttributeDefName"
         } ],
         "responses" : {
           "200" : {
@@ -6839,10 +6895,14 @@
       "type" : "object",
       "properties" : {
         "uuid" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "uuid of the attributeAssign to find"
         },
         "batchIndex" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "0",
+          "description" : "if there is a batch request, and this attribute assignment refers to a previously sent assignment, this is the index (0 indexed)"
         }
       }
     },
@@ -6850,13 +6910,19 @@
       "type" : "object",
       "properties" : {
         "id" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "id of this attribute assignment"
         },
         "valueSystem" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "myValue",
+          "description" : "is value to add, assign, remove, etc"
         },
         "valueFormatted" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "myValue",
+          "description" : "is value to add, assign, remove, etc though not implemented yet"
         }
       }
     },
@@ -6878,67 +6944,108 @@
       "type" : "object",
       "properties" : {
         "idIndex" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1009",
+          "description" : "integer ID for the attribute def"
         },
         "extension" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "myAttributeDef",
+          "description" : "extension of attributeDef, the part to the right of last colon in name"
         },
         "description" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "friendly description of this attributeDef"
         },
         "name" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:attibuteDef",
+          "description" : "Full name of the attributeDef (all extensions of parent stems, separated by colons, and the extention of this attributeDef"
         },
         "uuid" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "universally unique identifier of this attributeDef"
         },
         "attributeDefType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "attr, domain, type, limit, perm",
+          "description" : "type of attribute def, from enum AttributeDefType"
         },
         "multiAssignable" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T of F for if can be assigned multiple times to one object"
         },
         "multiValued" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T of F for if can be assigned multiple times to one object"
         },
         "valueType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "integer, timestamp, string, floating, marker, memberId",
+          "description" : "what type of value on assignments"
         },
         "assignToAttributeDef" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to an attribute def"
         },
         "assignToAttributeDefAssignment" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to an attribute def assignment"
         },
         "assignToEffectiveMembership" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to an effective membership"
         },
         "assignToEffectiveMembershipAssignment" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to an effective membership assignment"
         },
         "assignToGroup" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to a group"
         },
         "assignToGroupAssignment" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to a group assignment"
         },
         "assignToImmediateMembership" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to an immediate membership"
         },
         "assignToImmediateMembershipAssignment" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to an immediate membership assignment"
         },
         "assignToMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to a member"
         },
         "assignToMemberAssignment" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to a member assignment"
         },
         "assignToStem" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to a stem"
         },
         "assignToStemAssignment" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F if can assign this attribute to a stem assignment"
         }
       }
     },
@@ -7240,10 +7347,14 @@
           "$ref" : "#/definitions/WsAttributeDef"
         },
         "createParentStemsIfNotExist" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "iif should create parent stems if not exist"
         },
         "saveMode" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "INSERT",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)"
         }
       }
     },
@@ -7428,7 +7539,9 @@
       "type" : "object",
       "properties" : {
         "identifier" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "stem1:stem2:attributeDef",
+          "description" : "name of the attributeDef to find "
         }
       }
     },
@@ -8241,10 +8354,14 @@
           "$ref" : "#/definitions/WsGroup"
         },
         "createParentStemsIfNotExist" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "if should create parent stems if not exist"
         },
         "saveMode" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "UPDATE",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)"
         }
       }
     },
@@ -8570,13 +8687,18 @@
       "type" : "object",
       "properties" : {
         "id" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "the message id"
         },
         "fromMemberId" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "member id of sender"
         },
         "messageBody" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "body of the message"
         }
       }
     },
@@ -8747,13 +8869,19 @@
       "type" : "object",
       "properties" : {
         "paramName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "someName",
+          "description" : "name of param.  Note you can typecast the value by putting a name like: (integer)someName"
         },
         "paramValue" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "myValue",
+          "description" : "value of param"
         },
         "paramType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "text, integer, decimal, date, timestamp, boolean, null, emptyString",
+          "description" : "type of value, note you can instead typecast on the paramName, e.g. (integer)someParamName"
         }
       }
     },
@@ -8910,25 +9038,37 @@
       "type" : "object",
       "properties" : {
         "queueOrTopicName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:queueName",
+          "description" : "queueOrTopicName"
         },
         "messageSystemName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:messageSystemName",
+          "description" : "messageSystemName"
         },
         "acknowledgeType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue",
+          "description" : "what to do with the message"
         },
         "messageIds" : {
           "type" : "array",
+          "example" : "a1b2, c3d4",
+          "description" : "the messages to be marked as processed",
           "items" : {
             "type" : "string"
           }
         },
         "anotherQueueOrTopicName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:queue",
+          "description" : " destination of the message if acknowledgeType is send_to_another_queue"
         },
         "anotherQueueType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "queue, topic",
+          "description" : "destination type if acknowledge type is send_to_another_queue"
         },
         "clientVersion" : {
           "type" : "string",
@@ -8944,7 +9084,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for receive message<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
     },
     "WsRestAcknowledgeMessageRequestWrapper" : {
       "type" : "object",
@@ -8974,7 +9115,9 @@
           }
         },
         "replaceAllExisting" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T if assigning, if this list should replace all existing members"
         },
         "actAsSubjectLookup" : {
           "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user",
@@ -8986,7 +9129,9 @@
           "description" : "If the member should be added to a certain field membership of the group"
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "UPDATE",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)"
         },
         "includeGroupDetail" : {
           "type" : "string",
@@ -9027,7 +9172,8 @@
           "example" : "T",
           "description" : "T or F (default F), if this is a search by id or identifier, with no source, or the external source,and the subject is not found, then add an external subject (if the user is allowed) defaults to false"
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for add member<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupLookup</b>: group to have member added<br /><br /><br /><b>subjectLookups</b>: subject to be added<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestAddMemberRequestWrapper" : {
       "type" : "object",
@@ -9047,8 +9193,8 @@
         },
         "actions" : {
           "type" : "array",
-          "example" : "v2_6_001",
-          "description" : "Version of the client (i.e. that the client was coded against)",
+          "example" : "assign",
+          "description" : "actions to be added/removed/replaced",
           "items" : {
             "type" : "string"
           }
@@ -9077,7 +9223,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for assigning attribute def actions<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAttributeDefLookup</b>: attribute def to add or remove from actions<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestAssignAttributeDefActionsRequestWrapper" : {
       "type" : "object",
@@ -9130,7 +9277,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for assigning attribute def name inheritence<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAttributeDefNameLookup</b>: attributeDefName which is the container for the inherited attribute def names<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>relatedWsAttributeDefNameLookups</b>: attributeDefName which is the container for the inherited attribute def names<br />"
     },
     "WsRestAssignAttributeDefNameInheritanceRequestWrapper" : {
       "type" : "object",
@@ -9188,7 +9336,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for assigning attribute def name inheritence<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAssignAttributeBatchEntries</b>: batch of attribute assignments <br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestAssignAttributesBatchRequestWrapper" : {
       "type" : "object",
@@ -9328,6 +9477,8 @@
         },
         "actions" : {
           "type" : "array",
+          "example" : "assign",
+          "description" : "actions to query, or none to query all actions",
           "items" : {
             "type" : "string"
           }
@@ -9342,6 +9493,8 @@
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
@@ -9357,7 +9510,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for assigning attributes<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>attributeDefsToReplace</b>: if replacing attributeDefNames, then these are the related attributeDefs, if blank, then just do all <br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>actionsToReplace</b>: if replacing attributeDefNames, then these are the related actions, if blank, then just do all<br /><br /><br /><b>attributeDefTypesToReplace</b>: if replacing attributeDefNames, then these are the related attributeDefTypes, if blank, then just do all<br />"
     },
     "WsRestAssignAttributesRequestWrapper" : {
       "type" : "object",
@@ -9374,15 +9528,21 @@
       "properties" : {
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "LastName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent",
           "items" : {
             "type" : "string"
           }
         },
         "replaceAllExisting" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T to replace existing members, F or blank to just change assignments.  Only for allowed T"
         },
         "allowed" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to whether this privilege is being assigned or removed"
         },
         "clientVersion" : {
           "type" : "string",
@@ -9396,19 +9556,27 @@
           "$ref" : "#/definitions/WsStemLookup"
         },
         "privilegeType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "access",
+          "description" : "Type of privilege, (e.g. access for groups and naming for stems)"
         },
         "privilegeNames" : {
           "type" : "array",
+          "example" : "for groups: read, view, update, admin, optin, optout. for stems stem, create",
+          "description" : "privilege name",
           "items" : {
             "type" : "string"
           }
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended subject information should be returned (anything more than just the id)"
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended group information should be returned (anything more than just the id)"
         },
         "wsSubjectLookups" : {
           "type" : "array",
@@ -9420,7 +9588,9 @@
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
         },
         "params" : {
           "type" : "array",
@@ -9428,7 +9598,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for assigning grouper privileges<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsGroupLookup</b>: group to assign privilege<br /><br /><br /><b>wsStemLookup</b>: stem to assign privilege<br />"
     },
     "WsRestAssignGrouperPrivilegesRequestWrapper" : {
       "type" : "object",
@@ -9444,22 +9615,33 @@
       "type" : "object",
       "properties" : {
         "disallowed" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F (defaults to F), if this permission assignment is disallowed"
         },
         "permissionAssignOperation" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "assign_permission, remove_permission",
+          "description" : "operation to perform for permission on role or subject, from enum PermissionAssignOperation"
         },
         "assignmentNotes" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "notes on the assignment (optional)"
         },
         "assignmentEnabledTime" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "enabled time, or null for enabled now"
         },
         "assignmentDisabledTime" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "disabled time, or null for enabled now"
         },
         "delegatable" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "TRUE|FALSE|GRANT",
+          "description" : "really only for permissions, if the assignee can delegate to someone else"
         },
         "clientVersion" : {
           "type" : "string",
@@ -9467,7 +9649,9 @@
           "description" : "Version of the client (i.e. that the client was coded against)"
         },
         "permissionType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "role",
+          "description" : "is role or role_subject from the PermissionType enum"
         },
         "wsAttributeAssignLookups" : {
           "type" : "array",
@@ -9495,6 +9679,8 @@
         },
         "actions" : {
           "type" : "array",
+          "example" : "assign",
+          "description" : "actions to be added/removed/replaced",
           "items" : {
             "type" : "string"
           }
@@ -9503,16 +9689,22 @@
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended subject information should be returned (anything more than just the id)"
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the group detail should be returned"
         },
         "params" : {
           "type" : "array",
@@ -9522,6 +9714,8 @@
         },
         "actionsToReplace" : {
           "type" : "array",
+          "example" : "assign",
+          "description" : "actions to be replaced",
           "items" : {
             "type" : "string"
           }
@@ -9532,7 +9726,8 @@
             "$ref" : "#/definitions/WsAttributeDefLookup"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for assign permissions<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAttributeAssignLookups</b>: if you know the assign ids you want, put them here<br /><br /><br /><b>permissionDefNameLookups</b>: find assignments in these attribute def names (optional)<br /><br /><br /><b>roleLookups</b>: roleLookups are roles to look in<br /><br /><br /><b>subjectRoleLookups</b>: to query attributes in \"any\" memberships which are on immediate or effective memberships<br />"
     },
     "WsRestAssignPermissionsRequestWrapper" : {
       "type" : "object",
@@ -9574,7 +9769,7 @@
           }
         }
       },
-      "description" : "bean that will be the data from rest request for deleting attribute defs"
+      "description" : "bean that will be the data from rest request for deleting attribute defs<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAttributeDefLookups</b>: AttributeDefs to be deleted <br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestAttributeDefDeleteRequestWrapper" : {
       "type" : "object",
@@ -9615,7 +9810,7 @@
           }
         }
       },
-      "description" : "bean that will be the data from rest request for deleting attribute def names"
+      "description" : "bean that will be the data from rest request for deleting attribute def names<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAttributeDefNameLookups</b>: AttributeDefNames to delete <br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestAttributeDefNameDeleteRequestWrapper" : {
       "type" : "object",
@@ -9655,7 +9850,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for saving attribute def names<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAttributeDefNameToSaves</b>: AttributeDefNames to save <br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestAttributeDefNameSaveRequestWrapper" : {
       "type" : "object",
@@ -9695,7 +9891,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for saving attribute defs<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsAttributeDefsToSave</b>: AttributeDefs to save <br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestAttributeDefSaveRequestWrapper" : {
       "type" : "object",
@@ -9728,19 +9925,29 @@
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "fieldName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate",
+          "description" : "If the member should be deleted from a certain field membership of the group"
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "UPDATE",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)"
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F for if more info about the group should be returned"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the subject detail should be returned, default to false"
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
@@ -9751,7 +9958,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for delete member<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupLookup</b>: group to have member deleted<br /><br /><br /><b>subjectLookups</b>: subject to be deleted<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestDeleteMemberRequestWrapper" : {
       "type" : "object",
@@ -9773,7 +9981,9 @@
           }
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
         },
         "clientVersion" : {
           "type" : "string",
@@ -9789,7 +9999,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for deleting an external subject<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsExternalSubjectLookups</b>: external subject to be deleted<br />"
     },
     "WsRestExternalSubjectDeleteRequestWrapper" : {
       "type" : "object",
@@ -9811,7 +10022,9 @@
           }
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
         },
         "clientVersion" : {
           "type" : "string",
@@ -9827,7 +10040,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for saving an external subject<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsExternalSubjectToSaves</b>: external subject to be saved<br />"
     },
     "WsRestExternalSubjectSaveRequestWrapper" : {
       "type" : "object",
@@ -9938,7 +10152,8 @@
           "example" : "T|F",
           "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for finding attribute def names<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>subjectLookup</b>: subject if looking for privileges or service role <br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsAttributeDefNameLookup</b>: if you want to pass just a list of Uuids or Names<br />"
     },
     "WsRestFindAttributeDefNamesRequestWrapper" : {
       "type" : "object",
@@ -10046,7 +10261,8 @@
           "example" : "T|F",
           "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for finding attribute defs<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>subjectLookup</b>: subject if looking for privileges or service role <br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsAttributeDefLookup</b>: find attribute defs based on these lookups<br />"
     },
     "WsRestFindAttributeDefsRequestWrapper" : {
       "type" : "object",
@@ -10081,7 +10297,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for finding external subjects<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsExternalSubjectLookups</b>: external subject to be saved<br />"
     },
     "WsRestFindExternalSubjectsRequestWrapper" : {
       "type" : "object",
@@ -10130,7 +10347,7 @@
           }
         }
       },
-      "description" : "bean that will be the data from rest request for finding groups"
+      "description" : "bean that will be the data from rest request for finding groups<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsQueryFilter</b>: query filter for request<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>sGroupLookups</b>: if you want to just pass in a list of uuids and/or names<br />"
     },
     "WsRestFindGroupsRequestWrapper" : {
       "type" : "object",
@@ -10169,7 +10386,7 @@
           }
         }
       },
-      "description" : "bean that will be the data from rest request for finding stems"
+      "description" : "bean that will be the data from rest request for finding stems<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsStemQueryFilter</b>: query filter for request<br /><br /><br /><b>wsStemLookups</b>: to pass in a list of uuids or names to lookup.  Note the stems are returneds (optional)<br />"
     },
     "WsRestFindStemsRequestWrapper" : {
       "type" : "object",
@@ -10212,7 +10429,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for getting attribute assign actions<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsAttributeDefLookup</b>: find assignments in these attribute defs<br />"
     },
     "WsRestGetAttributeAssignActionsRequestWrapper" : {
       "type" : "object",
@@ -10313,6 +10531,8 @@
         },
         "actions" : {
           "type" : "array",
+          "example" : "assign",
+          "description" : "actions to query, or none to query all actions",
           "items" : {
             "type" : "string"
           }
@@ -10374,11 +10594,13 @@
         },
         "wsAssignAssignOwnerActions" : {
           "type" : "array",
+          "description" : "if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to",
           "items" : {
             "type" : "string"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for getting attribute assignments<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsAttributeAssignLookups</b>: if you know the assign ids you want, put them here<br /><br /><br /><b>wsAttributeDefLookups</b>: find assignments in these attribute defs (optional)<br /><br /><br />wsAttributeDefNameLookups<b></b>: find assignments in these attribute def names (optional)<br /><br /><br /><b>wsOwnerGroupLookups</b>: wsOwnerGroupLookups are groups to look in<br /><br /><br /><b>wsOwnerStemLookups</b>: are stems to look in<br /><br /><br /><b>wsOwnerSubjectLookups</b>: are subjects to look in<br /><br /><br /><b>wsOwnerMembershipLookups</b>: to query attributes on immediate memberships<br /><br /><br /><b>wsOwnerMembershipAnyLookups</b>: to query attributes in \"any\" memberships which are on immediate or effective memberships<br />"
     },
     "WsRestGetAttributeAssignmentsRequestWrapper" : {
       "type" : "object",
@@ -10402,10 +10624,14 @@
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "auditType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "group, stem, membership",
+          "description" : "the auditType. the category of the audit. get values from this query: 'select audit_category as audit_type, action_name as audit_action from grouper_audit_type'"
         },
         "auditActionId" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "updateGroup, addGroupMembership, deleteStem",
+          "description" : "the auditActionId. the action of the audit inside the category. get values from this query: 'select audit_category as audit_type, action_name as audit_action from grouper_audit_type'"
         },
         "params" : {
           "type" : "array",
@@ -10432,33 +10658,52 @@
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "pageSize" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size if paging"
         },
         "sortString" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
         },
         "ascending" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string"
         },
         "pageIsCursor" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging"
         },
         "pageLastCursorField" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
         },
         "pageLastCursorFieldType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
         },
         "pageCursorFieldIncludesLastRetrieved" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         },
         "fromDate" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01",
+          "description" : "the fromDate"
         },
         "toDate" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01",
+          "description" : "the fromDate"
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for getting audit entries<br /><br /><b>actionsPerformedByWsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsGroupLookup</b>: fetch audit entries for this group<br /><br /><br /><b>wsStemLookup</b>: fetch audit entries for this stem<br /><br /><br /><b>wsAttributeDefLookup</b>: fetch audit entries for this attribute def<br /><br /><br /><b>wsAttributeDefNameLookup</b>: fetch audit entries for this attribute def name<br /><br /><br /><b>wsSubjectLookup</b>: fetch audit entries for these subjects<br /><br /><br /><b>wsStemLookup</b>: fetch audit entries for actions performed by these subjects<br />"
     },
     "WsRestGetAuditEntriesRequestWrapper" : {
       "type" : "object",
@@ -10488,16 +10733,24 @@
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "memberFilter" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "Effective",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)"
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the group detail should be returned, default to false"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the subject detail should be returned, default to false"
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
@@ -10509,51 +10762,80 @@
           }
         },
         "scope" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "school:whatever:parent:",
+          "description" : "scope is a DB pattern that will have % appended to it, or null for all"
         },
         "wsStemLookup" : {
           "$ref" : "#/definitions/WsStemLookup"
         },
         "stemScope" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "ALL_IN_SUBTREE",
+          "description" : "stemScope is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath.  You must pass stemScope if you pass a stem"
         },
         "enabled" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "ALL_IN_SUBTREE",
+          "description" : "stemScope is ONE_LEVEL if in this stem, or ALL_IN_SUBTREE for any stem underneath.  You must pass stemScope if you pass a stem"
         },
         "pageSize" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size if paging"
         },
         "pageNumber" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1",
+          "description" : "Page number 1 indexed if paging"
         },
         "sortString" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
         },
         "ascending" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string"
         },
         "pageIsCursor" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging"
         },
         "pageLastCursorField" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
         },
         "pageLastCursorFieldType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
         },
         "pageCursorFieldIncludesLastRetrieved" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         },
         "fieldName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate",
+          "description" : "field name (list) to search, blank for groups list"
         },
         "pointInTimeFrom" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now."
         },
         "pointInTimeTo" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeFrom.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeFrom is not specified, then the point in time query range will be from the time specified to now."
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for getting groups<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>subjectLookups</b>: lookup group for request<br /><br /><br /><b>params</b>: optional params for this request<br /><br /><br /><b>wsStemLookup</b>: is the stem to check in, or null if all.  If has stem, must have stemScope<br />"
     },
     "WsRestGetGroupsRequestWrapper" : {
       "type" : "object",
@@ -10580,22 +10862,32 @@
           }
         },
         "memberFilter" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "Effective",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)"
         },
         "actAsSubjectLookup" : {
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "fieldName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate",
+          "description" : "field name (list) to search, blank for groups list"
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F for if more info about the group should be returned"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the subject detail should be returned, default to false"
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
@@ -10608,44 +10900,69 @@
         },
         "sourceIds" : {
           "type" : "array",
+          "example" : "a1b2, c3d4",
+          "description" : "sourceIds, or null if all",
           "items" : {
             "type" : "string"
           }
         },
         "pageSize" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size if paging"
         },
         "pageNumber" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1",
+          "description" : "Page number 1 indexed if paging"
         },
         "sortString" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
         },
         "ascending" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string"
         },
         "pageIsCursor" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging"
         },
         "pageLastCursorField" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
         },
         "pageLastCursorFieldType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
         },
         "pageCursorFieldIncludesLastRetrieved" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         },
         "pointInTimeRetrieve" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F|null",
+          "description" : "true means retrieve point in time records"
         },
         "pointInTimeFrom" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now."
         },
         "pointInTimeTo" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now."
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for get members<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupLookups</b>: group to get members from<br /><br /><br /><b>subjectLookups</b>: subjects to be inqured about<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestGetMembersRequestWrapper" : {
       "type" : "object",
@@ -10684,25 +11001,37 @@
           }
         },
         "memberFilter" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "Immediate",
+          "description" : "must be one of All, Effective, Immediate, Composite, NonImmediate"
         },
         "actAsSubjectLookup" : {
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "fieldName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "some:other:myFieldName",
+          "description" : "is if the memberships should be retrieved from a certain field membership of the group (certain list)"
         },
         "fieldType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "list",
+          "description" : "fieldType is the type of field to look at, e.g. list (default, memberships), access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)"
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the group detail should be returned"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the subject detail should be returned"
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
@@ -10715,6 +11044,8 @@
         },
         "sourceIds" : {
           "type" : "array",
+          "example" : "a1b2, c3d4",
+          "description" : "sourceIds are sources to look in for memberships, or null if all",
           "items" : {
             "type" : "string"
           }
@@ -10726,87 +11057,136 @@
           }
         },
         "scope" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "school:whatever:parent",
+          "description" : "scope is a sql like string which will have a percent % concatenated to the end for group names to search in (or stem names)"
         },
         "wsStemLookup" : {
           "$ref" : "#/definitions/WsStemLookup"
         },
         "stemScope" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "ONE_LEVEL",
+          "description" : "stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE"
         },
         "enabled" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "A|T|F",
+          "description" : "enabled is A for all, T or null for enabled only, F for disabled "
         },
         "membershipIds" : {
           "type" : "array",
+          "example" : "a1b2, c3d4",
+          "description" : "membershipIds are the ids to search for if they are known",
           "items" : {
             "type" : "string"
           }
         },
         "serviceRole" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "member",
+          "description" : "serviceRole to filter attributes that a user has a certain role"
         },
         "serviceLookup" : {
           "$ref" : "#/definitions/WsAttributeDefNameLookup"
         },
         "pageSize" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size if paging"
         },
         "pageNumber" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1",
+          "description" : "Page number 1 indexed if paging"
         },
         "sortString" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
         },
         "ascending" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string"
         },
         "pageIsCursor" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging"
         },
         "pageLastCursorField" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
         },
         "pageLastCursorFieldType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
         },
         "pageCursorFieldIncludesLastRetrieved" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         },
         "pageSizeForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "100",
+          "description" : "Page size in members part if paging"
         },
         "pageNumberForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1",
+          "description" : "Page number 1 indexed if paging in the members part"
         },
         "sortStringForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "name | displayName | extension | displayExtension",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension"
         },
         "ascendingForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or null for ascending, F for descending in the members part.  If you pass true or false, must pass a sort string"
         },
         "pageIsCursorForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging for members part"
         },
         "pageLastCursorFieldForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "abc123",
+          "description" : "Field that will be sent back for cursor based paging"
         },
         "pageLastCursorFieldTypeForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "string|int|long|date|timestamp",
+          "description" : "Could be: string, int, long, date, timestamp"
         },
         "pageCursorFieldIncludesLastRetrievedForMember" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If cursor field is unique in members part, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset"
         },
         "pointInTimeRetrieve" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F|null",
+          "description" : "true means retrieve point in time records"
         },
         "pointInTimeFrom" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now."
         },
         "pointInTimeTo" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeFrom.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeFrom is not specified, then the point in time query range will be from the time specified to now."
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for get memberships<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupLookups</b>:are groups to look in<br /><br /><br /><b>wsOwnerStemLookups</b>:stem lookups if looking for memberships on certain stems<br /><br /><br /><b>wsOwnerAttributeDefLookups</b>:attribute definition lookups if looking for memberships on certain attribute definitions<br /><br /><br /><b>serviceLookup</b>:erviceLookup if filtering by users in a service, then this is the service to look in<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestGetMembershipsRequestWrapper" : {
       "type" : "object",
@@ -10822,13 +11202,19 @@
       "type" : "object",
       "properties" : {
         "includeLimits" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "includeLimits T or F (default to F) for if limits should be returned with the results. Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists"
         },
         "immediateOnly" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "immediateOnly T of F (defaults to F) if we should filter out non immediate permissions"
         },
         "permissionType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "role, or role_subject.  defaults to role_subject permissions",
+          "description" : "are we looking for role permissions or subject permissions? From enum PermissionType"
         },
         "limitEnvVars" : {
           "type" : "array",
@@ -10837,22 +11223,34 @@
           }
         },
         "permissionProcessor" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "FILTER_REDUNDANT_PERMISSIONS",
+          "description" : "if processing permissions, you can filter out either redundant permissions (find best in set), or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS.  If null, then just get all permissions and process on the client."
         },
         "includeAttributeDefNames" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F for if attributeDefName objects should be returned"
         },
         "pointInTimeFrom" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now."
         },
         "pointInTimeTo" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeFrom.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeFrom is not specified, then the point in time query range will be from the time specified to now."
         },
         "includePermissionAssignDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F for if attributeDefName objects should be returned"
         },
         "includeAttributeAssignments" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F for it attribute assignments should be returned"
         },
         "clientVersion" : {
           "type" : "string",
@@ -10885,27 +11283,37 @@
         },
         "actions" : {
           "type" : "array",
+          "example" : "read",
+          "description" : "actions to query, or none to query all actions",
           "items" : {
             "type" : "string"
           }
         },
         "includeAssignmentsOnAssignments" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : " if this is not querying assignments on assignments directly, but the assignments and assignments on those assignments should be returned, enter true.  default to false."
         },
         "actAsSubjectLookup" : {
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T|F, for if the extended subject information should be returned (anything more than just the id)"
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the group detail should be returned"
         },
         "params" : {
           "type" : "array",
@@ -10914,9 +11322,12 @@
           }
         },
         "enabled" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "A|T|F",
+          "description" : "A for all, T or null for enabled only, F for disabled "
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for get permission assignments<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>limitEnvVars</b>: limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the name of the variable, and the value is the value.  Note, you can typecast the values by putting a valid type in parens in front of the param name. e.g. name: (int)amount, value: 50<br /><br /><br /><b>wsAttributeDefLookups</b>: find assignments in these attribute defs (optional)<br /><br /><br /><b>wsAttributeDefNameLookups</b>: find assignments in these attribute def names (optional)<br /><br /><br /><b>roleLookups</b>: are roles to look in)<br /><br /><br /><b>wsSubjectLookups</b>: are subjects to look in<br />"
     },
     "WsRestGetPermissionAssignmentsRequestWrapper" : {
       "type" : "object",
@@ -10940,22 +11351,32 @@
           "$ref" : "#/definitions/WsGroupLookup"
         },
         "memberFilter" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "Effective",
+          "description" : "must be one of All, Effective, Immediate, Composite, NonImmediate"
         },
         "actAsSubjectLookup" : {
           "$ref" : "#/definitions/WsSubjectLookup"
         },
         "fieldName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "embers, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate",
+          "description" : "is if the memberships should be retrieved from a certain field membership of the group (certain list)"
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the group detail should be returned"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F as to if the subject detail should be returned"
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
@@ -10968,6 +11389,8 @@
         },
         "sourceIds" : {
           "type" : "array",
+          "example" : "choolPerson, g:gsa",
+          "description" : "sourceIds are sources to look in for memberships, or null if all",
           "items" : {
             "type" : "string"
           }
@@ -10979,9 +11402,12 @@
           }
         },
         "searchString" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "john smith",
+          "description" : "free form string query to find a list of subjects (exact behavior depends on source)"
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for getting subjects<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupLookup</b>: returned subjects must be in this group<br /><br /><br /><b>wsSubjectLookups</b>: are subjects to look in<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestGetSubjectsRequestWrapper" : {
       "type" : "object",
@@ -11003,10 +11429,14 @@
           }
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the group detail should be returned, default to false"
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "READ_WRITE_NEW",
+          "description" : "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW."
         },
         "clientVersion" : {
           "type" : "string",
@@ -11022,7 +11452,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for deleting a group<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupLookups</b>: group to be deleted<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestGroupDeleteRequestWrapper" : {
       "type" : "object",
@@ -11044,7 +11475,9 @@
           }
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "UPDATE",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)"
         },
         "clientVersion" : {
           "type" : "string",
@@ -11061,9 +11494,12 @@
           }
         },
         "includeGroupDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "T or F for if more info about the group should be returned"
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for saving a group<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupToSaves</b>: group to be saved<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestGroupSaveRequestWrapper" : {
       "type" : "object",
@@ -11085,10 +11521,14 @@
           }
         },
         "configId" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "myConfigId",
+          "description" : "config id is template config that is being run"
         },
         "ownerType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "stem or group",
+          "description" : "the type of the owner"
         },
         "ownerGroupLookup" : {
           "$ref" : "#/definitions/WsGroupLookup"
@@ -11119,7 +11559,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for executing gsh template<br /><br /><b>gshTemplateActAsSubjectLookup</b>: if the template config has an actAsGroupUUID and if the principal user calling the webservice is in that group, then specify a user to run the template as. An external UI could run template as other users. <br /><br /><br /><b>ownerGroupLookups</b>: group where the template is being called<br /><br /><br /><b>ownerStemLookups</b>: stem where the template is being called<br />"
     },
     "WsRestGshTemplateExecRequestWrapper" : {
       "type" : "object",
@@ -11143,7 +11584,9 @@
           "description" : "Version of the client (i.e. that the client was coded against)"
         },
         "includeSubjectDetail" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the subject detail should be returned, default to false"
         },
         "params" : {
           "type" : "array",
@@ -11159,14 +11602,19 @@
         },
         "subjectAttributeNames" : {
           "type" : "array",
+          "example" : "lastName, middleName",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
           "items" : {
             "type" : "string"
           }
         },
         "txType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "UPDATE",
+          "description" : "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)"
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for member change subject<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsMemberChangeSubjects</b>: members to change subjects<br /><br /><br /><b>params</b>: optional params for this request<br />"
     },
     "WsRestMemberChangeSubjectRequestWrapper" : {
       "type" : "object",
@@ -11182,19 +11630,28 @@
       "type" : "object",
       "properties" : {
         "queueType" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "queue type"
         },
         "queueOrTopicName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:queueName",
+          "description" : "queueOrTopicName"
         },
         "messageSystemName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:messsageSystemName",
+          "description" : "messageSystemName"
         },
         "routingKey" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "tihsRoutingKey",
+          "description" : "routingKey"
         },
         "exchangeType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "rabbitmg",
+          "description" : "exchange type"
         },
         "queueArguments" : {
           "type" : "object",
@@ -11203,10 +11660,14 @@
           }
         },
         "blockMillis" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "100",
+          "description" : "the millis to block waiting for messages, max of 20000 (optional)"
         },
         "maxMessagesToReceiveAtOnce" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "5",
+          "description" : "max number of messages to receive at once, though can't be more than the server maximum (optional)"
         },
         "clientVersion" : {
           "type" : "string",
@@ -11222,7 +11683,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for receive message<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>messages</b>: messages to be received<br /><br /><br /><b>queueArguments</b>: extra queue arguments if needed<br />"
     },
     "WsRestReceiveMessageRequestWrapper" : {
       "type" : "object",
@@ -11238,19 +11700,28 @@
       "type" : "object",
       "properties" : {
         "queueType" : {
-          "type" : "string"
+          "type" : "string",
+          "description" : "queue type"
         },
         "queueOrTopicName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:queueName",
+          "description" : "queueOrTopicName"
         },
         "messageSystemName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:messsageSystemName",
+          "description" : "messageSystemName"
         },
         "routingKey" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "tihsRoutingKey",
+          "description" : "routingKey"
         },
         "exchangeType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "rabbitmg",
+          "description" : "exchange type"
         },
         "queueArguments" : {
           "type" : "object",
@@ -11278,7 +11749,8 @@
             "$ref" : "#/definitions/WsParam"
           }
         }
-      }
+      },
+      "description" : "bean that will be the data from rest request for send message<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>messages</b>: messages to be sent<br /><br /><br /><b>queueArguments</b>: extra queue arguments if needed<br />"
     },
     "WsRestSendMessageRequestWrapper" : {
       "type" : "object",
@@ -11427,25 +11899,39 @@
       "type" : "object",
       "properties" : {
         "stemQueryFilterType" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : " FIND_BY_STEM_UUID, FIND_BY_STEM_NAME, FIND_BY_STEM_NAME, FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, FIND_BY_TYPE, AND, OR, MINUS",
+          "description" : "findStemType is the WsFindStemType enum for which type of find is happening"
         },
         "stemName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:one:stemName",
+          "description" : "stemName search by stem name (must match exactly)"
         },
         "parentStemName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:one:parentStemName",
+          "description" : "parentStemName will return stems only in this stem"
         },
         "parentStemNameScope" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "ALL_IN_SUBTREE",
+          "description" : "if searching by stem, ONE_LEVEL is for one level, ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE"
         },
         "stemUuid" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "a1b2c3d4",
+          "description" : "stemUuid search by stem uuid (must match exactly)"
         },
         "stemAttributeValue" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "myValue",
+          "description" : " stemAttributeValue if searching by query, this is a term that will be matched to"
         },
         "stemAttributeName" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "this:other:stemAttributeName",
+          "description" : "if querying, this is the attribute name, or null or search"
         },
         "stemQueryFilter0" : {
           "$ref" : "#/definitions/WsStemQueryFilter"
@@ -11454,19 +11940,29 @@
           "$ref" : "#/definitions/WsStemQueryFilter"
         },
         "ascending" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "true or null for ascending, false for descending.  If you pass true or false, must pass a sort string"
         },
         "pageNumber" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "2",
+          "description" : " page number 1 indexed if paging"
         },
         "pageSize" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "100",
+          "description" : "page size if paging"
         },
         "sortString" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "name, displayName, extension, displayExtension",
+          "description" : "must be an hql query field"
         },
         "queryTerm" : {
-          "type" : "string"
+          "type" : "string",
+          "example" : "name, extension, etc",
+          "description" : "queryTerm if searching by query, this is a term that will be matched to"
         }
       }
     },

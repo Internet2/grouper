@@ -28,12 +28,18 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
 /**
  * request bean in body of rest request
  */
+@ApiModel(description = "bean that will be the data from rest request for assign permissions<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsAttributeAssignLookups</b>: if you know the assign ids you want, put them here<br />"
+    + "<br /><br /><b>permissionDefNameLookups</b>: find assignments in these attribute def names (optional)<br />"
+    + "<br /><br /><b>roleLookups</b>: roleLookups are roles to look in<br />"
+    + "<br /><br /><b>subjectRoleLookups</b>: to query attributes in \"any\" memberships which are on immediate or effective memberships<br />")
 public class WsRestAssignPermissionsRequest implements WsRequestBean {
 
   /** T or F (defaults to F), if this permission assignment is disallowed */
@@ -43,6 +49,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * T or F (defaults to F), if this permission assignment is disallowed
    * @return T or F (defaults to F), if this permission assignment is disallowed
    */
+  @ApiModelProperty(value = "T or F (defaults to F), if this permission assignment is disallowed", example = "T|F")
   public String getDisallowed() {
     return this.disallowed;
   }
@@ -70,6 +77,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * notes on the assignment (optional)
    * @return notes
    */
+  @ApiModelProperty(value = "notes on the assignment (optional)")
   public String getAssignmentNotes() {
     return this.assignmentNotes;
   }
@@ -86,6 +94,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * enabled time, or null for enabled now
    * @return enabled time
    */
+  @ApiModelProperty(value = "enabled time, or null for enabled now", example = "1970/01/01 00:00:00.000")
   public String getAssignmentEnabledTime() {
     return this.assignmentEnabledTime;
   }
@@ -102,6 +111,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * disabled time, or null for not disabled
    * @return disabled time
    */
+  @ApiModelProperty(value = "disabled time, or null for enabled now", example = "1970/01/01 00:00:00.000")
   public String getAssignmentDisabledTime() {
     return this.assignmentDisabledTime;
   }
@@ -118,6 +128,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * really only for permissions, if the assignee can delegate to someone else.  TRUE|FALSE|GRANT
    * @return delegatable
    */
+  @ApiModelProperty(value = "really only for permissions, if the assignee can delegate to someone else", example = "TRUE|FALSE|GRANT")
   public String getDelegatable() {
     return this.delegatable;
   }
@@ -150,6 +161,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * assign_permission, remove_permission
    * @return operation
    */
+  @ApiModelProperty(value = "operation to perform for permission on role or subject, from enum PermissionAssignOperation", example = "assign_permission, remove_permission")
   public String getPermissionAssignOperation() {
     return this.permissionAssignOperation;
   }
@@ -197,6 +209,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * is role or role_subject from the PermissionType enum
    * @return attribute assign type
    */
+  @ApiModelProperty(value = "is role or role_subject from the PermissionType enum", example = "role")
   public String getPermissionType() {
     return this.permissionType;
   }
@@ -300,6 +313,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * actions to query, or none to query all actions
    * @return actions
    */
+  @ApiModelProperty(value = "actions to be added/removed/replaced", example = "assign")
   public String[] getActions() {
     return this.actions;
   }
@@ -342,6 +356,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return T|F
    */
+  @ApiModelProperty(value = "T|F, for if the extended subject information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -367,6 +382,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @return subject attribute names
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -389,6 +405,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * T or F as to if the group detail should be returned
    * @return T|F
    */
+  @ApiModelProperty(value = "T or F as to if the group detail should be returned", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -439,6 +456,7 @@ public class WsRestAssignPermissionsRequest implements WsRequestBean {
    * related actions, if blank, then just do all
    * @return the actionsToReplace
    */
+  @ApiModelProperty(value = "actions to be replaced", example = "assign")
   public String[] getActionsToReplace() {
     return this.actionsToReplace;
   }

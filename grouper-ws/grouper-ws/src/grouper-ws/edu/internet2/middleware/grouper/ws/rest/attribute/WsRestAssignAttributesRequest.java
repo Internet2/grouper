@@ -31,12 +31,18 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
 /**
  * request bean in body of rest request
  */
+@ApiModel(description = "bean that will be the data from rest request for assigning attributes<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>attributeDefsToReplace</b>: if replacing attributeDefNames, then these are the related attributeDefs, if blank, then just do all <br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>actionsToReplace</b>: if replacing attributeDefNames, then these are the related actions, if blank, then just do all<br />"
+    + "<br /><br /><b>attributeDefTypesToReplace</b>: if replacing attributeDefNames, then these are the related attributeDefTypes, if blank, then just do all<br />")
 public class WsRestAssignAttributesRequest implements WsRequestBean {
 
   /**
@@ -522,6 +528,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * actions to query, or none to query all actions
    * @return actions
    */
+  @ApiModelProperty(value = "actions to query, or none to query all actions", example = "assign")
   public String[] getActions() {
     return this.actions;
   }
@@ -590,6 +597,7 @@ public class WsRestAssignAttributesRequest implements WsRequestBean {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @return subject attribute names
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }

@@ -60,6 +60,7 @@ import edu.internet2.middleware.grouper.misc.SaveResultType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -84,6 +85,7 @@ public class WsGroupToSave {
    * if should create parent stems if not exist
    * @return T or F or null (F)
    */
+  @ApiModelProperty(value = "if should create parent stems if not exist", example = "T|F")
   public String getCreateParentStemsIfNotExist() {
     return this.createParentStemsIfNotExist;
   }
@@ -516,6 +518,7 @@ public class WsGroupToSave {
    * if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)
    * @return the saveMode
    */
+  @ApiModelProperty(value = "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)", example = "UPDATE")
   public String getSaveMode() {
     return this.saveMode;
   }

@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -15,6 +16,14 @@ import io.swagger.annotations.ApiModelProperty;
  * @author vsachdeva
  *
  */
+@ApiModel(description = "bean that will be the data from rest request for getting audit entries<br /><br /><b>actionsPerformedByWsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>wsGroupLookup</b>: fetch audit entries for this group<br />"
+    + "<br /><br /><b>wsStemLookup</b>: fetch audit entries for this stem<br />"
+    + "<br /><br /><b>wsAttributeDefLookup</b>: fetch audit entries for this attribute def<br />"
+    + "<br /><br /><b>wsAttributeDefNameLookup</b>: fetch audit entries for this attribute def name<br />"
+    + "<br /><br /><b>wsSubjectLookup</b>: fetch audit entries for these subjects<br />"
+    + "<br /><br /><b>wsStemLookup</b>: fetch audit entries for actions performed by these subjects<br />")
 public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   
   /** field */
@@ -142,6 +151,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the auditType
    */
+  @ApiModelProperty(value = "the auditType. the category of the audit. get values from this query: 'select audit_category as audit_type, action_name as audit_action from grouper_audit_type'", example = "group, stem, membership")
   public String getAuditType() {
     return this.auditType;
   }
@@ -158,6 +168,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the auditActionId
    */
+  @ApiModelProperty(value = "the auditActionId. the action of the audit inside the category. get values from this query: 'select audit_category as audit_type, action_name as audit_action from grouper_audit_type'", example = "updateGroup, addGroupMembership, deleteStem")
   public String getAuditActionId() {
     return this.auditActionId;
   }
@@ -190,6 +201,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the pageSize
    */
+  @ApiModelProperty(value = "Page size if paging", example = "100")
   public String getPageSize() {
     return this.pageSize;
   }
@@ -207,6 +219,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the pageIsCursor
    */
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F")
   public String getPageIsCursor() {
     return this.pageIsCursor;
   }
@@ -225,6 +238,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorField
    */
+  @ApiModelProperty(value = "Field that will be sent back for cursor based paging", example = "abc123")
   public String getPageLastCursorField() {
     return this.pageLastCursorField;
   }
@@ -243,6 +257,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorFieldType
    */
+  @ApiModelProperty(value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp")
   public String getPageLastCursorFieldType() {
     return this.pageLastCursorFieldType;
   }
@@ -261,6 +276,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the pageCursorFieldIncludesLastRetrieved
    */
+  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrieved() {
     return this.pageCursorFieldIncludesLastRetrieved;
   }
@@ -278,6 +294,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the fromDate
    */
+  @ApiModelProperty(value = "the fromDate", example = "1970/01/01")
   public String getFromDate() {
     return this.fromDate;
   }
@@ -296,6 +313,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the toDate
    */
+  @ApiModelProperty(value = "the fromDate", example = "1970/01/01")
   public String getToDate() {
     return this.toDate;
   }
@@ -312,6 +330,8 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the sortString
    */
+  @ApiModelProperty(value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+      example = "name | displayName | extension | displayExtension")
   public String getSortString() {
     return this.sortString;
   }
@@ -330,6 +350,7 @@ public class WsRestGetAuditEntriesRequest implements WsRequestBean {
   /**
    * @return the ascending
    */
+  @ApiModelProperty(value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }

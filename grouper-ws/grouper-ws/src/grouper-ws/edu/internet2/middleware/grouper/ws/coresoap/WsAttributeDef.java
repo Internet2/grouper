@@ -34,6 +34,7 @@ import edu.internet2.middleware.grouper.util.ChangeToVersionCustomizable;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsVersionUtils;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Result of one attribute def name being retrieved.  The number of
@@ -52,6 +53,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * integer ID for object
    * @return the id
    */
+  @ApiModelProperty(value = "integer ID for the attribute def", example = "1009")
   public String getIdIndex() {
     return this.idIndex;
   }
@@ -234,6 +236,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToAttributeDef
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to an attribute def", example = "T|F")
   public String getAssignToAttributeDef() {
     return this.assignToAttributeDef;
   }
@@ -250,6 +253,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToAttributeDefAssignment
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to an attribute def assignment", example = "T|F")
   public String getAssignToAttributeDefAssignment() {
     return this.assignToAttributeDefAssignment;
   }
@@ -266,6 +270,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToEffectiveMembership
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to an effective membership", example = "T|F")
   public String getAssignToEffectiveMembership() {
     return this.assignToEffectiveMembership;
   }
@@ -282,6 +287,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToEffectiveMembershipAssignment
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to an effective membership assignment", example = "T|F")
   public String getAssignToEffectiveMembershipAssignment() {
     return this.assignToEffectiveMembershipAssignment;
   }
@@ -299,6 +305,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToGroup
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to a group", example = "T|F")
   public String getAssignToGroup() {
     return this.assignToGroup;
   }
@@ -315,6 +322,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToGroupAssignment
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to a group assignment", example = "T|F")
   public String getAssignToGroupAssignment() {
     return this.assignToGroupAssignment;
   }
@@ -331,6 +339,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToImmediateMembership
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to an immediate membership", example = "T|F")
   public String getAssignToImmediateMembership() {
     return this.assignToImmediateMembership;
   }
@@ -347,6 +356,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToImmediateMembershipAssignment
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to an immediate membership assignment", example = "T|F")
   public String getAssignToImmediateMembershipAssignment() {
     return this.assignToImmediateMembershipAssignment;
   }
@@ -364,6 +374,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToMember
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to a member", example = "T|F")
   public String getAssignToMember() {
     return this.assignToMember;
   }
@@ -380,6 +391,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToMemberAssignment
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to a member assignment", example = "T|F")
   public String getAssignToMemberAssignment() {
     return this.assignToMemberAssignment;
   }
@@ -396,6 +408,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToStem
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to a stem", example = "T|F")
   public String getAssignToStem() {
     return this.assignToStem;
   }
@@ -412,6 +425,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
   /**
    * @return the assignToStemAssignment
    */
+  @ApiModelProperty(value = "T|F if can assign this attribute to a stem assignment", example = "T|F")
   public String getAssignToStemAssignment() {
     return this.assignToStemAssignment;
   }
@@ -428,6 +442,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * type of attribute def, from enum AttributeDefType, e.g. attr, domain, type, limit, perm
    * @return the type
    */
+  @ApiModelProperty(value = "type of attribute def, from enum AttributeDefType", example = "attr, domain, type, limit, perm")
   public String getAttributeDefType() {
     return this.attributeDefType;
   }
@@ -444,6 +459,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    *  T of F for if can be assigned multiple times to one object
    * @return if multi assignable
    */
+  @ApiModelProperty(value = "T of F for if can be assigned multiple times to one object", example = "T|F")
   public String getMultiAssignable() {
     return this.multiAssignable;
   }
@@ -460,6 +476,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * T or F, if has values, if can assign multiple values to one assignment
    * @return T or F, if has values, if can assign multiple values to one assignment
    */
+  @ApiModelProperty(value = "T of F for if can be assigned multiple times to one object", example = "T|F")
   public String getMultiValued() {
     return this.multiValued;
   }
@@ -476,6 +493,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * what type of value on assignments: AttributeDefValueType: e.g. integer, timestamp, string, floating, marker, memberId
    * @return value type
    */
+  @ApiModelProperty(value = "what type of value on assignments", example = "integer, timestamp, string, floating, marker, memberId")
   public String getValueType() {
     return this.valueType;
   }
@@ -663,6 +681,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * friendly description of this attributeDef
    * @return the description
    */
+  @ApiModelProperty(value = "friendly description of this attributeDef")
   public String getDescription() {
     return this.description;
   }
@@ -672,6 +691,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * and the extention of this attributeDef
    * @return the name
    */
+  @ApiModelProperty(value = "Full name of the attributeDef (all extensions of parent stems, separated by colons, and the extention of this attributeDef", example = "this:other:attibuteDef")
   public String getName() {
     return this.name;
   }
@@ -680,6 +700,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * universally unique identifier of this attributeDef
    * @return the uuid
    */
+  @ApiModelProperty(value = "universally unique identifier of this attributeDef", example = "a1b2c3d4")
   public String getUuid() {
     return this.uuid;
   }
@@ -713,6 +734,7 @@ public class WsAttributeDef implements Comparable<WsAttributeDef>, ChangeToVersi
    * extension of attributeDef, the part to the right of last colon in name
    * @return the extension
    */
+  @ApiModelProperty(value = "extension of attributeDef, the part to the right of last colon in name", example = "myAttributeDef")
   public String getExtension() {
     return this.extension;
   }

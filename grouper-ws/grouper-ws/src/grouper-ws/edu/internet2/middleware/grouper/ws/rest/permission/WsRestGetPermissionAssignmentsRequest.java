@@ -27,12 +27,19 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsPermissionEnvVar;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
 /**
  * Bean for rest request to get permissions
  */
+@ApiModel(description = "bean that will be the data from rest request for get permission assignments<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>limitEnvVars</b>: limitEnvVars limitEnvVars if processing limits, pass in a set of limits.  The name is the name of the variable, and the value is the value.  Note, you can typecast the values by putting a valid type in parens in front of the param name. e.g. name: (int)amount, value: 50<br />"
+    + "<br /><br /><b>wsAttributeDefLookups</b>: find assignments in these attribute defs (optional)<br />"
+    + "<br /><br /><b>wsAttributeDefNameLookups</b>: find assignments in these attribute def names (optional)<br />"
+    + "<br /><br /><b>roleLookups</b>: are roles to look in)<br />"
+    + "<br /><br /><b>wsSubjectLookups</b>: are subjects to look in<br />")
 public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
 
   /**
@@ -46,6 +53,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists
    * @return the includeLimits
    */
+  @ApiModelProperty(value = "includeLimits T or F (default to F) for if limits should be returned with the results. Note that the attributeDefs, attributeDefNames, and attributeAssignments will be added to those lists", example = "T|F")
   public String getIncludeLimits() {
     return this.includeLimits;
   }
@@ -69,6 +77,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * immediateOnly T of F (defaults to F) if we should filter out non immediate permissions
    * @return the immediateOnly
    */
+  @ApiModelProperty(value = "immediateOnly T of F (defaults to F) if we should filter out non immediate permissions", example = "T|F")
   public String getImmediateOnly() {
     return this.immediateOnly;
   }
@@ -87,6 +96,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * enum PermissionType: role, or role_subject.  defaults to role_subject permissions
    * @return the permissionType
    */
+  @ApiModelProperty(value = "are we looking for role permissions or subject permissions? From enum PermissionType", example = "role, or role_subject.  defaults to role_subject permissions")
   public String getPermissionType() {
     return this.permissionType;
   }
@@ -153,6 +163,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * PROCESS_LIMITS.  If null, then just get all permissions and process on the client.
    * @return processor
    */
+  @ApiModelProperty(value = "if processing permissions, you can filter out either redundant permissions (find best in set), or do that and filter out redundant roles (if flattening roles) (find best in set).  This is the PermissionProcessor enum.  e.g. FILTER_REDUNDANT_PERMISSIONS, FILTER_REDUNDANT_PERMISSIONS_AND_PROCESS_LIMITS, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES, FILTER_REDUNDANT_PERMISSIONS_AND_ROLES_AND_PROCESS_LIMITS, PROCESS_LIMITS.  If null, then just get all permissions and process on the client.", example = "FILTER_REDUNDANT_PERMISSIONS")
   public String getPermissionProcessor() {
     return this.permissionProcessor;
   }
@@ -195,6 +206,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * T or F for if attributeDefName objects should be returned
    * @return the attributeDefName
    */
+  @ApiModelProperty(value = "T or F for if attributeDefName objects should be returned", example = "T|F")
   public String getIncludeAttributeDefNames() {
     return this.includeAttributeDefNames;
   }
@@ -216,6 +228,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * T or F for if the permission details should be returned
    * @return T or F
    */
+  @ApiModelProperty(value = "T or F for if attributeDefName objects should be returned", example = "T|F")
   public String getIncludePermissionAssignDetail() {
     return this.includePermissionAssignDetail;
   }
@@ -235,6 +248,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * T or F for it attribute assignments should be returned
    * @return include attribute assignments
    */
+  @ApiModelProperty(value = "T or F for it attribute assignments should be returned", example = "T|F")
   public String getIncludeAttributeAssignments() {
     return this.includeAttributeAssignments;
   }
@@ -366,6 +380,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * actions to query, or none to query all actions
    * @return actions
    */
+  @ApiModelProperty(value = "actions to query, or none to query all actions", example = "read")
   public String[] getActions() {
     return this.actions;
   }
@@ -391,6 +406,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * and assignments on those assignments should be returned, enter true.  default to false.
    * @return if include assignments on assignments
    */
+  @ApiModelProperty(value = " if this is not querying assignments on assignments directly, but the assignments and assignments on those assignments should be returned, enter true.  default to false.", example = "T|F")
   public String getIncludeAssignmentsOnAssignments() {
     return this.includeAssignmentsOnAssignments;
   }
@@ -434,6 +450,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return T|F
    */
+  @ApiModelProperty(value = "T|F, for if the extended subject information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -459,6 +476,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @return subject attribute names
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -481,6 +499,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * T or F as to if the group detail should be returned
    * @return T|F
    */
+  @ApiModelProperty(value = "T or F as to if the group detail should be returned", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -521,6 +540,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * A for all, T or null for enabled only, F for disabled 
    * @return enabled
    */
+  @ApiModelProperty(value = "A for all, T or null for enabled only, F for disabled ", example = "A|T|F")
   public String getEnabled() {
     return this.enabled;
   }
@@ -541,6 +561,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * Format:  yyyy/MM/dd HH:mm:ss.SSS
    * @return the pointInTimeFrom
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeFrom() {
     return this.pointInTimeFrom;
   }
@@ -568,6 +589,7 @@ public class WsRestGetPermissionAssignmentsRequest implements WsRequestBean {
    * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS 
    * @return the pointInTimeTo
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeFrom.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeFrom is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeTo() {
     return this.pointInTimeTo;
   }

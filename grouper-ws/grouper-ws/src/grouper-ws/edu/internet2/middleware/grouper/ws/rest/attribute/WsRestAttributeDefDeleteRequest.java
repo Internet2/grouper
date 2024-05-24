@@ -26,7 +26,9 @@ import io.swagger.annotations.ApiModelProperty;
  * bean that will be the data from rest request
  *
  */
-@ApiModel(description = "bean that will be the data from rest request for deleting attribute defs")
+@ApiModel(description = "bean that will be the data from rest request for deleting attribute defs<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsAttributeDefLookups</b>: AttributeDefs to be deleted <br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />")
 public class WsRestAttributeDefDeleteRequest implements WsRequestBean {
 
   /** field */

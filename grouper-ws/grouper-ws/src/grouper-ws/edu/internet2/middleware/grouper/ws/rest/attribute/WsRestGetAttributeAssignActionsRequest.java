@@ -24,12 +24,16 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
 /**
  * Bean for rest request to get attributes assign actions
  */
+@ApiModel(description = "bean that will be the data from rest request for getting attribute assign actions<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>wsAttributeDefLookup</b>: find assignments in these attribute defs<br />")
 public class WsRestGetAttributeAssignActionsRequest implements WsRequestBean {
 
   /**

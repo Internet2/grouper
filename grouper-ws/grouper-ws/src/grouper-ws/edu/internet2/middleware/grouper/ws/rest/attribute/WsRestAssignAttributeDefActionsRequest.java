@@ -5,12 +5,16 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * request bean in body of rest request
  * Add/Remove/Replace actions from attribute def
  */
+@ApiModel(description = "bean that will be the data from rest request for assigning attribute def actions<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsAttributeDefLookup</b>: attribute def to add or remove from actions<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />")
 public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
 
   /** attribute def to add or remove from actions **/
@@ -40,7 +44,7 @@ public class WsRestAssignAttributeDefActionsRequest implements WsRequestBean {
    * actions to be added/removed/replaced
    * @return actions
    */
-  @ApiModelProperty(value = "Version of the client (i.e. that the client was coded against)", example = "v2_6_001")
+  @ApiModelProperty(value = "actions to be added/removed/replaced", example = "assign")
   public String[] getActions() {
     return this.actions;
   }

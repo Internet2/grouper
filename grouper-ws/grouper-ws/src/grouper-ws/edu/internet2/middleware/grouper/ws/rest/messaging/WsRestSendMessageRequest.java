@@ -24,6 +24,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 import java.util.Map;
@@ -32,6 +33,9 @@ import java.util.Map;
 /**
  * request bean in body of rest request
  */
+@ApiModel(description = "bean that will be the data from rest request for send message<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>messages</b>: messages to be sent<br />"
+    + "<br /><br /><b>queueArguments</b>: extra queue arguments if needed<br />")
 public class WsRestSendMessageRequest implements WsRequestBean {
   
   
@@ -85,6 +89,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    * routing key for rabbitmq
    * @return routingKey
    */
+  @ApiModelProperty(value = "routingKey", example = "tihsRoutingKey")
   public String getRoutingKey() {
     return this.routingKey;
   }
@@ -101,6 +106,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    * exchange type (e.g. rabbitmq)
    * @return
    */
+  @ApiModelProperty(value = "exchange type", example = "rabbitmg")
   public String getExchangeType() {
     return exchangeType;
   }
@@ -133,6 +139,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
    * queue type
    * @return queueType
    */
+  @ApiModelProperty(value = "queue type")
   public String getQueueType() {
     return this.queueType;
   }
@@ -148,6 +155,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   /** 
    * @return queueOrTopicName
    */
+  @ApiModelProperty(value = "queueOrTopicName", example = "this:other:queueName")
   public String getQueueOrTopicName() {
     return this.queueOrTopicName;
   }
@@ -162,6 +170,7 @@ public class WsRestSendMessageRequest implements WsRequestBean {
   /**
    * @return messageSystemName
    */
+  @ApiModelProperty(value = "messageSystemName", example = "this:other:messsageSystemName")
   public String getMessageSystemName() {
     return this.messageSystemName;
   }
