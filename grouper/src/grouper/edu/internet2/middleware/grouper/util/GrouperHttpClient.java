@@ -1003,7 +1003,8 @@ public class GrouperHttpClient {
     }
     
     HttpRequestBase httpRequestBase = null;
-
+    CloseableHttpResponse closeableHttpResponse = null;
+    
     try{
 
       // Use multipart for post forms and files.
@@ -1135,7 +1136,7 @@ public class GrouperHttpClient {
       httpRequestBase.setConfig(config.build());
 
       // Execute the method.
-      CloseableHttpResponse closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
+      closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
       this.responseCode = closeableHttpResponse.getStatusLine().getStatusCode();
       
       if (this.debugMapForCaller != null) {
@@ -1185,12 +1186,9 @@ public class GrouperHttpClient {
         } finally {
           IOUtils.closeQuietly(fileOutputStream);
           IOUtils.closeQuietly(inputStream);
-          httpRequestBase.releaseConnection();
-          EntityUtils.consumeQuietly(closeableHttpResponse.getEntity());
-          closeableHttpResponse.close();
         }
       }
-      
+
       if (this.assertResponseCode != null) {
         if (this.assertResponseCode != this.responseCode) {
           StringBuilder responseBody = new StringBuilder();
@@ -1230,6 +1228,22 @@ public class GrouperHttpClient {
       throw new RuntimeException(e);
     } finally{
 
+      if (closeableHttpResponse != null) {
+        EntityUtils.consumeQuietly(closeableHttpResponse.getEntity());
+      }
+      
+      if (httpRequestBase != null) {
+        httpRequestBase.releaseConnection();
+      }
+      
+      if (closeableHttpResponse != null) {
+        try {
+          closeableHttpResponse.close();
+        } catch (IOException e) {
+          // ignore
+        }
+      }
+      
       // dont close this, just close the methods.  the client is reused
       boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
       if (!httpClientReuse) {
