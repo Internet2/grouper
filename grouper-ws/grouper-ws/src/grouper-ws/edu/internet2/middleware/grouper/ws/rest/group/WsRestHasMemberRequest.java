@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -32,6 +33,10 @@ import io.swagger.annotations.ApiModelProperty;
  * @see GrouperServiceLogic#hasMember(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, boolean, String[], WsParam[])
  * for method
  */
+@ApiModel(description = "bean that will be the data from rest request for has member<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsGroupLookup</b>: group to be checked<br />"
+    + "<br /><br /><b>subjectLookups</b>: subject to be checked<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />")
 public class WsRestHasMemberRequest implements WsRequestBean {
   
   /** field */
@@ -135,6 +140,7 @@ public class WsRestHasMemberRequest implements WsRequestBean {
   /**
    * @return the replaceAllExisting
    */
+  @ApiModelProperty(value = "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)", example = "Effective")
   public String getMemberFilter() {
     return this.memberFilter;
   }
@@ -167,6 +173,7 @@ public class WsRestHasMemberRequest implements WsRequestBean {
   /**
    * @return the fieldName
    */
+  @ApiModelProperty(value = "field name (list) to search, blank for members list", example = "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate")
   public String getFieldName() {
     return this.fieldName;
   }
@@ -183,6 +190,7 @@ public class WsRestHasMemberRequest implements WsRequestBean {
   /**
    * @return the includeGroupDetail
    */
+  @ApiModelProperty(value = "If the group detail should be returned, default to false", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -199,6 +207,7 @@ public class WsRestHasMemberRequest implements WsRequestBean {
   /**
    * @return the includeSubjectDetail
    */
+  @ApiModelProperty(value = "If the subject detail should be returned, default to false", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -215,6 +224,7 @@ public class WsRestHasMemberRequest implements WsRequestBean {
   /**
    * @return the subjectAttributeNames
    */
+  @ApiModelProperty(value = "the names of the extra attributes to be returned if includeSubjectDetail is true", example = "lastName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -260,6 +270,7 @@ public class WsRestHasMemberRequest implements WsRequestBean {
    * Format:  yyyy/MM/dd HH:mm:ss.SSS
    * @return the pointInTimeFrom
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeFrom() {
     return this.pointInTimeFrom;
   }
@@ -287,6 +298,7 @@ public class WsRestHasMemberRequest implements WsRequestBean {
    * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS 
    * @return the pointInTimeTo
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeFrom.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeFrom is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeTo() {
     return this.pointInTimeTo;
   }

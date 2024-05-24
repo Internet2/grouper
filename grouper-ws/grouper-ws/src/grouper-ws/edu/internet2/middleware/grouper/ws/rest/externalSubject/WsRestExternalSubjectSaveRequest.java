@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -32,6 +33,9 @@ import io.swagger.annotations.ApiModelProperty;
  * @see GrouperServiceLogic#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, boolean, boolean, String[], WsParam[])
  * for method
  */
+@ApiModel(description = "bean that will be the data from rest request for saving an external subject<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>wsExternalSubjectToSaves</b>: external subject to be saved<br />")
 public class WsRestExternalSubjectSaveRequest implements WsRequestBean {
   
   /** field */
@@ -105,6 +109,7 @@ public class WsRestExternalSubjectSaveRequest implements WsRequestBean {
    * field
    * @return the txType
    */
+  @ApiModelProperty(value = "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW.", example = "READ_WRITE_NEW")
   public String getTxType() {
     return this.txType;
   }

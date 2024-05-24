@@ -26,6 +26,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.pit.PITAttributeAssignValue;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
+import io.swagger.annotations.ApiModelProperty;
 
 
 /**
@@ -79,6 +80,7 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
    * internal value
    * @return internal value
    */
+  @ApiModelProperty(value = "is value to add, assign, remove, etc", example = "myValue")
   public String getValueSystem() {
     return this.valueSystem;
   }
@@ -95,6 +97,7 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
    * value formatted
    * @return value formatted
    */
+  @ApiModelProperty(value = "is value to add, assign, remove, etc though not implemented yet", example = "myValue")
   public String getValueFormatted() {
     return this.valueFormatted;
   }
@@ -132,6 +135,7 @@ public class WsAttributeAssignValue implements Comparable<WsAttributeAssignValue
    * id of this attribute assignment
    * @return id
    */
+  @ApiModelProperty(value = "id of this attribute assignment", example = "a1b2c3d4")
   public String getId() {
     return this.id;
   }

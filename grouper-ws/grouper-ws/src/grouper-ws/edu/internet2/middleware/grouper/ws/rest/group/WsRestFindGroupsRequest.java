@@ -1,4 +1,7 @@
 /*******************************************************************************
+
+
+ * 
  * Copyright 2012 Internet2
  * 
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -34,7 +37,10 @@ import io.swagger.annotations.ApiModelProperty;
  * @see GrouperServiceLogic#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, boolean, boolean, String[], WsParam[])
  * for method
  */
-@ApiModel(description = "bean that will be the data from rest request for finding groups")
+@ApiModel(description = "bean that will be the data from rest request for finding groups<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsQueryFilter</b>: query filter for request<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>sGroupLookups</b>: if you want to just pass in a list of uuids and/or names<br />")
 public class WsRestFindGroupsRequest implements WsRequestBean {
   
   /** query filter for request */

@@ -21,6 +21,8 @@ package edu.internet2.middleware.grouper.ws.coresoap;
 
 import org.apache.commons.lang.builder.ReflectionToStringBuilder;
 
+import io.swagger.annotations.ApiModelProperty;
+
 
 /**
  * param for permission query if there are run time limits this is the runtime data
@@ -63,6 +65,7 @@ public class WsPermissionEnvVar {
    * note you can instead typecast on the paramName, e.g. (integer)someParamName
    * @return the param type
    */
+  @ApiModelProperty(value = "type of value, note you can instead typecast on the paramName, e.g. (integer)someParamName", example = "text, integer, decimal, date, timestamp, boolean, null, emptyString")
   public String getParamType() {
     return this.paramType;
   }
@@ -90,6 +93,7 @@ public class WsPermissionEnvVar {
    * Default (if none specified) is text
    * @return the paramName
    */
+  @ApiModelProperty(value = "name of param.  Note you can typecast the value by putting a name like: (integer)someName", example = "someName")
   public String getParamName() {
     return this.paramName;
   }
@@ -111,6 +115,7 @@ public class WsPermissionEnvVar {
    * value of param
    * @return the paramValue
    */
+  @ApiModelProperty(value = "value of param", example = "myValue")
   public String getParamValue() {
     return this.paramValue;
   }

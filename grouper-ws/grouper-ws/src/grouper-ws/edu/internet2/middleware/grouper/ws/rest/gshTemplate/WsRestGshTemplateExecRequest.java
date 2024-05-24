@@ -9,8 +9,11 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
-
+@ApiModel(description = "bean that will be the data from rest request for executing gsh template<br /><br /><b>gshTemplateActAsSubjectLookup</b>: if the template config has an actAsGroupUUID and if the principal user calling the webservice is in that group, then specify a user to run the template as. An external UI could run template as other users. <br />"
+    + "<br /><br /><b>ownerGroupLookups</b>: group where the template is being called<br />"
+    + "<br /><br /><b>ownerStemLookups</b>: stem where the template is being called<br />")
 public class WsRestGshTemplateExecRequest implements WsRequestBean {
   
   private Map<String, Object> wsInput;
@@ -49,7 +52,7 @@ public class WsRestGshTemplateExecRequest implements WsRequestBean {
   /** field */
   private WsParam[] params;
   
-  
+  @ApiModelProperty(value = "config id is template config that is being run", example = "myConfigId")
   public String getConfigId() {
     return configId;
   }
@@ -60,8 +63,11 @@ public class WsRestGshTemplateExecRequest implements WsRequestBean {
   }
 
 
-
-  
+/**
+ * type of owner, group or stem
+ * @return owner type
+ */
+  @ApiModelProperty(value = "the type of the owner", example = "stem or group")
   public String getOwnerType() {
     return ownerType;
   }

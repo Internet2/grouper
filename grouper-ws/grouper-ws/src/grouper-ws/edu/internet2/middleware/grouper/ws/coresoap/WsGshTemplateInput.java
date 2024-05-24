@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.ws.coresoap;
 
+import io.swagger.annotations.ApiModelProperty;
 
 public class WsGshTemplateInput {
   
@@ -7,7 +8,6 @@ public class WsGshTemplateInput {
   
   private String value;
 
-  
   public String getName() {
     return name;
   }

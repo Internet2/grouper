@@ -31,6 +31,8 @@ import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.query.StemScope;
 import edu.internet2.middleware.grouper.ws.query.WsStemQueryFilterType;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
+import io.swagger.annotations.ApiModel;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * this represents a query which can be and'ed or or'ed
@@ -265,6 +267,7 @@ public class WsStemQueryFilter {
    * FIND_BY_TYPE, AND, OR, MINUS; 
    * @return the findStemType
    */
+  @ApiModelProperty(value = "findStemType is the WsFindStemType enum for which type of find is happening", example = " FIND_BY_STEM_UUID, FIND_BY_STEM_NAME, FIND_BY_STEM_NAME, FIND_BY_APPROXIMATE_ATTRIBUTE, FIND_BY_ATTRIBUTE, FIND_BY_TYPE, AND, OR, MINUS")
   public String getStemQueryFilterType() {
     return this.stemQueryFilterType;
   }
@@ -284,6 +287,7 @@ public class WsStemQueryFilter {
    * stemName search by stem name (must match exactly), cannot use other params with this 
    * @return the stemName
    */
+  @ApiModelProperty(value = "stemName search by stem name (must match exactly)", example = "this:one:stemName")
   public String getStemName() {
     return this.stemName;
   }
@@ -300,6 +304,7 @@ public class WsStemQueryFilter {
    * parentStemName will return stems only in this stem
    * @return the parentStemName
    */
+  @ApiModelProperty(value = "parentStemName will return stems only in this stem", example = "this:one:parentStemName")
   public String getParentStemName() {
     return this.parentStemName;
   }
@@ -318,6 +323,7 @@ public class WsStemQueryFilter {
    * ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE
    * @return the parentStemNameScope
    */
+  @ApiModelProperty(value = "if searching by stem, ONE_LEVEL is for one level, ALL_IN_SUBTREE will return all in sub tree. Default is ALL_IN_SUBTREE", example = "ALL_IN_SUBTREE")
   public String getParentStemNameScope() {
     return this.parentStemNameScope;
   }
@@ -346,6 +352,7 @@ public class WsStemQueryFilter {
    * stemUuid search by stem uuid (must match exactly), cannot use other
    * @return the stemUuid
    */
+  @ApiModelProperty(value = "stemUuid search by stem uuid (must match exactly)", example = "a1b2c3d4")
   public String getStemUuid() {
     return this.stemUuid;
   }
@@ -363,6 +370,7 @@ public class WsStemQueryFilter {
    * name, extension, etc
    * @return the queryTerm
    */
+  @ApiModelProperty(value = "queryTerm if searching by query, this is a term that will be matched to", example = "name, extension, etc")
   public String getQueryTerm() {
     return this.stemAttributeValue;
   }
@@ -381,6 +389,7 @@ public class WsStemQueryFilter {
    * all attributes
    * @return the attributeName
    */
+  @ApiModelProperty(value = "if querying, this is the attribute name, or null or search", example = "this:other:stemAttributeName")
   public String getStemAttributeName() {
     return this.stemAttributeName;
   }
@@ -510,6 +519,7 @@ public class WsStemQueryFilter {
    * stemAttributeValue if searching by query, this is a term that will be matched to
    * @return the stemAttributeValue
    */
+  @ApiModelProperty(value = " stemAttributeValue if searching by query, this is a term that will be matched to", example = "myValue")
   public String getStemAttributeValue() {
     return this.stemAttributeValue;
   }
@@ -526,6 +536,7 @@ public class WsStemQueryFilter {
    * true or null for ascending, false for descending.  If you pass true or false, must pass a sort string
    * @return the ascending
    */
+  @ApiModelProperty(value = "true or null for ascending, false for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }
@@ -534,6 +545,7 @@ public class WsStemQueryFilter {
    * page number 1 indexed if paging
    * @return the pageNumber
    */
+  @ApiModelProperty(value = " page number 1 indexed if paging", example = "2")
   public String getPageNumber() {
     return this.pageNumber;
   }
@@ -542,6 +554,7 @@ public class WsStemQueryFilter {
    * page size if paging
    * @return the pageSize
    */
+  @ApiModelProperty(value = "page size if paging", example = "100")
   public String getPageSize() {
     return this.pageSize;
   }
@@ -550,6 +563,7 @@ public class WsStemQueryFilter {
    * must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @return the sortString
    */
+  @ApiModelProperty(value = "must be an hql query field", example = "name, displayName, extension, displayExtension")
   public String getSortString() {
     return this.sortString;
   }

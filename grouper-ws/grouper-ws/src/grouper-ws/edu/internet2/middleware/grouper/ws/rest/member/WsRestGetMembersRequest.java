@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -32,6 +33,10 @@ import io.swagger.annotations.ApiModelProperty;
  * @see GrouperServiceLogic#hasMember(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, boolean, String[], WsParam[])
  * for method
  */
+@ApiModel(description = "bean that will be the data from rest request for get members<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsGroupLookups</b>: group to get members from<br />"
+    + "<br /><br /><b>subjectLookups</b>: subjects to be inqured about<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />")
 public class WsRestGetMembersRequest implements WsRequestBean {
   
   /** field */
@@ -110,6 +115,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
    * page size if paging
    * @return page size
    */
+  @ApiModelProperty(value = "Page size if paging", example = "100")
   public String getPageSize() {
     return this.pageSize;
   }
@@ -128,6 +134,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
    * page number 1 indexed if paging
    * @return page number
    */
+  @ApiModelProperty(value = "Page number 1 indexed if paging", example = "1")
   public String getPageNumber() {
     return this.pageNumber;
   }
@@ -147,6 +154,8 @@ public class WsRestGetMembersRequest implements WsRequestBean {
    * can sort on uuid, subjectId, sourceId, name, description, sortString0, sortString1, sortString2, sortString3, sortString4
    * @return sort string
    */
+  @ApiModelProperty(value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+      example = "name | displayName | extension | displayExtension")
   public String getSortString() {
     return this.sortString;
   }
@@ -166,6 +175,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
    * ascending T or null for ascending, F for descending.  
    * @return ascending
    */
+  @ApiModelProperty(value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }
@@ -210,6 +220,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
    * sourceIds, or null if all
    * @return the sourceIds
    */
+  @ApiModelProperty(value = "sourceIds, or null if all", example = "a1b2, c3d4")
   public String[] getSourceIds() {
     return this.sourceIds;
   }
@@ -258,6 +269,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the replaceAllExisting
    */
+  @ApiModelProperty(value = "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)", example = "Effective")
   public String getMemberFilter() {
     return this.memberFilter;
   }
@@ -290,6 +302,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the fieldName
    */
+  @ApiModelProperty(value = "field name (list) to search, blank for groups list", example = "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate")
   public String getFieldName() {
     return this.fieldName;
   }
@@ -306,6 +319,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the includeGroupDetail
    */
+  @ApiModelProperty(value = "T or F for if more info about the group should be returned", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -322,6 +336,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the includeSubjectDetail
    */
+  @ApiModelProperty(value = "If the subject detail should be returned, default to false", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -338,6 +353,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the subjectAttributeNames
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -384,6 +400,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
    * Format:  yyyy/MM/dd HH:mm:ss.SSS
    * @return the pointInTimeFrom
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeFrom() {
     return this.pointInTimeFrom;
   }
@@ -411,6 +428,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
    * minimum point in time to the time specified.  Format: yyyy/MM/dd HH:mm:ss.SSS 
    * @return the pointInTimeTo
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeTo() {
     return this.pointInTimeTo;
   }
@@ -433,6 +451,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the pageIsCursor
    */
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F")
   public String getPageIsCursor() {
     return this.pageIsCursor;
   }
@@ -449,6 +468,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorField
    */
+  @ApiModelProperty(value = "Field that will be sent back for cursor based paging", example = "abc123")
   public String getPageLastCursorField() {
     return this.pageLastCursorField;
   }
@@ -465,6 +485,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorFieldType
    */
+  @ApiModelProperty(value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp")
   public String getPageLastCursorFieldType() {
     return this.pageLastCursorFieldType;
   }
@@ -481,6 +502,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * @return the pageCursorFieldIncludesLastRetrieved
    */
+  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrieved() {
     return this.pageCursorFieldIncludesLastRetrieved;
   }
@@ -496,6 +518,7 @@ public class WsRestGetMembersRequest implements WsRequestBean {
   /**
    * T|F|null
    */
+  @ApiModelProperty(value = "true means retrieve point in time records", example = "T|F|null")
   public String getPointInTimeRetrieve() {
     return this.pointInTimeRetrieve;
   }

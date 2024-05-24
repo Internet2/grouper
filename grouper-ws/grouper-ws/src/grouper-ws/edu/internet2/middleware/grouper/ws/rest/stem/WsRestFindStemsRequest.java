@@ -34,7 +34,9 @@ import io.swagger.annotations.ApiModelProperty;
  * @see GrouperServiceLogic#getGroups(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, boolean, boolean, String[], WsParam[])
  * for method
  */
-@ApiModel(description = "bean that will be the data from rest request for finding stems")
+@ApiModel(description = "bean that will be the data from rest request for finding stems<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsStemQueryFilter</b>: query filter for request<br />"
+    + "<br /><br /><b>wsStemLookups</b>: to pass in a list of uuids or names to lookup.  Note the stems are returneds (optional)<br />")
 public class WsRestFindStemsRequest implements WsRequestBean {
   
   /** query filter for request */

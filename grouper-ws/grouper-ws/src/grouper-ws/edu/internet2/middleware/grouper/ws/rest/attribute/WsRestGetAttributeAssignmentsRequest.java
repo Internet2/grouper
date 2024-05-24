@@ -30,12 +30,23 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
 /**
  * Bean for rest request to get attributes
  */
+@ApiModel(description = "bean that will be the data from rest request for getting attribute assignments<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>wsAttributeAssignLookups</b>: if you know the assign ids you want, put them here<br />"
+    + "<br /><br /><b>wsAttributeDefLookups</b>: find assignments in these attribute defs (optional)<br />"
+    + "<br /><br />wsAttributeDefNameLookups<b></b>: find assignments in these attribute def names (optional)<br />"
+    + "<br /><br /><b>wsOwnerGroupLookups</b>: wsOwnerGroupLookups are groups to look in<br />"
+    + "<br /><br /><b>wsOwnerStemLookups</b>: are stems to look in<br />"
+    + "<br /><br /><b>wsOwnerSubjectLookups</b>: are subjects to look in<br />"
+    + "<br /><br /><b>wsOwnerMembershipLookups</b>: to query attributes on immediate memberships<br />"
+    + "<br /><br /><b>wsOwnerMembershipAnyLookups</b>: to query attributes in \"any\" memberships which are on immediate or effective memberships<br />")
 public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
 
   /**
@@ -372,6 +383,7 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
    * actions to query, or none to query all actions
    * @return actions
    */
+  @ApiModelProperty(value = "actions to query, or none to query all actions", example = "assign")
   public String[] getActions() {
     return this.actions;
   }
@@ -613,12 +625,14 @@ public class WsRestGetAttributeAssignmentsRequest implements WsRequestBean {
   /**
    * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    */
+  
   private String[] wsAssignAssignOwnerActions;
 
   /**
    * if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to
    * @return actions
    */
+  @ApiModelProperty(value = "if looking for assignments on assignments, this are the actions of the assignment the assignment is assigned to")
   public String[] getWsAssignAssignOwnerActions() {
     return this.wsAssignAssignOwnerActions;
   }

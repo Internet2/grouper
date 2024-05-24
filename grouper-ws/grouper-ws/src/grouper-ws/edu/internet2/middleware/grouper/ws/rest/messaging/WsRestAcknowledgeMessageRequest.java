@@ -23,12 +23,14 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
 /**
  * request bean in body of rest request
  */
+@ApiModel(description = "bean that will be the data from rest request for receive message<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />")
 public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
   
   
@@ -61,6 +63,7 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
   /**
    * @return the messages to be marked as processed
    */
+  @ApiModelProperty(value = "the messages to be marked as processed", example = "a1b2, c3d4")
   public String[] getMessageIds() {
     return this.messageIds;
   }
@@ -75,6 +78,7 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
   /** 
    * @return queueOrTopicName
    */
+  @ApiModelProperty(value = "queueOrTopicName", example = "this:other:queueName")
   public String getQueueOrTopicName() {
     return this.queueOrTopicName;
   }
@@ -89,6 +93,7 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
   /**
    * @return messageSystemName
    */
+  @ApiModelProperty(value = "messageSystemName", example = "this:other:messageSystemName")
   public String getMessageSystemName() {
     return this.messageSystemName;
   }
@@ -104,6 +109,7 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
    *  what to do with the message. valid options are: mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue
    * @return acknowledgeType
    */
+  @ApiModelProperty(value = "what to do with the message", example = "mark_as_processed, return_to_queue, return_to_end_of_queue,  send_to_another_queue")
   public String getAcknowledgeType() {
     return this.acknowledgeType;
   }
@@ -120,6 +126,7 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
    * destination of the message if acknowledgeType is send_to_another_queue
    * @return anotherQueueOrTopicName
    */
+  @ApiModelProperty(value = " destination of the message if acknowledgeType is send_to_another_queue", example = "this:other:queue")
   public String getAnotherQueueOrTopicName() {
     return this.anotherQueueOrTopicName;
   }
@@ -136,6 +143,7 @@ public class WsRestAcknowledgeMessageRequest implements WsRequestBean {
    * destination type if acknowledge type is send_to_another_queue. Valid values are queue and topic
    * @return anotherQueueOrTopic
    */
+  @ApiModelProperty(value = "destination type if acknowledge type is send_to_another_queue", example = "queue, topic")
   public String getAnotherQueueType() {
     return this.anotherQueueType;
   }
