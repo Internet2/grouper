@@ -35,6 +35,7 @@ import edu.internet2.middleware.grouper.exception.AttributeAssignNotFoundExcepti
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -207,7 +208,7 @@ public class WsAttributeAssignLookup implements GrouperWsToStringCompact {
    * uuid of the attributeAssign to find
    * @return the uuid
    */
-  
+  @ApiModelProperty(value = "uuid of the attributeAssign to find", example = "a1b2c3d4")
   public String getUuid() {
     return this.uuid;
   }
@@ -355,6 +356,7 @@ public class WsAttributeAssignLookup implements GrouperWsToStringCompact {
    * refers to a previously sent assignment, this is the index (0 indexed)
    * @return the batch index
    */
+  @ApiModelProperty(value = "if there is a batch request, and this attribute assignment refers to a previously sent assignment, this is the index (0 indexed)", example = "0")
   public String getBatchIndex() {
     return this.batchIndex;
   }

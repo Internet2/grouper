@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ws.coresoap.WsExternalSubjectDeleteResult.WsExternalSubjectDeleteResultCode;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
 import edu.internet2.middleware.grouper.ws.util.GrouperWsToStringCompact;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * <pre>
@@ -237,6 +238,7 @@ public class WsExternalSubjectLookup implements GrouperWsToStringCompact {
    * name of the attributeDef to find (includes stems, e.g. stem1:stem2:attributeDef
    * @return the theName
    */
+  @ApiModelProperty(value = "name of the attributeDef to find ", example = "stem1:stem2:attributeDef")
   public String getIdentifier() {
     return this.identifier;
   }

@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -37,6 +38,10 @@ import io.swagger.annotations.ApiModelProperty;
  * </pre>
  * @author mchyzer
  */
+@ApiModel(description = "bean that will be the data from rest request for assigning grouper privileges<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>wsGroupLookup</b>: group to assign privilege<br />"
+    + "<br /><br /><b>wsStemLookup</b>: stem to assign privilege<br />")
 public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
 
   /** attribute names to return */
@@ -62,6 +67,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
    * T to replace existing members, F or blank to just change assignments.  Only for allowed T
    * @return replace all existing
    */
+  @ApiModelProperty(value = "T to replace existing members, F or blank to just change assignments.  Only for allowed T", example = "T|F")
   public String getReplaceAllExisting() {
     return this.replaceAllExisting;
   }
@@ -196,6 +202,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
    * privilegeType (e.g. "access" for groups and "naming" for stems)
    * @return type
    */
+  @ApiModelProperty(value = "Type of privilege, (e.g. access for groups and naming for stems)", example = "access")
   public String getPrivilegeType() {
     return this.privilegeType;
   }
@@ -213,6 +220,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
    * stem, create)
    * @return name
    */
+  @ApiModelProperty(value = "privilege name", example = "for groups: read, view, update, admin, optin, optout. for stems stem, create")
   public String[] getPrivilegeNames() {
     return this.privilegeNames;
   }
@@ -231,6 +239,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return include detail
    */
+  @ApiModelProperty(value = "T|F, for if the extended subject information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -248,6 +257,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
    * T or F as for if group detail should be included
    * @return T of F
    */
+  @ApiModelProperty(value = "T|F, for if the extended group information should be returned (anything more than just the id)", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -264,6 +274,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
    * T or F as to whether this privilege is being assigned or removed
    * @return allowed
    */
+  @ApiModelProperty(value = "T or F as to whether this privilege is being assigned or removed", example = "T|F")
   public String getAllowed() {
     return this.allowed;
   }
@@ -316,6 +327,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
   /**
    * @return the subjectAttributeNames
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent", example = "LastName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -332,6 +344,7 @@ public class WsRestAssignGrouperPrivilegesRequest implements WsRequestBean {
   /**
    * @return the txType
    */
+  @ApiModelProperty(value = "is the GrouperTransactionType for the request. If blank, defaults to NONE (will finish as much as possible).  Generally the only values for this param that make sense are NONE (or blank), and READ_WRITE_NEW.", example = "READ_WRITE_NEW")
   public String getTxType() {
     return this.txType;
   }

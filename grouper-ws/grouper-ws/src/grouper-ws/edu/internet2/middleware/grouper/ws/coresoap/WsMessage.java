@@ -24,6 +24,7 @@ import org.apache.commons.lang.builder.ToStringBuilder;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessage;
+import io.swagger.annotations.ApiModelProperty;
 
 /**
  * Result of one message being sent or received.  The number of
@@ -47,6 +48,7 @@ public class WsMessage implements Comparable<WsMessage> {
   /**
    * @return the message id
    */
+  @ApiModelProperty(value = "the message id", example = "a1b2c3d4")
   public String getId() {
     return this.id;
   }
@@ -62,6 +64,7 @@ public class WsMessage implements Comparable<WsMessage> {
   /**
    * @return member id of sender
    */
+  @ApiModelProperty(value = "member id of sender", example = "a1b2c3d4")
   public String getFromMemberId() {
     return this.fromMemberId;
   }
@@ -76,6 +79,7 @@ public class WsMessage implements Comparable<WsMessage> {
   /**
    * @return body of the message
    */
+  @ApiModelProperty(value = "body of the message")
   public String getMessageBody() {
     return this.messageBody;
   }

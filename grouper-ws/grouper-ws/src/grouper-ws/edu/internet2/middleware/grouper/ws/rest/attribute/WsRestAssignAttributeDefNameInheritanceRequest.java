@@ -24,12 +24,17 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 
 /**
  * request bean in body of rest request
  */
+@ApiModel(description = "bean that will be the data from rest request for assigning attribute def name inheritence<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsAttributeDefNameLookup</b>: attributeDefName which is the container for the inherited attribute def names<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    + "<br /><br /><b>relatedWsAttributeDefNameLookups</b>: attributeDefName which is the container for the inherited attribute def names<br />")
 public class WsRestAssignAttributeDefNameInheritanceRequest implements WsRequestBean {
 
   /**
@@ -45,7 +50,6 @@ public class WsRestAssignAttributeDefNameInheritanceRequest implements WsRequest
   /**
    * T to assign, or F to remove assignment
    */
-  @ApiModelProperty(value = "!!", example = "!!")
   private String assign;
   
   /**

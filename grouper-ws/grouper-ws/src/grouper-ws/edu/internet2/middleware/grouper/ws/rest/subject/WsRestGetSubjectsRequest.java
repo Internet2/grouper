@@ -25,6 +25,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -32,6 +33,11 @@ import io.swagger.annotations.ApiModelProperty;
  * @see GrouperServiceLogic#getMemberships(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup[], WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, String[], boolean, WsParam[], String[], String, edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, String, String[])
  * for method
  */
+@ApiModel(description = "bean that will be the data from rest request for getting subjects<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsGroupLookup</b>: returned subjects must be in this group<br />"
+    + "<br /><br /><b>wsSubjectLookups</b>: are subjects to look in<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />"
+    )
 public class WsRestGetSubjectsRequest implements WsRequestBean {
   
   /** field is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
@@ -93,6 +99,7 @@ public class WsRestGetSubjectsRequest implements WsRequestBean {
    * sourceIds are sources to look in for memberships, or null if all
    * @return the sourceIds
    */
+  @ApiModelProperty(value = "sourceIds are sources to look in for memberships, or null if all", example = "choolPerson, g:gsa")
   public String[] getSourceIds() {
     return this.sourceIds;
   }
@@ -146,6 +153,7 @@ public class WsRestGetSubjectsRequest implements WsRequestBean {
    * must be one of All, Effective, Immediate, Composite, NonImmediate
    * @return the replaceAllExisting
    */
+  @ApiModelProperty(value = "must be one of All, Effective, Immediate, Composite, NonImmediate", example = "Effective")
   public String getMemberFilter() {
     return this.memberFilter;
   }
@@ -183,6 +191,7 @@ public class WsRestGetSubjectsRequest implements WsRequestBean {
    * of the group (certain list)
    * @return the fieldName
    */
+  @ApiModelProperty(value = "is if the memberships should be retrieved from a certain field membership of the group (certain list)", example = "embers, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate")
   public String getFieldName() {
     return this.fieldName;
   }
@@ -202,6 +211,7 @@ public class WsRestGetSubjectsRequest implements WsRequestBean {
    * T or F as to if the group detail should be returned
    * @return the includeGroupDetail
    */
+  @ApiModelProperty(value = "T or F as to if the group detail should be returned", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -221,6 +231,7 @@ public class WsRestGetSubjectsRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return the includeSubjectDetail
    */
+  @ApiModelProperty(value = "T or F as to if the subject detail should be returned", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -241,6 +252,7 @@ public class WsRestGetSubjectsRequest implements WsRequestBean {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @return the subjectAttributeNames
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -286,6 +298,7 @@ public class WsRestGetSubjectsRequest implements WsRequestBean {
    * search sources with this free-form search string
    * @return search string
    */
+  @ApiModelProperty(value = "free form string query to find a list of subjects (exact behavior depends on source)", example = "john smith")
   public String getSearchString() {
     return this.searchString;
   }

@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
@@ -35,6 +36,12 @@ import io.swagger.annotations.ApiModelProperty;
  * @see GrouperServiceLogic#getMemberships(edu.internet2.middleware.grouper.ws.GrouperWsVersion, WsGroupLookup[], WsSubjectLookup[], edu.internet2.middleware.grouper.ws.member.WsMemberFilter, WsSubjectLookup, edu.internet2.middleware.grouper.Field, boolean, String[], boolean, WsParam[], String[], String, edu.internet2.middleware.grouper.ws.coresoap.WsStemLookup, edu.internet2.middleware.grouper.ws.query.StemScope, String, String[])
  * for method
  */
+@ApiModel(description = "bean that will be the data from rest request for get memberships<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsGroupLookups</b>:are groups to look in<br />"
+    + "<br /><br /><b>wsOwnerStemLookups</b>:stem lookups if looking for memberships on certain stems<br />"
+    + "<br /><br /><b>wsOwnerAttributeDefLookups</b>:attribute definition lookups if looking for memberships on certain attribute definitions<br />"
+    + "<br /><br /><b>serviceLookup</b>:erviceLookup if filtering by users in a service, then this is the service to look in<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />")
 public class WsRestGetMembershipsRequest implements WsRequestBean {
   
   /** field is the version of the client.  Must be in GrouperWsVersion, e.g. v1_3_000 */
@@ -102,6 +109,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)
    * @return field type
    */
+  @ApiModelProperty(value = "fieldType is the type of field to look at, e.g. list (default, memberships), access (privs on groups), attribute_def (privs on attribute definitions), naming (privs on folders)", example = "list")
   public String getFieldType() {
     return this.fieldType;
   }
@@ -161,6 +169,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * serviceRole to filter attributes that a user has a certain role
    * @return the service role
    */
+  @ApiModelProperty(value = "serviceRole to filter attributes that a user has a certain role", example = "member")
   public String getServiceRole() {
     return this.serviceRole;
   }
@@ -193,6 +202,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * membershipIds are the ids to search for if they are known
    * @return the ids
    */
+  @ApiModelProperty(value = "membershipIds are the ids to search for if they are known", example = "a1b2, c3d4")
   public String[] getMembershipIds() {
     return this.membershipIds;
   }
@@ -209,6 +219,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * enabled is A for all, T or null for enabled only, F for disabled 
    * @return enabled
    */
+  @ApiModelProperty(value = "enabled is A for all, T or null for enabled only, F for disabled ", example = "A|T|F")
   public String getEnabled() {
     return this.enabled;
   }
@@ -225,6 +236,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE
    * @return stem scope
    */
+  @ApiModelProperty(value = "stemScope is StemScope to search only in one stem or in substems: ONE_LEVEL, ALL_IN_SUBTREE", example = "ONE_LEVEL")
   public String getStemScope() {
     return this.stemScope;
   }
@@ -258,6 +270,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * names to search in (or stem names)
    * @return scope
    */
+  @ApiModelProperty(value = "scope is a sql like string which will have a percent % concatenated to the end for group names to search in (or stem names)", example = "school:whatever:parent")
   public String getScope() {
     return this.scope;
   }
@@ -291,6 +304,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * sourceIds are sources to look in for memberships, or null if all
    * @return the sourceIds
    */
+  @ApiModelProperty(value = "sourceIds are sources to look in for memberships, or null if all", example = "a1b2, c3d4")
   public String[] getSourceIds() {
     return this.sourceIds;
   }
@@ -344,6 +358,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * must be one of All, Effective, Immediate, Composite, NonImmediate
    * @return the replaceAllExisting
    */
+   @ApiModelProperty(value = "must be one of All, Effective, Immediate, Composite, NonImmediate", example = "Immediate")
   public String getMemberFilter() {
     return this.memberFilter;
   }
@@ -381,6 +396,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * of the group (certain list)
    * @return the fieldName
    */
+  @ApiModelProperty(value = "is if the memberships should be retrieved from a certain field membership of the group (certain list)", example = "some:other:myFieldName")
   public String getFieldName() {
     return this.fieldName;
   }
@@ -400,6 +416,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * T or F as to if the group detail should be returned
    * @return the includeGroupDetail
    */
+  @ApiModelProperty(value = "T or F as to if the group detail should be returned", example = "T|F")
   public String getIncludeGroupDetail() {
     return this.includeGroupDetail;
   }
@@ -419,6 +436,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * returned (anything more than just the id)
    * @return the includeSubjectDetail
    */
+  @ApiModelProperty(value = "T or F as to if the subject detail should be returned", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -439,6 +457,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * If blank, whatever is configured in the grouper-ws.properties will be sent
    * @return the subjectAttributeNames
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -490,6 +509,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * page size if paging
    * @return page size
    */
+  @ApiModelProperty(value = "Page size if paging", example = "100")
   public String getPageSize() {
     return this.pageSize;
   }
@@ -511,6 +531,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * page number 1 indexed if paging
    * @return page number
    */
+  @ApiModelProperty(value = "Page number 1 indexed if paging", example = "1")
   public String getPageNumber() {
     return this.pageNumber;
   }
@@ -532,6 +553,8 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * sortString must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension
    * @return sort string
    */
+  @ApiModelProperty(value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+      example = "name | displayName | extension | displayExtension")
   public String getSortString() {
     return this.sortString;
   }
@@ -553,6 +576,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * ascending T or null for ascending, F for descending.  
    * @return ascending
    */
+  @ApiModelProperty(value = "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscending() {
     return this.ascending;
   }
@@ -594,6 +618,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * page size if paging in the members part
    * @return page size for member
    */
+  @ApiModelProperty(value = "Page size in members part if paging", example = "100")
   public String getPageSizeForMember() {
     return this.pageSizeForMember;
   }
@@ -615,6 +640,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * page number 1 indexed if paging in the members part
    * @return page number for member
    */
+  @ApiModelProperty(value = "Page number 1 indexed if paging in the members part", example = "1")
   public String getPageNumberForMember() {
     return this.pageNumberForMember;
   }
@@ -640,6 +666,8 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * in the members part
    * @return sort string for member
    */
+  @ApiModelProperty(value = "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension", 
+      example = "name | displayName | extension | displayExtension")
   public String getSortStringForMember() {
     return this.sortStringForMember;
   }
@@ -661,6 +689,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
    * T or null for ascending, F for descending in the members part
    * @return if ascending for member
    */
+  @ApiModelProperty(value = "T or null for ascending, F for descending in the members part.  If you pass true or false, must pass a sort string", example = "T|F")
   public String getAscendingForMember() {
     return this.ascendingForMember;
   }
@@ -720,6 +749,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pointInTimeFrom
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeFrom() {
     return this.pointInTimeFrom;
   }
@@ -734,6 +764,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pointInTimeTo
    */
+  @ApiModelProperty(value = "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeFrom.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeFrom is not specified, then the point in time query range will be from the time specified to now.", example = "1970/01/01 00:00:00.000")
   public String getPointInTimeTo() {
     return this.pointInTimeTo;
   }
@@ -748,6 +779,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageIsCursor
    */
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging", example = "T|F")
   public String getPageIsCursor() {
     return this.pageIsCursor;
   }
@@ -762,6 +794,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorField
    */
+  @ApiModelProperty(value = "Field that will be sent back for cursor based paging", example = "abc123")
   public String getPageLastCursorField() {
     return this.pageLastCursorField;
   }
@@ -776,6 +809,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorFieldType
    */
+  @ApiModelProperty(value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp")
   public String getPageLastCursorFieldType() {
     return this.pageLastCursorFieldType;
   }
@@ -790,6 +824,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageCursorFieldIncludesLastRetrieved
    */
+  @ApiModelProperty(value = "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrieved() {
     return this.pageCursorFieldIncludesLastRetrieved;
   }
@@ -804,6 +839,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageIsCursorForMember
    */
+  @ApiModelProperty(value = "T|F default to F.  if this is T then we are doing cursor paging for members part", example = "T|F")
   public String getPageIsCursorForMember() {
     return this.pageIsCursorForMember;
   }
@@ -818,6 +854,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorFieldForMember
    */
+  @ApiModelProperty(value = "Field that will be sent back for cursor based paging", example = "abc123")
   public String getPageLastCursorFieldForMember() {
     return this.pageLastCursorFieldForMember;
   }
@@ -832,6 +869,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageLastCursorFieldTypeForMember
    */
+  @ApiModelProperty(value = "Could be: string, int, long, date, timestamp", example = "string|int|long|date|timestamp")
   public String getPageLastCursorFieldTypeForMember() {
     return this.pageLastCursorFieldTypeForMember;
   }
@@ -846,6 +884,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pageCursorFieldIncludesLastRetrievedForMember
    */
+  @ApiModelProperty(value = "If cursor field is unique in members part, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset", example = "T|F")
   public String getPageCursorFieldIncludesLastRetrievedForMember() {
     return this.pageCursorFieldIncludesLastRetrievedForMember;
   }
@@ -860,6 +899,7 @@ public class WsRestGetMembershipsRequest implements WsRequestBean {
   /**
    * @return the pointInTimeRetrieve
    */
+  @ApiModelProperty(value = "true means retrieve point in time records", example = "T|F|null")
   public String getPointInTimeRetrieve() {
     return this.pointInTimeRetrieve;
   }

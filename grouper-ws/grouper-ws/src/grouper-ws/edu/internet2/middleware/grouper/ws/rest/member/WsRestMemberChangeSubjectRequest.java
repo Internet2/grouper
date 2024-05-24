@@ -23,11 +23,15 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsParam;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.rest.WsRequestBean;
 import edu.internet2.middleware.grouper.ws.rest.method.GrouperRestHttpMethod;
+import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 /**
  * request bean for rest member change subject lite
  */
+@ApiModel(description = "bean that will be the data from rest request for member change subject<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br />"
+    + "<br /><br /><b>wsMemberChangeSubjects</b>: members to change subjects<br />"
+    + "<br /><br /><b>params</b>: optional params for this request<br />")
 public class WsRestMemberChangeSubjectRequest implements WsRequestBean {
 
   /**
@@ -86,6 +90,7 @@ public class WsRestMemberChangeSubjectRequest implements WsRequestBean {
   /**
    * @return the includeSubjectDetail
    */
+  @ApiModelProperty(value = "If the subject detail should be returned, default to false", example = "T|F")
   public String getIncludeSubjectDetail() {
     return this.includeSubjectDetail;
   }
@@ -100,6 +105,7 @@ public class WsRestMemberChangeSubjectRequest implements WsRequestBean {
   /**
    * @return the subjectAttributeNames
    */
+  @ApiModelProperty(value = "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved", example = "lastName, middleName")
   public String[] getSubjectAttributeNames() {
     return this.subjectAttributeNames;
   }
@@ -107,6 +113,7 @@ public class WsRestMemberChangeSubjectRequest implements WsRequestBean {
   /**
    * @return the txType
    */
+  @ApiModelProperty(value = "if the save should be constrained to INSERT, UPDATE, or INSERT_OR_UPDATE (default)", example = "UPDATE")
   public String getTxType() {
     return this.txType;
   }

@@ -14,7 +14,6 @@
  * limitations under the License.
  */
 package edu.internet2.middleware.grouper.externalSubjects;
-
 import java.sql.Timestamp;
 import java.util.Date;
 import java.util.HashMap;
@@ -407,6 +406,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
    * uuid for row
    * @return uuid
    */
+  
   public String getUuid() {
     return uuid;
   }
