@@ -5,11 +5,13 @@ import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTyp
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttributeNames.retrieveAttributeDefNameBase;
 import static edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesSettings.objectTypesStemName;
 
+import java.sql.Timestamp;
 import java.util.List;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
@@ -27,6 +29,7 @@ import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.hooks.examples.GroupAttributeNameValidationHook;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
@@ -37,6 +40,9 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroupDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobState;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
@@ -54,7 +60,7 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testIncrementalDnOverrideFlat"));    
+    TestRunner.run(new LdapProvisionerWithGroupAndEntityLinksTest("testFlatHarvardMarkExistsFull"));    
   }
   
   @Override
@@ -2637,6 +2643,191 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);
     assertEquals(0, ldapEntries.size());
   }
+
+  public void testFlatHarvardMarkExistsFull() {
+    flatHarvardMarkExists(true);
+  }
+
+  public void testFlatHarvardMarkExistsIncremental() {
+    flatHarvardMarkExists(false);
+  }
+
+  public void flatHarvardMarkExists(boolean isFull) {
+    
+    long started = System.currentTimeMillis();
+    
+    LdapProvisionerTestUtils.configureLdapProvisioner(
+        new LdapProvisionerTestConfigInput()
+          .assignConfigId("gpf_groupOfNamesHlsLdap")
+          .assignProvisioningStrategy("harvardGroupOfNames")
+        );
+
+    new StemSave(this.grouperSession).assignName("test").save();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("gpf_groupOfNamesHlsLdap");
+    attributeValue.setTargetName("gpf_groupOfNamesHlsLdap");
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    // mark some groups to provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, testGroup);
+  
+    Subject jsmith = SubjectFinder.findById("jsmith", true);
+    Subject banderson = SubjectFinder.findById("banderson", true);
+    
+    testGroup.addMember(jsmith, false);
+    testGroup.addMember(banderson, false);
+    testGroup.setDescription("test description");
+    testGroup.store();
+    
+    LdapEntry ldapEntry = new LdapEntry("cn=testGroup:Member,ou=Groups,dc=example,dc=edu");
+    LdapAttribute ldapAttribute = new LdapAttribute("objectClass", "groupOfNames");
+    ldapAttribute.addStringValue("top");
+    ldapEntry.addAttribute(ldapAttribute);
+    ldapEntry.addAttribute(new LdapAttribute("member", "uid=banderson,ou=People,dc=example,dc=edu"));
+    ldapEntry.addAttribute(new LdapAttribute("businessCategory", "ldap:///ou=People-qa,dc=law,dc=harvard,dc=edu??one?(isMemberOf=cn=testGroup:Member,ou=Groups,dc=example,dc=edu)"));
+    ldapEntry.addAttribute(new LdapAttribute("description", "test:testGroup"));
+    LdapSessionUtils.ldapSession().create("personLdap", ldapEntry);
+  
+    //lets sync these over
+    if (isFull) {
+      fullProvision("gpf_groupOfNamesHlsLdap");
+    } else {
+      incrementalProvision("gpf_groupOfNamesHlsLdap");
+    } 
+
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+    assertEquals(2, GrouperUtil.intValue(grouperProvisioner.getDebugMap().get("targetGroupsRetrieved")));
+    
+    List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);
+    assertEquals(2, ldapEntries.size());
+    
+    ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "cn=testGroup:Member,ou=Groups,dc=example,dc=edu", LdapSearchScope.OBJECT_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null).get(0);
+    
+    assertEquals("cn=testGroup:Member,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("testGroup:Member", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals("ldap:///ou=People-qa,dc=law,dc=harvard,dc=edu??one?(isMemberOf=cn=testGroup:Member,ou=Groups,dc=example,dc=edu)", ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertEquals(GrouperUtil.toStringForLog(ldapEntry.getAttribute("member").getStringValues()), 2, ldapEntry.getAttribute("member").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains(testGroup.getName()));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("groupOfNames"));
+    assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=jsmith,ou=People,dc=example,dc=edu"));
+    assertTrue(ldapEntry.getAttribute("member").getStringValues().contains("uid=banderson,ou=People,dc=example,dc=edu"));    
+  
+    
+    //get the grouper_sync and check cols
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "openldapTestUnixPosixGroups");
+    assertEquals(1, gcGrouperSync.getGroupCount().intValue());
+    assertEquals(1, gcGrouperSync.getUserCount().intValue());
+    assertEquals(1, gcGrouperSync.getRecordsCount().intValue());
+    assertTrue(started <  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(new Timestamp(System.currentTimeMillis()) + ", " + gcGrouperSync.getLastFullSyncRun(), 
+        System.currentTimeMillis() >=  gcGrouperSync.getLastFullSyncRun().getTime());
+    assertTrue(started < gcGrouperSync.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSync.getLastUpdated().getTime());
+    
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
+    assertEquals(100, gcGrouperSyncJob.getPercentComplete().intValue());
+    assertEquals(GcGrouperSyncJobState.notRunning, gcGrouperSyncJob.getJobState());
+    assertTrue(started < gcGrouperSyncJob.getLastSyncTimestamp().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastSyncTimestamp().getTime());
+    assertTrue(started < gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastTimeWorkWasDone().getTime());
+    assertTrue(started < gcGrouperSyncJob.getHeartbeat().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getHeartbeat().getTime());
+    assertTrue(started < gcGrouperSyncJob.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncJob.getLastUpdated().getTime());
+    assertNull(gcGrouperSyncJob.getErrorMessage());
+    assertNull(gcGrouperSyncJob.getErrorTimestamp());
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+    assertEquals(testGroup.getName(), gcGrouperSyncGroup.getGroupName());
+    assertEquals(testGroup.getIdIndex(), gcGrouperSyncGroup.getGroupIdIndex());
+    assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncGroup.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertNull(gcGrouperSyncGroup.getProvisionableEnd());
+    assertTrue(started < gcGrouperSyncGroup.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncGroup.getLastUpdated().getTime());
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", gcGrouperSyncGroup.getGroupAttributeValueCache2());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache0());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache1());
+    assertNull(gcGrouperSyncGroup.getGroupAttributeValueCache3());
+    assertNotNull(gcGrouperSyncGroup.getLastGroupMetadataSync());
+    assertNull(gcGrouperSyncGroup.getErrorMessage());
+    assertNull(gcGrouperSyncGroup.getErrorTimestamp());
+    assertNotNull(gcGrouperSyncGroup.getLastGroupSync());
+  
+    Member testSubject0member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(testSubject0member.getId());
+    assertEquals(testSubject0member.getId(), gcGrouperSyncMember.getMemberId());
+    assertEquals(testSubject0member.getSubjectId(), gcGrouperSyncMember.getSubjectId());
+    assertEquals(testSubject0member.getSubjectSourceId(), gcGrouperSyncMember.getSourceId());
+    assertEquals(testSubject0member.getSubjectIdentifier0(), gcGrouperSyncMember.getSubjectIdentifier());
+    assertEquals("T", gcGrouperSyncMember.getProvisionableDb());
+    assertNull(gcGrouperSyncMember.getInTargetDb());
+    assertNull(gcGrouperSyncMember.getInTargetInsertOrExistsDb());
+    assertNull(gcGrouperSyncMember.getInTargetStart());
+    assertNull(gcGrouperSyncMember.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncMember.getProvisionableStart().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getProvisionableStart().getTime());
+    assertNull(gcGrouperSyncMember.getProvisionableEnd());
+    assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncMember.getLastUpdated().getTime());
+    assertEquals("test.subject.0", gcGrouperSyncMember.getEntityAttributeValueCache0());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache1());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache2());
+    assertNull(gcGrouperSyncMember.getEntityAttributeValueCache3());
+    assertNull(gcGrouperSyncMember.getLastUserMetadataSync());
+    assertNull(gcGrouperSyncMember.getErrorMessage());
+    assertNull(gcGrouperSyncMember.getErrorTimestamp());
+    assertNull(gcGrouperSyncMember.getLastUserSync());
+  
+    GcGrouperSyncMembership gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), testSubject0member.getId());
+    assertEquals("T", gcGrouperSyncMembership.getInTargetDb());
+    assertEquals("T", gcGrouperSyncMembership.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncMembership.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncMembership.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncMembership.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncMembership.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() >= gcGrouperSyncMembership.getLastUpdated().getTime());
+    assertNull(gcGrouperSyncMembership.getMembershipId());
+    assertNull(gcGrouperSyncMembership.getMembershipId2());
+    assertNull(gcGrouperSyncMembership.getErrorMessage());
+    assertNull(gcGrouperSyncMembership.getErrorTimestamp());
+    
+    // try delete
+    testGroup.delete();
+    
+  
+    //lets sync these over
+    if (isFull) {
+      fullProvision("gpf_groupOfNamesHlsLdap");
+    } else {
+      incrementalProvision("gpf_groupOfNamesHlsLdap");
+    } 
+
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+    
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null);
+    assertEquals(0, ldapEntries.size());
+  }
+
 
   public void testFullFlatHarvard() {
     
