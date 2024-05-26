@@ -5748,5 +5748,119 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
   
   }
+
+  public void testPennDentalDatabaseMarkExistsFull() {
+    pennDentalDatabaseMarkExists(true);
+  }
+
+  public void testPennDentalDatabaseMarkExistsIncremental() {
+    pennDentalDatabaseMarkExists(false);
+  }
+
+  public void pennDentalDatabaseMarkExists(boolean isFull) {
+    
+    long started = System.currentTimeMillis();
+
+    SqlProvisionerTestUtils.configureSqlProvisionerDentalDatabase(new SqlProvisionerTestConfigInput());
+    
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+    fullProvision();
+    
+    if (!isFull) {
+      incrementalProvision();
+    } 
+
+    Member member0 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+    
+    new GcDbAccess().sql("insert into testgrouper_prov_group (uuid, name) values (?, ?)").addBindVar(testGroup.getId()).addBindVar(testGroup.getName()).executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_entity (uuid, name, subject_id_or_identifier) values (?, ?, ?)")
+      .addBindVar(member0.getId()).addBindVar(member0.getName()).addBindVar(member0.getSubjectId()).executeSql();
+    new GcDbAccess().sql("insert into testgrouper_prov_mship3 (group_uuid, entity_uuid) values (?, ?)").addBindVar(testGroup.getId()).addBindVar(member0.getId()).executeSql();
+    
+    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest");
+    attributeValue.setTargetName("sqlProvTest");
+    attributeValue.setStemScopeString("sub");
+  
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+    //lets sync these over
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    } 
+    
+    assertEquals(1, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+    assertEquals(2, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
+    
+    //get the grouper_sync and check cols
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
+    
+    GcGrouperSyncJob gcGrouperSyncJob = gcGrouperSync.getGcGrouperSyncJobDao().jobRetrieveBySyncType("fullProvisionFull");
+    
+    GcGrouperSyncGroup gcGrouperSyncGroup = gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId());
+    assertEquals(testGroup.getId(), gcGrouperSyncGroup.getGroupId());
+    assertEquals("T", gcGrouperSyncGroup.getProvisionableDb());
+    assertEquals("T", gcGrouperSyncGroup.getInTargetDb());
+    assertEquals("F", gcGrouperSyncGroup.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncGroup.getInTargetEnd());
+
+    assertTrue(started < gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncGroup.getProvisionableStart().getTime());
+    assertNull(gcGrouperSyncGroup.getProvisionableEnd());
+
+
+    Member testSubject0member = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ0, true);
+    
+    GcGrouperSyncMember gcGrouperSyncMember = gcGrouperSync.getGcGrouperSyncMemberDao().memberRetrieveByMemberId(testSubject0member.getId());
+    assertEquals(testSubject0member.getId(), gcGrouperSyncMember.getMemberId());
+    assertEquals("T", gcGrouperSyncMember.getProvisionableDb());
+    assertEquals("T", gcGrouperSyncMember.getInTargetDb());
+    assertEquals("F", gcGrouperSyncMember.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncMember.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMember.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncMember.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncMember.getProvisionableStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMember.getProvisionableStart().getTime());
+    assertNull(gcGrouperSyncMember.getProvisionableEnd());
+    assertTrue(started < gcGrouperSyncMember.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMember.getLastUpdated().getTime());
+
+    GcGrouperSyncMembership gcGrouperSyncMembership = gcGrouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveByGroupIdAndMemberId(testGroup.getId(), testSubject0member.getId());
+    assertEquals("T", gcGrouperSyncMembership.getInTargetDb());
+    assertEquals("F", gcGrouperSyncMembership.getInTargetInsertOrExistsDb());
+    assertTrue(started < gcGrouperSyncMembership.getInTargetStart().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMembership.getInTargetStart().getTime());
+    assertNull(gcGrouperSyncMembership.getInTargetEnd());
+    assertTrue(started < gcGrouperSyncMembership.getLastUpdated().getTime());
+    assertTrue(System.currentTimeMillis() > gcGrouperSyncMembership.getLastUpdated().getTime());
+    
+    testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup1").save();
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ2, false);
+
+    //lets sync these over
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    } 
+    
+    assertEquals(2, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_group").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_entity").select(int.class).intValue());
+    assertEquals(4, new GcDbAccess().connectionName("grouper").sql("select count(1) from testgrouper_prov_mship3").select(int.class).intValue());
+  }
   
 }
