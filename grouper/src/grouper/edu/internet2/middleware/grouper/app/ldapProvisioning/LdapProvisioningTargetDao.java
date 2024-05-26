@@ -204,9 +204,10 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
         
         LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
   
+        int count = 0;
+        
         List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, groupSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
         for (LdapEntry ldapEntry : ldapEntries) {
-          ProvisioningGroup targetGroup = new ProvisioningGroup(false);
           
           // conserve memory
           ldapEntries.set(count, null);
@@ -839,9 +840,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, groupSearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(groupSearchAttributeNames));
+            int count = 0;
             
             for (LdapEntry ldapEntry : ldapEntries) {
-              ProvisioningGroup targetGroup = new ProvisioningGroup(false);
               // conserve memory
               ldapEntries.set(count, null);
               count++;
@@ -939,8 +940,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
       List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, userSearchBaseDn, userSearchAllFilter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
       
+      int count = 0;
+
       for (LdapEntry ldapEntry : ldapEntries) {
-        ProvisioningEntity targetEntity = new ProvisioningEntity(false);
         
         // conserve memory
         ldapEntries.set(count, null);
@@ -1041,9 +1043,9 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
             
             LdapSyncDaoForLdap ldapSyncDaoForLdap = new LdapSyncDaoForLdap();
             List<LdapEntry> ldapEntries = ldapSyncDaoForLdap.search(ldapConfigId, entitySearchBaseDn, filter, LdapSearchScope.SUBTREE_SCOPE, new ArrayList<String>(entitySearchAttributeNames));
+            int count = 0;
             
             for (LdapEntry ldapEntry : ldapEntries) {
-              ProvisioningEntity targetEntity = new ProvisioningEntity(false);
               // conserve memory
               ldapEntries.set(count, null);
               count++;
