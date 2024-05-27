@@ -33,7 +33,7 @@
               <tbody>
               
               <tr>
-				  <td style="vertical-align: top; white-space: nowrap;"><strong><label>${textContainer.text['provisionerConfigIdLabel']}</label></strong></td>
+				  <td style="vertical-align: top; white-space: nowrap;"><strong>${textContainer.text['provisionerConfigIdLabel']}</strong></td>
 				    <td>
 				     ${grouper:escapeHtml(grouperRequestContainer.provisionerConfigurationContainer.guiProvisionerConfiguration.provisionerConfiguration.configId)}
 				    </td>
