@@ -2344,6 +2344,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     Group populationValidUsers2 = new GroupSave(this.grouperSession).assignName("population:validUsers2").assignCreateParentStemsIfNotExist(true).save();
     populationValidUsers.addMember(populationValidUsers2.toSubject());
     
+    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.entity2advanced", "true");
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("provisioner.ldapProvTest.groupIdOfUsersToProvision", populationValidUsers.getId());
     
     // ldap specific properties

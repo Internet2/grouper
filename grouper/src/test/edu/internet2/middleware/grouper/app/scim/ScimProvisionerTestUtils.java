@@ -86,6 +86,8 @@ public class ScimProvisionerTestUtils {
 
     GrouperUtil.assertion(!StringUtils.isBlank(provisioningTestConfigInput.getConfigId()), "Config ID required");
 
+    configureProvisionerSuffix(provisioningTestConfigInput, "startWith", "this is start with read only");
+    
     if (!StringUtils.isBlank(provisioningTestConfigInput.getAcceptHeader())) {
       
       configureProvisionerSuffix(provisioningTestConfigInput, "acceptHeader", provisioningTestConfigInput.getAcceptHeader());
@@ -165,9 +167,11 @@ public class ScimProvisionerTestUtils {
     
     
     if (provisioningTestConfigInput.getGroupOfUsersToProvision() != null) {
+      configureProvisionerSuffix(provisioningTestConfigInput, "entity2advanced", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupIdOfUsersToProvision", provisioningTestConfigInput.getGroupOfUsersToProvision().getUuid());
     }
-    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
+    
+    
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
@@ -191,11 +195,10 @@ public class ScimProvisionerTestUtils {
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
       
     }
-    
-    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
-    
+        
     if (provisioningTestConfigInput.getGroupAttributeCount() > 0) {
       configureProvisionerSuffix(provisioningTestConfigInput, "replaceMemberships", "true");
     }
@@ -211,7 +214,10 @@ public class ScimProvisionerTestUtils {
     if (provisioningTestConfigInput.getScimType().equals("Github")) {
       
     } else {
+      configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetGroupLink", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+      configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
       configureProvisionerSuffix(provisioningTestConfigInput, "customizeMembershipCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "selectMemberships", "false");
     }
@@ -248,7 +254,7 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "name");
     }
 
-    int totalEntityAttributesSoFar = 3; 
+    int totalEntityAttributesSoFar = 4; 
     if (provisioningTestConfigInput.isUseEmails()) {
       
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "emailValue");
@@ -259,7 +265,7 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpressionType", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.5.translateExpression", "${grouperProvisioningEntity.email + '2'}");
       
-      totalEntityAttributesSoFar = 5;
+      totalEntityAttributesSoFar = 6;
     } else {
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", provisioningTestConfigInput.getEntityAttribute4name());
       if (StringUtils.equals(provisioningTestConfigInput.getEntityAttribute4name(), "displayName")) {
@@ -271,7 +277,7 @@ public class ScimProvisionerTestUtils {
       } else {
         throw new RuntimeException("Not value entityAttribute4Name: '" + provisioningTestConfigInput.getEntityAttribute4name() + "'");
       }
-      totalEntityAttributesSoFar = 4;
+      totalEntityAttributesSoFar = 5;
     }
     
     if (provisioningTestConfigInput.isUseActiveOnUser()) {
