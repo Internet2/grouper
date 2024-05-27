@@ -187,39 +187,87 @@ public abstract class GrouperConfigurationModuleBase {
       
       String name = null;
       // GSH templates
+      Map<String, Object> retrieveObjectValueSubstituteMap = this.retrieveObjectValueSubstituteMap();
       if (StringUtils.equals(preIndex, "input")) {
-        name = (String)this.retrieveObjectValueSubstituteMap().get("input." + index + ".name");
+        name = (String)retrieveObjectValueSubstituteMap.get("input." + index + ".name");
       } else if (StringUtils.equals(preIndex, "targetGroupAttribute")) {
         // Group field name
-        String theName = (String)this.retrieveObjectValueSubstituteMap().get("targetGroupAttribute." + index + ".name");
-         
+        String theName = (String)retrieveObjectValueSubstituteMap.get("targetGroupAttribute." + index + ".name");
+        
         if (StringUtils.isBlank(theName)) {
           theName = Integer.toString(index+1);
+        } else {
+
+          GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = this.retrieveAttributes().get("targetGroupAttribute." + index + ".name");
+          if (grouperConfigurationModuleAttribute != null) {
+            if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+              String theExpression = theName;
+              try {
+                theName = GrouperUtil.substituteExpressionLanguage(theExpression, retrieveObjectValueSubstituteMap, true, true, true);
+              } catch (Exception e) {
+                //TODO
+                e.printStackTrace();
+                theName = GrouperTextContainer.textOrNull("groupProvisioningErrorEvaluatingExpression") + " '" + theExpression + "'";
+              }
+            }
+          }
         }
         name = this.getCacheGroupAttributePrefix() + " " + this.getCacheAttributePrefix() + " " + theName;
         
       } else if (StringUtils.equals(preIndex, "targetEntityAttribute")) {
-        String theName = (String)this.retrieveObjectValueSubstituteMap().get("targetEntityAttribute." + index + ".name");
+        String theName = (String)retrieveObjectValueSubstituteMap.get("targetEntityAttribute." + index + ".name");
 
         if (StringUtils.isBlank(theName)) {
           theName = Integer.toString(index+1);
+        } else {
+
+          GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = this.retrieveAttributes().get("targetEntityAttribute." + index + ".name");
+          if (grouperConfigurationModuleAttribute != null) {
+            if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+              String theExpression = theName;
+              try {
+                theName = GrouperUtil.substituteExpressionLanguage(theExpression, retrieveObjectValueSubstituteMap, true, true, true);
+              } catch (Exception e) {
+                //TODO
+                e.printStackTrace();
+                theName = GrouperTextContainer.textOrNull("groupProvisioningErrorEvaluatingExpression") + " '" + theExpression + "'";
+              }
+            }
+          }
+
         }
           
         name = this.getCacheEntityAttributePrefix() + " " + this.getCacheAttributePrefix() + " " + theName;
 
       } else if (StringUtils.equals(preIndex, "targetMembershipAttribute")) {
-        String theName = (String)this.retrieveObjectValueSubstituteMap().get("targetMembershipAttribute." + index + ".name");
+        String theName = (String)retrieveObjectValueSubstituteMap.get("targetMembershipAttribute." + index + ".name");
 
         if (StringUtils.isBlank(theName)) {
           theName = Integer.toString(index+1);
+        } else {
+
+          GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = this.retrieveAttributes().get("targetMembershipAttribute." + index + ".name");
+          if (grouperConfigurationModuleAttribute != null) {
+            if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+              String theExpression = theName;
+              try {
+                theName = GrouperUtil.substituteExpressionLanguage(theExpression, retrieveObjectValueSubstituteMap, true, true, true);
+              } catch (Exception e) {
+                //TODO
+                e.printStackTrace();
+                theName = GrouperTextContainer.textOrNull("groupProvisioningErrorEvaluatingExpression") + " '" + theExpression + "'";
+              }
+            }
+          }
+
         }
           
         name = this.getCacheMembershipAttributePrefix() + " " + this.getCacheAttributePrefix() + " " + theName;
 
       } else if (StringUtils.equals(preIndex, "metadata")) {
-        name = (String)this.retrieveObjectValueSubstituteMap().get("metadata." + index + ".name");
+        name = (String)retrieveObjectValueSubstituteMap.get("metadata." + index + ".name");
       } else if (StringUtils.equals(preIndex, "attribute")) {
-        name = (String)this.retrieveObjectValueSubstituteMap().get("attribute." + index + ".name");
+        name = (String)retrieveObjectValueSubstituteMap.get("attribute." + index + ".name");
       }
             
       if (!StringUtils.isBlank(name)) {
@@ -467,6 +515,8 @@ public abstract class GrouperConfigurationModuleBase {
     
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     
+//    Map<String, Object> objectValueSubstituteMap = this.retrieveObjectValueSubstituteMap();
+//    
     for (GrouperConfigurationModuleAttribute attribute: attributes.values()) {
       
       if (attribute.isReadOnly()) {
@@ -525,6 +575,15 @@ public abstract class GrouperConfigurationModuleBase {
         attribute.setExpressionLanguage(true);
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setExpressionLanguageScript(value);
+//        if (!StringUtils.isBlank(value)) {
+//          String theExpression = value;
+//          try {
+//            attribute.setExpressionLanguageValue(GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguage(theExpression, objectValueSubstituteMap, true, true, true)));
+//          } catch (Exception e) {
+//            LOG.error("Error evaluating expression: '" + theExpression + "'", e);
+//          }
+//
+//        }
       } else {
         attribute.setExpressionLanguage(false);
         attribute.setValue(value);
