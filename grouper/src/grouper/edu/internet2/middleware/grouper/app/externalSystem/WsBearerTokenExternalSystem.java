@@ -266,7 +266,7 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
         if (response == null) {
           ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but response was null");
         } else {
-          Pattern pattern = Pattern.compile(testUrlResponseBodyRegex);
+          Pattern pattern = Pattern.compile(testUrlResponseBodyRegex, Pattern.DOTALL);
           Matcher matcher = pattern.matcher(response);
           if (!matcher.matches()) {
             ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but no match " + GrouperUtil.escapeHtml(response, true));
