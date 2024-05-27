@@ -61,6 +61,10 @@ public class RuleIfCondition {
     this.ifStemScope = theStemScope;
   }
 
+  public boolean isBlank() {
+    return StringUtils.isBlank(this.ifConditionEl) && StringUtils.isBlank(this.ifConditionEnum);
+  }
+
 
   /** if it is an el, put that here */
   private String ifConditionEl;

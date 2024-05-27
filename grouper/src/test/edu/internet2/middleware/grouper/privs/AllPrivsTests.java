@@ -54,6 +54,9 @@ public class AllPrivsTests {
     suite.addTestSuite(TestPrivUPDATE.class);
     suite.addTestSuite(TestAccessPrivilege.class);
     suite.addTestSuite(TestNamingPrivilege.class);
+    suite.addTestSuite(PrivilegeStemInheritanceFinderTest.class);
+    suite.addTestSuite(PrivilegeGroupInheritanceFinderTest.class);
+    suite.addTestSuite(PrivilegeAttributeDefInheritanceFinderTest.class);
     //$JUnit-END$
     return suite;
   }
