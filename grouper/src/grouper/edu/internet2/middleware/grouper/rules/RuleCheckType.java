@@ -256,6 +256,17 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.ATTRIBUTE_DEF;
     }
+
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   },
   
   /** query daily for memberships that are enabled, but have a disabled date coming up */
@@ -426,10 +437,20 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   },
   
   /** if there is a membership(flattened) add of a group in a stem */
-  flattenedMembershipAddInFolder{
+  flattenedMembershipAddInFolder {
     
     @Override
     public boolean usesArg0() {
@@ -514,10 +535,20 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.FOLDER;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.inheritedRead;
+    }
   }, 
 
   /** if there is a membership(flattened) remove of a group in a stem */
-  flattenedMembershipRemoveInFolder{
+  flattenedMembershipRemoveInFolder {
     
     @Override
     public boolean usesArg0() {
@@ -609,6 +640,16 @@ public enum RuleCheckType {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.FOLDER;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.inheritedRead;
     }
   }, 
 
@@ -759,6 +800,16 @@ public enum RuleCheckType {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
     }
   },
   
@@ -933,6 +984,16 @@ public enum RuleCheckType {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
     }
 
   },
@@ -1197,6 +1258,16 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.FOLDER;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.inheritedRead;
+    }
   },
   
   /** if a group is created */
@@ -1362,6 +1433,16 @@ public enum RuleCheckType {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.FOLDER;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.adminOrInheritedGroupAdmin;
     }
   },
   
@@ -1543,10 +1624,20 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.FOLDER;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.adminOrInheritedStemAdmin;
+    }
   }, 
   
   /** if there is a membership add in transaction */
-  membershipAdd{
+  membershipAdd {
     
     @Override
     public boolean usesArg0() {
@@ -1754,6 +1845,16 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   }, 
   
   /** if there is a membership add, privilege add, permission add, etc in transaction */
@@ -1935,10 +2036,20 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.FOLDER;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.inheritedRead;
+    }
   }, 
   
   /** if there is a membership remove flattened */
-  flattenedMembershipAdd{
+  flattenedMembershipAdd {
     
     @Override
     public boolean usesArg0() {
@@ -2033,10 +2144,20 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   }, 
   
   /** if there is a membership remove in transaction of remove of a group in a stem */
-  membershipAddInFolder{
+  membershipAddInFolder {
     
     @Override
     public boolean usesArg0() {
@@ -2119,10 +2240,20 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.FOLDER;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.inheritedRead;
+    }
   }, 
   
   /** if a group is created */
-  attributeDefCreate{
+  attributeDefCreate {
     
     @Override
     public boolean usesArg0() {
@@ -2288,6 +2419,16 @@ public enum RuleCheckType {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.ATTRIBUTE_DEF;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.adminOrInheritedAttributeDefAdmin;
     }
   }, 
 
@@ -2543,6 +2684,16 @@ public enum RuleCheckType {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.PERMISSION_DEF;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   };
   
   public abstract boolean usesArg0();
@@ -2604,6 +2755,19 @@ public enum RuleCheckType {
    * @return true if check owner type is an attribute def
    */
   public abstract boolean isCheckOwnerTypeAttributeDef(RuleDefinition ruleDefinition);
+  
+  /**
+   * what privileges the logged in user needs to have to view the group while editing the rule
+   * @return
+   */
+  public abstract GroupPrivilegeStrategy getGroupPrivilegeStrategy();
+  
+  
+  /**
+   * what privileges the logged in user needs to have to view the folder while editing the rule
+   * @return
+   */
+  public abstract StemPrivilegeStrategy getStemPrivilegeStrategy();
   
   
   /**

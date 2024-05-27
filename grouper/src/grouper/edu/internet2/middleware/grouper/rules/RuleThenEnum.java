@@ -109,6 +109,16 @@ public enum RuleThenEnum {
       
     }
 
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   },
   
   /** assign a disabled date if there is a membership in this group to the owner group
@@ -170,6 +180,16 @@ public enum RuleThenEnum {
       return null;
     }
     
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   },
   
   /** veto the operation (note, must be a transactional check for this to work) */
@@ -216,6 +236,16 @@ public enum RuleThenEnum {
       if (StringUtils.isBlank(message)) {
         return "ruleThenEnumArg1 is the error message";
       }
+      return null;
+    }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
       return null;
     }
   },
@@ -311,6 +341,16 @@ public enum RuleThenEnum {
       return result;
     }
     
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   },
   
   /** remove the member (the current one being acted on) from the owner group */
@@ -328,6 +368,16 @@ public enum RuleThenEnum {
           ruleDefinition.getAttributeAssignType().getOwnerGroupId(), true);
       Member member = MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), rulesBean.getMemberId(), true);
       return group.deleteMember(member, false);
+    }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
     }
     
   }, 
@@ -349,6 +399,16 @@ public enum RuleThenEnum {
       return group.addMember(member.getSubject(), false);
     }
     
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   },
   
   /** add the group (the current one being acted on) to the owner group */
@@ -367,6 +427,16 @@ public enum RuleThenEnum {
       Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), 
           ruleDefinition.getAttributeAssignType().getOwnerGroupId(), true);
       return group.addMember(groupGettingAdded.toSubject(), false);
+    }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
     }
     
   },
@@ -437,6 +507,16 @@ public enum RuleThenEnum {
       }
       
       return result;
+    }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
     }
     
   },
@@ -563,6 +643,16 @@ public enum RuleThenEnum {
       
       return result;
     }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
 
   },
   
@@ -687,6 +777,16 @@ public enum RuleThenEnum {
       }
       
       return result;
+    }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
     }
 
   },
@@ -820,6 +920,16 @@ public enum RuleThenEnum {
       
       return result;
     }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
 
   },
   
@@ -922,10 +1032,20 @@ public enum RuleThenEnum {
       return result;
     }
     
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   }, 
   
   /** assign privilege(s) to subject on the stem being acted on (stemId) */
-  assignStemPrivilegeToStemId{
+  assignStemPrivilegeToStemId {
     
     public boolean usesArg0() {
       return true;
@@ -1017,6 +1137,16 @@ public enum RuleThenEnum {
       }
       
       return result;
+    }
+    
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
     }
     
   }, 
@@ -1116,6 +1246,15 @@ public enum RuleThenEnum {
       return result;
     }
     
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
   }, 
   
   /** <pre>
@@ -1227,6 +1366,16 @@ public enum RuleThenEnum {
       return true;
     }
     
+    @Override
+    public String getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public String getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   };
   
   public boolean usesArg0() {
@@ -1264,6 +1413,19 @@ public enum RuleThenEnum {
    */
   public abstract Object fireRule(RuleDefinition ruleDefinition, 
       RuleEngine ruleEngine, RulesBean rulesBean, StringBuilder logDataForThisDefinition);
+  
+  /**
+   * what privileges the logged in user needs to have to view the group while editing the rule
+   * @return
+   */
+  public abstract String getGroupPrivilegeStrategy();
+  
+  
+  /**
+   * what privileges the logged in user needs to have to view the folder while editing the rule
+   * @return
+   */
+  public abstract String getStemPrivilegeStrategy();
   
   /**
    * validate the rule

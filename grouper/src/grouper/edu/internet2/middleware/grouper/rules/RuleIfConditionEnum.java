@@ -107,6 +107,16 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return null;
     }
+
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
     
   },
 
@@ -195,6 +205,16 @@ public enum RuleIfConditionEnum {
       return RuleOwnerType.FOLDER;
     }
     
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return StemPrivilegeStrategy.inheritedRead;
+    }
+    
   },
   /**
    * make sure the name of the object matches this sql like string (with percent signs and underscores), 
@@ -281,6 +301,16 @@ public enum RuleIfConditionEnum {
     
     @Override
     public RuleOwnerType getOwnerType() {
+      return null;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
       return null;
     }
   },
@@ -381,6 +411,16 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   },
   /** 
    * make sure there is not a membership in folder, but does have an attributeDef
@@ -471,6 +511,16 @@ public enum RuleIfConditionEnum {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.PERMISSION_DEF;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
     }
   },
   
@@ -580,6 +630,16 @@ public enum RuleIfConditionEnum {
       return RuleOwnerType.GROUP;
     }
     
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
+    
   }, 
   
   
@@ -683,6 +743,16 @@ public enum RuleIfConditionEnum {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
     }
   },
   
@@ -793,6 +863,16 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   },
   /** if permission def has assignment */
   thisPermissionDefHasAssignment {
@@ -850,6 +930,16 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.PERMISSION_DEF;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   },
   /** if permission def has assignment with no end date */
   thisPermissionDefHasNoEndDateAssignment {
@@ -906,6 +996,16 @@ public enum RuleIfConditionEnum {
     @Override
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.PERMISSION_DEF;
+    }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
     }
   }, 
   
@@ -1014,6 +1114,16 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   }, 
   
   /**
@@ -1089,6 +1199,15 @@ public enum RuleIfConditionEnum {
       return null;
     }
     
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   }, 
   
   /**
@@ -1213,6 +1332,16 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return RuleOwnerType.GROUP;
     }
+    
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
   };
   
   /** logger */
@@ -1257,6 +1386,19 @@ public enum RuleIfConditionEnum {
    * @return true if the if condition owner type is an attribute def
    */
   public abstract boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition);
+  
+  /**
+   * what privileges the logged in user needs to have to view the group while editing the rule
+   * @return
+   */
+  public abstract GroupPrivilegeStrategy getGroupPrivilegeStrategy();
+  
+  
+  /**
+   * what privileges the logged in user needs to have to view the folder while editing the rule
+   * @return
+   */
+  public abstract StemPrivilegeStrategy getStemPrivilegeStrategy();
   
   /**
    * do a case-insensitive matching

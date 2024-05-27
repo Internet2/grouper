@@ -117,7 +117,6 @@ import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
 import edu.internet2.middleware.grouper.rules.RuleDefinition;
 import edu.internet2.middleware.grouper.rules.RuleEngine;
@@ -5554,6 +5553,18 @@ public class UiV2Group {
       
       rulesContainer.setGuiRuleDefinitions(guiRules);
       
+      boolean isRefOrBasis = grouperRequestContainer.getObjectTypeContainer().isRefOrBasisType();
+      boolean canAdmin = grouperRequestContainer.getGroupContainer().isCanAdmin();
+      String groupNamesRestrictRules = GrouperConfig.retrieveConfig().propertyValueString("rules.groupNamesRestrictRules", "");
+      boolean groupInRestrictList = false;
+      if (StringUtils.isNotBlank(groupNamesRestrictRules)) {
+        Set<String> groupNamesSet = GrouperUtil.splitTrimToSet(groupNamesRestrictRules, ",");
+        if (groupNamesSet.contains(group.getName())) {
+          groupInRestrictList = true;
+        }
+      }
+      rulesContainer.setNeedsViewPrivilegeOnCheckConditionResult((isRefOrBasis || groupInRestrictList) && !canAdmin);
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/group/groupRules.jsp"));
       
@@ -5643,7 +5654,14 @@ public class UiV2Group {
       
       String attributeAssignId = request.getParameter("ruleId");
       
-      RuleConfig ruleConfig = RuleService.getRuleConfig(group, attributeAssignId, loggedInSubject); 
+      final Group GROUP = group;
+      RuleConfig ruleConfig = (RuleConfig) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          return RuleService.getRuleConfig(GROUP, attributeAssignId, loggedInSubject);
+        }
+      });
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
       
@@ -5821,8 +5839,16 @@ public class UiV2Group {
         throw new RuntimeException("Cannot edit rule");
       }
       
-      RuleService.deleteRuleAttributes(attributeAssignId);
-      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          RuleService.deleteRuleAttributes(attributeAssignId);
+          return null;
+        }
+      });
+
       RuleEngine.clearRuleEngineCache();
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroupRules&groupId=" + group.getId() + "')"));
@@ -5841,6 +5867,7 @@ public class UiV2Group {
    * @param request
    * @param response
    */
+  @SuppressWarnings({ "unchecked" })
   public void addRuleOnGroupSubmit(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -5886,10 +5913,24 @@ public class UiV2Group {
           return;
         }
         
-        typeWithMessages = ruleConfig.getRulePattern().save(ruleConfig, attributeAssignId);
+        typeWithMessages =  (Map<String, List<String>>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            
+            return ruleConfig.getRulePattern().save(ruleConfig, attributeAssignId);
+          }
+        });
+        
       } else {
+        Group GROUP = group;
+        typeWithMessages =  (Map<String, List<String>>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            return RuleService.saveOrUpdateRuleAttributes(ruleConfig, GROUP, attributeAssignId);
+          }
+        });
                 
-        typeWithMessages = RuleService.saveOrUpdateRuleAttributes(ruleConfig, group, attributeAssignId);
       }
       
       if (typeWithMessages.get("ERROR") != null && typeWithMessages.get("ERROR").size() > 0) {

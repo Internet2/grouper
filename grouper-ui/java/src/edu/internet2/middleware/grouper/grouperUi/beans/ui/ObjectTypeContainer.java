@@ -19,10 +19,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiStemObjectType;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
-import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
-import edu.internet2.middleware.subject.Subject;
 
 public class ObjectTypeContainer {
   
@@ -169,6 +166,19 @@ public class ObjectTypeContainer {
   
   public List<String> getObjectTypeNames() {
     return GrouperObjectTypesSettings.getObjectTypeNames();
+  }
+  
+  public boolean isRefOrBasisType() {
+    for (GuiGrouperObjectTypesAttributeValue guiGrouperObjectTypesAttributeValue: guiConfiguredGrouperObjectTypesAttributeValues) {
+      
+      final GrouperObjectTypesAttributeValue typesAttributeValue = guiGrouperObjectTypesAttributeValue.getGrouperObjectTypesAttributeValue();
+      
+      if (StringUtils.equals(typesAttributeValue.getObjectTypeName(), GrouperObjectTypesSettings.REF) 
+          || StringUtils.equals(typesAttributeValue.getObjectTypeName(), GrouperObjectTypesSettings.BASIS)) {
+        return true;
+      }
+    }
+    return false;
   }
   
   public String getUserFriendlyStringForConfiguredAttributes() {

@@ -22,7 +22,6 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -84,18 +83,14 @@ public enum RulePattern {
       }
       
       if (group != null && loggedInSubject != null) {
-        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
-          error = error.replace("##groupName##", group.getName());
-          errorMessages.add(error);
-        }
-      }
-      
-      if (group != null && loggedInSubject != null) {
-        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
-          error = error.replace("##groupName##", group.getName());
-          errorMessages.add(error);
+        
+        if (RuleIfConditionEnum.groupHasNoEnabledMembership.getGroupPrivilegeStrategy() != null) {
+          boolean canSubjectViewGroup = RuleIfConditionEnum.groupHasNoEnabledMembership.getGroupPrivilegeStrategy().canSubjectViewGroup(loggedInSubject, group);
+          if (!canSubjectViewGroup) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+            error = error.replace("##groupName##", group.getName());
+            errorMessages.add(error);
+          }
         }
       }
       
@@ -1090,10 +1085,31 @@ public enum RulePattern {
       }
       
       if (group != null && loggedInSubject != null) {
-        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
-          error = error.replace("##groupName##", group.getName());
-          errorMessages.add(error);
+        
+        String checkIfRemovedFromGroup = patternPropertiesValues.get("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup");
+        
+        if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+          GroupPrivilegeStrategy strategy = RuleCheckType.flattenedMembershipRemove.getGroupPrivilegeStrategy();
+          if (strategy != null) {
+            boolean canView = strategy.canSubjectViewGroup(loggedInSubject, group);
+            if (!canView) {
+              String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+              error = error.replace("##groupName##", group.getName());
+              errorMessages.add(error);
+            }
+          }
+        } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+          
+          GroupPrivilegeStrategy strategy = RuleCheckType.flattenedMembershipAdd.getGroupPrivilegeStrategy();
+          if (strategy != null) {
+            boolean canView = strategy.canSubjectViewGroup(loggedInSubject, group);
+            if (!canView) {
+              String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+              error = error.replace("##groupName##", group.getName());
+              errorMessages.add(error);
+            }
+          }
+          
         }
       }
       
@@ -1258,7 +1274,7 @@ public enum RulePattern {
       
       List<String> errorMessages = new ArrayList<>();
       
-      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      Map<String, String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
       
       String expireAfterDays = patternPropertiesValues.get("AddDisabledDateOnMembership.expireAfterDays");
       
@@ -1366,10 +1382,15 @@ public enum RulePattern {
       }
       
       if (group != null && loggedInSubject != null) {
-        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
-          error = error.replace("##groupName##", group.getName());
-          errorMessages.add(error);
+        
+        GroupPrivilegeStrategy groupPrivilegeStrategy = RuleCheckType.flattenedMembershipAdd.getGroupPrivilegeStrategy();
+        if (groupPrivilegeStrategy != null) {
+          boolean canSubjectViewGroup = groupPrivilegeStrategy.canSubjectViewGroup(loggedInSubject, group);
+          if (!canSubjectViewGroup) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+            error = error.replace("##groupName##", group.getName());
+            errorMessages.add(error);
+          }
         }
       }
       
@@ -1469,11 +1490,21 @@ public enum RulePattern {
       }
       
       if (group != null && loggedInSubject != null) {
-        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
-          error = error.replace("##groupName##", group.getName());
-          errorMessages.add(error);
+        
+        
+        if (group != null && loggedInSubject != null) {
+          
+          GroupPrivilegeStrategy groupPrivilegeStrategy = RuleCheckType.flattenedMembershipRemove.getGroupPrivilegeStrategy();
+          if (groupPrivilegeStrategy != null) {
+            boolean canSubjectViewGroup = groupPrivilegeStrategy.canSubjectViewGroup(loggedInSubject, group);
+            if (!canSubjectViewGroup) {
+              String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+              error = error.replace("##groupName##", group.getName());
+              errorMessages.add(error);
+            }
+          }
         }
+        
       }
       
       return errorMessages;
@@ -1575,10 +1606,15 @@ public enum RulePattern {
       }
       
       if (stem != null && loggedInSubject != null) {
-        if (!stem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
-          error = error.replace("##stemName##", stem.getName());
-          errorMessages.add(error);
+        
+        StemPrivilegeStrategy stemPrivilegeStrategy = RuleCheckType.groupCreate.getStemPrivilegeStrategy();
+        if (stemPrivilegeStrategy != null) {
+          boolean canSubjectViewStem = stemPrivilegeStrategy.canSubjectViewStem(loggedInSubject, stem);
+          if (!canSubjectViewStem) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
+            error = error.replace("##stemName##", stem.getName());
+            errorMessages.add(error);
+          }
         }
       }
       
@@ -1729,11 +1765,35 @@ public enum RulePattern {
       }
       
       if (group != null && loggedInSubject != null) {
-        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
-          error = error.replace("##groupName##", group.getName());
-          errorMessages.add(error);
+        
+        String checkIfRemovedFromGroup = patternPropertiesValues.get("RemoveInvalidMembershipDueToGroup.checkIfRemovedFromGroup");
+        
+        if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+          
+          GroupPrivilegeStrategy groupPrivilegeStrategy = RuleCheckType.flattenedMembershipRemove.getGroupPrivilegeStrategy();
+          
+          if (groupPrivilegeStrategy != null) {
+            boolean canSubjectViewGroup = groupPrivilegeStrategy.canSubjectViewGroup(loggedInSubject, group);
+            if (!canSubjectViewGroup) {
+              String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+              error = error.replace("##groupName##", group.getName());
+              errorMessages.add(error);
+            }
+          }
+          
+        } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+          GroupPrivilegeStrategy groupPrivilegeStrategy = RuleCheckType.flattenedMembershipAdd.getGroupPrivilegeStrategy();
+          
+          if (groupPrivilegeStrategy != null) {
+            boolean canSubjectViewGroup = groupPrivilegeStrategy.canSubjectViewGroup(loggedInSubject, group);
+            if (!canSubjectViewGroup) {
+              String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+              error = error.replace("##groupName##", group.getName());
+              errorMessages.add(error);
+            }
+          }
         }
+        
       }
       
       return errorMessages;
@@ -1919,10 +1979,15 @@ public enum RulePattern {
       }
       
       if (stem != null && loggedInSubject != null) {
-        if (!stem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
-          error = error.replace("##stemName##", stem.getName());
-          errorMessages.add(error);
+        
+        StemPrivilegeStrategy stemPrivilegeStrategy = RuleCheckType.membershipRemoveInFolder.getStemPrivilegeStrategy();
+        if (stemPrivilegeStrategy != null) {
+          boolean canSubjectViewStem = stemPrivilegeStrategy.canSubjectViewStem(loggedInSubject, stem);
+          if (!canSubjectViewStem) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
+            error = error.replace("##stemName##", stem.getName());
+            errorMessages.add(error);
+          }
         }
       }
       
@@ -2658,11 +2723,17 @@ public enum RulePattern {
       }
       
       if (stem != null && loggedInSubject != null) {
-        if (!stem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
-          error = error.replace("##stemName##", stem.getName());
-          errorMessages.add(error);
+        
+        StemPrivilegeStrategy stemPrivilegeStrategy = RuleIfConditionEnum.noGroupInFolderHasImmediateEnabledMembership.getStemPrivilegeStrategy();
+        if (stemPrivilegeStrategy != null) {
+          boolean canSubjectViewStem = stemPrivilegeStrategy.canSubjectViewStem(loggedInSubject, stem);
+          if (!canSubjectViewStem) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
+            error = error.replace("##stemName##", stem.getName());
+            errorMessages.add(error);
+          }
         }
+        
       }
       
       if (StringUtils.isBlank(stemScope)) {
@@ -2817,10 +2888,14 @@ public enum RulePattern {
       }
       
       if (group != null && loggedInSubject != null) {
-        if (!group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
-          error = error.replace("##groupName##", group.getName());
-          errorMessages.add(error);
+        GroupPrivilegeStrategy groupPrivilegeStrategy = RuleIfConditionEnum.groupHasNoEnabledMembership.getGroupPrivilegeStrategy();
+        if (groupPrivilegeStrategy != null) {
+          boolean canSubjectViewGroup = groupPrivilegeStrategy.canSubjectViewGroup(loggedInSubject, group);
+          if (!canSubjectViewGroup) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotReadGroup");
+            error = error.replace("##groupName##", group.getName());
+            errorMessages.add(error);
+          }
         }
       }
       
@@ -3060,10 +3135,15 @@ public enum RulePattern {
       }
       
       if (stem != null && loggedInSubject != null) {
-        if (!stem.canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false)) {
-          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
-          error = error.replace("##stemName##", stem.getName());
-          errorMessages.add(error);
+        
+        StemPrivilegeStrategy stemPrivilegeStrategy = RuleCheckType.membershipRemoveInFolder.getStemPrivilegeStrategy();
+        if (stemPrivilegeStrategy != null) {
+          boolean canSubjectViewStem = stemPrivilegeStrategy.canSubjectViewStem(loggedInSubject, stem);
+          if (!canSubjectViewStem) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
+            error = error.replace("##stemName##", stem.getName());
+            errorMessages.add(error);
+          }
         }
       }
       
@@ -3160,7 +3240,8 @@ public enum RulePattern {
       return true;
     }
      
-  }, SendEmailAfterNewMembership{
+  }, 
+  SendEmailAfterNewMembership {
   
     @Override
     public Map<String, List<String>> save(RuleConfig ruleConfig,String attributeAssignId) {
@@ -3328,7 +3409,7 @@ public enum RulePattern {
       return false;
     }
     
-  }, SendEmailAfterMembershipRemove{
+  }, SendEmailAfterMembershipRemove {
   
     @Override
     public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
@@ -3497,6 +3578,248 @@ public enum RulePattern {
       return false;
     }
     
+  }, 
+  
+  AddDisabledDateOnInvalidMembershipDueToFolder {
+  
+    @Override
+    public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String gracePeriod = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.gracePeriod");
+      String addIfNotThere = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.addIfNotThere");
+      String checkIfRemovedFromGroup = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup");
+      
+      if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+        ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemoveInFolder.name());
+      } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+        ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAddInFolder.name());
+      }
+      
+      String folder = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.folder");
+      String folderScope = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.stemScope");
+      
+      ruleConfig.setCheckOwnerUuidOrName(folder);
+      ruleConfig.setCheckOwnerStemScope(folderScope);
+      
+      ruleConfig.setThenOption(RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
+      ruleConfig.setThenArg0(gracePeriod);
+      ruleConfig.setThenArg1(addIfNotThere);
+      
+      Map<String, List<String>> result = RuleService.saveOrUpdateRuleAttributes(ruleConfig, ruleConfig.getGrouperObject(), attributeAssignId);
+      return result;
+    }
+  
+    @Override
+    public List<String> validate(RuleConfig ruleConfig, Subject loggedInSubject) {
+      
+      List<String> errorMessages = new ArrayList<>();
+      
+      Map<String,String> patternPropertiesValues = ruleConfig.getPatternPropertiesValues();
+      
+      String folder = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.folder");
+      String folderScope = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.stemScope");
+      String gracePeriod = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.gracePeriod");
+      
+      String checkIfRemovedFromGroup = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup");
+     
+      Stem stem = StemFinder.findByName(folder, false);
+      if (stem == null) {
+        stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folder, false);
+      }
+      
+      if (stem == null) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidFolder");
+        error = error.replace("##folderUuidOrName##", folder);
+        errorMessages.add(error);
+      }
+      
+      if (stem != null && loggedInSubject != null) {
+        StemPrivilegeStrategy stemPrivilegeStrategy = null;
+        if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+          stemPrivilegeStrategy = RuleCheckType.flattenedMembershipRemoveInFolder.getStemPrivilegeStrategy();
+        } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+          stemPrivilegeStrategy = RuleCheckType.flattenedMembershipAddInFolder.getStemPrivilegeStrategy();
+        }
+        
+        if (stemPrivilegeStrategy != null) {
+          boolean canView = stemPrivilegeStrategy.canSubjectViewStem(loggedInSubject, stem);
+          if (!canView) {
+            String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditCannotAdminStem");
+            error = error.replace("##stemName##", stem.getName());
+            errorMessages.add(error);
+          }
+        }
+        
+      }
+      
+      if (StringUtils.isBlank(folderScope)) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditFolderScopeRequired");
+        errorMessages.add(error);
+      } else {
+        if (!StringUtils.equals(folderScope, "SUB") && !StringUtils.equals(folderScope, "ONE")) {
+          String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditFolderScopeInvalid");
+          errorMessages.add(error);
+        }
+      }
+      
+      try {
+        Integer.valueOf(gracePeriod);
+      } catch (Exception e) {
+        String error = GrouperTextContainer.textOrNull("grouperRuleConfigAddEditInvalidGracePeriod");
+        error = error.replace("##gracePeriod##", gracePeriod);
+        errorMessages.add(error);
+      }
+      
+      return errorMessages;
+    }
+  
+    @Override
+    public String getUserFriendlyText() {
+      return GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolderUserFriendlyText");
+    }
+  
+    @Override
+    public List<GrouperConfigurationModuleAttribute> getElementsToShow(GrouperObject grouperObject, RuleDefinition ruleDefinition) {
+      
+      List<GrouperConfigurationModuleAttribute> elements = new ArrayList<>();
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfAddedToGroup"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove) {            
+            attribute.setValue("T");
+          } else if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd) {
+            attribute.setValue("F");
+          }
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.folder");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.folder.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.folder.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("SUB", GrouperTextContainer.textOrNull("grouperRuleOwnerSubStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        valueAndLabel = new MultiKey("ONE", GrouperTextContainer.textOrNull("grouperRuleOwnerOneStemScopeLabel"));
+        valuesAndLabels.add(valueAndLabel);
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.stemScope");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.stemScope.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.stemScope.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          attribute.setValue(ruleDefinition.getCheck().getCheckStemScope());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.TEXT);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.gracePeriod");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.gracePeriod.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.gracePeriod.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg0());
+        }
+        elements.add(attribute);
+      }
+      
+      {
+        GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
+        attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
+        List<MultiKey> valuesAndLabels = new ArrayList<>();
+        MultiKey valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.addIfNotThere.no"));
+        valuesAndLabels.add(valueAndLabel);
+        
+        valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.addIfNotThere.yes"));
+        valuesAndLabels.add(valueAndLabel);
+      
+        attribute.setDropdownValuesAndLabels(valuesAndLabels);
+        attribute.setShow(true);
+        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.addIfNotThere");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.addIfNotThere.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.addIfNotThere.description"));
+        ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
+        configItemMetadata.setRequired(true);
+        attribute.setConfigItemMetadata(configItemMetadata);
+        if (ruleDefinition != null && ruleDefinition.getThen() != null) {
+          attribute.setValue(ruleDefinition.getThen().getThenEnumArg1());
+        }
+        elements.add(attribute);
+      }
+      
+      return elements;
+    }
+  
+    @Override
+    public boolean isApplicableForFolders() {
+      return false;
+    }
+  
+    @Override
+    public boolean isApplicableForGroups() {
+      return true;
+    }
+  
+    @Override
+    public boolean isThisThePattern(RuleDefinition ruleDefinition) {
+      
+      if (ruleDefinition.getCheck() != null && (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemoveInFolder
+            || ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAddInFolder) &&
+          ruleDefinition.getIfCondition().isBlank() &&
+          ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId) {
+        return true;
+      }
+      
+      return false;
+    }
+  
+    @Override
+    public boolean isDaemonApplicable() {
+      return true;
+    }
+    
   };
   
   
@@ -3510,12 +3833,32 @@ public enum RulePattern {
    */
   public abstract List<String> validate(RuleConfig ruleConfig, Subject loggedInSubject);
   
+  /**
+   * 
+   * @return
+   */
   public abstract String getUserFriendlyText();
   
+  /**
+   * 
+   * @param grouperObject
+   * @param ruleDefinition
+   * @param canViewCheckGrouperObject
+   * @param canViewConditionGrouperObject
+   * @return
+   */
   public abstract List<GrouperConfigurationModuleAttribute> getElementsToShow(GrouperObject grouperObject, RuleDefinition ruleDefinition);
   
+  /**
+   * 
+   * @return
+   */
   public abstract boolean isApplicableForFolders();
 
+  /**
+   * 
+   * @return
+   */
   public abstract boolean isApplicableForGroups();
   
   /**

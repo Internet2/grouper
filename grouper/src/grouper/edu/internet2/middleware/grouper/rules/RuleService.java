@@ -472,7 +472,8 @@ public class RuleService {
   /**
    * retrieve type setting for a given grouper object (group/stem) and target name.
    * @param grouperObject
-   * @param targetName
+   * @param attributeAssignId
+   * @param loggedInSubject
    * @return
    */
   public static RuleConfig getRuleConfig(GrouperObject grouperObject, String attributeAssignId, Subject loggedInSubject) {

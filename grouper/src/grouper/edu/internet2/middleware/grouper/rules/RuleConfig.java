@@ -13,7 +13,9 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.subject.Subject;
 
@@ -130,9 +132,95 @@ public class RuleConfig {
     return null;
   }
   
+  private boolean canSubjectViewStem(String stemIdOrName, StemPrivilegeStrategy stemPrivilegeStrategy) {
+    
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(this.subject)) {
+      return true;
+    }
+    
+    Boolean canView = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Stem stem = StemFinder.findByName(stemIdOrName, false);
+        if (stem == null) {
+          stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemIdOrName, false);
+        }
+        
+        if (stemPrivilegeStrategy != null) {
+          return stemPrivilegeStrategy.canSubjectViewStem(RuleConfig.this.subject, stem);
+        }
+        return false;
+      }
+     });
+    return canView;
+  }
+  
+  
+  private boolean canSubjectViewGroup(String groupIdOrName, GroupPrivilegeStrategy groupPrivilegeStrategy) {
+    
+    if (PrivilegeHelper.isWheelOrRootOrViewonlyRoot(this.subject)) {
+      return true;
+    }
+    
+    Boolean canView = (Boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        Group group = GroupFinder.findByName(groupIdOrName, false);
+        if (group == null) {
+          group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), groupIdOrName, false);
+        }
+        
+        if (groupPrivilegeStrategy != null) {
+          return groupPrivilegeStrategy.canSubjectViewGroup(RuleConfig.this.subject, group);
+        }
+        return false;
+      }
+     });
+    return canView;
+  }
+  
   public List<GrouperConfigurationModuleAttribute> getElementsToShow() {
     if ( StringUtils.isNotBlank(this.pattern) && !StringUtils.equals(this.pattern, "custom")) {
-      return RulePattern.valueOf(this.pattern).getElementsToShow(this.grouperObject, this.ruleDefinition);
+      
+//       boolean canViewCheckGrouperObject = true;
+//       if (!StringUtils.equals(this.getCheckOwner(), "thisStem") && !StringUtils.equals(this.getCheckOwner(), "thisGroup") 
+//           && this.getCheckOwnerType() != null) {
+//         
+//         RuleCheckType ruleCheckType = RuleCheckType.valueOfIgnoreCase(RuleConfig.this.checkType, true);
+//         
+//         if (this.getCheckOwnerType() == RuleOwnerType.FOLDER) {
+//           String stemIdOrName = this.getCheckOwnerUuidOrName();
+//           StemPrivilegeStrategy stemPrivilegeStrategy = ruleCheckType.getStemPrivilegeStrategy();
+//           canViewCheckGrouperObject = canSubjectViewStem(stemIdOrName, stemPrivilegeStrategy);
+//         } else if (this.getCheckOwnerType() == RuleOwnerType.GROUP) {
+//           String groupIdOrName = this.getCheckOwnerUuidOrName();
+//           GroupPrivilegeStrategy groupPrivilegeStrategy = ruleCheckType.getGroupPrivilegeStrategy();
+//           canViewCheckGrouperObject = canSubjectViewGroup(groupIdOrName, groupPrivilegeStrategy);
+//         }
+//       }
+//       
+//       boolean canViewConditionGrouperObject = true;
+//       if (!StringUtils.equals(this.getIfConditionOwner(), "thisStem") && !StringUtils.equals(this.getIfConditionOwner(), "thisGroup") && 
+//           this.getIfConditionOwnerType() != null) {
+//         
+//         RuleIfConditionEnum ruleIfConditionEnum = RuleIfConditionEnum.valueOfIgnoreCase(RuleConfig.this.getIfConditionOption(), true);
+//         
+//         if (this.getIfConditionOwnerType() == RuleOwnerType.FOLDER) {
+//           String stemIdOrName = this.getIfConditionOwnerUuidOrName();
+//           StemPrivilegeStrategy stemPrivilegeStrategy = ruleIfConditionEnum.getStemPrivilegeStrategy();
+//           canViewConditionGrouperObject = canSubjectViewStem(stemIdOrName, stemPrivilegeStrategy);
+//         } else if (this.getIfConditionOwnerType() == RuleOwnerType.GROUP) {
+//           String groupIdOrName = this.getIfConditionOwnerUuidOrName();
+//           GroupPrivilegeStrategy groupPrivilegeStrategy = ruleIfConditionEnum.getGroupPrivilegeStrategy();
+//           canViewConditionGrouperObject = canSubjectViewGroup(groupIdOrName, groupPrivilegeStrategy);
+//         }
+//       }
+       
+       List<GrouperConfigurationModuleAttribute> elementsToShow = RulePattern.valueOf(this.pattern).getElementsToShow(this.grouperObject, this.ruleDefinition);
+       
+       return elementsToShow;
     }
     return new ArrayList<>();
   }

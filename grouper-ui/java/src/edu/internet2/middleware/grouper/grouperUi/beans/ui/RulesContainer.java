@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiRuleDefinition;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.rules.RuleCheckType;
 import edu.internet2.middleware.grouper.rules.RuleConfig;
@@ -399,6 +401,7 @@ public class RulesContainer {
   
   private RuleConfig ruleConfig;
   private String attributeAssignId;
+  private boolean needsViewPrivilegeOnCheckConditionResult;
 
   
   public RuleConfig getRuleConfig() {
@@ -455,10 +458,27 @@ public class RulesContainer {
       }
     }
     
+    GuiStem guiStem = GrouperRequestContainer.retrieveFromRequestOrCreate().getStemContainer().getGuiStem();
+    GuiGroup guiGroup = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup();
+    if (guiStem != null) {
+      return guiStem.getStem().canHavePrivilege(loggedInSubject, NamingPrivilege.STEM_ADMIN.getName(), false);
+    } else if (guiGroup != null) {
+      return guiGroup.getGroup().canHavePrivilege(loggedInSubject, AccessPrivilege.ADMIN.getName(), false);
+    }
+    
     //TODO implement for attribute def
     return false;
     
   }
 
+  public void setNeedsViewPrivilegeOnCheckConditionResult(boolean needsViewPrivilegeOnCheckConditionResult) {
+   this.needsViewPrivilegeOnCheckConditionResult = needsViewPrivilegeOnCheckConditionResult; 
+  }
+
+  
+  public boolean isNeedsViewPrivilegeOnCheckConditionResult() {
+    return needsViewPrivilegeOnCheckConditionResult;
+  }
+  
   
 }

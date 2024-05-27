@@ -21,7 +21,11 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
+import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
@@ -402,8 +406,13 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     
     if (this.ruleDefinition.getCheck() != null && this.ruleDefinition.getCheck().checkTypeEnum() != null) {
       
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      
       //e.g. flattenedMembershipAdd
       String checkName = this.ruleDefinition.getCheck().checkTypeEnum().name();
+      
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
       
       if (this.ruleDefinition.getCheck().checkTypeEnum().isCheckOwnerTypeGroup(this.ruleDefinition)) {
         
@@ -434,6 +443,12 @@ public class GuiRuleDefinition implements Serializable, Comparable {
         } 
         
         if (group != null) {
+          if (rulesContainer.isNeedsViewPrivilegeOnCheckConditionResult()) {
+            boolean canView = group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
+            if (!canView) {
+              group = null;
+            }
+          }
           GuiGroup guiGroup = new GuiGroup(group);
           this.setCheckGuiObject(guiGroup);
           return TextContainer.retrieveFromRequest().getText().get("rulesTableCheckHumanFriendlyValue_"+checkName);
@@ -469,6 +484,21 @@ public class GuiRuleDefinition implements Serializable, Comparable {
         } 
         
         if (stem != null) {
+          
+          final Stem STEM = stem;
+          if (rulesContainer.isNeedsViewPrivilegeOnCheckConditionResult()) {
+            boolean canView = (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              @Override
+              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+                Stem stemToFind = new StemFinder().addStemId(STEM.getId()).assignSubject(loggedInSubject).findStem();
+                return stemToFind != null;
+              }
+            });
+            if (!canView) {
+             stem = null;
+            }
+          }
+          
           GuiStem guiStem = new GuiStem(stem);
           this.setCheckGuiObject(guiStem);
           return TextContainer.retrieveFromRequest().getText().get("rulesTableCheckHumanFriendlyValue_"+checkName);
@@ -494,6 +524,10 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     }
      
     if (this.ruleDefinition.getIfCondition().ifConditionEnum() != null) {
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
       
       //e.g. flattenedMembershipAdd
       String ifConditionEnumName = this.ruleDefinition.getIfCondition().ifConditionEnum().name();
@@ -528,6 +562,14 @@ public class GuiRuleDefinition implements Serializable, Comparable {
         } 
         
         if (group != null) {
+          
+          if (rulesContainer.isNeedsViewPrivilegeOnCheckConditionResult()) {
+            boolean canView = group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
+            if (!canView) {
+              group = null;
+            }
+          }
+          
           GuiGroup guiGroup = new GuiGroup(group);
           this.setIfGuiObject(guiGroup);
           return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionHumanFriendlyValue_"+ifConditionEnumName);
@@ -563,6 +605,21 @@ public class GuiRuleDefinition implements Serializable, Comparable {
         } 
         
         if (stem != null) {
+          
+          final Stem STEM = stem;
+          if (rulesContainer.isNeedsViewPrivilegeOnCheckConditionResult()) {
+            boolean canView = (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              @Override
+              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+                Stem stemToFind = new StemFinder().addStemId(STEM.getId()).assignSubject(loggedInSubject).findStem();
+                return stemToFind != null;
+              }
+            });
+            if (!canView) {
+             stem = null;
+            }
+          }
+          
           GuiStem guiStem = new GuiStem(stem);
           this.setIfGuiObject(guiStem);
           return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionHumanFriendlyValue_"+ifConditionEnumName);
@@ -573,6 +630,10 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     }
     
     return TextContainer.retrieveFromRequest().getText().get("rulesTableConditionAlwaysHumanFriendlyValue");
+  }
+  
+  public String convertPrivilegeToHtml(String privilegeName) {
+    return GrouperTextContainer.textOrNull("priv."+privilegeName);
   }
   
   public String getResult() {
@@ -589,14 +650,43 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     
     
     if (this.ruleDefinition.getAttributeAssignType() != null) {
+      
+      final GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      RulesContainer rulesContainer = grouperRequestContainer.getRulesContainer();
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
       String ownerGroupId = this.ruleDefinition.getAttributeAssignType().getOwnerGroupId();
       String ownerStemId = this.ruleDefinition.getAttributeAssignType().getOwnerStemId();
       if (StringUtils.isNotBlank(ownerGroupId)) {
         Group group = GroupFinder.findByUuid(ownerGroupId, false);
+        if (group != null) {
+          if (rulesContainer.isNeedsViewPrivilegeOnCheckConditionResult()) {
+            boolean canView = group.canHavePrivilege(loggedInSubject, AccessPrivilege.VIEW.getName(), false);
+            if (!canView) {
+              group = null;
+            }
+          }
+        }
+        
         GuiGroup guiGroup = new GuiGroup(group);
         this.setThenGuiObject(guiGroup);
       } else if (StringUtils.isNotBlank(ownerStemId)) {
         Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerStemId, false);
+        if (stem != null) {
+          final Stem STEM = stem;
+          if (rulesContainer.isNeedsViewPrivilegeOnCheckConditionResult()) {
+            boolean canView = (boolean)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              @Override
+              public Object callback(GrouperSession rootSession) throws GrouperSessionException {
+                Stem stemToFind = new StemFinder().addStemId(STEM.getId()).assignSubject(loggedInSubject).findStem();
+                return stemToFind != null;
+              }
+            });
+            if (!canView) {
+             stem = null;
+            }
+          }
+        }
         GuiStem guiStem = new GuiStem(stem);
         this.setThenGuiObject(guiStem);
       }
@@ -655,6 +745,9 @@ public class GuiRuleDefinition implements Serializable, Comparable {
     
   }
   
+  /**
+   * @return
+   */
   public boolean isCanEditRule() {
     
     AttributeAssign attributeAssignType = this.ruleDefinition.getAttributeAssignType();

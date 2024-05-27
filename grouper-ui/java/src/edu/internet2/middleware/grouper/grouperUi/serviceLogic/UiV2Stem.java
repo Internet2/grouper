@@ -3959,6 +3959,18 @@ public class UiV2Stem {
       
       rulesContainer.setGuiRuleDefinitions(guiRules);
       
+      boolean isRefOrBasis = grouperRequestContainer.getObjectTypeContainer().isRefOrBasisType();
+      boolean canAdmin = grouperRequestContainer.getStemContainer().isCanAdminPrivileges();
+      String stemNamesRestrictRules = GrouperConfig.retrieveConfig().propertyValueString("rules.stemNamesRestrictRules", "");
+      boolean folderInRestrictList = false;
+      if (StringUtils.isNotBlank(stemNamesRestrictRules)) {
+        Set<String> folderNamesSet = GrouperUtil.splitTrimToSet(stemNamesRestrictRules, ",");
+        if (folderNamesSet.contains(stem.getName())) {
+          folderInRestrictList = true;
+        }
+      }
+      rulesContainer.setNeedsViewPrivilegeOnCheckConditionResult((isRefOrBasis || folderInRestrictList) && !canAdmin);
+      
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
           "/WEB-INF/grouperUi2/stem/stemRules.jsp"));
       
@@ -4047,8 +4059,14 @@ public class UiV2Stem {
       }
       
       String attributeAssignId = request.getParameter("ruleId");
-      
-      RuleConfig ruleConfig = RuleService.getRuleConfig(stem, attributeAssignId, loggedInSubject); 
+      final Stem STEM = stem;
+      RuleConfig ruleConfig = (RuleConfig) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          return RuleService.getRuleConfig(STEM, attributeAssignId, loggedInSubject);
+        }
+      });
       
       final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();  
       
@@ -4218,7 +4236,15 @@ public class UiV2Stem {
         throw new RuntimeException("Cannot edit rule");
       }
       
-      RuleService.deleteRuleAttributes(attributeAssignId);
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          RuleService.deleteRuleAttributes(attributeAssignId);
+          return null;
+        }
+      });
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Stem.viewStemRules&stemId=" + stem.getId() + "')"));
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -4236,6 +4262,7 @@ public class UiV2Stem {
    * @param request
    * @param response
    */
+  @SuppressWarnings("unchecked")
   public void addRuleOnStemSubmit(HttpServletRequest request, HttpServletResponse response) {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -4281,10 +4308,27 @@ public class UiV2Stem {
           return;
         }
         
-        typeWithMessages = ruleConfig.getRulePattern().save(ruleConfig, attributeAssignId);
+        //switch over to admin so attributes work
+        typeWithMessages = (Map<String, List<String>>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            return ruleConfig.getRulePattern().save(ruleConfig, attributeAssignId);
+          }
+        });
+        
       } else {
+        final Stem STEM = stem;
+        //switch over to admin so attributes work
+        typeWithMessages = (Map<String, List<String>>) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+          
+          @Override
+          public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+            
+            return RuleService.saveOrUpdateRuleAttributes(ruleConfig, STEM, attributeAssignId);
+          }
+        });
                 
-        typeWithMessages = RuleService.saveOrUpdateRuleAttributes(ruleConfig, stem, attributeAssignId);
       }
       
       if (typeWithMessages.get("ERROR") != null && typeWithMessages.get("ERROR").size() > 0) {

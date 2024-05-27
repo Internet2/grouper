@@ -24,7 +24,6 @@
                                           property="currentGuiRuleDefinition"
                                           value="${guiRuleDefinition}" />
            <c:set var="ruleDefinition" value="${guiRuleDefinition.ruleDefinition}" />
-              <c:if test="${guiRuleDefinition.canViewRule}">
               <tr>
               
                 <td>
@@ -36,12 +35,31 @@
                            <span class="caret"></span>
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+                         
+                         
+                         <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId != null}">
+                           <li><a href="#" onclick="return guiV2link('operation=UiV2Group.editRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                          </c:if>
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerStemId != null}">
+                           <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                          </c:if>
                           
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
+                          
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId != null}">
+                            <li><br/></li>
+                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Group.deleteRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                          </c:if>
+                          
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerStemId != null}">
+                            <li><br/></li>
+                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                          </c:if>
+                          
+                          <%-- <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                            <c:if test="${ruleDefinition.attributeAssignType.ownerStemId == grouperRequestContainer.stemContainer.guiStem.stem.id }">
                               <li><br/></li>
                               <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
-                          </c:if>
+                          </c:if> --%>
                          </ul>
                        </div>
                    </c:if>
@@ -105,8 +123,6 @@
               </td>
               
                  </tr>
-                 </c:if>
-                    
          </c:forEach>
           
           </tbody>

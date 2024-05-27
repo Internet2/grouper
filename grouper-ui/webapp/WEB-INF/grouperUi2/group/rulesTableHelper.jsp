@@ -23,9 +23,9 @@
            <c:set target="${grouperRequestContainer.rulesContainer}"
                                           property="currentGuiRuleDefinition"
                                           value="${guiRuleDefinition}" />
+                                          
            <c:set var="ruleDefinition" value="${guiRuleDefinition.ruleDefinition}" />
               
-             <c:if test="${guiRuleDefinition.canViewRule}"> 
               <tr>
               
                 <td>
@@ -46,9 +46,15 @@
                            <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.editRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');">${textContainer.text['rulesTableActionsEditRuleSettings'] }</a></li>
                           </c:if>
                           
-                           <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId == grouperRequestContainer.groupContainer.guiGroup.group.id }">
+                          
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerGroupId != null}">
                             <li><br/></li>
-                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Group.deleteRuleOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Group.deleteRuleOnGroup&groupId=${ruleDefinition.attributeAssignType.ownerGroupId}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
+                          </c:if>
+                          
+                          <c:if test="${ruleDefinition.attributeAssignType.ownerStemId != null}">
+                            <li><br/></li>
+                            <li><a href="#" onclick="if (confirm('${textContainer.textEscapeSingleDouble['ruleDeleleConfirmation']}')) { return guiV2link('operation=UiV2Stem.deleteRuleOnStem&stemId=${ruleDefinition.attributeAssignType.ownerStemId}&ruleId=${ruleDefinition.attributeAssignType.id}');}">${textContainer.text['rulesTableActionsDeleteRuleSettings'] }</a></li>
                           </c:if>
                           
                          </ul>
@@ -115,7 +121,6 @@
               </td>
               
                  </tr>
-                 </c:if>
                     
          </c:forEach>
           
