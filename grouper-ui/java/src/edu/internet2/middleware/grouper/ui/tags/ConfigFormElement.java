@@ -453,7 +453,7 @@ public class ConfigFormElement extends SimpleTagSupport {
           
           boolean selected = StringUtils.equals(key, value);
           
-          field.append("<option value='"+key+"'" + (selected ? " selected='selected'" : "") + ">");
+          field.append("<option value='"+GrouperUtil.escapeHtml(key, true)+"'" + (selected ? " selected='selected'" : "") + ">");
           field.append(GrouperUtil.escapeHtml(optionValue, true));
           field.append("</option>");
         }
@@ -514,7 +514,7 @@ public class ConfigFormElement extends SimpleTagSupport {
         String label = GrouperUtil.stringValue(multiKey.getKey(1));
         boolean checked = (boolean) multiKey.getKey(2);
         
-        field.append("<input type='checkbox' style='"+ displayClass + "' id='"+value+"_id' name='config_"+configId+"' ");
+        field.append("<input type='checkbox' style='"+ displayClass + "' id='"+GrouperUtil.escapeHtml(value, true)+"_id' name='config_"+configId+"' ");
         if (value != null) {
           field.append(" value = '"+value+"'");
         }
@@ -528,7 +528,7 @@ public class ConfigFormElement extends SimpleTagSupport {
         }
         
         field.append("></input>");
-        field.append("&nbsp; &nbsp; <label for '"+value+"_id'>");
+        field.append("&nbsp; &nbsp; <label for '"+GrouperUtil.escapeHtml(value, true)+"_id'>");
         field.append(label);
         field.append("</label>");
         field.append("<br>");
