@@ -356,9 +356,16 @@ public class ConfigFormElement extends SimpleTagSupport {
       field.append("padding-left: " + (2*this.indent) + "em;");
     }
     field.append("'>");
-    field.append("<strong><label for='config_"+configId+"_id'>");
+    field.append("<strong>");
+    if (!readOnly) {
+      field.append("<label for='config_"+configId+"_id'>");
+    }
     field.append(label);
-    field.append("</label></strong></td>");
+    if (!readOnly) {
+      field.append("</label>");
+    }
+    field.append("</strong></td>");
+      
     
     if (shouldShowElCheckbox) {
       field.append("<td style='vertical-align: top; white-space: nowrap;' >");
@@ -478,13 +485,14 @@ public class ConfigFormElement extends SimpleTagSupport {
           field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
         }
       } else {
+        int index = 0;
         for (MultiKey multiKey: valuesAndLabels) {
           
           String key = GrouperUtil.stringValue(multiKey.getKey(0));
           String radioButtonValue = GrouperUtil.stringValue(multiKey.getKey(1));
           boolean checked = StringUtils.equals(key, value);
 
-          field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+"_id' name='config_"+configId+"' value='"+key+"' ");
+          field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+(index==0?"":Integer.toString(index))+"_id' name='config_"+configId+"' value='"+key+"' ");
           field.append(checked ? " checked ": "");
           field.append("onchange=\""+ajaxCallback+"\"");
           field.append(">");
@@ -496,6 +504,8 @@ public class ConfigFormElement extends SimpleTagSupport {
           } else {
             field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
           }
+          
+          index++;
         }
       }
     }
@@ -514,9 +524,10 @@ public class ConfigFormElement extends SimpleTagSupport {
         String label = GrouperUtil.stringValue(multiKey.getKey(1));
         boolean checked = (boolean) multiKey.getKey(2);
         
+        // why is the "id" the value and not a generic thing?  maybe for javascript?  hmmm
         field.append("<input type='checkbox' style='"+ displayClass + "' id='"+GrouperUtil.escapeHtml(value, true)+"_id' name='config_"+configId+"' ");
         if (value != null) {
-          field.append(" value = '"+value+"'");
+          field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
         }
         
         if (isValueProvided) {
