@@ -4,7 +4,15 @@ import java.util.Collection;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisioningTargetDao;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehavior;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeValueType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningValidationIssue;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
@@ -16,6 +24,38 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
     
     String scimType = this.getSuffixToConfigValue().get("scimType");
     if (StringUtils.equals("Github", scimType)) {
+      
+      GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+      GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+      GrouperProvisioningBehavior grouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+
+      if (grouperProvisioningBehavior.isSelectGroups() && grouperProvisioningConfiguration.isSelectAllGroups()) {
+        this.addErrorMessage(new ProvisioningValidationIssue()
+            .assignMessage(GrouperTextContainer.textOrNull("scim2githubCannotSelectAllGroupsAtOnce"))
+            .assignJqueryHandle("selectAllGroups"));
+        
+      }
+      
+      if (grouperProvisioningBehavior.isSelectGroups()) {
+
+        boolean foundOrgInUrl = false;
+        for (String attributeName : GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().keySet())) {
+        
+          GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(attributeName);       
+        
+          if (!StringUtils.equals("orgInUrl", attributeName)) {
+            this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("scim2githubOnlyGroupAttributeIsOrgInUrl"))
+                .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey(attributeName)));
+            
+          } else {
+            foundOrgInUrl = true;
+          }
+        }
+        
+        if (!foundOrgInUrl) {
+          this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("scim2githubMustHaveGroupAttributeOrgInUrl")));
+        }
+      }
     }
     
     /**
