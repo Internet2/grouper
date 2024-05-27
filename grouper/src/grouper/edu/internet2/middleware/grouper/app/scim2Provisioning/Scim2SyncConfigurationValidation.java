@@ -43,7 +43,7 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
         
           GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(attributeName);       
         
-          if (!StringUtils.equals("orgInUrl", attributeName)) {
+          if (!StringUtils.equals("orgInUrl", grouperProvisioningConfigurationAttribute.getName())) {
             this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("scim2githubOnlyGroupAttributeIsOrgInUrl"))
                 .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey(attributeName)));
             
