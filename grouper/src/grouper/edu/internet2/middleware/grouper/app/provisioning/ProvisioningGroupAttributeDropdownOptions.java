@@ -39,7 +39,8 @@ public class ProvisioningGroupAttributeDropdownOptions implements OptionValueDri
     
     for (int i=0; i<countOfAttributes; i++) {
       GrouperConfigurationModuleAttribute nameAttribute = configSuffixToConfigModuleAttribute.get("targetGroupAttribute."+i+".name");
-      String name = nameAttribute == null ? null : nameAttribute.getValueOrExpressionEvaluation();
+//      String name = nameAttribute == null ? null : nameAttribute.getValueOrExpressionEvaluation();
+      String name = nameAttribute == null ? null : nameAttribute.getValueOrExpressionEvaluationValue();
       if (nameAttribute == null || StringUtils.isBlank(name)) {
         continue;
       }

@@ -522,8 +522,14 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
           GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = attributes.get(suffix);
           String configKey = "provisioner." + this.getConfigId() + "." + suffix;
           if (grouperConfigurationModuleAttribute.isHasValue()) {
-            GrouperLoaderConfig.retrieveConfig().propertiesThreadLocalOverrideMap().put(configKey, 
-                grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation());
+            if (grouperConfigurationModuleAttribute.isExpressionLanguage()) {
+              GrouperLoaderConfig.retrieveConfig().propertiesThreadLocalOverrideMap().put(configKey + ".elConfig", 
+                  grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation());
+              
+            } else {
+              GrouperLoaderConfig.retrieveConfig().propertiesThreadLocalOverrideMap().put(configKey, 
+                  grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation());
+            }
           } else {
             if (!StringUtils.isEmpty(GrouperLoaderConfig.retrieveConfig().propertyValueString(configKey))) {
               GrouperLoaderConfig.retrieveConfig().propertiesThreadLocalOverrideMap().put(configKey, null);
