@@ -575,15 +575,15 @@ public abstract class GrouperConfigurationModuleBase {
         attribute.setExpressionLanguage(true);
         attribute.setFormElement(ConfigItemFormElement.TEXT);
         attribute.setExpressionLanguageScript(value);
-//        if (!StringUtils.isBlank(value)) {
-//          String theExpression = value;
-//          try {
-//            attribute.setExpressionLanguageValue(GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguage(theExpression, objectValueSubstituteMap, true, true, true)));
-//          } catch (Exception e) {
-//            LOG.error("Error evaluating expression: '" + theExpression + "'", e);
-//          }
-//
-//        }
+        if (!StringUtils.isBlank(value)) {
+          String theExpression = value;
+          try {
+            attribute.setExpressionLanguageValue(GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguage(theExpression, objectValueSubstituteMap, true, true, true)));
+          } catch (Exception e) {
+            LOG.error("Error evaluating expression: '" + theExpression + "'", e);
+          }
+
+        }
       } else {
         attribute.setExpressionLanguage(false);
         attribute.setValue(value);
@@ -1060,6 +1060,17 @@ public abstract class GrouperConfigurationModuleBase {
       if (hasExpressionLanguage) {
         String rawExpressionLanguage = configPropertiesCascadeBase.rawExpressionLanguage(propertyName);
         grouperConfigModuleAttribute.setExpressionLanguageScript(rawExpressionLanguage);
+        
+        if (!StringUtils.isBlank(rawExpressionLanguage)) {
+          try {
+            
+            grouperConfigModuleAttribute.setExpressionLanguageValue(GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguage(rawExpressionLanguage, this.objectValueSubstituteMap, true, true, true)));
+          } catch (Exception e) {
+            LOG.error("Error evaluating expression: '" + rawExpressionLanguage + "'", e);
+          }
+
+        }
+
       }
     }
     

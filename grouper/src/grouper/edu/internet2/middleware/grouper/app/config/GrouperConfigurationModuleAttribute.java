@@ -371,7 +371,27 @@ public class GrouperConfigurationModuleAttribute {
     return (!this.isExpressionLanguage() && !StringUtils.isBlank(this.getValue()))
         || (this.isExpressionLanguage() && !StringUtils.isBlank(this.getExpressionLanguageScript()));
   }
+
+  /**
+   * get the value or the expression language evaluation
+   * @return the value
+   */
+  public String getValueOrExpressionEvaluationValue() {
+    String value = null;
+    
+    if (this.isExpressionLanguage()) {
+      value = this.expressionLanguageValue;
+    } else if (this.getValue() != null) {
+      value = this.getValue();
+    }
+    return value;
+  }
   
+  public boolean isHasValueConsiderExpressionEvaluation() {
+    return (!this.isExpressionLanguage() && !StringUtils.isBlank(this.getValue()))
+        || (this.isExpressionLanguage() && !StringUtils.isBlank(this.getExpressionLanguageValue()));
+  }
+
   /**
    * get the html id for the field 
    * @return
@@ -463,4 +483,17 @@ public class GrouperConfigurationModuleAttribute {
     return GrouperUtil.booleanValue(showString, true);
   }
 
+  private String expressionLanguageValue;
+
+
+  
+  public String getExpressionLanguageValue() {
+    return expressionLanguageValue;
+  }
+
+  
+  public void setExpressionLanguageValue(String expressionLanguageValue) {
+    this.expressionLanguageValue = expressionLanguageValue;
+  }
+  
 }
