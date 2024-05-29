@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.app.midpointProvisioning;
 
 import java.util.ArrayList;
-import java.util.Date;
 import java.util.List;
 
 import org.apache.commons.lang3.StringUtils;
@@ -127,7 +126,7 @@ public class MidPointProvisioningConfiguration extends SqlProvisioningConfigurat
     setHasTargetEntityLink(true);
     
 //    setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('"+getMembershipGroupMatchingIdAttribute()+"'), targetMembership.retrieveAttributeValueString('"+getMembershipEntityMatchingIdAttribute()+"'))}");
-    setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.getAttributes().get('group_id_index').getValue(), targetMembership.getAttributes().get('subject_id_index').getValue())}");
+    setMembershipMatchingIdExpression("${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValue('group_id_index'), targetMembership.retrieveAttributeValue('subject_id_index'))}");
     
     
     for (String attributeName : getTargetGroupAttributeNameToConfig().keySet()) {

@@ -43,7 +43,7 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     new MidPointProvisionerTest().ensureTableSyncTables();
-    TestRunner.run(new MidPointProvisionerTest("testFullIncrementalMidPointProvisioner"));
+    TestRunner.run(new MidPointProvisionerTest("testFullMidPointProvisionerWithLastModifiedAndDeletedColumns"));
   
   }
 
@@ -333,6 +333,8 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
     testGroup.move(stem);
 
     grouperProvisioningOutput = fullProvision();
+    
+    // TODO this will delete memberships when the group was deleted or maybe deleted before hand...
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
     
