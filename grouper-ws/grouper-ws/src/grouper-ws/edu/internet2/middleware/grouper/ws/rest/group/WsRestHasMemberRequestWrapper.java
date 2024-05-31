@@ -4,7 +4,7 @@ import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
 
 @ApiModel(description = "Request body to run hasMember")
-public class WsRestHasMemberRequestWrapper2 {
+public class WsRestHasMemberRequestWrapper {
 
   private WsRestHasMemberRequest wsRestHasMemberRequest;
   
@@ -12,7 +12,7 @@ public class WsRestHasMemberRequestWrapper2 {
   public WsRestHasMemberRequest getWsRestHasMemberRequest() {
     return wsRestHasMemberRequest;
   }
-  public void setWsRestHasMemberRequest(WsRestHasMemberRequest wsRestHasMemberRequest1) {
-    wsRestHasMemberRequest = wsRestHasMemberRequest1;
+  public void setWsRestHasMemberRequest(WsRestHasMemberRequest wsRestHasMemberRequest) {
+    wsRestHasMemberRequest = wsRestHasMemberRequest;
   }
 }
