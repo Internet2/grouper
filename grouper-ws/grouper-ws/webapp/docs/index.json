@@ -12,7 +12,7 @@
   } ],
   "schemes" : [ "https" ],
   "paths" : {
-    "/grouper-ws/servicesRest/vA_A_MAF/messaging" : {
+    "/grouper-ws/servicesRest/v4_0_010/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Acknowledge message",
@@ -30,13 +30,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsMessageAcknowledgeResults"
+              "$ref" : "#/definitions/WsAcknowledgeMessageResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_A_MEF/members" : {
+    "/grouper-ws/servicesRest/v4_0_020/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member",
@@ -54,13 +54,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAddMemberResults"
+              "$ref" : "#/definitions/WsAddMemberResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_A_MEL/members" : {
+    "/grouper-ws/servicesRest/v4_0_030/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Add member lite",
@@ -218,13 +218,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAddMemberLiteResult"
+              "$ref" : "#/definitions/WsAddMemberLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_D_ACF/attributeDefActions" : {
+    "/grouper-ws/servicesRest/v4_0_040/attributeDefActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def actions",
@@ -242,13 +242,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefAssignActionResults"
+              "$ref" : "#/definitions/WsAssignAttributeDefActionsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_D_ANF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_050/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def name inheritance",
@@ -266,13 +266,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignAttributeDefNameInheritanceResults"
+              "$ref" : "#/definitions/WsAssignAttributeDefNameInheritanceResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_D_ANL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_060/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attribute def name inheritance lite",
@@ -381,13 +381,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignAttributeDefNameInheritanceResults"
+              "$ref" : "#/definitions/WsAssignAttributeDefNameInheritanceResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_E_ATF/attributeAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_070/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes",
@@ -405,13 +405,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignAttributesResults"
+              "$ref" : "#/definitions/WsAssignAttributesResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_E_ATG/attributeAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_080/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes batch",
@@ -429,13 +429,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignAttributesBatchResults"
+              "$ref" : "#/definitions/WsAssignAttributesBatchResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_E_ATL/attributeAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_090/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign attributes lite",
@@ -739,13 +739,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignAttributesLiteResults"
+              "$ref" : "#/definitions/WsAssignAttributesLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_G_PRF/grouperPriveleges" : {
+    "/grouper-ws/servicesRest/v4_0_100/grouperPriveleges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign grouper privileges",
@@ -763,13 +763,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignGrouperPrivilegesResults"
+              "$ref" : "#/definitions/WsAssignGrouperPrivilegesResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_G_PRL/grouperPrivileges" : {
+    "/grouper-ws/servicesRest/v4_0_110/grouperPrivileges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign grouper privileges lite",
@@ -934,13 +934,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignGrouperPrivilegesLiteResult"
+              "$ref" : "#/definitions/WsAssignGrouperPrivilegesLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_H_PRF/permissionAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_120/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign permissions",
@@ -958,13 +958,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignPermissionsResults"
+              "$ref" : "#/definitions/WsAssignPermissionsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_H_PRL/permissionAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_130/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Assign permissions lite",
@@ -1184,13 +1184,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAssignPermissionsLiteResults"
+              "$ref" : "#/definitions/WsAssignPermissionsLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_I_DEF/attributeDefs" : {
+    "/grouper-ws/servicesRest/v4_0_140/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def delete",
@@ -1208,13 +1208,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefDeleteResults"
+              "$ref" : "#/definitions/WsAttributeDefDeleteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_I_DEL/attributeDefs" : {
+    "/grouper-ws/servicesRest/v4_0_150/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def delete lite",
@@ -1309,13 +1309,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefDeleteLiteResult"
+              "$ref" : "#/definitions/WsAttributeDefDeleteLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_J_DEF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_160/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name delete",
@@ -1333,13 +1333,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefNameDeleteResults"
+              "$ref" : "#/definitions/WsAttributeDefNameDeleteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_J_DEL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_170/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name delete lite",
@@ -1427,13 +1427,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefNameDeleteLiteResult"
+              "$ref" : "#/definitions/WsAttributeDefNameDeleteLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_K_SAF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_180/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name save",
@@ -1451,13 +1451,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefNameSaveResults"
+              "$ref" : "#/definitions/WsAttributeDefNameSaveResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_K_SAL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_190/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def name save lite",
@@ -1600,13 +1600,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefNameSaveLiteResult"
+              "$ref" : "#/definitions/WsAttributeDefNameSaveLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_L_SAF/attributeDefs" : {
+    "/grouper-ws/servicesRest/v4_0_200/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def save",
@@ -1624,13 +1624,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefSaveResults"
+              "$ref" : "#/definitions/WsAttributeDefSaveResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vA_L_SAL/attributeDefs" : {
+    "/grouper-ws/servicesRest/v4_0_210/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Attribute def save lite",
@@ -1864,13 +1864,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsAttributeDefSaveLiteResult"
+              "$ref" : "#/definitions/WsAttributeDefSaveLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vD_M_EMF/members" : {
+    "/grouper-ws/servicesRest/v4_0_220/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member",
@@ -1888,13 +1888,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsDeleteMemberResults"
+              "$ref" : "#/definitions/WsDeleteMemberResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vD_M_EML/members" : {
+    "/grouper-ws/servicesRest/v4_0_230/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Delete member lite",
@@ -2031,13 +2031,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsDeleteMemberLiteResult"
+              "$ref" : "#/definitions/WsDeleteMemberLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vE_G_TEM" : {
+    "/grouper-ws/servicesRest/v4_0_240/gshTemplate" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Execute GSH template",
@@ -2055,13 +2055,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGshTemplateExecResult"
+              "$ref" : "#/definitions/WsExecuteGshTemplateResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vE_S_DEL/externalSubjects" : {
+    "/grouper-ws/servicesRest/v4_0_250/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "External subject delete",
@@ -2079,13 +2079,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsExternalSubjectDeleteResults"
+              "$ref" : "#/definitions/WsExternalSubjectDeleteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vE_S_SAV/externalSubjects" : {
+    "/grouper-ws/servicesRest/v4_0_260/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "External subject save",
@@ -2103,13 +2103,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsExternalSubjectSaveResults"
+              "$ref" : "#/definitions/WsExternalSubjectSaveResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DNF/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_270/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute def names",
@@ -2127,13 +2127,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsFindAttributeDefNamesResults"
+              "$ref" : "#/definitions/WsFindAttributeDefNamesResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DNL/attributeDefNames" : {
+    "/grouper-ws/servicesRest/v4_0_280/attributeDefNames" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute def names lite",
@@ -2354,13 +2354,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsFindAttributeDefNamesResults"
+              "$ref" : "#/definitions/WsFindAttributeDefNamesResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DSF/attributeDefs" : {
+    "/grouper-ws/servicesRest/v4_0_290/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute defs",
@@ -2378,13 +2378,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsFindAttributeDefsResults"
+              "$ref" : "#/definitions/WsFindAttributeDefsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_A_DSL/attributeDefs" : {
+    "/grouper-ws/servicesRest/v4_0_300/attributeDefs" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find attribute defs lite",
@@ -2577,13 +2577,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsFindAttributeDefsResults"
+              "$ref" : "#/definitions/WsFindAttributeDefsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_E_SUB/externalSubjects" : {
+    "/grouper-ws/servicesRest/v4_0_310/externalSubjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find external subjects",
@@ -2601,13 +2601,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsFindExternalSubjectsResults"
+              "$ref" : "#/definitions/WsFindExternalSubjectsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_G_UPF/groups" : {
+    "/grouper-ws/servicesRest/v4_0_320/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups",
@@ -2649,7 +2649,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_G_UPL/groups" : {
+    "/grouper-ws/servicesRest/v4_0_330/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find groups lite",
@@ -2880,7 +2880,7 @@
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_S_EMF/stems" : {
+    "/grouper-ws/servicesRest/v4_0_340/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find stems",
@@ -2898,13 +2898,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsFindStemsResults"
+              "$ref" : "#/definitions/WsFindStemsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vF_S_EML/stems" : {
+    "/grouper-ws/servicesRest/v4_0_350/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Find stems lite",
@@ -3027,13 +3027,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsFindStemsResults"
+              "$ref" : "#/definitions/WsFindStemsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_ABF/attributeAssignActions" : {
+    "/grouper-ws/servicesRest/v4_0_360/attributeAssignActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assign actions",
@@ -3051,37 +3051,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetAttributeAssignActionsResults"
+              "$ref" : "#/definitions/WsGetAttributeAssignActionsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_ABF/attributeAssignments" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Get attribute assignments",
-        "description" : "<b>Description</b>: Get attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), or attribute definitions.  If you want to retrieve attribute assignments assigned to other attributes, then pass a flag to the assignment lookup to include assignments on the returned assignments.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assignments'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "getAttributeAssignments",
-        "parameters" : [ {
-          "in" : "body",
-          "name" : "body",
-          "required" : true,
-          "schema" : {
-            "$ref" : "#/definitions/WsRestGetAttributeAssignmentsRequestWrapper"
-          }
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsGetAttributeAssignmentsResults"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/vG_E_ABL/attributeAssignActions" : {
+    "/grouper-ws/servicesRest/v4_0_370/attributeAssignActions" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assign actions lite",
@@ -3183,13 +3159,37 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetAttributeAssignActionsResults"
+              "$ref" : "#/definitions/WsGetAttributeAssignActionsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_ABL/attributeAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_380/attributeAssignments" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get attribute assignments",
+        "description" : "<b>Description</b>: Get attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), or attribute definitions.  If you want to retrieve attribute assignments assigned to other attributes, then pass a flag to the assignment lookup to include assignments on the returned assignments.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assignments'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "getAttributeAssignments",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestGetAttributeAssignmentsRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetAttributeAssignmentsResultsWrapper"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/v4_0_390/attributeAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get attribute assignments lite",
@@ -3522,13 +3522,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetAttributeAssignmentsResults"
+              "$ref" : "#/definitions/WsGetAttributeAssignmentsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_AEF/audits" : {
+    "/grouper-ws/servicesRest/v4_0_400/audits" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get audit entries",
@@ -3546,13 +3546,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetAuditEntriesResults"
+              "$ref" : "#/definitions/WsGetAuditEntriesResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_AEL/audits" : {
+    "/grouper-ws/servicesRest/v4_0_410/audits" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get audit entries lite",
@@ -3745,13 +3745,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetAuditEntriesResults"
+              "$ref" : "#/definitions/WsGetAuditEntriesResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_GPL/grouperPrivileges" : {
+    "/grouper-ws/servicesRest/v4_0_420/grouperPrivileges" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get grouper privileges lite",
@@ -3909,13 +3909,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetGrouperPrivilegesLiteResult"
+              "$ref" : "#/definitions/WsGetGrouperPrivilegesLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_GRF/groups" : {
+    "/grouper-ws/servicesRest/v4_0_430/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get groups",
@@ -3933,13 +3933,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetGroupsResults"
+              "$ref" : "#/definitions/WsGetGroupsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_GRL/groups" : {
+    "/grouper-ws/servicesRest/v4_0_440/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get groups lite",
@@ -4174,13 +4174,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetGroupsLiteResult"
+              "$ref" : "#/definitions/WsGetGroupsLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MEF/members" : {
+    "/grouper-ws/servicesRest/v4_0_450/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get members",
@@ -4198,226 +4198,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetMembersResults"
+              "$ref" : "#/definitions/WsGetMembersResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MEL/members" : {
-      "post" : {
-        "tags" : [ "Grouper" ],
-        "summary" : "Get members lite",
-        "description" : "<b>Description</b>: Get members will retrieve subjects assigned to a group.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses",
-        "operationId" : "getMembersLite",
-        "parameters" : [ {
-          "name" : "wsLiteObjectType",
-          "in" : "formData",
-          "description" : "WsRestFindGroupsLiteRequest",
-          "required" : true,
-          "type" : "String",
-          "x-example" : "WsRestFindGroupsLiteRequest"
-        }, {
-          "name" : "clientVersion",
-          "in" : "formData",
-          "description" : "Version of the client (i.e. that the client was coded against)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "v2_6_001"
-        }, {
-          "name" : "actAsSubjectId",
-          "in" : "formData",
-          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "12345678"
-        }, {
-          "name" : "actAsSubjectSourceId",
-          "in" : "formData",
-          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "myInstitutionPeople"
-        }, {
-          "name" : "actAsSubjectIdentifier",
-          "in" : "formData",
-          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "jsmith"
-        }, {
-          "name" : "paramName0",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "paramValue0",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "paramName1",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "paramValue1",
-          "in" : "formData",
-          "description" : "Optional params for this request",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "NA"
-        }, {
-          "name" : "groupUuid",
-          "in" : "formData",
-          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "abc123"
-        }, {
-          "name" : "pageSize",
-          "in" : "formData",
-          "description" : "Page size if paging",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "100"
-        }, {
-          "name" : "pageNumber",
-          "in" : "formData",
-          "description" : "Page number 1 indexed if paging",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "1"
-        }, {
-          "name" : "includeGroupDetail",
-          "in" : "formData",
-          "description" : "If the group detail should be returned, default to false",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        }, {
-          "name" : "includeSubjectDetail",
-          "in" : "formData",
-          "description" : "If the subject detail should be returned (anything more than ID), default to false",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        }, {
-          "name" : "pageIsCursor",
-          "in" : "formData",
-          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        }, {
-          "name" : "pageLastCursorField",
-          "in" : "formData",
-          "description" : "Field that will be sent back for cursor based paging",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "abc123"
-        }, {
-          "name" : "pageLastCursorFieldType",
-          "in" : "formData",
-          "description" : "Could be: string, int, long, date, timestamp",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "string|int|long|date|timestamp"
-        }, {
-          "name" : "pageCursorFieldIncludesLastRetrieved",
-          "in" : "formData",
-          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        }, {
-          "name" : "fieldName",
-          "in" : "formData",
-          "description" : "If the member is part of a certain field membership of the group",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
-        }, {
-          "name" : "pointInTimeFrom",
-          "in" : "formData",
-          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "1970/01/01 00:00:00.000"
-        }, {
-          "name" : "pointInTimeTo",
-          "in" : "formData",
-          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "1970/01/01 00:00:00.000"
-        }, {
-          "name" : "memberFilter",
-          "in" : "formData",
-          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "Effective"
-        }, {
-          "name" : "sortString",
-          "in" : "formData",
-          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "name | displayName | extension | displayExtension"
-        }, {
-          "name" : "ascending",
-          "in" : "formData",
-          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        }, {
-          "name" : "groupName",
-          "in" : "formData",
-          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "some:group:name"
-        }, {
-          "name" : "subjectAttributeNames",
-          "in" : "formData",
-          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "lastName, middleName"
-        }, {
-          "name" : "sourceIds",
-          "in" : "formData",
-          "description" : "comma separated source ids or null for all",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "schoolPerson, g:gsa"
-        }, {
-          "name" : "pointInTimeRetrieve",
-          "in" : "formData",
-          "description" : "true means retrieve point in time records",
-          "required" : false,
-          "type" : "String",
-          "x-example" : "T|F"
-        } ],
-        "responses" : {
-          "200" : {
-            "description" : "successful operation",
-            "schema" : {
-              "$ref" : "#/definitions/WsGetMembersLiteResult"
-            }
-          }
-        }
-      }
-    },
-    "/grouper-ws/servicesRest/vG_E_MSF/memberships" : {
+    "/grouper-ws/servicesRest/v4_0_460/memberships" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get memberships",
@@ -4435,13 +4222,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetMembershipsResults"
+              "$ref" : "#/definitions/WsGetMembershipsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_MSL/memberships" : {
+    "/grouper-ws/servicesRest/v4_0_470/memberships" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get memberships lite",
@@ -4823,13 +4610,226 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetMembershipsResults"
+              "$ref" : "#/definitions/WsGetMembershipsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_PAF/permissionAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_480/groups" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Get members lite",
+        "description" : "<b>Description</b>: Get members will retrieve subjects assigned to a group.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "getMembersLite",
+        "parameters" : [ {
+          "name" : "wsLiteObjectType",
+          "in" : "formData",
+          "description" : "WsRestFindGroupsLiteRequest",
+          "required" : true,
+          "type" : "String",
+          "x-example" : "WsRestFindGroupsLiteRequest"
+        }, {
+          "name" : "clientVersion",
+          "in" : "formData",
+          "description" : "Version of the client (i.e. that the client was coded against)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "v2_6_001"
+        }, {
+          "name" : "actAsSubjectId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectId to act as here.  Mutually exclusive with actAsSubjectIdentifier (actAsSubjectId is preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "12345678"
+        }, {
+          "name" : "actAsSubjectSourceId",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the subject source ID (get this from the UI or your Grouper admin)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "myInstitutionPeople"
+        }, {
+          "name" : "actAsSubjectIdentifier",
+          "in" : "formData",
+          "description" : "If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user subjectIdentifier to act as here.  Mutually exclusive with actAsSubjectId (preferred)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "jsmith"
+        }, {
+          "name" : "paramName0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue0",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramName1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "paramValue1",
+          "in" : "formData",
+          "description" : "Optional params for this request",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "NA"
+        }, {
+          "name" : "groupUuid",
+          "in" : "formData",
+          "description" : "Id in UI, groupUuid search by group uuid (must match exactly)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageSize",
+          "in" : "formData",
+          "description" : "Page size if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "100"
+        }, {
+          "name" : "pageNumber",
+          "in" : "formData",
+          "description" : "Page number 1 indexed if paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1"
+        }, {
+          "name" : "includeGroupDetail",
+          "in" : "formData",
+          "description" : "If the group detail should be returned, default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "includeSubjectDetail",
+          "in" : "formData",
+          "description" : "If the subject detail should be returned (anything more than ID), default to false",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageIsCursor",
+          "in" : "formData",
+          "description" : "T|F default to F.  if this is T then we are doing cursor paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "pageLastCursorField",
+          "in" : "formData",
+          "description" : "Field that will be sent back for cursor based paging",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "abc123"
+        }, {
+          "name" : "pageLastCursorFieldType",
+          "in" : "formData",
+          "description" : "Could be: string, int, long, date, timestamp",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "string|int|long|date|timestamp"
+        }, {
+          "name" : "pageCursorFieldIncludesLastRetrieved",
+          "in" : "formData",
+          "description" : "If cursor field is unique, this should be false.  If not, then should be true.  i.e. if should include the last cursor field in the next resultset",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "fieldName",
+          "in" : "formData",
+          "description" : "If the member is part of a certain field membership of the group",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate"
+        }, {
+          "name" : "pointInTimeFrom",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "pointInTimeTo",
+          "in" : "formData",
+          "description" : "To query members at a certain point in time or time range in the past, set this valueand/or the value of pointInTimeTo. This parameter specifies the start of the rangeof the point in time query. If this is specified but pointInTimeTo is not specified,then the point in time query range will be from the time specified to now.Format: yyyy/MM/dd HH:mm:ss.SSS",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "1970/01/01 00:00:00.000"
+        }, {
+          "name" : "memberFilter",
+          "in" : "formData",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "Effective"
+        }, {
+          "name" : "sortString",
+          "in" : "formData",
+          "description" : "Must be an hql query field, e.g. can sort on name, displayName, extension, displayExtension",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "name | displayName | extension | displayExtension"
+        }, {
+          "name" : "ascending",
+          "in" : "formData",
+          "description" : "T or null for ascending, F for descending.  If you pass true or false, must pass a sort string",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        }, {
+          "name" : "groupName",
+          "in" : "formData",
+          "description" : "Id path in UI, groupName search by group name (must match exactly), cannot use other params with this",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "some:group:name"
+        }, {
+          "name" : "subjectAttributeNames",
+          "in" : "formData",
+          "description" : "are the additional subject attributes (data) to return. If blank, whatever is configured in the grouper-ws.properties will be sent (comma separated). Only certain attributes are configured to be allowed to be retrieved",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "lastName, middleName"
+        }, {
+          "name" : "sourceIds",
+          "in" : "formData",
+          "description" : "comma separated source ids or null for all",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "schoolPerson, g:gsa"
+        }, {
+          "name" : "pointInTimeRetrieve",
+          "in" : "formData",
+          "description" : "true means retrieve point in time records",
+          "required" : false,
+          "type" : "String",
+          "x-example" : "T|F"
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsGetMembersLiteResultsWrapper"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/v4_0_490/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get permission assignments",
@@ -4847,13 +4847,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetPermissionAssignmentsResults"
+              "$ref" : "#/definitions/WsGetPermissionAssignmentsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_PAL/permissionAssignments" : {
+    "/grouper-ws/servicesRest/v4_0_500/permissionAssignments" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get permission assignments lite",
@@ -5137,13 +5137,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetPermissionAssignmentsResults"
+              "$ref" : "#/definitions/WsGetPermissionAssignmentsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_SUF/subjects" : {
+    "/grouper-ws/servicesRest/v4_0_510/subjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get subjects",
@@ -5161,13 +5161,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetSubjectsResults"
+              "$ref" : "#/definitions/WsGetSubjectsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_E_SUL/subjects" : {
+    "/grouper-ws/servicesRest/v4_0_520/subjects" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Get subjects lite",
@@ -5325,13 +5325,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGetSubjectsResults"
+              "$ref" : "#/definitions/WsGetSubjectsResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_DEF/groups" : {
+    "/grouper-ws/servicesRest/v4_0_530/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group delete",
@@ -5349,13 +5349,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGroupDeleteResults"
+              "$ref" : "#/definitions/WsGroupDeleteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_DEL/groups" : {
+    "/grouper-ws/servicesRest/v4_0_540/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group delete lite",
@@ -5450,13 +5450,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGroupDeleteLiteResult"
+              "$ref" : "#/definitions/WsGroupDeleteLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_SAF/groups" : {
+    "/grouper-ws/servicesRest/v4_0_550/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group save",
@@ -5474,13 +5474,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGroupSaveResults"
+              "$ref" : "#/definitions/WsGroupSaveResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vG_R_SAL/groups" : {
+    "/grouper-ws/servicesRest/v4_0_560/groups" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Group save lite",
@@ -5637,13 +5637,37 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsGroupSaveLiteResult"
+              "$ref" : "#/definitions/WsGroupSaveLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vH_M_EML/members" : {
+    "/grouper-ws/servicesRest/v4_0_570/members" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Has member",
+        "description" : "<b>Description</b>: Has member will see if a group contains a subject as a member<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "hasMember",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestHasMemberRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsHasMemberResultsWrapper"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/v4_0_580/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Has member lite",
@@ -5801,13 +5825,37 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsHasMemberLiteResult"
+              "$ref" : "#/definitions/WsHasMemberLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vM_C_SUL/members" : {
+    "/grouper-ws/servicesRest/v4_0_590/members" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Member change subject",
+        "description" : "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system.<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "memberChangeSubject",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/WsRestMemberChangeSubjectRequestWrapper"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsMemberChangeSubjectResultsWrapper"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/v4_0_600/members" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Member change subject lite",
@@ -5944,13 +5992,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsMemberChangeSubjectLiteResult"
+              "$ref" : "#/definitions/WsMemberChangeSubjectLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vR_C_MES/messaging" : {
+    "/grouper-ws/servicesRest/v4_0_610/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Receive message",
@@ -5968,13 +6016,13 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsMessageResults"
+              "$ref" : "#/definitions/WsReceiveMessageResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vS_E_MES/messaging" : {
+    "/grouper-ws/servicesRest/v4_0_620/messaging" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Send message",
@@ -5992,13 +6040,37 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsMessageResults"
+              "$ref" : "#/definitions/WsSendMessageResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vS_T_DEL/stems" : {
+    "/grouper-ws/servicesRest/v4_0_630/stems" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Stem delete",
+        "description" : "<b>Description</b>: Stem delete will insert or update a stem's uuid, extension, display name, or description (with restrictions)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Delete'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "stemDelete",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/GrouperServiceRest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsStemDeleteResultsWrapper"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/v4_0_640/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Stem delete lite",
@@ -6086,13 +6158,37 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsStemDeleteLiteResult"
+              "$ref" : "#/definitions/WsStemDeleteLiteResultsWrapper"
             }
           }
         }
       }
     },
-    "/grouper-ws/servicesRest/vS_T_SAL/stems" : {
+    "/grouper-ws/servicesRest/v4_0_650/stems" : {
+      "post" : {
+        "tags" : [ "Grouper" ],
+        "summary" : "Stem save",
+        "description" : "<b>Description</b>: Stem save will insert or update a stem's uuid, extension, display name, or description (with restrictions)<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Save'>wiki</a> and go to samples to see requests and responses",
+        "operationId" : "stemSave",
+        "parameters" : [ {
+          "in" : "body",
+          "name" : "body",
+          "required" : true,
+          "schema" : {
+            "$ref" : "#/definitions/GrouperServiceRest"
+          }
+        } ],
+        "responses" : {
+          "200" : {
+            "description" : "successful operation",
+            "schema" : {
+              "$ref" : "#/definitions/WsStemSaveResultsWrapper"
+            }
+          }
+        }
+      }
+    },
+    "/grouper-ws/servicesRest/v4_0_660/stems" : {
       "post" : {
         "tags" : [ "Grouper" ],
         "summary" : "Stem save lite",
@@ -6214,7 +6310,7 @@
           "200" : {
             "description" : "successful operation",
             "schema" : {
-              "$ref" : "#/definitions/WsStemSaveLiteResult"
+              "$ref" : "#/definitions/WsStemSaveLiteResultsWrapper"
             }
           }
         }
@@ -6224,6 +6320,15 @@
   "definitions" : {
     "GrouperServiceRest" : {
       "type" : "object"
+    },
+    "WsAcknowledgeMessageResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAcknowledgeMessageResults" : {
+          "description" : "Identifies the response of an acknowledge message request",
+          "$ref" : "#/definitions/WsMessageAcknowledgeResults"
+        }
+      }
     },
     "WsAddMemberLiteResult" : {
       "type" : "object",
@@ -6245,6 +6350,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAddMemberLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAddMemberLiteResults" : {
+          "description" : "Identifies the response of an add member lite request",
+          "$ref" : "#/definitions/WsAddMemberLiteResult"
         }
       }
     },
@@ -6282,6 +6396,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAddMemberResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAddMemberResults" : {
+          "description" : "Identifies the response of an add member request",
+          "$ref" : "#/definitions/WsAddMemberResults"
         }
       }
     },
@@ -6391,6 +6514,15 @@
         }
       }
     },
+    "WsAssignAttributeDefActionsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignAttributeDefActionsResults" : {
+          "description" : "Identifies the response of an assign attribute def actions request",
+          "$ref" : "#/definitions/WsAttributeDefAssignActionResults"
+        }
+      }
+    },
     "WsAssignAttributeDefNameInheritanceResults" : {
       "type" : "object",
       "properties" : {
@@ -6399,6 +6531,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAssignAttributeDefNameInheritanceResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignAttributeDefNameinheritanceResults" : {
+          "description" : "Identifies the response of an assign attribute def name inheritance request",
+          "$ref" : "#/definitions/WsAssignAttributeDefNameInheritanceResults"
         }
       }
     },
@@ -6487,6 +6628,15 @@
         }
       }
     },
+    "WsAssignAttributesBatchResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignAttributesBatchResults" : {
+          "description" : "Identifies the response of an assign attributes batch request",
+          "$ref" : "#/definitions/WsAssignAttributesBatchResults"
+        }
+      }
+    },
     "WsAssignAttributesLiteResults" : {
       "type" : "object",
       "properties" : {
@@ -6525,6 +6675,15 @@
         },
         "wsSubject" : {
           "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsAssignAttributesLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignAttributesLiteResults" : {
+          "description" : "Identifies the response of an assign attributes lite request",
+          "$ref" : "#/definitions/WsAssignAttributesLiteResults"
         }
       }
     },
@@ -6587,6 +6746,15 @@
         }
       }
     },
+    "WsAssignAttributesResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignAttributesResults" : {
+          "description" : "Identifies the response of an assign attributes  request",
+          "$ref" : "#/definitions/WsAssignAttributesResults"
+        }
+      }
+    },
     "WsAssignGrouperPrivilegesLiteResult" : {
       "type" : "object",
       "properties" : {
@@ -6625,6 +6793,15 @@
         },
         "wsSubject" : {
           "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsAssignGrouperPrivilegesLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignGrouperPrivilegesLiteResult" : {
+          "description" : "Identifies the response of an assign grouper privileges request",
+          "$ref" : "#/definitions/WsAssignGrouperPrivilegesLiteResult"
         }
       }
     },
@@ -6683,6 +6860,15 @@
         }
       }
     },
+    "WsAssignGrouperPrivilegesResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignGrouperPrivilegesResults" : {
+          "description" : "Identifies the response of an assign grouper privileges request",
+          "$ref" : "#/definitions/WsAssignGrouperPrivilegesResults"
+        }
+      }
+    },
     "WsAssignPermissionResult" : {
       "type" : "object",
       "properties" : {
@@ -6735,6 +6921,15 @@
         }
       }
     },
+    "WsAssignPermissionsLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignPermissionsLiteResults" : {
+          "description" : "Identifies the response of an assign PermissionsLite request",
+          "$ref" : "#/definitions/WsAssignPermissionsLiteResults"
+        }
+      }
+    },
     "WsAssignPermissionsResults" : {
       "type" : "object",
       "properties" : {
@@ -6779,6 +6974,15 @@
           "items" : {
             "$ref" : "#/definitions/WsSubject"
           }
+        }
+      }
+    },
+    "WsAssignPermissionsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAssignPermissionsResults" : {
+          "description" : "Identifies the response of an assign permissions request",
+          "$ref" : "#/definitions/WsAssignPermissionsResults"
         }
       }
     },
@@ -6873,20 +7077,6 @@
           "type" : "string"
         },
         "ownerStemName" : {
-          "type" : "string"
-        }
-      }
-    },
-    "WsAttributeAssignActionTuple" : {
-      "type" : "object",
-      "properties" : {
-        "action" : {
-          "type" : "string"
-        },
-        "attributeDefId" : {
-          "type" : "string"
-        },
-        "nameOfAttributeDef" : {
           "type" : "string"
         }
       }
@@ -7094,6 +7284,15 @@
         }
       }
     },
+    "WsAttributeDefDeleteLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefDeleteLiteResults" : {
+          "description" : "Identifies the response of an attribute def delete lite request",
+          "$ref" : "#/definitions/WsAttributeDefDeleteLiteResult"
+        }
+      }
+    },
     "WsAttributeDefDeleteResult" : {
       "type" : "object",
       "properties" : {
@@ -7119,6 +7318,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefDeleteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefDeleteResults" : {
+          "description" : "Identifies the response of an attribute def delete request",
+          "$ref" : "#/definitions/WsAttributeDefDeleteResults"
         }
       }
     },
@@ -7188,6 +7396,15 @@
         }
       }
     },
+    "WsAttributeDefNameDeleteLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefNameDeleteLiteResult" : {
+          "description" : "Identifies the response of an attribute def Name Delete lite request",
+          "$ref" : "#/definitions/WsAttributeDefNameDeleteLiteResult"
+        }
+      }
+    },
     "WsAttributeDefNameDeleteResult" : {
       "type" : "object",
       "properties" : {
@@ -7213,6 +7430,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefNameDeleteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefNameDeleteResults" : {
+          "description" : "Identifies the response of an attribute def name delete request",
+          "$ref" : "#/definitions/WsAttributeDefNameDeleteResults"
         }
       }
     },
@@ -7250,6 +7476,15 @@
         }
       }
     },
+    "WsAttributeDefNameSaveLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefNameSaveLiteResult" : {
+          "description" : "Identifies the response of an attribute def name save lite request",
+          "$ref" : "#/definitions/WsAttributeDefNameSaveLiteResult"
+        }
+      }
+    },
     "WsAttributeDefNameSaveResult" : {
       "type" : "object",
       "properties" : {
@@ -7275,6 +7510,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefNameSaveResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefNameSaveResults" : {
+          "description" : "Identifies the response of an attribute def name save  request",
+          "$ref" : "#/definitions/WsAttributeDefNameSaveResults"
         }
       }
     },
@@ -7309,6 +7553,15 @@
         }
       }
     },
+    "WsAttributeDefSaveLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefSaveLiteResult" : {
+          "description" : "Identifies the response of an attribute def save lite request",
+          "$ref" : "#/definitions/WsAttributeDefSaveLiteResult"
+        }
+      }
+    },
     "WsAttributeDefSaveResult" : {
       "type" : "object",
       "properties" : {
@@ -7334,6 +7587,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsAttributeDefSaveResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsAttributeDefSaveResults" : {
+          "description" : "Identifies the response of an attribute def save  request",
+          "$ref" : "#/definitions/WsAttributeDefSaveResults"
         }
       }
     },
@@ -7418,6 +7680,15 @@
         }
       }
     },
+    "WsDeleteMemberLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsDeleteMemberLiteResult" : {
+          "description" : "Identifies the response of a delete member  lite request",
+          "$ref" : "#/definitions/WsDeleteMemberLiteResult"
+        }
+      }
+    },
     "WsDeleteMemberResult" : {
       "type" : "object",
       "properties" : {
@@ -7452,6 +7723,24 @@
           "items" : {
             "type" : "string"
           }
+        }
+      }
+    },
+    "WsDeleteMemberResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsDeleteMemberResults" : {
+          "description" : "Identifies the response of a delete member request",
+          "$ref" : "#/definitions/WsDeleteMemberResults"
+        }
+      }
+    },
+    "WsExecuteGshTemplateResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsExecuteGshTemplateResult" : {
+          "description" : "Identifies the response of an execute GSH template request",
+          "$ref" : "#/definitions/WsGshTemplateExecResult"
         }
       }
     },
@@ -7535,6 +7824,15 @@
         }
       }
     },
+    "WsExternalSubjectDeleteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsExternalSubjectDeleteResults" : {
+          "description" : "Identifies the response of an external subject delete request",
+          "$ref" : "#/definitions/WsExternalSubjectDeleteResults"
+        }
+      }
+    },
     "WsExternalSubjectLookup" : {
       "type" : "object",
       "properties" : {
@@ -7570,6 +7868,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsExternalSubjectSaveResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsExternalSubjectSaveResults" : {
+          "description" : "Identifies the response of an external subject save request",
+          "$ref" : "#/definitions/WsExternalSubjectSaveResults"
         }
       }
     },
@@ -7610,6 +7917,15 @@
         }
       }
     },
+    "WsFindAttributeDefNamesResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsFindAttributeDefNamesResults" : {
+          "description" : "Identifies the response of an attribute def Name Delete  request",
+          "$ref" : "#/definitions/WsFindAttributeDefNamesResults"
+        }
+      }
+    },
     "WsFindAttributeDefsResults" : {
       "type" : "object",
       "properties" : {
@@ -7627,6 +7943,15 @@
         }
       }
     },
+    "WsFindAttributeDefsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsFindAttributeDefsResults" : {
+          "description" : "Identifies the response of an attribute def Name Delete  request",
+          "$ref" : "#/definitions/WsFindAttributeDefsResults"
+        }
+      }
+    },
     "WsFindExternalSubjectsResults" : {
       "type" : "object",
       "properties" : {
@@ -7641,6 +7966,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsFindExternalSubjectsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsFindExternalSubjectsResults" : {
+          "description" : "Identifies the response of a find external subjects request",
+          "$ref" : "#/definitions/WsFindExternalSubjectsResults"
         }
       }
     },
@@ -7701,28 +8035,17 @@
         }
       }
     },
-    "WsGetAttributeAssignActionsResults" : {
+    "WsFindStemsResultsWrapper" : {
       "type" : "object",
       "properties" : {
-        "wsAttributeAssignActionTuples" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/WsAttributeAssignActionTuple"
-          }
-        },
-        "wsAttributeDefs" : {
-          "type" : "array",
-          "items" : {
-            "$ref" : "#/definitions/WsAttributeDef"
-          }
-        },
-        "resultMetadata" : {
-          "$ref" : "#/definitions/WsResultMeta"
-        },
-        "responseMetadata" : {
-          "$ref" : "#/definitions/WsResponseMeta"
+        "WsFindStemsResults" : {
+          "description" : "Identifies the response of a find stems request",
+          "$ref" : "#/definitions/WsFindStemsResults"
         }
       }
+    },
+    "WsGetAttributeAssignActionsResultsWrapper" : {
+      "type" : "object"
     },
     "WsGetAttributeAssignmentsResults" : {
       "type" : "object",
@@ -7783,6 +8106,15 @@
         }
       }
     },
+    "WsGetAttributeAssignmentsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetAttributeAssignmentsResults" : {
+          "description" : "Identifies the response of a get attribute assignments request",
+          "$ref" : "#/definitions/WsGetAttributeAssignmentsResults"
+        }
+      }
+    },
     "WsGetAuditEntriesResults" : {
       "type" : "object",
       "properties" : {
@@ -7797,6 +8129,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGetAuditEntriesResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetAuditEntriesResults" : {
+          "description" : "Identifies the response of a get audit entries request",
+          "$ref" : "#/definitions/WsGetAuditEntriesResults"
         }
       }
     },
@@ -7829,6 +8170,15 @@
         }
       }
     },
+    "WsGetGrouperPrivilegesLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetGrouperPrivilegesLiteResult" : {
+          "description" : "Identifies the response of an Get grouper privileges request",
+          "$ref" : "#/definitions/WsGetGrouperPrivilegesLiteResult"
+        }
+      }
+    },
     "WsGetGroupsLiteResult" : {
       "type" : "object",
       "properties" : {
@@ -7852,6 +8202,15 @@
         },
         "wsSubject" : {
           "$ref" : "#/definitions/WsSubject"
+        }
+      }
+    },
+    "WsGetGroupsLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetGroupsLiteResult" : {
+          "description" : "Identifies the response of an Get groups request",
+          "$ref" : "#/definitions/WsGetGroupsLiteResult"
         }
       }
     },
@@ -7895,6 +8254,15 @@
         }
       }
     },
+    "WsGetGroupsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetGroupsResults" : {
+          "description" : "Identifies the response of a get groups request",
+          "$ref" : "#/definitions/WsGetGroupsResults"
+        }
+      }
+    },
     "WsGetMembersLiteResult" : {
       "type" : "object",
       "properties" : {
@@ -7918,6 +8286,15 @@
           "items" : {
             "$ref" : "#/definitions/WsSubject"
           }
+        }
+      }
+    },
+    "WsGetMembersLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetMembersLiteResult" : {
+          "description" : "Identifies the response of a get members lite request",
+          "$ref" : "#/definitions/WsGetMembersLiteResult"
         }
       }
     },
@@ -7958,6 +8335,15 @@
           "items" : {
             "$ref" : "#/definitions/WsGetMembersResult"
           }
+        }
+      }
+    },
+    "WsGetMembersResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetMembersResults" : {
+          "description" : "Identifies the response of a get members request",
+          "$ref" : "#/definitions/WsGetMembersResults"
         }
       }
     },
@@ -8005,6 +8391,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGetMembershipsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetMembershipsResults" : {
+          "description" : "Identifies the response of a get Memberships request",
+          "$ref" : "#/definitions/WsGetMembershipsResults"
         }
       }
     },
@@ -8061,6 +8456,15 @@
         }
       }
     },
+    "WsGetPermissionAssignmentsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetPermissionAssignmentsResults" : {
+          "description" : "Identifies the response of a get permission assignments request",
+          "$ref" : "#/definitions/WsGetPermissionAssignmentsResults"
+        }
+      }
+    },
     "WsGetSubjectsResults" : {
       "type" : "object",
       "properties" : {
@@ -8084,6 +8488,15 @@
         },
         "wsGroup" : {
           "$ref" : "#/definitions/WsGroup"
+        }
+      }
+    },
+    "WsGetSubjectsResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGetSubjectsResults" : {
+          "description" : "Identifies the response of a get subject request",
+          "$ref" : "#/definitions/WsGetSubjectsResults"
         }
       }
     },
@@ -8171,6 +8584,15 @@
         }
       }
     },
+    "WsGroupDeleteLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGroupDeleteLiteResult" : {
+          "description" : "Identifies the response of a group delete Lite request",
+          "$ref" : "#/definitions/WsGroupDeleteLiteResult"
+        }
+      }
+    },
     "WsGroupDeleteResult" : {
       "type" : "object",
       "properties" : {
@@ -8196,6 +8618,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGroupDeleteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGroupDeleteResults" : {
+          "description" : "Identifies the response of a group delete request",
+          "$ref" : "#/definitions/WsGroupDeleteResults"
         }
       }
     },
@@ -8316,6 +8747,15 @@
         }
       }
     },
+    "WsGroupSaveLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGroupSaveLiteResult" : {
+          "description" : "Identifies the response of a group Save Lite request",
+          "$ref" : "#/definitions/WsGroupSaveLiteResult"
+        }
+      }
+    },
     "WsGroupSaveResult" : {
       "type" : "object",
       "properties" : {
@@ -8341,6 +8781,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsGroupSaveResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsGroupSaveResults" : {
+          "description" : "Identifies the response of a group save request",
+          "$ref" : "#/definitions/WsGroupSaveResults"
         }
       }
     },
@@ -8492,6 +8941,15 @@
         }
       }
     },
+    "WsHasMemberLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsHasMemberLiteResult" : {
+          "description" : "Identifies the response of a has Member Lite request",
+          "$ref" : "#/definitions/WsHasMemberLiteResult"
+        }
+      }
+    },
     "WsHasMemberResult" : {
       "type" : "object",
       "properties" : {
@@ -8526,6 +8984,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsHasMemberResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsHasMemberResults" : {
+          "description" : "Identifies the response of a has member request",
+          "$ref" : "#/definitions/WsHasMemberResults"
         }
       }
     },
@@ -8566,6 +9033,15 @@
         }
       }
     },
+    "WsMemberChangeSubjectLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsMemberChangeSubjectLiteResult" : {
+          "description" : "Identifies the response of a member change subject lite request",
+          "$ref" : "#/definitions/WsMemberChangeSubjectLiteResult"
+        }
+      }
+    },
     "WsMemberChangeSubjectResult" : {
       "type" : "object",
       "properties" : {
@@ -8600,6 +9076,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsMemberChangeSubjectResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsMemberChangeSubjectResults" : {
+          "description" : "Identifies the response of a member change subject request",
+          "$ref" : "#/definitions/WsMemberChangeSubjectResults"
         }
       }
     },
@@ -9013,6 +9498,15 @@
         }
       },
       "description" : "this represents a query which can be and'ed or or'ed.  Can also pass in other params."
+    },
+    "WsReceiveMessageResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsMessageResults" : {
+          "description" : "Identifies the response of a seceive message request",
+          "$ref" : "#/definitions/WsMessageResults"
+        }
+      }
     },
     "WsResponseMeta" : {
       "type" : "object",
@@ -11572,6 +12066,83 @@
       },
       "description" : "Request body to execute GSH template"
     },
+    "WsRestHasMemberRequest" : {
+      "type" : "object",
+      "properties" : {
+        "clientVersion" : {
+          "type" : "string",
+          "example" : "v2_6_001",
+          "description" : "Version of the client (i.e. that the client was coded against)"
+        },
+        "wsGroupLookup" : {
+          "$ref" : "#/definitions/WsGroupLookup"
+        },
+        "subjectLookups" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsSubjectLookup"
+          }
+        },
+        "memberFilter" : {
+          "type" : "string",
+          "example" : "Effective",
+          "description" : "can be All(default), Effective (non immediate), Immediate (direct),Composite (if composite group with group math (union, minus,etc)"
+        },
+        "actAsSubjectLookup" : {
+          "$ref" : "#/definitions/WsSubjectLookup"
+        },
+        "fieldName" : {
+          "type" : "string",
+          "example" : "members, optin, optout, read, admin, update, view, groupAttrRead, groupAttrUpdate",
+          "description" : "field name (list) to search, blank for members list"
+        },
+        "includeGroupDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the group detail should be returned, default to false"
+        },
+        "includeSubjectDetail" : {
+          "type" : "string",
+          "example" : "T|F",
+          "description" : "If the subject detail should be returned, default to false"
+        },
+        "subjectAttributeNames" : {
+          "type" : "array",
+          "example" : "lastName",
+          "description" : "the names of the extra attributes to be returned if includeSubjectDetail is true",
+          "items" : {
+            "type" : "string"
+          }
+        },
+        "params" : {
+          "type" : "array",
+          "items" : {
+            "$ref" : "#/definitions/WsParam"
+          }
+        },
+        "pointInTimeFrom" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeTo.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeTo is not specified, then the point in time query range will be from the time specified to now."
+        },
+        "pointInTimeTo" : {
+          "type" : "string",
+          "example" : "1970/01/01 00:00:00.000",
+          "description" : "To query members at a certain point in time or time range in the past, set this value and/or the value of pointInTimeFrom.  This parameter specifies the start of the range of the point in time query.  If this is specified but pointInTimeFrom is not specified, then the point in time query range will be from the time specified to now."
+        }
+      },
+      "description" : "bean that will be the data from rest request for has member<br /><br /><b>actAsSubjectLookup</b>: If allowed to act as other users (e.g. if a UI uses the Grouper WS behind the scenes), specify the user to act as here<br /><br /><br /><b>wsGroupLookup</b>: group to be checked<br /><br /><br /><b>subjectLookups</b>: subject to be checked<br /><br /><br /><b>params</b>: optional params for this request<br />"
+    },
+    "WsRestHasMemberRequestWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsRestHasMemberRequest" : {
+          "description" : "Identifies the request as a hasMember request",
+          "$ref" : "#/definitions/WsRestHasMemberRequest"
+        }
+      },
+      "description" : "Request body to run hasMember"
+    },
     "WsRestMemberChangeSubjectRequest" : {
       "type" : "object",
       "properties" : {
@@ -11807,6 +12378,15 @@
       },
       "description" : "Response when not successful contains error message and metadata"
     },
+    "WsSendMessageResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsMessageResults" : {
+          "description" : "Identifies the response of a send message request",
+          "$ref" : "#/definitions/WsMessageResults"
+        }
+      }
+    },
     "WsStem" : {
       "type" : "object",
       "properties" : {
@@ -11847,6 +12427,15 @@
         }
       }
     },
+    "WsStemDeleteLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsStemDeleteLiteResult" : {
+          "description" : "Identifies the response of a stem DeleteLite request",
+          "$ref" : "#/definitions/WsStemDeleteLiteResult"
+        }
+      }
+    },
     "WsStemDeleteResult" : {
       "type" : "object",
       "properties" : {
@@ -11872,6 +12461,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsStemDeleteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsStemDeleteResults" : {
+          "description" : "Identifies the response of a stem delete request",
+          "$ref" : "#/definitions/WsStemDeleteResults"
         }
       }
     },
@@ -11980,6 +12578,15 @@
         }
       }
     },
+    "WsStemSaveLiteResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsStemSaveLiteResult" : {
+          "description" : "Identifies the response of a stem Save Lite request",
+          "$ref" : "#/definitions/WsStemSaveLiteResult"
+        }
+      }
+    },
     "WsStemSaveResult" : {
       "type" : "object",
       "properties" : {
@@ -12005,6 +12612,15 @@
         },
         "responseMetadata" : {
           "$ref" : "#/definitions/WsResponseMeta"
+        }
+      }
+    },
+    "WsStemSaveResultsWrapper" : {
+      "type" : "object",
+      "properties" : {
+        "WsStemSaveResults" : {
+          "description" : "Identifies the response of a stem save request",
+          "$ref" : "#/definitions/WsStemSaveResults"
         }
       }
     },

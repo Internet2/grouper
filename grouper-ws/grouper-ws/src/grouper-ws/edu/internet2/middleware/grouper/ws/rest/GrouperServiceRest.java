@@ -93,6 +93,18 @@ import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveLiteResult;
 import edu.internet2.middleware.grouper.ws.coresoap.WsStemSaveResults;
 import edu.internet2.middleware.grouper.ws.coresoap.WsSubjectLookup;
 import edu.internet2.middleware.grouper.ws.exceptions.WsInvalidQueryException;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributeDefActionsResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributeDefNameInheritanceResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributesBatchResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAssignAttributesResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAttributeDefDeleteResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAttributeDefNameDeleteResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAttributeDefNameSaveResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsAttributeDefSaveResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsFindAttributeDefNamesResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsFindAttributeDefsResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsGetAttributeAssignActionsResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.attribute.WsGetAttributeAssignmentsResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestAssignAttributeDefNameInheritanceRequest;
@@ -115,11 +127,20 @@ import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssi
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignActionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.attribute.WsRestGetAttributeAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.audit.WsGetAuditEntriesResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.audit.WsRestGetAuditEntriesRequest;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsExternalSubjectDeleteResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsExternalSubjectSaveResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsFindExternalSubjectsResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestExternalSubjectSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.externalSubject.WsRestFindExternalSubjectsRequest;
+import edu.internet2.middleware.grouper.ws.rest.group.WsAssignGrouperPrivilegesResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.group.WsGetGroupsResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.group.WsGroupDeleteResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.group.WsGroupSaveResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.group.WsHasMemberResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestAssignGrouperPrivilegesRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestFindGroupsLiteRequest;
@@ -133,7 +154,12 @@ import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveLiteRequest
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestGroupSaveRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.group.WsRestHasMemberRequest;
+import edu.internet2.middleware.grouper.ws.rest.gshTemplate.WsExecuteGshTemplateResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.gshTemplate.WsRestGshTemplateExecRequest;
+import edu.internet2.middleware.grouper.ws.rest.member.WsAddMemberResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.member.WsDeleteMemberResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.member.WsGetMembersResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.member.WsMemberChangeSubjectResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestAddMemberRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestDeleteMemberLiteRequest;
@@ -142,21 +168,31 @@ import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersLiteReque
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestGetMembersRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.member.WsRestMemberChangeSubjectRequest;
+import edu.internet2.middleware.grouper.ws.rest.membership.WsGetMembershipsResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.membership.WsRestGetMembershipsRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsAcknowledgeMessageResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsReceiveMessageResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestAcknowledgeMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestReceiveMessageRequest;
 import edu.internet2.middleware.grouper.ws.rest.messaging.WsRestSendMessageRequest;
+import edu.internet2.middleware.grouper.ws.rest.messaging.WsSendMessageResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsAssignPermissionsResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.permission.WsGetPermissionAssignmentsResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestAssignPermissionsRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.permission.WsRestGetPermissionAssignmentsRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsFindStemsResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestFindStemsRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemDeleteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.stem.WsRestStemSaveRequest;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsStemDeleteResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.stem.WsStemSaveResultsWrapper;
+import edu.internet2.middleware.grouper.ws.rest.subject.WsGetSubjectsResultsWrapper;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsLiteRequest;
 import edu.internet2.middleware.grouper.ws.rest.subject.WsRestGetSubjectsRequest;
 import edu.internet2.middleware.grouper.ws.util.GrouperServiceUtils;
@@ -190,7 +226,7 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_G_UPF/groups")
+  @Path("/grouper-ws/servicesRest/v4_0_320/groups")
   @ApiOperation(httpMethod = "POST", value = "Find groups", nickname = "findGroups", response = WsFindGroupsResultsWrapper.class,
       notes = "<b>Description</b>: Will assign privileges for a subject and (group or stem).  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Groups'>wiki</a> and go to samples to see requests and responses") 
@@ -367,8 +403,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_A_MEF/members")
-  @ApiOperation(httpMethod = "POST", value = "Add member", nickname = "addMember", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_020/groups")
+  @ApiOperation(httpMethod = "POST", value = "Add member", nickname = "addMember", response = WsAddMemberResultsWrapper.class,
       notes = "<b>Description</b>: Add member will add or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+Member'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -420,8 +456,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_G_PRF/grouperPriveleges")
-  @ApiOperation(httpMethod = "POST", value = "Assign grouper privileges", nickname = "assignGrouperPrivileges", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_100/grouperPriveleges")
+  @ApiOperation(httpMethod = "POST", value = "Assign grouper privileges", nickname = "assignGrouperPrivileges", response = WsAssignGrouperPrivilegesResultsWrapper.class,
       notes = "<b>Description</b>: Will assign privileges for a subject and (group or stem).  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+or+remove+grouper+privileges'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -511,8 +547,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vD_M_EMF/members")
-  @ApiOperation(httpMethod = "POST", value = "Delete member", nickname = "deleteMember", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_220/groups")
+  @ApiOperation(httpMethod = "POST", value = "Delete member", nickname = "deleteMember", response = WsDeleteMemberResultsWrapper.class,
   notes = "<b>Description</b>: Delete member will delete or replace the membership of a group.  This affects only direct memberships, not indirect memberships.  If the user is in an indirect membership, this is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Delete+Member'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -564,8 +600,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vH_M_EML/members")
-  @ApiOperation(httpMethod = "POST", value = "Has member", nickname = "hasMember", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_570/members")
+  @ApiOperation(httpMethod = "POST", value = "Has member", nickname = "hasMember", response = WsHasMemberResultsWrapper.class,
   notes = "<b>Description</b>: Has member will see if a group contains a subject as a member"
     + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Has+Member'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -617,8 +653,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_MEF/members")
-  @ApiOperation(httpMethod = "POST", value = "Get members", nickname = "getMembers", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_450/groups")
+  @ApiOperation(httpMethod = "POST", value = "Get members", nickname = "getMembers", response = WsGetMembersResultsWrapper.class,
   notes = "<b>Description</b>: Get members will retrieve subjects assigned to a group."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Members'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -725,8 +761,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vM_C_SUL/members")
-  @ApiOperation(httpMethod = "POST", value = "Member change subject", nickname = "memberChangeSubject", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_590/members")
+  @ApiOperation(httpMethod = "POST", value = "Member change subject", nickname = "memberChangeSubject", response = WsMemberChangeSubjectResultsWrapper.class,
   notes = "<b>Description</b>: \"Member change subject\" will change the subject that a member refers to. You would want to do this when a person or entity changes their id, or if they were loaded wrong in the system."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Member+change+subject'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -909,8 +945,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_GRF/groups")
-  @ApiOperation(httpMethod = "POST", value = "Get groups", nickname = "getGroups", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_430/groups")
+  @ApiOperation(httpMethod = "POST", value = "Get groups", nickname = "getGroups", response = WsGetGroupsResultsWrapper.class,
   notes = "<b>Description</b>: Get groups will get the groups that a subject is in"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Groups'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1027,8 +1063,8 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_S_EMF/stems")
-  @ApiOperation(httpMethod = "POST", value = "Find stems", nickname = "findStems", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_340/stems")
+  @ApiOperation(httpMethod = "POST", value = "Find stems", nickname = "findStems", response = WsFindStemsResultsWrapper.class,
   notes = "<b>Description</b>: Find stems search for stems based on name, attribute, parent stem, etc. Can build queries with group math (AND / OR / MINUS)"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Stems'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1090,8 +1126,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vS_T_SAL/stems")
-  @ApiOperation(httpMethod = "POST", value = "Stem save", nickname = "stemSave", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_650/stems")
+  @ApiOperation(httpMethod = "POST", value = "Stem save", nickname = "stemSave", response = WsStemSaveResultsWrapper.class,
   notes = "<b>Description</b>: Stem save will insert or update a stem's uuid, extension, display name, or description (with restrictions)"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1171,8 +1207,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vS_T_DEL/stems")
-  @ApiOperation(httpMethod = "POST", value = "Stem delete", nickname = "stemDelete", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_630/stems")
+  @ApiOperation(httpMethod = "POST", value = "Stem delete", nickname = "stemDelete", response = WsStemDeleteResultsWrapper.class,
   notes = "<b>Description</b>: Stem delete will insert or update a stem's uuid, extension, display name, or description (with restrictions)"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Stem+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1247,8 +1283,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_R_DEF/groups")
-  @ApiOperation(httpMethod = "POST", value = "Group delete", nickname = "groupDelete", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_530/groups")
+  @ApiOperation(httpMethod = "POST", value = "Group delete", nickname = "groupDelete", response = WsGroupDeleteResultsWrapper.class,
   notes = "<b>Description</b>: Group delete will insert or update a group's uuid, extension, display name, or description (with restrictions)"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1328,8 +1364,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_R_SAF/groups")
-  @ApiOperation(httpMethod = "POST", value = "Group save", nickname = "groupSave", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_550/groups")
+  @ApiOperation(httpMethod = "POST", value = "Group save", nickname = "groupSave", response = WsGroupSaveResultsWrapper.class,
   notes = "<b>Description</b>: Group save will insert or update a group's uuid, extension, display name, or description (with restrictions)."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Group+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1417,8 +1453,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_MSF/memberships")
-  @ApiOperation(httpMethod = "POST", value = "Get memberships", nickname = "getMemberships", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_460/memberships")
+  @ApiOperation(httpMethod = "POST", value = "Get memberships", nickname = "getMemberships", response = WsGetMembershipsResultsWrapper.class,
   notes = "<b>Description</b>: Get memberships will retrieve membership objects by group, by subject, or by id (or a combination)."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Memberships'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1581,8 +1617,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_SUF/subjects")
-  @ApiOperation(httpMethod = "POST", value = "Get subjects", nickname = "getSubjects", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_510/subjects")
+  @ApiOperation(httpMethod = "POST", value = "Get subjects", nickname = "getSubjects", response = WsGetSubjectsResultsWrapper.class,
   notes = "<b>Description</b>: Get subjects will retrieve subject objects by subject lookups (source (optional), id or identifier), or by search string (free-form string that sources can search on), and optionally a list of sources to narrow the search"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Subjects'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1697,8 +1733,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_ABF/attributeAssignments")
-  @ApiOperation(httpMethod = "POST", value = "Get attribute assignments", nickname = "getAttributeAssignments", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_380/attributeAssignments")
+  @ApiOperation(httpMethod = "POST", value = "Get attribute assignments", nickname = "getAttributeAssignments", response = WsGetAttributeAssignmentsResultsWrapper.class,
   notes = "<b>Description</b>: Get attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), or attribute definitions.  If you want to retrieve attribute assignments assigned to other attributes, then pass a flag to the assignment lookup to include assignments on the returned assignments."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assignments'>wiki</a> and go to samples to see requests and responses")  
   @ApiImplicitParams({
@@ -1782,8 +1818,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_D_ACF/attributeDefActions")
-  @ApiOperation(httpMethod = "POST", value = "Assign attribute def actions", nickname = "assignAttributeDefActions", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_040/attributeDefActions")
+  @ApiOperation(httpMethod = "POST", value = "Assign attribute def actions", nickname = "assignAttributeDefActions", response = WsAssignAttributeDefActionsResultsWrapper.class,
       notes = "<b>Description</b>: Acknowledge a message was processed or not.  This service is available in version v2.3.0+.  There is no lite version for this service."
          + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attribute+Def+Actions'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1820,8 +1856,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_ABF/attributeAssignActions")
-  @ApiOperation(httpMethod = "POST", value = "Get attribute assign actions", nickname = "getAttributeAssignActions", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_360/attributeAssignActions")
+  @ApiOperation(httpMethod = "POST", value = "Get attribute assign actions", nickname = "getAttributeAssignActions", response = WsGetAttributeAssignActionsResultsWrapper.class,
   notes = "<b>Description</b>: Get attribute assign actions will give you the permission actions associated with a Permission Definition (AttributeDef).  This service is available in version v2.3.0+."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Attribute+Assign+Actions'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1893,8 +1929,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_E_ATF/attributeAssignments")
-  @ApiOperation(httpMethod = "POST", value = "Assign attributes", nickname = "assignAttributes", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_070/attributeAssignments")
+  @ApiOperation(httpMethod = "POST", value = "Assign attributes", nickname = "assignAttributes", response = WsAssignAttributesResultsWrapper.class,
       notes = "<b>Description</b>: Assign or remove attributes and values of attribute assignments.  These attributes can be on groups, stems, members, memberships (immediate or any), attribute definitions, or on assignments of attributes (one level deep)."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attributes'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -1981,8 +2017,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_PAF/permissionAssignments")
-  @ApiOperation(httpMethod = "POST", value = "Get permission assignments", nickname = "getPermissionAssignments", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_490/permissionAssignments")
+  @ApiOperation(httpMethod = "POST", value = "Get permission assignments", nickname = "getPermissionAssignments", response = WsGetPermissionAssignmentsResultsWrapper.class,
   notes = "<b>Description</b>: Get permission assignments.  These permissions can be on roles or subjects (note if assignment is assigned directly to a subject, it is in the context of a role)."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Permission+Assignments'>wiki</a> and go to samples to see requests and responses")  
   @ApiImplicitParams({
@@ -2070,8 +2106,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_H_PRF/permissionAssignments")
-  @ApiOperation(httpMethod = "POST", value = "Assign permissions", nickname = "assignPermissions", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_120/permissionAssignments")
+  @ApiOperation(httpMethod = "POST", value = "Assign permissions", nickname = "assignPermissions", response = WsAssignPermissionsResultsWrapper.class,
       notes = "<b>Description</b>: Assign or remove permissions.  These permissions can be on roles or subjects (in the context of a role)."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Permissions'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2152,8 +2188,8 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_L_SAF/attributeDefs")
-  @ApiOperation(httpMethod = "POST", value = "Attribute def save", nickname = "attributeDefSave", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_200/attributeDefs")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def save", nickname = "attributeDefSave", response = WsAttributeDefSaveResultsWrapper.class,
   notes = "<b>Description</b>: Add or edit attribute definitions based on name or ID. This is new as of Grouper v2.3.0"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2255,8 +2291,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_I_DEF/attributeDefs")
-  @ApiOperation(httpMethod = "POST", value = "Attribute def delete", nickname = "attributeDefDelete", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_140/attributeDefs")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def delete", nickname = "attributeDefDelete", response = WsAttributeDefDeleteResultsWrapper.class,
   notes = "<b>Description</b>: Delete attribute definitions based on name or ID. This is new as of Grouper v2.3.0"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2334,8 +2370,8 @@ public class GrouperServiceRest {
    * @return the attribute defs, or no attribute def if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_A_DSF/attributeDefs")
-  @ApiOperation(httpMethod = "POST", value = "Find attribute defs", nickname = "findAttributeDefs", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_290/attributeDefs")
+  @ApiOperation(httpMethod = "POST", value = "Find attribute defs", nickname = "findAttributeDefs", response = WsFindAttributeDefsResultsWrapper.class,
   notes = "<b>Description</b>: Find attribute definitions based on name or ID or other criteria. This is new as of Grouper v2.3.0"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definitions'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2433,8 +2469,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_D_ANF/attributeDefNames")
-  @ApiOperation(httpMethod = "POST", value = "Assign attribute def name inheritance", nickname = "assignAttributeDefNameInheritance", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_050/attributeDefNames")
+  @ApiOperation(httpMethod = "POST", value = "Assign attribute def name inheritance", nickname = "assignAttributeDefNameInheritance", response = WsAssignAttributeDefNameInheritanceResultsWrapper.class,
       notes = "<b>Description</b>: Assign attribute definition name inheritance based on lookups by name or ID. This is new as of Grouper v2.1.  Note: attribute definition name inheritance is only used for permissions (e.g. if the permission names are an org chart there would be inheritance)"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attribute+Definition+Name+Inheritance'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2493,8 +2529,8 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_J_DEF/attributeDefNames")
-  @ApiOperation(httpMethod = "POST", value = "Attribute def name delete", nickname = "attributeDefNameDelete", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_160/attributeDefNames")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def name delete", nickname = "attributeDefNameDelete", response = WsAttributeDefNameDeleteResultsWrapper.class,
   notes = "<b>Description</b>: Delete attribute definition names based on name or ID. This is new as of Grouper v2.1"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2558,8 +2594,8 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_K_SAF/attributeDefNames")
-  @ApiOperation(httpMethod = "POST", value = "Attribute def name save", nickname = "attributeDefNameSave", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_180/attributeDefNames")
+  @ApiOperation(httpMethod = "POST", value = "Attribute def name save", nickname = "attributeDefNameSave", response = WsAttributeDefNameSaveResultsWrapper.class,
   notes = "<b>Description</b>: Add or edit attribute definition names based on name or ID. This is new as of Grouper v2.1"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Attribute+Definition+Name+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2636,8 +2672,8 @@ public class GrouperServiceRest {
    * @return the attribute def names, or no attribute def names if none found
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_A_DNF/attributeDefNames")
-  @ApiOperation(httpMethod = "POST", value = "Find attribute def names", nickname = "findAttributeDefNames", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_270/attributeDefNames")
+  @ApiOperation(httpMethod = "POST", value = "Find attribute def names", nickname = "findAttributeDefNames", response = WsFindAttributeDefNamesResultsWrapper.class,
   notes = "<b>Description</b>: Find attribute definition names based on name, search filter, permission name inheritance, etc. This is new as of Grouper v2.1"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+Attribute+Definition+Names'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2737,8 +2773,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_E_ATG/attributeAssignments")
-  @ApiOperation(httpMethod = "POST", value = "Assign attributes batch", nickname = "assignAttributesBatch", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_080/attributeAssignments")
+  @ApiOperation(httpMethod = "POST", value = "Assign attributes batch", nickname = "assignAttributesBatch", response = WsAssignAttributesBatchResultsWrapper.class,
       notes = "<b>Description</b>: This operation is available in servers v2.1.2+. Assign or remove attributes and values of attribute assignments."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Assign+Attributes+Batch'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2772,8 +2808,8 @@ public class GrouperServiceRest {
    * @return the messages sent
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vS_E_MES/messaging")
-  @ApiOperation(httpMethod = "POST", value = "Send message", nickname = "sendMessage", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_620/messaging")
+  @ApiOperation(httpMethod = "POST", value = "Send message", nickname = "sendMessage", response = WsSendMessageResultsWrapper.class,
       notes = "<b>Description</b>: Send a message to a queue or topic.  This service is available in version v2.3.0+.  There is no lite version for this service"
           + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+External+Subjects'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2811,8 +2847,8 @@ public class GrouperServiceRest {
    * @return the messages received
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vR_C_MES/messaging")
-  @ApiOperation(httpMethod = "POST", value = "Receive message", nickname = "receiveMessage", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_610/messaging")
+  @ApiOperation(httpMethod = "POST", value = "Receive message", nickname = "receiveMessage", response = WsReceiveMessageResultsWrapper.class,
       notes = "<b>Description</b>: Receive a message to a queue or topic.  This service is available in version v2.3.0+.  There is no lite version for this service."
           + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Message+Send'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2851,8 +2887,8 @@ public class GrouperServiceRest {
    * @return the processed messages
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vA_A_MAF/messaging")
-  @ApiOperation(httpMethod = "POST", value = "Acknowledge message", nickname = "acknowledgeMessage", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_010/messaging")
+  @ApiOperation(httpMethod = "POST", value = "Acknowledge message", nickname = "acknowledgeMessage", response = WsAcknowledgeMessageResultsWrapper.class,
       notes = "<b>Description</b>: Acknowledge a message was processed or not.  This service is available in version v2.3.0+.  There is no lite version for this service."      + 
   "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Message+Acknowledge'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2892,8 +2928,8 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vF_E_SUB/externalSubjects")
-  @ApiOperation(httpMethod = "POST", value = "Find external subjects", nickname = "findExternalSubjects", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_310/externalSubjects")
+  @ApiOperation(httpMethod = "POST", value = "Find external subjects", nickname = "findExternalSubjects", response = WsFindExternalSubjectsResultsWrapper.class,
       notes = "<b>Description</b>: Find external subjects.  This service is available in version v2.3.0.patch+.  There is no lite version for this service."
           + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Find+External+Subjects'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2923,8 +2959,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vE_S_DEL/externalSubjects")
-  @ApiOperation(httpMethod = "POST", value = "External subject delete", nickname = "externalSubjectDelete", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_250/externalSubjects")
+  @ApiOperation(httpMethod = "POST", value = "External subject delete", nickname = "externalSubjectDelete", response = WsExternalSubjectDeleteResultsWrapper.class,
       notes = "<b>Description</b>: Delete external subjects.  This service is available in version v2.3.0.patch+"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/External+Subject+Delete'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -2962,8 +2998,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vE_S_SAV/externalSubjects")
-  @ApiOperation(httpMethod = "POST", value = "External subject save", nickname = "externalSubjectSave", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_260/externalSubjects")
+  @ApiOperation(httpMethod = "POST", value = "External subject save", nickname = "externalSubjectSave", response = WsExternalSubjectSaveResultsWrapper.class,
       notes = "<b>Description</b>: Save external subjects.  This service is available in version v2.3.0.patch+"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/External+Subject+Save'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -3041,8 +3077,8 @@ public class GrouperServiceRest {
    * @return the results
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vG_E_AEF/audits")
-  @ApiOperation(httpMethod = "POST", value = "Get audit entries", nickname = "getAuditEntries", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_400/audits")
+  @ApiOperation(httpMethod = "POST", value = "Get audit entries", nickname = "getAuditEntries", response = WsGetAuditEntriesResultsWrapper.class,
   notes = "<b>Description</b>: Get audit entries for groups, stems, and subjects. Available in Grouper v2.5 or later."
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Get+Audit+Entries'>wiki</a> and go to samples to see requests and responses") 
   @ApiImplicitParams({
@@ -3089,8 +3125,8 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/vE_G_TEM")
-  @ApiOperation(httpMethod = "POST", value = "Execute GSH template", nickname = "executeGshTemplate", //response = .class,
+  @Path("/grouper-ws/servicesRest/v4_0_240/gshTemplate")
+  @ApiOperation(httpMethod = "POST", value = "Execute GSH template", nickname = "executeGshTemplate", response = WsExecuteGshTemplateResultsWrapper.class,
       notes = "<b>Description</b>: Execute a GrouperShell template.") 
   @ApiImplicitParams({
     @ApiImplicitParam(required = true, dataType = "edu.internet2.middleware.grouper.ws.rest.gshTemplate.WsRestGshTemplateExecRequestWrapper", paramType = "body")})
