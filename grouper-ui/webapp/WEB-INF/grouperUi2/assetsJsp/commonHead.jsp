@@ -52,8 +52,15 @@
     grouperCsrfText="${textContainer.textEscapeSingle['guiErrorCsrfAlert']}";
     
 </script>
+
+<script src="../../grouperExternal/public/assets/js/jquery-3.7.1.min.js"></script>
+<script src="https://code.jquery.com/jquery-migrate-3.4.1.js"></script>
+<script src="../../grouperExternal/public/assets/js/bootstrap.js"></script>
+
 <%-- dojo is up in commonHead, everything else is in commonBottom.jsp --%>
 <script src="../../grouperExternal/public/assets/dojo/dojo/dojo.js"></script>
+
+
 
 <script type="text/javascript" >
 
@@ -65,5 +72,3 @@
 //grouper is the dojo built file so there arent as many downloads
 require(["grouper/grouperDojo"]);
 </script>
-
-<script src="../../grouperExternal/public/assets/js/jquery.js"></script>

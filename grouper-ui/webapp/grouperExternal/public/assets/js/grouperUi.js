@@ -2725,8 +2725,8 @@ function showLinkToRefreshProvisioningConfig(focusOnElementName, provisionerConf
 }
 
 // sometimes window is blocked on back button
-$(window).unload(function() {
-  $.unblockUI();                
+$(window).on("unload", function() {
+  $.unblockUI();
 });
 
 (function ($) {
