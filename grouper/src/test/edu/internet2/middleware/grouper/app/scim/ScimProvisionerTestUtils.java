@@ -2,10 +2,12 @@ package edu.internet2.middleware.grouper.app.scim;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestConfigInput;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConsumer;
+import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Provisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
@@ -74,16 +76,7 @@ public class ScimProvisionerTestUtils {
     }
   }
   
-  /**
-   * @param provisioningTestConfigInput     
-   * ScimProvisionerTestUtils.configureScimProvisioner(
-   *       new ScimProvisioningTestConfigInput()
-   *    .assignConfigId(string)
-   *    .addExtraConfig("allowProvisionableRegexOverride", "true")
-   *
-   */
-  public static void configureScimProvisioner(ScimProvisionerTestConfigInput provisioningTestConfigInput) {
-
+  private static void configureProvisioner(ScimProvisionerTestConfigInput provisioningTestConfigInput) {
     GrouperUtil.assertion(!StringUtils.isBlank(provisioningTestConfigInput.getConfigId()), "Config ID required");
 
     configureProvisionerSuffix(provisioningTestConfigInput, "startWith", "this is start with read only");
@@ -307,6 +300,93 @@ public class ScimProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2type", "groupAttribute");
       configureProvisionerSuffix(provisioningTestConfigInput, "groupAttributeValueCache2groupAttribute", "id");
     }
+
+  }
+  
+  private static void configureScimGithubOrgs(ScimProvisionerTestConfigInput provisioningTestConfigInput) {
+
+    configureProvisionerSuffix(provisioningTestConfigInput, "acceptHeader", "application/vnd.github.v3+json");
+    configureProvisionerSuffix(provisioningTestConfigInput, "bearerTokenExternalSystemConfigId", "githubExternalSystem");
+    configureProvisionerSuffix(provisioningTestConfigInput, "class", GrouperScim2Provisioner.class.getName());
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntitiesIfNotExistInGrouper", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entity2advanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0nullChecksInScript", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0source", "grouper");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0translationContinueCondition", "\u0024{subject != null}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0translationScript", "\u0024{subject.getAttributeValue('email')}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0type", "subjectTranslationScript");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2entityAttribute", "id");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2has", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2source", "target");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache2type", "entityAttribute");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "userName");
+    configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "orgInUrl");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "5");
+    configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "1");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
+
+    configureProvisionerSuffix(provisioningTestConfigInput, "scimType", "Github");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllGroups", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectEntities", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "showAdvanced", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "startWith", "this is start with read only");
+    configureProvisionerSuffix(provisioningTestConfigInput, "subjectSourcesToProvision", "jdbc");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.0.name", "id");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.name", "userName");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.1.translateFromGrouperProvisioningEntityField", "subjectId");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.name", "givenName");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "name");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.name", "familyName");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "name");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "emailValue");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "\u0024{gcGrouperSyncMember.getEntityAttributeValueCache0()}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "translationScript");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name.elConfig", "\u0024{'orgInUrl'}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "extension");
+  }
+  
+  /**
+   * @param provisioningTestConfigInput     
+   * ScimProvisionerTestUtils.configureScimProvisioner(
+   *       new ScimProvisioningTestConfigInput()
+   *    .assignConfigId(string)
+   *    .addExtraConfig("allowProvisionableRegexOverride", "true")
+   *
+   */
+  public static void configureScimProvisioner(ScimProvisionerTestConfigInput provisioningTestConfigInput) {
+
+    if (StringUtils.equals("scimGithubOrgs", provisioningTestConfigInput.getProvisioningStrategy())) {
+      
+      configureScimGithubOrgs(provisioningTestConfigInput); 
+
+    } else {
+      
+      configureProvisioner(provisioningTestConfigInput);
+      
+    }
+    
     
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
       String theValue = provisioningTestConfigInput.getExtraConfig().get(key);

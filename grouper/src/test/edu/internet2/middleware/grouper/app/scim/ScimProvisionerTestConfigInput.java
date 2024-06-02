@@ -15,6 +15,32 @@ import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTest
 public class ScimProvisionerTestConfigInput {
 
   /**
+   * null will use params
+   * scimGithubOrgs is the use case from michael gettes
+   */
+  private String provisioningStrategy = null;
+  
+  /**
+   * null will use params
+   * scimGithubOrgs is the use case from michael gettes
+   * @return
+   */
+  public String getProvisioningStrategy() {
+    return provisioningStrategy;
+  }
+
+  /**
+   * null will use params
+   * scimGithubOrgs is the use case from michael gettes
+   * @param provisioningStrategy
+   * @return this for chaining
+   */
+  public ScimProvisionerTestConfigInput assignProvisioningStrategy(String provisioningStrategy) {
+    this.provisioningStrategy = provisioningStrategy;
+    return this;
+  }
+
+  /**
    * extra config by suffix and value
    */
   private Map<String, String> extraConfig = new HashMap<String, String>();

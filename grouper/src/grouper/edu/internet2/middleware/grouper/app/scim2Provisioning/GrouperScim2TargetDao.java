@@ -44,10 +44,22 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpdateGroupResponse;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
+
+  @Override
+  public boolean loggingStart() {
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog());
+  }
+
+  @Override
+  public String loggingStop() {
+    return GrouperHttpClient.logEnd();
+  }
 
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(

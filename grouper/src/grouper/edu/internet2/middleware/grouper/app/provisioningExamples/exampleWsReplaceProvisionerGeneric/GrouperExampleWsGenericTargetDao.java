@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRepl
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoReplaceGroupMembershipsResponse;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 
@@ -32,6 +33,16 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
  * registerGrouperProvisionerDaoCapabilities() or it wont be used
  */
 public class GrouperExampleWsGenericTargetDao extends GrouperProvisionerTargetDaoBase {
+
+  @Override
+  public boolean loggingStart() {
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog());
+  }
+
+  @Override
+  public String loggingStop() {
+    return GrouperHttpClient.logEnd();
+  }
 
   /**
    * some things 
