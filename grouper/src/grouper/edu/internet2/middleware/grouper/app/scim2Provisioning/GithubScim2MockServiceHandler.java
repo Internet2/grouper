@@ -105,7 +105,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(mockNamePaths.size() >= 3, "Must start with v2/organizations/orgName/");
     GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "v2"), "");
     GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(1), "organizations"), "");
-    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(2), "orgName"), "");
+    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(2), "orgName") || StringUtils.equals(mockNamePaths.get(2), "orgName2"), "");
     
     mockNamePaths = mockNamePaths.subList(3, mockNamePaths.size());
     

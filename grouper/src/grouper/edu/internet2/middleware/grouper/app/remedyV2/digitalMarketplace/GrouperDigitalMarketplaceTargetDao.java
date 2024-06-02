@@ -39,6 +39,8 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import org.apache.commons.lang3.StringUtils;
@@ -48,6 +50,16 @@ import org.apache.commons.lang3.StringUtils;
  */
 public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTargetDaoBase  {
   
+  @Override
+  public boolean loggingStart() {
+    return GrouperHttpClient.logStart(new GrouperHttpClientLog());
+  }
+
+  @Override
+  public String loggingStop() {
+    return GrouperHttpClient.logEnd();
+  }
+
   @Override
   public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
     long startNanos = System.nanoTime();
