@@ -2115,25 +2115,25 @@ public class GrouperCheckConfig {
    * match something like this: db.warehouse.pass
    */
   private static Pattern grouperLoaderDbPattern = Pattern.compile(
-      "^db\\.(\\w+)\\.(pass|url|driver|user)$");
+      "^db\\.([\\w-]+)\\.(pass|url|driver|user)$");
   
   /**
    * match something like this: changeLog.consumer.ldappc.class, changeLog.consumer.ldappc.quartzCron
    */
   public static Pattern grouperLoaderConsumerPattern = Pattern.compile(
-      "^changeLog\\.consumer\\.(\\w+)\\.(class|quartzCron)$");
+      "^changeLog\\.consumer\\.([\\w-]+)\\.(class|quartzCron)$");
   
   /**
    * match something like this: changeLog.consumer.ldappc.class, changeLog.consumer.ldappc.quartzCron
    */
   public static Pattern messagingListenerConsumerPattern = Pattern.compile(
-      "^messaging\\.listener\\.(\\w+)\\.(.*)$");
+      "^messaging\\.listener\\.([\\w-]+)\\.(.*)$");
   
   /**
    * match something like this: otherJob.duo.class, otherJob.duo.quartzCron, otherJob.duo.priority
    */
   public static Pattern grouperLoaderOtherJobPattern = Pattern.compile(
-      "^otherJob\\.(\\w+)\\.(class|quartzCron|priority)$");
+      "^otherJob\\.([\\w-]+)\\.(class|quartzCron|priority)$");
   
   /**
    * <pre>

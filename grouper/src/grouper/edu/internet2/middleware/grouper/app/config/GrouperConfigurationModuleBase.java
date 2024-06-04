@@ -365,7 +365,7 @@ public abstract class GrouperConfigurationModuleBase {
     }
 
     if (isMultiple()) {
-      Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
+      Pattern configIdPattern = Pattern.compile("^[\\w-]+$");
       if (!configIdPattern.matcher(this.getConfigId()).matches()) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
       }

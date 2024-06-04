@@ -135,7 +135,7 @@ public abstract class GrouperDaemonConfiguration extends GrouperConfigurationMod
       if (!this.retrieveConfigurationConfigIds().contains(this.getConfigId())) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdDoesntExist"));
       }
-      Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_]+$");
+      Pattern configIdPattern = Pattern.compile("^[a-zA-Z0-9_-]+$");
       if (!configIdPattern.matcher(this.getConfigId()).matches()) {
         validationErrorsToDisplay.put("#configId", GrouperTextContainer.textOrNull("grouperConfigurationValidationConfigIdInvalid"));
       }

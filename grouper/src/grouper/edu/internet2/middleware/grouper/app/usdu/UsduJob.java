@@ -98,7 +98,7 @@ public class UsduJob extends OtherJobBase {
   
   private static void populateUsduConfiguredSources() {
     
-    Pattern usduSourceIdKey = Pattern.compile("^usdu\\.source\\.(\\w+)\\.sourceId$");
+    Pattern usduSourceIdKey = Pattern.compile("^usdu\\.source\\.([\\w-]+)\\.sourceId$");
     
     SourceManager.getInstance().getSources();
     
@@ -351,7 +351,7 @@ public class UsduJob extends OtherJobBase {
 
     int totalObjectsStored = 0;
     
-    Pattern provisionerPatternWithMemberInfo = Pattern.compile("^provisioner\\.(\\w+)\\.(entityAttributeValueCache0has|entityAttributeValueCache1has|entityAttributeValueCache2has|entityAttributeValueCache3has)$");    
+    Pattern provisionerPatternWithMemberInfo = Pattern.compile("^provisioner\\.([\\w-]+)\\.(entityAttributeValueCache0has|entityAttributeValueCache1has|entityAttributeValueCache2has|entityAttributeValueCache3has)$");
     Map<String, String> provisionerPropsWithMemberInfo = GrouperLoaderConfig.retrieveConfig().propertiesMap(provisionerPatternWithMemberInfo);
     Set<String> configNames = new HashSet<String>();
     for (String property : provisionerPropsWithMemberInfo.keySet()) {
