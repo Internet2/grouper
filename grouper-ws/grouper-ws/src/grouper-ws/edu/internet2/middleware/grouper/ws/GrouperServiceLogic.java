@@ -1037,7 +1037,9 @@ public class GrouperServiceLogic {
       for (WsStemLookup wsStemLookup : GrouperUtil.nonNull(wsStemLookups, WsStemLookup.class)) {
         wsStemLookup.retrieveStemIfNeeded(session, false);
         Stem stem = wsStemLookup.retrieveStem();
-        stems.add(stem);
+        if (stem != null){
+          stems.add(stem); 
+        }
       }
 
       wsFindStemsResults.assignStemResult(stems);
