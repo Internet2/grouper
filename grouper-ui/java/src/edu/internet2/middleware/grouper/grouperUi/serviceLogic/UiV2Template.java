@@ -77,7 +77,7 @@ public class UiV2Template {
   
   
   private static Pattern grouperTemplateServiceClassPattern = Pattern.compile(
-      "^grouper\\.template\\.(\\w+)\\.logicClass$");
+      "^grouper\\.template\\.([\\w-]+)\\.logicClass$");
   
   /**
    * keep an expirable cache of import progress for 5 hours (longest an import is expected).  This has multikey of session id and some random uuid
@@ -846,7 +846,7 @@ public class UiV2Template {
         return false;
       }
       
-      String regex = "^[a-zA-Z0-9_]*$";
+      String regex = "^[a-zA-Z0-9_-]*$";
       if (!templateKey.matches(regex)) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#serviceKeyId",
