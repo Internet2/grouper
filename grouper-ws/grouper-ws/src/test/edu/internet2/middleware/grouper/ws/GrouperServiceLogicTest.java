@@ -223,7 +223,7 @@ public class GrouperServiceLogicTest extends GrouperTest {
    */
   public static void main(String[] args) {
     //TestRunner.run(GrouperServiceLogicTest.class);
-    TestRunner.run(new GrouperServiceLogicTest("testAddRemoveMember"));
+    TestRunner.run(new GrouperServiceLogicTest("testFindStemsWhenNotExist"));
   }
 
   /**
@@ -8485,6 +8485,49 @@ public class GrouperServiceLogicTest extends GrouperTest {
     
   }
 
+  /**
+   * test find stems when the stem does not exist. 200 response code intended. Jira: GRP-5482
+   */
+  public void testFindStemsWhenNotExist() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    
+    WsFindStemsResults wsFindStemsResults = GrouperServiceLogic.findStems(
+        GROUPER_VERSION, null, null, null, new WsStemLookup[]{new WsStemLookup("test:xyz", null, null)});
+  
+    assertEquals(wsFindStemsResults.getResultMetadata().getResultMessage(),
+        WsGetGroupsResultsCode.SUCCESS.name(), 
+        wsFindStemsResults.getResultMetadata().getResultCode());
+    assertEquals(wsFindStemsResults.getResultMetadata().retrieveHttpStatusCode(),
+        200);
+    assertEquals(0, GrouperUtil.length(wsFindStemsResults.getStemResults()));    
+    
+    
+  }
+  /**
+   * test find stems when the stem does not exist. 200 response code intended. Jira: GRP-5482
+   */
+  public void testFindStemsWhenParentNotExist() {
+  
+    GrouperServiceUtils.testSession = GrouperSession.startRootSession();
+  
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    Stem testStem = new StemSave(grouperSession).assignName("test").save();
+    WsFindStemsResults wsFindStemsResults = GrouperServiceLogic.findStems(
+        GROUPER_VERSION, null, null, null, new WsStemLookup[]{new WsStemLookup("xyz:abc", null, null)});
+  
+    assertEquals(wsFindStemsResults.getResultMetadata().getResultMessage(),
+        WsGetGroupsResultsCode.SUCCESS.name(), 
+        wsFindStemsResults.getResultMetadata().getResultCode());
+    assertEquals(wsFindStemsResults.getResultMetadata().retrieveHttpStatusCode(),
+        200);
+    assertEquals(0, GrouperUtil.length(wsFindStemsResults.getStemResults()));    
+    
+  }
   /**
    * make sure a set of stems is similar to another by stem name including order
    * @param set1 expected set
