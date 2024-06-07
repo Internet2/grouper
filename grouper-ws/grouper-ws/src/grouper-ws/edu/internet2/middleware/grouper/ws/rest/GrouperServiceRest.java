@@ -456,7 +456,7 @@ public class GrouperServiceRest {
    * @return the result
    */
   @POST
-  @Path("/grouper-ws/servicesRest/v4_0_100/grouperPriveleges")
+  @Path("/grouper-ws/servicesRest/v4_0_100/grouperPrivileges")
   @ApiOperation(httpMethod = "POST", value = "Assign grouper privileges", nickname = "assignGrouperPrivileges", response = WsAssignGrouperPrivilegesResultsWrapper.class,
       notes = "<b>Description</b>: Will assign privileges for a subject and (group or stem).  This affects only direct memberships, not indirect memberships.  If the user is already a member of the group it is still a success"
       + "<br />See documentation on the <a href='https://spaces.at.internet2.edu/display/Grouper/Add+or+remove+grouper+privileges'>wiki</a> and go to samples to see requests and responses") 

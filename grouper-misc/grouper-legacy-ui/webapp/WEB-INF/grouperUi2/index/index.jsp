@@ -69,19 +69,19 @@
               <div id="demo2" class="collapse in">
                 <div class="accordion-inner">
                   <ul class="nav nav-list" id="quicklinks-nav">
-                    <li><a href="#" 
+                    <li><a id="leftMenuMyGroupsLink" href="#" 
                   onclick="return guiV2link('operation=UiV2MyGroups.myGroups');">${textContainer.text['indexMyGroupsButton'] }</a></li>
-                    <li><a href="#" 
+                    <li><a id="leftMenuMyStemsLink" href="#" 
                   onclick="return guiV2link('operation=UiV2MyStems.myStems');">${textContainer.text['indexMyStemsButton'] }</a></li>
-                    <li><a href="#" 
+                    <li><a id="leftMenuMyFavoritesLink" href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myFavorites');">${textContainer.text['indexMyFavoritesButton'] }</a></li>
-                    <li><a href="#" 
+                    <li><a id="leftMenuMyServicesLink" href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myServices');">${textContainer.text['indexMyServicesButton'] }</a></li>
-                    <li><a href="#" 
+                    <li><a  id="leftMenuMyActivityLink"href="#" 
                   onclick="return guiV2link('operation=UiV2Main.myActivity');">${textContainer.text['indexMyActivityButton'] }</a></li>
                   <c:if test="${grouperRequestContainer.rulesContainer.canReadPrivilegeInheritance && grouperRequestContainer.indexContainer.showMiscellaneousLink}">
-                    <li><a href="#" 
-                      onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['indexMiscellaneousButton'] }</a></li>
+                    <li><a id="leftMenuMiscLink" href="#" 
+                      onclick="return guiV2link('operation=UiV2Main.miscellaneous');">${textContainer.text['indexMiscellaneousButton'] }</a>
                   </c:if>
                    
                   <c:if test="${grouperRequestContainer.indexContainer.adminUIQuickLinkDisplayed=='true'}">

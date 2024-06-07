@@ -162,7 +162,28 @@ public class GrouperRequestContainer {
     return this.adminContainer;
   }
 
+  /**
+   * Container for programmatic browsing
+   */
+  private BrowserContainer browserContainer;
   
+  /**
+   * Container for programmatic browsing
+   */
+  public BrowserContainer getBrowserContainer() {
+    if (this.browserContainer == null) {
+      this.browserContainer = new BrowserContainer();
+    }
+    return browserContainer;
+  }
+
+  /**
+   * Container for programmatic browsing
+   */
+  public void setBrowserContainer(BrowserContainer browserContainer) {
+    this.browserContainer = browserContainer;
+  }
+
   /**
    * @param adminContainer1 the adminContainer to set
    */
