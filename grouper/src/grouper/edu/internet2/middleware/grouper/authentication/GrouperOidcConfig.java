@@ -4,6 +4,7 @@ import java.net.URI;
 
 import org.apache.commons.logging.Log;
 
+import com.nimbusds.oauth2.sdk.id.Issuer;
 import com.nimbusds.openid.connect.sdk.op.OIDCProviderMetadata;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -36,6 +37,18 @@ public class GrouperOidcConfig {
     
     return grouperOidcConfig;
   }
+  
+  public static enum GrouperOIDCClaimSource {
+    userInfoEndpoint,
+    
+    idToken
+  }
+  
+  private GrouperOIDCClaimSource claimSource;
+
+  private Issuer issuer;
+
+  private int maxClockSkew;
 
   private String responseType;
   
@@ -261,6 +274,8 @@ public class GrouperOidcConfig {
 
     GrouperOidcConfig grouperOidcConfig = new GrouperOidcConfig();
   
+    grouperOidcConfig.claimSource = GrouperOIDCClaimSource.valueOf(GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".claimSource", "userInfoEndpoint"));
+    
     grouperOidcConfig.proxyUrl = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".proxyUrl");
     grouperOidcConfig.proxyType = GrouperProxyType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".proxyType"), false);
     
@@ -269,20 +284,34 @@ public class GrouperOidcConfig {
       grouperOidcConfig.configurationMetadataUri = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".configurationMetadataUri");
       grouperOidcConfig.retrieveMetadata();
       
-      grouperOidcConfig.userInfoUri = grouperOidcConfig.oidcProviderMetadata.getUserInfoEndpointURI();
+      if (grouperOidcConfig.claimSource == GrouperOIDCClaimSource.userInfoEndpoint) {
+        grouperOidcConfig.userInfoUri = grouperOidcConfig.oidcProviderMetadata.getUserInfoEndpointURI();
+      } else if (grouperOidcConfig.claimSource == GrouperOIDCClaimSource.idToken) {
+        grouperOidcConfig.issuer = grouperOidcConfig.oidcProviderMetadata.getIssuer();
+      }
+      
       grouperOidcConfig.tokenEndpointUri = grouperOidcConfig.oidcProviderMetadata.getTokenEndpointURI();
       grouperOidcConfig.authorizationEndpointUri = grouperOidcConfig.oidcProviderMetadata.getAuthorizationEndpointURI();
     } else {
-      //   
-      //  # url to get the user info from the access token https://idp.pennkey.upenn.edu/idp/profile/oidc/userinfo
-      //  # grouper.oidcExternalSystem.myOidcConfigId.userInfoUri =
-      grouperOidcConfig.userInfoUri = URI.create(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".userInfoUri"));
+      
+      if (grouperOidcConfig.claimSource == GrouperOIDCClaimSource.userInfoEndpoint) {
+        //   
+        //  # url to get the user info from the access token https://idp.pennkey.upenn.edu/idp/profile/oidc/userinfo
+        //  # grouper.oidcExternalSystem.myOidcConfigId.userInfoUri =
+        grouperOidcConfig.userInfoUri = URI.create(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".userInfoUri"));
+      } else if (grouperOidcConfig.claimSource == GrouperOIDCClaimSource.idToken) {
+        grouperOidcConfig.issuer = new Issuer(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".issuer"));
+      }
       
       //  # url to decode the oidc code into an access token: https://idp.institution.edu/idp/profile/oidc/token
       //  # grouper.oidcExternalSystem.myOidcConfigId.tokenEndpointUri =
       grouperOidcConfig.tokenEndpointUri = URI.create(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".tokenEndpointUri"));
 
       grouperOidcConfig.authorizationEndpointUri = URI.create(GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oidcExternalSystem." + externalSystemConfigId + ".authorizeUri"));
+    }
+    
+    if (grouperOidcConfig.claimSource == GrouperOIDCClaimSource.idToken) {
+      grouperOidcConfig.maxClockSkew = GrouperConfig.retrieveConfig().propertyValueInt("grouper.oidcExternalSystem." + externalSystemConfigId + ".maxClockSkew", 300);
     }
 
     //    
@@ -405,4 +434,39 @@ public class GrouperOidcConfig {
     return this.ws;
   }
 
+
+  
+  public GrouperOIDCClaimSource getClaimSource() {
+    return claimSource;
+  }
+
+
+  
+  public void setClaimSource(GrouperOIDCClaimSource claimSource) {
+    this.claimSource = claimSource;
+  }
+
+
+  
+  public Issuer getIssuer() {
+    return issuer;
+  }
+
+
+  
+  public void setIssuer(Issuer issuer) {
+    this.issuer = issuer;
+  }
+
+
+  
+  public int getMaxClockSkew() {
+    return maxClockSkew;
+  }
+
+
+  
+  public void setMaxClockSkew(int maxClockSkew) {
+    this.maxClockSkew = maxClockSkew;
+  }
 }

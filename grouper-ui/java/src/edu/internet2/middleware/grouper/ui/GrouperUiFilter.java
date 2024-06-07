@@ -762,9 +762,8 @@ public class GrouperUiFilter implements Filter {
           
           grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
           
-          grouperOidc.retrieveAccessToken();
-          
-          grouperOidc.decodeAccessToken();
+          grouperOidc.retrieveAndParseTokens();
+
           remoteUser = grouperOidc.findSubjectClaim();
           
           remoteUser = StringUtils.trim(remoteUser);

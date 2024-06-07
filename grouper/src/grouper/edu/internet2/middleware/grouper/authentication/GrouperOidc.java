@@ -13,9 +13,11 @@ import java.util.regex.Pattern;
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
-import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.logging.Log;
 
+import com.nimbusds.jwt.JWT;
+import com.nimbusds.jwt.JWTClaimsSet;
+import com.nimbusds.jwt.proc.JWTClaimsSetVerifier;
 import com.nimbusds.oauth2.sdk.AccessTokenResponse;
 import com.nimbusds.oauth2.sdk.AuthorizationCode;
 import com.nimbusds.oauth2.sdk.AuthorizationCodeGrant;
@@ -39,13 +41,17 @@ import com.nimbusds.oauth2.sdk.token.AccessToken;
 import com.nimbusds.oauth2.sdk.token.BearerAccessToken;
 import com.nimbusds.openid.connect.sdk.AuthenticationRequest;
 import com.nimbusds.openid.connect.sdk.Nonce;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponse;
+import com.nimbusds.openid.connect.sdk.OIDCTokenResponseParser;
 import com.nimbusds.openid.connect.sdk.UserInfoErrorResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoRequest;
 import com.nimbusds.openid.connect.sdk.UserInfoResponse;
 import com.nimbusds.openid.connect.sdk.UserInfoSuccessResponse;
+import com.nimbusds.openid.connect.sdk.validators.IDTokenClaimsVerifier;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.authentication.GrouperOidcConfig.GrouperOIDCClaimSource;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
@@ -165,7 +171,8 @@ public class GrouperOidc {
     this.accessToken = accessToken;
   }
 
-  private Map<String, String> accessTokenAttributes;
+  private Map<String, String> userInfoAttributes;
+  private Map<String, String> idTokenAttributes;
 
   private AccessToken accessTokenObject;
   
@@ -214,19 +221,17 @@ public class GrouperOidc {
     UserInfoSuccessResponse successResponse = (UserInfoSuccessResponse) userInfoResponse;
     JSONObject claims = successResponse.getUserInfo().toJSONObject();
   
-    this.accessTokenAttributes = new TreeMap<>();
+    this.userInfoAttributes = new TreeMap<>();
     for (String fieldName : claims.keySet()) {
       String fieldValue = claims.getAsString(fieldName);
-      this.accessTokenAttributes.put(fieldName, fieldValue);
+      this.userInfoAttributes.put(fieldName, fieldValue);
     }
     
   }
 
+  private HTTPResponse tokenEndpointHTTPResponse;
 
-  /**
-   * get an access token from the code, assign to field in this object
-   */
-  public void retrieveAccessToken() {
+  private void callTokenEndpoint() {
 
     GrouperUtil.assertion(this.grouperOidcConfig != null, "config is required");
     GrouperUtil.assertion(!StringUtils.isBlank(this.oidcCodeString), "code is required");
@@ -268,8 +273,25 @@ public class GrouperOidc {
         Proxy proxy = grouperProxyBean.retrieveProxy();
         httpRequest.setProxy(proxy);
       }
-  
-      TokenResponse response = TokenResponse.parse(httpRequest.send());
+      
+      tokenEndpointHTTPResponse = httpRequest.send();
+    } catch (RuntimeException re) {
+      throw re;
+    } catch (Exception e) {
+      throw new RuntimeException("error", e);
+    }
+
+  }
+
+  /**
+   * get an access token from the code, assign to field in this object
+   */
+  public void retrieveAccessToken() {
+
+    try {
+      callTokenEndpoint();
+      
+      TokenResponse response = TokenResponse.parse(this.tokenEndpointHTTPResponse);
 
       this.debugMap.put("tokenServiceSuccess", response.indicatesSuccess());
       
@@ -301,6 +323,68 @@ public class GrouperOidc {
     }
 
   }
+  
+  /**
+   * get an id token from the code, assign to field in this object
+   */
+  public void retrieveIdToken() {
+
+    try {
+      callTokenEndpoint();
+      
+      TokenResponse response = OIDCTokenResponseParser.parse(this.tokenEndpointHTTPResponse);
+
+      this.debugMap.put("tokenServiceSuccess", response.indicatesSuccess());
+      
+      if (! response.indicatesSuccess()) {
+        // We got an error response...
+        TokenErrorResponse errorResponse = response.toErrorResponse();
+        
+        String tokenServiceError = errorResponse.getErrorObject().getHTTPStatusCode() + ": " + errorResponse.getErrorObject().getDescription();
+
+        this.debugMap.put("tokenServiceError", tokenServiceError);
+
+        throw new RuntimeException(tokenServiceError);
+      }
+
+      OIDCTokenResponse successResponse = (OIDCTokenResponse) response.toSuccessResponse();
+
+      // Get the id token
+      JWT idTokenJWT = successResponse.getOIDCTokens().getIDToken();
+      
+      // verify it
+      JWTClaimsSet jwtClaimsSet = idTokenJWT.getJWTClaimsSet();
+      JWTClaimsSetVerifier<?> claimsVerifier = new IDTokenClaimsVerifier(this.grouperOidcConfig.getIssuer(), new ClientID(this.grouperOidcConfig.getClientId()), null, this.grouperOidcConfig.getMaxClockSkew());
+      claimsVerifier.verify(jwtClaimsSet, null);
+            
+      this.idTokenAttributes = new TreeMap<>();
+      for (String fieldName : jwtClaimsSet.getClaims().keySet()) {
+        Object fieldValueObject = jwtClaimsSet.getClaim(fieldName);
+            
+        if (fieldValueObject instanceof String || 
+            fieldValueObject instanceof Integer ||
+            fieldValueObject instanceof Long) {
+          this.idTokenAttributes.put(fieldName, fieldValueObject.toString());
+        }
+      }      
+    } catch (RuntimeException re) {
+      throw re;
+    } catch (Exception e) {
+      throw new RuntimeException("error", e);
+    }
+
+  }
+  
+  public void retrieveAndParseTokens() {
+    if (this.grouperOidcConfig.getClaimSource() == GrouperOIDCClaimSource.userInfoEndpoint) {
+      this.retrieveAccessToken();
+      this.decodeAccessToken();
+    } else if (this.grouperOidcConfig.getClaimSource() == GrouperOIDCClaimSource.idToken) {
+      this.retrieveIdToken();
+    } else {
+      throw new RuntimeException("Unexpected claim source: " + this.grouperOidcConfig.getClaimSource());
+    }
+  }
 
   private Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -318,10 +402,8 @@ public class GrouperOidc {
       
       this.retrieveCodeFromHeader();
       
-      this.retrieveAccessToken();
+      this.retrieveAndParseTokens();
       
-      this.decodeAccessToken();
-
       this.findSubject();
       
       return subject;
@@ -452,13 +534,25 @@ public class GrouperOidc {
      
       debugMap.put("subjectIdClaimName", subjectIdClaimName);
       
-      String subjectId = GrouperOidc.this.accessTokenAttributes.get(subjectIdClaimName);
+      String subjectId = GrouperOidc.this.getClaimSourceAttributes().get(subjectIdClaimName);
       return subjectId;
       
     }
     
     return null;
     
+  }
+  
+  private Map<String, String> getClaimSourceAttributes() {
+    if (this.grouperOidcConfig.getClaimSource() == GrouperOIDCClaimSource.userInfoEndpoint) {
+      return this.userInfoAttributes;
+    }
+    
+    if (this.grouperOidcConfig.getClaimSource() == GrouperOIDCClaimSource.idToken) {
+      return this.idTokenAttributes;
+    }
+    
+    throw new RuntimeException("Unexpected claim source: " + this.grouperOidcConfig.getClaimSource());
   }
   
   public Subject findSubject() {
@@ -483,7 +577,7 @@ public class GrouperOidc {
            
             debugMap.put("subjectIdClaimName", subjectIdClaimName);
             
-            String subjectId = GrouperOidc.this.accessTokenAttributes.get(subjectIdClaimName);
+            String subjectId = GrouperOidc.this.getClaimSourceAttributes().get(subjectIdClaimName);
             if (!StringUtils.isBlank(subjectId)) {
               debugMap.put("subjectId", subjectId);
               if (StringUtils.isBlank(subjectSourceId)) {
@@ -507,7 +601,7 @@ public class GrouperOidc {
           if (!StringUtils.isBlank(subjectIdentifierClaimName)) {
            
             debugMap.put("subjectIdentifierClaimName", subjectIdentifierClaimName);
-            String subjectIdentifier = GrouperOidc.this.accessTokenAttributes.get(subjectIdentifierClaimName);
+            String subjectIdentifier = GrouperOidc.this.getClaimSourceAttributes().get(subjectIdentifierClaimName);
             if (!StringUtils.isBlank(subjectIdentifier)) {
               
               debugMap.put("subjectIdentifier", subjectIdentifier);
@@ -533,7 +627,7 @@ public class GrouperOidc {
            
             debugMap.put("subjectIdOrIdentifierClaimName", subjectIdOrIdentifierClaimName);
             
-            String subjectIdOrIdentifier = GrouperOidc.this.accessTokenAttributes.get(subjectIdOrIdentifierClaimName);
+            String subjectIdOrIdentifier = GrouperOidc.this.getClaimSourceAttributes().get(subjectIdOrIdentifierClaimName);
             if (!StringUtils.isBlank(subjectIdOrIdentifier)) {
 
               debugMap.put("subjectIdOrIdentifier", subjectIdOrIdentifier);
