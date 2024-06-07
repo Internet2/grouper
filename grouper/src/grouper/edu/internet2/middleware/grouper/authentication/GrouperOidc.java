@@ -10,6 +10,8 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.codec.binary.Base64;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
@@ -131,7 +133,7 @@ public class GrouperOidc {
    */
   private GrouperOidcResult grouperOidcResult = null;
   
-  
+  private Nonce expectedNonce = null;
   
   /**
    * result of decoding jwt
@@ -187,7 +189,7 @@ public class GrouperOidc {
     UserInfoRequest userInfoReq = new UserInfoRequest(
         this.grouperOidcConfig.getUserInfoUri(),
         (BearerAccessToken) this.accessTokenObject);
-
+    
     HTTPResponse userInfoHTTPResp = null;
     try {
       HTTPRequest httpRequest = userInfoReq.toHTTPRequest();
@@ -333,7 +335,7 @@ public class GrouperOidc {
       callTokenEndpoint();
       
       TokenResponse response = OIDCTokenResponseParser.parse(this.tokenEndpointHTTPResponse);
-
+      
       this.debugMap.put("tokenServiceSuccess", response.indicatesSuccess());
       
       if (! response.indicatesSuccess()) {
@@ -354,7 +356,7 @@ public class GrouperOidc {
       
       // verify it
       JWTClaimsSet jwtClaimsSet = idTokenJWT.getJWTClaimsSet();
-      JWTClaimsSetVerifier<?> claimsVerifier = new IDTokenClaimsVerifier(this.grouperOidcConfig.getIssuer(), new ClientID(this.grouperOidcConfig.getClientId()), null, this.grouperOidcConfig.getMaxClockSkew());
+      JWTClaimsSetVerifier<?> claimsVerifier = new IDTokenClaimsVerifier(this.grouperOidcConfig.getIssuer(), new ClientID(this.grouperOidcConfig.getClientId()), this.expectedNonce, this.grouperOidcConfig.getMaxClockSkew());
       claimsVerifier.verify(jwtClaimsSet, null);
             
       this.idTokenAttributes = new TreeMap<>();
@@ -491,8 +493,14 @@ public class GrouperOidc {
   private boolean ws;
 
   
-  
+  /**
+   * @deprecated
+   */
   public String generateLoginUrl() {
+    return generateLoginUrl(null);
+  }
+  
+  public String generateLoginUrl(HttpServletRequest httpServletRequest) {
     
     try {
    // Generate random state string for pairing the response to the request
@@ -509,6 +517,11 @@ public class GrouperOidc {
       scope, new ClientID(grouperOidcConfig.getClientId()), new URI(grouperOidcConfig.getRedirectUri()), state, nonce);
 
       URI authReqURI = authenticationRequest.toURI();
+      
+      if (httpServletRequest != null) {
+        httpServletRequest.getSession().setAttribute("oidcNonce", nonce);
+      }
+      
       return authReqURI.toString();
     } catch (Exception e) {
       throw new RuntimeException(e);
@@ -657,6 +670,11 @@ public class GrouperOidc {
 
   public GrouperOidc assignWs(boolean isWs) {
     this.ws = isWs;
+    return this;
+  }
+  
+  public GrouperOidc assignExpectedNonce(Nonce expectedNonce) {
+    this.expectedNonce = expectedNonce;
     return this;
   }
 }
