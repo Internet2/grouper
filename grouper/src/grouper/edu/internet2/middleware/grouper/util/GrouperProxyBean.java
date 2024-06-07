@@ -244,7 +244,13 @@ public class GrouperProxyBean {
   
   
   public Proxy retrieveProxy() {
-    return new Proxy(this.grouperProxyType.getProxyType(), new InetSocketAddress(this.proxyUrl, this.port));
+    
+    if (this.port == -1) {
+      // prime the pump
+      this.getHostname();
+    }
+    
+    return new Proxy(this.grouperProxyType.getProxyType(), new InetSocketAddress(this.hostname, this.port));
   }
   
   
