@@ -2,3 +2,4 @@
 /secureShare.client.properties
 /spy2.properties
 /*.extraMetadata.properties
+/grouper.hibernate.local.properties
