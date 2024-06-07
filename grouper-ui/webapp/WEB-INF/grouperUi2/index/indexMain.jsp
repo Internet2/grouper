@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 ${grouper:title('grouperHomePageTitle')}
-
+<span id="grouperJspId" style="display:none">grouperMainPage</span>
               <!-- indexMain.jsp -->
               <div class="bread-header-container">
                 <ul class="breadcrumb">
@@ -96,4 +96,5 @@ ${grouper:title('grouperHomePageTitle')}
                 </div>
               </div>
               <!-- end indexMain.jsp -->
+<span id="grouperAjaxDone_indexMain" style="display:none">true</span>
               
