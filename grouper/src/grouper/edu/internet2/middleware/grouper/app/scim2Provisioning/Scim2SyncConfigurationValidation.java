@@ -38,21 +38,21 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
       
       if (grouperProvisioningBehavior.isSelectGroups()) {
 
-        boolean foundOrgInUrl = false;
+        boolean foundId = false;
         for (String attributeName : GrouperUtil.nonNull(grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().keySet())) {
         
           GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = grouperProvisioningConfiguration.getTargetGroupAttributeNameToConfig().get(attributeName);       
         
-          if (!StringUtils.equals("orgInUrl", grouperProvisioningConfigurationAttribute.getName())) {
+          if (!StringUtils.equals("id", grouperProvisioningConfigurationAttribute.getName())) {
             this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("scim2githubOnlyGroupAttributeIsOrgInUrl"))
                 .assignJqueryHandle(grouperProvisioningConfigurationAttribute.configKey(attributeName)));
             
           } else {
-            foundOrgInUrl = true;
+            foundId = true;
           }
         }
         
-        if (!foundOrgInUrl) {
+        if (!foundId) {
           this.addErrorMessage(new ProvisioningValidationIssue().assignMessage(GrouperTextContainer.textOrNull("scim2githubMustHaveGroupAttributeOrgInUrl")));
         }
       }

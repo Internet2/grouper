@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -12,6 +14,12 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   private String acceptHeader;
   
   private boolean disableGroupsInsteadOfDelete = false;
+  
+  public boolean isGithubOrgConfiguration() {
+    return StringUtils.equals("Github", this.getScimType())
+        && this.isOperateOnGrouperGroups()
+        && this.getTargetGroupAttributeNameToConfig().containsKey("id");
+  }
   
   private boolean disableEntitiesInsteadOfDelete = false;
 
