@@ -65,11 +65,6 @@ public class RuleIfCondition {
     return StringUtils.isBlank(this.ifConditionEl) && StringUtils.isBlank(this.ifConditionEnum);
   }
 
-  public boolean isBlank() {
-    return StringUtils.isBlank(this.ifConditionEl) && StringUtils.isBlank(this.ifConditionEnum);
-  }
-
-
   /** if it is an el, put that here */
   private String ifConditionEl;
   
