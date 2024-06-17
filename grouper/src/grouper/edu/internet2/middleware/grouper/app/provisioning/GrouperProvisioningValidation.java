@@ -494,8 +494,8 @@ public class GrouperProvisioningValidation {
     }
     
     GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-    
-    if (gcGrouperSyncMembership.getErrorCode() != errorCode) {
+        
+    if (gcGrouperSyncMembership != null && gcGrouperSyncMembership.getErrorCode() != errorCode) {
       gcGrouperSyncMembership.setErrorCode(errorCode);
       gcGrouperSyncMembership.setErrorMessage(errorMessage);
       Timestamp membershipErrorTimestamp = this.grouperProvisioner.retrieveGrouperProvisioningSyncDao().membershipErrorTimestamp(gcGrouperSyncMembership);
