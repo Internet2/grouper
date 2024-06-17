@@ -69,6 +69,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
 
+import com.nimbusds.openid.connect.sdk.Nonce;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -717,7 +719,7 @@ public class GrouperUiFilter implements Filter {
           
           if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
             // it means we need to redirect to OIDC
-            String loginUrl = grouperOidc.generateLoginUrl();
+            String loginUrl = grouperOidc.generateLoginUrl(httpServletRequest);
             
             // before redirecting, set session attributes 
             
@@ -762,9 +764,13 @@ public class GrouperUiFilter implements Filter {
           
           grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
           
-          grouperOidc.retrieveAccessToken();
+          if (httpServletRequest.getSession().getAttribute("oidcNonce") != null) {
+            grouperOidc.assignExpectedNonce((Nonce)httpServletRequest.getSession().getAttribute("oidcNonce"));
+            httpServletRequest.getSession().removeAttribute("oidcNonce");
+          }
           
-          grouperOidc.decodeAccessToken();
+          grouperOidc.retrieveAndParseTokens();
+
           remoteUser = grouperOidc.findSubjectClaim();
           
           remoteUser = StringUtils.trim(remoteUser);
