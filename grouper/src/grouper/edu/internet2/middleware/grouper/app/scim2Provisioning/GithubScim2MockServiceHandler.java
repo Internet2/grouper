@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
+import java.sql.Timestamp;
 import java.util.List;
 import java.util.Set;
 import java.util.regex.Matcher;
@@ -7,19 +8,20 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.hibernate.ByHqlStatic;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
@@ -105,7 +107,8 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(mockNamePaths.size() >= 3, "Must start with v2/organizations/orgName/");
     GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(0), "v2"), "");
     GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(1), "organizations"), "");
-    GrouperUtil.assertion(StringUtils.equals(mockNamePaths.get(2), "orgName") || StringUtils.equals(mockNamePaths.get(2), "orgName2"), "");
+    String organization = mockNamePaths.get(2);
+    GrouperUtil.assertion(StringUtils.equals(organization, "orgName") || StringUtils.equals(organization, "orgName2"), "Not expecting org in URL: '" + organization + "'");
     
     mockNamePaths = mockNamePaths.subList(3, mockNamePaths.size());
     
@@ -113,7 +116,15 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     paths = mockNamePaths.toArray(paths);
     
     mockServiceRequest.setPostMockNamePaths(paths);
-
+    
+    // TODO use the method to find the config id from the authn credential
+    String provisionerConfigId = "githubProvisioner";
+    ConfigPropertiesCascadeBase.clearCache();
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+    grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+    GrouperScim2ProvisionerConfiguration grouperScim2ProvisioningConfiguration = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    boolean usersInOrgs = grouperScim2ProvisioningConfiguration.isGithubOrgConfiguration();
+    
     if (StringUtils.equals("GET", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("ServiceProviderConfig".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
         getServiceProviderConfig(mockServiceRequest, mockServiceResponse);
@@ -131,7 +142,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     }
     if (StringUtils.equals("DELETE", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        deleteUser(mockServiceRequest, mockServiceResponse);
+        deleteUser(mockServiceRequest, mockServiceResponse, usersInOrgs, organization);
         return;
       }
 
@@ -145,7 +156,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     }
     if (StringUtils.equals("POST", mockServiceRequest.getHttpServletRequest().getMethod())) {
       if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
-        postUsers(mockServiceRequest, mockServiceResponse);
+        postUsers(mockServiceRequest, mockServiceResponse, usersInOrgs, organization);
         return;
       }
 
@@ -276,7 +287,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
   }
 
-  public void postUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+  public void postUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse, boolean usersInOrgs, String organization) {
 
     if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
       return;
@@ -309,10 +320,56 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(userJsonNode, "id")) == 0, "id is forbidden");
   
     GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userJsonNode);
-    grouperScimUser.setId(GrouperUuid.getUuid());
+
     
-    HibernateSession.byObjectStatic().save(grouperScimUser);
-    
+
+    if (usersInOrgs) {
+
+      grouperScimUser = HibernateSession.byHqlStatic()
+          .createQuery("from GrouperScim2User where userName = :theValue").setString("theValue", grouperScimUser.getUserName())
+          .uniqueResult(GrouperScim2User.class);
+
+      if (grouperScimUser == null) {
+        grouperScimUser = GrouperScim2User.fromJson(userJsonNode);
+        grouperScimUser.setId(GrouperUuid.getUuid());
+        HibernateSession.byObjectStatic().save(grouperScimUser);
+        
+      }
+      
+      GrouperScim2Group grouperScimGroup = HibernateSession.byHqlStatic()
+          .createQuery("from GrouperScim2Group where id = :theValue").setString("theValue", organization)
+          .uniqueResult(GrouperScim2Group.class);
+
+      if (grouperScimGroup == null) {
+        grouperScimGroup = new GrouperScim2Group();
+        grouperScimGroup.setId(organization);
+        grouperScimGroup.setDisplayName(organization);
+        grouperScimGroup.setCreated(new Timestamp(System.currentTimeMillis()));
+        grouperScimGroup.setLastModified(new Timestamp(System.currentTimeMillis()));
+
+        HibernateSession.byObjectStatic().save(grouperScimGroup);
+
+      }
+      
+      // verify group, user, then do membership
+      GrouperScim2Membership grouperScim2Membership = HibernateSession.byHqlStatic()
+          .createQuery("select membership from GrouperScim2Membership membership where userId = :theUserId and groupId = :theGroupId")
+          .setString("theGroupId", organization).setString("theUserId", grouperScimUser.getId()).uniqueResult(GrouperScim2Membership.class);
+
+      if (grouperScim2Membership == null) {
+        grouperScim2Membership = new GrouperScim2Membership();
+        grouperScim2Membership.setId(GrouperUuid.getUuid());
+        grouperScim2Membership.setGroupId(organization);
+        grouperScim2Membership.setUserId(grouperScimUser.getId());
+        HibernateSession.byObjectStatic().save(grouperScim2Membership);
+      }
+      
+    } else {
+      grouperScimUser.setId(GrouperUuid.getUuid());
+      HibernateSession.byObjectStatic().save(grouperScimUser);
+    }
+
+
     JsonNode resultNode = grouperScimUser.toJson(null);
   
     mockServiceResponse.setResponseCode(201);
@@ -440,7 +497,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
   
   }
 
-  public void deleteUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+  public void deleteUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse, boolean usersInOrgs, String organization) {
     if (!checkAuthorization(mockServiceRequest, mockServiceResponse)) {
       return;
     }
@@ -449,9 +506,26 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(id) > 0, "id is required");
   
-    int usersDeleted = HibernateSession.byHqlStatic()
-        .createQuery("delete from GrouperScim2User where id = :theId")
-        .setString("theId", id).executeUpdateInt();
+    int usersDeleted = 0;
+    if (usersInOrgs) {
+    
+      GrouperScim2Membership grouperScim2Membership = HibernateSession.byHqlStatic()
+          .createQuery("select membership from GrouperScim2Membership membership where userId = :theUserId and groupId = :theGroupId")
+          .setString("theGroupId", organization).setString("theUserId", id).uniqueResult(GrouperScim2Membership.class);
+      
+      if (grouperScim2Membership != null) {
+        HibernateSession.byObjectStatic().delete(grouperScim2Membership);
+        usersDeleted = 1;
+      }
+
+
+    } else {
+      
+      usersDeleted = HibernateSession.byHqlStatic()
+          .createQuery("delete from GrouperScim2User where id = :theId")
+          .setString("theId", id).executeUpdateInt();
+    }
+
     mockServiceRequest.getDebugMap().put("usersDeleted", usersDeleted);
     
     // not sure why but they set this content type even though no json in response

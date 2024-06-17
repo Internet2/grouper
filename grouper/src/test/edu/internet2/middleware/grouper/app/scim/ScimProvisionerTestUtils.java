@@ -2,7 +2,6 @@ package edu.internet2.middleware.grouper.app.scim;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerTestConfigInput;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningFullSyncJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -51,14 +50,15 @@ public class ScimProvisionerTestUtils {
     
   }
   
-  public static void setupGithubExternalSystem() {
+  public static void setupGithubExternalSystem(boolean includeOrgName) {
     
     int port = GrouperConfig.retrieveConfig().propertyValueInt("junit.test.tomcat.port", 8080);
     boolean ssl = GrouperConfig.retrieveConfig().propertyValueBoolean("junit.test.tomcat.ssl", false);
     String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
     
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.myWsBearerToken.accessTokenPassword").value("abc123").store();
-    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.githubExternalSystem.endpoint").value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/githubScim/v2/organizations/orgName").store();
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.githubExternalSystem.endpoint")
+      .value(ssl ? "https://": "http://" +  domainName+":"+port+"/grouper/mockServices/githubScim/v2/organizations" + (includeOrgName ? "/orgName" : "")).store();
     new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.wsBearerToken.githubExternalSystem.accessTokenPassword").value("abc123").store();
     
   }
@@ -311,8 +311,6 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeEntityCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "customizeGroupCrud", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntities", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntitiesIfNotExistInGrouper", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "deleteGroups", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "entity2advanced", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCache0has", "true");
@@ -328,10 +326,9 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "entityAttributeValueCacheHas", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttribute0name", "userName");
     configureProvisionerSuffix(provisioningTestConfigInput, "entityMatchingAttributeCount", "1");
-    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "orgInUrl");
+    configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "id");
     configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttributeCount", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "hasTargetEntityLink", "true");
-    configureProvisionerSuffix(provisioningTestConfigInput, "insertEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "insertGroups", "false");
     configureProvisionerSuffix(provisioningTestConfigInput, "logAllObjectsVerbose", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "true");
@@ -339,6 +336,16 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfGroupAttributes", "1");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperEntities", "true");
     configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperGroups", "true");
+
+    configureProvisionerSuffix(provisioningTestConfigInput, "operateOnGrouperMemberships", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "provisioningType", "membershipObjects");
+    
+    configureProvisionerSuffix(provisioningTestConfigInput, "makeChangesToEntities", "false");
+    configureProvisionerSuffix(provisioningTestConfigInput, "selectAllEntities", "false");
+
+    configureProvisionerSuffix(provisioningTestConfigInput, "membership2AdvancedOptions", "true");
+    configureProvisionerSuffix(provisioningTestConfigInput, "membershipMatchingIdExpression", 
+        "${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntity().retrieveAttributeValueString('userName'))}");
     
     configureProvisionerSuffix(provisioningTestConfigInput, "logCommandsAlways", "true");
 
@@ -362,7 +369,7 @@ public class ScimProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.name", "emailValue");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpression", "\u0024{gcGrouperSyncMember.getEntityAttributeValueCache0()}");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute.4.translateExpressionType", "translationScript");
-    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name.elConfig", "\u0024{'orgInUrl'}");
+    configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.name", "id");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.0.translateFromGrouperProvisioningGroupField", "extension");
   }

@@ -1968,10 +1968,10 @@ public class GrouperProvisioningTranslator {
       } else if (!StringUtils.isBlank(membershipIdScript)) {
         Map<String, Object> elVariableMap = new HashMap<String, Object>();
         elVariableMap.put("targetMembership", targetMembership);
-        
+        // ${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntity().retrieveAttributeValueString('userName'))}
+        // ${new('edu.internet2.middleware.grouperClient.collections.MultiKey', targetMembership.retrieveAttributeValueString('role'), targetMembership.retrieveAttributeValueString('netID'))}
         id = runScript(membershipIdScript, elVariableMap);
 
-                
       } else {
         throw new RuntimeException("Must have membershipMatchingIdAttribute, or membershipMatchingIdExpression");
       }

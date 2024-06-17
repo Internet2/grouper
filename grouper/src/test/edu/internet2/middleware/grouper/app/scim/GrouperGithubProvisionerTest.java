@@ -74,7 +74,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
     testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
     
-    ScimProvisionerTestUtils.setupGithubExternalSystem();
+    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
     
     ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
         .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
@@ -167,7 +167,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     
     usersToProvisionGroup.addMember(testGroup.toSubject());
     
-    ScimProvisionerTestUtils.setupGithubExternalSystem();
+    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
         
     ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
         .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
@@ -257,7 +257,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     
     usersToProvisionGroup.addMember(testGroup.toSubject());
     
-    ScimProvisionerTestUtils.setupGithubExternalSystem();
+    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
         
     ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
         .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
@@ -339,7 +339,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
       
-      ScimProvisionerTestUtils.setupGithubExternalSystem();
+      ScimProvisionerTestUtils.setupGithubExternalSystem(true);
       
       ScimProvisioningStartWith startWith = new ScimProvisioningStartWith();
       
@@ -462,7 +462,7 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     
     Group usersToProvisionGroup = new GroupSave(grouperSession).assignName("test2:usersToProvisionGroup").save();
     
-    ScimProvisionerTestUtils.setupGithubExternalSystem();
+    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
         
     ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
         .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
@@ -562,31 +562,32 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
     
     // mark some folders to provision
-    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
-    Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
-    
-    Group usersToProvisionGroup = new GroupSave(grouperSession).assignName("test2:usersToProvisionGroup").save();
+    Group testGroup = new GroupSave(grouperSession).assignName("test:orgName").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test:orgName2").save();
     
     testGroup.addMember(SubjectTestHelper.SUBJ0, false);
     testGroup.addMember(SubjectTestHelper.SUBJ1, false);
     
+    testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
     testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
-    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
     
-    usersToProvisionGroup.addMember(testGroup.toSubject());
-    
-    ScimProvisionerTestUtils.setupGithubExternalSystem();
+    ScimProvisionerTestUtils.setupGithubExternalSystem(false);
     
     ScimProvisionerTestConfigInput scimProvisioningStrategy = new ScimProvisionerTestConfigInput().assignProvisioningStrategy("scimGithubOrgs");
     scimProvisioningStrategy.assignConfigId("githubProvisioner");
-    scimProvisioningStrategy.assignGroupOfUsersToProvision(usersToProvisionGroup);
     ScimProvisionerTestUtils.configureScimProvisioner(scimProvisioningStrategy);
     
-    GrouperStartup.startup();
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("githubProvisioner");
+    attributeValue.setTargetName("githubProvisioner");
+    attributeValue.setStemScopeString("sub");
+    
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
     
     try {
       // this will create tables
-      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null, "orgName");
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
@@ -596,14 +597,16 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_scim_group").select(int.class));
       
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
       GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
       GrouperUtil.sleep(2000);
   
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
-      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
-      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(4, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
@@ -611,17 +614,17 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
       
       GrouperUtil.sleep(2000);
   
-      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
-      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
       // now delete the group and sync again
       testGroup.delete();
       grouperProvisioningOutput = fullProvision();
   
-      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
-      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
-      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(3, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
       
     } finally {
       
