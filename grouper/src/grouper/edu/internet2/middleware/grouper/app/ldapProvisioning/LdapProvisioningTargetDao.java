@@ -359,7 +359,6 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
   }
 
   public TargetDaoUpdateGroupResponse updateGroup(TargetDaoUpdateGroupRequest targetDaoUpdateGroupRequest) {
-
     long startNanos = System.nanoTime();
 
     try {
@@ -1651,7 +1650,7 @@ public class LdapProvisioningTargetDao extends GrouperProvisionerTargetDaoBase {
       Dn newDn = new Dn(newDnString);
       
       // if the rdn is different, even case difference
-      if (!oldDn.getRDn().isSame(newDn.getRDn())) {
+      if (!oldDn.getRDn().isSame(newDn.getRDn(), new DefaultRDnNormalizer(new MinimalAttributeValueEscaper(), DefaultRDnNormalizer.LOWERCASE, s -> s))) {
         return true;
       }
       
