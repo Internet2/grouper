@@ -1897,7 +1897,7 @@ public class GrouperProvisioningLogic {
     if (!GrouperUtil.booleanValue(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isInsertEntities(), false)) {
 
       // TODO maybe this should be moved somewhere else, where things are validated, if we are not inserting, then why mark as errors?
-      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isSelectEntities()) {
+      if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
         // entity not there
         for (ProvisioningEntity missingEntity : missingEntities) {
           if (missingEntity.getProvisioningEntityWrapper() != null) {
@@ -3010,6 +3010,25 @@ public class GrouperProvisioningLogic {
     // Go through the full logic and see if any other processing is done on the target memberships
     this.grouperProvisioner.retrieveGrouperProvisioningAttributeManipulation().manipulateDefaultsFilterAttributesMemberships(targetProvisioningMemberships, true, true, false, false);
 
+    // set the groups and entities in case they are used for translation
+    for (ProvisioningMembership targetProvisioningMembership : GrouperUtil.nonNull(targetProvisioningMemberships)) {
+      
+      if (targetProvisioningMembership.getProvisioningGroup() == null && !StringUtils.isBlank(targetProvisioningMembership.getProvisioningGroupId())) {
+        ProvisioningGroupWrapper provisioningGroupWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetGroupIdToProvisioningGroupWrapper().get(targetProvisioningMembership.getProvisioningGroupId());
+        if (provisioningGroupWrapper != null && provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+          targetProvisioningMembership.setProvisioningGroup(provisioningGroupWrapper.getTargetProvisioningGroup());
+        }
+      }
+
+      if (targetProvisioningMembership.getProvisioningEntity() == null && !StringUtils.isBlank(targetProvisioningMembership.getProvisioningEntityId())) {
+        ProvisioningEntityWrapper provisioningEntityWrapper = this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getTargetEntityIdToProvisioningEntityWrapper().get(targetProvisioningMembership.getProvisioningEntityId());
+        if (provisioningEntityWrapper != null && provisioningEntityWrapper.getTargetProvisioningEntity() != null) {
+          targetProvisioningMembership.setProvisioningEntity(provisioningEntityWrapper.getTargetProvisioningEntity());
+        }
+      }
+
+    }
+    
     this.grouperProvisioner.retrieveGrouperProvisioningTranslator().idTargetMemberships(targetProvisioningMemberships);
 
     this.grouperProvisioner.retrieveGrouperProvisioningMatchingIdIndex().mergeInNewTargetMemberships(targetProvisioningMemberships);
