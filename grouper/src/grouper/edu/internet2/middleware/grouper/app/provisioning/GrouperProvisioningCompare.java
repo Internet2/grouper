@@ -58,6 +58,25 @@ public class GrouperProvisioningCompare {
     return attributeValueString;
   }
   
+  public boolean isCaseSensitiveCompare(String attributeName, ProvisioningUpdatable provisioningUpdatable) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = null;
+    
+    if (provisioningUpdatable instanceof ProvisioningEntity) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(attributeName);
+    } else if (provisioningUpdatable instanceof ProvisioningGroup) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+    } else if (provisioningUpdatable instanceof ProvisioningMembership) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().get(attributeName);
+    }
+    
+    if (grouperProvisioningConfigurationAttribute != null) {
+      return grouperProvisioningConfigurationAttribute.isCaseSensitiveCompare();
+    }
+    
+    // default true
+    return true;
+  }
+  
   private GrouperProvisioner grouperProvisioner = null;
 
   private int membershipAddCount = 0;
@@ -163,6 +182,9 @@ public class GrouperProvisioningCompare {
   
     // scalar
     if (firstCollection == null && secondCollection == null) {
+      if (first instanceof String && second instanceof String && !isCaseSensitiveCompare(attributeName, grouperTargetUpdatable)) {
+        return GrouperUtil.equalsIgnoreCase((String)first, (String)second);
+      }
       return GrouperUtil.equals(first, second);
     }
   
@@ -722,7 +744,7 @@ public class GrouperProvisioningCompare {
       
 
       Collection inserts = new HashSet<Object>(grouperCollection);
-      inserts.removeAll(targetCollection);
+      removeAllWithCaseSensitivityCheck(attributeName, inserts, targetCollection, grouperProvisioningUpdatable);
       if (grouperProvisioningUpdatable.canInsertAttribute(attributeName)) {
         for (Object insertValue : inserts) {
 
@@ -743,7 +765,7 @@ public class GrouperProvisioningCompare {
         }
       }        
       Collection deletes = new HashSet<Object>(targetCollection);
-      deletes.removeAll(grouperCollection);
+      removeAllWithCaseSensitivityCheck(attributeName, deletes, grouperCollection, grouperProvisioningUpdatable);
       if (grouperProvisioningUpdatable.canDeleteAttribute(attributeName)) {
         for (Object deleteValue : deletes) {
           
@@ -970,7 +992,7 @@ public class GrouperProvisioningCompare {
     }
           
     Collection inserts = new HashSet<Object>(grouperCollection);
-    inserts.removeAll(targetCollection);
+    removeAllWithCaseSensitivityCheck(attributeName, inserts, targetCollection, grouperProvisioningUpdatable);
     if (grouperProvisioningUpdatable.canUpdateAttribute(attributeName)) {
       for (Object insertValue : inserts) {
         grouperProvisioningUpdatable.addInternal_objectChange(
@@ -981,7 +1003,7 @@ public class GrouperProvisioningCompare {
       }
     }        
     Collection deletes = new HashSet<Object>(targetCollection);
-    deletes.removeAll(grouperCollection);
+    removeAllWithCaseSensitivityCheck(attributeName, deletes, grouperCollection, grouperProvisioningUpdatable);
     if (grouperProvisioningUpdatable.canDeleteAttribute(attributeName)) {
       for (Object deleteValue : deletes) {
         
@@ -2333,5 +2355,42 @@ public class GrouperProvisioningCompare {
     this.groupUuidToMembershipAddCount.put(groupUuid, count);
   }
   
-  
+  private void removeAllWithCaseSensitivityCheck(String attributeName, Collection c1, Collection c2, ProvisioningUpdatable provisioningUpdatable) {
+    GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = null;
+    
+    if (provisioningUpdatable instanceof ProvisioningEntity) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(attributeName);
+    } else if (provisioningUpdatable instanceof ProvisioningGroup) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+    } else if (provisioningUpdatable instanceof ProvisioningMembership) {
+      grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig().get(attributeName);
+    }
+    
+    if (grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isCaseSensitiveCompare()) {
+      c1.removeAll(c2);
+      return;
+    }
+
+    Set<String> c2LowerCaseStrings = new HashSet<String>();
+    for (Object obj2 : c2) {
+      if (obj2 instanceof String) {
+        c2LowerCaseStrings.add(((String)obj2).toLowerCase());
+      }
+    }
+    
+    Iterator iterator1 = c1.iterator();
+    while (iterator1.hasNext()) {
+      Object obj1 = iterator1.next();
+      if (obj1 instanceof String) {
+        String str1 = (String) obj1;
+        if (c2LowerCaseStrings.contains(str1.toLowerCase())) {
+          iterator1.remove();
+        }
+      } else {
+        if (c2.contains(obj1)) {
+          iterator1.remove();
+        }
+      }
+    }
+  }
 }
