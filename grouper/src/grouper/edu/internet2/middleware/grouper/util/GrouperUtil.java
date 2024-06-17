@@ -473,7 +473,7 @@ public class GrouperUtil {
     
     if (rootJsonNode != null) {
       
-      JsonNode arrayNodeJsonNode = null;
+      JsonNode arrayNodeJsonNode = rootJsonNode;
       // traverse down a tad
       if (!StringUtils.isBlank(jsonPointerOfArrayNode)) {
         arrayNodeJsonNode = rootJsonNode.at(jsonPointerOfArrayNode);
