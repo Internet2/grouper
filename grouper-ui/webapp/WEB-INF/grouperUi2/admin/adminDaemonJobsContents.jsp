@@ -1,6 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+                 <grouper:browserPage jspName="adminDaemonJobsContents" />
                  <input type="hidden" id="daemonJobsRefreshed" value="1" />
-                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update table-privileges footable">
+                 <table id="daemontable" class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update table-privileges footable">
                     <thead>
                       <tr>
                         <th data-hide="phone" style="white-space: nowrap; text-align: left;">
@@ -57,8 +58,9 @@
                     </thead>
                     <tbody>
                       <c:forEach items="${grouperRequestContainer.adminContainer.guiDaemonJobs}" var="guiDaemonJob">
-                        <tr>
-                          <td class="expand foo-clicker" style="white-space: nowrap;"><a href="#" onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');">${guiDaemonJob.jobName}</a></td>
+                        <tr class="adminDaemonJobEntry">
+                          <td class="expand foo-clicker" style="white-space: nowrap;"><a href="#" class="adminDaemonJobNameLink"
+                            onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');">${guiDaemonJob.jobName}</a></td>
                           <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.state}</span></td>
                           <td class="expand foo-clicker"
                             style="color: White;

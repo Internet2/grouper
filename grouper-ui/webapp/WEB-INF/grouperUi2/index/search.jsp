@@ -1,7 +1,7 @@
 <!-- ./webapp/WEB-INF/grouperUi2/index/index.jsp -->
 
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-
+              <grouper:browserPage jspName="search" />
             <div class="bread-header-container">
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">Home </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>

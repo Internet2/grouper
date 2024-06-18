@@ -4108,6 +4108,21 @@ public class GrouperUtil {
     return my8601formattedDate;
   }
 
+
+  public static Timestamp timestampIsoUtcMicrosConvertFromString(String string) {
+    
+    if (StringUtils.isBlank(string)) {
+      return null;
+    }
+
+    try {
+      Date date = timestampIsoUtcMicros.parse(string);
+      return new Timestamp(date.getTime());
+    } catch (Exception e) {
+      
+      throw new RuntimeException("Cant parse string: '" + string + "' in format: 2023-06-29T18:27:01.227972Z");
+    }
+  }
   /**
    * allow: 2023-06-29T18:27:01Z
    * allow: 2023-06-29T18:27:01.227972Z
@@ -4138,7 +4153,7 @@ public class GrouperUtil {
   /**
    * 
    */
-  public static final DateFormat timestampIsoUtcMicros = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS'000Z'");
+  public static final DateFormat timestampIsoUtcMicros = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
   
   static {
     timestampIsoUtcMicros.setTimeZone(TimeZone.getTimeZone("UTC"));

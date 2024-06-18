@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 ${grouper:title('adminDaemonJobsPageTitle')}
-
+            <grouper:browserPage jspName="adminDaemonJobs" />
             <div class="bread-header-container">
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['adminDaemonJobsHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
@@ -100,7 +100,7 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                   </div>
                   <div class="row-fluid">
                     <div class="span1">&nbsp;</div>
-                      <a class="btn" role="button" aria-controls="daemonJobsResultsId" href="#" onclick="daemonJobsNextRefreshSeconds=-1;/*grouperAssignDaemonUrl();*/ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</a> &nbsp;
+                      <a class="btn" role="button" id="applyfilterdaemonjobs" aria-controls="daemonJobsResultsId" href="#" onclick="daemonJobsNextRefreshSeconds=-1;/*grouperAssignDaemonUrl();*/ajax('../app/UiV2Admin.daemonJobsSubmit', {formIds: 'daemonJobsFilterFormId, daemonJobsPagingFormId'}); return false;">${textContainer.text['daemonJobsSearchButton'] }</a> &nbsp;
                       <a href="#" onclick="daemonJobsNextRefreshSeconds=-1;ajax('../app/UiV2Admin.daemonJobsReset', {formIds: 'daemonJobsPagingFormId'}); /*grouperAssignDaemonUrl();*/ return false;" class="btn" role="button">${textContainer.text['daemonJobsResetButton'] }</a>
                     </div>
                   </div>

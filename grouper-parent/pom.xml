@@ -170,6 +170,7 @@
         <postgresql.version>42.7.2</postgresql.version>
         <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
         <ldaptive.version>1.2.4</ldaptive.version>
+        <playwright.version>1.43.0</playwright.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.12.267</aws.java.sdk.sqs>
@@ -284,6 +285,11 @@
                 <version>${dbcp.version}</version>
             </dependency>
 
+            <dependency>
+        <groupId>com.microsoft.playwright</groupId>
+        <artifactId>playwright</artifactId>
+        <version>1.43.0</version>
+    </dependency>
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
@@ -935,7 +941,11 @@
                 <version>${mysql.connector.java.version}</version>
                 <scope>runtime</scope>
             </dependency>
-
+            <dependency>
+              <groupId>com.microsoft.playwright</groupId>
+              <artifactId>playwright</artifactId>
+              <version>${playwright.version}</version>
+            </dependency>
             <dependency>
               <groupId>org.ldaptive</groupId>
               <artifactId>ldaptive</artifactId>
