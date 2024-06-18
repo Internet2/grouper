@@ -3,7 +3,7 @@ ${grouper:titleFromKeyAndText('stemPageTitle', grouperRequestContainer.stemConta
 
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
-
+             <grouper:browserPage jspName="viewStem" />
             <%@ include file="stemHeader.jsp" %>
 
             <div class="row-fluid">

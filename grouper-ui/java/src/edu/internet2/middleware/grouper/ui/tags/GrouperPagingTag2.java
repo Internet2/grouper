@@ -246,7 +246,7 @@ public class GrouperPagingTag2 extends SimpleTagSupport {
     if (queryPaging.isLastPage()) {
       result.append(GrouperUiUtils.message("paging2.next") + " | " + GrouperUiUtils.message("paging2.last"));
     } else {
-      result.append("<a href=\"#\" onclick=\"" + javascriptEventPrefix 
+      result.append("<a href=\"#\" id=\"pagingNextLink\" onclick=\"" + javascriptEventPrefix 
           + appendToUrl(this.refreshOperation, "pagingTagPageNumber=" + (queryPaging.getPageNumber()+1) ) + javascriptEventSuffix + "\">" + GrouperUiUtils.message("paging2.next") + "</a>");
       result.append(" | ");
       result.append("<a href=\"#\" onclick=\"" + javascriptEventPrefix 

@@ -17,6 +17,7 @@
   </style>
   </head>
   <body class="full claro">
+    <grouper:browserPage jspName="ajax" />
     <noscript>
       <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
     </noscript>

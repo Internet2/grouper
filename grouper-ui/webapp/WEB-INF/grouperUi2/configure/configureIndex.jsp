@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 ${grouper:title('configurationFilesPageTitle')}
-            <span id="grouperJspId" style="display:none">grouperConfigurePage</span>
+            <grouper:browserPage jspName="configureIndex" />
             <div class="bread-header-container">
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
@@ -29,5 +29,4 @@ ${grouper:title('configurationFilesPageTitle')}
               </div>
             </div>
 
-<span id="grouperAjaxDone_configureIndex" style="display:none">true</span>
 

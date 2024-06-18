@@ -10,6 +10,7 @@
 <grouperlegacy:recordTile key="Not dynamic" tile="${requestScope['javax.servlet.include.servlet_path']}">
 <%-- included at least from body.jsp --%>
 <div class="grouperMessage">
+<grouper:browserPage jspName="message" />
 <c:if test="${empty messages}">
 <% 
 List messages = new ArrayList();

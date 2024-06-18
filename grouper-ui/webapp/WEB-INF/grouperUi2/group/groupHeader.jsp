@@ -2,6 +2,7 @@
 
             <!-- start group/groupHeader.jsp -->
             <div class="bread-header-container">
+            <grouper:browserPage jspName="groupHeader" />
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
                 <div class="row-fluid">
