@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 ${grouper:title('newGroupPageTitle')}
-
+             <grouper:browserPage jspName="newGroup" />
             <div class="bread-header-container">
               <ul class="breadcrumb">
                 <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['guiBreadcrumbsHomeLabel'] } </a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
@@ -151,7 +151,7 @@ ${grouper:title('newGroupPageTitle')}
                       </div>
                     </div>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" onclick="ajax('../app/UiV2Group.newGroupSubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
+                  <div class="form-actions"><a href="#" class="btn btn-primary" role="button" id="newgroupsavebutton" onclick="ajax('../app/UiV2Group.newGroupSubmit', {formIds: 'addGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
                   <a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');" class="btn btn-cancel" role="button">${textContainer.text['groupCreateCancelButton'] }</a></div>
                 </form>
               </div>

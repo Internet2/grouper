@@ -761,6 +761,16 @@
         <rtexprvalue>true</rtexprvalue>
     </attribute>
   </tag>
+  <tag>
+    <name>browserPage</name>
+    <tag-class>edu.internet2.middleware.grouper.ui.tags.GrouperBrowserPage</tag-class>
+    <body-content>empty</body-content>
+    <attribute>
+        <name>jspName</name>
+        <required>true</required>
+        <rtexprvalue>true</rtexprvalue>
+    </attribute>
+  </tag>
   
   <tag>
     <description>

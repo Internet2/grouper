@@ -1,4 +1,6 @@
 package edu.internet2.middleware.grouper.app.browser;
+import java.sql.Timestamp;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -29,8 +31,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 public class GrouperUiBrowserGeneralVerifyVersion
     extends GrouperUiBrowser {
 
-  public GrouperUiBrowserGeneralVerifyVersion(Page page) {
-    super(page);
+  public GrouperUiBrowserGeneralVerifyVersion(GrouperPage grouperPage) {
+    super(grouperPage);
   }
 
   /**
@@ -48,16 +50,28 @@ public class GrouperUiBrowserGeneralVerifyVersion
 
   /**
    * Assigner method for expected version
-   * @param expectedVersion is the expected version to be assigned
+   * @param expectedVersion1 is the expected version to be assigned
    * @return this object
    */
   public GrouperUiBrowserGeneralVerifyVersion assignExpectedVersion(
-      String expectedVersion) {
+      String expectedVersion1) {
 
-    this.expectedVersion = GrouperVersion.valueOfIgnoreCase(expectedVersion, false);
+    this.expectedVersion = GrouperVersion.valueOfIgnoreCase(expectedVersion1, false);
     return this;
   }
 
+  /**
+   * Assigner method for expected version
+   * @param expectedVersion1 is the expected version to be assigned
+   * @return this object
+   */
+  public GrouperUiBrowserGeneralVerifyVersion assignExpectedVersion(
+      GrouperVersion expectedVersion1) {
+
+    this.expectedVersion = expectedVersion1;
+    return this;
+  }
+  
   /**
    * getter method for the uiVersion
    * @return
@@ -76,34 +90,19 @@ public class GrouperUiBrowserGeneralVerifyVersion
   */
   public GrouperUiBrowserGeneralVerifyVersion browse() {
     this.navigateToGrouperHome();
-    this.getPage().locator("#leftMenuMiscellaneousLink").click();
-    this.getPage().locator("#grouperAjaxDone_miscellaneous").textContent();
+    this.getGrouperPage().getPage().locator("#leftMenuMiscellaneousLink").click();
     
-    
-    // Verify that we made it to misc page.  
-    String grouperJspIdFromHtml = this.getPage().locator("#grouperJspId").textContent();
-    GrouperUtil.assertion(
-        StringUtils.equals(grouperJspIdFromHtml,
-            "grouperMiscellaneousPage"),
-        "expected to be on the miscellaneous page: '" + grouperJspIdFromHtml + "'");
-    this.getPage().locator("#miscConfigureLink").click();
-    
-    // Wait for the ajax to complete
-    this.getPage().locator("#grouperAjaxDone_configureIndex").textContent();
-    grouperJspIdFromHtml = this.getPage().locator("#grouperJspId").textContent();
-    
-    // Verify that we made it to config page.  
-    GrouperUtil.assertion(
-        StringUtils.equals(grouperJspIdFromHtml,
-            "grouperConfigurePage"),
-        "expected to be on the configure page: '" + grouperJspIdFromHtml + "'");
+    this.waitForJspToLoad("miscellaneous");
+    this.getGrouperPage().getPage().locator("#miscConfigureLink").click();
+    this.waitForJspToLoad("configureIndex");
+ 
 
     // These versions are in hidden spans in the .jsp
     String uiVersionString = GrouperUtil.defaultIfBlank(
         StringUtils.trimToNull(
-            this.getPage().locator("#configureHeaderVersionContainer").textContent()),
+            this.getGrouperPage().getPage().locator("#configureHeaderVersionContainer").textContent()),
         StringUtils.trimToNull(
-            this.getPage().locator("#configureHeaderVersionGrouper").textContent()));
+            this.getGrouperPage().getPage().locator("#configureHeaderVersionGrouper").textContent()));
 
     this.uiVersion = new GrouperVersion(uiVersionString);
 

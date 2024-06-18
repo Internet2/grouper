@@ -7,6 +7,7 @@
   <%@ include file="../assetsJsp/commonHead.jsp"%>
   </head>
   <body class="full claro">
+    <grouper:browserPage jspName="ajax" />
     <noscript>
       <h3 style="color: #990000">${textContainer.text['indexNoJavascript'] }</h3>    
     </noscript>
@@ -23,8 +24,8 @@
             <div class="pull-right">
 
               <form id="searchForm" action="#" onsubmit="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" class="navbar-search">
-                <input type="text" name="searchQuery2" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
-                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
+                <input type="text" name="searchQuery2" id="mainPageSearchInput" placeholder="${textContainer.textEscapeXml['searchPlaceholder']}" class="search-query"><a href="#" 
+                  onclick="return guiV2link('operation=UiV2Main.searchSubmit', {optionalFormElementNamesToSend: 'searchQuery2'});" id="mainPageSearchButton"aria-label="${textContainer.text['ariaLabelGuiSearch']}"><i class="fa fa-search"></i></a>
               </form>
 
               <%-- GRP-2677: Have searchQuery submit query by URL (this is the POST option)
@@ -54,7 +55,7 @@
         <div class="row-fluid">
           
           <div class="span3 left-column">
-            <div class="btn-group btn-group-create"><a href="#" 
+            <div class="btn-group btn-group-create"><a id="homepageCreateGroupButton" href="#" 
               onclick="return guiV2link('operation=UiV2Group.newGroup', {optionalFormElementNamesToSend: 'objectStemId'});"
               class="btn btn-bigger btn-create" role="button"><i class="fa fa-plus"></i> ${textContainer.text['groupNewCreateNewGroupMenuButton'] }</a>
               <a data-toggle="dropdown" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-bigger btn-create dropdown-toggle" 

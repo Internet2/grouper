@@ -803,6 +803,24 @@ function guiEqualsIgnoreCase(a, b) {
   return a.toLowerCase() == b.toLowerCase();
 }
 
+
+function guiAssignCurrentTimestampToBrowserElement() {
+  var ajaxElement = $('span:contains("ajax")');
+  if (ajaxElement.length == 0) {
+    return;
+  }
+  var date = new Date(Date.now());
+  
+  // This the expected timestamp for playwright automation on the server side: 2024-06-17T16:50:49.000315Z
+  var dateString = date.getUTCFullYear() + '-' + ((date.getUTCMonth() + 1) < 10 ? '0' : '') + (date.getUTCMonth() + 1) + '-' + (date.getUTCDate() < 10 ? '0' : '') 
+    + date.getUTCDate() + 'T' + (date.getUTCHours() < 10 ? '0' : '') + date.getUTCHours() + ':' + (date.getUTCMinutes() < 10 ? '0' : '') + date.getUTCMinutes() + ':'
+    + (date.getSeconds() < 10 ? '0' : '') + date.getSeconds() + '.' + (date.getMilliseconds() < 100 ? '0' : '')
+    + (date.getUTCMilliseconds() < 10 ? '0' : '') + date.getUTCMilliseconds() + '000Z';
+  ajaxElement.attr("data-gr-page-loadtime", dateString);
+ 
+}
+
+
 /** generic ajax method takes a url, callback function, and params or forms.
  * 
  * To pass in params to send to the server, pass in params like this:
@@ -946,6 +964,8 @@ function ajax(theUrl, options) {
         
       $.unblockUI();
       
+      guiAssignCurrentTimestampToBrowserElement();
+      
       // for an ajax request, server sent back 401
       // it's probably because session has timed out
       // let's refresh the page so that user can log back in
@@ -1023,6 +1043,7 @@ function ajax(theUrl, options) {
     success: function(json){
       guiProcessJsonResponse(json);
       $.unblockUI();  
+      guiAssignCurrentTimestampToBrowserElement();
     }
   });
   
