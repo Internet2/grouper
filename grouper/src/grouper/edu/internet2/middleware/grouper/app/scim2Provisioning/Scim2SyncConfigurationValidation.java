@@ -26,7 +26,7 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
     if (StringUtils.equals("Github", scimType)) {
       
       GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
-      GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+      GrouperScim2ProvisionerConfiguration grouperProvisioningConfiguration = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
       GrouperProvisioningBehavior grouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
 
       if (grouperProvisioningBehavior.isSelectGroups() && grouperProvisioningConfiguration.isSelectAllGroups()) {
@@ -34,6 +34,17 @@ public class Scim2SyncConfigurationValidation extends GrouperProvisioningConfigu
             .assignMessage(GrouperTextContainer.textOrNull("scim2githubCannotSelectAllGroupsAtOnce"))
             .assignJqueryHandle("selectAllGroups"));
         
+      }
+      
+      if (grouperProvisioningConfiguration.isOperateOnGrouperGroups()) {
+        if (!grouperProvisioningConfiguration.isCustomizeGroupCrud() || grouperProvisioningConfiguration.isInsertGroups() || grouperProvisioningConfiguration.isUpdateGroups() 
+            || grouperProvisioningConfiguration.isDeleteGroups()
+            || !grouperProvisioningConfiguration.isSelectGroups()) {
+          this.addErrorMessage(new ProvisioningValidationIssue()
+              .assignMessage(GrouperTextContainer.textOrNull("scim2githubMustSelectOnly"))
+              .assignJqueryHandle("customizeGroupCrud"));
+          
+        }
       }
       
       if (grouperProvisioningBehavior.isSelectGroups()) {

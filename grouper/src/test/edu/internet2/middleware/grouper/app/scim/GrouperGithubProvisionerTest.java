@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperGithubProvisionerTest("testGithubMultipleOrgsFull"));
+    TestRunner.run(new GrouperGithubProvisionerTest("testGithubMultipleOrgsIncremental"));
 
   }
   
@@ -549,6 +549,10 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
   public void testGithubMultipleOrgsFull() {
     githubMultipleOrgs(true);
+  }
+  
+  public void testGithubMultipleOrgsIncremental() {
+    githubMultipleOrgs(false);
   }
   
   public void githubMultipleOrgs(boolean isFull) {
