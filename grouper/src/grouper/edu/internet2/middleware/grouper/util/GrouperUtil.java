@@ -2628,15 +2628,15 @@ public class GrouperUtil {
           if (value == null) {
             currentObjectNode.putNull(currentJsonPointer.getMatchingProperty());
           } else if (value instanceof String) {
-            GrouperUtil.jsonJacksonAssignString(currentObjectNode, currentJsonPointer.getMatchingProperty(), (String)value);
+            currentObjectNode.put(currentJsonPointer.getMatchingProperty(), (String)value);
           } else if (value instanceof Integer || value instanceof Long) {
-            GrouperUtil.jsonJacksonAssignLong(currentObjectNode, currentJsonPointer.getMatchingProperty(), GrouperUtil.longValue(value));
+            currentObjectNode.put(currentJsonPointer.getMatchingProperty(), GrouperUtil.longValue(value));
           } else if (value instanceof Boolean) {
-            GrouperUtil.jsonJacksonAssignBoolean(currentObjectNode, currentJsonPointer.getMatchingProperty(), GrouperUtil.booleanValue(value));
+            currentObjectNode.put(currentJsonPointer.getMatchingProperty(), GrouperUtil.booleanValue(value));
           } else {
-            throw new RuntimeException("Not exppecting type: " + value.getClass().getName());
+            throw new RuntimeException("Not expecting type: " + value.getClass().getName());
           }
-        } else if (currentNode instanceof ObjectNode) {
+        } else if (currentNode instanceof ArrayNode) {
           ArrayNode currentArrayNode = (ArrayNode)currentNode;
           int index = GrouperUtil.intValue(currentJsonPointer.getMatchingProperty());
           if (value == null) {
@@ -2648,10 +2648,10 @@ public class GrouperUtil {
           } else if (value instanceof Boolean) {
             currentArrayNode.set(index, GrouperUtil.booleanValue(value));
           } else {
-            throw new RuntimeException("Not exppecting type: " + value.getClass().getName());
+            throw new RuntimeException("Not expecting type: " + value.getClass().getName());
           }
         } else {
-          throw new RuntimeException("Not exppecting node type: " + (currentNode == null ? "null" : currentNode.getClass().getName()));
+          throw new RuntimeException("Not expecting node type: " + (currentNode == null ? "null" : currentNode.getClass().getName()));
         }
         return;
       }

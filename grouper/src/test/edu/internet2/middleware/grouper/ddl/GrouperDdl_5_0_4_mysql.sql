@@ -49,6 +49,7 @@ CREATE TABLE grouper_fields
     write_privilege VARCHAR(32) NOT NULL,
     hibernate_version_number BIGINT,
     context_id VARCHAR(40) NULL,
+    internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
 
@@ -57,6 +58,8 @@ CREATE UNIQUE INDEX name_and_type ON grouper_fields (name, type);
 CREATE INDEX fields_context_idx ON grouper_fields (context_id);
 
 CREATE INDEX grouper_fields_type_idx ON grouper_fields (type);
+
+CREATE UNIQUE INDEX grouper_fie_internal_id_idx ON grouper_fields (internal_id);
 
 CREATE TABLE grouper_groups
 (
@@ -81,6 +84,7 @@ CREATE TABLE grouper_groups
     context_id VARCHAR(40) NULL,
     type_of_group VARCHAR(10) DEFAULT 'group' NOT NULL,
     id_index BIGINT NOT NULL,
+    internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
 
@@ -112,6 +116,8 @@ CREATE UNIQUE INDEX group_parent_idx ON grouper_groups (parent_stem, extension);
 
 CREATE INDEX group_parent_display_idx ON grouper_groups (parent_stem, display_extension);
 
+CREATE UNIQUE INDEX grouper_grp_internal_id_idx ON grouper_groups (internal_id);
+
 CREATE TABLE grouper_members
 (
     id VARCHAR(40) NOT NULL,
@@ -123,6 +129,7 @@ CREATE TABLE grouper_members
     subject_identifier1 VARCHAR(255) NULL,
     subject_identifier2 VARCHAR(255) NULL,
     id_index BIGINT NOT NULL,
+    internal_id BIGINT NOT NULL,
     email0 VARCHAR(255) NULL,
     sort_string0 VARCHAR(50) NULL,
     sort_string1 VARCHAR(50) NULL,
@@ -142,6 +149,8 @@ CREATE TABLE grouper_members
     subject_resolution_eligible VARCHAR(1) DEFAULT 'T' NOT NULL,
     PRIMARY KEY (id)
 );
+
+CREATE UNIQUE INDEX grouper_mem_internal_id_idx ON grouper_members (internal_id);
 
 CREATE UNIQUE INDEX member_subjectsourcetype_idx ON grouper_members (subject_id, subject_source, subject_type);
 
@@ -732,8 +741,11 @@ CREATE TABLE grouper_pit_members
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_member_source_internal_idx ON grouper_pit_members (source_internal_id);
 
 CREATE INDEX pit_member_source_id_idx ON grouper_pit_members (source_id);
 
@@ -758,8 +770,11 @@ CREATE TABLE grouper_pit_fields
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_field_source_internal_idx ON grouper_pit_fields (source_internal_id);
 
 CREATE INDEX pit_field_source_id_idx ON grouper_pit_fields (source_id);
 
@@ -782,8 +797,11 @@ CREATE TABLE grouper_pit_groups
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_internal_id BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_group_source_internal_idx ON grouper_pit_groups (source_internal_id);
 
 CREATE INDEX pit_group_source_id_idx ON grouper_pit_groups (source_id);
 
@@ -1852,55 +1870,6 @@ CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (use
 
 CREATE UNIQUE INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user (user_id, config_id);
 
-CREATE TABLE grouper_prov_scim_user
-(
-    config_id VARCHAR(50) NOT NULL,
-    active VARCHAR(1) NULL,
-    cost_center VARCHAR(256) NULL,
-    department VARCHAR(256) NULL,
-    display_name VARCHAR(256) NULL,
-    division VARCHAR(256) NULL,
-    email_type VARCHAR(256) NULL,
-    email_value VARCHAR(256) NULL,
-    email_type2 VARCHAR(256) NULL,
-    email_value2 VARCHAR(256) NULL,
-    employee_number VARCHAR(256) NULL,
-    external_id VARCHAR(256) NULL,
-    family_name VARCHAR(256) NULL,
-    formatted_name VARCHAR(256) NULL,
-    given_name VARCHAR(256) NULL,
-    id VARCHAR(256) NOT NULL,
-    middle_name VARCHAR(256) NULL,
-    phone_number VARCHAR(256) NULL,
-    phone_number_type VARCHAR(256) NULL,
-    phone_number2 VARCHAR(256) NULL,
-    phone_number_type2 VARCHAR(256) NULL,
-    schemas VARCHAR(256) NULL,
-    title VARCHAR(256) NULL,
-    user_name VARCHAR(256) NULL,
-    user_type VARCHAR(256) NULL,
-    PRIMARY KEY (config_id, id)
-);
-
-CREATE INDEX grouper_prov_scim_user_idx1 ON grouper_prov_scim_user (email_value, config_id);
-
-CREATE INDEX grouper_prov_scim_user_idx2 ON grouper_prov_scim_user (user_name, config_id);
-
-CREATE TABLE grouper_prov_scim_user_attr
-( 
-    config_id VARCHAR(50) NOT NULL,
-    id VARCHAR(256) NOT NULL,
-    attribute_name VARCHAR(256) NULL,
-    attribute_value VARCHAR(4000) NULL,
-    PRIMARY KEY (config_id, id, attribute_name, attribute_value)
-);
-
-ALTER TABLE  grouper_prov_scim_user_attr ADD CONSTRAINT grouper_prov_scim_usat_fk FOREIGN KEY (config_id, id) REFERENCES grouper_prov_scim_user(config_id, id) on delete cascade;
-
-CREATE INDEX grouper_prov_scim_usat_idx1 ON grouper_prov_scim_user_attr (id(100), config_id, attribute_name(100));
-
-CREATE INDEX grouper_prov_scim_usat_idx2 ON grouper_prov_scim_user_attr (id(100), config_id, attribute_value(100));
-
 CREATE TABLE grouper_mship_req_change
 (
     id BIGINT NOT NULL,
@@ -1998,6 +1967,179 @@ CREATE UNIQUE INDEX grouper_sync_dep_grp_grp_idx1 ON grouper_sync_dep_group_grou
 CREATE INDEX grouper_sync_dep_grp_grp_idx2 ON grouper_sync_dep_group_group (grouper_sync_id,provisionable_group_id);
 
 CREATE INDEX grouper_sync_dep_grp_grp_idx3 ON grouper_sync_dep_group_group (grouper_sync_id,group_id,field_id);
+
+CREATE TABLE grouper_dictionary (
+  internal_id BIGINT NOT NULL,
+  created_on DATETIME NOT NULL,
+  last_referenced DATETIME not NULL,
+  pre_load VARCHAR(1) DEFAULT 'F' NOT NULL,
+  the_text varchar(4000) NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE INDEX dictionary_last_referenced_idx ON grouper_dictionary (last_referenced);
+CREATE INDEX dictionary_pre_load_idx ON grouper_dictionary (pre_load);
+CREATE UNIQUE INDEX dictionary_the_text_idx ON grouper_dictionary (the_text(255));
+
+CREATE TABLE  grouper_data_provider (
+  internal_id BIGINT NOT NULL,
+  config_id varchar(100) NOT NULL,
+  created_on DATETIME NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX data_provider_config_id_idx ON  grouper_data_provider (config_id);
+
+CREATE TABLE grouper_data_field (
+  internal_id BIGINT NOT NULL,
+  config_id varchar(100) NOT NULL,
+  created_on DATETIME NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX data_field_config_id_idx ON grouper_data_field (config_id);
+
+CREATE TABLE grouper_data_row (
+  internal_id BIGINT NOT NULL,
+  created_on DATETIME NOT NULL,
+  config_id varchar(100) NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+CREATE UNIQUE INDEX grouper_data_row_config_id_idx ON grouper_data_row (config_id);
+
+
+CREATE TABLE grouper_data_alias (
+  internal_id BIGINT NOT NULL,
+  data_field_internal_id BIGINT NULL,
+  name varchar(100) NOT NULL,
+  lower_name varchar(100) NOT NULL,
+  created_on DATETIME NOT NULL,
+  data_row_internal_id BIGINT NULL,
+  alias_type varchar(1) NULL,
+  PRIMARY KEY (internal_id)
+);
+CREATE INDEX alias_data_field_intrnl_id_idx ON grouper_data_alias (data_field_internal_id);
+CREATE UNIQUE INDEX alias_lower_name_idx ON grouper_data_alias (lower_name);
+CREATE UNIQUE INDEX alias_name_idx ON grouper_data_alias (name);
+
+ALTER TABLE grouper_data_alias ADD CONSTRAINT grouper_data_alias_fk FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
+    
+CREATE TABLE grouper_data_field_assign (
+  member_internal_id BIGINT NOT NULL,
+  data_field_internal_id BIGINT NOT NULL,
+  created_on DATETIME NOT NULL,
+  internal_id BIGINT NOT NULL,
+  value_integer BIGINT NULL,
+  value_dictionary_internal_id BIGINT NULL,
+  data_provider_internal_id BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+CREATE INDEX fld_assgn_prvdr_intrnl_id_idx ON grouper_data_field_assign (data_provider_internal_id);
+CREATE INDEX fld_assgn_field_intrnl_id_idx ON grouper_data_field_assign (data_field_internal_id);
+CREATE INDEX fld_assgn_mbrs_intrnl_id_idx ON grouper_data_field_assign (member_internal_id);
+CREATE UNIQUE INDEX fld_assgn_mbr_intrnl_id_idx ON grouper_data_field_assign (member_internal_id, data_field_internal_id, value_integer, value_dictionary_internal_id, data_provider_internal_id);
+
+ALTER TABLE  grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_fk FOREIGN KEY (data_field_internal_id) REFERENCES  grouper_data_field(internal_id);
+ALTER TABLE  grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_fk_1 FOREIGN KEY (value_dictionary_internal_id) REFERENCES  grouper_dictionary(internal_id);
+ALTER TABLE  grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_fk_2 FOREIGN KEY (member_internal_id) REFERENCES  grouper_members(internal_id);
+ALTER TABLE  grouper_data_field_assign ADD CONSTRAINT grouper_data_field_assign_fk_3 FOREIGN KEY (data_provider_internal_id) REFERENCES  grouper_data_provider(internal_id);
+
+CREATE TABLE  grouper_data_row_assign (
+  member_internal_id BIGINT NOT NULL,
+  data_row_internal_id BIGINT NOT NULL,
+  created_on DATETIME NOT NULL,
+  internal_id BIGINT NOT NULL,
+  data_provider_internal_id BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+CREATE INDEX rw_assg_dt_prvdr_intrnl_id_idx ON grouper_data_row_assign (data_provider_internal_id);
+CREATE INDEX rw_assg_dt_rw_intrnl_id_idx ON grouper_data_row_assign (data_row_internal_id);
+CREATE INDEX rw_assg_mbr_intrnl_id_idx ON grouper_data_row_assign (member_internal_id);
+
+ALTER TABLE  grouper_data_row_assign ADD CONSTRAINT grouper_data_row_assign_fk FOREIGN KEY (member_internal_id) REFERENCES grouper_members(internal_id);
+ALTER TABLE  grouper_data_row_assign ADD CONSTRAINT grouper_data_row_assign_fk_1 FOREIGN KEY (data_row_internal_id) REFERENCES grouper_data_row(internal_id);
+ALTER TABLE  grouper_data_row_assign ADD CONSTRAINT grouper_data_row_assign_fk_2 FOREIGN KEY (data_provider_internal_id) REFERENCES grouper_data_provider(internal_id);
+
+CREATE TABLE grouper_data_row_field_assign (
+  data_row_assign_internal_id BIGINT NOT NULL,
+  created_on DATETIME NOT NULL,
+  internal_id BIGINT NOT NULL,
+  value_integer BIGINT NULL,
+  value_dictionary_internal_id BIGINT NULL,
+  data_field_internal_id BIGINT NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+CREATE INDEX dt_rw_fld_asg_fld_intrnl_ididx ON grouper_data_row_field_assign (data_field_internal_id);
+CREATE INDEX dtrwfldasg_dtrwsg_intrnl_ididx ON grouper_data_row_field_assign (data_row_assign_internal_id);
+
+ALTER TABLE grouper_data_row_field_assign ADD CONSTRAINT grpr_dt_row_field_assign_fk FOREIGN KEY (data_row_assign_internal_id) REFERENCES grouper_data_row_assign(internal_id);
+ALTER TABLE grouper_data_row_field_assign ADD CONSTRAINT grpr_dt_row_field_assign_fk_1 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
+ALTER TABLE grouper_data_row_field_assign ADD CONSTRAINT grpr_dt_row_field_assign_fk_3 FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
+
+
+CREATE TABLE grouper_data_global_assign (
+  data_field_internal_id bigint NOT NULL,
+  internal_id bigint NOT NULL,
+  value_integer bigint NULL,
+  value_dictionary_internal_id bigint NULL,
+  data_provider_internal_id bigint NOT NULL,
+  created_on DATETIME NOT NULL,
+  PRIMARY KEY (internal_id)
+);
+CREATE INDEX grouper_data_global1_idx ON grouper_data_global_assign (data_provider_internal_id);
+CREATE INDEX grouper_data_global2_idx ON grouper_data_global_assign (data_field_internal_id);
+CREATE INDEX grouper_data_global3_idx ON grouper_data_global_assign (data_field_internal_id, value_integer);
+CREATE INDEX grouper_data_global4_idx ON grouper_data_global_assign (data_field_internal_id, value_dictionary_internal_id);
+
+CREATE TABLE grouper_sql_cache_group
+(
+    internal_id BIGINT NOT NULL,
+    group_internal_id BIGINT NOT NULL,
+    field_internal_id BIGINT NOT NULL,
+    membership_size BIGINT NOT NULL,
+    membership_size_hst BIGINT NOT NULL,
+    created_on DATETIME NOT NULL,
+    enabled_on DATETIME NOT NULL,
+    disabled_on DATETIME NULL,
+    PRIMARY KEY (internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_sql_cache_group1_idx ON grouper_sql_cache_group (group_internal_id, field_internal_id);
+
+CREATE TABLE grouper_sql_cache_mship
+(
+    created_on DATETIME NOT NULL,
+    flattened_add_timestamp DATETIME NOT NULL,
+    internal_id BIGINT NOT NULL,
+    member_internal_id BIGINT NOT NULL,
+    sql_cache_group_internal_id BIGINT NOT NULL
+);
+
+CREATE INDEX grouper_sql_cache_mship1_idx ON grouper_sql_cache_mship (sql_cache_group_internal_id, flattened_add_timestamp);
+
+CREATE INDEX grouper_sql_cache_mship2_idx ON grouper_sql_cache_mship (member_internal_id, sql_cache_group_internal_id);
+
+CREATE TABLE grouper_sql_cache_mship_hst
+(
+    internal_id BIGINT NOT NULL,
+    end_time DATETIME NOT NULL,
+    start_time DATETIME NOT NULL,
+    sql_cache_group_internal_id BIGINT NOT NULL,
+    member_internal_id BIGINT NOT NULL,
+    PRIMARY KEY (internal_id, sql_cache_group_internal_id, member_internal_id)
+);
+
+CREATE UNIQUE INDEX grouper_sql_cache_msh_hst1_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, end_time);
+
+CREATE UNIQUE INDEX grouper_sql_cache_msh_hst2_idx ON grouper_sql_cache_mship_hst (sql_cache_group_internal_id, start_time);
+
+CREATE UNIQUE INDEX grouper_sql_cache_msh_hst3_idx ON grouper_sql_cache_mship_hst (internal_id, sql_cache_group_internal_id, end_time);
+
+
+
+ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_assign_fk FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
+ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_diction_fk FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
+ALTER TABLE grouper_data_global_assign ADD CONSTRAINT grouper_data_global_prov_fk FOREIGN KEY (data_provider_internal_id) REFERENCES grouper_data_provider(internal_id);
 
 ALTER TABLE grouper_composites
     ADD CONSTRAINT fk_composites_owner FOREIGN KEY (owner) REFERENCES grouper_groups (id);
@@ -2335,6 +2477,15 @@ alter table grouper_sync_dep_group_group
 alter table grouper_sync_dep_group_group
     add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id);
     
+ALTER TABLE grouper_sql_cache_group
+    ADD CONSTRAINT grouper_sql_cache_group1_fk FOREIGN KEY (field_internal_id) REFERENCES grouper_fields (internal_id);
+
+ALTER TABLE grouper_sql_cache_mship
+    ADD CONSTRAINT grouper_sql_cache_mship1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group (internal_id);
+
+ALTER TABLE grouper_sql_cache_mship_hst
+    ADD CONSTRAINT grouper_sql_cache_msh_hst1_fk FOREIGN KEY (sql_cache_group_internal_id) REFERENCES grouper_sql_cache_group (internal_id);
+
 CREATE INDEX group_alternate_name_idx ON grouper_groups (alternate_name(255));
 
 CREATE INDEX member_name_idx ON grouper_members (name(255));
@@ -2435,10 +2586,6 @@ CREATE INDEX grpconfig_config_key_idx ON grouper_config (config_key(100), config
 
 CREATE unique INDEX grpconfig_unique_idx ON grouper_config (config_file_name(20), config_file_hierarchy(20), config_key(100), config_sequence);
 
-CREATE VIEW grouper_groups_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, TYPE_OF_GROUP, GROUP_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.type_of_group, gg.id as group_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ;
-
-CREATE VIEW grouper_roles_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, ROLE_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.id as role_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and type_of_group = 'role' ;
-
 CREATE INDEX grouper_sync_gr_f2_idx ON grouper_sync_group (grouper_sync_id, group_from_id2(255));
 
 CREATE INDEX grouper_sync_gr_f3_idx ON grouper_sync_group (grouper_sync_id, group_from_id3(255));
@@ -2458,6 +2605,43 @@ CREATE INDEX grouper_sync_us_t3_idx ON grouper_sync_member (grouper_sync_id, mem
 CREATE INDEX grouper_sync_mship_f1_idx ON grouper_sync_membership (grouper_sync_id, membership_id(255));
 
 CREATE INDEX grouper_sync_mship_f2_idx ON grouper_sync_membership (grouper_sync_id, membership_id2(255));
+
+create view grouper_data_field_assign_v as
+select gdf.config_id data_field_config_id, gm.subject_id, gd.the_text value_text, gdfa.value_integer,  
+gdf.internal_id data_field_internal_id, gdfa.internal_id data_field_assign_internal_id,
+gm.subject_source subject_source_id, gm.id member_id
+from grouper_data_field gdf, grouper_members gm, grouper_data_field_assign gdfa 
+left join grouper_dictionary gd on gdfa.value_dictionary_internal_id = gd.internal_id  
+where gdfa.member_internal_id = gm.internal_id
+and gdfa.data_field_internal_id = gdf.internal_id;
+
+
+create view grouper_data_row_assign_v as
+select gdr.config_id data_row_config_id, gm.subject_id, 
+gdr.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id,
+gm.subject_source subject_source_id, gm.id member_id
+from grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr 
+where gdra.member_internal_id = gm.internal_id
+and gdr.internal_id = gdra.data_row_internal_id;
+
+
+create view grouper_data_row_field_asgn_v as
+select gdr.config_id data_row_config_id, gdf.config_id data_field_config_id, gm.subject_id, gd.the_text value_text, gdrfa.value_integer,  
+gm.subject_source subject_source_id, gm.id member_id, gdf.internal_id data_field_internal_id, gdrfa.internal_id data_field_assign_internal_id, 
+gdra.internal_id data_row_internal_id, gdra.internal_id data_row_assign_internal_id
+from grouper_data_field gdf, grouper_members gm, grouper_data_row_assign gdra, grouper_data_row gdr,
+grouper_data_row_field_assign gdrfa 
+left join grouper_dictionary gd on gdrfa.value_dictionary_internal_id = gd.internal_id 
+where gdra.member_internal_id = gm.internal_id
+and gdrfa.data_field_internal_id = gdf.internal_id
+and gdr.internal_id = gdra.data_row_internal_id 
+and gdra.internal_id = gdrfa.data_row_assign_internal_id ;
+
+
+CREATE VIEW grouper_groups_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, TYPE_OF_GROUP, GROUP_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.type_of_group, gg.id as group_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID ;
+
+CREATE VIEW grouper_roles_v (EXTENSION, NAME, DISPLAY_EXTENSION, DISPLAY_NAME, DESCRIPTION, PARENT_STEM_NAME, ROLE_ID, PARENT_STEM_ID, ENABLED, ENABLED_TIMESTAMP, DISABLED_TIMESTAMP, MODIFIER_SOURCE, MODIFIER_SUBJECT_ID, CREATOR_SOURCE, CREATOR_SUBJECT_ID, IS_COMPOSITE_OWNER, IS_COMPOSITE_FACTOR, CREATOR_ID, CREATE_TIME, MODIFIER_ID, MODIFY_TIME, HIBERNATE_VERSION_NUMBER, CONTEXT_ID) AS select  gg.extension as extension, gg.name as name, gg.display_extension as display_extension, gg.display_name as display_name, gg.description as description, gs.NAME as parent_stem_name, gg.id as role_id, gs.ID as parent_stem_id, gg.enabled, gg.enabled_timestamp, gg.disabled_timestamp, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.MODIFIER_ID) as modifier_subject_id, (select gm.SUBJECT_SOURCE from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_source, (select gm.SUBJECT_ID from grouper_members gm where gm.ID = gg.CREATOR_ID) as creator_subject_id, (select distinct 'T' from grouper_composites gc where gc.OWNER = gg.ID) as is_composite_owner, (select distinct 'T' from grouper_composites gc where gc.LEFT_FACTOR = gg.ID or gc.right_factor = gg.id) as is_composite_factor, gg.CREATOR_ID, gg.CREATE_TIME, gg.MODIFIER_ID, gg.MODIFY_TIME, gg.HIBERNATE_VERSION_NUMBER, gg.context_id   from grouper_groups gg, grouper_stems gs where gg.PARENT_STEM = gs.ID and type_of_group = 'role' ;
+
 
 CREATE VIEW grouper_sync_membership_v (g_group_name, g_group_id_index, u_source_id, u_subject_id, u_subject_identifier, m_in_target, m_id, m_in_target_insert_or_exists, m_in_target_start, m_in_target_end, m_last_updated, m_membership_id, m_membership_id2, m_metadata_updated, m_error_message, m_error_timestamp, s_id, s_sync_engine, s_provisioner_name, u_id, u_member_id, u_in_target, u_in_target_insert_or_exists, u_in_target_start, u_in_target_end, u_provisionable, u_provisionable_start, u_provisionable_end, u_last_updated, u_last_user_sync_start, u_last_user_sync, u_last_user_meta_sync_start, u_last_user_metadata_sync, u_member_from_id2, u_member_from_id3, u_member_to_id2, u_member_to_id3, u_metadata_updated, u_last_time_work_was_done, u_error_message, u_error_timestamp, g_id, g_group_id, g_provisionable, g_in_target, g_in_target_insert_or_exists, g_in_target_start, g_in_target_end, g_provisionable_start, g_provisionable_end, g_last_updated, g_last_group_sync_start, g_last_group_sync, g_last_group_meta_sync_start, g_last_group_metadata_sync, g_group_from_id2, g_group_from_id3, g_group_to_id2, g_group_to_id3, g_metadata_updated, g_error_message, g_error_timestamp, g_last_time_work_was_done, m_error_code, u_error_code, g_error_code) AS select g.group_name as g_group_name, g.group_id_index as g_group_id_index, u.source_id as u_source_id, u.subject_id as u_subject_id, u.subject_identifier as u_subject_identifier, m.in_target as m_in_target, m.id as m_id, m.in_target_insert_or_exists as m_in_target_insert_or_exists, m.in_target_start as m_in_target_start, m.in_target_end as m_in_target_end, m.last_updated as m_last_updated, m.membership_id as m_membership_id, m.membership_id2 as m_membership_id2, m.metadata_updated as m_metadata_updated, m.error_message as m_error_message, m.error_timestamp as m_error_timestamp, s.id as s_id, s.sync_engine as s_sync_engine, s.provisioner_name as s_provisioner_name, u.id as u_id, u.member_id as u_member_id, u.in_target as u_in_target, u.in_target_insert_or_exists as u_in_target_insert_or_exists, u.in_target_start as u_in_target_start, u.in_target_end as u_in_target_end, u.provisionable as u_provisionable, u.provisionable_start as u_provisionable_start, u.provisionable_end as u_provisionable_end, u.last_updated as u_last_updated, u.last_user_sync_start as u_last_user_sync_start, u.last_user_sync as u_last_user_sync, u.last_user_metadata_sync_start as u_last_user_meta_sync_start, u.last_user_metadata_sync as u_last_user_metadata_sync, u.member_from_id2 as u_member_from_id2, u.member_from_id3 as u_member_from_id3, u.member_to_id2 as u_member_to_id2, u.member_to_id3 as u_member_to_id3, u.metadata_updated as u_metadata_updated, u.last_time_work_was_done as u_last_time_work_was_done, u.error_message as u_error_message, u.error_timestamp as u_error_timestamp, g.id as g_id, g.group_id as g_group_id, g.provisionable as g_provisionable, g.in_target as g_in_target, g.in_target_insert_or_exists as g_in_target_insert_or_exists, g.in_target_start as g_in_target_start, g.in_target_end as g_in_target_end, g.provisionable_start as g_provisionable_start, g.provisionable_end as g_provisionable_end, g.last_updated as g_last_updated, g.last_group_sync_start as g_last_group_sync_start, g.last_group_sync as g_last_group_sync, g.last_group_metadata_sync_start as g_last_group_meta_sync_start, g.last_group_metadata_sync as g_last_group_metadata_sync, g.group_from_id2 as g_group_from_id2, g.group_from_id3 as g_group_from_id3, g.group_to_id2 as g_group_to_id2, g.group_to_id3 as g_group_to_id3, g.metadata_updated as g_metadata_updated, g.error_message as g_error_message, g.error_timestamp as g_error_timestamp, g.last_time_work_was_done as g_last_time_work_was_done,  m.error_code as m_error_code, u.error_code as u_error_code, g.error_code as g_error_code from grouper_sync_membership m, grouper_sync_member u, grouper_sync_group g, grouper_sync s where m.grouper_sync_id = s.id and u.grouper_sync_id = s.id and g.grouper_sync_id = s.id and m.grouper_sync_group_id = g.id and m.grouper_sync_member_id = u.id;
 
@@ -2587,7 +2771,13 @@ CREATE VIEW grouper_recent_mships_conf_v (group_name_from, group_uuid_from, rece
 
 CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject_id) AS select grmc.group_name_to as group_name, gpmglv.subject_source as subject_source_id, gpmglv.subject_id as subject_id from grouper_recent_mships_conf grmc,  grouper_pit_mship_group_lw_v gpmglv, grouper_time gt, grouper_members gm where gm.id = gpmglv.member_id and gm.subject_resolution_deleted = 'F' and gt.time_label = 'now' and (gpmglv.group_id = grmc.group_uuid_from or gpmglv.group_name = grmc.group_name_from) and gpmglv.subject_source != 'g:gsa' and gpmglv.field_name = 'members' and (gpmglv.the_end_time is null or gpmglv.the_end_time >= gt.utc_micros_since_1970 - grmc.recent_micros) and ( grmc.include_eligible = 'T' or not exists (select 1 from grouper_memberships mship2, grouper_group_set gs2 WHERE mship2.owner_id = gs2.member_id AND mship2.field_id = gs2.member_field_id and gs2.field_id = mship2.field_id and mship2.member_id = gm.id and gs2.field_id = gpmglv.field_id and gs2.owner_id = grmc.group_uuid_from and mship2.enabled = 'T'));
 
+CREATE VIEW grouper_sql_cache_group_v (group_name, list_name, membership_size, group_id, field_id, group_internal_id, field_internal_id) AS select gg.name group_name, gf.name list_name, membership_size,  gg.id group_id, gf.id field_id, gg.internal_id group_internal_id, gf.internal_id field_internal_id  from grouper_sql_cache_group gscg, grouper_fields gf, grouper_groups gg  where gscg.group_internal_id = gg.internal_id and gscg.field_internal_id = gf.internal_id ;
+
+CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, flattened_add_timestamp, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0,  gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp,  gg.id AS group_id, gf.id AS field_id, gscm.internal_id AS mship_internal_id, gm.internal_id AS member_internal_id,  gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id  FROM grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf,  grouper_groups gg, grouper_members gm  WHERE gscg.group_internal_id = gg.internal_id AND gscg.field_internal_id = gf.internal_id  AND gscm.sql_cache_group_internal_id = gscg.internal_id AND gscm.member_internal_id = gm.internal_id ;
+
+CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS  select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ;
+
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 44, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V44, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 46, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V46, '));
 commit;

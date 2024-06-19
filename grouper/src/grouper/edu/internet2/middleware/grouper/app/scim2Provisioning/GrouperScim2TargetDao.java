@@ -10,8 +10,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -115,6 +113,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperScim2User> grouperScim2Users = GrouperScim2ApiCommands
           .retrieveScimUsers(scimConfiguration.getBearerTokenExternalSystemConfigId(), scimConfiguration.getAcceptHeader());
 
+      Map<ProvisioningEntity, Object> targetEntityToNativeEntity = new HashMap<>();
+      
       for (GrouperScim2User grouperScim2User : grouperScim2Users) {
         
         if (scimConfiguration.isDisableEntitiesInsteadOfDelete() && grouperScim2User != null && !GrouperUtil.booleanValue(grouperScim2User.getActive(), true)) {
@@ -123,9 +123,17 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
         ProvisioningEntity targetEntity = grouperScim2User.toProvisioningEntity();
         results.add(targetEntity);
+        targetEntityToNativeEntity.put(targetEntity, grouperScim2User);
+        
       }
 
-      return new TargetDaoRetrieveAllEntitiesResponse(results);
+      TargetDaoRetrieveAllEntitiesResponse entitiesResponse = new TargetDaoRetrieveAllEntitiesResponse(results);
+      
+      if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
+        entitiesResponse.setTargetEntityToTargetNativeEntity(targetEntityToNativeEntity);
+      }
+      
+      return entitiesResponse;
     } finally {
       this.addTargetDaoTimingInfo(
           new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
@@ -147,6 +155,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           .getTargetEntity();
 
       ProvisioningEntity targetEntity = null;
+      
+      TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = new TargetDaoRetrieveEntityResponse();
       
       if (scimConfiguration.isGithubOrgConfiguration()) {
 
@@ -177,8 +187,14 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
   
         targetEntity = grouperScim2User == null ? null
             : grouperScim2User.toProvisioningEntity();
+        
+        if (targetDaoRetrieveEntityRequest.isIncludeNativeEntity()) {
+          targetDaoRetrieveEntityResponse.setTargetNativeEntity(grouperScim2User);
+        }
       }
-      return new TargetDaoRetrieveEntityResponse(targetEntity);
+      targetDaoRetrieveEntityResponse.setTargetEntity(targetEntity);
+      return targetDaoRetrieveEntityResponse;
+      
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntity", startNanos));
     }

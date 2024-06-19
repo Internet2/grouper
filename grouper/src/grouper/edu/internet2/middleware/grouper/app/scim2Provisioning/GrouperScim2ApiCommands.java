@@ -1,7 +1,6 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -290,10 +289,77 @@ public class GrouperScim2ApiCommands {
         operationsNode.add(operationNode);
         
       }
+      
+      if (fieldsToUpdate.containsKey("phoneNumber") || fieldsToUpdate.containsKey("phoneNumberType") || fieldsToUpdate.containsKey("phoneNumber2") || fieldsToUpdate.containsKey("phoneNumberType2")) {
+        
+        ProvisioningObjectChangeAction phoneNumberValueChangeAction = fieldsToUpdate.get("phoneNumber");
+        ProvisioningObjectChangeAction phoneNumberValue2ChangeAction = fieldsToUpdate.get("phoneNumber2");
+
+        // "value", "type" 
+        //  {
+        //    "op": "replace",
+        //    "path": "active",
+        //    "value": "false"
+        //  }
+
+        ProvisioningObjectChangeAction resultingAction = null;
+        if (phoneNumberValueChangeAction == ProvisioningObjectChangeAction.delete && phoneNumberValue2ChangeAction == ProvisioningObjectChangeAction.delete) {
+          resultingAction = ProvisioningObjectChangeAction.delete;
+        } else if (phoneNumberValueChangeAction == ProvisioningObjectChangeAction.insert && phoneNumberValue2ChangeAction == ProvisioningObjectChangeAction.insert) {
+          resultingAction = ProvisioningObjectChangeAction.insert;
+        } else {
+          resultingAction = ProvisioningObjectChangeAction.update;
+        }
+
+        ObjectNode operationNode = GrouperUtil.jsonJacksonNode();
+        operationNode.put("path", "phoneNumbers");
+
+        if (resultingAction == ProvisioningObjectChangeAction.delete) {
+          
+          operationNode.put("op", "remove");
+          
+        } else {
+          
+          boolean hasPhoneNumber = !StringUtils.isBlank(grouperScim2User.getPhoneNumber());
+          boolean hasPhoneNumber2 = !StringUtils.isBlank(grouperScim2User.getPhoneNumber2());
+          
+          operationNode.put("op", "replace");
+          ArrayNode phoneNumbersNode = GrouperUtil.jsonJacksonArrayNode();
+          
+          if (hasPhoneNumber) {
+            ObjectNode phoneNumberNode = GrouperUtil.jsonJacksonNode();
+            phoneNumberNode.put("primary", true);
+            phoneNumberNode.put("value", grouperScim2User.getPhoneNumber());
+            if (!StringUtils.isBlank(grouperScim2User.getPhoneNumberType())) {
+              phoneNumberNode.put("type", grouperScim2User.getPhoneNumberType());
+            }
+            phoneNumbersNode.add(phoneNumberNode);
+          }
+          if (hasPhoneNumber2) {
+            ObjectNode phoneNumberNode = GrouperUtil.jsonJacksonNode();
+            if (!hasPhoneNumber) {
+              phoneNumberNode.put("primary", true);
+            }
+            phoneNumberNode.put("value", grouperScim2User.getPhoneNumber2());
+            if (!StringUtils.isBlank(grouperScim2User.getPhoneNumberType2())) {
+              phoneNumberNode.put("type", grouperScim2User.getPhoneNumberType2());
+            }
+            phoneNumbersNode.add(phoneNumberNode);
+          }
+          
+          operationNode.set("value", phoneNumbersNode);
+        }
+        operationsNode.add(operationNode);
+        
+      }
 
       for (String fieldToUpdate : fieldsToUpdate.keySet()) {
         
         if (StringUtils.equals(fieldToUpdate, "emailValue") || StringUtils.equals(fieldToUpdate, "emailType") || StringUtils.equals(fieldToUpdate, "emailValue2") || StringUtils.equals(fieldToUpdate, "emailType2")) {
+          continue;
+        }
+        
+        if (StringUtils.equals(fieldToUpdate, "phoneNumber") || StringUtils.equals(fieldToUpdate, "phoneNumberType") || StringUtils.equals(fieldToUpdate, "phoneNumber2") || StringUtils.equals(fieldToUpdate, "phoneNumberType2")) {
           continue;
         }
         
@@ -304,16 +370,24 @@ public class GrouperScim2ApiCommands {
         switch (provisioningObjectChangeAction) {
           case insert:
             operationNode.put("op", "add");
-            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
+            
+            if (grouperScim2User.getCustomAttributes() == null || !grouperScim2User.getCustomAttributes().containsKey(fieldToUpdate)) {
+              operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
+            }
+            
             break;
           case update:
             operationNode.put("op", "replace");
-            Object resolvedObject = GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate);
-            if (resolvedObject != null && resolvedObject instanceof Boolean) {
-              operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
-            } else {
-              operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
-            }
+            Object resolvedObject = null;
+            if (grouperScim2User.getCustomAttributes() == null || !grouperScim2User.getCustomAttributes().containsKey(fieldToUpdate)) {
+              resolvedObject = GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate);
+              if (resolvedObject != null && resolvedObject instanceof Boolean) {
+                operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
+              } else {
+                operationNode.put("value", GrouperUtil.stringValue(resolvedObject));
+              }
+            } 
+            
             break;
           case delete:
             operationNode.put("op", "remove");
@@ -337,7 +411,21 @@ public class GrouperScim2ApiCommands {
         } else if ("givenName".equals(fieldToUpdate)) {
           fieldToUpdate = "name.givenName";
         }
-        operationNode.put("path", fieldToUpdate);
+        
+        if (grouperScim2User.getCustomAttributes() != null && grouperScim2User.getCustomAttributes().containsKey(fieldToUpdate)) {
+          
+          if (grouperScim2User.getCustomAttributeNameToJsonPointer() != null && grouperScim2User.getCustomAttributeNameToJsonPointer().containsKey(fieldToUpdate)) {
+            String jsonPointer = grouperScim2User.getCustomAttributeNameToJsonPointer().get(fieldToUpdate);
+            Object value = grouperScim2User.getCustomAttributes().get(fieldToUpdate);
+            ObjectNode valueNode = GrouperUtil.jsonJacksonNode();
+            operationNode.set("value", valueNode);
+            GrouperUtil.jsonJacksonAssignJsonPointerString(valueNode, jsonPointer, value);
+          }
+          
+        } else {
+          operationNode.put("path", fieldToUpdate);
+        }
+       
         operationsNode.add(operationNode);
         
       }
@@ -406,16 +494,24 @@ public class GrouperScim2ApiCommands {
         switch (provisioningObjectChangeAction) {
           case insert:
             operationNode.put("op", "add");
-            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
+//            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
+            
+            if (grouperScim2Group.getCustomAttributes() == null || !grouperScim2Group.getCustomAttributes().containsKey(fieldToUpdate)) {
+              operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
+            }
+            
             break;
           case update:
             operationNode.put("op", "replace");
-            Object resolvedObject = GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate);
-            if (resolvedObject != null && resolvedObject instanceof Boolean) {
-              operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
-            } else {
-              operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
-            }
+            Object resolvedObject = null;
+            if (grouperScim2Group.getCustomAttributes() == null || !grouperScim2Group.getCustomAttributes().containsKey(fieldToUpdate)) {
+              resolvedObject = GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate);
+              if (resolvedObject != null && resolvedObject instanceof Boolean) {
+                operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
+              } else {
+                operationNode.put("value", GrouperUtil.stringValue(resolvedObject));
+              }
+            } 
             break;
           case delete:
             operationNode.put("op", "remove");
@@ -427,7 +523,22 @@ public class GrouperScim2ApiCommands {
         if ("id".equals(fieldToUpdate)) {
           throw new RuntimeException("Cannot patch id field");
         }
-        operationNode.put("path", fieldToUpdate);
+//        operationNode.put("path", fieldToUpdate);
+        
+        if (grouperScim2Group.getCustomAttributes() != null && grouperScim2Group.getCustomAttributes().containsKey(fieldToUpdate)) {
+          
+          if (grouperScim2Group.getCustomAttributeNameToJsonPointer() != null && grouperScim2Group.getCustomAttributeNameToJsonPointer().containsKey(fieldToUpdate)) {
+            String jsonPointer = grouperScim2Group.getCustomAttributeNameToJsonPointer().get(fieldToUpdate);
+            Object value = grouperScim2Group.getCustomAttributes().get(fieldToUpdate);
+            ObjectNode valueNode = GrouperUtil.jsonJacksonNode();
+            operationNode.set("value", valueNode);
+            GrouperUtil.jsonJacksonAssignJsonPointerString(valueNode, jsonPointer, value);
+          }
+          
+        } else {
+          operationNode.put("path", fieldToUpdate);
+        }
+ 
         operationsNode.add(operationNode);
         
       }
