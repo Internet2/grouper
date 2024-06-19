@@ -2,15 +2,21 @@ package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -55,6 +61,32 @@ public class GrouperScim2Group {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
       grouperScim2Group.setActive(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("active"), true));
+    }
+    
+    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetGroup.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    
+    for (String attributeName:  scimConfig.getGroupAttributeJsonPointer().keySet()) {
+      
+      String jsonPointer = scimConfig.getGroupAttributeJsonPointer().get(attributeName);
+      ProvisioningAttribute provisioningAttribute = targetGroup.retrieveProvisioningAttribute(attributeName);
+      if (provisioningAttribute == null) {
+        continue;
+      }
+      Object valueObject = targetGroup.retrieveAttributeValueString(attributeName);
+   
+      if (grouperScim2Group.customAttributes == null) {
+        grouperScim2Group.customAttributes = new HashMap<>();
+      }
+      if (grouperScim2Group.customAttributeNameToJsonPointer == null) {
+        grouperScim2Group.customAttributeNameToJsonPointer = new HashMap<>();
+      }
+      
+      if (StringUtils.equals(scimConfig.getGroupAttributeJsonValueType().get(attributeName), "boolean")) {
+        valueObject = GrouperUtil.booleanValue(valueObject);
+      }
+      
+      grouperScim2Group.customAttributes.put(attributeName, valueObject);
+      grouperScim2Group.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
     }
     
     return grouperScim2Group;
@@ -122,16 +154,35 @@ public class GrouperScim2Group {
     
     targetGroup.assignAttributeValue("active", this.active);
     
+    if (this.customAttributes != null) {
+      GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetGroup.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      for (String attributeName:  scimConfig.getGroupAttributeJsonPointer().keySet()) {
+        Object attributeValue = this.customAttributes.get(attributeName);
+        if (GrouperUtil.isBlank(attributeValue)) {
+          continue;
+        }
+        
+        if (StringUtils.equals(scimConfig.getGroupAttributeJsonValueType().get(attributeName), "boolean")) {
+          attributeValue = GrouperUtil.booleanValue(attributeValue) ? "true": "false";
+        }
+        targetGroup.assignAttributeValue(attributeName, attributeValue);
+      }
+    }
+    
     return targetGroup;
   }
 
   /**
    * convert from jackson json
-   * @param entityNode
+   * @param groupNode
    * @return the group
    */
   public static GrouperScim2Group fromJson(JsonNode groupNode) {
     GrouperScim2Group grouperScimGroup = new GrouperScim2Group();
+    
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     
     //  {
     //    "id": "9067729b3d-a2cfc8a5-f4ab-4443-9d7d-b32a9013c554",
@@ -154,6 +205,45 @@ public class GrouperScim2Group {
     grouperScimGroup.setCreatedJson(GrouperUtil.jsonJacksonGetString(metaNode, "created"));
     grouperScimGroup.setLastModifiedJson(GrouperUtil.jsonJacksonGetString(metaNode, "lastModified"));
     grouperScimGroup.setActive(GrouperUtil.booleanValue(GrouperUtil.jsonJacksonGetBoolean(groupNode, "active"), true));
+    
+    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    Map<String, String> attributeJsonPointers = scimConfig.getGroupAttributeJsonPointer();
+    
+    for (String attributeName: attributeJsonPointers.keySet()) {
+      String jsonPointer = attributeJsonPointers.get(attributeName);
+      JsonNode jsonNode = GrouperUtil.jsonJacksonGetNodeFromJsonPointer(groupNode, jsonPointer);
+      if (jsonNode == null) {
+        continue;
+      }
+      
+      if (grouperScimGroup.customAttributes == null) {
+        grouperScimGroup.customAttributes = new HashMap<>();
+      }
+      if (grouperScimGroup.customAttributeNameToJsonPointer == null) {
+        grouperScimGroup.customAttributeNameToJsonPointer = new HashMap<>();
+      }
+      grouperScimGroup.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
+      if (jsonNode.isArray()) {
+        ArrayNode arrayNode = (ArrayNode) jsonNode;
+        if (arrayNode.size() > 0) {
+          Set<String> attributeValues = GrouperUtil.jsonJacksonGetStringSetFromJsonPointer(groupNode, jsonPointer);
+          attributeValues.remove(null);
+          attributeValues.remove("");
+          grouperScimGroup.customAttributes.put(attributeName, attributeValues);
+        }
+      } else if (jsonNode.isValueNode()) { 
+        Object attributeValue = GrouperUtil.jsonJacksonGetStringFromJsonPointer(groupNode, jsonPointer);
+        if (!GrouperUtil.isBlank(attributeValue)) {
+          
+          if (StringUtils.equals(scimConfig.getGroupAttributeJsonValueType().get(attributeName), "boolean")) {
+            attributeValue = GrouperUtil.booleanValue(attributeValue);
+          }
+          
+          grouperScimGroup.customAttributes.put(attributeName, attributeValue);
+        }
+      }
+    }
     
     return grouperScimGroup;
   }
@@ -203,6 +293,21 @@ public class GrouperScim2Group {
       GrouperUtil.jsonJacksonAssignBoolean(result, "active", GrouperUtil.booleanValue(this.active, true));
     }
     
+    if (customAttributes != null) {
+      for (String attributeName: customAttributes.keySet()) {
+        if (fieldNamesToSet == null || fieldNamesToSet.contains(attributeName)) {  
+          
+          if (customAttributeNameToJsonPointer != null) {
+            String jsonPointer = customAttributeNameToJsonPointer.get(attributeName);
+            if (StringUtils.isNotBlank(jsonPointer)) {
+            //TODO implement jsonJacksonAssignJsonPointer for set, number, boolean
+              GrouperUtil.jsonJacksonAssignJsonPointerString(result, jsonPointer, customAttributes.get(attributeName));
+            }
+          }
+        }
+      }
+    }
+    
     return result;
   }
 
@@ -224,7 +329,8 @@ public class GrouperScim2Group {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "created", Types.TIMESTAMP, null, false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, null, false, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, true, "T");
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_gdisp_name_idx", false, "display_name");
     }
@@ -351,6 +457,34 @@ public class GrouperScim2Group {
   public void setDisplayName(String displayName) {
     this.displayName = displayName;
   }
+  
+  /**
+   * If an attribute has a json pointer then the name and string value or set of string values will be here
+   */
+  private Map<String, Object> customAttributes = null; // name to value
+
+  private Map<String, String> customAttributeNameToJsonPointer = null;
+  
+  
+  public Map<String, Object> getCustomAttributes() {
+    return customAttributes;
+  }
+
+  
+  public void setCustomAttributes(Map<String, Object> customAttributes) {
+    this.customAttributes = customAttributes;
+  }
+  
+  
+  public Map<String, String> getCustomAttributeNameToJsonPointer() {
+    return customAttributeNameToJsonPointer;
+  }
+
+  
+  public void setCustomAttributeNameToJsonPointer(Map<String, String> customAttributeNameToJsonPointer) {
+    this.customAttributeNameToJsonPointer = customAttributeNameToJsonPointer;
+  }
+
   
   
   

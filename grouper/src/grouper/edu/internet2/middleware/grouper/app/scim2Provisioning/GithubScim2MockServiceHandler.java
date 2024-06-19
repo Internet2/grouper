@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -14,9 +16,9 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
-import edu.internet2.middleware.grouper.cache.GrouperCache;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -90,7 +92,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
   
   @Override
   public void handleRequest(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-    
+  
     if (!mockTablesThere) {
       ensureScimMockTables();
     }
@@ -117,53 +119,65 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     
     mockServiceRequest.setPostMockNamePaths(paths);
     
-    // TODO use the method to find the config id from the authn credential
-    String provisionerConfigId = "githubProvisioner";
-    ConfigPropertiesCascadeBase.clearCache();
-    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
-    grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
-    GrouperScim2ProvisionerConfiguration grouperScim2ProvisioningConfiguration = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
-    boolean usersInOrgs = grouperScim2ProvisioningConfiguration.isGithubOrgConfiguration();
+    String provisionerConfigId = null;
+    String externalSystemConfigId = WsBearerTokenExternalSystem.authenticateMockUser(mockServiceRequest.getHttpServletRequest());
     
-    if (StringUtils.equals("GET", mockServiceRequest.getHttpServletRequest().getMethod())) {
-      if ("ServiceProviderConfig".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
-        getServiceProviderConfig(mockServiceRequest, mockServiceResponse);
-        return;
+    Pattern pattern = Pattern.compile("^provisioner\\.([^\\.]+)\\.bearerTokenExternalSystemConfigId$");
+    Set<String> configIds = GrouperLoaderConfig.retrieveConfig().propertyConfigIds(pattern);
+    for (String configId: configIds) {
+      if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner."+configId+".bearerTokenExternalSystemConfigId"), externalSystemConfigId)) {
+        GrouperUtil.assertion(provisionerConfigId == null, "Multiple provisioners match this bearer token external system: "+externalSystemConfigId);
+        provisionerConfigId = configId;
       }
-      if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
-        getUsers(mockServiceRequest, mockServiceResponse);
-        return;
-      }
-      if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        getUser(mockServiceRequest, mockServiceResponse);
-        return;
-      }
-
     }
-    if (StringUtils.equals("DELETE", mockServiceRequest.getHttpServletRequest().getMethod())) {
-      if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        deleteUser(mockServiceRequest, mockServiceResponse, usersInOrgs, organization);
-        return;
+    GrouperUtil.assertion(provisionerConfigId != null, "Cannot find a provisioner that uses bearer token external system: "+externalSystemConfigId);
+    ConfigPropertiesCascadeBase.clearCache();
+   
+    try {
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
+      grouperProvisioner.initialize(GrouperProvisioningType.fullProvisionFull);
+      GrouperScim2ProvisionerConfiguration grouperScim2ProvisioningConfiguration = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+      boolean usersInOrgs = grouperScim2ProvisioningConfiguration.isGithubOrgConfiguration();
+      
+      if (StringUtils.equals("GET", mockServiceRequest.getHttpServletRequest().getMethod())) {
+        if ("ServiceProviderConfig".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
+          getServiceProviderConfig(mockServiceRequest, mockServiceResponse);
+          return;
+        }
+        if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
+          getUsers(mockServiceRequest, mockServiceResponse);
+          return;
+        }
+        if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+          getUser(mockServiceRequest, mockServiceResponse);
+          return;
+        }
       }
-
-    }
-    if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
-      if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
-        patchUser(mockServiceRequest, mockServiceResponse);
-        return;
+      if (StringUtils.equals("DELETE", mockServiceRequest.getHttpServletRequest().getMethod())) {
+        if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+          deleteUser(mockServiceRequest, mockServiceResponse, usersInOrgs, organization);
+          return;
+        }
       }
-
-    }
-    if (StringUtils.equals("POST", mockServiceRequest.getHttpServletRequest().getMethod())) {
-      if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
-        postUsers(mockServiceRequest, mockServiceResponse, usersInOrgs, organization);
-        return;
+      if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
+        if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
+          patchUser(mockServiceRequest, mockServiceResponse);
+          return;
+        }
       }
+      if (StringUtils.equals("POST", mockServiceRequest.getHttpServletRequest().getMethod())) {
+        if ("Users".equals(mockServiceRequest.getPostMockNamePaths()[0]) && 1 == mockServiceRequest.getPostMockNamePaths().length) {
+          postUsers(mockServiceRequest, mockServiceResponse, usersInOrgs, organization);
+          return;
+        }
+      }
+      throw new RuntimeException("Not expecting request: '" + mockServiceRequest.getHttpServletRequest().getMethod() 
+          + "', '" + mockServiceRequest.getPostMockNamePath() + "'");
 
+    } finally {
+      GrouperProvisioner.removeCurrentGrouperProvisioner();
     }
-  
-    throw new RuntimeException("Not expecting request: '" + mockServiceRequest.getHttpServletRequest().getMethod() 
-        + "', '" + mockServiceRequest.getPostMockNamePath() + "'");
+    
   }
 
   public boolean checkAuthorization(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -310,7 +324,10 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     //    },
     //    "externalId":"extId",
     //    "userName":"userNam",
-    //    "userType":"userTyp"
+    //    "userType":"userTyp",
+    //    "urn:ietf:params:scim:schemas:extension:servicenow:2.0:User":{
+    //       "employeeNumber": "12345"
+    //     }
     // }
     
     String userJsonString = mockServiceRequest.getRequestBody();
@@ -322,7 +339,6 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userJsonNode);
 
     
-
     if (usersInOrgs) {
 
       grouperScimUser = HibernateSession.byHqlStatic()
@@ -369,7 +385,12 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
       HibernateSession.byObjectStatic().save(grouperScimUser);
     }
 
-
+    if (grouperScimUser.getCustomAttributes() != null && grouperScimUser.getCustomAttributes().containsKey("service_now_employee_number")) {
+      String serviceNowEmpNum = GrouperUtil.stringValue(grouperScimUser.getCustomAttributes().get("service_now_employee_number"));
+      String sql = "update mock_scim_user set service_now_emp_num = ? where id = ?";
+      new GcDbAccess().sql(sql).addBindVar(serviceNowEmpNum).addBindVar(grouperScimUser.getId()).executeSql();
+    }
+    
     JsonNode resultNode = grouperScimUser.toJson(null);
   
     mockServiceResponse.setResponseCode(201);
@@ -463,6 +484,17 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     ArrayNode resourcesNode = GrouperUtil.jsonJacksonArrayNode();
     
     for (GrouperScim2User grouperScimUser : grouperScimUsers) {
+      
+      String serviceNowEmpNum = new GcDbAccess().sql("select service_now_emp_num from mock_scim_user where id = ? ").addBindVar(grouperScimUser.getId()).select(String.class);
+      if (serviceNowEmpNum != null) {        
+        Map<String, Object> customAttributes = new HashMap<>();
+        customAttributes.put("service_now_employee_number", serviceNowEmpNum);
+        grouperScimUser.setCustomAttributes(customAttributes);
+        
+        Map<String, String> customAttributeJsonPointers = new HashMap<>();
+        customAttributeJsonPointers.put("service_now_employee_number", "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/employeeNumber");
+        grouperScimUser.setCustomAttributeNameToJsonPointer(customAttributeJsonPointers);
+      }
       resourcesNode.add(grouperScimUser.toJson(null));
     }
     
@@ -489,6 +521,17 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     if (grouperScimUser == null) {
       mockServiceResponse.setResponseCode(404);
       return;
+    }
+    
+    String serviceNowEmpNum = new GcDbAccess().sql("select service_now_emp_num from mock_scim_user where id = ? ").addBindVar(grouperScimUser.getId()).select(String.class);
+    if (serviceNowEmpNum != null) {        
+      Map<String, Object> customAttributes = new HashMap<>();
+      customAttributes.put("service_now_employee_number", serviceNowEmpNum);
+      grouperScimUser.setCustomAttributes(customAttributes);
+      
+      Map<String, String> customAttributeJsonPointers = new HashMap<>();
+      customAttributeJsonPointers.put("service_now_employee_number", "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/employeeNumber");
+      grouperScimUser.setCustomAttributeNameToJsonPointer(customAttributeJsonPointers);
     }
     ObjectNode objectNode = grouperScimUser.toJson(null);
     mockServiceResponse.setResponseCode(200);
@@ -588,9 +631,16 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
 
     GrouperUtil.assertion(operationsNode.size() > 0, "must send operations");
 
+    String employeeNumber = null;
+    
     for (int i=0;i<operationsNode.size();i++) {
       
       JsonNode operation = operationsNode.get(i);
+      
+      String employeeNumberTemp = GrouperUtil.jsonJacksonGetStringFromJsonPointer(operation, "/value/urn:ietf:params:scim:schemas:extension:servicenow:2.0:User/employeeNumber");
+      if (StringUtils.isNotBlank(employeeNumberTemp)) {
+        employeeNumber = employeeNumberTemp;
+      }
       
       //            "op": "replace",
       //            "path": "active",
@@ -625,7 +675,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
         path = "middleName";
       }
       
-      if (path.startsWith("emails")) {
+      if (StringUtils.startsWith(path, "emails")) {
         // emailType : String
         // emailValue : String
         // emails[0]['value'] or emails.value eq "emailVal" or emails[value eq "emailVal"]
@@ -724,32 +774,37 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
         
       } else {
         
-        Object newValue = "active".equals(path) ? GrouperUtil.jsonJacksonGetBoolean(operation, "value") : GrouperUtil.jsonJacksonGetString(operation, "value");
-        Object oldValue = GrouperUtil.fieldValue(grouperScimUser, path);
-        
-        // validate the email
-        if (opAdd) {
+        if (StringUtils.isBlank(employeeNumber)) {
+          Object newValue = "active".equals(path) ? GrouperUtil.jsonJacksonGetBoolean(operation, "value") : GrouperUtil.jsonJacksonGetString(operation, "value");
+          Object oldValue = GrouperUtil.fieldValue(grouperScimUser, path);
           
-          GrouperUtil.assertion(GrouperUtil.isBlank(oldValue), "add op already has value! " + path + ", '" + oldValue + "' " + grouperScimUser);
-          
-          GrouperUtil.assignField(grouperScimUser, path, newValue);
-          
-        } else {
-
-          GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "add op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
-
-          if (opRemove) {
+          // validate the email
+          if (opAdd) {
             
-            GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
-          }
+            GrouperUtil.assertion(GrouperUtil.isBlank(oldValue), "add op already has value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+            
+            GrouperUtil.assignField(grouperScimUser, path, newValue);
+            
+          } else {
 
-          GrouperUtil.assignField(grouperScimUser, path, newValue);
+            GrouperUtil.assertion(!GrouperUtil.isBlank(oldValue), "add op doesnt have value! " + path + ", '" + oldValue + "' " + grouperScimUser);
+
+            if (opRemove) {
+              
+              GrouperUtil.assertion(newValue == null, "remove op should not have a value! " + path + ", '" + newValue + "' " + grouperScimUser);
+            }
+
+            GrouperUtil.assignField(grouperScimUser, path, newValue);
+          }
         }
-        
       }
       
     }
     HibernateSession.byObjectStatic().saveOrUpdate(grouperScimUser);
+    if (StringUtils.isNotBlank(employeeNumber)) {
+      String sql = "update mock_scim_user set service_now_emp_num = ? where id = ?";
+      new GcDbAccess().sql(sql).addBindVar(employeeNumber).addBindVar(grouperScimUser.getId()).executeSql();
+    }
     
     ObjectNode objectNode = grouperScimUser.toJson(null);
     mockServiceResponse.setResponseCode(200);

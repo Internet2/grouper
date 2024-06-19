@@ -1,8 +1,8 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Types;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -10,10 +10,10 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -46,6 +46,10 @@ public class GrouperScim2User {
     grouperScimUser.setUserName("userNam");
     grouperScimUser.setUserType("userTyp");
     grouperScimUser.setOrg("org");
+    grouperScimUser.setTitle("title");
+    grouperScimUser.setPhoneNumber("1234567890");
+    grouperScimUser.setDivision("division");
+    grouperScimUser.setDepartment("department");
   
     String json = GrouperUtil.jsonJacksonToString(grouperScimUser.toJson(null));
     System.out.println(json);
@@ -138,6 +142,38 @@ public class GrouperScim2User {
     if (this.userType != null) {
       targetEntity.assignAttributeValue("userType", this.userType);
     }
+
+    if (this.title != null) {
+      targetEntity.assignAttributeValue("title", this.title);
+    }
+    
+    if (this.phoneNumber != null) {
+      targetEntity.assignAttributeValue("phoneNumber", this.phoneNumber);
+    }
+
+    if (this.division != null) {
+      targetEntity.assignAttributeValue("division", this.division);
+    }
+    
+    if (this.department != null) {
+      targetEntity.assignAttributeValue("department", this.department);
+    }
+    
+    if (this.customAttributes != null) {
+      GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetEntity.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
+      for (String attributeName:  scimConfig.getEntityAttributeJsonPointer().keySet()) {
+        Object attributeValue = this.customAttributes.get(attributeName);
+        if (GrouperUtil.isBlank(attributeValue)) {
+          continue;
+        }
+        
+        if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
+          attributeValue = GrouperUtil.booleanValue(attributeValue) ? "true": "false";
+        }
+        targetEntity.assignAttributeValue(attributeName, attributeValue);
+      }
+    }
     
     return targetEntity;
   }
@@ -149,6 +185,8 @@ public class GrouperScim2User {
    */
   public static GrouperScim2User fromJson(JsonNode entityNode) {
     GrouperScim2User grouperScimUser = new GrouperScim2User();
+    
+    GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
     
     grouperScimUser.active = GrouperUtil.booleanValue(GrouperUtil.jsonJacksonGetBoolean(entityNode, "active"), true);
     
@@ -191,6 +229,36 @@ public class GrouperScim2User {
         grouperScimUser.emailType2 = GrouperUtil.jsonJacksonGetString(emailNode2, "type");
       }
     }
+    
+    if (entityNode.has("phoneNumbers")) {
+      ArrayNode phoneNumbersNode = (ArrayNode)entityNode.get("phoneNumbers");
+      JsonNode phoneNumberNode = null;
+      JsonNode phoneNumberNode2 = null;
+      if (phoneNumbersNode.size() == 1) {
+        phoneNumberNode = phoneNumbersNode.get(0);
+      } else {
+        for (int i=0;i<phoneNumbersNode.size();i++) {
+          JsonNode currentPhoneNumberNode = phoneNumbersNode.get(i);
+          if (GrouperUtil.jsonJacksonGetBoolean(currentPhoneNumberNode, "primary", false)) {
+            phoneNumberNode = currentPhoneNumberNode;
+          } else {
+            if (phoneNumberNode2 == null) {
+              phoneNumberNode2 = currentPhoneNumberNode;
+            }
+          }
+        }
+      }
+      if (phoneNumberNode != null) {
+        grouperScimUser.phoneNumber = GrouperUtil.jsonJacksonGetString(phoneNumberNode, "value");
+        grouperScimUser.phoneNumberType = GrouperUtil.jsonJacksonGetString(phoneNumberNode, "type");
+      }
+      if (phoneNumberNode2 != null) {
+        grouperScimUser.phoneNumber2 = GrouperUtil.jsonJacksonGetString(phoneNumberNode2, "value");
+        grouperScimUser.phoneNumberType2 = GrouperUtil.jsonJacksonGetString(phoneNumberNode2, "type");
+      }
+    }
+    
+    //TODO populate department, division, and title after Chris is done with json pointer read task
 
     grouperScimUser.externalId = GrouperUtil.jsonJacksonGetString(entityNode, "externalId");
 
@@ -211,6 +279,45 @@ public class GrouperScim2User {
 
     grouperScimUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "userName");
     grouperScimUser.userType = GrouperUtil.jsonJacksonGetString(entityNode, "userType");
+    
+    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+    
+    Map<String, String> attributeJsonPointers = scimConfig.getEntityAttributeJsonPointer();
+    
+    for (String attributeName: attributeJsonPointers.keySet()) {
+      String jsonPointer = attributeJsonPointers.get(attributeName);
+      JsonNode jsonNode = GrouperUtil.jsonJacksonGetNodeFromJsonPointer(entityNode, jsonPointer);
+      if (jsonNode == null) {
+        continue;
+      }
+      
+      if (grouperScimUser.customAttributes == null) {
+        grouperScimUser.customAttributes = new HashMap<>();
+      }
+      if (grouperScimUser.customAttributeNameToJsonPointer == null) {
+        grouperScimUser.customAttributeNameToJsonPointer = new HashMap<>();
+      }
+      grouperScimUser.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
+      if (jsonNode.isArray()) {
+        ArrayNode arrayNode = (ArrayNode) jsonNode;
+        if (arrayNode.size() > 0) {
+          Set<String> attributeValues = GrouperUtil.jsonJacksonGetStringSetFromJsonPointer(entityNode, jsonPointer);
+          attributeValues.remove(null);
+          attributeValues.remove("");
+          grouperScimUser.customAttributes.put(attributeName, attributeValues);
+        }
+      } else if (jsonNode.isValueNode()) { 
+        Object attributeValue = GrouperUtil.jsonJacksonGetStringFromJsonPointer(entityNode, jsonPointer);
+        if (!GrouperUtil.isBlank(attributeValue)) {
+          
+          if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
+            attributeValue = GrouperUtil.booleanValue(attributeValue);
+          }
+          
+          grouperScimUser.customAttributes.put(attributeName, attributeValue);
+        }
+      }
+    }
     
     return grouperScimUser;
   }
@@ -309,6 +416,38 @@ public class GrouperScim2User {
         result.set("emails", emailsNode);
       }
     }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumber") || fieldNamesToSet.contains("phoneNumber2")) {     
+      if (!StringUtils.isBlank(this.phoneNumber) || !StringUtils.isBlank(this.phoneNumber2)) {
+
+        ArrayNode phoneNumbersNode = GrouperUtil.jsonJacksonArrayNode();
+        boolean hasPrimary = false;
+        if (!StringUtils.isBlank(this.phoneNumber)) {
+          ObjectNode phoneNumberNode = GrouperUtil.jsonJacksonNode();
+          GrouperUtil.jsonJacksonAssignString(phoneNumberNode, "value", this.phoneNumber);
+          GrouperUtil.jsonJacksonAssignBoolean(phoneNumberNode, "primary", true);
+          if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumberType")) {
+            GrouperUtil.jsonJacksonAssignString(phoneNumberNode, "type", this.phoneNumberType);
+          }
+          phoneNumbersNode.add(phoneNumberNode);
+          hasPrimary = true;
+        }
+        if (!StringUtils.isBlank(this.phoneNumber2)) {
+          ObjectNode phoneNumberNode = GrouperUtil.jsonJacksonNode();
+          GrouperUtil.jsonJacksonAssignString(phoneNumberNode, "value", this.phoneNumber2);
+          GrouperUtil.jsonJacksonAssignBoolean(phoneNumberNode, "primary", !hasPrimary);
+          if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumberType2")) {
+            GrouperUtil.jsonJacksonAssignString(phoneNumberNode, "type", this.phoneNumberType2);
+          }
+          phoneNumbersNode.add(phoneNumberNode);
+        }
+        
+        result.set("phoneNumbers", phoneNumbersNode);
+      }
+    }
+    
+    //TODO set title, division, and department once Chris is done with Json pointer
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("formattedName")
         || fieldNamesToSet.contains("familyName") || fieldNamesToSet.contains("givenName")
         || fieldNamesToSet.contains("givenName")) {
@@ -343,6 +482,21 @@ public class GrouperScim2User {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {      
       if (!StringUtils.isBlank(this.schemas)) {
         GrouperUtil.jsonJacksonAssignStringArray(result, "schemas", GrouperUtil.splitTrimToSet(this.schemas, ","));
+      }
+    }
+    
+    if (customAttributes != null) {
+      for (String attributeName: customAttributes.keySet()) {
+        if (fieldNamesToSet == null || fieldNamesToSet.contains(attributeName)) {  
+          
+          if (customAttributeNameToJsonPointer != null) {
+            String jsonPointer = customAttributeNameToJsonPointer.get(attributeName);
+            if (StringUtils.isNotBlank(jsonPointer)) {
+            //TODO implement jsonJacksonAssignJsonPointer for set, number, boolean
+              GrouperUtil.jsonJacksonAssignJsonPointerString(result, jsonPointer, customAttributes.get(attributeName));
+            }
+          }
+        }
       }
     }
     
@@ -386,6 +540,16 @@ public class GrouperScim2User {
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_name_idx", false, "id", "org_in_url");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_name_org_idx", false, "user_name", "org", "org_in_url");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_user_empn_idx", false, "employee_number", "org_in_url");
+
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "phone_type", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "phone_value", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "phone_type2", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "phone_value2", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "title", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "division", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "department", Types.VARCHAR, "256", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "service_now_emp_num", Types.VARCHAR, "256", false, false);
+      
     }
     
   }
@@ -503,8 +667,49 @@ public class GrouperScim2User {
   private String emailType2;
 
   private String emailValue2;
+  
+  private String phoneNumberType;
+  
+  private String phoneNumber;
+  
+  private String phoneNumberType2;
+
+  private String phoneNumber2;
+  
+  private String title;
+  
+  private String division;
+  
+  private String department;
+  
+  /**
+   * If an attribute has a json pointer then the name and string value or set of string values will be here
+   */
+  private Map<String, Object> customAttributes = null; // name to value
+
+  private Map<String, String> customAttributeNameToJsonPointer = null;
+  
+  
+  public Map<String, Object> getCustomAttributes() {
+    return customAttributes;
+  }
 
   
+  public void setCustomAttributes(Map<String, Object> customAttributes) {
+    this.customAttributes = customAttributes;
+  }
+  
+  
+  public Map<String, String> getCustomAttributeNameToJsonPointer() {
+    return customAttributeNameToJsonPointer;
+  }
+
+  
+  public void setCustomAttributeNameToJsonPointer(
+      Map<String, String> customAttributeNameToJsonPointer) {
+    this.customAttributeNameToJsonPointer = customAttributeNameToJsonPointer;
+  }
+
   public String getId() {
     return id;
   }
@@ -689,6 +894,76 @@ public class GrouperScim2User {
   public void setOrg(String org) {
     this.org = org;
   }
+  
+  
+  public String getPhoneNumber() {
+    return phoneNumber;
+  }
+
+  
+  public void setPhoneNumber(String phoneNumber) {
+    this.phoneNumber = phoneNumber;
+  }
+
+  
+  public String getTitle() {
+    return title;
+  }
+
+  
+  public void setTitle(String title) {
+    this.title = title;
+  }
+
+  
+  public String getDivision() {
+    return division;
+  }
+
+  
+  public void setDivision(String division) {
+    this.division = division;
+  }
+
+  
+  public String getDepartment() {
+    return department;
+  }
+
+  
+  public void setDepartment(String department) {
+    this.department = department;
+  }
+  
+  
+  public String getPhoneNumberType() {
+    return phoneNumberType;
+  }
+
+  
+  public void setPhoneNumberType(String phoneNumberType) {
+    this.phoneNumberType = phoneNumberType;
+  }
+
+  
+  public String getPhoneNumberType2() {
+    return phoneNumberType2;
+  }
+
+  
+  public void setPhoneNumberType2(String phoneNumberType2) {
+    this.phoneNumberType2 = phoneNumberType2;
+  }
+
+  
+  public String getPhoneNumber2() {
+    return phoneNumber2;
+  }
+
+  
+  public void setPhoneNumber2(String phoneNumber2) {
+    this.phoneNumber2 = phoneNumber2;
+  }
 
   /**
    * 
@@ -769,6 +1044,59 @@ public class GrouperScim2User {
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {      
       grouperScim2User.setSchemas(targetEntity.retrieveAttributeValueString("schemas"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumberType")) {      
+      grouperScim2User.setPhoneNumberType(targetEntity.retrieveAttributeValueString("phoneNumberType"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumber")) {      
+      grouperScim2User.setPhoneNumber(targetEntity.retrieveAttributeValueString("phoneNumber"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumberType2")) {      
+      grouperScim2User.setPhoneNumberType2(targetEntity.retrieveAttributeValueString("phoneNumberType2"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumber2")) {      
+      grouperScim2User.setPhoneNumber2(targetEntity.retrieveAttributeValueString("phoneNumbe2"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("title")) {      
+      grouperScim2User.setTitle(targetEntity.retrieveAttributeValueString("title"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("division")) {      
+      grouperScim2User.setDivision(targetEntity.retrieveAttributeValueString("division"));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("department")) {     
+      grouperScim2User.setDepartment(targetEntity.retrieveAttributeValueString("department"));
+    }
+    
+    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetEntity.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    
+    for (String attributeName:  scimConfig.getEntityAttributeJsonPointer().keySet()) {
+      
+      String jsonPointer = scimConfig.getEntityAttributeJsonPointer().get(attributeName);
+      
+      Object valueObject = targetEntity.retrieveAttributeValueString(attributeName);
+      if (GrouperUtil.isBlank(valueObject)) {
+        continue;
+      }
+      if (grouperScim2User.customAttributes == null) {
+        grouperScim2User.customAttributes = new HashMap<>();
+      }
+      if (grouperScim2User.customAttributeNameToJsonPointer == null) {
+        grouperScim2User.customAttributeNameToJsonPointer = new HashMap<>();
+      }
+      
+      if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
+        valueObject = GrouperUtil.booleanValue(valueObject);
+      }
+      
+      grouperScim2User.customAttributes.put(attributeName, valueObject);
+      grouperScim2User.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
     }
     
     return grouperScim2User;

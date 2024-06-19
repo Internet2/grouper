@@ -826,6 +826,21 @@ public abstract class GrouperConfigurationModuleBase {
       }
     }
     
+    
+    // sort the temp result by the sort order index, only include the first repeat group item in the index
+    List<Map.Entry<String, GrouperConfigurationModuleAttribute>> sorted = new ArrayList<>(tempResult.entrySet());
+   
+    Collections.sort(sorted, new Comparator<Map.Entry<String, GrouperConfigurationModuleAttribute>>() {
+
+      @Override
+      public int compare(Entry<String, GrouperConfigurationModuleAttribute> o1,
+          Entry<String, GrouperConfigurationModuleAttribute> o2) {
+        
+        return o1.getValue().getConfigItemMetadata().getOrder() - o2.getValue().getConfigItemMetadata().getOrder();
+      }
+    });
+    
+    
     // entries belonging to the same repeat group; pull them out because they need to stay together
     // they don't follow the order based on order property from json
     
@@ -841,7 +856,7 @@ public abstract class GrouperConfigurationModuleBase {
     
     // temp result is all the config items without the full repeat groups but including
     // the first item of the repeat group
-    Iterator<Entry<String, GrouperConfigurationModuleAttribute>> iterator = tempResult.entrySet().iterator();
+    Iterator<Entry<String, GrouperConfigurationModuleAttribute>> iterator = sorted.iterator();
     
     while (iterator.hasNext()) {
       
@@ -863,19 +878,6 @@ public abstract class GrouperConfigurationModuleBase {
         }
       }
     }
-    
-    // sort the temp result by the sort order index, only include the first repeat group item in the index
-    List<Map.Entry<String, GrouperConfigurationModuleAttribute>> sorted = new ArrayList<>(tempResult.entrySet());
-   
-    Collections.sort(sorted, new Comparator<Map.Entry<String, GrouperConfigurationModuleAttribute>>() {
-
-      @Override
-      public int compare(Entry<String, GrouperConfigurationModuleAttribute> o1,
-          Entry<String, GrouperConfigurationModuleAttribute> o2) {
-        
-        return o1.getValue().getConfigItemMetadata().getOrder() - o2.getValue().getConfigItemMetadata().getOrder();
-      }
-    });
     
     // all items including repeat group in order
     Map<String, GrouperConfigurationModuleAttribute> finalResult = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
@@ -901,6 +903,7 @@ public abstract class GrouperConfigurationModuleBase {
     }
     
     Map<String, GrouperConfigurationModuleAttribute> extraAttributes = retrieveExtraAttributes(finalResult);
+    
     finalResult.putAll(extraAttributes);
     
     this.attributeCache = finalResult;

@@ -42,6 +42,10 @@ public class GrouperProvisioningLoader {
     return null;
   }
   
+  public String getLoaderEntityAttributesTableName() {
+    return null;
+  }
+  
   public List<String> getLoaderEntityColumnNames() {
     return null;
   }
@@ -51,6 +55,18 @@ public class GrouperProvisioningLoader {
   }
 
   public List<Object[]> retrieveLoaderEntityTableDataFromDataBean() {
+    return null;
+  }
+  
+  public List<String> getLoaderEntityAttributesColumnNames() {
+    return null;
+  }
+  
+  public List<String> getLoaderEntityAttributesKeyColumnNames() {
+    return null;
+  }
+  
+  public List<Object[]> retrieveLoaderEntityAttrTableDataFromDataBean() {
     return null;
   }
   

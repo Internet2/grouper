@@ -5,6 +5,7 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBeha
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLoader;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 
 public class GrouperScim2Provisioner extends GrouperProvisioner {
@@ -26,6 +27,12 @@ public class GrouperScim2Provisioner extends GrouperProvisioner {
   @Override
   protected Class<? extends GrouperProvisioningConfigurationValidation> grouperProvisioningConfigurationValidationClass() {
     return Scim2SyncConfigurationValidation.class;
+  }
+  
+
+  @Override
+  protected Class<? extends GrouperProvisioningLoader> grouperProvisioningLoaderClass() {
+    return ScimProvisioningLoader.class;
   }
 
 }

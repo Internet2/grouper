@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperGithubProvisionerTest("testGithubMultipleOrgsIncremental"));
+    TestRunner.run(new GrouperGithubProvisionerTest("testFullProvisionLoadEntitiesIntoScimUsersTable"));
 
   }
   
@@ -545,6 +545,105 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
     } finally {
       
     }
+  }
+  
+  
+  /**
+   * 
+   */
+  public void testFullProvisionLoadEntitiesIntoScimUsersTable() {
+    
+    if (!tomcatRunTests()) {
+      return;
+    }
+    
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
+    
+    Group usersToProvisionGroup = new GroupSave(grouperSession).assignName("test2:usersToProvisionGroup").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+    
+    usersToProvisionGroup.addMember(testGroup.toSubject());
+    
+    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
+    
+    ScimProvisionerTestConfigInput scimProvisioningStrategy = new ScimProvisionerTestConfigInput().assignProvisioningStrategy("scimGithubOrgs");
+    scimProvisioningStrategy.assignConfigId("githubProvisioner");
+    scimProvisioningStrategy.assignGroupOfUsersToProvision(usersToProvisionGroup);
+    scimProvisioningStrategy.addExtraConfig("loadEntitiesToGrouperTable", "true");
+    ScimProvisionerTestUtils.configureScimProvisioner(scimProvisioningStrategy);
+
+    try {
+      // this will create tables
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
+      
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
+      
+      new GcDbAccess().connectionName("grouper").sql("insert into mock_scim_user (active,cost_center,display_name,email_type,email_value,email_type2,email_value2,employee_number,external_id,family_name,formatted_name,given_name,id,middle_name,user_name,user_type,org,phone_type,phone_value,phone_type2,phone_value2,title,division,department,service_now_emp_num) values "
+          + "('T',NULL,NULL,NULL,'test.subject.1@somewhere.someSchool.edu',NULL,NULL,NULL,NULL,'my name is test.subject.1',NULL,'my name is test.subject.1','f6c99c1cf021454dbfd24ebd80e29916',NULL,'test.subject.1',NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,NULL,'10000351')").executeSql();
+      
+      GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("githubProvisioner");
+      attributeValue.setTargetName("githubProvisioner");
+      attributeValue.setStemScopeString("sub");
+      
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over      
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_scim_group").select(int.class));
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+ 
+//      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+//     
+//      assertEquals(new Integer(1), new GcDbAccess().connectionName("grouper").sql("select count(1) from grouper_prov_duo_user").select(int.class));
+//      
+//      List<Object[]> results = new GcDbAccess().connectionName("grouper").sql("select config_id, user_id, aliases, phones, is_push_enabled, "
+//          + " email, first_name, last_name, is_enrolled, last_directory_sync, notes, real_name, status, user_name, created_at, last_login_time from grouper_prov_duo_user").selectList(Object[].class);
+//      
+//      Object[] oneRowOfData = results.get(0);
+//      
+//      assertEquals("myDuoProvisioner", oneRowOfData[0]);
+//      assertEquals("123abc", oneRowOfData[1]);
+//      assertEquals("abc,test", oneRowOfData[2]);
+//      assertEquals("123-456-7890", oneRowOfData[3]);
+//      assertEquals("T", oneRowOfData[4]);
+//      assertEquals("test.subject.0@test.com", oneRowOfData[5]);
+//      assertEquals("first", oneRowOfData[6]);
+//      assertEquals("last", oneRowOfData[7]);
+//      assertEquals("T", oneRowOfData[8]);
+//      assertTrue(BigDecimal.valueOf(72832323223L).equals(oneRowOfData[9]));
+//      assertEquals("test notes", oneRowOfData[10]);
+//      assertEquals("real name", oneRowOfData[11]);
+//      assertEquals("active", oneRowOfData[12]);
+//      assertEquals("user name", oneRowOfData[13]);
+//      assertTrue(BigDecimal.valueOf(87877787878L).equals(oneRowOfData[14]));
+//      assertTrue(BigDecimal.valueOf(78787777888L).equals(oneRowOfData[15]));
+      
+      
+    } finally {
+//      tomcatStop();
+//      if (commandLineExec != null) {
+//        GrouperUtil.threadJoin(commandLineExec.getThread());
+//      }
+    }
+    
   }
 
   public void testGithubMultipleOrgsFull() {
