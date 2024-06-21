@@ -1056,7 +1056,7 @@ public class ExternalSubject extends GrouperAPI implements GrouperHasContext,
           group.addMember(subject, false);
           if (expireAfterDays > 0) {
             Membership membership = group.getImmediateMembership(Group.getDefaultList(), subject, true, true);
-            membership.setEnabledTime(new Timestamp(System.currentTimeMillis() + ((long)expireAfterDays*24*60*60*1000)));
+            membership.setDisabledTime(new Timestamp(System.currentTimeMillis() + ((long)expireAfterDays*24*60*60*1000)));
             membership.update();
           }
         }
