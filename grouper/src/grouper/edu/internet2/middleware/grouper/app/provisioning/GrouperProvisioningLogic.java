@@ -1711,6 +1711,9 @@ public class GrouperProvisioningLogic {
     }
 
     if (GrouperUtil.length(missingGroups) == 0) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
+        this.grouperProvisioner.getDebugMap().put("missingGroupsForCreate", 0);
+      }
       return;
     }
 
@@ -2024,6 +2027,9 @@ public class GrouperProvisioningLogic {
       missingEntityWrappers.add(provisioningEntityWrapper);    
     }
     if (GrouperUtil.length(missingEntities) == 0) {
+      if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
+        this.grouperProvisioner.getDebugMap().put("missingEntitiesForCreate", 0);
+      }
       return;
     }
     // first lets see if we should even be doing this
