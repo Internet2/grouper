@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Timestamp;
 import java.sql.Types;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -11,7 +12,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
@@ -61,6 +61,22 @@ public class GrouperScim2Group {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
       grouperScim2Group.setActive(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("active"), true));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {     
+      
+      Object schemas = targetGroup.retrieveAttributeValue("schemas");
+      if (!GrouperUtil.isBlank(schemas)) {
+        if (schemas instanceof String) {
+          grouperScim2Group.setSchemas((String)schemas);
+        } else if (schemas instanceof Collection) {
+          Collection schemasColl = (Collection)schemas;
+          grouperScim2Group.setSchemas(GrouperUtil.join(schemasColl.iterator(), ","));
+        } else {
+          throw new RuntimeException("Invalid type: "+schemas + " class: "+schemas.getClass());
+        }
+      }
+      
     }
     
     GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetGroup.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
@@ -152,6 +168,10 @@ public class GrouperScim2Group {
       targetGroup.setId(this.id);
     }
     
+    if (this.schemas != null) {
+      targetGroup.assignAttributeValue("schemas", this.schemas);
+    }
+    
     targetGroup.assignAttributeValue("active", this.active);
     
     if (this.customAttributes != null) {
@@ -205,6 +225,12 @@ public class GrouperScim2Group {
     grouperScimGroup.setCreatedJson(GrouperUtil.jsonJacksonGetString(metaNode, "created"));
     grouperScimGroup.setLastModifiedJson(GrouperUtil.jsonJacksonGetString(metaNode, "lastModified"));
     grouperScimGroup.setActive(GrouperUtil.booleanValue(GrouperUtil.jsonJacksonGetBoolean(groupNode, "active"), true));
+    
+    if (groupNode.get("schemas") != null) {
+      Set<String> schemasStringSet = GrouperUtil.jsonJacksonGetStringSet(groupNode, "schemas");
+      grouperScimGroup.schemas = GrouperUtil.join(schemasStringSet.iterator(), ',');
+    }
+    
     
     GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
     
@@ -291,6 +317,12 @@ public class GrouperScim2Group {
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
       GrouperUtil.jsonJacksonAssignBoolean(result, "active", GrouperUtil.booleanValue(this.active, true));
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {      
+      if (!StringUtils.isBlank(this.schemas)) {
+        GrouperUtil.jsonJacksonAssignStringArray(result, "schemas", GrouperUtil.splitTrimToSet(this.schemas, ","));
+      }
     }
     
     if (customAttributes != null) {
@@ -436,6 +468,8 @@ public class GrouperScim2Group {
 
   private String displayName;
 
+  private String schemas;
+
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperScim2Group.class);
   
@@ -458,6 +492,16 @@ public class GrouperScim2Group {
     this.displayName = displayName;
   }
   
+  
+  public String getSchemas() {
+    return schemas;
+  }
+
+  
+  public void setSchemas(String schemas) {
+    this.schemas = schemas;
+  }
+
   /**
    * If an attribute has a json pointer then the name and string value or set of string values will be here
    */

@@ -214,7 +214,7 @@ public class GrouperScim2ApiCommands {
       // }
 
       ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
-
+      
       {
         ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
         schemasNode.add("urn:ietf:params:scim:api:messages:2.0:PatchOp");
@@ -679,13 +679,12 @@ public class GrouperScim2ApiCommands {
     try {
 
       ObjectNode jsonToSend = grouperScimUser.toJson(fieldsToUpdate);
-      
-      {
+      if (!jsonToSend.has("schemas")) {
         ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
         schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:User");
         jsonToSend.set("schemas", schemasNode);
       }
-
+     
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, GrouperHttpMethod.post, configId, "/Users",
@@ -861,6 +860,10 @@ public class GrouperScim2ApiCommands {
         if (pageSize == -1 || !foundNewUser) {
           return results;
         }
+        
+//        if (results.size() >= 5000) {
+//          return results; //TODO remove it; 
+//        }
 
       } while (true);
         
@@ -918,8 +921,7 @@ public class GrouperScim2ApiCommands {
     try {
 
       ObjectNode jsonToSend = grouperScimGroup.toJson(fieldsToUpdate);
-      
-      {
+      if (!jsonToSend.has("schemas")) {
         ArrayNode schemasNode = GrouperUtil.jsonJacksonArrayNode();
         schemasNode.add("urn:ietf:params:scim:schemas:core:2.0:Group");
         jsonToSend.set("schemas", schemasNode);
