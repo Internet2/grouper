@@ -406,17 +406,20 @@ public class SubjectSourceDiagnostics {
   
           Matcher matcher = sourceIdConfigPattern.matcher(configName);
           if (matcher.matches()) {
-            sourceConfigId = matcher.group(1);
-            if (StringUtils.equals(sourceId, SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + sourceConfigId + ".id"))) {
+            String currSourceConfigId = matcher.group(1);
+            if (StringUtils.equals(sourceId, SubjectConfig.retrieveConfig().propertyValueString("subjectApi.source." + currSourceConfigId + ".id"))) {
+              sourceConfigId = currSourceConfigId;
               break;
             }
           }
         }
         
         if (StringUtils.isBlank(sourceConfigId)) {
-  
-          subjectApiReport.append("<font color='red'>ERROR:</font> Cannot find source in subject.properties\n");
-          
+          if (StringUtils.equals(sourceId, "grouperExternal")) {
+            subjectApiReport.append("<font color='blue'>DEBUG:</font> ").append("Not expected to find grouperExternal in subject.properties").append("\n");
+          } else {
+            subjectApiReport.append("<font color='red'>ERROR:</font> Cannot find source in subject.properties\n");
+          }
         } else {
   
           BaseSourceAdapter sourceAdapter = null;

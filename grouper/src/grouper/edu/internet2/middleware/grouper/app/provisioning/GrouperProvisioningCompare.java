@@ -2001,61 +2001,61 @@ public class GrouperProvisioningCompare {
     
     {
       int groupInserts = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningGroups());
-      if (groupInserts > 0) {
+      if (groupInserts > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("groupInsertsAfterCompare", groupInserts);
       }
     }
     {
       int groupUpdates = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningGroups());
-      if (groupUpdates > 0) {
+      if (groupUpdates > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("groupUpdatesAfterCompare", groupUpdates);
       }
     }
     {
       int groupDeletes = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningGroups());
-      if (groupDeletes > 0) {
+      if (groupDeletes > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("groupDeletesAfterCompare", groupDeletes);
       }
     }
     {
       int entityInserts = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningEntities());
-      if (entityInserts > 0) {
+      if (entityInserts > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("entityInsertsAfterCompare", entityInserts);
       }
     }
     {
       int entityUpdates = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningEntities());
-      if (entityUpdates > 0) {
+      if (entityUpdates > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("entityUpdatesAfterCompare", entityUpdates);
       }
     }
     {
       int entityDeletes = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningEntities());
-      if (entityDeletes > 0) {
+      if (entityDeletes > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("entityDeletesAfterCompare", entityDeletes);
       }
     }
     {
       int membershipInserts = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectInserts().getProvisioningMemberships());
-      if (membershipInserts > 0) {
+      if (membershipInserts > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("membershipInsertsAfterCompare", membershipInserts);
       }
     }
     {
       int membershipUpdates = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates().getProvisioningMemberships());
-      if (membershipUpdates > 0) {
+      if (membershipUpdates > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("membershipUpdatesAfterCompare", membershipUpdates);
       }
     }
     {
       int membershipDeletes = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes().getProvisioningMemberships());
-      if (membershipDeletes > 0) {
+      if (membershipDeletes > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("membershipDeletesAfterCompare", membershipDeletes);
       }
     }
     {
       int membershipReplaces = GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces().getProvisioningMemberships());
-      if (membershipReplaces > 0) {
+      if (membershipReplaces > 0 || this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isReadOnly()) {
         debugMap.put("membershipReplacesAfterCompare", membershipReplaces);
       }
     }
