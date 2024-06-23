@@ -402,6 +402,10 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       
+      if (scimConfiguration.isIncludeActiveOnGroupCreate()) {
+        fieldNamesToInsert.add("active");
+      }
+      
       GrouperScim2Group grouperScim2Group = null;
       
       if (scimConfiguration.isDisableGroupsInsteadOfDelete()) {
@@ -824,6 +828,10 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           fieldNamesToInsert.add(fieldName);
         }
       }
+      
+      if (scimConfiguration.isIncludeActiveOnEntityCreate()) {
+        fieldNamesToInsert.add("active");
+      }
 
       GrouperScim2User grouperScim2User = null;
 
@@ -843,7 +851,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       if (grouperScim2User == null) {
-        
+         
         grouperScim2User = GrouperScim2User.fromProvisioningEntity(targetEntity, null);
         
         GrouperScim2ApiCommands.createScimUser(scimConfiguration.getBearerTokenExternalSystemConfigId(),

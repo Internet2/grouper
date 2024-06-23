@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.sql.Types;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -357,10 +358,6 @@ public class GrouperScim2User {
 
     ObjectNode result = GrouperUtil.jsonJacksonNode();
   
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
-      GrouperUtil.jsonJacksonAssignBoolean(result, "active", this.active);
-    }
-    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
       GrouperUtil.jsonJacksonAssignBoolean(result, "active", GrouperUtil.booleanValue(this.active, true));
     }
@@ -1042,8 +1039,20 @@ public class GrouperScim2User {
       grouperScim2User.setUserType(targetEntity.retrieveAttributeValueString("userType"));
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {      
-      grouperScim2User.setSchemas(targetEntity.retrieveAttributeValueString("schemas"));
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {     
+      
+      Object schemas = targetEntity.retrieveAttributeValue("schemas");
+      if (!GrouperUtil.isBlank(schemas)) {
+        if (schemas instanceof String) {
+          grouperScim2User.setSchemas((String)schemas);
+        } else if (schemas instanceof Collection) {
+          Collection schemasColl = (Collection)schemas;
+          grouperScim2User.setSchemas(GrouperUtil.join(schemasColl.iterator(), ","));
+        } else {
+          throw new RuntimeException("Invalid type: "+schemas + " class: "+schemas.getClass());
+        }
+      }
+      
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("phoneNumberType")) {      
