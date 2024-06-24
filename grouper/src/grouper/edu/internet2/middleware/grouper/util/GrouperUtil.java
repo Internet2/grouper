@@ -4094,7 +4094,7 @@ public class GrouperUtil {
   }
 
   /**
-   * 
+   * 2024-06-24T08:00:53.123456Z
    * @param timestamp
    * @return timestamp string
    */
@@ -4104,23 +4104,75 @@ public class GrouperUtil {
       return null;
     }
     
-    String my8601formattedDate = timestampIsoUtcMicros.format(timestamp);
+    String my8601formattedDate = timestampIsoUtcMicrosWithoutZtoString.format(timestamp);
+    
+    // 123456789
+    int nanos = timestamp.getNanos();
+
+    // 456789
+    int microsAndNanos = nanos % 1000000;
+
+    // 456
+    int microsOnly = microsAndNanos / 1000;
+    my8601formattedDate += microsOnly + "Z";
+    
     return my8601formattedDate;
   }
 
+  public static final DateFormat timestampIsoUtcMicrosWithoutZtoString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
+  
+  {
+    timestampIsoUtcMicrosWithoutZtoString.setTimeZone(TimeZone.getTimeZone("UTC"));
+  }
 
-  public static Timestamp timestampIsoUtcMicrosConvertFromString(String string) {
+  /**
+   * take a timestamp: 2023-06-29T18:27:01.227972Z
+   * and get the part of to micros: 2023-06-29T18:27:01.227
+   * and the micros: 972 (toss the Z)
+   */
+  private static final Pattern timestampIsoUtcMicrosPattern = Pattern.compile("^(.*)([0-9]{3})[zZ]$");
+
+  /**
+   * 2023-06-29T18:27:01.227972Z
+   * @param utcStringWithMicros
+   * @return timestamp which is only specific to millis
+   */
+  public static Timestamp timestampIsoUtcMicrosConvertFromString(String utcStringWithMicros) {
     
-    if (StringUtils.isBlank(string)) {
+    if (StringUtils.isBlank(utcStringWithMicros)) {
       return null;
     }
-
+    
+    Matcher matcher = timestampIsoUtcMicrosPattern.matcher(utcStringWithMicros);
+    if (!matcher.matches()) {
+      throw new RuntimeException("Cant parse string: '" + utcStringWithMicros + "' in format: 2023-06-29T18:27:01.227972Z");
+    }
+    // 2023-06-29T18:27:01.227
+    String firstPart = matcher.group(1);
+    
+    // 972
+    String microsString = matcher.group(2);
+    
     try {
-      Date date = timestampIsoUtcMicros.parse(string);
-      return new Timestamp(date.getTime());
+      
+      Date date = timestampIsoUtcMicrosWithoutZtoString.parse(firstPart);
+      Timestamp timestamp = new Timestamp(date.getTime());
+      int nanos = timestamp.getNanos();
+      
+      // 227
+      int millis = nanos / 1000000;
+      
+      // 227972
+      int micros = (1000 * millis) + intValue(microsString);
+
+      // 227972000
+      int newNanos = micros * 1000;
+
+      timestamp.setNanos(newNanos);
+      return timestamp;
     } catch (Exception e) {
       
-      throw new RuntimeException("Cant parse string: '" + string + "' in format: 2023-06-29T18:27:01.227972Z");
+      throw new RuntimeException("Cant parse string: '" + utcStringWithMicros + "' in format: 2023-06-29T18:27:01.227972Z");
     }
   }
   /**
@@ -4150,14 +4202,6 @@ public class GrouperUtil {
     }
   }
 
-  /**
-   * 
-   */
-  public static final DateFormat timestampIsoUtcMicros = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSSSS'Z'");
-  
-  static {
-    timestampIsoUtcMicros.setTimeZone(TimeZone.getTimeZone("UTC"));
-  }
 
 
   /**
