@@ -149,7 +149,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
+    //TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
+    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsIncremental"));
     
   }
   
@@ -5653,6 +5654,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount = 0;
     GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount = 0;
     GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount = 0;
+    GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdProvisionableGroupIdCount = 0;
     
     if (!isFull) {
       incrementalProvision();
@@ -5672,8 +5674,12 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
     assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
-    assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
-
+    if (isFull) {
+      assertEquals(2, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdProvisionableGroupIdCount);
+    } else {
+      assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
+    }
+    
     assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
   
     String sql = "select uuid from testgrouper_prov_ldap_group";
@@ -5709,6 +5715,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount = 0;
     GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount = 0;
+    GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdProvisionableGroupIdCount = 0;
     GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount = 0;
     
     if (!isFull) {
@@ -5729,7 +5736,11 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
     assertEquals(0, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
-    assertEquals(0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
+    if (isFull) {
+      assertEquals(0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdProvisionableGroupIdCount);
+    } else {
+      assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
+    }
 
     sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr where attribute_name = 'admins'";
     
@@ -5746,7 +5757,50 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "admins", "test.subject.4")));
     assertTrue(attributesInTable.contains(new MultiKey("test:testGroup", "admins", "test.subject.6")));
 
-  
+    testGroup.delete();
+    
+    
+    GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount = 0;
+    GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount = 0;
+    GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdProvisionableGroupIdCount = 0;
+    GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount = 0;
+    
+    if (!isFull) {
+      incrementalProvision();
+    } else {
+      fullProvision();
+    }
+
+    GrouperUtil.sleep(2000);
+
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput(); 
+
+    assertEquals(0,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg, grouper_groups gg, grouper_fields gf, grouper_groups gg_dep "
+        + " where gsdgg.group_id = gg.id and gsdgg.field_id = gf.id and gsdgg.provisionable_group_id = gg_dep.id and gg.name = 'test:testGroup' and gg_dep.name = 'test:testGroup' "
+        + " and gf.name = 'admins'").select(int.class).intValue());
+    assertEquals(0,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg").select(int.class).intValue());
+
+    assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
+    assertEquals(0, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
+    if (isFull) {
+      assertEquals(0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdProvisionableGroupIdCount);
+    } else {
+      assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveByGroupIdFieldIdCount);
+    }
+
+    sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr where attribute_name = 'admins'";
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    
+    attributesInTable = new HashSet<MultiKey>();
+    
+    for (Object[] row: dataInTable) {
+      attributesInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(0, attributesInTable.size());
+      
   }
 
   public void testPennDentalDatabaseMarkExistsFull() {
