@@ -69,7 +69,7 @@ public class GrouperReportJob implements Job {
   
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          Pattern grouperReportingJobNamePattern = Pattern.compile("^grouper_report_([a-zA-Z0-9]+)_(\\w+)$");
+          Pattern grouperReportingJobNamePattern = Pattern.compile("^grouper_report_([a-zA-Z0-9]+)_([\\w-]+)$");
           
           long startTime = System.currentTimeMillis();
           
