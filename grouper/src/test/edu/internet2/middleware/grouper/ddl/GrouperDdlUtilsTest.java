@@ -1961,7 +1961,6 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   }
   
-  
   public void testUpgradeFrom2_6_16To5_0_0ddlUtils() {
     
     //lets make sure everything is there on install
