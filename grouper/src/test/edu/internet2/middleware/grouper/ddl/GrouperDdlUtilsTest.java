@@ -23,17 +23,12 @@ import java.io.File;
 import java.sql.Connection;
 
 import org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Index;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
-import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasksJob;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.exception.SchemaException;
@@ -1948,76 +1943,6 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     assertTrue(GrouperDdlUtils.assertIndexExists("grouper_members", "member_id_index_idx"));
   
     scriptToGetTo2_6_14.delete();
-    
-    grouperDdlEngine = new GrouperDdlEngine();
-    grouperDdlEngine.assignFromUnitTest(true)
-        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
-        .assignDropOnly(false)
-        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
-    assertEquals(
-        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
-        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
-    assertEquals(
-        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
-        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
-  }
-  
-  
-  /**
-   * 
-   */
-  public void testUpgradeFrom5_0_4To5_11_0ddlUtils() {
-    
-    //lets make sure everything is there on install
-    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user"));
-    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user_attr"));
-  
-    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
-    grouperDdlEngine.assignFromUnitTest(true)
-        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
-        .assignDropOnly(false)
-        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
-    assertEquals(
-        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
-        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
-    assertEquals(
-        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
-        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
-  
-    // drop everything
-    new GrouperDdlEngine().assignFromUnitTest(true)
-      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
-      .assignMaxVersions(null).assignPromptUser(true).runDdl();
-  
-    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_51_postgres.sql
-    // get to 5.0.4
-    File scriptToGetTo5_0_4 = retrieveScriptFile("GrouperDdl_5_0_4_" + GrouperDdlUtils.databaseType() + ".sql");
-    
-    GrouperDdlUtils.sqlRun(scriptToGetTo5_0_4, true, true);
-  
-    // stuff gone
-    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user"));
-    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user_attr"));
-  
-    grouperDdlEngine = new GrouperDdlEngine();
-    grouperDdlEngine.assignFromUnitTest(true)
-        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
-        .assignDropOnly(false)
-        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
-    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
-        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
-        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
-            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
-  
-    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
-    //first make sure the DB ddl is up to date
-    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
-  
-    //lets make sure everything is there on upgrade
-    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user"));
-    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user_attr"));
-  
-    scriptToGetTo5_0_4.delete();
     
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)

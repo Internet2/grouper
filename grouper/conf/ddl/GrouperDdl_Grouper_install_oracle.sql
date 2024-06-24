@@ -7286,11 +7286,6 @@ COMMENT ON COLUMN grouper_sync_dep_group_group.field_id IS 'field uuid';
 COMMENT ON COLUMN grouper_sync_dep_group_group.provisionable_group_id IS 'group uuid of the provisionable group that uses this other group as a role';
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-<<<<<<< GROUPER_4_BRANCH
 ('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 44, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
 to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V44, ');
-=======
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V47, ');
->>>>>>> 1080462 GRP-5503: allow custom scim attributes in provisioning
 commit;
