@@ -221,12 +221,6 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       ret.add("Undefined or blank property: " + endpointProperty);
     }
 
-    String accessTokenPasswordProperty = configPrefix + "accessTokenPassword";
-    String accessTokenPassword = config.propertyValueString(accessTokenPasswordProperty);
-    if (GrouperUtil.isBlank(accessTokenPassword)) {
-      ret.add("Undefined or blank property: " + accessTokenPasswordProperty);
-    }
-
     String testUrlSuffixProperty = configPrefix + "testUrlSuffix";
     String testUrlSuffix = config.propertyValueString(testUrlSuffixProperty);
     if (!GrouperUtil.isBlank(testUrlSuffix)) {

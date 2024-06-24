@@ -13,6 +13,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSCredentialsProvider;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;
@@ -38,9 +42,6 @@ import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingConfig;
 import edu.internet2.middleware.grouperClient.messaging.GrouperMessagingSystem;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
@@ -274,13 +275,14 @@ public class GrouperMessagingSqsSystem implements GrouperMessagingSystem {
           GrouperMessagingConfig grouperMessagingConfig = GrouperClientConfig.retrieveConfig().retrieveGrouperMessagingConfigNonNull(messagingSystemName);
           String accessKey = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "accessKey");
           String secretKey = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "secretKey");
+          String awsRegion = grouperMessagingConfig.propertyValueString(GrouperClientConfig.retrieveConfig(), "awsRegion");
           
           accessKey = GrouperClientUtils.decryptFromFileIfFileExists(accessKey, null);
           secretKey = GrouperClientUtils.decryptFromFileIfFileExists(secretKey, null);
           
           AWSCredentials credentials = new BasicAWSCredentials(accessKey, secretKey);
           AWSCredentialsProvider credentialsProvider = new AWSStaticCredentialsProvider(credentials);
-          sqs = AmazonSQSClientBuilder.standard().withCredentials(credentialsProvider).build();
+          sqs = AmazonSQSClientBuilder.standard().withCredentials(credentialsProvider).withRegion(awsRegion).build();
           
           messagingSystemNameConnection.put(messagingSystemName, sqs);
             

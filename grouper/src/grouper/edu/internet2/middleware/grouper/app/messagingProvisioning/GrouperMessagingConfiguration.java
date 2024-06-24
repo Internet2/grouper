@@ -46,7 +46,12 @@ public class GrouperMessagingConfiguration extends GrouperProvisioningConfigurat
     } 
     
     this.queueOrTopicName = this.retrieveConfigString("queueOrTopicName", true);
-    this.queueType = GrouperMessageQueueType.valueOfIgnoreCase(this.retrieveConfigString("queueType", true), true);
+    if (StringUtils.equals(this.messagingType, "AWS_SQS")) {
+      this.queueType = GrouperMessageQueueType.queue;
+    } else {
+      this.queueType = GrouperMessageQueueType.valueOfIgnoreCase(this.retrieveConfigString("queueType", true), true);
+    }
+    
     this.exchangeType = GrouperMessagingExchangeType.valueOfIgnoreCase(this.retrieveConfigString("exchangeType", false), false);
     this.messagingFormatType = GrouperMessagingFormatType.valueOfIgnoreCase(this.retrieveConfigString("messagingFormatType", true), true);
     
