@@ -34,7 +34,9 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class GrouperProvisioningTranslator {
   
   /**
-   * of the groups used in translation (user or group), this is a mapping of group name to group id
+   * of the groups used in translation (user or group), this is a mapping of group name to group id.  
+   * if the group id is null and it was deleted then should return no privileges/memberships
+   * if the group id is null and never existed then it is probably misconfigured and will return no members and will log the group with issue
    */
   private Map<String, String> groupNameToGroupId = new HashMap<>();
   
@@ -203,14 +205,19 @@ public class GrouperProvisioningTranslator {
     String fieldId = field.getId();
     
     String groupId = this.groupNameToGroupId.get(groupName);
-    if (StringUtils.isBlank(groupId)) {
+    if (StringUtils.isBlank(groupId) && !this.groupNameToGroupId.containsKey(groupName)) {
       
       this.initGroupNameToGroupId(GrouperUtil.toSet(groupName));
 
       groupId = this.groupNameToGroupId.get(groupName);
       
     }
-
+    HashSet<String> result = new HashSet<>();
+    
+    if (groupId == null) {
+      return result;
+    }
+    
     MultiKey groupIdFieldIdProvisionableGroupId = new MultiKey(groupId, fieldId, provisionableGroupId);
 
     MultiKey groupIdFieldId = new MultiKey(groupId, fieldId);
@@ -238,7 +245,6 @@ public class GrouperProvisioningTranslator {
       this.initGroupGroupMemberships(GrouperUtil.toSet(groupIdFieldId));
     }
     Set<MultiKey> subjectIdAndEmailAndIdentifiers = this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.get(groupIdFieldId);
-    HashSet<String> result = new HashSet<>();
     int memberFieldIndex = memberFieldToIndex(memberField);
     if (GrouperUtil.length(subjectIdAndEmailAndIdentifiers) > 0) {
       for (MultiKey subjectIdAndEmailAndIdentifier : subjectIdAndEmailAndIdentifiers) {
@@ -269,7 +275,7 @@ public class GrouperProvisioningTranslator {
     String fieldId = field.getId();
     
     String groupId = this.groupNameToGroupId.get(groupName);
-    if (StringUtils.isBlank(groupId)) {
+    if (StringUtils.isBlank(groupId) && !this.groupNameToGroupId.containsKey(groupName)) {
       
       this.initGroupNameToGroupId(GrouperUtil.toSet(groupName));
 
@@ -277,6 +283,10 @@ public class GrouperProvisioningTranslator {
       
     }
 
+    if (groupId == null) {
+      return false;
+    }
+    
     MultiKey groupIdFieldId = new MultiKey(groupId, fieldId);
     
     // keep track of old ones
@@ -432,8 +442,29 @@ public class GrouperProvisioningTranslator {
 
           this.groupNameToGroupId.put(groupName, groupId);
         }
+        if (GrouperUtil.length(groupNamesBatchSet) > 0) {
+          sql = "select source_id, name from grouper_pit_groups where name in ( " + GrouperClientUtils.appendQuestions(groupNamesBatch.size()) + " )";
+          gcDbAccess = new GcDbAccess().sql(sql);
+          for (String groupId : groupNamesBatch) {
+            gcDbAccess.addBindVar(groupId);
+          }
+          groupIdGroupNames = gcDbAccess.selectList(Object[].class);
+          for (Object[] groupIdGroupName : groupIdGroupNames) {
+            String groupId = (String)groupIdGroupName[0];
+            String groupName = (String)groupIdGroupName[1];
+            if (!this.groupNameToGroupId.containsKey(groupName)) {
+              groupNamesBatchSet.remove(groupName);
+              this.groupNameToGroupId.put(groupName, null);
+            }
+          }
+        }
         for (String groupName : groupNamesBatchSet) {
-          throw new RuntimeException("Cannot find group: '" + groupName + "'");
+          GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "errorPrivilegeGroupNotFound", 1);
+          int size = GrouperUtil.intValue(this.getGrouperProvisioner().getDebugMap().get("errorPrivilegeGroupNotFound"));
+          if (size < 10) {
+            this.getGrouperProvisioner().getDebugMap().put("errorPrivilegeGroupNotFound_" + (size-1), groupName);
+          }
+          this.groupNameToGroupId.put(groupName, null);
         }
       }
     }
