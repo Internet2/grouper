@@ -23,7 +23,7 @@ public class ScimProvisioningLoader extends GrouperProvisioningLoader {
   public List<String> getLoaderEntityColumnNames() {
     return GrouperUtil.toList("config_id", "active", "cost_center", "department", "display_name", "division", "email_type", "email_value",
          "email_type2", "email_value2", "employee_number", "external_id", "family_name", "formatted_name", "given_name", "id",
-         "middle_name", "phone_number", "phone_number_type", "phone_number2", "phone_number_type2", "schemas", "title", "user_name", "user_type");
+         "middle_name", "phone_number", "phone_number_type", "phone_number2", "phone_number_type2", "the_schemas", "title", "user_name", "user_type");
   }
   
   @Override

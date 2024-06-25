@@ -1875,7 +1875,7 @@ CREATE TABLE grouper_prov_scim_user
     phone_number_type VARCHAR(256) NULL,
     phone_number2 VARCHAR(256) NULL,
     phone_number_type2 VARCHAR(256) NULL,
-    schemas VARCHAR(256) NULL,
+    the_schemas VARCHAR(256) NULL,
     title VARCHAR(256) NULL,
     user_name VARCHAR(256) NULL,
     user_type VARCHAR(256) NULL,
@@ -1891,8 +1891,7 @@ CREATE TABLE grouper_prov_scim_user_attr
     config_id VARCHAR(50) NOT NULL,
     id VARCHAR(256) NOT NULL,
     attribute_name VARCHAR(256) NULL,
-    attribute_value VARCHAR(4000) NULL,
-    PRIMARY KEY (config_id, id, attribute_name, attribute_value)
+    attribute_value VARCHAR(4000) NULL
 );
 
 ALTER TABLE  grouper_prov_scim_user_attr ADD CONSTRAINT grouper_prov_scim_usat_fk FOREIGN KEY (config_id, id) REFERENCES grouper_prov_scim_user(config_id, id) on delete cascade;

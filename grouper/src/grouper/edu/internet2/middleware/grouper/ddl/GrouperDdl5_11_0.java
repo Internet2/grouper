@@ -86,7 +86,7 @@ public class GrouperDdl5_11_0 {
   
   public static final String COLUMN_GROUPER_PROV_SCIM_USER_PHONE_NUMBER_TYPE2 = "phone_number_type2";
   
-  public static final String COLUMN_GROUPER_PROV_SCIM_USER_SCHEMAS = "schemas";
+  public static final String COLUMN_GROUPER_PROV_SCIM_USER_SCHEMAS = "the_schemas";
 
   public static final String COLUMN_GROUPER_PROV_SCIM_USER_TITLE = "title";
 
@@ -316,11 +316,11 @@ public class GrouperDdl5_11_0 {
 
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperScimUserAttrTable.getName(), 
         "grouper_prov_scim_usat_idx1", false, 
-        COLUMN_GROUPER_PROV_SCIM_USER_ATTR_CONFIG_ID, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_NAME);
+        COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ID + "(100)", COLUMN_GROUPER_PROV_SCIM_USER_ATTR_CONFIG_ID, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_NAME + "(100)");
     
     GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, grouperScimUserAttrTable.getName(), 
         "grouper_prov_scim_usat_idx2", true, 
-        COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ID, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_CONFIG_ID, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_VALUE);
+        COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ID + "(100)", COLUMN_GROUPER_PROV_SCIM_USER_ATTR_CONFIG_ID, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_VALUE + "(100)");
 
   }
 
@@ -339,7 +339,7 @@ public class GrouperDdl5_11_0 {
     Table grouperFileTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
   
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_SCIM_USER_CONFIG_ID,
-        Types.VARCHAR, "50", false, true);
+        Types.VARCHAR, "50", true, true);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_SCIM_USER_ID,
         Types.VARCHAR, "256", true, true);
@@ -430,16 +430,16 @@ public class GrouperDdl5_11_0 {
     Table grouperFileTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_CONFIG_ID,
-        Types.VARCHAR, "50", true, true);
+        Types.VARCHAR, "50", !GrouperDdlUtils.isMysql(), true);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ID,
-        Types.VARCHAR, "256", true, true);
+        Types.VARCHAR, "256", !GrouperDdlUtils.isMysql(), true);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_NAME,
-        Types.VARCHAR, "256", true, false);
+        Types.VARCHAR, "256", !GrouperDdlUtils.isMysql(), false);
     
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperFileTable, COLUMN_GROUPER_PROV_SCIM_USER_ATTR_ATTR_VALUE,
-        Types.VARCHAR, "4000", true, false);
+        Types.VARCHAR, "4000", !GrouperDdlUtils.isMysql(), false);
     
   }
 

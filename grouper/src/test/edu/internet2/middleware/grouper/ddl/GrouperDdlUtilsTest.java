@@ -70,7 +70,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_16To2_6_18ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom4_11_0To4_14_0ddlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -1885,6 +1885,158 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
   }
 
+  /**
+   * 
+   */
+  public void testUpgradeFrom4_11_0To4_14_0ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prov_scim_user", "config_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx1"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx2"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user_attr"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prov_scim_user_attr", "config_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx1"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx2"));
+
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    // get to 2.6.16
+    File scriptToGetTo2_6_16 = retrieveScriptFile("GrouperDdl_2_6_16_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_16, true, true);
+    
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_prov_scim_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_prov_scim_user", "config_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx1"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx2"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_prov_scim_user_attr"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_prov_scim_user_attr", "config_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx1"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx2"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prov_scim_user", "config_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx1"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx2"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user_attr"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prov_scim_user_attr", "config_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx1"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx2"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+    
+    // try from upgrade step
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    // get to 2.6.16    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_16, true, true);
+    
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_prov_scim_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_prov_scim_user", "config_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx1"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx2"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_prov_scim_user_attr"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(false, "grouper_prov_scim_user_attr", "config_id"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx1"));
+    assertFalse(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx2"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    UpgradeTasks.V11.updateVersionFromPrevious(null);
+    UpgradeTasks.V12.updateVersionFromPrevious(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prov_scim_user", "config_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx1"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user", "grouper_prov_scim_user_idx2"));
+
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_scim_user_attr"));
+    assertTrue(GrouperDdlUtils.assertColumnThere(true, "grouper_prov_scim_user_attr", "config_id"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx1"));
+    assertTrue(GrouperDdlUtils.assertIndexExists("grouper_prov_scim_user_attr", "grouper_prov_scim_usat_idx2"));
+  
+    scriptToGetTo2_6_16.delete();
+    
+    // get everything back
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    
+    
+  }
   
   /**
    * 

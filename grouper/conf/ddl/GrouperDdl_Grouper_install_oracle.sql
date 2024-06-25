@@ -1995,7 +1995,7 @@ CREATE TABLE grouper_prov_scim_user
     phone_number_type VARCHAR2(256),
     phone_number2 VARCHAR2(256),
     phone_number_type2 VARCHAR2(256),
-    schemas VARCHAR2(256),
+    the_schemas VARCHAR2(256),
     title VARCHAR2(256),
     user_name VARCHAR2(256),
     user_type VARCHAR2(256),
@@ -7227,7 +7227,7 @@ COMMENT ON COLUMN grouper_prov_scim_user.phone_number2 IS 'phone number2 for the
 
 COMMENT ON COLUMN grouper_prov_scim_user.phone_number_type2 IS 'phone number type2 for the user';
 
-COMMENT ON COLUMN grouper_prov_scim_user.schemas IS 'schemas for the user';
+COMMENT ON COLUMN grouper_prov_scim_user.the_schemas IS 'schemas for the user';
 
 COMMENT ON COLUMN grouper_prov_scim_user.title IS 'title for the user';
 
