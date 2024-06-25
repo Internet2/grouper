@@ -237,6 +237,83 @@ public class GrouperCheckConfig {
     EXISTS };
   
   /**
+   * verify that a group exists by name (dont throw exceptions)
+   * @param grouperSession (probably should be root session)
+   * @param groupName
+   * @param logError 
+   * @param autoCreate if auto create, or null, for grouper.properties setting
+   * @param logAutocreate 
+   * @param displayExtension optional, dislpay extension if creating
+   * @param groupDescription group description if auto create
+   * @param propertyDescription for logging explaning to the user how to fix the problem
+   * @param groupResult put in an array of size one to get the group back
+   * @return if group exists or not or was created
+   * @deprecated use: Group group = new GroupSave().assignName("name").assignDisplayExtension("displayExtension").assignDescription("description").assignCreateParentStemsIfNotExist(true).save();
+   * 
+   */
+  @Deprecated
+  public static CheckGroupResult checkGroup(GrouperSession grouperSession, String groupName, 
+      boolean logError, Boolean autoCreate, 
+      boolean logAutocreate, String displayExtension, String groupDescription, String propertyDescription,
+      Group[] groupResult) {
+    
+    if (configCheckDisabled()) {
+      return CheckGroupResult.DIDNT_CHECK;
+    }
+    if (StringUtils.isBlank(groupName)) {
+      return CheckGroupResult.GROUP_NAME_EMPTY;
+    }
+    
+    try {
+      Group group = GroupFinder.findByName(grouperSession, groupName, true, new QueryOptions().secondLevelCache(false));
+      if (group != null) {
+        if (GrouperUtil.length(groupResult) >= 1) {
+          groupResult[0] = group;
+        }
+        GroupFinder.groupCacheAsRootAddSystemGroup(group);
+        return CheckGroupResult.EXISTS;
+      }
+    } catch (Exception e) {
+      
+    }
+    
+    if (logError) {
+      String error = "cannot find group from config: " + propertyDescription + ": " + groupName;
+      System.err.println("Grouper warning: " + error);
+      LOG.warn(error);
+    }
+    
+    //get auto create from config
+    if (autoCreate == null) {
+      Properties properties = GrouperConfig.retrieveConfig().properties();
+      autoCreate = GrouperUtil.propertiesValueBoolean(properties, GrouperConfig.retrieveConfig().propertiesOverrideMap(), 
+          "configuration.autocreate.system.groups", false);
+    }
+    
+    if (autoCreate) {
+      try {
+        Group group = Group.saveGroup(grouperSession, null, null, groupName, displayExtension, groupDescription, null, true);
+        if (GrouperUtil.length(groupResult) >= 1) {
+          groupResult[0] = group;
+          GroupFinder.groupCacheAsRootAddSystemGroup(group);
+        }
+        if (logAutocreate) {
+          String error = "auto-created " + propertyDescription + ": " + groupName;
+          System.err.println("Grouper note: " + error);
+          LOG.warn(error);
+        }
+        return CheckGroupResult.CREATED;
+      } catch (Exception e) {
+        System.err.println("Grouper error: " + groupName + ", " + ExceptionUtils.getFullStackTrace(e));
+        LOG.error("Problem with group: " + groupName, e);
+        return CheckGroupResult.ERROR_CREATING;
+      }
+    }
+    
+    return CheckGroupResult.DOESNT_EXIST;
+  }
+
+  /**
    * check a jar
    * @param name name of the jar from grouper
    * @param size that the jar should be
@@ -2254,6 +2331,48 @@ public class GrouperCheckConfig {
     return checkAttribute(stem, attributeDef, extension, extension, description, attributeDefNameSaves);
   }
   
+  /**
+   * make sure an attribute is there or add it if not
+   * @param stem
+   * @param attributeDef 
+   * @param extension
+   * @param displayExtension
+   * @param description
+   * @param logAutocreate 
+   * @return the attribute def name
+   * @deprecated use: AttributeDefName attributeDefName = new AttributeDefNameSave(attributeDef).assignName(stem.getName() + ":extension").assignCreateParentStemsIfNotExist(true).assignDisplayExtension(displayExtension).assignDescription("description").save();
+   */
+  @Deprecated
+  public static AttributeDefName checkAttribute(Stem stem, AttributeDef attributeDef, String extension, String displayExtension, String description, boolean logAutocreate) {
+    
+    String attributeDefNameName = stem.getName() + ":" + extension;
+    
+    //dont cache since if not there, that not there will be cached
+    AttributeDefName attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(attributeDefNameName, false, new QueryOptions().secondLevelCache(false));
+
+    if (attributeDefName == null) {
+      try {
+        attributeDefName = stem.addChildAttributeDefName(attributeDef, extension, displayExtension);
+      } catch (RuntimeException theException) {
+        GrouperUtil.sleep(3000);
+        attributeDefName = GrouperDAOFactory.getFactory().getAttributeDefName().findByNameSecure(attributeDefNameName, false, new QueryOptions().secondLevelCache(false));
+        if (attributeDefName == null) {
+          throw theException;
+        }
+        return attributeDefName;
+      }
+      attributeDefName.setDescription(description);
+      attributeDefName.store();
+      
+      if (logAutocreate) {
+        String error = "auto-created attributeDefName: " + attributeDefNameName;
+        System.err.println("Grouper note: " + error);
+        LOG.warn(error);
+      }
+    }
+    return attributeDefName;
+  }
+
   /**
    * make sure an attribute is there or add it if not
    * @param stem
