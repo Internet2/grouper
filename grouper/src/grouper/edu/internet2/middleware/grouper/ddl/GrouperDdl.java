@@ -2768,6 +2768,14 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl2_6_18.addGrouperSyncDepGroupGroupIndexes(database, ddlVersionBean);
       GrouperDdl2_6_18.addGrouperSyncDepGroupGroupComments(database, ddlVersionBean);
 
+      GrouperDdl5_11_0.addGrouperProvScimUserTable(database, ddlVersionBean);
+      GrouperDdl5_11_0.addGrouperProvScimUserIndex(ddlVersionBean, database);
+      GrouperDdl5_11_0.addGrouperProvScimUserComments(database, ddlVersionBean);
+      
+      GrouperDdl5_11_0.addGrouperProvScimUserAttributeTable(database, ddlVersionBean);
+      GrouperDdl5_11_0.addGrouperProvScimUserAttributeIndex(ddlVersionBean, database);
+      GrouperDdl5_11_0.addGrouperProvScimUserAttributeComments(database, ddlVersionBean);
+
     }
   },
   V45 {
