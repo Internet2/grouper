@@ -88,6 +88,22 @@
                <span class="description">${textContainer.text['provisionerConfigErrorDurationHint']}</span>
              </td>
         </tr>
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigErrorGroupId">${textContainer.text['provisionerConfigErrorGroup']}</label></strong></td>
+          <td>
+             <input type="text" name="provisionerConfigErrorGroup" id="provisionerConfigErrorGroupId" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigErrorGroup}" style="width: 30em" />
+             <br />
+             <span class="description">${textContainer.text['provisionerConfigErrorGroupHint']}</span>
+           </td>
+        </tr>
+        <tr>
+          <td style="vertical-align: top; white-space: nowrap;"><strong><label for="provisionerConfigErrorEntityId">${textContainer.text['provisionerConfigErrorEntity']}</label></strong></td>
+          <td>
+             <input type="text" name="provisionerConfigErrorEntity" id="provisionerConfigErrorEntityId" value="${grouperRequestContainer.provisionerConfigurationContainer.provisionerConfigErrorEntity}" style="width: 30em" />
+             <br />
+             <span class="description">${textContainer.text['provisionerConfigErrorEntityHint']}</span>
+           </td>
+        </tr>
 				
                 <tr>
                   <td></td>
@@ -111,6 +127,29 @@
 	  	
 	  </div>
 	</div>
+
+        <script language="javascript">
+          $(document).ready(function() {
+            if ($('#provisionerConfigObjectTypeId').val() === 'group') {
+              $('#provisionerConfigErrorEntityId').prop('disabled', true);
+            } else if ($('#provisionerConfigObjectTypeId').val() === 'entity') {
+              $('#provisionerConfigErrorGroupId').prop('disabled', true);
+            }
+
+            $("#provisionerConfigObjectTypeId").on('change', function() {
+              if (this.value === 'group') {
+                $('#provisionerConfigErrorGroupId').prop('disabled', false);
+                $('#provisionerConfigErrorEntityId').prop('disabled', true).val('');
+              } else if (this.value === 'entity') {
+                $('#provisionerConfigErrorGroupId').prop('disabled', true).val('');
+                $('#provisionerConfigErrorEntityId').prop('disabled', false);
+              } else {
+                $('#provisionerConfigErrorGroupId').prop('disabled', false);
+                $('#provisionerConfigErrorEntityId').prop('disabled', false);
+              }
+            });
+          });
+        </script>
 	
   <%@ include file="provisioningConfigErrorsSummary.jsp"%>	
   <%@ include file="provisioningConfigErrors.jsp"%>	

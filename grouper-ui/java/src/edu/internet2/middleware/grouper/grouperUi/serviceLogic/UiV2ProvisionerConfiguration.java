@@ -699,6 +699,8 @@ public class UiV2ProvisionerConfiguration {
       String provisionerConfigObjectType = request.getParameter("provisionerConfigObjectType");
       String provisionerConfigErrorType = request.getParameter("provisionerConfigErrorType");
       String provisionerConfigErrorDuration = request.getParameter("provisionerConfigErrorDuration");
+      String provisionerConfigErrorGroup = request.getParameter("provisionerConfigErrorGroup");
+      String provisionerConfigErrorEntity = request.getParameter("provisionerConfigErrorEntity");
       
       
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner(provisionerConfigId);
@@ -708,18 +710,20 @@ public class UiV2ProvisionerConfiguration {
       
       GrouperProvisioningErrorSummary provisioningErrorSummary = GrouperProvisioningService.retrieveProvisioningErrorSummary(provisionerConfigId, provisionerConfigObjectType,
           StringUtils.isBlank(provisionerConfigErrorType)? null: GcGrouperSyncErrorCode.valueOf(provisionerConfigErrorType), 
-          provisionerConfigErrorDuration);
+          provisionerConfigErrorDuration, provisionerConfigErrorGroup, provisionerConfigErrorEntity);
       
       provisionerConfigurationContainer.setGrouperProvisioningErrorSummary(provisioningErrorSummary);
       
       List<GrouperProvisioningError> provisioningErrors = GrouperProvisioningService.retrieveProvisioningErrors(provisionerConfigId, provisionerConfigObjectType, 
           StringUtils.isBlank(provisionerConfigErrorType)? null: GcGrouperSyncErrorCode.valueOf(provisionerConfigErrorType), 
-          provisionerConfigErrorDuration);
+          provisionerConfigErrorDuration, provisionerConfigErrorGroup, provisionerConfigErrorEntity);
       
       provisionerConfigurationContainer.setGrouperProvisioningErrors(provisioningErrors);
       
       provisionerConfigurationContainer.setProvisionerConfigObjectType(provisionerConfigObjectType);
       provisionerConfigurationContainer.setProvisionerConfigErrorDuration(provisionerConfigErrorDuration);
+      provisionerConfigurationContainer.setProvisionerConfigErrorGroup(provisionerConfigErrorGroup);
+      provisionerConfigurationContainer.setProvisionerConfigErrorEntity(provisionerConfigErrorEntity);
       provisionerConfigurationContainer.setSelectedErrorCode(provisionerConfigErrorType);
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 

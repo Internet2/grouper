@@ -383,6 +383,10 @@ public class ProvisionerConfigurationContainer {
   
   private String provisionerConfigErrorDuration;
   
+  private String provisionerConfigErrorGroup;
+
+  private String provisionerConfigErrorEntity;
+
   private GrouperProvisioningErrorSummary grouperProvisioningErrorSummary;
   
   private List<GrouperProvisioningError> grouperProvisioningErrors;
@@ -416,6 +420,25 @@ public class ProvisionerConfigurationContainer {
   public void setProvisionerConfigErrorDuration(String provisionerConfigErrorDuration) {
     this.provisionerConfigErrorDuration = provisionerConfigErrorDuration;
   }
+  
+  public String getProvisionerConfigErrorGroup() {
+    return provisionerConfigErrorGroup;
+  }
+
+  
+  public void setProvisionerConfigErrorGroup(String provisionerConfigErrorGroup) {
+    this.provisionerConfigErrorGroup = provisionerConfigErrorGroup;
+  }
+  
+  public String getProvisionerConfigErrorEntity() {
+    return provisionerConfigErrorEntity;
+  }
+
+  
+  public void setProvisionerConfigErrorEntity(String provisionerConfigErrorEntity) {
+    this.provisionerConfigErrorEntity = provisionerConfigErrorEntity;
+  }
+  
 
   public String getSelectedErrorCode() {
     return selectedErrorCode;
