@@ -307,7 +307,8 @@ public class GrouperGoogleApiCommands {
       
       @Override
       public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
-        boolean isThrottle = httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
+        boolean isThrottle = httpClient.getResponseCode() == 403 
+            || httpClient.getResponseCode() == 429 || httpClient.getResponseCode() == 503;
         if (isThrottle) {                
           GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
         }
