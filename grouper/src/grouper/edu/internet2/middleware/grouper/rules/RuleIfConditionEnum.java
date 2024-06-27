@@ -1434,6 +1434,140 @@ public enum RuleIfConditionEnum {
     public RuleOwnerType getOwnerType() {
       return null;
     }
+  }, 
+  
+  /**
+   * make sure a group has no enabled membership
+   */
+  groupHasTooFewMembers{
+  
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+            
+      GrouperSession rootSession = GrouperSession.startRootSession(false);
+      try {
+        
+        Group group = RuleUtils.group(ruleDefinition.getIfCondition().getIfOwnerId(), 
+            ruleDefinition.getIfCondition().getIfOwnerName(), ruleDefinition.getAttributeAssignType().getOwnerGroupId(), false, false);
+        if (group == null) {
+          LOG.error("Group doesnt exist in rule! " + ruleDefinition);
+          return false;
+        }
+        String groupId = group.getId();
+        
+        String minAllowedString = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+  
+        int minAllowed = GrouperUtil.intValue(minAllowedString);
+        
+        String sources = ruleDefinition.getIfCondition().getIfConditionEnumArg1();
+  
+        String query = "select count(distinct(gm.ID)) from grouper_memberships_all_v gms, grouper_members gm "
+            + "where gms.MEMBER_ID = gm.ID and gms.IMMEDIATE_MSHIP_ENABLED = 'T' and gms.OWNER_GROUP_ID = ? "
+            + "and gms.FIELD_ID = ?";
+  
+        GcDbAccess gcDbAccess = new GcDbAccess().addBindVar(groupId).addBindVar(Group.getDefaultList().getId());
+        
+        if (!StringUtils.isBlank(sources)) {
+          String[] sourcesArray = GrouperUtil.splitTrim(sources, ",");
+          query += " and gm.subject_source in ( " + GrouperClientUtils.appendQuestions(sourcesArray.length) + " ) ";
+          for (String source : sourcesArray) {
+            gcDbAccess.addBindVar(source);
+          }
+        }
+        
+        int count = gcDbAccess.sql(query).select(int.class);
+        
+        return count <= minAllowed;
+        
+      } finally {
+        GrouperSession.stopQuietly(rootSession);
+      }
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+  
+      String error = RuleUtils.validateGroup(ruleDefinition.getIfCondition().getIfOwnerId(), 
+          ruleDefinition.getIfCondition().getIfOwnerName(), 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+  
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+      
+      error = RuleUtils.validateInteger(ruleDefinition.getIfCondition().getIfConditionEnumArg0());
+  
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+  
+      String sources = ruleDefinition.getIfCondition().getIfConditionEnumArg1();
+      if (!StringUtils.isBlank(sources)) {
+        error = RuleUtils.validateSources(sources);
+      }
+  
+      if (!StringUtils.isBlank(error)) {
+        return error;
+      }
+  
+      return null;
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+  
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+  
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return true;
+    }
+
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return GroupPrivilegeStrategy.read;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return RuleOwnerType.GROUP;
+    }
   };
   
   /** logger */
