@@ -492,7 +492,7 @@ public class XmlExportAttributeDefName {
         Query query = session.createQuery(
             "select distinct theAttributeDefName " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion());
         try {
           writer.write("  <attributeDefNames>\n");
   
@@ -544,7 +544,7 @@ public class XmlExportAttributeDefName {
               + "( select theAttributeDef.nameDb from AttributeDef theAttributeDef where theAttributeDef.id = theAttributeDefName.attributeDefId ), "
               + "theAttributeDefName " + exportFromOnQuery(xmlExportMain, true, false));
 
-        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
+        final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion());
 
         //this is an efficient low-memory way to iterate through a resultset
         ScrollableResults results = null;

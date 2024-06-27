@@ -97,9 +97,9 @@ public class XmlExportAttributeAssignActionSetTest extends GrouperTest {
     xmlExportAttributeAssignActionSet.setType("type");
     xmlExportAttributeAssignActionSet.setUuid("uuid");
     
-    String xml = xmlExportAttributeAssignActionSet.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportAttributeAssignActionSet.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportAttributeAssignActionSet = XmlExportAttributeAssignActionSet.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportAttributeAssignActionSet = XmlExportAttributeAssignActionSet.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
     
     assertEquals("contextId", xmlExportAttributeAssignActionSet.getContextId());
     assertEquals("createTime", xmlExportAttributeAssignActionSet.getCreateTime());
@@ -120,7 +120,7 @@ public class XmlExportAttributeAssignActionSetTest extends GrouperTest {
     AttributeAssignActionSet attributeAssignActionSet = AttributeAssignActionSetTest.exampleAttributeAssignActionSet();
     
     XmlExportAttributeAssignActionSet xmlExportAttributeAssignActionSet = attributeAssignActionSet.xmlToExportAttributeAssignActionSet(
-        new GrouperVersion(GrouperVersion.grouperVersion()));
+        new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     attributeAssignActionSet = xmlExportAttributeAssignActionSet.toAttributeAssignActionSet();

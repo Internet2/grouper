@@ -94,9 +94,9 @@ public class XmlExportFieldTest extends GrouperTest {
     xmlExportField.setUuid("uuid");
     xmlExportField.setWritePrivilege("writePrivilege");
     
-    String xml = xmlExportField.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportField.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportField = XmlExportField.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportField = XmlExportField.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
     
     assertEquals("contextId", xmlExportField.getContextId());
     assertEquals(3L, xmlExportField.getHibernateVersionNumber());
@@ -114,7 +114,7 @@ public class XmlExportFieldTest extends GrouperTest {
   public void testConvertToField() {
     Field field = TestField.exampleField();
     
-    XmlExportField xmlExportField = field.xmlToExportField(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportField xmlExportField = field.xmlToExportField(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     field = xmlExportField.toField();

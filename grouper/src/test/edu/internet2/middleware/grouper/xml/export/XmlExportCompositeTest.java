@@ -96,9 +96,9 @@ public class XmlExportCompositeTest extends GrouperTest {
     xmlExportComposite.setType("type");
     xmlExportComposite.setUuid("uuid");
     
-    String xml = xmlExportComposite.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportComposite.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportComposite = XmlExportComposite.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportComposite = XmlExportComposite.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
     
     assertEquals("contextId", xmlExportComposite.getContextId());
     assertEquals("createTime", xmlExportComposite.getCreateTime());
@@ -118,7 +118,7 @@ public class XmlExportCompositeTest extends GrouperTest {
   public void testConvertToComposite() {
     Composite composite = TestComposite.exampleComposite();
     
-    XmlExportComposite xmlExportComposite = composite.xmlToExportComposite(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportComposite xmlExportComposite = composite.xmlToExportComposite(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     composite = xmlExportComposite.toComposite();

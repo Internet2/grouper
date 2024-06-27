@@ -117,9 +117,9 @@ public class XmlExportAttributeDefTest extends GrouperTest {
     xmlExportAttributeDef.setUuid("uuid");
     xmlExportAttributeDef.setValueType("valueType");
     
-    String xml = xmlExportAttributeDef.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportAttributeDef.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportAttributeDef = XmlExportAttributeDef.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportAttributeDef = XmlExportAttributeDef.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
 
     assertEquals("assignToAttributeDef", xmlExportAttributeDef.getAssignToAttributeDef());
     assertEquals("assignToAttributeDefAssn", xmlExportAttributeDef.getAssignToAttributeDefAssn());
@@ -157,7 +157,7 @@ public class XmlExportAttributeDefTest extends GrouperTest {
    */
   public void testConvertToAttributeDef() {
     AttributeDef attributeDef = AttributeDefTest.exampleAttributeDef();
-    XmlExportAttributeDef xmlExportAttributeDef = attributeDef.xmlToExportAttributeDef(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportAttributeDef xmlExportAttributeDef = attributeDef.xmlToExportAttributeDef(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     attributeDef = xmlExportAttributeDef.toAttributeDef();

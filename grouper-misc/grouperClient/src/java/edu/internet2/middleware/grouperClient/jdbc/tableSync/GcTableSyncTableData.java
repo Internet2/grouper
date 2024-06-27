@@ -201,7 +201,8 @@ public class GcTableSyncTableData {
     
     this.indexByPrimaryKey = new HashMap<MultiKey, GcTableSyncRowData>();
     
-    // are we looking at the from side?
+    // are we looking at the from side? this is not a good test, we need to set a boolean if the from and to are same
+    // TODO in GcTableSyncFromData.sync()
     boolean isFrom = this.gcTableSyncTableBean != null && this.gcTableSyncTableBean == this.gcTableSyncTableBean.getGcTableSync().getDataBeanFrom();
       
     for (GcTableSyncRowData row : GrouperClientUtils.nonNull(this.rows)) {

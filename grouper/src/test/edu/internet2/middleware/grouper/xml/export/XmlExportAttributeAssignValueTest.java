@@ -96,9 +96,9 @@ public class XmlExportAttributeAssignValueTest extends GrouperTest {
     xmlExportAttributeAssignValue.setValueMemberId("valueMemberId");
     xmlExportAttributeAssignValue.setValueString("valueString");
     
-    String xml = xmlExportAttributeAssignValue.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportAttributeAssignValue.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportAttributeAssignValue = XmlExportAttributeAssignValue.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportAttributeAssignValue = XmlExportAttributeAssignValue.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
     
     assertEquals("attributeAssignId", xmlExportAttributeAssignValue.getAttributeAssignId());
     assertEquals("contextId", xmlExportAttributeAssignValue.getContextId());
@@ -117,7 +117,7 @@ public class XmlExportAttributeAssignValueTest extends GrouperTest {
   public void testConvertToAttributeAssignValue() {
     AttributeAssignValue attributeAssignValue = AttributeAssignValueTest.exampleAttributeAssignValue();
     
-    XmlExportAttributeAssignValue xmlExportAttributeAssignValue = attributeAssignValue.xmlToExportAttributeAssignValue(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportAttributeAssignValue xmlExportAttributeAssignValue = attributeAssignValue.xmlToExportAttributeAssignValue(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     attributeAssignValue = xmlExportAttributeAssignValue.toAttributeAssignValue();

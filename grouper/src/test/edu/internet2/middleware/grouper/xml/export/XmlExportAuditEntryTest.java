@@ -118,9 +118,9 @@ public class XmlExportAuditEntryTest extends GrouperTest {
     xmlExportAuditEntry.setUserIpAddress("userIpAddress");
 
     
-    String xml = xmlExportAuditEntry.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportAuditEntry.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportAuditEntry = XmlExportAuditEntry.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportAuditEntry = XmlExportAuditEntry.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
 
     assertEquals("actAsMemberId", xmlExportAuditEntry.getActAsMemberId());
     assertEquals("auditTypeId", xmlExportAuditEntry.getAuditTypeId());
@@ -161,7 +161,7 @@ public class XmlExportAuditEntryTest extends GrouperTest {
   public void testConvertToAuditEntry() {
     AuditEntry auditEntry = AuditEntryTest.exampleAuditEntry();
     
-    XmlExportAuditEntry xmlExportAuditEntry = auditEntry.xmlToExportAuditEntry(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportAuditEntry xmlExportAuditEntry = auditEntry.xmlToExportAuditEntry(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     auditEntry = xmlExportAuditEntry.toAuditEntry();
