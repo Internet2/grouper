@@ -22,7 +22,7 @@ public class GrouperDdl5_0_4 {
   public static boolean buildingToThisVersionAtLeast(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
-    boolean buildingToThisVersionAtLeast = GrouperDdl.V47.getVersion() <= buildingToVersion;
+    boolean buildingToThisVersionAtLeast = GrouperDdl.V46.getVersion() <= buildingToVersion;
 
     return buildingToThisVersionAtLeast;
   }
@@ -45,7 +45,7 @@ public class GrouperDdl5_0_4 {
   private static boolean buildingToPreviousVersion(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     
-    boolean buildingToPreviousVersion = GrouperDdl.V47.getVersion() > buildingToVersion;
+    boolean buildingToPreviousVersion = GrouperDdl.V46.getVersion() > buildingToVersion;
 
     return buildingToPreviousVersion;
   }

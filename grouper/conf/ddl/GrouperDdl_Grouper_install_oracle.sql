@@ -7712,6 +7712,6 @@ COMMENT ON COLUMN grouper_data_row_field_asgn_v.data_row_assign_internal_id IS '
 
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
-to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V47, ');
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 46, to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS'), 
+to_char(systimestamp, 'YYYY/MM/DD HH12:MI:SS') || ': upgrade Grouper from V0 to V46, ');
 commit;
