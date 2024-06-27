@@ -59,6 +59,7 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.permissions.PermissionAllowed;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.role.Role;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -97,7 +98,7 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleTest("testRuleMaxExpire"));
+    TestRunner.run(new RuleTest("testRuleLonghandVetoPermissionNotAllowedAttributeDef"));
     //TestRunner.run(RuleTest.class);
   }
 
@@ -5739,5 +5740,107 @@ public class RuleTest extends GrouperTest {
     });
     assertEquals("Didnt fire since is a member", initialFirings, RuleEngine.ruleFirings);
 
+  }
+
+  /**
+   * 
+   */
+  public void testRuleLonghandVetoPermissionNotAllowedAttributeDef() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    AttributeDef permissionDef = new AttributeDefSave(grouperSession)
+        .assignName("stem:permissionDef").assignCreateParentStemsIfNotExist(true)
+        .assignAttributeDefType(AttributeDefType.perm)
+        .save();
+      
+    permissionDef.setAssignToEffMembership(true);
+    permissionDef.setAssignToGroup(true);
+    permissionDef.store();
+
+    AttributeDef permissionDefNotAllowed = new AttributeDefSave(grouperSession)
+        .assignName("stem:permissionDefNotAllowed").assignCreateParentStemsIfNotExist(true)
+        .assignAttributeDefType(AttributeDefType.perm)
+        .save();
+      
+    permissionDefNotAllowed.setAssignToEffMembership(true);
+    permissionDefNotAllowed.setAssignToGroup(true);
+    permissionDefNotAllowed.store();
+
+    //make a role
+    Role payrollUser = new GroupSave(grouperSession).assignName("apps:payroll:roles:payrollUser")
+      .assignTypeOfGroup(TypeOfGroup.role).assignCreateParentStemsIfNotExist(true).save();
+  
+    //assign a user to a role
+    payrollUser.addMember(SubjectTestHelper.SUBJ0, false);
+    
+    //create a permission, assign to role
+    AttributeDefName restrictedPermission = new AttributeDefNameSave(grouperSession, permissionDefNotAllowed).assignName("stem2:payroll:permissions:canLogin").assignCreateParentStemsIfNotExist(true).save();
+    AttributeDefName allowedPermission = new AttributeDefNameSave(grouperSession, permissionDef).assignName("stem:payroll:permissions:canLogout").assignCreateParentStemsIfNotExist(true).save();
+      
+
+    
+    //add a rule on role saying only allow permission assignments with certain names of attribute definitions (comma separated), or uuids
+    AttributeAssign attributeAssign = payrollUser
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+  
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.permissionAssignToSubject.name());
+  
+    
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.permissionDefNotInList.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumArg0Name(), permissionDef.getName());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.permision.definition.not.allowed");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Permission is not allowed");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      //assign the permission to another user directly, not due to a role
+      payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(restrictedPermission, SubjectTestHelper.SUBJ0, PermissionAllowed.ALLOWED);
+  
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Permission is not allowed"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    //assign the permission to another user directly, not due to a role
+    payrollUser.getPermissionRoleDelegate().assignSubjectRolePermission(allowedPermission, SubjectTestHelper.SUBJ0, PermissionAllowed.ALLOWED);
+  
+    //this doesnt actually fire
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    
   }
 }

@@ -36,6 +36,12 @@ import edu.internet2.middleware.subject.Subject;
 public interface Role extends GrouperSetElement, Comparable {
 
   /**
+   * 
+   * @return
+   */
+  public AttributeAssignGroupDelegate getAttributeDelegate();
+    
+  /**
    * @see Group#hasMember(Subject)
    * @param subject
    * @return true if has member, false if not

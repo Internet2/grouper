@@ -1342,6 +1342,98 @@ public enum RuleIfConditionEnum {
     public StemPrivilegeStrategy getStemPrivilegeStrategy() {
       return null;
     }
+  }, 
+  
+  /**
+   * make sure the name of the object matches this sql like string (with percent signs and underscores), 
+   * e.g. school:folder:whatever:%groupSuffix
+   */
+  permissionDefNotInList{
+  
+    /**
+     * 
+     */
+    @Override
+    public boolean shouldFire(RuleDefinition ruleDefinition, RuleEngine ruleEngine,
+        RulesBean rulesBean) {
+  
+      String permissionDefList = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+      
+      if (StringUtils.isBlank(permissionDefList)) {
+        throw new RuntimeException("The permission def list should be in the if arg0!");
+      }
+  
+      Set<String> permissionDefSet = GrouperUtil.splitTrimToSet(permissionDefList, ",");
+      if (rulesBean.getAttributeDef() == null) {
+        LOG.info("attributeDef of permission is null");
+        return false;
+      }
+      
+      return !permissionDefSet.contains(rulesBean.getAttributeDef().getName()) && !permissionDefSet.contains(rulesBean.getAttributeDef().getId());
+      
+    }
+  
+    /**
+     * 
+     */
+    @Override
+    public String validate(RuleDefinition ruleDefinition) {
+            
+      if (StringUtils.isBlank(ruleDefinition.getIfCondition().getIfConditionEnumArg0())) {
+        return "ifArg0 is required and is the permission definition list";
+      }
+      
+      return null;
+    }
+    
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeAttributeDef(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeAttributeDef(RuleDefinition ruleDefinition) {
+      return false;
+    }
+  
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeGroup(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeGroup(RuleDefinition ruleDefinition) {
+      return true;
+    }
+  
+    /**
+     * @see edu.internet2.middleware.grouper.rules.RuleIfConditionEnum#isIfOwnerTypeStem(edu.internet2.middleware.grouper.rules.RuleDefinition)
+     */
+    @Override
+    public boolean isIfOwnerTypeStem(RuleDefinition ruleDefinition) {
+      return false;
+    }
+
+    @Override
+    public boolean usesArg0() {
+      return true;
+    }
+
+    @Override
+    public boolean usesArg1() {
+      return false;
+    }
+
+    @Override
+    public GroupPrivilegeStrategy getGroupPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public StemPrivilegeStrategy getStemPrivilegeStrategy() {
+      return null;
+    }
+
+    @Override
+    public RuleOwnerType getOwnerType() {
+      return null;
+    }
   };
   
   /** logger */
