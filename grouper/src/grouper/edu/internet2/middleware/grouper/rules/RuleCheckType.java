@@ -1970,6 +1970,12 @@ public enum RuleCheckType {
           ruleCheck = ruleCheck.clone();
           //set the owner to this group
           ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId());
+        } else if (!StringUtils.isBlank(ruleDefinition.getAttributeAssignType().getOwnerGroupId())) {
+          //clone so we dont edit the object
+          ruleCheck = ruleCheck.clone();
+          //set the owner to this group
+          ruleCheck.setCheckOwnerId(ruleDefinition.getAttributeAssignType().getOwnerGroupId());
+
         } else {
           LOG.error("Not sure why no check owner if not assigned to attributeDef");
         }
@@ -2078,7 +2084,8 @@ public enum RuleCheckType {
      */
     @Override
     public String validate(RuleDefinition ruleDefinition, RuleCheck ruleCheck) {
-      return this.validate(false, ruleDefinition, ruleCheck, false, false, false, true);
+      return this.validate(false, ruleDefinition, ruleCheck, false, 
+          ruleDefinition.getAttributeAssignType().getOwnerGroupId() != null, false, ruleDefinition.getAttributeAssignType().getOwnerAttributeDefId() != null);
     }
   
     /**
@@ -2094,7 +2101,7 @@ public enum RuleCheckType {
      */
     @Override
     public boolean isCheckOwnerTypeGroup(RuleDefinition ruleDefinition) {
-      return false;
+      return true;
     }
 
     /**
@@ -2628,6 +2635,13 @@ public enum RuleCheckType {
         rulesPermissionBean.getAttributeDef().getId(), rulesPermissionBean.getAttributeDef().getName(), null, null, null);
   
     ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
+    
+    if (rulesPermissionBean.getRole() != null && rulesPermissionBean.getAttributeDef() != null && rulesPermissionBean.getSubjectSourceId() != null) {
+      ruleCheck = new RuleCheck(ruleCheckType.name(), 
+        rulesPermissionBean.getRole().getId(), rulesPermissionBean.getRole().getName(), null, null, null);
+    
+      ruleDefinitions.addAll(GrouperUtil.nonNull(ruleEngine.ruleCheckIndexDefinitionsByNameOrId(ruleCheck)));
+    }
     
     return ruleDefinitions;
   }
