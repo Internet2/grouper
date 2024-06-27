@@ -1879,7 +1879,7 @@ CREATE TABLE grouper_prov_scim_user
     title VARCHAR(256) NULL,
     user_name VARCHAR(256) NULL,
     user_type VARCHAR(256) NULL,
-    PRIMARY KEY (config_id, id)
+    PRIMARY KEY (config_id, id(180))
 );
 
 CREATE INDEX grouper_prov_scim_user_idx1 ON grouper_prov_scim_user (email_value, config_id);
