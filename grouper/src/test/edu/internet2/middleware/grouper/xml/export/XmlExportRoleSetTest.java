@@ -97,9 +97,9 @@ public class XmlExportRoleSetTest extends GrouperTest {
     xmlExportRoleSet.setType("type");
     xmlExportRoleSet.setUuid("uuid");
     
-    String xml = xmlExportRoleSet.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportRoleSet.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportRoleSet = XmlExportRoleSet.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportRoleSet = XmlExportRoleSet.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
     
     assertEquals("contextId", xmlExportRoleSet.getContextId());
     assertEquals("createTime", xmlExportRoleSet.getCreateTime());
@@ -120,7 +120,7 @@ public class XmlExportRoleSetTest extends GrouperTest {
     RoleSet roleSet = RoleSetTest.exampleRoleSet();
     
     
-    XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportRoleSet xmlExportRoleSet = roleSet.xmlToExportRoleSet(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     roleSet = xmlExportRoleSet.toRoleSet();

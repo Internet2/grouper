@@ -359,7 +359,7 @@ public class XmlExportAttributeAssignAction {
         Query query = session.createQuery(
             "select distinct theAttributeAssignAction " + exportFromOnQuery(xmlExportMain, true));
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion());
         try {
           writer.write("  <attributeAssignActions>\n");
   
@@ -417,7 +417,7 @@ public class XmlExportAttributeAssignAction {
         
         try {
   
-          final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
+          final GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion());
 
           //this is an efficient low-memory way to iterate through a resultset
           ScrollableResults results = null;

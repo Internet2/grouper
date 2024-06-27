@@ -106,9 +106,9 @@ public class XmlExportAuditTypeTest extends GrouperTest {
     xmlExportAuditType.setLabelString07("labelString07");
     xmlExportAuditType.setLabelString08("labelString08");
     xmlExportAuditType.setLastUpdated("lastUpdated");
-    String xml = xmlExportAuditType.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportAuditType.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportAuditType = XmlExportAuditType.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportAuditType = XmlExportAuditType.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
     
     assertEquals("actionName", xmlExportAuditType.getActionName());
     assertEquals("auditCategory", xmlExportAuditType.getAuditCategory());
@@ -139,7 +139,7 @@ public class XmlExportAuditTypeTest extends GrouperTest {
   public void testConvertToAuditType() {
     AuditType auditType = AuditTypeTest.exampleAuditType();
     
-    XmlExportAuditType xmlExportAuditType = auditType.xmlToExportAuditType(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportAuditType xmlExportAuditType = auditType.xmlToExportAuditType(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     auditType = xmlExportAuditType.toAuditType();

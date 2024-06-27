@@ -650,7 +650,7 @@ public class XmlExportMain {
       
       //note, cant use stax since you cant mix stax and non stax since it wont close elements
       writer.write("<?xml version=\"1.0\" ?>\n<grouperExport");
-      GrouperUtil.xmlAttribute(writer, "version", GrouperVersion.grouperVersion());
+      GrouperUtil.xmlAttribute(writer, "version", GrouperVersion.grouperContainerVersionOrMavenVersion());
       
       if (!this.filterStemsOrObjects()) {
         GrouperUtil.xmlAttribute(writer, "folderRoot", ":");

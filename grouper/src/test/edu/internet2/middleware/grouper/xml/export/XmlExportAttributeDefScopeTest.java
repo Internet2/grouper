@@ -97,9 +97,9 @@ public class XmlExportAttributeDefScopeTest extends GrouperTest {
     xmlExportAttributeDefScope.setScopeString2("scopeString2");
     xmlExportAttributeDefScope.setUuid("uuid");
     
-    String xml = xmlExportAttributeDefScope.toXml(new GrouperVersion(GrouperVersion.grouperVersion()));
+    String xml = xmlExportAttributeDefScope.toXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
     
-    xmlExportAttributeDefScope = XmlExportAttributeDefScope.fromXml(new GrouperVersion(GrouperVersion.grouperVersion()), xml);
+    xmlExportAttributeDefScope = XmlExportAttributeDefScope.fromXml(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()), xml);
     
     assertEquals("attributeDefId", xmlExportAttributeDefScope.getAttributeDefId());
     assertEquals("attributeDefScopeType", xmlExportAttributeDefScope.getAttributeDefScopeType());
@@ -119,7 +119,7 @@ public class XmlExportAttributeDefScopeTest extends GrouperTest {
   public void testConvertToAttributeDefScope() {
     AttributeDefScope attributeDefScope = AttributeDefScopeTest.exampleAttributeDefScope();
     
-    XmlExportAttributeDefScope xmlExportAttributeDefScope = attributeDefScope.xmlToExportAttributeDefScope(new GrouperVersion(GrouperVersion.grouperVersion()));
+    XmlExportAttributeDefScope xmlExportAttributeDefScope = attributeDefScope.xmlToExportAttributeDefScope(new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion()));
 
     //now go back
     attributeDefScope = xmlExportAttributeDefScope.toAttributeDefScope();

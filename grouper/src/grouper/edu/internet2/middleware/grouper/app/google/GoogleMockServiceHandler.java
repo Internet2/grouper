@@ -309,8 +309,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
     
-    List<GrouperGoogleUser> grouperGoogleUsers = HibernateSession.byHqlStatic().createQuery("select distinct user from GrouperGoogleUser user where user.id = :theId")
-        .setString("theId", userId).list(GrouperGoogleUser.class);
+    List<GrouperGoogleUser> grouperGoogleUsers = HibernateSession.byHqlStatic().createQuery("select distinct user from GrouperGoogleUser user where user.id = :theId or user.primaryEmail = :theEmail")
+        .setString("theId", userId).setString("theEmail", userId).list(GrouperGoogleUser.class);
 
     if (GrouperUtil.length(grouperGoogleUsers) == 1) {
       mockServiceResponse.setResponseCode(200);
@@ -324,7 +324,7 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     } else if (GrouperUtil.length(grouperGoogleUsers) == 0) {
       mockServiceResponse.setResponseCode(404);
     } else {
-      throw new RuntimeException("userById: " + GrouperUtil.length(grouperGoogleUsers) + ", id: " + userId);
+      throw new RuntimeException("userByIdOrEmail: " + GrouperUtil.length(grouperGoogleUsers) + ", id: " + userId);
     }
 
   }

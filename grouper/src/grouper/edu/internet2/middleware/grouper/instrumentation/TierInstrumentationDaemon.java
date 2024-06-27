@@ -152,7 +152,7 @@ public class TierInstrumentationDaemon extends OtherJobBase {
     dataForTier.put("msgName", "TIER");
     dataForTier.put("msgVersion", "1.0");
     dataForTier.put("tbProduct", "Grouper");
-    dataForTier.put("tbProductVersion", GrouperVersion.grouperVersion());
+    dataForTier.put("tbProductVersion", GrouperVersion.grouperContainerVersionOrMavenVersion());
         
     if (!StringUtils.isEmpty(System.getenv("GROUPER_CONTAINER_VERSION"))) {
       dataForTier.put("tbTIERRelease", "PACKAGE_" + System.getenv("GROUPER_CONTAINER_VERSION"));

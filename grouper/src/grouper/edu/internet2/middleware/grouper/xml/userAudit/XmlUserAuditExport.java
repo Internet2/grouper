@@ -118,7 +118,7 @@ public class XmlUserAuditExport {
                 HibernateSession hibernateSession = hibernateHandlerBean.getHibernateSession();
                 Session session = hibernateSession.getSession();
   
-                xmlExportFileWriter.write("<userAudits version=\"" + GrouperVersion.grouperVersion() + "\">\n");
+                xmlExportFileWriter.write("<userAudits version=\"" + GrouperVersion.grouperContainerVersionOrMavenVersion() + "\">\n");
 
                 xmlExportFileWriter.write("<xmlMembers>\n");
 

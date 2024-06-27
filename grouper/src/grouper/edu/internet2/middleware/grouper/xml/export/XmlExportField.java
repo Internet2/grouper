@@ -336,7 +336,7 @@ public class XmlExportField {
         Query query = session.createQuery(
             "select theField from Field as theField order by theField.name");
   
-        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperVersion());
+        GrouperVersion grouperVersion = new GrouperVersion(GrouperVersion.grouperContainerVersionOrMavenVersion());
         try {
           writer.write("  <fields>\n");
   

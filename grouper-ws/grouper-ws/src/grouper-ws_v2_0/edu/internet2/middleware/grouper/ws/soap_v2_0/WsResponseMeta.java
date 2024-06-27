@@ -54,7 +54,7 @@ public class WsResponseMeta {
   }
   
   /** server version */
-  private String serverVersion = GrouperVersion.currentVersion().toString();
+  private String serverVersion = GrouperVersion.grouperContainerVersionOrMavenVersion();
   /**
    * @return the serverVersion
    */

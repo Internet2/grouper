@@ -30,6 +30,6 @@ public class BrowserContainer {
    * @return
    */
   public String getGrouperContainerVersion() {
-    return System.getenv("GROUPER_CONTAINER_VERSION");
+    return GrouperVersion.grouperContainerVersion();
   }
 }

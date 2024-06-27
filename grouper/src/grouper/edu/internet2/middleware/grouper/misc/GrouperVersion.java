@@ -108,6 +108,23 @@ public class GrouperVersion {
   private static String grouperVersionString = null;
   
   /**
+   * get the version from the container, or if not there use the jar e.g. 2.5.12
+   * @return the version
+   */
+  public static String grouperContainerVersionOrMavenVersion() {
+    return GrouperUtil.defaultString(grouperContainerVersion(), grouperVersion());
+  }
+  
+  /**
+   * get the version from the container, or null if not there.
+   * you should probably use grouperContainerVersionOrMavenVersion() instead
+   * @return the version
+   */
+  public static String grouperContainerVersion() {
+    return java.lang.System.getenv("GROUPER_CONTAINER_VERSION");
+  }
+  
+  /**
    * get the version from jar e.g. 2.5.12
    * @return the version
    */
@@ -286,7 +303,7 @@ public class GrouperVersion {
    * @return true if the grouper version is greater than or equal to a certain version
    */
   public static boolean grouperVersionGreaterOrEqual(String version) {
-    return _grouperVersionGreaterOrEqualHelper(GrouperVersion.grouperVersion(), version);
+    return _grouperVersionGreaterOrEqualHelper(GrouperVersion.grouperContainerVersionOrMavenVersion(), version);
   }
   
   /**
