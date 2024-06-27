@@ -98,8 +98,8 @@ public class RuleTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    //TestRunner.run(new RuleTest("testRuleLonghandVetoPermissionNotAllowedAttributeDef"));
-    TestRunner.run(RuleTest.class);
+    TestRunner.run(new RuleTest("testRuleMinGroupMembers"));
+    //TestRunner.run(RuleTest.class);
   }
 
   /**
@@ -4778,6 +4778,105 @@ public class RuleTest extends GrouperTest {
       //this is good
       String stack = ExceptionUtils.getFullStackTrace(rve);
       assertTrue(stack, stack.contains("Group has too many members"));
+    }
+  
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+      
+  }
+
+  /**
+   * 
+   */
+  public void testRuleMinGroupMembers() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group minGroup = new GroupSave(grouperSession).assignName("stem:minGroup").assignCreateParentStemsIfNotExist(true).save();
+    
+    AttributeAssign attributeAssign = minGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+    
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+  
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), "g:isa");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), "GrouperSystem");
+
+    //subject use means membership add, privilege assign, permission assign, etc.
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(), RuleCheckType.membershipRemove.name());
+        
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumName(), RuleIfConditionEnum.groupHasTooFewMembers.name());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleIfConditionEnumArg0Name(), "2");
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.veto.name());
+    
+    //key which would be used in UI messages file if applicable
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), "rule.group.has.too.few.members");
+    
+    //error message (if key in UI messages file not there)
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "Group has too few members");
+  
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+  
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+  
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    minGroup.addMember(SubjectTestHelper.SUBJ0);
+    
+    try {
+      minGroup.deleteMember(SubjectTestHelper.SUBJ0);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Group has too few members"));
+    }
+    
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+
+    minGroup.addMember(SubjectTestHelper.SUBJ1);
+
+    try {
+      minGroup.deleteMember(SubjectTestHelper.SUBJ0);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Group has too few members"));
+    }
+    
+    assertEquals(initialFirings+1, RuleEngine.ruleFirings);
+    
+    initialFirings = RuleEngine.ruleFirings;
+
+    minGroup.addMember(SubjectTestHelper.SUBJ2);
+    minGroup.addMember(SubjectTestHelper.SUBJ3);
+
+    minGroup.deleteMember(SubjectTestHelper.SUBJ0);
+    minGroup.deleteMember(SubjectTestHelper.SUBJ1);
+
+    initialFirings = RuleEngine.ruleFirings;
+    
+    try {
+      minGroup.deleteMember(SubjectTestHelper.SUBJ2);
+      fail("Should be vetoed");
+    } catch (RuleVeto rve) {
+      //this is good
+      String stack = ExceptionUtils.getFullStackTrace(rve);
+      assertTrue(stack, stack.contains("Group has too few members"));
     }
   
     assertEquals(initialFirings+1, RuleEngine.ruleFirings);
