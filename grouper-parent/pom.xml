@@ -165,6 +165,7 @@
         <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
         <ldaptive.version>2.3.1</ldaptive.version>
         <unboundid.version>6.0.10</unboundid.version>
+        <!-- if you change this version make sure container substitution still works -->
         <playwright.version>1.43.0</playwright.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
@@ -284,12 +285,6 @@
                 <artifactId>commons-dbcp</artifactId>
                 <version>${dbcp.version}</version>
             </dependency>
-
-            <dependency>
-        <groupId>com.microsoft.playwright</groupId>
-        <artifactId>playwright</artifactId>
-        <version>1.43.0</version>
-    </dependency>
             <dependency>
                 <groupId>asm</groupId>
                 <artifactId>asm</artifactId>
