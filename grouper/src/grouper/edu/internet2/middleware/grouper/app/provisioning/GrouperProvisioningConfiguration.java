@@ -1982,6 +1982,8 @@ public abstract class GrouperProvisioningConfiguration {
     fieldNames.remove("groupMatchingAttributes");
     fieldNames.remove("entitySearchAttributes");
     fieldNames.remove("groupSearchAttributes");
+    fieldNames.remove("searchedForEmailCache");
+    fieldNames.remove("searchedForIdCache");
     
     fieldNames = new TreeSet<String>(fieldNames);
     boolean firstField = true;
