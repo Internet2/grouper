@@ -1,8 +1,11 @@
 package edu.internet2.middleware.grouper.app.remedyV2;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -24,8 +27,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupResponse;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsRequest;
-import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveGroupsResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByGroupResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
@@ -34,7 +35,6 @@ import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
-import org.apache.commons.lang3.StringUtils;
 
 public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
   
@@ -60,26 +60,8 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       
       Long permissionGroupId = targetMembership.retrieveAttributeValueLong("permissionGroupId");
       String remedyLoginId = targetMembership.retrieveAttributeValueString("remedyLoginId");
-      String personId = targetMembership.retrieveAttributeValueString("personId");
-      String permissionGroup = targetMembership.retrieveAttributeValueString("permissionGroup");
       
-      //TODO see if we can fetch the group by id
-      Map<Long, GrouperRemedyGroup> remedyGroups = GrouperRemedyApiCommands.retrieveRemedyGroups(remedyExternalSystemConfigId);
-      GrouperRemedyGroup grouperRemedyGroup = null;
-      if (remedyGroups.containsKey(permissionGroupId)) {
-        grouperRemedyGroup = remedyGroups.get(permissionGroupId);
-      }
-      
-      if (grouperRemedyGroup == null) {
-        return new TargetDaoDeleteMembershipResponse();
-      }
-      
-      GrouperRemedyUser grouperRemedyUser = GrouperRemedyApiCommands.retrieveRemedyUser(remedyExternalSystemConfigId, remedyLoginId);
-      if (grouperRemedyUser == null) {
-        return new TargetDaoDeleteMembershipResponse();
-      }
-      
-      Boolean removed = GrouperRemedyApiCommands.removeUserFromRemedyGroup(remedyExternalSystemConfigId, grouperRemedyUser, grouperRemedyGroup);
+      Boolean removed = GrouperRemedyApiCommands.removeUserFromRemedyGroup(remedyExternalSystemConfigId, remedyLoginId, permissionGroupId);
       if (removed != null) {
         targetMembership.setProvisioned(true);
         for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
@@ -114,17 +96,19 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperRemedyConfiguration remedyConfiguration = (GrouperRemedyConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       String remedyExternalSystemConfigId = remedyConfiguration.getRemedyExternalSystemConfigId();
-      GrouperRemedyGroup grouperRemedyGroup = GrouperRemedyApiCommands.retrieveRemedyGroup(remedyExternalSystemConfigId, permissionGroupId);
+//      GrouperRemedyGroup grouperRemedyGroup = GrouperRemedyApiCommands.retrieveRemedyGroup(remedyExternalSystemConfigId, permissionGroupId);
       
-      if (grouperRemedyGroup == null) {
-        targetMembership.getProvisioningMembershipWrapper().setErrorCode(GcGrouperSyncErrorCode.DNE);
-        throw new RuntimeException("group doesn't exist: "+permissionGroupId);
+      if (permissionGroupId == null) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(targetMembership.getProvisioningMembershipWrapper(), GcGrouperSyncErrorCode.DNE, "Group does not have an id: " + permissionGroup);
+        //targetMembership.getProvisioningMembershipWrapper().setErrorCode(GcGrouperSyncErrorCode.DNE);
+        return new TargetDaoInsertMembershipResponse();
       }
       
-      GrouperRemedyUser grouperRemedyUser = GrouperRemedyApiCommands.retrieveRemedyUser(remedyExternalSystemConfigId, remedyLoginId);
-      if (grouperRemedyUser == null) {
-        targetMembership.getProvisioningMembershipWrapper().setErrorCode(GcGrouperSyncErrorCode.DNE);
-        throw new RuntimeException("user doesn't exist: "+remedyLoginId);
+//      GrouperRemedyUser grouperRemedyUser = GrouperRemedyApiCommands.retrieveRemedyUser(remedyExternalSystemConfigId, remedyLoginId);
+      if (StringUtils.isBlank(personId)) {
+        this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignMembershipError(targetMembership.getProvisioningMembershipWrapper(), GcGrouperSyncErrorCode.DNE, "User does not have an id: " + remedyLoginId);
+        //targetMembership.getProvisioningMembershipWrapper().setErrorCode(GcGrouperSyncErrorCode.DNE);
+        return new TargetDaoInsertMembershipResponse();
       }
       
       GrouperRemedyApiCommands.assignUserToRemedyGroup(remedyExternalSystemConfigId, remedyLoginId, personId,
@@ -177,6 +161,25 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
     
   }
   
+  private Map<Long, GrouperRemedyGroup> permissionGroupIdToGroup;
+  
+  private Map<String, GrouperRemedyGroup> permissionGroupToGroup;
+  
+  private synchronized Map<String, GrouperRemedyGroup> permissionGroupToGroup() {
+    if (permissionGroupToGroup == null) {
+      retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(false));
+    }
+    return permissionGroupToGroup;
+  }
+  
+  private synchronized Map<Long, GrouperRemedyGroup> permissionGroupIdToGroup() {
+    if (permissionGroupIdToGroup == null) {
+      retrieveAllGroups(new TargetDaoRetrieveAllGroupsRequest(false));
+    }
+    return permissionGroupIdToGroup;
+  }
+
+
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
     
@@ -192,7 +195,12 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
       
       Map<Long, GrouperRemedyGroup> remedyGroups = GrouperRemedyApiCommands.retrieveRemedyGroups(remedyExternalSystemConfigId);
 
+      permissionGroupIdToGroup = new HashMap<>();
+      permissionGroupToGroup = new HashMap<>();
+      
       for (GrouperRemedyGroup grouperRemedyGroup : remedyGroups.values()) {
+        permissionGroupIdToGroup.put(grouperRemedyGroup.getPermissionGroupId(), grouperRemedyGroup);
+        permissionGroupToGroup.put(grouperRemedyGroup.getPermissionGroup(), grouperRemedyGroup);
         ProvisioningGroup targetGroup = grouperRemedyGroup.toProvisioningGroup();
         results.add(targetGroup);
       }
@@ -203,34 +211,34 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
     }
   }
   
-  @Override
-  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    long startNanos = System.nanoTime();
-
-    try {
-      GrouperRemedyConfiguration remedyConfiguration = (GrouperRemedyConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-      String remedyExternalSystemConfigId = remedyConfiguration.getRemedyExternalSystemConfigId();
-      
-      Map<MultiKey, GrouperRemedyMembership> remedyMemberships = GrouperRemedyApiCommands.retrieveRemedyMemberships(remedyExternalSystemConfigId);
-
-      List<ProvisioningMembership> results = new ArrayList<>();
-
-      for (GrouperRemedyMembership grouperRemedyMembership : remedyMemberships.values()) {
-        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
-        
-        targetMembership.assignAttributeValue("permissionGroup", grouperRemedyMembership.getPermissionGroup());
-        targetMembership.assignAttributeValue("permissionGroupId", grouperRemedyMembership.getPermissionGroupId());
-        targetMembership.assignAttributeValue("personId", grouperRemedyMembership.getPersonId());
-        targetMembership.assignAttributeValue("remedyLoginId", grouperRemedyMembership.getRemedyLoginId());
-        
-        results.add(targetMembership);
-      }
-
-      return new TargetDaoRetrieveAllMembershipsResponse(results);
-    } finally {
-      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
-    }
-  }
+//  @Override
+//  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
+//    long startNanos = System.nanoTime();
+//
+//    try {
+//      GrouperRemedyConfiguration remedyConfiguration = (GrouperRemedyConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+//      String remedyExternalSystemConfigId = remedyConfiguration.getRemedyExternalSystemConfigId();
+//      
+//      Map<MultiKey, GrouperRemedyMembership> remedyMemberships = GrouperRemedyApiCommands.retrieveRemedyMemberships(remedyExternalSystemConfigId);
+//
+//      List<ProvisioningMembership> results = new ArrayList<>();
+//
+//      for (GrouperRemedyMembership grouperRemedyMembership : remedyMemberships.values()) {
+//        ProvisioningMembership targetMembership = new ProvisioningMembership();
+//        
+//        targetMembership.assignAttributeValue("permissionGroup", grouperRemedyMembership.getPermissionGroup());
+//        targetMembership.assignAttributeValue("permissionGroupId", grouperRemedyMembership.getPermissionGroupId());
+//        targetMembership.assignAttributeValue("personId", grouperRemedyMembership.getPersonId());
+//        targetMembership.assignAttributeValue("remedyLoginId", grouperRemedyMembership.getRemedyLoginId());
+//        
+//        results.add(targetMembership);
+//      }
+//
+//      return new TargetDaoRetrieveAllMembershipsResponse(results);
+//    } finally {
+//      this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveAllMemberships", startNanos));
+//    }
+//  }
   
   @Override
   public TargetDaoRetrieveEntityResponse retrieveEntity(TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest) {
@@ -272,17 +280,14 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
     long startNanos = System.nanoTime();
 
     try {      
-      GrouperRemedyConfiguration remedyConfiguration = (GrouperRemedyConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
-      String remedyExternalSystemConfigId = remedyConfiguration.getRemedyExternalSystemConfigId();
-      
       // we can only retrieve by permission group id
       GrouperRemedyGroup grouperRemedyGroup = null;
 
       if (StringUtils.equals("permissionGroupId", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
-        grouperRemedyGroup = GrouperRemedyApiCommands.retrieveRemedyGroup(
-            remedyExternalSystemConfigId,
-            GrouperUtil.longValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
-      }  else {
+        grouperRemedyGroup = permissionGroupIdToGroup().get(GrouperUtil.longValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue()));
+      } else if (StringUtils.equals("permissionGroup", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+        grouperRemedyGroup = permissionGroupToGroup().get(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
+      } else {
         throw new RuntimeException("Not expecting search attribute '" + targetDaoRetrieveGroupRequest.getSearchAttribute() + "'");
       }
       
@@ -299,65 +304,23 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   
-  /**
-   * try to find group id from the target 
-   * @param targetGroup
-   * @return
-   */
-  private String resolveTargetGroupId(ProvisioningGroup targetGroup) {
-    
-    if (targetGroup == null) {
-      return null;
-    }
-    
-    if (StringUtils.isNotBlank(targetGroup.getId())) {
-      return targetGroup.getId();
-    }
-    
-    TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest = new TargetDaoRetrieveGroupsRequest();
-    targetDaoRetrieveGroupsRequest.setTargetGroups(GrouperUtil.toList(targetGroup));
-    targetDaoRetrieveGroupsRequest.setIncludeAllMembershipsIfApplicable(false);
-    TargetDaoRetrieveGroupsResponse targetDaoRetrieveGroupsResponse = this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().retrieveGroups(
-        targetDaoRetrieveGroupsRequest);
-
-    if (targetDaoRetrieveGroupsResponse == null || GrouperUtil.length(targetDaoRetrieveGroupsResponse.getTargetGroups()) == 0) {
-      return null;
-    }
-    
-    return targetDaoRetrieveGroupsResponse.getTargetGroups().get(0).getId();
-    
-  }
-  
   @Override
   public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
     long startNanos = System.nanoTime();
     ProvisioningGroup targetGroup = targetDaoRetrieveMembershipsByGroupRequest.getTargetGroup();
     
-    String targetGroupId = resolveTargetGroupId(targetGroup);
     List<ProvisioningMembership> provisioningMemberships = new ArrayList<ProvisioningMembership>();
-    
-    if (StringUtils.isBlank(targetGroupId)) {
-      return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
-    }
     
     try {
       GrouperRemedyConfiguration remedyConfiguration = (GrouperRemedyConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       String remedyExternalSystemConfigId = remedyConfiguration.getRemedyExternalSystemConfigId();
       
-      Map<Long, GrouperRemedyGroup> remedyGroups = GrouperRemedyApiCommands.retrieveRemedyGroups(remedyExternalSystemConfigId);
-      GrouperRemedyGroup grouperRemedyGroup = null;
-      if (remedyGroups.containsKey(Long.valueOf(targetGroupId))) {
-        grouperRemedyGroup = remedyGroups.get(Long.valueOf(targetGroupId));
-      }
-      
-      if (grouperRemedyGroup == null) {
-        return new TargetDaoRetrieveMembershipsByGroupResponse(provisioningMemberships);
-      }
-      
-      List<GrouperRemedyMembership> remedyMembershipsForGroup = GrouperRemedyApiCommands.retrieveRemedyMembershipsForGroup(remedyExternalSystemConfigId, grouperRemedyGroup);
+      Long permissionGroupId = targetGroup.retrieveAttributeValueLong("permissionGroupId");
+      GrouperUtil.assertion(permissionGroupId != null, "Permission group id is null for: " + targetGroup.retrieveAttributeValueString("permissionGroup"));
+      List<GrouperRemedyMembership> remedyMembershipsForGroup = GrouperRemedyApiCommands.retrieveRemedyMembershipsForGroup(remedyExternalSystemConfigId, permissionGroupId);
       
       for (GrouperRemedyMembership remedyMembership : remedyMembershipsForGroup) {
-        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
+        ProvisioningMembership targetMembership = new ProvisioningMembership();
         
         targetMembership.assignAttributeValue("permissionGroup", remedyMembership.getPermissionGroup());
         targetMembership.assignAttributeValue("permissionGroupId", remedyMembership.getPermissionGroupId());
@@ -383,7 +346,7 @@ public class GrouperRemedyTargetDao extends GrouperProvisionerTargetDaoBase {
 
     grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
+//    grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
 
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);

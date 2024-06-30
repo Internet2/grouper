@@ -3964,7 +3964,9 @@ public class UiV2Provisioning {
       }
       
       ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-      provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
+      String[] groupIdsForSync = new String[1];
+      groupIdsForSync[0] = group.getId();
+      provisioningMessage.setGroupIdsForSync(groupIdsForSync);
       provisioningMessage.setBlocking(true);
       provisioningMessage.send(targetName);
       

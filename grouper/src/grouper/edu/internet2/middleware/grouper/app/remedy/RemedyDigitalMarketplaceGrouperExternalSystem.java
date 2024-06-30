@@ -42,10 +42,8 @@ public class RemedyDigitalMarketplaceGrouperExternalSystem extends GrouperExtern
   public List<String> test() throws UnsupportedOperationException {
     
     List<String> errors = new ArrayList<>();
-    String testFakeGroupId = "testFakeGroupId";
-    // try to retrieve a fake group and if it's 200, it's all good
     try {
-      GrouperDigitalMarketplaceGroup digitalMarketplaceGroup = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceGroup(this.getConfigId(), testFakeGroupId);
+      GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceGroups(this.getConfigId());
     } catch (Exception e) {
       errors.add("Could not connect with remedy digital marketplace successfully "+GrouperUtil.escapeHtml(e.getMessage(), true));
     }

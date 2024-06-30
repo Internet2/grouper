@@ -620,32 +620,28 @@ public class GrouperDigitalMarketplaceApiCommands {
 
   /**
    * @param digitalMarketplaceExternalSystemConfigId
-   * @param grouperDigitalMarketplaceUser
+   * @param grouperDigitalMarketplaceUser must be fresh
    * @param grouperDigitalMarketplaceGroup
    * @param isIncremental
    * @return true if added, false if already exists
    */
-  public static Boolean assignUserToDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup) {
+  public static Boolean assignUserToDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser,
+      String groupName) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "assignUserToDigitalMarketplaceGroup");
     debugMap.put("loginName", grouperDigitalMarketplaceUser.getLoginName());
-    debugMap.put("groupName", grouperDigitalMarketplaceGroup.getGroupName());
+    debugMap.put("groupName", groupName);
 
     long startTime = System.nanoTime();
     
     try {
   
-      // refresh the user object
-      grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser(
-          digitalMarketplaceExternalSystemConfigId,
-          grouperDigitalMarketplaceUser.getLoginName());
-      
       // restart timer
       startTime = System.nanoTime();
       
-      if (!GrouperClientUtils.nonNull(grouperDigitalMarketplaceUser.getGroups()).contains(grouperDigitalMarketplaceGroup.getGroupName())) {
+      if (!GrouperClientUtils.nonNull(grouperDigitalMarketplaceUser.getGroups()).contains(groupName)) {
         debugMap.put("foundExistingMembership", false);
         JsonNode jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
         
@@ -669,7 +665,7 @@ public class GrouperDigitalMarketplaceApiCommands {
         for (int i=0;i<groups.size();i++) {
           groupsJson.add(groups.get(i).asText());
         }
-        groupsJson.add(grouperDigitalMarketplaceGroup.getGroupName());
+        groupsJson.add(groupName);
         
         userWithGroupsJson.set("groups", groupsJson);
         
@@ -794,26 +790,23 @@ public class GrouperDigitalMarketplaceApiCommands {
   
   /**
    * @param digitalMarketplaceExternalSystemConfigId
-   * @param grouperDigitalMarketplaceUser
+   * @param grouperDigitalMarketplaceUser must be fresh
    * @param grouperDigitalMarketplaceGroup
    * @return true if removed, false if not in there
    */
   public static Boolean removeUserFromDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, 
-      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup) {
+      String groupName) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
     debugMap.put("method", "removeUserFromDigitalMarketplaceGroup");
     debugMap.put("loginName", grouperDigitalMarketplaceUser.getLoginName());
-    debugMap.put("groupName", grouperDigitalMarketplaceGroup.getGroupName());
+    debugMap.put("groupName", groupName);
   
     long startTime = System.nanoTime();
     
     try {
   
-      // refresh the user object
-      grouperDigitalMarketplaceUser = retrieveDigitalMarketplaceUser(digitalMarketplaceExternalSystemConfigId, grouperDigitalMarketplaceUser.getLoginName());
-      
       // restart timer
       startTime = System.nanoTime();
       
@@ -825,7 +818,7 @@ public class GrouperDigitalMarketplaceApiCommands {
       int groupIndex = -1;
       
       for (int i=0;i<groups.size();i++) {
-        if (GrouperClientUtils.equals(grouperDigitalMarketplaceGroup.getGroupName(), groups.get(i).asText())) {
+        if (GrouperClientUtils.equals(groupName, groups.get(i).asText())) {
           groupIndex = i;
           break;
         }
@@ -875,7 +868,7 @@ public class GrouperDigitalMarketplaceApiCommands {
    * @param groupType
    * @return true if added, false if already exists
    */
-  public static Boolean createDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, String groupName, String longGroupName, String comments, String groupType) {
+  public static void createDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, String groupName, String longGroupName, String comments, String groupType) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -886,55 +879,44 @@ public class GrouperDigitalMarketplaceApiCommands {
     
     try {
   
-      // refresh the user object
-      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroupExisting = retrieveDigitalMarketplaceGroups(digitalMarketplaceExternalSystemConfigId).get(groupName);
-      
       // restart timer
       startTime = System.nanoTime();
       
-      if (grouperDigitalMarketplaceGroupExisting == null) {
-        debugMap.put("foundExistingGroup", false);
+      debugMap.put("foundExistingGroup", false);
+      
+      //  {
+      //    "resourceType": "com.bmc.arsys.rx.services.group.domain.RegularGroup",
+      //    "groupName": "chris-hyzer-test",
+      //    "longGroupName": "chris-hyzer-test",
+      //    "groupType": "Change",
+      //    "comments": "chris-hyzer-test comments",
+      //    "status": "Current", "tags" : ["virtualmarketplace"]
+      //  }          
+      
+      
+      ObjectNode groupJsonObject = GrouperUtil.jsonJacksonNode();
+      
+      groupJsonObject.put("resourceType", "com.bmc.arsys.rx.services.group.domain.RegularGroup");
+      groupJsonObject.put("groupName", groupName);
+      if (GrouperClientUtils.isBlank(longGroupName)) {
+        longGroupName = groupName;
+      }
+      groupJsonObject.put("longGroupName", longGroupName);
+      groupType = StringUtils.defaultIfBlank(groupType, "Change");
+      groupJsonObject.put("groupType", groupType);
+      if (!GrouperClientUtils.isBlank(comments)) {
+        groupJsonObject.put("comments", comments);
+      }
+      groupJsonObject.put("status", "Current");
+      ArrayNode tagsArray = GrouperUtil.jsonJacksonArrayNode();
+      tagsArray.add("virtualmarketplace");
+      groupJsonObject.put("tags", tagsArray );
+      
+      String groupJson = groupJsonObject.toString();
+      
+      // /api/rx/application/user/Allen
+      executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/group/", null, groupJson, false);
         
-        //  {
-        //    "resourceType": "com.bmc.arsys.rx.services.group.domain.RegularGroup",
-        //    "groupName": "chris-hyzer-test",
-        //    "longGroupName": "chris-hyzer-test",
-        //    "groupType": "Change",
-        //    "comments": "chris-hyzer-test comments",
-        //    "status": "Current", "tags" : ["virtualmarketplace"]
-        //  }          
-        
-        
-        ObjectNode groupJsonObject = GrouperUtil.jsonJacksonNode();
-        
-        groupJsonObject.put("resourceType", "com.bmc.arsys.rx.services.group.domain.RegularGroup");
-        groupJsonObject.put("groupName", groupName);
-        if (GrouperClientUtils.isBlank(longGroupName)) {
-          longGroupName = groupName;
-        }
-        groupJsonObject.put("longGroupName", longGroupName);
-        groupType = StringUtils.defaultIfBlank(groupType, "Change");
-        groupJsonObject.put("groupType", groupType);
-        if (!GrouperClientUtils.isBlank(comments)) {
-          groupJsonObject.put("comments", comments);
-        }
-        groupJsonObject.put("status", "Current");
-        ArrayNode tagsArray = GrouperUtil.jsonJacksonArrayNode();
-        tagsArray.add("virtualmarketplace");
-        groupJsonObject.put("tags", tagsArray );
-        
-        String groupJson = groupJsonObject.toString();
-        
-        // /api/rx/application/user/Allen
-        executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/group/", null, groupJson, false);
-
-        return true;
-      } 
-        
-      debugMap.put("foundExistingGroup", true);
-    
-      return false;
-  
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;

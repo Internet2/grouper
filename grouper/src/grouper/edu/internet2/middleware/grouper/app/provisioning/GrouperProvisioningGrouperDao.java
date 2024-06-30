@@ -2454,55 +2454,59 @@ public class GrouperProvisioningGrouperDao {
     Set<String> groupIds = new HashSet<String>();
     
     {
-      String sql = "SELECT distinct " + 
-          "    gg.id " + 
-          "FROM " + 
-          "    grouper_stems gs, " + 
-          "    grouper_attribute_assign gaa_marker, " + 
-          "    grouper_attribute_assign gaa_target, " + 
-          "    grouper_attribute_assign gaa_direct, " + 
-          "    grouper_attribute_assign gaa_type_marker, " + 
-          "    grouper_attribute_assign gaa_type_name, " + 
-          "    grouper_attribute_assign_value gaav_target, " + 
-          "    grouper_attribute_assign_value gaav_direct, " + 
-          "    grouper_attribute_assign_value gaav_type_name, " + 
-          "    grouper_attribute_def_name gadn_marker, " + 
-          "    grouper_attribute_def_name gadn_target, " + 
-          "    grouper_attribute_def_name gadn_direct, " + 
-          "    grouper_attribute_def_name gadn_type_marker, " + 
-          "    grouper_attribute_def_name gadn_type_name, " + 
-          "    grouper_stem_set gss, " + 
-          "    grouper_groups gg " + 
-          "WHERE " + 
-          "    gs.id = gaa_marker.owner_stem_id " + 
-          "    AND gaa_marker.attribute_def_name_id = gadn_marker.id " + 
-          "    AND gadn_marker.name = ? " + 
-          "    AND gaa_marker.id = gaa_target.owner_attribute_assign_id " + 
-          "    AND gaa_target.attribute_def_name_id = gadn_target.id " + 
-          "    AND gadn_target.name = ? " + 
-          "    AND gaav_target.attribute_assign_id = gaa_target.id " + 
-          "    AND gaav_target.value_string = ? " + 
-          "    AND gaa_marker.id = gaa_direct.owner_attribute_assign_id " + 
-          "    AND gaa_direct.attribute_def_name_id = gadn_direct.id " + 
-          "    AND gadn_direct.name = ? " + 
-          "    AND gaav_direct.attribute_assign_id = gaa_direct.id " + 
-          "    AND gaav_direct.value_string = 'true' " + 
-          "    AND gs.id = gss.then_has_stem_id " + 
-          "    AND gss.if_has_stem_id = gg.parent_stem " +          
-          "    AND gg.id = gaa_type_marker.owner_group_id " +
-          "    AND gg.type_of_group != 'entity' " + 
-          "    AND gaa_type_marker.attribute_def_name_id = gadn_type_marker.id " +
-          "    AND gadn_type_marker.name = ? " +
-          "    AND gaa_type_marker.id = gaa_type_name.owner_attribute_assign_id " + 
-          "    AND gaa_type_name.attribute_def_name_id = gadn_type_name.id " + 
-          "    AND gadn_type_name.name = ? " + 
-          "    AND gaav_type_name.attribute_assign_id = gaa_type_name.id " + 
-          "    AND gaav_type_name.value_string = 'policy' " + 
-          "    AND gaa_type_marker.enabled = 'T' " +
-          "    AND gaa_type_name.enabled = 'T' " +
-          "    AND gaa_marker.enabled = 'T' " + 
-          "    AND gaa_target.enabled = 'T' " + 
-          "    AND gaa_direct.enabled = 'T' ";
+      String sql = """
+          select
+            distinct gg.id
+          from
+            grouper_stems gs,
+            grouper_attribute_assign gaa_marker,
+            grouper_attribute_assign gaa_target,
+            grouper_attribute_assign gaa_direct,
+            grouper_attribute_assign_value gaav_target,
+            grouper_attribute_assign_value gaav_direct,
+            grouper_attribute_assign_value gaav_type_name,
+            grouper_attribute_def_name gadn_marker,
+            grouper_attribute_def_name gadn_target,
+            grouper_attribute_def_name gadn_direct,
+            grouper_stem_set gss,
+            grouper_groups gg
+          where
+            gs.id = gaa_marker.owner_stem_id
+            and gaa_marker.attribute_def_name_id = gadn_marker.id
+            and gadn_marker.name = ?
+            and gaa_marker.id = gaa_target.owner_attribute_assign_id
+            and gaa_target.attribute_def_name_id = gadn_target.id
+            and gadn_target.name = ?
+            and gaav_target.attribute_assign_id = gaa_target.id
+            and gaav_target.value_string = ?
+            and gaa_marker.id = gaa_direct.owner_attribute_assign_id
+            and gaa_direct.attribute_def_name_id = gadn_direct.id
+            and gadn_direct.name = ?
+            and gaav_direct.attribute_assign_id = gaa_direct.id
+            and gaav_direct.value_string = 'true'
+            and gs.id = gss.then_has_stem_id
+            and gss.if_has_stem_id = gg.parent_stem
+            and gg.type_of_group != 'entity'
+            and gaa_marker.enabled = 'T'
+            and gaa_target.enabled = 'T'
+            and gaa_direct.enabled = 'T'
+            and exists (select 1 from   
+              grouper_attribute_assign gaa_type_marker,
+              grouper_attribute_assign gaa_type_name,   
+              grouper_attribute_def_name gadn_type_marker,
+              grouper_attribute_def_name gadn_type_name
+              where gg.id = gaa_type_marker.owner_group_id
+              and gaa_type_marker.attribute_def_name_id = gadn_type_marker.id
+              and gadn_type_marker.name = ?
+              and gaa_type_marker.id = gaa_type_name.owner_attribute_assign_id
+              and gaa_type_name.attribute_def_name_id = gadn_type_name.id
+              and gadn_type_name.name = ?
+              and gaav_type_name.attribute_assign_id = gaa_type_name.id
+              and gaav_type_name.value_string = 'policy'
+              and gaa_type_marker.enabled = 'T'
+              and gaa_type_name.enabled = 'T'
+            )
+          """;          
       
       List<Object> paramsInitial = new ArrayList<Object>();
       paramsInitial.add(GrouperProvisioningSettings.provisioningConfigStemName()+":"+GrouperProvisioningAttributeNames.PROVISIONING_ATTRIBUTE_NAME);
