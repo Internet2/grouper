@@ -60,7 +60,7 @@ public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
     String testFakeGroupId = "testFakeGroupId";
     // try to retrieve a fake group and if it's 200 or 404, it's all good
     try {
-      GrouperGoogleGroup googleGroup = GrouperGoogleApiCommands.retrieveGoogleGroup(this.getConfigId(), testFakeGroupId);
+      GrouperGoogleGroup googleGroup = GrouperGoogleApiCommands.retrieveGoogleGroup(this.getConfigId(), testFakeGroupId, false, false);
     } catch (Exception e) {
       errors.add("Could not connect with google external system successfully "+GrouperUtil.escapeHtml(e.getMessage(), true));
     }

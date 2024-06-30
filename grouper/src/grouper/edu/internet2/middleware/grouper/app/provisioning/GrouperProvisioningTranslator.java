@@ -5,7 +5,6 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
-import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -173,6 +172,7 @@ public class GrouperProvisioningTranslator {
     memberFieldToIndex.put("subjectidentifier0", 2);
     memberFieldToIndex.put("subjectidentifier1", 3);
     memberFieldToIndex.put("subjectidentifier2", 4);
+    memberFieldToIndex.put("memberid", 5);
   }
 
   /**
@@ -184,7 +184,7 @@ public class GrouperProvisioningTranslator {
     String memberFieldLower = memberField == null ? null : memberField.toLowerCase();
     if (!memberFieldToIndex.containsKey(memberFieldLower)) {
       throw new RuntimeException("Invalid memberField '" + memberField 
-          + "', should be one of: subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2");
+          + "', should be one of: subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, memberId");
     }
     return memberFieldToIndex.get(memberFieldLower);
   }
@@ -345,7 +345,7 @@ public class GrouperProvisioningTranslator {
       List<MultiKey> groupIdFieldIdBatch = GrouperUtil.batchList(groupIdFieldIdList, batchSizeGroups, i);
       
       StringBuilder sqlBase = new StringBuilder("select gmlv.group_name, gmlv.group_id, gmlv.list_name, " 
-          + " gm.subject_id, gm.email0, gm.subject_identifier0, gm.subject_identifier1, gm.subject_identifier2 "
+          + " gm.subject_id, gm.email0, gm.subject_identifier0, gm.subject_identifier1, gm.subject_identifier2, gm.id "
           + " from grouper_members gm, grouper_memberships_lw_v gmlv where gmlv.member_id = gm.id ");
 
       Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
@@ -404,13 +404,15 @@ public class GrouperProvisioningTranslator {
         String subjectIdentifier0 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[5];
         String subjectIdentifier1 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[6];
         String subjectIdentifier2 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[7];
+        String memberId = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[8];
         this.groupNameToGroupId.put(groupName, groupId);
         Set<MultiKey> subjectIdAndEmailAndIdentifiers = this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.get(new MultiKey(groupId, field.getId()));
         if (subjectIdAndEmailAndIdentifiers == null) {
           subjectIdAndEmailAndIdentifiers = new HashSet<>();
           this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.put(new MultiKey(groupId, field.getId()), subjectIdAndEmailAndIdentifiers);
         }
-        subjectIdAndEmailAndIdentifiers.add(new MultiKey(subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2));
+        Object[] multikey = GrouperUtil.toArrayObject(subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, memberId);
+        subjectIdAndEmailAndIdentifiers.add(new MultiKey(multikey));
       }
     }
   } 

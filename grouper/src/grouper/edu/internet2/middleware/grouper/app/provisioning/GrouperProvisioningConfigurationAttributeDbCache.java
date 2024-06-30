@@ -295,4 +295,32 @@ public class GrouperProvisioningConfigurationAttributeDbCache {
     return translationContinueCondition;
   }
   
+  public String getDatabaseColumn() {
+    if (StringUtils.equals("entityAttributeValueCache0", this.getCacheName())) {
+      return "member_from_id2";
+    }
+    if (StringUtils.equals("entityAttributeValueCache1", this.getCacheName())) {
+      return "member_from_id3";
+    }
+    if (StringUtils.equals("entityAttributeValueCache2", this.getCacheName())) {
+      return "member_to_id2";
+    }
+    if (StringUtils.equals("entityAttributeValueCache3", this.getCacheName())) {
+      return "member_to_id3";
+    }
+    if (StringUtils.equals("groupAttributeValueCache0", this.getCacheName())) {
+      return "group_from_id2";
+    }
+    if (StringUtils.equals("groupAttributeValueCache1", this.getCacheName())) {
+      return "group_from_id3";
+    }
+    if (StringUtils.equals("groupAttributeValueCache2", this.getCacheName())) {
+      return "group_to_id2";
+    }
+    if (StringUtils.equals("groupAttributeValueCache3", this.getCacheName())) {
+      return "group_to_id3";
+    }
+    throw new RuntimeException("Invalid cache name: '"+this.getCacheName()+"'");
+  }
+  
 }

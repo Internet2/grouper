@@ -7,6 +7,7 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCache;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningLists;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -49,6 +50,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoUpda
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
   
@@ -123,7 +125,11 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
 
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(), null, null);
+      boolean lookupManagers = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("managers");
+      boolean lookupOwners = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("owners");
+      
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(),
+          null, null, lookupManagers, lookupOwners);
 
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
@@ -151,8 +157,12 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperGoogleConfiguration googleConfiguration = (GrouperGoogleConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
+      boolean lookupManagers = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("managers");
+      boolean lookupOwners = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("owners");
+      
       List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(), null, null);
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(),
+          null, null, lookupManagers, lookupOwners);
       for (GrouperGoogleGroup grouperGoogleGroup : grouperGoogleGroups) {
         ProvisioningGroup targetGroup = grouperGoogleGroup.toProvisioningGroup();
         targetGroups.add(targetGroup);
@@ -227,13 +237,17 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
 
       String attributeValue = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
       
+      boolean lookupManagers = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("managers");
+      boolean lookupOwners = googleConfiguration.getTargetGroupAttributeNameToConfig().containsKey("owners");
+      
       if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute()) || StringUtils.equals("email", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         grouperGoogleGroup = GrouperGoogleApiCommands.retrieveGoogleGroup(googleConfiguration.getGoogleExternalSystemConfigId(), 
-            attributeValue);
+            attributeValue, lookupManagers, lookupOwners);
       } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
       
         if (StringUtils.isNotBlank(attributeValue)) {
-          List<GrouperGoogleGroup> googleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(), "name", attributeValue);
+          List<GrouperGoogleGroup> googleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups(googleConfiguration.getGoogleExternalSystemConfigId(),
+              "name", attributeValue, lookupManagers, lookupOwners);
           if (googleGroups.size() == 1) {
             grouperGoogleGroup = googleGroups.get(0);
           } else if (googleGroups.size() > 1) {
@@ -551,6 +565,87 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperGoogleApiCommands.updateGoogleGroup(googleConfiguration.getGoogleExternalSystemConfigId(), grouperGoogleGroup, fieldNamesToUpdate);
 
       targetGroup.setProvisioned(true);
+      
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        String fieldName = provisioningObjectChange.getAttributeName();
+        if (StringUtils.equals(fieldName, "managers")) {
+          if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+            String email = (String) provisioningObjectChange.getNewValue();
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            GrouperGoogleApiCommands.createGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
+                grouperGoogleGroup.getId(), email, "MANAGER");
+          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
+            String email = (String) provisioningObjectChange.getOldValue();
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            boolean addBackManager = false;
+            boolean addBackMember = false;
+            
+            GrouperProvisioningConfigurationAttributeDbCache entityEmailCacheBucket = googleConfiguration.getEmailCacheBucket();
+            GrouperUtil.assertion(entityEmailCacheBucket != null, "You must cache the entity email attribute.");
+            String emailCacheDatabaseColumn = entityEmailCacheBucket.getDatabaseColumn();
+            
+            GrouperProvisioningConfigurationAttributeDbCache entityIdCacheBucket = googleConfiguration.getEntityIdCacheBucket();
+            GrouperUtil.assertion(entityIdCacheBucket != null, "You must cache the entity id attribute.");
+            
+            String sql = "select distinct "+entityIdCacheBucket.getDatabaseColumn()+" from grouper_sync_member gsm, grouper_sync_group gsg , grouper_memberships_lw_v gmlv  "
+                + "where gsg.id = ? and gsm."+emailCacheDatabaseColumn+" = ? and gmlv.list_name = 'members' and gmlv.member_id = gsm.member_id  and gmlv.group_id = gsg.group_id ";
+            
+            String entityIdValue = new GcDbAccess().sql(sql).addBindVar(targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getId())
+            .addBindVar(email).select(String.class);
+            
+            if (StringUtils.isNotBlank(entityIdValue)) {
+              addBackMember = true;
+            }
+            
+            GrouperGoogleApiCommands.deleteGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
+                grouperGoogleGroup.getId(), entityIdValue, email, "MANAGER", addBackManager, addBackMember);
+          }
+        } else if (StringUtils.equals(fieldName, "owners")) {
+          if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+            String email = (String) provisioningObjectChange.getNewValue();
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            GrouperGoogleApiCommands.createGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
+                grouperGoogleGroup.getId(), email, "OWNER");
+          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
+            String email = (String) provisioningObjectChange.getOldValue();
+            if (StringUtils.isBlank(email)) {
+              continue;
+            }
+            boolean addBackManager = GrouperUtil.nonNull(grouperGoogleGroup.getManagers()).contains(email);
+            boolean addBackMember = false;
+            String entityIdValue = null;
+            if (!addBackManager) {
+              GrouperProvisioningConfigurationAttributeDbCache entityEmailCacheBucket = googleConfiguration.getEmailCacheBucket();
+              GrouperUtil.assertion(entityEmailCacheBucket != null, "You must cache the entity email attribute.");
+              String emailCacheDatabaseColumn = entityEmailCacheBucket.getDatabaseColumn();
+              
+              GrouperProvisioningConfigurationAttributeDbCache entityIdCacheBucket = googleConfiguration.getEntityIdCacheBucket();
+              GrouperUtil.assertion(entityIdCacheBucket != null, "You must cache the entity id attribute.");
+              
+              String sql = "select distinct "+entityIdCacheBucket.getDatabaseColumn()+" from grouper_sync_member gsm, grouper_sync_group gsg , grouper_memberships_lw_v gmlv  "
+                  + "where gsg.id = ? and gsm."+emailCacheDatabaseColumn+" = ? and gmlv.list_name = 'members' and gmlv.member_id = gsm.member_id  and gmlv.group_id = gsg.group_id ";
+              
+              entityIdValue = new GcDbAccess().sql(sql).addBindVar(targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getId())
+              .addBindVar(email).select(String.class);
+              
+              if (StringUtils.isNotBlank(entityIdValue)) {
+                addBackMember = true;
+              }
+            }
+            
+            GrouperGoogleApiCommands.deleteGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
+                grouperGoogleGroup.getId(), entityIdValue, email, "OWNER", addBackManager, addBackMember);
+          }
+        }
+        fieldNamesToUpdate.add(fieldName);
+      }
+      
 
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         provisioningObjectChange.setProvisioned(true);

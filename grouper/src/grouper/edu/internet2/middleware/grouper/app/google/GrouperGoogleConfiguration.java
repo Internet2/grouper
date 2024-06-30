@@ -4,6 +4,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeDbCache;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -27,6 +28,12 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   private String replyTo;
   private boolean sendMessageDenyNotification;
   private String spamModerationLevel;
+  
+  private boolean searchedForEmailCache; 
+  private GrouperProvisioningConfigurationAttributeDbCache emailCacheBucket; 
+  
+  private boolean searchedForIdCache; 
+  private GrouperProvisioningConfigurationAttributeDbCache entityIdCacheBucket; 
   
   
   public boolean isWhoCanAdd() {
@@ -246,5 +253,43 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
       this.getTargetGroupAttributeNameToConfig().put(attributeName, nameConfigurationAttribute);
     }
   }
+
+
+  public GrouperProvisioningConfigurationAttributeDbCache getEmailCacheBucket() {
+    if (searchedForEmailCache) {      
+      return emailCacheBucket;
+    }
+    for (GrouperProvisioningConfigurationAttributeDbCache cache : GrouperUtil.nonNull(this.getEntityAttributeDbCaches(), GrouperProvisioningConfigurationAttributeDbCache.class)) {
+      if (cache == null) {
+        continue;
+      }
+      String attributeName = cache.getAttributeName();
+      if (StringUtils.equals(attributeName, "email")) {
+        emailCacheBucket = cache;
+        break;
+      }
+    }
+    searchedForEmailCache = true;
+    return emailCacheBucket;
+  }
+
+  public GrouperProvisioningConfigurationAttributeDbCache getEntityIdCacheBucket() {
+    if (searchedForIdCache) {      
+      return entityIdCacheBucket;
+    }
+    for (GrouperProvisioningConfigurationAttributeDbCache cache : GrouperUtil.nonNull(this.getEntityAttributeDbCaches(), GrouperProvisioningConfigurationAttributeDbCache.class)) {
+      if (cache == null) {
+        continue;
+      }
+      String attributeName = cache.getAttributeName();
+      if (StringUtils.equals(attributeName, "id")) {
+        entityIdCacheBucket = cache;
+        break;
+      }
+    }
+    searchedForIdCache = true;
+    return entityIdCacheBucket;
+  }
+
   
 }

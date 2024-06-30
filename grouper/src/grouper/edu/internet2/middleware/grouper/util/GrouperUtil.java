@@ -116,7 +116,6 @@ import org.apache.commons.lang.exception.Nestable;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
-import org.apache.commons.text.WordUtils;
 import org.apache.commons.validator.routines.EmailValidator;
 import org.apache.commons.validator.routines.InetAddressValidator;
 import org.apache.logging.log4j.LogManager;
@@ -141,13 +140,9 @@ import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.core.JsonParser.Feature;
 import com.fasterxml.jackson.core.JsonPointer;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.DeserializationContext;
 import com.fasterxml.jackson.databind.DeserializationFeature;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.KeyDeserializer;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.module.SimpleModule;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.NullNode;
@@ -15686,5 +15681,26 @@ public class GrouperUtil {
     }
     
     return false;
+  }
+  
+  public static Set<String> setAppendStringToItems(Set<String> setOfStrings, String suffix) {
+    Set<String> result = null;
+    if (setOfStrings == null) {
+      return result;
+    }
+    if (StringUtils.isEmpty(suffix)) {
+      return setOfStrings;
+    }
+    if (setOfStrings instanceof TreeSet) {
+      result = new TreeSet<>();
+    } else if (setOfStrings instanceof LinkedHashSet) {
+      result = new LinkedHashSet<>();
+    }  else {
+      result = new HashSet<>();
+    }
+    for (String eachString: setOfStrings) {
+      result.add(eachString + suffix);
+    }
+    return result;
   }
 }

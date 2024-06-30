@@ -433,7 +433,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     }
     
     // this will create tables
-    List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null);
+    List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
 
     new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
     new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
@@ -498,7 +498,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null);
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
   
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
       new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
@@ -661,7 +661,7 @@ public class GrouperGoogleProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null);
+      List<GrouperGoogleGroup> grouperGoogleGroups = GrouperGoogleApiCommands.retrieveGoogleGroups("myGoogle", null, null, false, false);
   
       GrouperSession grouperSession = GrouperSession.startRootSession();
       

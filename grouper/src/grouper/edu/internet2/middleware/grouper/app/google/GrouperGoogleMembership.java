@@ -2,9 +2,11 @@ package edu.internet2.middleware.grouper.app.google;
 
 import java.sql.Types;
 
+import com.fasterxml.jackson.databind.JsonNode;
+
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
-
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -81,5 +83,5 @@ public class GrouperGoogleMembership {
   public void setUserId(String userId) {
     this.userId = userId;
   }
-
+  
 }

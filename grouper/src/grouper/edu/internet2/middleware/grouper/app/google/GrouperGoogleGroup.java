@@ -40,6 +40,8 @@ public class GrouperGoogleGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "id", Types.VARCHAR, "40", true, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "email", Types.VARCHAR, "1024", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "managers", Types.VARCHAR, "4000", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "owners", Types.VARCHAR, "4000", false, false);
       
       //settings
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_add", Types.VARCHAR, "40", false, false);
@@ -69,6 +71,8 @@ public class GrouperGoogleGroup {
     targetGroup.setName(this.name);
     targetGroup.setId(this.id);
     targetGroup.assignAttributeValue("email", this.email);
+    targetGroup.assignAttributeValue("managers", this.managers);
+    targetGroup.assignAttributeValue("owners", this.owners);
 
     // group settings
     targetGroup.assignAttributeValue("defaultMessageDenyNotificationText", this.defaultMessageDenyNotificationText);
@@ -107,6 +111,17 @@ public class GrouperGoogleGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) { 
       grouperGoogleGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
     }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("managers")) { 
+      Set<String> managers = (Set<String>)targetGroup.retrieveAttributeValueSet("managers");
+      grouperGoogleGroup.setManagers(managers);
+    }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("owners")) { 
+      Set<String> owners = (Set<String>)targetGroup.retrieveAttributeValueSet("owners");
+      grouperGoogleGroup.setOwners(owners);
+    }
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
       grouperGoogleGroup.setName(targetGroup.getName());
     }
@@ -218,6 +233,9 @@ public class GrouperGoogleGroup {
   private String name;
   private String description;
   private String email;
+  
+  private Set<String> owners;
+  private Set<String> managers;
   
   // group settings
   private String whoCanAdd;
@@ -467,6 +485,26 @@ public class GrouperGoogleGroup {
   
   public void setArchiveOnly(Boolean archiveOnly) {
     this.archiveOnly = archiveOnly;
+  }
+  
+  
+  public Set<String> getOwners() {
+    return owners;
+  }
+
+  
+  public void setOwners(Set<String> owners) {
+    this.owners = owners;
+  }
+
+  
+  public Set<String> getManagers() {
+    return managers;
+  }
+
+  
+  public void setManagers(Set<String> managers) {
+    this.managers = managers;
   }
 
   /**
