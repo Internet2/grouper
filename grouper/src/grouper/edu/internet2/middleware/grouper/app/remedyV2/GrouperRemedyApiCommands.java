@@ -21,7 +21,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.codec.binary.StringUtils;
+
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class GrouperRemedyApiCommands {
@@ -242,44 +243,44 @@ public class GrouperRemedyApiCommands {
     return jwtToken;
   }
   
-  /**
-   * @param remedyExternalSystemConfigId
-   * @return remedy login id to user never null
-   */
-  public static Map<MultiKey, GrouperRemedyMembership> retrieveRemedyMemberships(String remedyExternalSystemConfigId) {
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "retrieveRemedyMemberships");
-
-    long startTime = System.nanoTime();
-
-    try {
-
-      Map<String, String> paramMap = new HashMap<String, String>();
-
-      paramMap.put("fields", "values(People%20Permission%20Group%20ID,Permission%20Group,Permission%20Group%20ID,Person%20ID,Remedy%20Login%20ID,Status)");
-      
-      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
-      
-      Map<MultiKey, GrouperRemedyMembership> results = convertRemedyMembershipsFromJson(jsonObject);
-      
-      debugMap.put("size", GrouperClientUtils.length(results));
-
-      return results;
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperRemedyLog.remedyLog(debugMap, startTime);
-    }
-  }
+//  /**
+//   * @param remedyExternalSystemConfigId
+//   * @return remedy login id to user never null
+//   */
+//  public static Map<MultiKey, GrouperRemedyMembership> retrieveRemedyMemberships(String remedyExternalSystemConfigId) {
+//    
+//    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+//
+//    debugMap.put("method", "retrieveRemedyMemberships");
+//
+//    long startTime = System.nanoTime();
+//
+//    try {
+//
+//      Map<String, String> paramMap = new HashMap<String, String>();
+//
+//      paramMap.put("fields", "values(People%20Permission%20Group%20ID,Permission%20Group,Permission%20Group%20ID,Person%20ID,Remedy%20Login%20ID,Status)");
+//      
+//      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
+//      
+//      Map<MultiKey, GrouperRemedyMembership> results = convertRemedyMembershipsFromJson(jsonObject);
+//      
+//      debugMap.put("size", GrouperClientUtils.length(results));
+//
+//      return results;
+//    } catch (RuntimeException re) {
+//      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+//      throw re;
+//    } finally {
+//      GrouperRemedyLog.remedyLog(debugMap, startTime);
+//    }
+//  }
 
   /**
    * @param jsonObject
    * @return map of memberships
    */
-  private static Map<MultiKey, GrouperRemedyMembership> convertRemedyMembershipsFromJson(JsonNode jsonObject) {
+  private static Map<MultiKey, GrouperRemedyMembership> convertRemedyMembershipsFromJson(JsonNode jsonObject, boolean filterInactive, int[] size) {
     
     Map<MultiKey, GrouperRemedyMembership> results = new LinkedHashMap<MultiKey, GrouperRemedyMembership>();
     
@@ -296,6 +297,9 @@ public class GrouperRemedyApiCommands {
     //        },
         
     ArrayNode jsonObjectEntries = (ArrayNode)jsonObject.get("entries");
+    if (size != null) {
+      size[0] = jsonObjectEntries.size();
+    }
     for (int i=0; i < jsonObjectEntries.size(); i++) {
       
       JsonNode jsonObjectUser = jsonObjectEntries.get(i);
@@ -304,34 +308,33 @@ public class GrouperRemedyApiCommands {
       
       GrouperRemedyMembership grouperRemedyMembership = new GrouperRemedyMembership();
 
-      {
-        String personId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Person ID");
-        grouperRemedyMembership.setPersonId(personId);
-      }
+      String personId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Person ID");
+      grouperRemedyMembership.setPersonId(personId);
+
+      String remedyLoginId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Remedy Login ID");
+      grouperRemedyMembership.setRemedyLoginId(remedyLoginId);
       
-      {
-        String remedyLoginId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Remedy Login ID");
-        grouperRemedyMembership.setRemedyLoginId(remedyLoginId);
-      }
-      
-      {
-        String status = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Status");
-        grouperRemedyMembership.setStatus(status);
+      String status = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Status");
+      if (filterInactive && !StringUtils.equals("Enabled", status)) {
+        continue;
       }
 
-      {
-        String peoplePermissionGroupId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "People Permission Group ID");
-        grouperRemedyMembership.setPeoplePermissionGroupId(peoplePermissionGroupId);
-      }
+      grouperRemedyMembership.setStatus(status);
+
+      String peoplePermissionGroupId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "People Permission Group ID");
+      grouperRemedyMembership.setPeoplePermissionGroupId(peoplePermissionGroupId);
+    
+      String permissionGroup = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Permission Group");
+      grouperRemedyMembership.setPermissionGroup(permissionGroup);
+    
+      Long permissionGroupId = GrouperUtil.longObjectValue(GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Permission Group ID"), true);
+      grouperRemedyMembership.setPermissionGroupId(permissionGroupId);
       
-      {
-        String permissionGroup = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Permission Group");
-        grouperRemedyMembership.setPermissionGroup(permissionGroup);
-      }
-      
-      {
-        Long permissionGroupId = GrouperUtil.longObjectValue(GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Permission Group ID"), true);
-        grouperRemedyMembership.setPermissionGroupId(permissionGroupId);
+      if (StringUtils.equals("mchyzer", remedyLoginId)) {
+        System.out.println("person id: " + personId + ", remedyLoginId: " + remedyLoginId 
+            + ", status: " + status + ", peoplePermissionGroupId: " + peoplePermissionGroupId
+            + ", permissionGroup: " + permissionGroup + ", permissionGroupId: " + permissionGroupId);
+        
       }
       
       MultiKey multiKey = new MultiKey(grouperRemedyMembership.getPeoplePermissionGroupId(), grouperRemedyMembership.getRemedyLoginId());
@@ -356,17 +359,34 @@ public class GrouperRemedyApiCommands {
 
     try {
 
-      Map<String, String> paramMap = new HashMap<String, String>();
+      Map<String, GrouperRemedyUser> resultsOverall = new HashMap<>();
+      int page = 0;
+      for (int i=0;i<1000;i++) {
 
-      paramMap.put("fields", "values(Person%20ID,Remedy%20Login%20ID,Profile%20Status)");
-      
-      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/CTM:People", paramMap);
-      
-      Map<String, GrouperRemedyUser> results = convertRemedyUsersFromJson(jsonObject);
-      
-      debugMap.put("size", GrouperClientUtils.length(results));
+        Map<String, String> paramMap = new HashMap<String, String>();
+  
+        paramMap.put("fields", "values(Person%20ID,Remedy%20Login%20ID,Profile%20Status)");
+        if (i>0) {
+          paramMap.put("offset", "" + (i*2000));
+        }
 
-      return results;
+        JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/CTM:People", paramMap);
+        
+        int[] size = new int[1];
+        Map<String, GrouperRemedyUser> results = convertRemedyUsersFromJson(jsonObject, size);
+        
+        resultsOverall.putAll(results);
+        
+        if (size[0] < 2000) {
+          break;
+        }
+        page++;
+
+      }
+      debugMap.put("pages", page);
+      debugMap.put("size", GrouperClientUtils.length(resultsOverall));
+
+      return resultsOverall;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -380,7 +400,7 @@ public class GrouperRemedyApiCommands {
    * @param jsonObject
    * @return the map
    */
-  private static Map<String, GrouperRemedyUser> convertRemedyUsersFromJson(JsonNode jsonObject) {
+  private static Map<String, GrouperRemedyUser> convertRemedyUsersFromJson(JsonNode jsonObject, int[] count) {
     Map<String, GrouperRemedyUser> results = new TreeMap<String, GrouperRemedyUser>();
 
     //  {
@@ -409,6 +429,11 @@ public class GrouperRemedyApiCommands {
     //  }      
 
     ArrayNode jsonObjectEntries = (ArrayNode)jsonObject.get("entries");
+    
+    if (count != null) {
+      count[0] = jsonObjectEntries.size();
+    }
+    
     for (int i=0; i < jsonObjectEntries.size(); i++) {
       
       JsonNode jsonObjectUser = jsonObjectEntries.get(i);
@@ -417,24 +442,23 @@ public class GrouperRemedyApiCommands {
       
       GrouperRemedyUser grouperRemedyUser = new GrouperRemedyUser();
 
-      {
-        String personId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Person ID"); 
-        grouperRemedyUser.setPersonId(personId);
+      String personId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Person ID"); 
+      grouperRemedyUser.setPersonId(personId);
         
-      }
-      
-      {
-        String remedyLoginId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Remedy Login ID");
+      String remedyLoginId = GrouperUtil.jsonJacksonGetString(jsonObjectUserValues, "Remedy Login ID");
 
-        // not sure why this would happen
-        if (GrouperClientUtils.isBlank(remedyLoginId)) {
-          continue;
-        }
-        
-        grouperRemedyUser.setRemedyLoginId(remedyLoginId);
-        results.put(remedyLoginId, grouperRemedyUser);
+      // not sure why this would happen
+      if (GrouperClientUtils.isBlank(remedyLoginId)) {
+        continue;
       }
       
+      grouperRemedyUser.setRemedyLoginId(remedyLoginId);
+      results.put(remedyLoginId, grouperRemedyUser);
+
+      if (StringUtils.equals("mchyzer", remedyLoginId)) {
+        System.out.println("person id: " + personId + ", remedyLoginId: " + remedyLoginId);
+      }
+
     }
     return results;
   }
@@ -463,7 +487,7 @@ public class GrouperRemedyApiCommands {
       
       JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/CTM:People", paramMap);
       
-      Map<String, GrouperRemedyUser> results = convertRemedyUsersFromJson(jsonObject);
+      Map<String, GrouperRemedyUser> results = convertRemedyUsersFromJson(jsonObject, null);
       
       debugMap.put("size", GrouperClientUtils.length(results));
 
@@ -488,111 +512,54 @@ public class GrouperRemedyApiCommands {
   
   /**
    * @param remedyExternalSystemConfigId
-   * @param permissionGroupId
-   * @return the group based on permission group id
-   */
-  public static GrouperRemedyGroup retrieveRemedyGroup(String remedyExternalSystemConfigId, Long permissionGroupId) {
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-
-    debugMap.put("method", "retrieveRemedyGroup");
-    debugMap.put("permissionGroupId", permissionGroupId);
-
-    long startTime = System.nanoTime();
-
-    Map<Long, GrouperRemedyGroup> results = new TreeMap<Long, GrouperRemedyGroup>();
-    
-    try {
-  
-      Map<String, String> paramMap = new HashMap<String, String>();
-
-      //doesnt work since the url shouldnt be encoded
-//      paramMap.put("q", GrouperRemedyUtils.escapeUrlEncode("'Remedy Login ID' = \"" + permissionGroupId + "\""));
-//      paramMap.put("fields", "values(Person%20ID,Remedy%20Login%20ID,Profile%20Status)");
-      // https://school-dev-restapi.onbmc.com/api/arsys/v1/entry/ENT:SYS-Access%20Permission%20Grps/2000000001
-      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS-Access%20Permission%20Grps/"+permissionGroupId, paramMap);
-      
-      ArrayNode jsonObjectEntries = (ArrayNode)jsonObject.get("entries");
-      for (int i=0; i < jsonObjectEntries.size(); i++) {
-        
-        JsonNode jsonObjectGroup = jsonObjectEntries.get(i);
-        
-        JsonNode jsonObjectGroupValues = jsonObjectGroup.get("values");
-        
-        GrouperRemedyGroup grouperRemedyGroup = new GrouperRemedyGroup();
-
-        {
-          String permissionGroup = GrouperUtil.jsonJacksonGetString(jsonObjectGroupValues, "Permission Group");
-          grouperRemedyGroup.setPermissionGroup(permissionGroup);
-        }
-        
-        {
-          String status = GrouperUtil.jsonJacksonGetString(jsonObjectGroupValues, "Status");
-          if (!StringUtils.equals(status, "Enabled")) {
-            continue;
-          }
-        }
-        
-        {
-          Long permissionGroupId1 = GrouperUtil.longObjectValue(GrouperUtil.jsonJacksonGetString(jsonObjectGroupValues, "Permission Group ID"), true);
-          grouperRemedyGroup.setPermissionGroupId(permissionGroupId1);
-        }
-                
-        results.put(grouperRemedyGroup.getPermissionGroupId(), grouperRemedyGroup);
-      }
-      
-      debugMap.put("size", GrouperClientUtils.length(results));
-
-      if (GrouperClientUtils.length(results) == 0) {
-        
-        return null;
-        
-      }
-      if (GrouperClientUtils.length(results) == 1) {
-        return results.values().iterator().next();
-      }
-      throw new RuntimeException("Found multiple results for loginid '" + permissionGroupId + "', results: " + GrouperClientUtils.length(results));
-      
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperRemedyLog.remedyLog(debugMap, startTime);
-    }
-    
-  }
-
-  /**
-   * @param remedyExternalSystemConfigId
    * @param grouperRemedyGroup
    * @return the map from username to grouper user object
    */
   public static List<GrouperRemedyMembership> retrieveRemedyMembershipsForGroup(
       String remedyExternalSystemConfigId,
-      GrouperRemedyGroup grouperRemedyGroup) {
+      Long permissionGroupId) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("method", "retrieveMembershipsForRemedyGroup");
-    debugMap.put("group", grouperRemedyGroup.getPermissionGroupId());
+    debugMap.put("group", permissionGroupId);
 
     long startTime = System.nanoTime();
 
     try {
   
-      Map<String, String> paramMap = new HashMap<String, String>();
+      Map<MultiKey, GrouperRemedyMembership> resultsOverall = new HashMap<>();
+      int page = 0;
+      for (int i=0;i<1000;i++) {
 
-      //doesnt work since the url shouldnt be encoded
-      paramMap.put("q", GrouperRemedyUtils.escapeUrlEncode("'Permission Group ID' = \"" + grouperRemedyGroup.getPermissionGroupId() + "\""));
-      paramMap.put("fields", "values(People%20Permission%20Group%20ID,Permission%20Group,Permission%20Group%20ID,Person%20ID,Remedy%20Login%20ID,Status)");
+        Map<String, String> paramMap = new HashMap<String, String>();
+
+        //doesnt work since the url shouldnt be encoded
+        paramMap.put("q", GrouperRemedyUtils.escapeUrlEncode("'Permission Group ID' = \"" + permissionGroupId + "\""));
+        paramMap.put("fields", "values(People%20Permission%20Group%20ID,Permission%20Group,Permission%20Group%20ID,Person%20ID,Remedy%20Login%20ID,Status)");
+        if (i>0) {
+          paramMap.put("offset", "" + (i*2000));
+        }
+
+        JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
+            
+        int size[] = new int[1];
+        Map<MultiKey, GrouperRemedyMembership> results = GrouperClientUtils.nonNull(convertRemedyMembershipsFromJson(jsonObject, true, size));
+
+        resultsOverall.putAll(results);
+        
+        if (size[0] < 2000) {
+          break;
+        }
+        page++;
+      }
+
+      debugMap.put("pages", page);
       
-      JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
       
-      Map<MultiKey, GrouperRemedyMembership> results = GrouperClientUtils.nonNull(convertRemedyMembershipsFromJson(jsonObject));
+      debugMap.put("size", GrouperClientUtils.length(resultsOverall));
       
-      debugMap.put("size", GrouperClientUtils.length(results));
-      
-      return new ArrayList<GrouperRemedyMembership>(results.values());
+      return new ArrayList<GrouperRemedyMembership>(resultsOverall.values());
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -631,7 +598,7 @@ public class GrouperRemedyApiCommands {
       
       JsonNode jsonObject = executeGetMethod(debugMap, remedyExternalSystemConfigId, "/api/arsys/v1/entry/ENT:SYS%20People%20Entitlement%20Groups", paramMap);
       
-      Map<MultiKey, GrouperRemedyMembership> results = GrouperClientUtils.nonNull(convertRemedyMembershipsFromJson(jsonObject));
+      Map<MultiKey, GrouperRemedyMembership> results = GrouperClientUtils.nonNull(convertRemedyMembershipsFromJson(jsonObject, false, null));
       
       debugMap.put("size", GrouperClientUtils.length(results));
 
@@ -779,20 +746,19 @@ public class GrouperRemedyApiCommands {
    */
   public static Boolean removeUserFromRemedyGroup(
       String remedyExternalSystemConfigId,
-      GrouperRemedyUser grouperRemedyUser, GrouperRemedyGroup grouperRemedyGroup) {
+      String remedyLoginId, Long permissionGroupId) {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("method", "removeUserFromRemedyGroup");
-    debugMap.put("userLoginId", grouperRemedyUser.getRemedyLoginId());
-    debugMap.put("permissionGroupId", grouperRemedyGroup.getPermissionGroupId());
-    debugMap.put("permissionGroup", grouperRemedyGroup.getPermissionGroup());
+    debugMap.put("userLoginId", remedyLoginId);
+    debugMap.put("permissionGroupId", permissionGroupId);
     
     JsonNode[] grouperRemedyMembershipJsonObject = new JsonNode[1];
     
     GrouperRemedyMembership grouperRemedyMembership = retrieveRemedyMembership(
         remedyExternalSystemConfigId, 
-        Long.toString(grouperRemedyGroup.getPermissionGroupId()), grouperRemedyUser.getRemedyLoginId(), grouperRemedyMembershipJsonObject);
+        Long.toString(permissionGroupId), remedyLoginId, grouperRemedyMembershipJsonObject);
 
     debugMap.put("foundExistingMembership", grouperRemedyMembership != null ? true : false);
     

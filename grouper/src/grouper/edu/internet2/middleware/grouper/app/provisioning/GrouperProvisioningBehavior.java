@@ -511,7 +511,8 @@ public class GrouperProvisioningBehavior {
       return this.selectEntitiesForRecalc;
     }
     
-    if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull && this.isSelectEntitiesAll()) {
+    if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull 
+        && (this.isSelectAllData() || this.isSelectEntitiesAll())) {
       this.selectEntitiesForRecalc = true;
       return true;
     }
@@ -533,7 +534,8 @@ public class GrouperProvisioningBehavior {
       return this.selectGroupsForRecalc;
     }
     
-    if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull && this.isSelectGroupsAll()) {
+    if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull 
+        && (this.isSelectAllData() || this.isSelectGroupsAll())) {
       selectGroupsForRecalc = true;
       return true;
     }
@@ -554,7 +556,7 @@ public class GrouperProvisioningBehavior {
       return this.selectMembershipsForRecalc;
     }
    
-    if ( (isSelectMembershipsAll() || isSelectMembershipsAllForEntity() || isSelectMembershipsAllForGroup()) && getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
+    if ( (this.isSelectAllData() || isSelectMembershipsAll() || isSelectMembershipsAllForEntity() || isSelectMembershipsAllForGroup()) && getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
       selectMembershipsForRecalc = true;
       return true;
     } 
@@ -1764,8 +1766,8 @@ public class GrouperProvisioningBehavior {
       return selectAllData;
     }
     selectAllData = GrouperUtil.booleanValue(this.getGrouperProvisioner().retrieveGrouperProvisioningTargetDaoAdapter().getGrouperProvisionerDaoCapabilities().getCanRetrieveAllData(), false)
-        && (this.isSelectGroupsAll() || !this.isSelectGroups())
-        && (this.isSelectEntitiesAll() || !this.isSelectEntities());
+        && (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups() || !this.isSelectGroups())
+        && (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities() || !this.isSelectEntities());
     
     return selectAllData;
   }

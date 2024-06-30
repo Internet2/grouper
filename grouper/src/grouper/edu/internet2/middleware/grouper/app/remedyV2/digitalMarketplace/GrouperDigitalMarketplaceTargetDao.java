@@ -39,6 +39,7 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetr
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityRequest;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoRetrieveMembershipsByEntityResponse;
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.TargetDaoTimingInfo;
+import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyGroup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpClientLog;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -59,7 +60,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
   public String loggingStop() {
     return GrouperHttpClient.logEnd();
   }
-
+  
   @Override
   public TargetDaoDeleteMembershipResponse deleteMembership(TargetDaoDeleteMembershipRequest targetDaoDeleteMembershipRequest) {
     long startNanos = System.nanoTime();
@@ -73,19 +74,13 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       String groupName = targetMembership.retrieveAttributeValueString("groupName");
       String loginName = targetMembership.retrieveAttributeValueString("loginName");
       
-      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceGroup(digitalMarketplaceExternalSystemConfigId, groupName);
-      
-      if (grouperDigitalMarketplaceGroup == null) {
-        return new TargetDaoDeleteMembershipResponse();
-      }
-      
       GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceUser(digitalMarketplaceExternalSystemConfigId, loginName);
       if (grouperDigitalMarketplaceUser == null) {
         return new TargetDaoDeleteMembershipResponse();
       }
       
       Boolean removed = GrouperDigitalMarketplaceApiCommands.removeUserFromDigitalMarketplaceGroup(digitalMarketplaceExternalSystemConfigId, 
-          grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup);
+          grouperDigitalMarketplaceUser, groupName);
       
       if (removed != null) {
         targetMembership.setProvisioned(true);
@@ -121,13 +116,6 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       
       String digitalMarketplaceExternalSystemConfigId = digitalMarketplaceConfiguration.getDigitalMarketplaceExternalSystemConfigId();
       
-      GrouperDigitalMarketplaceGroup grouperDigitalMarketplaceGroup = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceGroup(digitalMarketplaceExternalSystemConfigId, groupName);
-      
-      if (grouperDigitalMarketplaceGroup == null) {
-        targetMembership.getProvisioningMembershipWrapper().setErrorCode(GcGrouperSyncErrorCode.DNE);
-        throw new RuntimeException("group doesn't exist: "+groupName);
-      }
-      
       GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceUser(digitalMarketplaceExternalSystemConfigId, loginName);
       if (grouperDigitalMarketplaceUser == null) {
         targetMembership.getProvisioningMembershipWrapper().setErrorCode(GcGrouperSyncErrorCode.DNE);
@@ -135,7 +123,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       }
       
       GrouperDigitalMarketplaceApiCommands.assignUserToDigitalMarketplaceGroup(digitalMarketplaceExternalSystemConfigId, 
-          grouperDigitalMarketplaceUser, grouperDigitalMarketplaceGroup);
+          grouperDigitalMarketplaceUser, groupName);
       
       targetMembership.setProvisioned(true);
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
@@ -188,7 +176,8 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
     
   }
   
-  private TargetDaoRetrieveAllGroupsResponse retrieveAllGroupsHelper(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
+
+  private synchronized TargetDaoRetrieveAllGroupsResponse retrieveAllGroupsHelper(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
     
     long startNanos = System.nanoTime();
 
@@ -227,7 +216,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       
       for (GrouperDigitalMarketplaceUser user: marketplaceUsers.values()) {
         for (String groupName : user.getGroups()) {
-          ProvisioningMembership targetMembership = new ProvisioningMembership(false);
+          ProvisioningMembership targetMembership = new ProvisioningMembership();
           targetMembership.assignAttributeValue("groupName", groupName);
           targetMembership.assignAttributeValue("loginName", user.getLoginName());
           results.add(targetMembership);
@@ -390,7 +379,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       
       for (String group : digitalMarketplaceUser.getGroups()) {
         
-        ProvisioningMembership targetMembership = new ProvisioningMembership(false);
+        ProvisioningMembership targetMembership = new ProvisioningMembership();
         
         targetMembership.assignAttributeValue("groupName", group);
         targetMembership.assignAttributeValue("loginName", targetEntityId);
@@ -453,13 +442,12 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
       String longGroupName = targetGroup.retrieveAttributeValueString("longGroupName");
       String groupName = targetGroup.retrieveAttributeValueString("groupName");
       String groupType = targetGroup.retrieveAttributeValueString("groupType");
-      Boolean created = GrouperDigitalMarketplaceApiCommands.createDigitalMarketplaceGroup(digitalMarketplaceExternalSystemConfigId,
+      GrouperDigitalMarketplaceApiCommands.createDigitalMarketplaceGroup(digitalMarketplaceExternalSystemConfigId,
           groupName, longGroupName, comments, groupType);
-      if (created != null) {
-        targetGroup.setProvisioned(true);
-        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
-          provisioningObjectChange.setProvisioned(true);
-        }
+        
+      targetGroup.setProvisioned(true);
+      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+        provisioningObjectChange.setProvisioned(true);
       }
       return new TargetDaoInsertGroupResponse();
     } finally {
@@ -487,7 +475,7 @@ public class GrouperDigitalMarketplaceTargetDao extends GrouperProvisionerTarget
         GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = (GrouperDigitalMarketplaceUser)targetEntityToTargetNativeEntity.get(provisioningEntity);
         
         for (String groupName : grouperDigitalMarketplaceUser.getGroups()) {
-          ProvisioningMembership targetMembership = new ProvisioningMembership(false);
+          ProvisioningMembership targetMembership = new ProvisioningMembership();
           targetMembership.assignAttributeValue("groupName", groupName);
           targetMembership.assignAttributeValue("loginName", grouperDigitalMarketplaceUser.getLoginName());
           allMemberships.add(targetMembership);
