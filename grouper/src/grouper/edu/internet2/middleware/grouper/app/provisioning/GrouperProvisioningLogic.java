@@ -855,7 +855,9 @@ public class GrouperProvisioningLogic {
    */
   public List<ProvisioningEntity> retrieveIndividualTargetEntitiesIfNeeded() {
     
-    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntitiesAll() || !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectAllData() 
+        || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntitiesAll() 
+        || !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectEntities()) {
       return null;
     }
     
@@ -877,7 +879,9 @@ public class GrouperProvisioningLogic {
    */
   public List<ProvisioningGroup> retrieveIndividualTargetGroupsIfNeeded() {
     
-    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsAll() || !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectAllData() 
+        || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroupsAll() 
+        || !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectGroups()) {
       return null;
     }
     
@@ -4022,7 +4026,9 @@ public class GrouperProvisioningLogic {
    */
   public List<ProvisioningMembership> retrieveIndividualTargetMembershipsIfNeeded() {
     
-    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll() || !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()) {
+    if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectAllData() 
+        || this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsAll() 
+        || !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isSelectMembershipsInGeneral()) {
       return null;
     }
 
