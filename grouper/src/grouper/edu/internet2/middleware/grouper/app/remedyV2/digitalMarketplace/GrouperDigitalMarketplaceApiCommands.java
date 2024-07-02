@@ -5,6 +5,7 @@ import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 
 import org.apache.commons.lang.StringUtils;
@@ -308,6 +309,11 @@ public class GrouperDigitalMarketplaceApiCommands {
    * cache tokens
    */
   private static ExpirableCache<Boolean, String> retrieveJwtTokenCache = new ExpirableCache<Boolean, String>(5);
+
+  /**
+   * millis since 1970 that the user was retrieved last for membership update
+   */
+  private static ExpirableCache<String, Long> lastRetrieveUserByLoginNameForMshipUpdate = new ExpirableCache<String, Long>(5);
 
   /**
    * get the login token
@@ -621,28 +627,75 @@ public class GrouperDigitalMarketplaceApiCommands {
   /**
    * @param digitalMarketplaceExternalSystemConfigId
    * @param grouperDigitalMarketplaceUser must be fresh
+   * @param groupNamesToAdd 
+   * @param groupNamesToDelete 
    * @param grouperDigitalMarketplaceGroup
    * @param isIncremental
    * @return true if added, false if already exists
    */
-  public static Boolean assignUserToDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser,
-      String groupName) {
+  public static boolean updateMembershipsForDigitalMarketplaceUser(String digitalMarketplaceExternalSystemConfigId, String loginName,
+      Set<String> groupNamesToAdd, Set<String> groupNamesToDelete) throws GrouperDigitalMarketplaceUserDoesNotExist {
     
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-  
+    
     debugMap.put("method", "assignUserToDigitalMarketplaceGroup");
-    debugMap.put("loginName", grouperDigitalMarketplaceUser.getLoginName());
-    debugMap.put("groupName", groupName);
+    debugMap.put("loginName", loginName);
+    
+    groupNamesToAdd = GrouperUtil.nonNull(groupNamesToAdd);
+    groupNamesToDelete = GrouperUtil.nonNull(groupNamesToDelete);
+    
+    if (groupNamesToAdd.size() > 0) {
+      debugMap.put("groupNamesToAdd", GrouperUtil.join(groupNamesToAdd.iterator(), ","));
+    }
 
+    if (groupNamesToDelete.size() > 0) {
+      debugMap.put("groupNamesToDelete", GrouperUtil.join(groupNamesToDelete.iterator(), ","));
+    }
+
+    
     long startTime = System.nanoTime();
     
     try {
   
+      Long lastRetrieved = lastRetrieveUserByLoginNameForMshipUpdate.get(loginName);
+      
+      // make sure we dont get an inconsistent read
+      if (lastRetrieved != null) {
+        long millisSinceLastRetrieved = System.currentTimeMillis() - lastRetrieved;
+        if (millisSinceLastRetrieved < 20000 && millisSinceLastRetrieved > 0) {
+          long sleepMillis = 20000 - millisSinceLastRetrieved;
+          debugMap.put("sleepMillis", sleepMillis);
+          GrouperUtil.sleep(sleepMillis);
+        }
+      }
+
+      GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser = GrouperDigitalMarketplaceApiCommands.retrieveDigitalMarketplaceUser(digitalMarketplaceExternalSystemConfigId, loginName);
+
+      if (grouperDigitalMarketplaceUser == null) {
+        throw new GrouperDigitalMarketplaceUserDoesNotExist("Login name: '" + loginName + "'");
+      }
+      
+      lastRetrieveUserByLoginNameForMshipUpdate.put(loginName, System.currentTimeMillis());
+
       // restart timer
       startTime = System.nanoTime();
       
-      if (!GrouperClientUtils.nonNull(grouperDigitalMarketplaceUser.getGroups()).contains(groupName)) {
-        debugMap.put("foundExistingMembership", false);
+      boolean hasChange = false;
+      Set<String> digitalMarketplaceUuserGroups = GrouperClientUtils.nonNull(grouperDigitalMarketplaceUser.getGroups());
+      for (String groupNameToAdd : groupNamesToAdd) {
+        if (!digitalMarketplaceUuserGroups.contains(groupNameToAdd)) {
+          hasChange = true;
+        }
+      }
+      for (String groupNameToDelete : groupNamesToDelete) {
+        if (digitalMarketplaceUuserGroups.contains(groupNameToDelete)) {
+          hasChange = true;
+        }
+      }
+      
+      
+      if (hasChange) {
+        debugMap.put("hasChange", true);
         JsonNode jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
         
 //        {  
@@ -663,10 +716,18 @@ public class GrouperDigitalMarketplaceApiCommands {
         ArrayNode groupsJson = GrouperUtil.jsonJacksonArrayNode();
 
         for (int i=0;i<groups.size();i++) {
-          groupsJson.add(groups.get(i).asText());
+          String existingGroupName = groups.get(i).asText();
+          if (!groupNamesToDelete.contains(existingGroupName)) {
+            groupsJson.add(existingGroupName);
+          }
         }
-        groupsJson.add(groupName);
         
+        for (String groupNameToAdd : groupNamesToAdd) {
+          if (!digitalMarketplaceUuserGroups.contains(groupNameToAdd)) {
+            groupsJson.add(groupNameToAdd);
+          }
+        }
+
         userWithGroupsJson.set("groups", groupsJson);
         
         String userJson = userWithGroupsJson.toString();
@@ -788,78 +849,6 @@ public class GrouperDigitalMarketplaceApiCommands {
 //    }
 //  }
   
-  /**
-   * @param digitalMarketplaceExternalSystemConfigId
-   * @param grouperDigitalMarketplaceUser must be fresh
-   * @param grouperDigitalMarketplaceGroup
-   * @return true if removed, false if not in there
-   */
-  public static Boolean removeUserFromDigitalMarketplaceGroup(String digitalMarketplaceExternalSystemConfigId, GrouperDigitalMarketplaceUser grouperDigitalMarketplaceUser, 
-      String groupName) {
-    
-    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
-  
-    debugMap.put("method", "removeUserFromDigitalMarketplaceGroup");
-    debugMap.put("loginName", grouperDigitalMarketplaceUser.getLoginName());
-    debugMap.put("groupName", groupName);
-  
-    long startTime = System.nanoTime();
-    
-    try {
-  
-      // restart timer
-      startTime = System.nanoTime();
-      
-      JsonNode jsonObject = grouperDigitalMarketplaceUser.getJsonObject();
-      ArrayNode groups = (ArrayNode)jsonObject.get("groups");
-      
-//      removeNonExistentGroups(groups, debugMap);
-      
-      int groupIndex = -1;
-      
-      for (int i=0;i<groups.size();i++) {
-        if (GrouperClientUtils.equals(groupName, groups.get(i).asText())) {
-          groupIndex = i;
-          break;
-        }
-      }
-      
-      if (groupIndex != -1) {
-        
-        groups.remove(groupIndex);
-        
-        ObjectNode userWithGroupsJson = GrouperUtil.jsonJacksonNode();
-        
-        ArrayNode groupsJson = GrouperUtil.jsonJacksonArrayNode();
-
-        for (int i=0;i<groups.size();i++) {
-          groupsJson.add(groups.get(i));
-        }
-        
-        userWithGroupsJson.set("groups", groupsJson);
-        
-        String userJson = userWithGroupsJson.toString();
-        
-        debugMap.put("foundExistingMembership", true);
-        
-        // /api/rx/application/user/Allen
-        executePutPostMethod(digitalMarketplaceExternalSystemConfigId, debugMap, "/api/rx/application/user/" + grouperDigitalMarketplaceUser.getLoginName(), null, userJson, true);
-        
-        return true;
-      } 
-        
-      debugMap.put("foundExistingMembership", false);
-    
-      return false;
-  
-    } catch (RuntimeException re) {
-      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
-      throw re;
-    } finally {
-      GrouperDigitalMarketplaceLog.marketplaceLog(debugMap, startTime);
-    }
-  }
-
   /**
    * @param digitalMarketplaceExternalSystemConfigId
    * @param groupName 
