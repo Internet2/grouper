@@ -368,38 +368,48 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
         commandLogFinallyBlock(commandLogStarted, hasError, "sendChangesToTarget");
       }
 
-    }
-    
-    {
-      TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
-          new ArrayList<>(), 
-          new ArrayList<>(),
-          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
-          new HashMap<>());
-      sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
-    }
-    
-    {
-      TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest = new TargetDaoSendGroupChangesToTargetRequest(
-          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningGroups(), 
-          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningGroups(),
-          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningGroups());
-      sendGroupChangesToTarget(targetDaoSendGroupChangesToTargetRequest);
-    }
-    {
-      TargetDaoSendEntityChangesToTargetRequest targetDaoSendEntityChangesToTargetRequest = new TargetDaoSendEntityChangesToTargetRequest(
-          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningEntities(), 
-          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningEntities(),
-          targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningEntities());
-      sendEntityChangesToTarget(targetDaoSendEntityChangesToTargetRequest);
-    }
-    {
-      TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
-          targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
-          targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
-          new ArrayList<>(),
-          targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
-      sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+    } else {
+      boolean sendAllMembershipChangesAtOnce = GrouperUtil.booleanValue(this.wrappedDao.getGrouperProvisionerDaoCapabilities().getCanSendMembershipChangesToTarget(), false);
+      
+      if (sendAllMembershipChangesAtOnce) {
+        TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
+            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
+            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+            targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
+        sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+        
+      } else {
+        TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+            new ArrayList<>(), 
+            new ArrayList<>(),
+            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningMemberships(),
+            new HashMap<>());
+        sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+      }
+      
+      {
+        TargetDaoSendGroupChangesToTargetRequest targetDaoSendGroupChangesToTargetRequest = new TargetDaoSendGroupChangesToTargetRequest(
+            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningGroups(), 
+            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningGroups(),
+            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningGroups());
+        sendGroupChangesToTarget(targetDaoSendGroupChangesToTargetRequest);
+      }
+      {
+        TargetDaoSendEntityChangesToTargetRequest targetDaoSendEntityChangesToTargetRequest = new TargetDaoSendEntityChangesToTargetRequest(
+            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningEntities(), 
+            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningEntities(),
+            targetDaoSendChangesToTargetRequest.getTargetObjectDeletes().getProvisioningEntities());
+        sendEntityChangesToTarget(targetDaoSendEntityChangesToTargetRequest);
+      }
+      if (!sendAllMembershipChangesAtOnce) {
+        TargetDaoSendMembershipChangesToTargetRequest targetDaoSendMembershipChangesToTargetRequest = new TargetDaoSendMembershipChangesToTargetRequest(
+            targetDaoSendChangesToTargetRequest.getTargetObjectInserts().getProvisioningMemberships(), 
+            targetDaoSendChangesToTargetRequest.getTargetObjectUpdates().getProvisioningMemberships(),
+            new ArrayList<>(),
+            targetDaoSendChangesToTargetRequest.getTargetObjectReplaces().getProvisioningMemberships());
+        sendMembershipChangesToTarget(targetDaoSendMembershipChangesToTargetRequest);
+      }
     }
     return null;
 
