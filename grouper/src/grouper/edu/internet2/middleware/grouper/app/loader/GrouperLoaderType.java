@@ -1975,7 +1975,7 @@ public enum GrouperLoaderType {
         continue;
       }
       
-      String folderDisplayName = GrouperUtil.parentStemNameFromName(groupDisplayName, false);
+      String folderDisplayName = GrouperUtil.parentStemNameFromName(groupDisplayName, true);
       
       if (folderNameToDisplayName.containsKey(folderName)) {
         
