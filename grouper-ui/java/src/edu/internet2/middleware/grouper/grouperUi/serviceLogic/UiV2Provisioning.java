@@ -381,6 +381,8 @@ public class UiV2Provisioning {
             return null;
           }
           
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          
           Member member = MemberFinder.findBySubject(theGrouperSession, SUBJECT, true);
           List<GcGrouperSyncMember> gcGrouperSyncMembers = GrouperProvisioningService.retrieveGcGrouperSyncMembers(member.getId());
           
@@ -389,6 +391,11 @@ public class UiV2Provisioning {
           for (GcGrouperSyncMember gcGrouperSyncMember: gcGrouperSyncMembers) {
             
             String targetName = gcGrouperSyncMember.getGrouperSync().getProvisionerName();
+
+            GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+            if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, null)) {
+              continue;
+            }
 
             GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
             guiGrouperSyncObject.setGcGrouperSyncMember(gcGrouperSyncMember);
@@ -407,6 +414,12 @@ public class UiV2Provisioning {
             Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
             if (metadataNameValues != null && metadataNameValues.size() > 0) {
               String targetName = grouperProvisioningAttributeValue.getTargetName();
+              
+              GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+              if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, null)) {
+                continue;
+              }
+              
               if (provisionerNameToGuiGrouperSyncObject.containsKey(targetName)) {
                 List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.get(targetName);
                 for (GuiGrouperSyncObject guiGrouperSyncObject: guiGrouperSyncObjects) {
@@ -488,7 +501,17 @@ public class UiV2Provisioning {
           if (!checkProvisioning()) {
             return null;
           }
-
+          
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+          
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, null)) {
+            throw new RuntimeException("Cannot access provisioning");
+          }
+          
           GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
           guiGrouperSyncObject.setTargetName(targetName);
           
@@ -593,6 +616,16 @@ public class UiV2Provisioning {
           
           if (!checkProvisioning()) {
             return null;
+          }
+
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+            throw new RuntimeException("Cannot access provisioning");
           }
           
           GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
@@ -699,6 +732,8 @@ public class UiV2Provisioning {
             return null;
           }
           
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          
           Member member = MemberFinder.findBySubject(theGrouperSession, subject, true);
           List<GcGrouperSyncMembership> gcGrouperSyncMemberships = GrouperProvisioningService.retrieveGcGrouperSyncMemberships(member.getId(), group.getId());
           
@@ -706,6 +741,11 @@ public class UiV2Provisioning {
           
           for (GcGrouperSyncMembership gcGrouperSyncMembership: gcGrouperSyncMemberships) {
             String targetName = gcGrouperSyncMembership.getGrouperSync().getProvisionerName();
+
+            GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+            if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+              continue;
+            }
             
             GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
             guiGrouperSyncObject.setGcGrouperSyncMembership(gcGrouperSyncMembership);
@@ -725,6 +765,12 @@ public class UiV2Provisioning {
             Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
             if (metadataNameValues != null && metadataNameValues.size() > 0) {
               String targetName = grouperProvisioningAttributeValue.getTargetName();
+              
+              GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+              if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+                continue;
+              }
+              
               if (provisionerNameToGuiGrouperSyncObject.containsKey(targetName)) {
                 List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.get(targetName);
                 for (GuiGrouperSyncObject guiGrouperSyncObject: guiGrouperSyncObjects) {
@@ -813,6 +859,16 @@ public class UiV2Provisioning {
           
           if (!checkProvisioning()) {
             return null;
+          }
+          
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, group)) {
+            throw new RuntimeException("Cannot access provisioning");
           }
           
           GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
@@ -925,6 +981,8 @@ public class UiV2Provisioning {
             return null;
           }
           
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          
           Member member = MemberFinder.findBySubject(theGrouperSession, SUBJECT, true);
           List<GcGrouperSyncMembership> gcGrouperSyncMemberships = GrouperProvisioningService.retrieveGcGrouperSyncMemberships(member.getId(), GROUP.getId());
 
@@ -932,6 +990,11 @@ public class UiV2Provisioning {
           
           for (GcGrouperSyncMembership gcGrouperSyncMembership: gcGrouperSyncMemberships) {
             String targetName = gcGrouperSyncMembership.getGrouperSync().getProvisionerName();
+            
+            GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+            if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+              continue;
+            }
             
             GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
             guiGrouperSyncObject.setGcGrouperSyncMembership(gcGrouperSyncMembership);
@@ -950,6 +1013,12 @@ public class UiV2Provisioning {
             Map<String, Object> metadataNameValues = grouperProvisioningAttributeValue.getMetadataNameValues();
             if (metadataNameValues != null && metadataNameValues.size() > 0) {
               String targetName = grouperProvisioningAttributeValue.getTargetName();
+              
+              GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+              if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+                continue;
+              }
+              
               if (provisionerNameToGuiGrouperSyncObject.containsKey(targetName)) {
                 List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.get(targetName);
                 for (GuiGrouperSyncObject guiGrouperSyncObject: guiGrouperSyncObjects) {
@@ -3881,6 +3950,16 @@ public class UiV2Provisioning {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, STEM)) {
+            throw new RuntimeException("Cannot access provisioning");
+          }
+          
           provisioningContainer.setTargetName(targetName);
           
           long groupsCount = GrouperProvisioningService.retrieveNumberOfGroupsInTargetInStem(STEM.getId(), targetName);
@@ -4057,6 +4136,16 @@ public class UiV2Provisioning {
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
           
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+            throw new RuntimeException("Cannot access provisioning");
+          }
+          
           provisioningContainer.setTargetName(targetName);
           
           GuiPaging guiPaging = provisioningContainer.getGuiPaging();
@@ -4154,6 +4243,16 @@ public class UiV2Provisioning {
         
         @Override
         public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          if (!GrouperProvisioningService.isTargetViewable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+            throw new RuntimeException("Cannot access provisioning");
+          }
           
           provisioningContainer.setTargetName(targetName);
           
