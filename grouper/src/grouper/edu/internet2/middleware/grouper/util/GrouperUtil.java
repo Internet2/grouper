@@ -76,6 +76,7 @@ import java.util.Comparator;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.HexFormat;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
@@ -1718,6 +1719,28 @@ public class GrouperUtil {
     String hash = new String(encoded);
     //String hash = (new BASE64Encoder()).encode(raw); //step 5
     return hash; //step 6
+  }
+
+  /**
+   * encrypt a message to SHA
+   * @param plaintext
+   * @return the hash
+   */
+  public synchronized static String encryptShaHex(String plaintext) {
+    MessageDigest md = null;
+    try {
+      md = MessageDigest.getInstance("SHA"); //step 2
+    } catch (NoSuchAlgorithmException e) {
+      throw new RuntimeException(e);
+    }
+    try {
+      md.update(plaintext.getBytes("UTF-8")); //step 3
+    } catch (UnsupportedEncodingException e) {
+      throw new RuntimeException(e);
+  }
+    byte raw[] = md.digest(); //step 4
+    String hex = HexFormat.of().formatHex(raw);
+    return hex; //step 6
   }
 
   /**
