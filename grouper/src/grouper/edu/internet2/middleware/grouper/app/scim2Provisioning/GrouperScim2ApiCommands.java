@@ -970,6 +970,9 @@ public class GrouperScim2ApiCommands {
     }
   }
 
+  public static GrouperScim2Group retrieveScimGroup(String configId, String acceptHeader, String fieldName, String fieldValue) {
+    return retrieveScimGroup(configId, acceptHeader, fieldName, fieldValue, null);
+  }
 
   /**
    * @param configId
@@ -978,7 +981,7 @@ public class GrouperScim2ApiCommands {
    * @return
    */
   public static GrouperScim2Group retrieveScimGroup(String configId, String acceptHeader, String fieldName,
-      String fieldValue) {
+      String fieldValue, Map<String, Set<String>> groupIdToMembershipEntityIds) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -1028,6 +1031,8 @@ public class GrouperScim2ApiCommands {
       JsonNode groupNode = resourcesNode.get(0);
       GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(groupNode);
       debugMap.put("found", grouperScimGroup != null);
+      populateMembershipsFromGroup(groupIdToMembershipEntityIds, groupNode,
+          grouperScimGroup);
       return grouperScimGroup;
   
     } catch (RuntimeException re) {
@@ -1301,13 +1306,17 @@ public class GrouperScim2ApiCommands {
     }
   
   }
+  
+  public static List<GrouperScim2Group> retrieveScimGroups(String configId, String acceptHeader) {
+    return retrieveScimGroups(configId, acceptHeader, null);
+  }
 
 
   /**
    * retrieve all groups
    * @return the results
    */
-  public static List<GrouperScim2Group> retrieveScimGroups(String configId, String acceptHeader) {
+  public static List<GrouperScim2Group> retrieveScimGroups(String configId, String acceptHeader, Map<String, Set<String>> groupIdToMembershipEntityIds) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1368,13 +1377,14 @@ public class GrouperScim2ApiCommands {
    
         boolean foundNewGroup = false;
         for (int i=0;i<resourcesNode.size();i++) {
-          JsonNode userNode = resourcesNode.get(i);
-          GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(userNode);
+          JsonNode groupNode = resourcesNode.get(i);
+          GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(groupNode);
           if (!idsRetreved.contains(grouperScimGroup.getId())) {
             results.add(grouperScimGroup);
             idsRetreved.add(grouperScimGroup.getId());
             foundNewGroup = true;
           }
+          populateMembershipsFromGroup(groupIdToMembershipEntityIds, groupNode, grouperScimGroup);
         }
         
         previousStartIndex = startIndex;
@@ -1396,6 +1406,21 @@ public class GrouperScim2ApiCommands {
       GrouperScim2Log.scimLog(debugMap, startTime);
     }
 
+  }
+
+  private static void populateMembershipsFromGroup(Map<String, Set<String>> groupIdToMembershipEntityIds, JsonNode groupNode, GrouperScim2Group grouperScimGroup) {
+    if (groupIdToMembershipEntityIds != null && StringUtils.isNotBlank(grouperScimGroup.getId())) {
+      Set<String> entityIds = new HashSet<>();
+      if (groupNode.has("members")) {
+        ArrayNode membersNode = GrouperUtil.jsonJacksonGetArrayNode(groupNode, "members");
+        for (int membersIndex=0; membersIndex<membersNode.size(); membersIndex++) {
+          JsonNode singleMemberNode = membersNode.get(membersIndex);
+          String entityId = GrouperUtil.jsonJacksonGetString(singleMemberNode, "value");
+          entityIds.add(entityId);
+        }
+      }
+      groupIdToMembershipEntityIds.put(grouperScimGroup.getId(), entityIds);
+    }
   }
 
 
