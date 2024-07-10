@@ -21,8 +21,8 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
  * <blockquote> 
  * <pre>
  *    GrouperUiBrowserGroupCreate grouperUiBrowserGroupCreate = 
- *    new GrouperUiBrowserGroupCreate(page).assignStemName("test").assignGroupDisplayExtension("test24")
- *    .assignGroupExtension("test24id").assignDescription("Test group").browse();
+ *      new GrouperUiBrowserGroupCreate(page).assignStemName("test").assignGroupDisplayExtension("test24").
+ *      assignGroupExtension("test24id").assignDescription("Test group").browse();
  * </pre>
  * </blockquote>
  * </p>
@@ -153,6 +153,7 @@ public class GrouperUiBrowserGroupCreate
     // Null because both the same page (if it is a failure) or a new group page (if it is a success) could load.
     // We are waiting for anything to finish
     this.waitForJspToLoad(null);
+    GrouperUtil.sleep(500);
     this.findMessageInMessages("groupCreateSuccess", true);
     return this;
   }

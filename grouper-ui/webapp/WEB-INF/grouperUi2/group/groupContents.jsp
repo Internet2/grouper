@@ -1,6 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
                 <form id="membersToDeleteFormId">
+                <grouper:browserPage jspName="groupContents" />
                   <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                     <thead>
                       <tr>
@@ -11,7 +12,7 @@
                         </c:choose>
                         <td colspan="${colspan}" class="table-toolbar gradient-background">
                           <c:if test="${grouperRequestContainer.groupContainer.canUpdate && !grouperRequestContainer.groupContainer.showPointInTimeAudit}">
-                            <a href="#" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn" role="button">${textContainer.text['groupRemoveSelectedMembersButton'] }</a>
+                            <a href="#" id="groupRemoveSelectedMembersButton" onclick="ajax('../app/UiV2Group.removeMembers?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'groupFilterFormId,groupPagingFormId,membersToDeleteFormId'}); return false;" class="btn" role="button">${textContainer.text['groupRemoveSelectedMembersButton'] }</a>
                           </c:if>
                         </td>
                       </tr>
@@ -73,7 +74,7 @@
                                 <label class="checkbox checkbox-no-padding">
                                   <c:choose>
                                     <c:when test="${guiMembershipContainer.membershipContainer.membershipAssignType.immediate}">
-                                      <input type="checkbox" aria-label="${textContainer.text['groupViewDetailsMembershipCheckboxAriaLabel']}" name="membershipRow_${i}" value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
+                                      <input type="checkbox" data-gr-member-checkbox="${grouperUtil.xmlEscape(guiMembershipSubjectContainer.guiSubject.subject.sourceId)}||${grouperUtil.xmlEscape(guiMembershipSubjectContainer.guiSubject.subject.id)}" aria-label="${textContainer.text['groupViewDetailsMembershipCheckboxAriaLabel']}" name="membershipRow_${i}" value="${guiMembershipContainer.membershipContainer.immediateMembership.uuid}" class="membershipCheckbox" />
                                     </c:when>
                                     <c:otherwise>
                                       <input type="checkbox" disabled="disabled"/>

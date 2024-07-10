@@ -1,5 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-
+<grouper:browserPage jspName="indexCustomUi" />
 <!DOCTYPE html>
 <html>
   <!-- start index.jsp -->

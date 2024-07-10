@@ -17,13 +17,13 @@ $(document).ready(function() {
   // Show confirm message when added to favorites
   $('.add-to-my-favorites').click(function() {
     var successMessage = '<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>[group|subject|folder]</strong> has been been added to My Favorites.</div>';
-    $('#messaging').hide().empty().append(successMessage).slideDown('slow');
+    $('#messaging').hide().empty().append('<span class="messageText">').append(successMessage).append('</span>').slideDown('slow');
     $('#messaging').focus();
   });
 
   $('.remove-from-favorites').click(function() {
     var successMessage = '<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>[group|subject|folder]</strong> has been been removed from My Favorites.</div>';
-    $('#messaging').hide().empty().append(successMessage).slideDown('slow');
+    $('#messaging').hide().empty().append('<span class="messageText">').append(successMessage).append('</span>').slideDown('slow');
     $('#messaging').focus();
   });
 
@@ -152,14 +152,14 @@ $(document).ready(function() {
     var newMember = $('#add-block-input').val();
     if (newMember.length) {
       var successMessage = '<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>' + newMember + '</strong> has been added as a member of this group.</div>';
-      $('#messaging').hide().empty().append(successMessage).slideDown('slow');
+      $('#messaging').hide().empty().append('<span class="messageText">').append(successMessage).append('</span>').slideDown('slow');
     }
     return false;
   });
   // Show confirmation message after revoking a membership
   $('.actions-revoke-membership').click(function() {
     var successMessage = '<div class="alert alert-success" role="alert"><button type="button" class="close" data-dismiss="alert">&times;</button><strong>[Entity name]</strong> has been removed from this group.</div>';
-    $('#messaging').hide().empty().append(successMessage).slideDown('slow');
+    $('#messaging').hide().empty().append('<span class="messageText">').append(successMessage).append('</span>').slideDown('slow');
   });
 
   //Check to see if notes and nav should be hidden

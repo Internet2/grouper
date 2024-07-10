@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 <form id="newGroupTemplateFormId" class="form-horizontal">
- 
+  <grouper:browserPage jspName="newTemplate" />
   <c:if test="${grouperRequestContainer.groupStemTemplateContainer.showOnFolder}">
     <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
   </c:if>
@@ -18,7 +18,7 @@
      </div>
    </div>  
   
-  <table class="table table-condensed table-striped">
+  <table id="gshTemplateConfigTableId" class="table table-condensed table-striped">
     <tbody>
       <c:if test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
 
