@@ -27,7 +27,7 @@
               
                <td>
                    <div class="btn-group">
-                         <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                         <a data-toggle="dropdown" id="actions_${grouper:escapeHtml(guiGrouperProvisioningAttributeValue.externalizedName)}_id" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
                            aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                            ${textContainer.text['provisioningConfigTableActionsButton'] }
                            <span class="caret"></span>
@@ -37,7 +37,7 @@
                            <c:if test="${grouperProvisioningAttributeValue.directAssignment == false && guiGrouperProvisioningAttributeValue.provisionable == false}">
                           
                            <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">         
-                             <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.provisioningToOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsProvisionTo'] }</a></li>
+                             <li><a href="#" id="provisionToGroup_${grouper:escapeHtml(guiGrouperProvisioningAttributeValue.externalizedName)}_id" onclick="return guiV2link('operation=UiV2Provisioning.provisioningToOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsProvisionTo'] }</a></li>
                            </c:if>
                           </c:if>
                           
@@ -50,7 +50,7 @@
                           
                           <c:if test="${grouperProvisioningAttributeValue.directAssignment && guiGrouperProvisioningAttributeValue.provisionable && !guiGrouperProvisioningAttributeValue.parentWillMakeThisProvisionable}">
                             <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">
-                             <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.removeProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</a></li>
+                             <li><a href="#" id="doNotProvisionToGroup_${grouper:escapeHtml(guiGrouperProvisioningAttributeValue.externalizedName)}_id" onclick="return guiV2link('operation=UiV2Provisioning.removeProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsDoNotProvision'] }</a></li>
                            </c:if>
                           </c:if>
                           

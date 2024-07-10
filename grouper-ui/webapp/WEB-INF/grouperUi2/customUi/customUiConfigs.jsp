@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 ${grouper:title('customUiConfigsPageTitle')}
-
+            <grouper:browserPage jspName="customUiConfigs" />
             <div class="bread-header-container">
               <ul class="breadcrumb">
                   <li><a href="#" onclick="return guiV2link('operation=UiV2Main.indexMain');">${textContainer.text['myServicesHomeBreadcrumb'] }</a><span class="divider"><i class='fa fa-angle-right'></i></span></li>
@@ -53,7 +53,7 @@ ${grouper:title('customUiConfigsPageTitle')}
                         
                          <td>
                            <div class="btn-group">
-                                 <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
+                                 <a data-toggle="dropdown" id="actions_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreOptions']}" class="btn btn-mini dropdown-toggle"
                                    aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#more-options${i}').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#more-options${i} li').first().focus();return true;});">
                                    ${textContainer.text['customUiConfigsRowActionsButton'] }
                                    <span class="caret"></span>
@@ -71,7 +71,7 @@ ${grouper:title('customUiConfigsPageTitle')}
                                <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUiConfig.editCustomUiConfig&customUiConfigId=${guiCustomUiConfiguration.customUiConfiguration.configId}');">${textContainer.text['customUiConfigsTableEditDetailsActionOption'] }</a></li>
                                
                                <c:if test="${guiCustomUiConfiguration.customUiConfiguration.enabled == true}">
-                                 <li><a href="#" onclick="return guiV2link('operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}'); return false;">${textContainer.text['customUiConfigsTableRunActionOption'] }</a></li>
+                                 <li><a href="#" id="run_${grouper:escapeHtml(guiCustomUiConfiguration.customUiConfiguration.configId)}_id" onclick="return guiV2link('operation=UiV2CustomUi.customUiGroup&groupId=${guiCustomUiConfiguration.customUiConfiguration.groupId}'); return false;">${textContainer.text['customUiConfigsTableRunActionOption'] }</a></li>
                                </c:if>
                            
                                <li>&nbsp;</li>                                  

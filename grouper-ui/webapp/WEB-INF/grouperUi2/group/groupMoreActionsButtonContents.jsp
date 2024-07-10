@@ -49,7 +49,7 @@
 
                           <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsTemplates']}</li>
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="#" id="groupMoreActionsRunTemplateButton" onclick="return guiV2link('operation=UiV2Template.newTemplate&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['createNewTemplateMenuButton'] }</a></li>
                               
                           <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions}" var="gshTemplate">
@@ -71,7 +71,7 @@
                             >${textContainer.text['groupViewEditGroupCompositeButton'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="#" id="groupActionsEditGroupButton" onclick="return guiV2link('operation=UiV2Group.groupEdit&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['groupViewEditGroupButton'] }</a></li>
                             
                           <c:if test="${grouperRequestContainer.groupContainer.guiGroup.typeRole}">
@@ -152,7 +152,7 @@
                         </c:if>
                         
                         <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioningForGroup}">
-                          <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                          <li><a href="javascript:void(0)" id="groupMoreActionsProvisioningButtonId" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                             >${textContainer.text['provisioningMoreActionsMenuLabel'] }</a></li>
                         </c:if>
                         <c:if test="${grouperRequestContainer.grouperReportContainer.reportingEnabled}">
@@ -171,7 +171,7 @@
                           <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['groupViewMoreActionsDelete']}</li>
   
                           <c:if test="${grouperRequestContainer.groupContainer.canAdmin }">
-                            <li><a href="#" onclick="return guiV2link('operation=UiV2Group.groupDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
+                            <li><a href="#" id="groupActionsGroupDeleteButton" onclick="return guiV2link('operation=UiV2Group.groupDelete&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;"
                               >${textContainer.text['groupViewDeleteGroupButton'] }</a></li>
                           </c:if>
                           <c:if test="${!grouperRequestContainer.groupContainer.guiGroup.hasComposite && grouperRequestContainer.groupContainer.canUpdate}">

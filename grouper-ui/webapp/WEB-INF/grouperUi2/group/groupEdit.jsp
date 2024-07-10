@@ -3,7 +3,7 @@
 ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.groupContainer.guiGroup.group.displayName)}
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
-
+            <grouper:browserPage jspName="groupEdit" />
             <div class="bread-header-container">
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
 
@@ -202,7 +202,7 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                       </div>
                     </c:if>
                   </div>
-                  <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
+                  <div class="form-actions"><a href="#" class="btn btn-primary" id="editGroupSaveButton" onclick="ajax('../app/UiV2Group.groupEditSubmit', {formIds: 'editGroupForm'}); return false;">${textContainer.text['groupCreateSaveButton'] }</a> 
                   <a href="#" onclick="return guiV2link('operation=UiV2Group.viewGroup?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" class="btn btn-cancel">${textContainer.text['groupCreateCancelButton'] }</a></div>
                 </form>
               </div>

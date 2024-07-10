@@ -1,12 +1,11 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
 ${grouper:titleFromKeyAndText('groupProvisioningPageTitle', grouperRequestContainer.groupContainer.guiGroup.group.displayName)}
-
+<grouper:browserPage jspName="provisioningGroupProvisioners" />
 <%-- for the new group or new stem button --%>
 <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
 
 <%@ include file="../group/groupHeader.jsp" %>
-
 <div class="row-fluid">
   <div class="span12">
     <div id="messages"></div>
