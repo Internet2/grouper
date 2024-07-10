@@ -1,4 +1,5 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
+<grouper:browserPage jspName="newTemplate" />
 <form id="newStemTemplateFormId" class="form-horizontal">
   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
   <p class="lead" id="templateHeader">${textContainer.text['gshTemplateScreenDecription']}</p>
@@ -84,7 +85,7 @@
 	            for="serviceDescriptionId">${textContainer.text['stemServiceDescription']}</label></strong></td>
 	        <td>
 	          <span style="white-space: nowrap">    
-	            <textarea id="serviceDescriptionId" name=serviceDescription rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.groupStemTemplateContainer.templateDescription)}</textarea>
+	            <textarea id="serviceDescriptionId" type="textArea" name=serviceDescription rows="3" cols="40" class="input-block-level">${grouper:escapeHtml(grouperRequestContainer.groupStemTemplateContainer.templateDescription)}</textarea>
 	          </span>
 	        
 	          <br /> <span class="description">${textContainer.text['stemServiceDescriptionDescription']}</span>
@@ -123,6 +124,7 @@
 				ajaxCallback="ajax('../app/UiV2Template.newTemplate?templateType=${grouperRequestContainer.groupStemTemplateContainer.templateType}&eventConfigId=${guiGshTemplateInputConfig.gshTemplateInputConfig.name}', {formIds: 'newStemTemplateFormId'}); return false;"
 				valuesAndLabels="${guiGshTemplateInputConfig.gshTemplateInputConfig.dropdownKeysAndLabels}"
         indent="${attribute.configItemMetadata.indent}"
+        
         
 			/>
   				

@@ -1,6 +1,6 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 <form id="newGroupTemplateFormId" class="form-horizontal">
- 
+  <grouper:browserPage jspName="newTemplate" />
   <p class="lead" id="templateHeader">${textContainer.text['gshTemplateScreenDecription']}</p>
   <table class="table table-condensed table-striped">
     <tbody>

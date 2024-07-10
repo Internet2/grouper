@@ -404,7 +404,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     if (configItemFormElement == ConfigItemFormElement.TEXT) {
       
       field.append(
-          "<input style='width:30em; "+ displayClass + "' type='text' id='config_"+configId+"_id' name='config_" + configId + "'");
+          "<input data-gr-input-type='text' style='width:30em; "+ displayClass + "' type='text' id='config_"+configId+"_id' name='config_" + configId + "'");
       if (value != null) {
         field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
@@ -414,7 +414,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     
     if (configItemFormElement == ConfigItemFormElement.TEXTAREA) {
             
-      field.append("<textarea style='width:30em; "+ displayClass + "' cols='20' rows='3' id='config_"+configId+"_id' name='config_"
+      field.append("<textarea data-gr-input-type='textarea' style='width:30em; "+ displayClass + "' cols='20' rows='3' id='config_"+configId+"_id' name='config_"
           + configId + "'>");
       if (value != null) {
         field.append(GrouperUtil.escapeHtml(value, true));
@@ -426,7 +426,7 @@ public class ConfigFormElement extends SimpleTagSupport {
     if (configItemFormElement == ConfigItemFormElement.PASSWORD) {
       
       field.append(
-          "<input style='width:30em; "+ displayClass + "' type='password' id='config_"+configId+"_id' name= 'config_" + configId + "'");
+          "<input style='width:30em; "+ displayClass + "' data-gr-input-type='password' type='password' id='config_"+configId+"_id' name= 'config_" + configId + "'");
       if (value != null) {
         field.append(" value = '"+GrouperUtil.escapeHtml(value, true)+"'");
       }
@@ -448,7 +448,7 @@ public class ConfigFormElement extends SimpleTagSupport {
           field.append("<span style='margin-right: 10px;'>"+optionValue+"</span>"); 
         }
       } else {
-        field.append("<select style='width:30em; "+ displayClass + "' id='config_"+configId+"_id' name='config_"+configId+"' ");
+        field.append("<select data-gr-input-type='select' style='width:30em; "+ displayClass + "' id='config_"+configId+"_id' name='config_"+configId+"' ");
         
         field.append("onchange=\""+ajaxCallback+"\"");
         field.append(">");

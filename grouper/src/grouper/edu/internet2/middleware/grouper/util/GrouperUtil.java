@@ -4132,7 +4132,9 @@ public class GrouperUtil {
 
     // 456
     int microsOnly = microsAndNanos / 1000;
-    my8601formattedDate += microsOnly + "Z";
+    String microsOnlyString = StringUtils.leftPad("" + microsOnly, 3, "0");
+    
+    my8601formattedDate +=  microsOnlyString + "Z";
     
     return my8601formattedDate;
   }
