@@ -259,8 +259,6 @@ public class GrouperScim2User {
       }
     }
     
-    //TODO populate department, division, and title after Chris is done with json pointer read task
-
     grouperScimUser.externalId = GrouperUtil.jsonJacksonGetString(entityNode, "externalId");
 
     grouperScimUser.id = GrouperUtil.jsonJacksonGetString(entityNode, "id");
@@ -514,7 +512,7 @@ public class GrouperScim2User {
           
       Table loaderTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
       
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "org_in_url", Types.VARCHAR, "100", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "org_in_url", Types.VARCHAR, "100", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "cost_center", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "display_name", Types.VARCHAR, "256", false, false);

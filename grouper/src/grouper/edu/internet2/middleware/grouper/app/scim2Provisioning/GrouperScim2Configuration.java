@@ -117,7 +117,7 @@ public class GrouperScim2Configuration extends ProvisioningConfiguration {
       
       numberOfGroupAttributesLength = GrouperUtil.intValue(numberOfGroupAttributes.getValueOrExpressionEvaluation(), 0);
       
-      Set<String> predefinedAttributes = GrouperUtil.toSet("displayName", "id");
+      Set<String> predefinedAttributes = GrouperUtil.toSet("displayName", "externalId", "id");
       
       for (int i=0; i<numberOfGroupAttributesLength; i++) {
         
