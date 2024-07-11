@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperGithubProvisionerTest("testFullProvisionLoadEntitiesIntoScimUsersTable"));
+    TestRunner.run(new GrouperGithubProvisionerTest("testGithubFullSync"));
 
   }
   

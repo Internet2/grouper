@@ -56,6 +56,11 @@ public class GrouperScim2Group {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       grouperScim2Group.setDisplayName(targetGroup.getDisplayName());
     }
+    
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) {      
+      grouperScim2Group.setExternalId(targetGroup.retrieveAttributeValueString("externalId"));
+    }
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       grouperScim2Group.setId(targetGroup.getId());
     }
@@ -172,6 +177,10 @@ public class GrouperScim2Group {
       targetGroup.assignAttributeValue("schemas", this.schemas);
     }
     
+    if (this.externalId != null) {
+      targetGroup.assignAttributeValue("externalId", this.externalId);
+    }
+    
     targetGroup.assignAttributeValue("active", this.active);
     
     if (this.customAttributes != null) {
@@ -219,6 +228,7 @@ public class GrouperScim2Group {
 
     grouperScimGroup.setId(GrouperUtil.jsonJacksonGetString(groupNode, "id"));
     grouperScimGroup.setDisplayName(GrouperUtil.jsonJacksonGetString(groupNode, "displayName"));
+    grouperScimGroup.setExternalId(GrouperUtil.jsonJacksonGetString(groupNode, "externalId"));
     
     JsonNode metaNode = groupNode.has("meta") ? groupNode.get("meta") : null;
     
@@ -315,6 +325,9 @@ public class GrouperScim2Group {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("displayName")) {      
       GrouperUtil.jsonJacksonAssignString(result, "displayName", this.displayName);
     }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) {      
+      GrouperUtil.jsonJacksonAssignString(result, "externalId", this.externalId);
+    }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
       GrouperUtil.jsonJacksonAssignBoolean(result, "active", GrouperUtil.booleanValue(this.active, true));
     }
@@ -363,6 +376,7 @@ public class GrouperScim2Group {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "last_modified", Types.TIMESTAMP, null, false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, true, "T");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "external_id", Types.VARCHAR, "256", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_gdisp_name_idx", false, "display_name");
     }
@@ -469,6 +483,8 @@ public class GrouperScim2Group {
   private String displayName;
 
   private String schemas;
+  
+  private String externalId;
 
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(GrouperScim2Group.class);
@@ -500,6 +516,16 @@ public class GrouperScim2Group {
   
   public void setSchemas(String schemas) {
     this.schemas = schemas;
+  }
+  
+  
+  public String getExternalId() {
+    return externalId;
+  }
+
+  
+  public void setExternalId(String externalId) {
+    this.externalId = externalId;
   }
 
   /**

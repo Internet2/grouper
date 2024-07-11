@@ -32,6 +32,7 @@
 
     <property name="created" column="created" type="timestamp" />
     <property name="displayName" column="display_name" />
+    <property name="externalId" column="external_id" />
     <property name="lastModified" column="last_modified" type="timestamp" />
 
   </class>
