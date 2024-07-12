@@ -47,6 +47,10 @@
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.editProvisioningOnGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsEditProvisioning'] }</a></li>   
                            </c:if>
                           </c:if>
+
+                          <c:if test="${guiGrouperProvisioningAttributeValue.provisionable && guiGrouperProvisioningAttributeValue.canAssignProvisioning}">
+                            <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.runGroupSync&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&provisioningTargetName=${guiGrouperProvisioningAttributeValue.grouperProvisioningAttributeValue.targetName}');">${textContainer.text['provisioningConfigTableActionsRunGroupSync'] }</a></li>   
+                          </c:if>
                           
                           <c:if test="${grouperProvisioningAttributeValue.directAssignment && guiGrouperProvisioningAttributeValue.provisionable && !guiGrouperProvisioningAttributeValue.parentWillMakeThisProvisionable}">
                             <c:if test="${guiGrouperProvisioningAttributeValue.canAssignProvisioning}">
