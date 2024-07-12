@@ -2593,20 +2593,8 @@ public class UiV2Provisioning {
           
           addProvisioningBreadcrumbs(guiGroup, null, null, null, null);
           
-          if (provisioningContainer.getGrouperProvisioningObjectMetadataItems().size() > 0) {
-            guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-                "/WEB-INF/grouperUi2/provisioning/provisioningGroupSettingsEdit.jsp"));
-          } else {
-            //let's just assign the settings and go back to the listing page
-            final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
-            attributeValue.setDirectAssignment(true);
-            attributeValue.setDoProvision(targetName);      
-            attributeValue.setTargetName(targetName);
-            GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, GROUP);
-            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=" + GROUP.getId() + "')"));
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-                TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/provisioning/provisioningGroupSettingsEdit.jsp"));
           
           return null;
         }
