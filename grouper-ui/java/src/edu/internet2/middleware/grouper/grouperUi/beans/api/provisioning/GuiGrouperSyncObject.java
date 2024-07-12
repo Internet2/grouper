@@ -13,6 +13,8 @@ public class GuiGrouperSyncObject {
   
   private String targetName;
   
+  private boolean canAssignProvisioning;
+  
   public boolean isHasDirectSettings() {
     return hasDirectSettings;
   }
@@ -49,4 +51,13 @@ public class GuiGrouperSyncObject {
     this.targetName = targetName;
   }
   
+
+  public boolean isCanAssignProvisioning() {
+    return canAssignProvisioning;
+  }
+
+  
+  public void setCanAssignProvisioning(boolean canAssignProvisioning) {
+    this.canAssignProvisioning = canAssignProvisioning;
+  }
 }

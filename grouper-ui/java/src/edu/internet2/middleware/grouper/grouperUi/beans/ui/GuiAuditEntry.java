@@ -1103,6 +1103,10 @@ public class GuiAuditEntry {
           this.setupGroup();
           return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_GROUP");
         
+        case PROVISIONER_SYNC_RUN_MEMBER:
+          this.setupMember();
+          return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_MEMBER");
+          
         case PROVISIONER_SYNC_RUN:
           return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN");
 
