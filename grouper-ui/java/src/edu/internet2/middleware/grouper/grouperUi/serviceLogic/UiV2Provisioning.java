@@ -2834,7 +2834,7 @@ public class UiV2Provisioning {
           label = labelKey;
         }
         String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataItemRequired");
-        errorMessage = errorMessage.replace("$$metadataLabel$$", label);
+        errorMessage = errorMessage.replace("##metadataLabel##", label);
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
       }
       
@@ -2858,7 +2858,7 @@ public class UiV2Provisioning {
                     label = labelKey;
                   }
                   String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataItemNotUnique");
-                  errorMessage = errorMessage.replace("$$metadataLabel$$", label);
+                  errorMessage = errorMessage.replace("##metadataLabel##", label);
                   guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
                   errors = true;
                 }
@@ -2897,8 +2897,8 @@ public class UiV2Provisioning {
 //          }
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
-          errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");
-          errorMessage = errorMessage.replace("$$type$$", metadataItem.getValueType().name());
+          errorMessage = errorMessage.replace("##value##", "'"+value+"'");
+          errorMessage = errorMessage.replace("##type##", metadataItem.getValueType().name());
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
           errors = true;
         }
@@ -2913,8 +2913,8 @@ public class UiV2Provisioning {
           }
         } catch (Exception e) {
           String errorMessage = TextContainer.retrieveFromRequest().getText().get("provisioningMetadataValueNotCorrectTypeRequired");
-          errorMessage = errorMessage.replace("$$value$$", "'"+value+"'");
-          errorMessage = errorMessage.replace("$$type$$", metadataItem.getValueType().name());
+          errorMessage = errorMessage.replace("##value##", "'"+value+"'");
+          errorMessage = errorMessage.replace("##type##", metadataItem.getValueType().name());
           guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#"+name+"_id", errorMessage));
           errors = true;
         }
@@ -3997,53 +3997,64 @@ public class UiV2Provisioning {
     GrouperSession grouperSession = null;
     
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-    Group group;
-    
+        
     try {
       
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
-      
-      if (group != null) {
-        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
-      }
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
-      ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
-      
-      if (!provisioningContainer.isCanRunDaemon()) {
-        throw new RuntimeException("Not allowed!!!!!");
-      }
-      
       final String targetName = request.getParameter("provisioningTargetName");
-            
+      
       if (StringUtils.isBlank(targetName)) {
         throw new RuntimeException("provisioningTargetName cannot be blank");
       }
       
-      ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-      String[] groupIdsForSync = new String[1];
-      groupIdsForSync[0] = group.getId();
-      provisioningMessage.setGroupIdsForSync(groupIdsForSync);
-      provisioningMessage.setBlocking(true);
-      provisioningMessage.send(targetName);
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkProvisioning()) {
+            return null;
+          }
+          
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          
+          boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+          if (!canAssignProvisioning) {
+            throw new RuntimeException("Cannot access provisioning.");
+          }
       
-      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_GROUP, "groupId", group.getId(), "provisionerName", targetName);
-      auditEntry.setDescription("Ran provisioner sync for "+targetName+" on group " + group.getName());
-      provisionerSaveAudit(auditEntry);
+          ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+          String[] groupIdsForSync = new String[1];
+          groupIdsForSync[0] = group.getId();
+          provisioningMessage.setGroupIdsForSync(groupIdsForSync);
+          provisioningMessage.setBlocking(true);
+          provisioningMessage.send(targetName);
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_GROUP, "groupId", group.getId(), "provisionerName", targetName);
+          auditEntry.setDescription("Ran provisioner sync for "+targetName+" on group " + group.getName());
+          provisionerSaveAudit(auditEntry);
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=" + group.getId() + "')"));
+
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
           TextContainer.retrieveFromRequest().getText().get("provisioningGroupSyncSuccess")));
       
+          return null;
+        }
+      });
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
