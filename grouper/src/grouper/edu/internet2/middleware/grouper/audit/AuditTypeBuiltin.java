@@ -699,6 +699,11 @@ public enum AuditTypeBuiltin implements AuditTypeIdentifier {
   PROVISIONER_SYNC_RUN_GROUP(new AuditType("provisionerSync", "provisionerGroupSync", null, "groupId", "provisionerName")),
 
   /**
+   * provisioner sync run for a provisioner for a single member 
+   */
+  PROVISIONER_SYNC_RUN_MEMBER(new AuditType("provisionerSync", "provisionerMemberSync", null, "memberId", "provisionerName")),
+
+  /**
    * provisioner sync run for a provisioner for all configured groups and stems
    */
   PROVISIONER_SYNC_RUN(new AuditType("provisionerSync", "provisionerSync", null, "provisionerName")),
