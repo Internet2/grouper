@@ -1106,6 +1106,11 @@ public class GuiAuditEntry {
         case PROVISIONER_SYNC_RUN_MEMBER:
           this.setupMember();
           return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_MEMBER");
+
+        case PROVISIONER_SYNC_RUN_MEMBERSHIP:
+          this.setupGroup();
+          this.setupMember();
+          return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN_MEMBERSHIP");
           
         case PROVISIONER_SYNC_RUN:
           return TextContainer.retrieveFromRequest().getText().get("audits_PROVISIONER_SYNC_RUN");
