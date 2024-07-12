@@ -164,9 +164,11 @@ public class AuditFieldType {
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_UPDATE, "memberId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PROVISIONER_SYNC_RUN_GROUP, "groupId");
+    addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PROVISIONER_SYNC_RUN_MEMBERSHIP, "groupId");
     addAuditFieldType(AUDIT_TYPE_GROUP_ID, AuditTypeBuiltin.PRIVILEGE_GROUP_DELETE, "memberId");
 
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PROVISIONER_SYNC_RUN_MEMBER, "memberId");
+    addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.PROVISIONER_SYNC_RUN_MEMBERSHIP, "memberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.MEMBER_DEPROVISIONING, "memberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.MEMBER_CHANGE_SUBJECT, "oldMemberId");
     addAuditFieldType(AUDIT_TYPE_MEMBER_ID, AuditTypeBuiltin.MEMBER_CHANGE_SUBJECT, "newMemberId");
