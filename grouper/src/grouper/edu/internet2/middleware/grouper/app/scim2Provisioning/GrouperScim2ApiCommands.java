@@ -810,13 +810,19 @@ public class GrouperScim2ApiCommands {
       do {
 
         JsonNode jsonNode = null;
-        if (pageSize == -1) {
-          jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Users",
-              GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader, orgName);
-        } else {
-          jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, "/Users?startIndex="+startIndex+"&count="+pageSize,
-              GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader, orgName);
+        
+        String urlSuffix = "/Users";
+        
+//        String urlSuffix = "/Users?filter=" + GrouperUtil.escapeUrlEncode("userName")
+//        + "%20eq%20" + GrouperUtil.escapeUrlEncode("\"" + StringEscapeUtils.escapeJson("test.subject.0") + "\"");
+        
+        if (pageSize != -1) {
+          urlSuffix += (urlSuffix.contains("?")) ? "&" : "?";
+          urlSuffix += "startIndex="+startIndex+"&count="+pageSize;
         }
+        
+        jsonNode = executeMethod(debugMap, GrouperHttpMethod.get, configId, urlSuffix,
+            GrouperUtil.toSet(200), new int[] { -1 }, null, acceptHeader, orgName);
 
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
         int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
