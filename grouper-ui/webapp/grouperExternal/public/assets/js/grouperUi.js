@@ -255,7 +255,7 @@ function guiMessageHelper(messageType, message, shouldEmpty=true) {
   
   var finalMessage = '<div role="alert" class="alert alert-' + messageType 
     + '"><button type="button" class="close" data-dismiss="alert">&times;</button>'
-    + message + '</div>';
+    + '<span class="messageText">' + message + '</span></div>';
   $('#messaging').hide();
   if (shouldEmpty) {
     $('#messaging').empty();

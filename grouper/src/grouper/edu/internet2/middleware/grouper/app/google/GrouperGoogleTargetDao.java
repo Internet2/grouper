@@ -570,77 +570,73 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
         String fieldName = provisioningObjectChange.getAttributeName();
         if (StringUtils.equals(fieldName, "managers")) {
           if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
-            String email = (String) provisioningObjectChange.getNewValue();
-            if (StringUtils.isBlank(email)) {
+            String userId = (String) provisioningObjectChange.getNewValue();
+            if (StringUtils.isBlank(userId)) {
               continue;
             }
             GrouperGoogleApiCommands.createGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
-                grouperGoogleGroup.getId(), email, "MANAGER");
+                grouperGoogleGroup.getId(), userId, "MANAGER");
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
-            String email = (String) provisioningObjectChange.getOldValue();
-            if (StringUtils.isBlank(email)) {
+            String userId = (String) provisioningObjectChange.getOldValue();
+            if (StringUtils.isBlank(userId)) {
               continue;
             }
             boolean addBackManager = false;
             boolean addBackMember = false;
             
-            GrouperProvisioningConfigurationAttributeDbCache entityEmailCacheBucket = googleConfiguration.getEmailCacheBucket();
-            GrouperUtil.assertion(entityEmailCacheBucket != null, "You must cache the entity email attribute.");
-            String emailCacheDatabaseColumn = entityEmailCacheBucket.getDatabaseColumn();
-            
+
             GrouperProvisioningConfigurationAttributeDbCache entityIdCacheBucket = googleConfiguration.getEntityIdCacheBucket();
             GrouperUtil.assertion(entityIdCacheBucket != null, "You must cache the entity id attribute.");
+            String idCacheDatabaseColumn = entityIdCacheBucket.getDatabaseColumn();
+
+            String sql = "select distinct 1 from grouper_sync_member gsm, grouper_sync_group gsg , grouper_memberships_lw_v gmlv  "
+                + "where gsg.id = ? and gsm."+idCacheDatabaseColumn+" = ? and gmlv.list_name = 'members' and gmlv.member_id = gsm.member_id  and gmlv.group_id = gsg.group_id ";
+
+            Integer rowExists = new GcDbAccess().sql(sql).addBindVar(targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getId())
+            .addBindVar(userId).select(Integer.class);
             
-            String sql = "select distinct "+entityIdCacheBucket.getDatabaseColumn()+" from grouper_sync_member gsm, grouper_sync_group gsg , grouper_memberships_lw_v gmlv  "
-                + "where gsg.id = ? and gsm."+emailCacheDatabaseColumn+" = ? and gmlv.list_name = 'members' and gmlv.member_id = gsm.member_id  and gmlv.group_id = gsg.group_id ";
-            
-            String entityIdValue = new GcDbAccess().sql(sql).addBindVar(targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getId())
-            .addBindVar(email).select(String.class);
-            
-            if (StringUtils.isNotBlank(entityIdValue)) {
+            if (rowExists != null) {
               addBackMember = true;
             }
             
             GrouperGoogleApiCommands.deleteGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
-                grouperGoogleGroup.getId(), entityIdValue, email, "MANAGER", addBackManager, addBackMember);
+                grouperGoogleGroup.getId(), userId, "MANAGER", addBackManager, addBackMember);
           }
         } else if (StringUtils.equals(fieldName, "owners")) {
           if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
-            String email = (String) provisioningObjectChange.getNewValue();
-            if (StringUtils.isBlank(email)) {
+            String userId = (String) provisioningObjectChange.getNewValue();
+            if (StringUtils.isBlank(userId)) {
               continue;
             }
             GrouperGoogleApiCommands.createGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
-                grouperGoogleGroup.getId(), email, "OWNER");
+                grouperGoogleGroup.getId(), userId, "OWNER");
           } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
-            String email = (String) provisioningObjectChange.getOldValue();
-            if (StringUtils.isBlank(email)) {
+            String userId = (String) provisioningObjectChange.getOldValue();
+            if (StringUtils.isBlank(userId)) {
               continue;
             }
-            boolean addBackManager = GrouperUtil.nonNull(grouperGoogleGroup.getManagers()).contains(email);
+            boolean addBackManager = GrouperUtil.nonNull(grouperGoogleGroup.getManagers()).contains(userId);
             boolean addBackMember = false;
-            String entityIdValue = null;
+            Integer rowExists;
             if (!addBackManager) {
-              GrouperProvisioningConfigurationAttributeDbCache entityEmailCacheBucket = googleConfiguration.getEmailCacheBucket();
-              GrouperUtil.assertion(entityEmailCacheBucket != null, "You must cache the entity email attribute.");
-              String emailCacheDatabaseColumn = entityEmailCacheBucket.getDatabaseColumn();
-              
+
               GrouperProvisioningConfigurationAttributeDbCache entityIdCacheBucket = googleConfiguration.getEntityIdCacheBucket();
               GrouperUtil.assertion(entityIdCacheBucket != null, "You must cache the entity id attribute.");
+              String userIdCacheDatabaseColumn = entityIdCacheBucket.getDatabaseColumn();
+
+              String sql = "select distinct 1 from grouper_sync_member gsm, grouper_sync_group gsg , grouper_memberships_lw_v gmlv  "
+                  + "where gsg.id = ? and gsm."+userIdCacheDatabaseColumn+" = ? and gmlv.list_name = 'members' and gmlv.member_id = gsm.member_id  and gmlv.group_id = gsg.group_id ";
               
-              String sql = "select distinct "+entityIdCacheBucket.getDatabaseColumn()+" from grouper_sync_member gsm, grouper_sync_group gsg , grouper_memberships_lw_v gmlv  "
-                  + "where gsg.id = ? and gsm."+emailCacheDatabaseColumn+" = ? and gmlv.list_name = 'members' and gmlv.member_id = gsm.member_id  and gmlv.group_id = gsg.group_id ";
+              rowExists = new GcDbAccess().sql(sql).addBindVar(targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getId())
+              .addBindVar(userId).select(Integer.class);
               
-              entityIdValue = new GcDbAccess().sql(sql).addBindVar(targetGroup.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getId())
-              .addBindVar(email).select(String.class);
-              
-              if (StringUtils.isNotBlank(entityIdValue)) {
+              if (rowExists != null) {
                 addBackMember = true;
               }
             }
             
             GrouperGoogleApiCommands.deleteGoogleRoleMembership(googleConfiguration.getGoogleExternalSystemConfigId(),
-                grouperGoogleGroup.getId(), entityIdValue, email, "OWNER", addBackManager, addBackMember);
+                grouperGoogleGroup.getId(), userId, "OWNER", addBackManager, addBackMember);
           }
         }
         fieldNamesToUpdate.add(fieldName);

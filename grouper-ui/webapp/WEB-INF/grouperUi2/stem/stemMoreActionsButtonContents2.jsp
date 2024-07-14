@@ -29,7 +29,7 @@
                           <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['stemViewMoreActionsTemplates']}</li>
 
 
-                          <li><a href="#" onclick="return guiV2link('operation=UiV2Template.newTemplate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
+                          <li><a href="#" id="stemMoreActionsRuntTemplateButton" onclick="return guiV2link('operation=UiV2Template.newTemplate&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
                               >${textContainer.text['createNewTemplateMenuButton'] }</a></li>
                               
                           <c:forEach items="${grouperRequestContainer.groupStemTemplateContainer.templatesToShowInMoreActions}" var="gshTemplate">

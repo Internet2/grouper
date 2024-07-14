@@ -4,7 +4,8 @@ ${grouper:titleFromKeyAndText('groupDeletePageTitle', grouperRequestContainer.gr
 
             <%-- for the new group or new stem button --%>
             <input type="hidden" name="objectStemId" value="${grouperRequestContainer.groupContainer.guiGroup.group.parentUuid}" />
-
+            <grouper:browserPage jspName="groupDelete" />
+            
             <div class="bread-header-container">
               ${grouperRequestContainer.groupContainer.guiGroup.breadcrumbs}
               <div class="page-header blue-gradient">
@@ -74,7 +75,7 @@ ${grouper:titleFromKeyAndText('groupDeletePageTitle', grouperRequestContainer.gr
                   
                  </c:if>
                 
-                <div class="form-actions"><a href="#" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupDeleteSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupDeleteDeleteButton'] }</a> 
+                <div class="form-actions"><a href="#" id="groupDeleteConfirmButton" class="btn btn-primary" onclick="ajax('../app/UiV2Group.groupDeleteSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}'); return false;">${textContainer.text['groupDeleteDeleteButton'] }</a> 
                 <a href="#" class="btn btn-cancel" onclick="return guiV2link('operation=UiV2Group.viewGroup&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}');" >${textContainer.text['groupDeleteCancelButton'] }</a></div>
               </div>
             </div>

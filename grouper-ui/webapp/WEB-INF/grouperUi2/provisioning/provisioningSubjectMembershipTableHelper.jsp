@@ -80,6 +80,10 @@
                            <span class="caret"></span>
                          </a>
                          <ul class="dropdown-menu dropdown-menu-right" id="more-options${i}">
+                                <c:if test="${gcGrouperSyncMembership.grouperSyncGroup.provisionable && gcGrouperSyncMembership.grouperSyncMember.provisionable && guiGrouperSyncObject.canAssignProvisioning}">
+                                  <li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.runMembershipSync&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}&backTo=subject');">${textContainer.text['provisioningConfigTableActionsRunMembershipSync'] }</a></li>
+                                </c:if>
+
                          	<li><a href="#" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningTargetDetailsOnSubjectMembership&groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}&provisioningTargetName=${guiGrouperSyncObject.targetName}&groupSyncMembershipId=${gcGrouperSyncMembership.id}');">${textContainer.text['provisioningConfigTableActionsViewDetails'] }</a></li>
                          </ul>
                        </div>

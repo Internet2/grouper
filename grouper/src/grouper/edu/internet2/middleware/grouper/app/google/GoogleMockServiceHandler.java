@@ -11,6 +11,7 @@ import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.Group;
 import org.apache.commons.lang.StringUtils;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
@@ -130,7 +131,12 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
         getUsersByGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
-      
+
+      if ("groups".equals(mockNamePaths.get(0)) && 4 == mockNamePaths.size() && "members".equals(mockNamePaths.get(2))) {
+        getUserByGroup(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+
       if ("settings".equals(mockNamePaths.get(0)) && 2 == mockServiceRequest.getPostMockNamePaths().length) {
         getGroupSettings(mockServiceRequest, mockServiceResponse);
         return;
@@ -375,9 +381,10 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     String memberIdInJson = mockServiceRequest.getRequestBody();
     JsonNode memberIdNode = GrouperUtil.jsonJacksonNode(memberIdInJson);
-    
+
     String userId = memberIdNode.get("id").asText();
-    
+    String role = memberIdNode.get("role") == null ? "MEMBER" : memberIdNode.get("role").asText();
+
     GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
     
     //check if userid exists
@@ -421,22 +428,26 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
         .setString("userId", userId)
         .setString("groupId", groupId)
         .list(GrouperGoogleMembership.class);
-    
+
     if (GrouperUtil.length(memberships) == 0) {
-      
+
       //now save the relationship
       GrouperGoogleMembership grouperGoogleMembership = new GrouperGoogleMembership();
       grouperGoogleMembership.setGroupId(groupId);
       grouperGoogleMembership.setUserId(userId);
+      grouperGoogleMembership.setRole(role);
       grouperGoogleMembership.setId(GrouperUuid.getUuid());
-      
-      HibernateSession.byObjectStatic().save(grouperGoogleMembership); 
-      
+      HibernateSession.byObjectStatic().save(grouperGoogleMembership);
+    } else if (GrouperUtil.length(memberships) == 1) {
+      GrouperGoogleMembership grouperGoogleMembership = memberships.get(0);
+      grouperGoogleMembership.setRole(role);
+      HibernateSession.byObjectStatic().update(grouperGoogleMembership);
     }
+
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
     resultNode.put("type", "GROUP");
-    resultNode.put("role", "MEMBER");
+    resultNode.put("role", role);
     resultNode.put("email", grouperGoogleUsers.get(0).getPrimaryEmail());
     resultNode.put("id", grouperGoogleUsers.get(0).getId());
     resultNode.put("kind", "directory#member");
@@ -573,7 +584,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
 
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
     String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
-      
+    String groupFilter = mockServiceRequest.getHttpServletRequest().getParameter("query");
+
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
@@ -585,23 +597,33 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       }
     }
 
-    List<GrouperGoogleGroup> grouperGoogleGroups = null;
-    ByHqlStatic query = null;
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
+    StringBuffer sql = new StringBuffer("from GrouperGoogleGroup");
     QueryOptions queryOptions = new QueryOptions();
-    if (StringUtils.isNotBlank(pageToken)) {
-      query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup where email > :pageToken");
-      query.setScalar("pageToken", pageToken);
-    } else {
-      query = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup");
+    String whereConj = " where ";
+
+    if (groupFilter != null) {
+      sql.append(whereConj);
+      sql.append(groupFilter);
+      whereConj = " and ";
     }
-    
+
+    if (StringUtils.isNotBlank(pageToken)) {
+      sql.append(whereConj);
+      sql.append(" email > :pageToken");
+      byHqlStatic.setScalar("pageToken", pageToken);
+      whereConj = " and ";
+    }
+
+
     queryOptions.paging(limitInt, 1, true);
     
     queryOptions.sort(new QuerySort("email", true));
-    query.options(queryOptions);
-    
-    grouperGoogleGroups = query.list(GrouperGoogleGroup.class);
-    
+
+    List<GrouperGoogleGroup> grouperGoogleGroups = byHqlStatic.createQuery(sql.toString())
+            .options(queryOptions)
+            .list(GrouperGoogleGroup.class);
+
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
     int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
@@ -640,7 +662,8 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
     String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
-      
+    String role = mockServiceRequest.getHttpServletRequest().getParameter("roles");
+
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
@@ -652,27 +675,30 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
       }
     }
 
-    List<GrouperGoogleUser> grouperGoogleUsers = null;
-    ByHqlStatic query = null;
+    ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     QueryOptions queryOptions = new QueryOptions();
-    if (StringUtils.isNotBlank(pageToken)) {
-      
-      query = HibernateSession.byHqlStatic()
-          .createQuery("from GrouperGoogleUser u where u.id in (select m.userId from GrouperGoogleMembership m where m.groupId = :theGroupId) and primaryEmail > :pageToken ")
-          .setString("theGroupId", groupId);
-      query.setScalar("pageToken", pageToken);
-    } else {
-      query = HibernateSession.byHqlStatic()
-          .createQuery("from GrouperGoogleUser u where u.id in (select m.userId from GrouperGoogleMembership m where m.groupId = :theGroupId) ")
-          .setString("theGroupId", groupId);
+
+    StringBuffer sql = new StringBuffer("from GrouperGoogleUser u where u.id in (select m.userId from GrouperGoogleMembership m where m.groupId = :theGroupId");
+    byHqlStatic.setString("theGroupId", groupId);
+    if (!GrouperUtil.isBlank(role)) {
+      sql.append(" and role = :theRole");
+      byHqlStatic.setString("theRole", role);
     }
-    
+
+    sql.append(")");
+
+    if (StringUtils.isNotBlank(pageToken)) {
+      sql.append(" and primaryEmail > :pageToken");
+      byHqlStatic.setScalar("pageToken", pageToken);
+    }
+
     queryOptions.paging(limitInt, 1, true);
     queryOptions.sort(new QuerySort("primaryEmail", true));
-    query.options(queryOptions);
-    
-    grouperGoogleUsers = query.list(GrouperGoogleUser.class);
-    
+
+    List<GrouperGoogleUser> grouperGoogleUsers = byHqlStatic.createQuery(sql.toString())
+            .options(queryOptions)
+            .list(GrouperGoogleUser.class);
+
     ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
     
     int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
@@ -695,7 +721,40 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
     
   }
-  
+
+  public void getUserByGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
+    try {
+      checkAuthorization(mockServiceRequest);
+    } catch (Exception e) {
+      mockServiceResponse.setResponseCode(401);
+      return;
+    }
+
+    String groupId = mockServiceRequest.getPostMockNamePaths()[1];
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
+
+    String userId = mockServiceRequest.getPostMockNamePaths()[3];
+    GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "userId is required");
+
+    GrouperGoogleUser grouperGoogleUser = null;
+    ByHqlStatic query = null;
+      query = HibernateSession.byHqlStatic()
+              .createQuery("from GrouperGoogleUser u where u.id in (select m.userId from GrouperGoogleMembership m where m.groupId = :theGroupId and userId = :theUserId)")
+              .setString("theGroupId", groupId)
+              .setString("theUserId", userId);
+
+    grouperGoogleUser = query.uniqueResult(GrouperGoogleUser.class);
+
+    ObjectNode objectNode = toUserJson(grouperGoogleUser);
+
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+
+    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setContentType("application/json");
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
+
+  }
+
   public void getGroup(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
 
     try {      

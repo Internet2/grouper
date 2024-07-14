@@ -32,6 +32,7 @@
 
     <property name="groupId" column="group_id" />
     <property name="userId" column="user_id" />
+    <property name="role" column="role" />
 
   </class>
 </hibernate-mapping>

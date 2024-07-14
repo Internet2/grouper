@@ -41,6 +41,7 @@ import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.AuditTypeBuiltin;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMembershipMessage;
 import edu.internet2.middleware.grouper.changeLog.esb.consumer.ProvisioningMessage;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
@@ -401,6 +402,10 @@ public class UiV2Provisioning {
             guiGrouperSyncObject.setGcGrouperSyncMember(gcGrouperSyncMember);
             guiGrouperSyncObject.setTargetName(targetName);
             
+            if (GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, null)) {
+              guiGrouperSyncObject.setCanAssignProvisioning(true);
+            }
+            
             List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.getOrDefault(targetName, new ArrayList<GuiGrouperSyncObject>());
             guiGrouperSyncObjects.add(guiGrouperSyncObject);
             provisionerNameToGuiGrouperSyncObject.put(targetName, guiGrouperSyncObjects);
@@ -429,6 +434,10 @@ public class UiV2Provisioning {
                 GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
                 guiGrouperSyncObject.setTargetName(targetName);
                 guiGrouperSyncObject.setHasDirectSettings(true);
+                
+                if (GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, null)) {
+                  guiGrouperSyncObject.setCanAssignProvisioning(true);
+                }
                 
                 List<GuiGrouperSyncObject> guiGrouperSyncObjects = new ArrayList<GuiGrouperSyncObject>();
                 guiGrouperSyncObjects.add(guiGrouperSyncObject);
@@ -751,6 +760,10 @@ public class UiV2Provisioning {
             guiGrouperSyncObject.setGcGrouperSyncMembership(gcGrouperSyncMembership);
             guiGrouperSyncObject.setTargetName(targetName);
             
+            if (GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group)) {
+              guiGrouperSyncObject.setCanAssignProvisioning(true);
+            }
+            
             List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.getOrDefault(targetName, new ArrayList<GuiGrouperSyncObject>());
             guiGrouperSyncObjects.add(guiGrouperSyncObject);
             provisionerNameToGuiGrouperSyncObject.put(targetName, guiGrouperSyncObjects);
@@ -780,6 +793,10 @@ public class UiV2Provisioning {
                 GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
                 guiGrouperSyncObject.setTargetName(targetName);
                 guiGrouperSyncObject.setHasDirectSettings(true);
+                
+                if (GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group)) {
+                  guiGrouperSyncObject.setCanAssignProvisioning(true);
+                }
                 
                 List<GuiGrouperSyncObject> guiGrouperSyncObjects = new ArrayList<GuiGrouperSyncObject>();
                 guiGrouperSyncObjects.add(guiGrouperSyncObject);
@@ -1000,6 +1017,10 @@ public class UiV2Provisioning {
             guiGrouperSyncObject.setGcGrouperSyncMembership(gcGrouperSyncMembership);
             guiGrouperSyncObject.setTargetName(targetName);
             
+            if (GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+              guiGrouperSyncObject.setCanAssignProvisioning(true);
+            }
+            
             List<GuiGrouperSyncObject> guiGrouperSyncObjects = provisionerNameToGuiGrouperSyncObject.getOrDefault(targetName, new ArrayList<GuiGrouperSyncObject>());
             guiGrouperSyncObjects.add(guiGrouperSyncObject);
             provisionerNameToGuiGrouperSyncObject.put(targetName, guiGrouperSyncObjects);
@@ -1028,6 +1049,10 @@ public class UiV2Provisioning {
                 GuiGrouperSyncObject guiGrouperSyncObject = new GuiGrouperSyncObject();
                 guiGrouperSyncObject.setHasDirectSettings(true);
                 guiGrouperSyncObject.setTargetName(targetName);
+                
+                if (GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, GROUP)) {
+                  guiGrouperSyncObject.setCanAssignProvisioning(true);
+                }
                 
                 List<GuiGrouperSyncObject> guiGrouperSyncObjects = new ArrayList<GuiGrouperSyncObject>();
                 guiGrouperSyncObjects.add(guiGrouperSyncObject);
@@ -2593,20 +2618,8 @@ public class UiV2Provisioning {
           
           addProvisioningBreadcrumbs(guiGroup, null, null, null, null);
           
-          if (provisioningContainer.getGrouperProvisioningObjectMetadataItems().size() > 0) {
-            guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-                "/WEB-INF/grouperUi2/provisioning/provisioningGroupSettingsEdit.jsp"));
-          } else {
-            //let's just assign the settings and go back to the listing page
-            final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
-            attributeValue.setDirectAssignment(true);
-            attributeValue.setDoProvision(targetName);      
-            attributeValue.setTargetName(targetName);
-            GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, GROUP);
-            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=" + GROUP.getId() + "')"));
-            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-                TextContainer.retrieveFromRequest().getText().get("provisioningEditSaveSuccess")));
-          }
+          guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+              "/WEB-INF/grouperUi2/provisioning/provisioningGroupSettingsEdit.jsp"));
           
           return null;
         }
@@ -4009,51 +4022,220 @@ public class UiV2Provisioning {
     GrouperSession grouperSession = null;
     
     final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-    
-    Group group;
-    
+        
     try {
       
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
-      
-      if (group != null) {
-        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
-      }
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
       
       if (group == null) {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
-      
-      ProvisioningContainer provisioningContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getProvisioningContainer();
-      
-      if (!provisioningContainer.isCanRunDaemon()) {
-        throw new RuntimeException("Not allowed!!!!!");
-      }
-      
       final String targetName = request.getParameter("provisioningTargetName");
-            
+      
       if (StringUtils.isBlank(targetName)) {
         throw new RuntimeException("provisioningTargetName cannot be blank");
       }
       
-      ProvisioningMessage provisioningMessage = new ProvisioningMessage();
-      provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
-      provisioningMessage.setBlocking(true);
-      provisioningMessage.send(targetName);
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkProvisioning()) {
+            return null;
+          }
+          
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          
+          boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+          if (!canAssignProvisioning) {
+            throw new RuntimeException("Cannot access provisioning.");
+          }
+          
+          ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+          provisioningMessage.setGroupIdsForSync(new String[] {group.getId()});
+          provisioningMessage.setBlocking(true);
+          provisioningMessage.send(targetName);
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_GROUP, "groupId", group.getId(), "provisionerName", targetName);
+          auditEntry.setDescription("Ran provisioner sync for "+targetName+" on group " + group.getName());
+          provisionerSaveAudit(auditEntry);
+                    
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroup&groupId=" + group.getId() + "')"));
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+              TextContainer.retrieveFromRequest().getText().get("provisioningGroupSyncSuccess")));
+          
+          return null;
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * run sync job for a subject
+   * @param request
+   * @param response
+   */
+  public void runSubjectSync(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        
+    try {
       
-      AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_GROUP, "groupId", group.getId(), "provisionerName", targetName);
-      auditEntry.setDescription("Ran provisioner sync for "+targetName+" on group " + group.getName());
-      provisionerSaveAudit(auditEntry);
+      grouperSession = GrouperSession.start(loggedInSubject);
       
-      guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
-          TextContainer.retrieveFromRequest().getText().get("provisioningGroupSyncSuccess")));
+      final Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
       
+      if (subject == null) {
+        return;
+      }
+      
+      final String targetName = request.getParameter("provisioningTargetName");
+      
+      if (StringUtils.isBlank(targetName)) {
+        throw new RuntimeException("provisioningTargetName cannot be blank");
+      }
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkProvisioning()) {
+            return null;
+          }
+          
+          Member member = MemberFinder.findBySubject(theGrouperSession, subject, true);
+
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          
+          boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, null);
+          if (!canAssignProvisioning) {
+            throw new RuntimeException("Cannot access provisioning.");
+          }
+          
+          ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+          provisioningMessage.setMemberIdsForSync(new String[] {member.getId()});
+          provisioningMessage.setBlocking(true);
+          provisioningMessage.send(targetName);
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_MEMBER, "memberId", member.getId(), "provisionerName", targetName);
+          auditEntry.setDescription("Ran provisioner sync for "+targetName+" on " + GrouperUtil.subjectToString(subject));
+          provisionerSaveAudit(auditEntry);
+                    
+          guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=" + subject.getId() + "')"));
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+              TextContainer.retrieveFromRequest().getText().get("provisioningMemberSyncSuccess")));
+          
+          return null;
+        }
+      });
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+  
+  /**
+   * run sync job for a membership
+   * @param request
+   * @param response
+   */
+  public void runMembershipSync(final HttpServletRequest request, final HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+    
+    final GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+        
+    try {
+      
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      final Group group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW).getGroup();
+
+      if (group == null) {
+        return;
+      }
+
+      final Subject subject = UiV2Subject.retrieveSubjectHelper(request, true);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      final String targetName = request.getParameter("provisioningTargetName");
+      
+      if (StringUtils.isBlank(targetName)) {
+        throw new RuntimeException("provisioningTargetName cannot be blank");
+      }
+      
+      //switch over to admin so attributes work
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession theGrouperSession) throws GrouperSessionException {
+          
+          if (!checkProvisioning()) {
+            return null;
+          }
+          
+          Member member = MemberFinder.findBySubject(theGrouperSession, subject, true);
+
+          Map<String, GrouperProvisioningTarget> allTargets = GrouperProvisioningSettings.getTargets(true);
+          GrouperProvisioningTarget grouperProvisioningTarget = allTargets.get(targetName);
+
+          if (grouperProvisioningTarget == null) {
+            throw new RuntimeException("Invalid targetName");
+          }
+          
+          boolean canAssignProvisioning = GrouperProvisioningService.isTargetEditable(grouperProvisioningTarget, loggedInSubject, group);
+          if (!canAssignProvisioning) {
+            throw new RuntimeException("Cannot access provisioning.");
+          }
+          
+          ProvisioningMessage provisioningMessage = new ProvisioningMessage();
+          provisioningMessage.setMembershipsForSync(new ProvisioningMembershipMessage[] {new ProvisioningMembershipMessage(group.getId(), member.getId())});
+          provisioningMessage.setBlocking(true);
+          provisioningMessage.send(targetName);
+          
+          AuditEntry auditEntry = new AuditEntry(AuditTypeBuiltin.PROVISIONER_SYNC_RUN_MEMBERSHIP, "groupId", group.getId(), "memberId", member.getId(), "provisionerName", targetName);
+          auditEntry.setDescription("Ran provisioner sync for "+targetName+" on " + GrouperUtil.subjectToString(subject) + " in group " + group.getName());
+          provisionerSaveAudit(auditEntry);
+                    
+          if (StringUtils.equalsIgnoreCase(request.getParameter("backTo"), "subject")) {
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubjectMembership&subjectId=" + subject.getId() + "&groupId=" + group.getId()+"')"));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Provisioning.viewProvisioningOnGroupMembership&subjectId=" + subject.getId() + "&groupId=" + group.getId()+"')"));
+          }
+          
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success,
+              TextContainer.retrieveFromRequest().getText().get("provisioningMembershipSyncSuccess")));
+          
+          return null;
+        }
+      });
     } finally {
       GrouperSession.stopQuietly(grouperSession);
     }

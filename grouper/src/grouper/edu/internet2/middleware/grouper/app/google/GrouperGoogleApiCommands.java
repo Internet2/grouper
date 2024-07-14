@@ -485,8 +485,10 @@ public class GrouperGoogleApiCommands {
 
   /**
    * create a membership
-   * @param grouperGoogleGroup
-   * @return the result
+   *
+   * @param configId
+   * @param groupId
+   * @param userId
    */
   public static void createGoogleMembership(String configId,
       String groupId, String userId) {
@@ -528,7 +530,7 @@ public class GrouperGoogleApiCommands {
    * @return the result
    */
   public static void createGoogleRoleMembership(String configId,
-      String groupId, String email, String role) {
+      String groupId, String userId, String role) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -541,7 +543,7 @@ public class GrouperGoogleApiCommands {
     try {
 
       ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
-      objectNode.put("email", email);
+      objectNode.put("id", userId);
       objectNode.put("role", role);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
 
@@ -553,17 +555,17 @@ public class GrouperGoogleApiCommands {
           returnCode, jsonStringToSend, false);
       
       if (jsonNode == null) {
-        throw new RuntimeException("error creating google membership for groupId "+groupId+" email "+email + " role "+role);
+        throw new RuntimeException("error creating google membership for groupId "+groupId+" id "+userId + " role "+role);
       }
       
       if (returnCode[0] == 409) { // 409 means user already exists in the group.
-        String existingRole = retrieveGoogleMembershipRole(configId, groupId, email);
+        String existingRole = retrieveGoogleMembershipRole(configId, groupId, userId);
         if ("MEMBER".equals(existingRole)) {
           // we need to update to MANAGER or OWNER
-          updateGoogleRoleMembership(configId, groupId, email, role);
+          updateGoogleRoleMembership(configId, groupId, userId, role);
         } else if ("MANAGER".equals(existingRole) && "OWNER".equals(role)) {
           // we need to update to OWNER
-          updateGoogleRoleMembership(configId, groupId, email, role);
+          updateGoogleRoleMembership(configId, groupId, userId, role);
         }
       }
 
@@ -582,7 +584,7 @@ public class GrouperGoogleApiCommands {
    * @return the result
    */
   public static void updateGoogleRoleMembership(String configId,
-      String groupId, String email, String role) {
+      String groupId, String userId, String role) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -595,19 +597,19 @@ public class GrouperGoogleApiCommands {
     try {
 
       ObjectNode objectNode  = GrouperUtil.jsonJacksonNode();
-      objectNode.put("email", email);
+      objectNode.put("id", userId);
       objectNode.put("role", role);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(objectNode);
 
       //String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members/memberId";
-      String urlSuffix = "/groups/"+groupId+"/members/"+email;
+      String urlSuffix = "/groups/"+groupId+"/members/"+userId;
 
       int[] returnCode = new int[] { -1 };
       JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix, GrouperUtil.toSet(200), 
           returnCode, jsonStringToSend, false);
       
       if (jsonNode == null) {
-        throw new RuntimeException("error updating google membership for groupId "+groupId+" email "+email + " role "+role);
+        throw new RuntimeException("error updating google membership for groupId "+groupId+" id "+userId + " role "+role);
       }
       
     } catch (RuntimeException re) {
@@ -852,11 +854,11 @@ public class GrouperGoogleApiCommands {
           // retrieve roles of the members of the group (manager, owner)
           // https://admin.googleapis.com/admin/directory/v1/groups/{groupKey}/members
           if (lookupManagers) {
-           Set<String> managerEmails = retrieveGoogleGroupMembersEmails(configId, grouperGoogleGroup.getId(), "MANAGER");
+           Set<String> managerEmails = retrieveGoogleGroupMembersIds(configId, grouperGoogleGroup.getId(), "MANAGER");
            grouperGoogleGroup.setManagers(managerEmails);
           }
           if (lookupOwners) {
-            Set<String> ownerEmails = retrieveGoogleGroupMembersEmails(configId, grouperGoogleGroup.getId(), "OWNER");
+            Set<String> ownerEmails = retrieveGoogleGroupMembersIds(configId, grouperGoogleGroup.getId(), "OWNER");
             grouperGoogleGroup.setOwners(ownerEmails);
            }
           
@@ -1076,8 +1078,9 @@ public class GrouperGoogleApiCommands {
       int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.googleConnector." + configId + ".pageSizeMembership", 500);
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
-      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults="+pageSize+"&roles=MEMBERS&fields=nextPageToken,members(id)";
-      
+      //String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults="+pageSize+"&roles=MEMBER&fields=nextPageToken,members(id)";
+      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults="+pageSize+"&fields=nextPageToken,members(id)";
+
       
       int maxCalls = Math.max(10000000/pageSize, 1);
       int numberOfCalls = 0;
@@ -1141,7 +1144,7 @@ public class GrouperGoogleApiCommands {
    * @param groupId
    * @return user ids
    */
-  public static Set<String> retrieveGoogleGroupMembersEmails(String configId, String groupId, String role)  {
+  public static Set<String> retrieveGoogleGroupMembersIds(String configId, String groupId, String role)  {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1153,7 +1156,7 @@ public class GrouperGoogleApiCommands {
 
     try {
 
-      Set<String> memberEmails = new HashSet<String>();
+      Set<String> memberIds = new HashSet<String>();
       
       String nextPageToken = null;
       boolean firstRequest = true;
@@ -1161,7 +1164,7 @@ public class GrouperGoogleApiCommands {
       int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.googleConnector." + configId + ".pageSizeMembership", 500);
 
 //      String url = "https://admin.googleapis.com/admin/directory/v1/groups/"+groupId+"/members?maxResults=200&fields=nextPageToken,members(id)";
-      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults="+pageSize+"&roles="+role+"&fields=nextPageToken,members(id),members(email)";
+      String urlSuffixConstant = "/groups/"+groupId+"/members?maxResults="+pageSize+"&roles="+role+"&fields=nextPageToken,members(id)";
       
       
       int maxCalls = Math.max(10000000/pageSize, 1);
@@ -1170,7 +1173,7 @@ public class GrouperGoogleApiCommands {
       while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
         
         if (maxCalls-- < 0) {
-          throw new RuntimeException("Endless loop detected! total results so far: " + memberEmails.size()
+          throw new RuntimeException("Endless loop detected! total results so far: " + memberIds.size()
              + ", itemsPerPage: " + pageSize + ", numberOfCalls: " + numberOfCalls);
         }
         
@@ -1196,9 +1199,9 @@ public class GrouperGoogleApiCommands {
         for (int i = 0; i < (membersArray == null ? 0 : membersArray.size()); i++) {
           JsonNode memberNode = membersArray.get(i);
           
-          String memberEmail = GrouperUtil.jsonJacksonGetString(memberNode, "email");
+          String memberId = GrouperUtil.jsonJacksonGetString(memberNode, "id");
           
-          memberEmails.add(memberEmail);
+          memberIds.add(memberId);
         }
         
         if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
@@ -1208,9 +1211,9 @@ public class GrouperGoogleApiCommands {
         
       }
       
-      debugMap.put("size", GrouperClientUtils.length(memberEmails));
+      debugMap.put("size", GrouperClientUtils.length(memberIds));
 
-      return memberEmails;
+      return memberIds;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -1266,11 +1269,11 @@ public class GrouperGoogleApiCommands {
       // retrieve roles of the members of the group (manager, owner)
       // https://admin.googleapis.com/admin/directory/v1/groups/{groupKey}/members
       if (lookupManagers) {
-       Set<String> managerEmails = retrieveGoogleGroupMembersEmails(configId, id, "MANAGER");
+       Set<String> managerEmails = retrieveGoogleGroupMembersIds(configId, id, "MANAGER");
        grouperGoogleGroup.setManagers(managerEmails);
       }
       if (lookupOwners) {
-        Set<String> ownerEmails = retrieveGoogleGroupMembersEmails(configId, id, "OWNER");
+        Set<String> ownerEmails = retrieveGoogleGroupMembersIds(configId, id, "OWNER");
         grouperGoogleGroup.setOwners(ownerEmails);
       }
       
@@ -1327,7 +1330,7 @@ public class GrouperGoogleApiCommands {
    * @param role
    * @return
    */
-  public static void deleteGoogleRoleMembership(String configId, String groupId, String userId, String email, String role, boolean addBackManager, boolean addBackMember) {
+  public static void deleteGoogleRoleMembership(String configId, String groupId, String userId, String role, boolean addBackManager, boolean addBackMember) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1336,11 +1339,11 @@ public class GrouperGoogleApiCommands {
     long startTime = System.nanoTime();
     
     try {
-      String existingRole = retrieveGoogleMembershipRole(configId, groupId, email);
+      String existingRole = retrieveGoogleMembershipRole(configId, groupId, userId);
       if (StringUtils.isBlank(existingRole)) {
         
         if (addBackManager) {
-          createGoogleRoleMembership(configId, groupId, email, "MANAGER");
+          createGoogleRoleMembership(configId, groupId, userId, "MANAGER");
         }
         if (!addBackManager && addBackMember && StringUtils.isNotBlank(userId)) {
           createGoogleMembership(configId, groupId, userId);
@@ -1352,16 +1355,16 @@ public class GrouperGoogleApiCommands {
         } 
         
         if (addBackManager) {
-          updateGoogleRoleMembership(configId, groupId, email, "MANAGER");
+          updateGoogleRoleMembership(configId, groupId, userId, "MANAGER");
           return;
         }
         
         if (!addBackManager && addBackMember) {
-          updateGoogleRoleMembership(configId, groupId, email, "MEMBER");
+          updateGoogleRoleMembership(configId, groupId, userId, "MEMBER");
           return;
         } 
         
-        executeMethod(debugMap, "DELETE", configId, "/groups/"+groupId+"/members/"+email,
+        executeMethod(debugMap, "DELETE", configId, "/groups/"+groupId+"/members/"+userId,
             GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null, false);
 
       }

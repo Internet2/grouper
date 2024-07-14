@@ -31,7 +31,8 @@ public class GrouperGoogleMembership {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "group_id", Types.VARCHAR, "40", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "user_id", Types.VARCHAR, "40", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
-      
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "role", Types.VARCHAR, "8", false, true);
+
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_google_mship_gid_idx", false, "group_id");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_google_mship_uid_idx", false, "user_id");
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_google_mship_uid_idx", true, "group_id", "user_id");
@@ -61,7 +62,13 @@ public class GrouperGoogleMembership {
   private String groupId;
   
   private String userId;
-  
+
+  public enum GoogleMembershipRole {MEMBER, MANAGER, OWNER;}
+
+  private String role;
+
+
+
   public String getGroupId() {
     return groupId;
   }
@@ -83,5 +90,12 @@ public class GrouperGoogleMembership {
   public void setUserId(String userId) {
     this.userId = userId;
   }
-  
+
+  public String getRole() {
+    return role;
+  }
+
+  public void setRole(String role) {
+    this.role = role;
+  }
 }
