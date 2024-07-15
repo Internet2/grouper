@@ -134,20 +134,15 @@ public class EsbPublisherChangeLogScript extends EsbListenerBase {
       GrouperGroovyResult grouperGroovyResult = GrouperUtil.gshRunScriptReturnResult(scriptToRun + changeLogScriptSource, false);
       Long lastSequenceProcessed = GrouperUtil.longObjectValue(grouperGroovyResult.getResult(), true);  
       
-      if (lastSequenceProcessed == null) {
-        lastSequenceProcessed = this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber();
-      } else {
-        GrouperUtil.assertion(this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber() == null 
-            || this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber().longValue() == lastSequenceProcessed, 
-            "Setting lastSequence processed " + this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber() 
-            + " does not match return value " + lastSequenceProcessed);
+      if (lastSequenceProcessed == null || lastSequenceProcessed == -1) {
+        
+        throw new RuntimeException("Script did not return or set the lastSequenceProcessed!");
+      } else if (this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber() == null
+            || lastSequenceProcessed > this.provisioningSyncConsumerResult.getLastProcessedSequenceNumber().longValue()) {
         this.provisioningSyncConsumerResult.setLastProcessedSequenceNumber(lastSequenceProcessed);
       }
       debugMap.put("lastSequenceProcessed", lastSequenceProcessed);
-      if (lastSequenceProcessed == null) {
-        throw new RuntimeException("Script did not return or set the lastSequenceProcessed!");
-      }
-      
+
       if (lastSequenceProcessed.longValue() != esbEventContainers.get(esbEventContainers.size()-1).getSequenceNumber()) {
         int eventsSkipped = 0;
         for (int i = esbEventContainers.size()-1; i>=0; i--) {
@@ -156,7 +151,7 @@ public class EsbPublisherChangeLogScript extends EsbListenerBase {
           }
           eventsSkipped++;
         }
-        debugMap.put("eventsSkipped", GrouperUtil.length(eventsSkipped));
+        debugMap.put("eventsSkipped", eventsSkipped);
       }
 
       return provisioningSyncConsumerResult;
