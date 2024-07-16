@@ -79,6 +79,9 @@ public class CustomUiUserQueryConfigBean {
   }
   
   //*****  START GENERATED WITH GenerateFieldConstants.java *****//
+  
+  /** constant for field name for: allowAssignFromUrl */
+  public static final String FIELD_ALLOW_ASSIGN_FROM_URL = "allowAssignFromUrl";
 
   /** constant for field name for: attributeDefId */
   public static final String FIELD_ATTRIBUTE_DEF_ID = "attributeDefId";
@@ -707,6 +710,30 @@ public class CustomUiUserQueryConfigBean {
    */
   public void setVariableToAssign(String variableToAssign) {
     this.variableToAssign = variableToAssign;
+  }
+
+  /**
+   * If true, then allow any user to assign this from the URL (e.g. when 
+   * the custom UI is called externally and needs inputs)
+   */
+  private Boolean allowAssignFromUrl;
+  
+  /**
+   * If true, then allow any user to assign this from the URL (e.g. when 
+   * the custom UI is called externally and needs inputs)
+   * @return
+   */
+  public Boolean getAllowAssignFromUrl() {
+    return allowAssignFromUrl;
+  }
+
+  /**
+   * If true, then allow any user to assign this from the URL (e.g. when 
+   * the custom UI is called externally and needs inputs)
+   * @param allowAssignFromUrl1
+   */
+  public void setAllowAssignFromUrl(Boolean allowAssignFromUrl1) {
+    this.allowAssignFromUrl = allowAssignFromUrl1;
   }
 
   /**

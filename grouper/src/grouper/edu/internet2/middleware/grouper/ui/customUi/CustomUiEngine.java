@@ -644,6 +644,10 @@ public class CustomUiEngine {
         
         String variableType = customUiConfigProperties.get(queryPrefix + "variableType");
         queryConfigBean.setVariableType(variableType);
+
+        String allowAssignFromUrl = customUiConfigProperties.get(queryPrefix + "allowAssignFromUrl");
+        queryConfigBean.setAllowAssignFromUrl(GrouperUtil.booleanObjectValue(allowAssignFromUrl));
+
       } catch (RuntimeException re) {
         GrouperUtil.injectInException(re, "Error with customUI query bean: " + queryConfigBean);
         throw re;
@@ -815,6 +819,7 @@ public class CustomUiEngine {
       attributes.get(prefix + "variableToAssign").setValue(customUiUserQueryConfigBean.getVariableToAssign());
       attributes.get(prefix + "variableToAssignOnError").setValue(customUiUserQueryConfigBean.getVariableToAssignOnError());
       attributes.get(prefix + "variableType").setValue(customUiUserQueryConfigBean.getVariableType());
+      attributes.get(prefix + "allowAssignFromUrl").setValue(GrouperUtil.stringValue(customUiUserQueryConfigBean.getAllowAssignFromUrl()));
       
       i++;
     }
@@ -1229,25 +1234,41 @@ public class CustomUiEngine {
       if (!StringUtils.isBlank(variableToAssignOnError)) {
         this.userQueryVariables().put(variableToAssignOnError, false);
       }
+
+      String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
+      String urlParamValue = null;
+      if (GrouperUtil.booleanValue(customUiUserQueryConfigBean.getAllowAssignFromUrl(), false)) {
+        urlParamValue = this.getUrlParameters().get(variableToAssign);
+      }
       
       // check optional and require fields
-      try {
-        Object result = customUiUserQueryType.evaluate(this, customUiUserQueryConfigBean, group, subject, stem, attributeDef);
-        String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
-        this.userQueryVariables().put(variableToAssign, result);
-      } catch (RuntimeException re) {
-        String error = "Error evaluating: " + customUiUserQueryConfigBean;
-        LOG.error(error, re);
-        if (!StringUtils.isBlank(variableToAssignOnError)) {
-          if (this.error != null) {
-            this.error += "\n";
+      if (!GrouperUtil.booleanValue(customUiUserQueryConfigBean.getAllowAssignFromUrl(), false) || customUiUserQueryType == null) {
+        try {
+          Object result = customUiUserQueryType.evaluate(this, customUiUserQueryConfigBean, group, subject, stem, attributeDef);
+          this.userQueryVariables().put(variableToAssign, result);
+        } catch (RuntimeException re) {
+          String error = "Error evaluating: " + customUiUserQueryConfigBean;
+          LOG.error(error, re);
+          if (!StringUtils.isBlank(variableToAssignOnError)) {
+            if (this.error != null) {
+              this.error += "\n";
+            }
+            this.error += error + "\n" + GrouperUtil.getFullStackTrace(re);
+            this.userQueryVariables().put(variableToAssignOnError, true);
+          } else {
+            throw new RuntimeException(error, re);
           }
-          this.error += error + "\n" + GrouperUtil.getFullStackTrace(re);
-          this.userQueryVariables().put(variableToAssignOnError, true);
-        } else {
-          throw new RuntimeException(error, re);
         }
       }
+      
+      if (GrouperUtil.booleanValue(customUiUserQueryConfigBean.getAllowAssignFromUrl(), false)) {
+        if (!StringUtils.isBlank(urlParamValue)) {
+          CustomUiVariableType customUiVariableType = CustomUiVariableType.valueOfIgnoreCase(customUiUserQueryConfigBean.getVariableType(), false);
+          Object urlParamValueObject = customUiVariableType.convertTo(urlParamValue);
+          this.userQueryVariables().put(variableToAssign, urlParamValueObject);
+        }
+      }
+
     }
   }
 
@@ -1277,6 +1298,12 @@ public class CustomUiEngine {
    * user query names and values
    */
   private Map<String, Object> theUserQueryVariables = new HashMap<String, Object>();
+
+  /**
+   * user query names and values if allowed
+   */
+  private Map<String, String> urlParameters = new HashMap<String, String>();
+
   
   /**
    * 
@@ -1562,6 +1589,23 @@ public class CustomUiEngine {
    */
   public static CustomUiEngine threadLocalCustomUiEngine() {
     return threadLocalCustomUiEngine.get();
+  }
+
+  /**
+   * url params can be sent in to the custom ui if allowed
+   * @param urlParamVariables
+   */
+  public void setUrlParameters(Map<String, String> urlParamVariables) {
+    this.urlParameters = urlParamVariables;
+    
+  }
+
+  /**
+   * url params can be sent in to the custom ui if allowed
+   * @return
+   */
+  public Map<String, String> getUrlParameters() {
+    return urlParameters;
   }
   
 }
