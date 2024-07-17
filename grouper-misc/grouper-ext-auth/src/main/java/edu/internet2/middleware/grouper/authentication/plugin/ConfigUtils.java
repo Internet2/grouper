@@ -8,13 +8,19 @@ import org.osgi.framework.FrameworkUtil;
 import org.osgi.framework.InvalidSyntaxException;
 import org.osgi.framework.ServiceReference;
 import org.pac4j.core.client.config.BaseClientConfiguration;
+import org.pac4j.core.context.HttpConstants;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.core.io.DefaultResourceLoader;
+import org.springframework.core.io.FileSystemResource;
 import org.springframework.core.io.ResourceLoader;
+import org.springframework.core.io.UrlResource;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Type;
+import java.net.MalformedURLException;
+import java.net.URL;
 import java.time.Period;
 import java.util.Arrays;
 import java.util.Collections;
@@ -75,7 +81,7 @@ public class ConfigUtils {
                 Method method = getSetter(clazz, getMethodNameFromFieldName(fieldName));
                 method.invoke(configuration, getProperty(grouperConfig, method.getParameterTypes()[0], name));
             } catch (NoSuchMethodException | IllegalAccessException | InvocationTargetException |
-                     ClassNotFoundException e) {
+                     ClassNotFoundException | MalformedURLException e) {
                 throw new RuntimeException("could not set " + fieldName, e);
             }
         }
@@ -128,7 +134,7 @@ public class ConfigUtils {
                 .orElseThrow(NoSuchMethodException::new);
     }
 
-    private static Object getProperty(ConfigPropertiesCascadeBase configPropertiesCascadeBase, Type type, String propName) throws ClassNotFoundException {
+    private static Object getProperty(ConfigPropertiesCascadeBase configPropertiesCascadeBase, Type type, String propName) throws ClassNotFoundException, MalformedURLException {
         if (Enum.class.isAssignableFrom((Class<?>) type)) {
             // there are a few properties that are enums (e.g., CAS protocol)
             // TODO: can this be checked?
@@ -177,9 +183,32 @@ public class ConfigUtils {
                 case "java.time.Period": {
                     return Period.parse(configPropertiesCascadeBase.propertyValueString(propName));
                 }
-                case "org.springframework.core.io.WritableResource":
-                case "org.springframework.core.io.Resource": {
+                case "org.springframework.core.io.WritableResource": {
                     return resourceLoader.getResource(configPropertiesCascadeBase.propertyValueString(propName));
+                }
+                case "org.springframework.core.io.Resource": {
+                    /* Spring's getResource treats file:* as a FileUrlResource, while Pac4j expects a FileSystemResource,
+                     * and treats any UrlResource as http which causes failure. It is recommended to use the *Path
+                     * properties instead of the *Resource ones, since that uses the Pac4j logic to construct the correct
+                     * resource type.
+                     */
+                    //return resourceLoader.getResource(configPropertiesCascadeBase.propertyValueString(propName));
+
+                    String path = configPropertiesCascadeBase.propertyValueString(propName);
+                    if (path.startsWith("resource:")) {
+                        return new ClassPathResource(path.substring("resource:".length()));
+                    }
+                    if (path.startsWith("classpath:")) {
+                        return new ClassPathResource(path.substring("classpath:".length()));
+                    }
+                    if (path.startsWith(HttpConstants.SCHEME_HTTP) || path.startsWith(HttpConstants.SCHEME_HTTPS)) {
+                        return new UrlResource(new URL(path));
+                    }
+                    if (path.startsWith("file:")) {
+                        return new FileSystemResource(path.substring("file:".length()));
+                    }
+                    return new FileSystemResource(path);
+
                 }
                 default:
                     throw new IllegalStateException("Unexpected type: " + type.getTypeName());
