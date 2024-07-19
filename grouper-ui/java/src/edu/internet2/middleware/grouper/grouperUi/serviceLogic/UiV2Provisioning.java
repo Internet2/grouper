@@ -1683,19 +1683,12 @@ public class UiV2Provisioning {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.UPDATE).getGroup();
-      
-      if (group != null) {
-        group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
-      }
+      group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.READ).getGroup();
       
       if (group == null) {
         return;
       }
       
-      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
-        throw new RuntimeException("Cannot access provisioning.");
-      }
       
 //      if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
 //        throw new RuntimeException("Cannot access provisioning.");
