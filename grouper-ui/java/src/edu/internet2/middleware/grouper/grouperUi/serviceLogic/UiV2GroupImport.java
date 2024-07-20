@@ -505,8 +505,10 @@ public class UiV2GroupImport {
       final Set<Subject> subjectSet = new LinkedHashSet<Subject>();
       final Map<String, Integer> listInvalidSubjectIdsAndRow = new LinkedHashMap<String, Integer>();
       
-      final boolean importReplaceMembers = GrouperUtil.booleanValue(request.getParameter("replaceExistingMembers"), false);
-      final boolean removeMembers = GrouperUtil.booleanValue(request.getParameter("removeMembers"), false);
+      String replaceOrRemoveExistingMembers = request.getParameter("replaceOrRemoveExistingMembers");
+      
+      final boolean importReplaceMembers = StringUtils.equals(replaceOrRemoveExistingMembers, "replace");
+      final boolean removeMembers = StringUtils.equals(replaceOrRemoveExistingMembers, "remove");
   
       final Timestamp startDate;
       try {
