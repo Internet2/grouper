@@ -22,6 +22,7 @@ import java.io.IOException;
 import java.io.Writer;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
@@ -29,6 +30,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
@@ -45,7 +47,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
+import org.apache.commons.text.StringEscapeUtils;
 
 /**
  * status servlet to see if grouper is ok (e.g. the DB and the loader jobs, etc)
@@ -157,32 +159,38 @@ public class GrouperStatusServlet extends HttpServlet {
       result.append(startupString).append(", ");
       result.append(numberOfRequests);
       result.append(" requests\n");
-      
-      // List all of the diagnostic tasks to execute.
-      Set<DiagnosticTask> tasksToExecute = new LinkedHashSet<DiagnosticTask>();
 
       String diagnosticTypeString = request.getParameter("diagnosticType");
-      
+
       if (StringUtils.isBlank(diagnosticTypeString)) {
-        StringBuilder diagnosticTypes = new StringBuilder();
-        for (DiagnosticType diagnosticType : DiagnosticType.values()) {
-          if (diagnosticTypes.length() > 0) {
-            diagnosticTypes.append("|");
-          }
-          diagnosticTypes.append(diagnosticType.name());
-        }
-        throw new RuntimeException("You need to pass in the diagnosticType parameter.  e.g. status?diagnosticType=" + diagnosticTypes + ", note you can also pass comma separated job names in URL params 'includeOnly' or 'exclude'");
+        // List all of the diagnostic tasks to execute.
+        String diagnosticTypes = Arrays.stream(DiagnosticType.values())
+                .map(Enum::name)
+                .collect(Collectors.joining("|"));
+        String webMessage = "You need to pass in the diagnosticType parameter.  e.g. status?diagnosticType="
+                + diagnosticTypes
+                + ", note you can also pass comma separated job names in URL params 'includeOnly' or 'exclude'";
+        writeErrorToScreenAndReturn(response, webMessage, "Status page missing diagnosticType parameter", null);
+        return;
       }
-      
-      DiagnosticType diagnosticType = DiagnosticType.valueOfIgnoreCase(diagnosticTypeString, true);
+
+      DiagnosticType diagnosticType;
+      try {
+        diagnosticType = DiagnosticType.valueOfIgnoreCase(diagnosticTypeString, true);
+      } catch (RuntimeException e) {
+        writeErrorToScreenAndReturn(response, e.getMessage(), "Invalid DiagnosticsType: " + e.getMessage(), e);
+        return;
+
+      }
 
       GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
 
         @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-          
-          // List all of the diagnostic tasks to execute.
-          
+
+          Set<DiagnosticTask> tasksToExecute = new LinkedHashSet<DiagnosticTask>();
+
+          // set task(s) based on the diagnostic type
           diagnosticType.appendDiagnostics(tasksToExecute);
 
           // Execute each task, until all are complete or there is a 
@@ -255,23 +263,6 @@ public class GrouperStatusServlet extends HttpServlet {
       
       
     } catch (RuntimeException re) {
-
-      //this is not a real diagnostics error
-      if (re.getMessage() != null && (
-          re.getMessage().contains("Cant find DiagnosticType from string")
-          || re.getMessage().contains("You need to pass in the diagnosticType parameter"))) {
-        response.setStatus(500);
-
-        LOG.warn("Invalid DiagnosticsType", re);
-
-        writeToScreen(response, "<?xml version=\"1.0\" ?>\n"
-            + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
-            + "\n"
-            + "<html><head></head><body><h1>Grouper status invalid request!</h1><br /><pre>" + re.getMessage() + "</pre></body></html>");
-        
-        return;
-      }
-      
       diagnosticErrorCount++;
       lastDiagnosticsErrorDate = System.currentTimeMillis();
       
@@ -432,5 +423,29 @@ public class GrouperStatusServlet extends HttpServlet {
       }
     }
 
+  }
+
+  /**
+   *
+   * @param response
+   * @param webMessage the message to display; assumed to be not html-escaped
+   * @param logMessage gets written to log at WARN level
+   * @param e optional exception to log as stacktrace
+   */
+  private void writeErrorToScreenAndReturn(HttpServletResponse response, String webMessage, String logMessage, Exception e) {
+    response.setStatus(500);
+
+    if (e != null) {
+      LOG.warn(logMessage, e);
+    } else {
+      LOG.warn(logMessage);
+    }
+
+    writeToScreen(response, "<?xml version=\"1.0\" ?>\n"
+            + "<!DOCTYPE html PUBLIC \"-//W3C//DTD XHTML 1.0 Transitional//EN\" \"http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd\">\n"
+            + "\n"
+            + "<html><head></head><body><h1>Grouper status invalid request!</h1><br /><pre>"
+            + StringEscapeUtils.escapeHtml4(webMessage)
+            + "</pre></body></html>");
   }
 }
