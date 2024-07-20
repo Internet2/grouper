@@ -220,14 +220,22 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
               </div>
               
               <div class="control-group">
-                <div class="controls">
-                  <label class="checkbox">
-                    <input type="checkbox" id="replaceExistingMembersId" name="replaceExistingMembers" value="true">${textContainer.text['groupImportReplaceExistingMembers'] }
+              	<div class="controls">
+                  <label class="radio">
+	                <input type="radio" name="replaceOrRemoveExistingMembers" id="doNotModifyExistingMembersId" value="none" checked="checked"
+	                >${textContainer.text['groupImportDoNotModifyExistingMembers'] }
                   </label>
                 </div>
                 <div class="controls">
-                  <label class="checkbox">
-                    <input type="checkbox" name="removeMembers" value="true">${textContainer.text['groupImportRemoveMembers'] }
+                  <label class="radio">
+	                <input type="radio" name="replaceOrRemoveExistingMembers" id="replaceExistingMembersId" value="replace"
+	                >${textContainer.text['groupImportReplaceExistingMembers'] }
+                  </label>
+                </div>
+                <div class="controls">
+                  <label class="radio">
+	                <input type="radio" name="replaceOrRemoveExistingMembers" id="removeMembers" value="remove"
+	                >${textContainer.text['groupImportRemoveMembers'] }
                   </label>
                 </div>
               </div>
