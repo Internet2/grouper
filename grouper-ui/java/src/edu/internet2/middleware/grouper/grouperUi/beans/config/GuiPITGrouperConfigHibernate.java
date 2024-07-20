@@ -6,10 +6,13 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
+
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
+import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperConfigHibernate;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiSubject;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -98,6 +101,28 @@ public class GuiPITGrouperConfigHibernate {
     }
     
     return guiSubject;
+  }
+  
+  /**
+   * get previous value for the config. 
+   * @return
+   */
+  public String getPreviousValue() {
+	if (StringUtils.isNotBlank(pitGrouperConfigHibernate.getPreviousValue()) && pitGrouperConfigHibernate.isConfigEncrypted()) {
+		return GrouperConfigHibernate.ESCAPED_PASSWORD;
+	}
+	return pitGrouperConfigHibernate.getPreviousValue();
+  }
+  
+  /**
+   * get current value for the config.
+   * @return
+   */
+  public String getValue() {
+	if (StringUtils.isNotBlank(pitGrouperConfigHibernate.getValue()) && pitGrouperConfigHibernate.isConfigEncrypted()) {
+		return GrouperConfigHibernate.ESCAPED_PASSWORD;
+	}
+	return pitGrouperConfigHibernate.getValue();
   }
 
 }
