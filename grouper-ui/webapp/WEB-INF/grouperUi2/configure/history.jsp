@@ -106,11 +106,11 @@
 
 
 							 <td style="white-space: nowrap">
-							 	<grouper:abbreviateTextarea text="${guiPitConfig.pitGrouperConfigHibernate.previousValue}" 
+							 	<grouper:abbreviateTextarea text="${guiPitConfig.previousValue}" 
 							 	showCharCount="30" cols="20" rows="3"/>
 							 </td>
 							 <td style="white-space: nowrap">
-							 	<grouper:abbreviateTextarea text="${guiPitConfig.pitGrouperConfigHibernate.value}" 
+							 	<grouper:abbreviateTextarea text="${guiPitConfig.value}" 
 							 	showCharCount="30" cols="20" rows="3"/>
 							 </td>
 							 
