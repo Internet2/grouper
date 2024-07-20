@@ -95,13 +95,13 @@ public class GrouperProvisioningObjectLog {
     }
   }
 
-  private StringBuilder objectLog = new StringBuilder();
+  private StringBuffer objectLog = new StringBuffer();
   
   /**
    * put this in daemon logs
    * @return object log
    */
-  public StringBuilder getObjectLog() {
+  public StringBuffer getObjectLog() {
     return objectLog;
   }
 

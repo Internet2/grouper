@@ -18,6 +18,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
+import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.logging.Log;
 
 import com.amazonaws.endpointdiscovery.DaemonThreadFactory;
@@ -29,8 +30,6 @@ import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvis
 import edu.internet2.middleware.grouper.app.provisioning.targetDao.GrouperProvisionerTargetDaoBase;
 import edu.internet2.middleware.grouper.app.tableSync.GrouperProvisioningSyncIntegration;
 import edu.internet2.middleware.grouper.app.tableSync.ProvisioningSyncResult;
-import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -42,7 +41,6 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLog;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncLogState;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.lang3.time.DurationFormatUtils;
 
 /**
  * 
@@ -749,7 +747,7 @@ public abstract class GrouperProvisioner {
     
       String debugString = GrouperClientUtils.mapToString(debugMap);
       String theMessage = debugString;
-      StringBuilder objectLog = this.retrieveGrouperProvisioningObjectLog().getObjectLog();
+      StringBuffer objectLog = this.retrieveGrouperProvisioningObjectLog().getObjectLog();
       if (objectLog.length() > 0) {
         theMessage = objectLog + "\n\n" + debugString;
       }
@@ -951,7 +949,7 @@ public abstract class GrouperProvisioner {
     // already set total
     //gcTableSyncOutput.setTotal();
     String theMessage = debugString;
-    StringBuilder objectLog = this.retrieveGrouperProvisioningObjectLog().getObjectLog();
+    StringBuffer objectLog = this.retrieveGrouperProvisioningObjectLog().getObjectLog();
     if (objectLog.length() > 0) {
       theMessage = objectLog + "\n\n" + debugString;
     }
