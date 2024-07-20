@@ -28,7 +28,7 @@
 			<div class="row-fluid">
 			    <div class="row-fluid">
             <div class="lead span9 pull-left">
-              <h4>${textContainer.text['miscellaneousProvisionerConfigurationsAssignmentsTotalAssignments'] }</h4>
+              ${textContainer.text['miscellaneousProvisionerConfigurationsAssignmentsTotalAssignments'] }
             </div>
           </div>
 			    <c:choose>

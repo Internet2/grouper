@@ -1068,8 +1068,10 @@ public class GrouperProvisioningService {
     
     String etcStemName = GrouperConfig.retrieveConfig().propertyValueString("grouper.rootStemForBuiltinObjects");
     
-    StringBuilder query = new StringBuilder("select gaaagv.group_name, 'group' as owner_type from grouper_aval_asn_asn_group_v gaaagv where gaaagv.attribute_def_name_name2 like '"+etcStemName+":provisioning:provisioningTarget' and gaaagv.value_string = ?  union all select gaaasv.stem_name, 'stem' as owner_type from grouper_aval_asn_asn_stem_v gaaasv where gaaasv.attribute_def_name_name2 like '"+etcStemName+":provisioning:provisioningTarget' and gaaasv.value_string = ? ");
-    GcDbAccess gcDbAccess = new GcDbAccess().sql(query.toString());
+    String query = "select gaaagv.group_name, 'group' as owner_type from grouper_aval_asn_asn_group_v gaaagv where gaaagv.attribute_def_name_name2 "
+    		+ "like '"+etcStemName+":provisioning:provisioningTarget' and gaaagv.value_string = ?  union all select gaaasv.stem_name, 'stem' as owner_type from grouper_aval_asn_asn_stem_v gaaasv "
+    				+ "where gaaasv.attribute_def_name_name2 like '"+etcStemName+":provisioning:provisioningTarget' and gaaasv.value_string = ? ";
+    GcDbAccess gcDbAccess = new GcDbAccess().sql(query);
     gcDbAccess.addBindVar(provisionerName);
     gcDbAccess.addBindVar(provisionerName);
     
