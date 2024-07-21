@@ -9,6 +9,7 @@ import org.apache.commons.lang.builder.EqualsBuilder;
 import org.apache.commons.lang.builder.HashCodeBuilder;
 
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 
 /**
@@ -54,9 +55,7 @@ public class GuiMembership {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
-    
-    return simpleDateFormat.format(this.membership.getEnabledTime());
+    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(this.membership.getEnabledTime());
     
   }
 
@@ -71,9 +70,7 @@ public class GuiMembership {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
-    
-    return simpleDateFormat.format(this.membership.getDisabledTime());
+    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(this.membership.getDisabledTime());
     
   }
 

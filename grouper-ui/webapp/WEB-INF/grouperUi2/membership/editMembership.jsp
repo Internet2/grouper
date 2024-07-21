@@ -86,14 +86,14 @@
                     <label for="member-start-date"
                       class="control-label">${textContainer.text['membershipEditLabelStartDate'] }</label>
                     <div class="controls">
-                      <input type="text" name="startDate"  placeholder="${textContainer.text['membershipEditDatePlaceholder'] }"  
+                      <input type="datetime-local" name="startDate"  placeholder="${textContainer.text['membershipEditDatePlaceholder'] }"  
                         value="${grouperRequestContainer.membershipGuiContainer.directGuiMembership.startDateLabel }" id="member-start-date"><span class="help-block">${textContainer.text['membershipEditLabelStartDateSubtext'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
                     <label for="member-end-date" class="control-label">${textContainer.text['membershipEditLabelEndDate'] }</label>
                     <div class="controls">
-                      <input type="text" name="endDate" placeholder="${textContainer.text['membershipEditDatePlaceholder'] }"
+                      <input type="datetime-local" name="endDate" placeholder="${textContainer.text['membershipEditDatePlaceholder'] }"
                         value="${grouperRequestContainer.membershipGuiContainer.directGuiMembership.endDateLabel }" id="member-end-date"><span class="help-block">${textContainer.text['membershipEditLabelEndDateSubtext'] }</span>
                     </div>
                   </div>

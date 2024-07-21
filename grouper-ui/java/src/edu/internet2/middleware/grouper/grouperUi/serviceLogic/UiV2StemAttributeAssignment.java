@@ -625,7 +625,7 @@ public class UiV2StemAttributeAssignment {
         if (StringUtils.isBlank(enabledDate) ) {
           attributeAssign.setEnabledTime(null);
         } else {
-          //must be yyyy/mm/dd
+          //must be yyyy-mm-dd
           Timestamp enabledTimestamp = GrouperUtil.toTimestamp(enabledDate);
           attributeAssign.setEnabledTime(enabledTimestamp);
         }
@@ -637,7 +637,7 @@ public class UiV2StemAttributeAssignment {
         if (StringUtils.isBlank(disabledDate) ) {
           attributeAssign.setDisabledTime(null);
         } else {
-          //must be yyyy/mm/dd
+          //must be yyyy-mm-dd
           Timestamp disabledTimestamp = GrouperUtil.toTimestamp(disabledDate);
           attributeAssign.setDisabledTime(disabledTimestamp);
         }

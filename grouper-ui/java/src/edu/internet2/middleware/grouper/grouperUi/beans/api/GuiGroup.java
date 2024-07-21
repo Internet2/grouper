@@ -809,9 +809,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
-    
-    return simpleDateFormat.format(this.group.getEnabledTime());
+    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(this.group.getEnabledTime());
   }
   
   /**
@@ -824,9 +822,7 @@ public class GuiGroup extends GuiObjectBase implements Serializable {
       return null;
     }
     
-    SimpleDateFormat simpleDateFormat = new SimpleDateFormat("yyyy/MM/dd h:mm a");
-    
-    return simpleDateFormat.format(this.group.getDisabledTime());
+    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(this.group.getDisabledTime());
   }
 
   public void setRulesDeleteCount(int rulesDeleteCount) {
