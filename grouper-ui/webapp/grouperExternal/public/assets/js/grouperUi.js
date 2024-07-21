@@ -392,7 +392,7 @@ function AppState() {
     var poundString = url.substring(poundIndex + 1, url.length);
     
     //not sure why this is here... it should decode after splitting out the ampersands
-    poundString = URLDecode(poundString);
+    //poundString = URLDecode(poundString);
     
     //split out by ampersand
     var args = guiSplitTrim(poundString, "&");
