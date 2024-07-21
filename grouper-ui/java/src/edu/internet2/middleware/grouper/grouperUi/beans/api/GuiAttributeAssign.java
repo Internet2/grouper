@@ -302,7 +302,7 @@ public class GuiAttributeAssign implements Serializable, Comparable<GuiAttribute
   /**
    * format on screen of config for milestone: yyyy/MM/dd (not hh:mm aa)
    */
-  public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd";
+  public static final String TIMESTAMP_FORMAT = "yyyy-MM-dd";
 
   /**
    * <pre> format: yyyy/MM/dd HH:mm:ss.SSS synchronize code that uses this standard formatter for timestamps </pre>

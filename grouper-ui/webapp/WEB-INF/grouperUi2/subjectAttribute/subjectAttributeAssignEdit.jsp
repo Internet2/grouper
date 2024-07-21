@@ -59,7 +59,7 @@
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignEditEnabledDate'] }</label>
         <div class="controls">
-          <input type="text" name="enabledDate"  id="enabledDateId"
+          <input type="date" name="enabledDate"  id="enabledDateId"
             value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.enabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.enabledDate}" 
             style="width: 8em" />
             <span class="simpleMembershipUpdateDisabled">
@@ -71,7 +71,7 @@
       <div class="control-group">
         <label class="control-label no-padding">${textContainer.text['simpleAttributeUpdate.assignEditDisabledDate'] }</label>
         <div class="controls">
-          <input type="text" name="disabledDate"  id="disabledDateId"
+          <input type="date" name="disabledDate"  id="disabledDateId"
             value="${attributeUpdateRequestContainer.guiAttributeAssignAssign == null ? attributeUpdateRequestContainer.guiAttributeAssign.disabledDate : attributeUpdateRequestContainer.guiAttributeAssignAssign.disabledDate}" 
             style="width: 8em" />
             <span class="simpleMembershipUpdateDisabled">

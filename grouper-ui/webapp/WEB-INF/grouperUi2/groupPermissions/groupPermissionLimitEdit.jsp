@@ -48,7 +48,7 @@
       <div class="control-group">
         <label class="control-label">${textContainer.text['simplePermissionUpdate.limitEditEnabledDate']}</label>
         <div class="controls">
-          <input type="text" name="enabledDate"  id="enabledDateId"
+          <input type="date" name="enabledDate"  id="enabledDateId"
             value="${permissionUpdateRequestContainer.guiAttributeAssignAssign == null ? permissionUpdateRequestContainer.guiAttributeAssign.enabledDate : permissionUpdateRequestContainer.guiAttributeAssignAssign.enabledDate}" 
           />
           <span>${textContainer.text['simpleAttributeUpdate.assignEditEnabledDisabledDateMask']}</span>
@@ -58,7 +58,7 @@
       <div class="control-group">
         <label class="control-label">${textContainer.text['simplePermissionUpdate.limitEditDisabledDate']}</label>
         <div class="controls">
-          <input type="text" name="disabledDate"  id="disabledDateId"
+          <input type="date" name="disabledDate"  id="disabledDateId"
             value="${permissionUpdateRequestContainer.guiAttributeAssignAssign == null ? permissionUpdateRequestContainer.guiAttributeAssign.disabledDate : permissionUpdateRequestContainer.guiAttributeAssignAssign.disabledDate}" 
           />
           <span>${textContainer.text['simpleAttributeUpdate.assignEditEnabledDisabledDateMask']}</span>

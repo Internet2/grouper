@@ -4241,6 +4241,11 @@ public class GrouperUtil {
   /**
    * 
    */
+  public static final DateFormat timestampHoursMinutesLocalDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+
+  /**
+   * 
+   */
   public static final DateFormat timestampHoursMinutes = new SimpleDateFormat("yyyy/MM/dd HH:mm");
 
   /**
@@ -4273,6 +4278,8 @@ public class GrouperUtil {
    */
   public static final String DATE_FORMAT2 = "yyyy/MM/dd";
 
+  public static final String DATE_FORMAT3 = "yyyy-MM-dd";
+
   /**
    * format including minutes and seconds: yyyy/MM/dd HH:mm:ss
    */
@@ -4302,6 +4309,11 @@ public class GrouperUtil {
    * date format, make sure to synchronize
    */
   final static SimpleDateFormat dateFormat2 = new SimpleDateFormat(DATE_FORMAT2);
+
+  /**
+   * date format, make sure to synchronize
+   */
+  final static SimpleDateFormat dateFormat3 = new SimpleDateFormat(DATE_FORMAT3);
 
   /**
    * synchronize code that uses this standard formatter for dates with minutes and seconds
@@ -7975,6 +7987,8 @@ public class GrouperUtil {
    * or
    * yyyy/MM/dd
    * or
+   * yyyy-MM-dd
+   *  or 
    * yyyy/MM/dd HH:mm:ss
    * or
    * yyyy/MM/dd HH:mm:ss.SSS
@@ -8099,6 +8113,15 @@ public class GrouperUtil {
   }
 
   /**
+   * get the timestamp format for this thread
+   * if you call this make sure to synchronize on FastDateUtils.class
+   * @return the timestamp format
+   */
+  synchronized static SimpleDateFormat dateFormat3() {
+    return dateFormat3;
+  }
+
+  /**
    * convert a date to the standard string yyyymmdd
    * @param date
    * @return the string value
@@ -8168,6 +8191,10 @@ public class GrouperUtil {
       }
       if (input.length() == 10) {
 
+    	if (input.contains("-")) {
+    		return dateFormat3().parse(input);
+    	}
+
         return dateFormat2().parse(input);
       }
       if (!contains(input, '.')) {
@@ -8218,6 +8245,37 @@ public class GrouperUtil {
       return (Timestamp)date;
     }
     return new Timestamp(date.getTime());
+  }
+
+  /**
+   * <pre>convert a string to timestamp based on the following formats:
+   * 2011-07-18T15:24+02:00
+   * 2011/07/18 15:24
+   * 2011/07/18 3:24 PM
+   * </pre>
+   * @param input
+   * @return the timestamp object
+   */
+  public static Timestamp stringToTimestampTimeRequiredLocalDateTime(String input) {
+	  
+  	//trim and handle null and empty
+    if (isBlank(input)) {
+      return null;
+    }
+    input = input.trim();
+    try {
+      Date date = timestampHoursMinutesLocalDateTime.parse(input);
+      if (date == null) {
+		  return null;
+	  }
+	  //maybe already a timestamp
+	  if (date instanceof Timestamp) {
+		  return (Timestamp)date;
+	  }
+	  return new Timestamp(date.getTime());
+    } catch (ParseException pe) {
+      throw new RuntimeException("Invalid timestamp, please use any of the formats: yyyy-MM-dd'T'hh:mm" + input);
+    }
   }
 
   /**
