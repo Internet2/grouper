@@ -44,13 +44,13 @@
                   <div class="control-group">
                     <label for="groupEnabledDate" class="control-label">${textContainer.text['localEntityCreateEnabledDateLabel'] }</label>
                     <div class="controls">
-                      <input type="date" name="enabledDate" placeholder="${textContainer.text['localEntityCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.enabledDateLabel }" id="groupEnabledDate"><span class="help-block">${textContainer.text['localEntityCreateEnabledDateDescription'] }</span>
+                      <input type="datetime-local" step="1" name="enabledDate" placeholder="${textContainer.text['localEntityCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.enabledDateLabel }" id="groupEnabledDate"><span class="help-block">${textContainer.text['localEntityCreateEnabledDateDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
                     <label for="groupDisabledDate" class="control-label">${textContainer.text['localEntityCreateDisabledDateLabel'] }</label>
                     <div class="controls">
-                      <input type="date" name="disabledDate" placeholder="${textContainer.text['localEntityCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.disabledDateLabel }" id="groupDisabledDate"><span class="help-block">${textContainer.text['localEntityCreateDisabledDateDescription'] }</span>
+                      <input type="datetime-local" step="1" name="disabledDate" placeholder="${textContainer.text['localEntityCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.disabledDateLabel }" id="groupDisabledDate"><span class="help-block">${textContainer.text['localEntityCreateDisabledDateDescription'] }</span>
                     </div>
                   </div>
                   <p class="shownAdvancedProperties"><a href="#" 

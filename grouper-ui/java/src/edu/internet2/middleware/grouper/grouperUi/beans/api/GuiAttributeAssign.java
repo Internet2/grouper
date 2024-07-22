@@ -17,7 +17,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.Set;
 import java.util.TreeSet;
 
@@ -300,16 +299,6 @@ public class GuiAttributeAssign implements Serializable, Comparable<GuiAttribute
   }
   
   /**
-   * format on screen of config for milestone: yyyy/MM/dd (not hh:mm aa)
-   */
-  public static final String TIMESTAMP_FORMAT = "yyyy-MM-dd";
-
-  /**
-   * <pre> format: yyyy/MM/dd HH:mm:ss.SSS synchronize code that uses this standard formatter for timestamps </pre>
-   */
-  final static SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_FORMAT);
-
-  /**
    * 
    * @return the disabled date
    */
@@ -336,7 +325,7 @@ public class GuiAttributeAssign implements Serializable, Comparable<GuiAttribute
    * @return the string format
    */
   public synchronized static String formatEnabledDisabled(Timestamp timestamp) {
-    return timestampFormat.format(timestamp);
+    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(timestamp);
   }
 
   /**

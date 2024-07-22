@@ -86,18 +86,16 @@
       <div class="control-group">
         <label class="control-label">${textContainer.text['simplePermissionUpdate.assignEditEnabledDate'] }</label>
         <div class="controls">
-          <input type="text" name="enabledDate"  id="enabledDateId"
+          <input type="datetime-local" step="1" name="enabledDate"  id="enabledDateId"
                  value="${guiPermissionEntry.enabledDate}" />
-          <span>${textContainer.text['simplePermissionUpdate.assignEditEnabledDisabledDateMask']}</span>
         </div>
       </div>
       
       <div class="control-group">
         <label class="control-label">${textContainer.text['simplePermissionUpdate.assignEditDisabledDate'] }</label>
         <div class="controls">
-          <input type="text" name="disabledDate"  id="disabledDateId"
+          <input type="datetime-local" step="1" name="disabledDate"  id="disabledDateId"
                  value="${guiPermissionEntry.disabledDate}" />
-          <span>${textContainer.text['simplePermissionUpdate.assignEditEnabledDisabledDateMask']}</span>
         </div>
       </div>
       

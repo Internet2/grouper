@@ -4175,7 +4175,7 @@ public class GrouperUtil {
   /**
    * 
    */
-  public static final DateFormat timestampHoursMinutesLocalDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+  public static final DateFormat timestampHoursMinutesLocalDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
   /**
    * 
@@ -8183,9 +8183,7 @@ public class GrouperUtil {
   
   /**
    * <pre>convert a string to timestamp based on the following formats:
-   * 2011-07-18T15:24+02:00
-   * 2011/07/18 15:24
-   * 2011/07/18 3:24 PM
+   * 2022-02-15T15:27:42
    * </pre>
    * @param input
    * @return the timestamp object
@@ -8208,7 +8206,7 @@ public class GrouperUtil {
 	  }
 	  return new Timestamp(date.getTime());
     } catch (ParseException pe) {
-      throw new RuntimeException("Invalid timestamp, please use any of the formats: yyyy-MM-dd'T'hh:mm" + input);
+      throw new RuntimeException("Invalid timestamp, please use any of the formats: yyyy-MM-dd'T'hh:mm:ss" + input);
     }
   }
 

@@ -73,13 +73,13 @@ ${grouper:titleFromKeyAndText('groupEditPageTitle', grouperRequestContainer.grou
                   <div class="control-group">
                     <label for="groupEnabledDate" class="control-label">${textContainer.text['groupCreateEnabledDateLabel'] }</label>
                     <div class="controls">
-                      <input type="datetime-local" name="enabledDate" placeholder="${textContainer.text['groupCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.enabledDateLabel }" id="groupEnabledDate"><span class="help-block">${textContainer.text['groupCreateEnabledDateDescription'] }</span>
+                      <input type="datetime-local" step="1" name="enabledDate" placeholder="${textContainer.text['groupCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.enabledDateLabel }" id="groupEnabledDate"><span class="help-block">${textContainer.text['groupCreateEnabledDateDescription'] }</span>
                     </div>
                   </div>
                   <div class="control-group">
                     <label for="groupDisabledDate" class="control-label">${textContainer.text['groupCreateDisabledDateLabel'] }</label>
                     <div class="controls">
-                      <input type="datetime-local" name="disabledDate" placeholder="${textContainer.text['groupCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.disabledDateLabel }" id="groupDisabledDate"><span class="help-block">${textContainer.text['groupCreateDisabledDateDescription'] }</span>
+                      <input type="datetime-local" step="1" name="disabledDate" placeholder="${textContainer.text['groupCreateDatePlaceholder'] }" value="${grouperRequestContainer.groupContainer.guiGroup.disabledDateLabel }" id="groupDisabledDate"><span class="help-block">${textContainer.text['groupCreateDisabledDateDescription'] }</span>
                     </div>
                   </div>
                   

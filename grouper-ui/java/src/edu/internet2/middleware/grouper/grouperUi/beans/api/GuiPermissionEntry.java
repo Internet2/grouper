@@ -17,7 +17,6 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 
 import java.io.Serializable;
 import java.sql.Timestamp;
-import java.text.SimpleDateFormat;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
@@ -29,6 +28,7 @@ import edu.internet2.middleware.grouper.permissions.PermissionEntry;
 import edu.internet2.middleware.grouper.permissions.PermissionEntry.PermissionType;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.MapWrapper;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -144,15 +144,6 @@ public class GuiPermissionEntry implements Serializable {
    */
   private String screenLabelShort = null;
 
-  /**
-   * format on screen of config for milestone: yyyy/MM/dd (not hh:mm aa)
-   */
-  public static final String TIMESTAMP_FORMAT = "yyyy/MM/dd";
-
-  /**
-   * <pre> format: yyyy/MM/dd HH:mm:ss.SSS synchronize code that uses this standard formatter for timestamps </pre>
-   */
-  final static SimpleDateFormat timestampFormat = new SimpleDateFormat(TIMESTAMP_FORMAT);
   
   /**
    * if it is effective
@@ -235,7 +226,7 @@ public class GuiPermissionEntry implements Serializable {
    * @return the string format
    */
   public synchronized static String formatEnabledDisabled(Timestamp timestamp) {
-    return timestampFormat.format(timestamp);
+    return GrouperUtil.timestampHoursMinutesLocalDateTime.format(timestamp);
   }
 
 
