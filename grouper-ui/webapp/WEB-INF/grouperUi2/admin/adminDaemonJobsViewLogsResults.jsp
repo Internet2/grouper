@@ -1,7 +1,7 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 
-                <p>${textContainer.text['daemonJobsViewLogsDescription'] }</p>
-                
+                <p>${grouper:escapeHtml(textContainer.text['daemonJobsViewLogsDescription']) }</p>
+
                 <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update footable">
                   <thead>
                     <tr>
