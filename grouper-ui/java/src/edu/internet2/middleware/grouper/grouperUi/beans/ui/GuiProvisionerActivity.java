@@ -88,8 +88,6 @@ public class GuiProvisionerActivity {
    */
   private Timestamp lastTimeWorkWasDone;
   
-  private Timestamp orderByDate;
-
   
   public static List<GuiProvisionerActivity> convertFromGcGrouperSyncObjects(List<GcGrouperSyncGroup> grouperSyncGroups, 
       List<GcGrouperSyncMember> grouperSyncMembers, List<GcGrouperSyncMembership> grouperSyncMemberships) {
@@ -131,8 +129,6 @@ public class GuiProvisionerActivity {
       int comparisonResult = GrouperUtil.compare(grouperSyncGroup.getInTargetStart(), grouperSyncGroup.getInTargetEnd());
       
       if (comparisonResult > 0) {
-        guiProvisionerActivity.setOrderByDate(grouperSyncGroup.getInTargetStart());
-        
         if (grouperSyncGroup.isInTargetInsertOrExists()) {
           guiProvisionerActivity.setAction(insertAction);
         } else {
@@ -140,7 +136,6 @@ public class GuiProvisionerActivity {
         }
         
       } else {
-        guiProvisionerActivity.setOrderByDate(grouperSyncGroup.getInTargetEnd());
         guiProvisionerActivity.setAction(deleteAction);
       }
       
@@ -178,8 +173,6 @@ public class GuiProvisionerActivity {
       int comparisonResult = GrouperUtil.compare(grouperSyncMember.getInTargetStart(), grouperSyncMember.getInTargetEnd());
       
       if (comparisonResult > 0) {
-        guiProvisionerActivity.setOrderByDate(grouperSyncMember.getInTargetStart());
-        
         if (grouperSyncMember.isInTargetInsertOrExists()) {
           guiProvisionerActivity.setAction(insertAction);
         } else {
@@ -187,7 +180,6 @@ public class GuiProvisionerActivity {
         }
         
       } else {
-        guiProvisionerActivity.setOrderByDate(grouperSyncMember.getInTargetEnd());
         guiProvisionerActivity.setAction(deleteAction);
       }
       
@@ -215,8 +207,6 @@ public class GuiProvisionerActivity {
       int comparisonResult = GrouperUtil.compare(grouperSyncMembership.getInTargetStart(), grouperSyncMembership.getInTargetEnd());
       
       if (comparisonResult > 0) {
-        guiProvisionerActivity.setOrderByDate(grouperSyncMembership.getInTargetStart());
-        
         if (grouperSyncMembership.isInTargetInsertOrExists()) {
           guiProvisionerActivity.setAction(insertAction);
         } else {
@@ -224,7 +214,6 @@ public class GuiProvisionerActivity {
         }
         
       } else {
-        guiProvisionerActivity.setOrderByDate(grouperSyncMembership.getInTargetEnd());
         guiProvisionerActivity.setAction(deleteAction);
       }
       
@@ -234,7 +223,7 @@ public class GuiProvisionerActivity {
     Collections.sort(result, new Comparator<GuiProvisionerActivity>() {
       @Override
       public int compare(GuiProvisionerActivity obj1, GuiProvisionerActivity obj2) {
-          return obj1.getOrderByDate().compareTo(obj2.getOrderByDate());
+          return obj2.getLastUpdated().compareTo(obj1.getLastUpdated());
       }
     });
     
@@ -483,19 +472,5 @@ public class GuiProvisionerActivity {
   public Boolean getInTargetInsertOrExists() {
     return inTargetInsertOrExists;
   }
-
-
-  
-  public Timestamp getOrderByDate() {
-    return orderByDate;
-  }
-
-
-  
-  public void setOrderByDate(Timestamp orderByDate) {
-    this.orderByDate = orderByDate;
-  }
-  
-  
   
 }
