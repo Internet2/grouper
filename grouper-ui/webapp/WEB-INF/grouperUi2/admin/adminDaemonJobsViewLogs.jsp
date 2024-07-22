@@ -23,7 +23,7 @@
                       <label for="people-filter">${textContainer.text['grouperLoaderLogsFilterFor'] }</label>
                     </div>
                     <div class="span9" style="white-space: nowrap;">
-                      ${grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName}
+                      ${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiDaemonJobs.get(0).jobName)}
                     </div>
                   </div>
 
