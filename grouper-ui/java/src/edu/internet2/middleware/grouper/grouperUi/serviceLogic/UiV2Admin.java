@@ -327,6 +327,9 @@ public class UiV2Admin extends UiServiceLogicBase {
         String action = request.getParameter("action");
         String jobName = request.getParameter("jobName");
         if (!StringUtils.isEmpty(action) && !StringUtils.isEmpty(jobName)) {
+          if (!isJobNameValid(jobName)) {
+            throw new RuntimeException("Invalid job name '" + jobName + "'");
+          }
           JobKey jobKey = new JobKey(jobName);
           if ("runNow".equals(action)) {
             if (GrouperLoader.isJobRunning(jobName, false)) {
@@ -678,6 +681,9 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
       }
+      if (!isJobNameValid(jobName)) {
+        throw new RuntimeException("Invalid job name '" + jobName + "'");
+      }
 
       GrouperDaemonConfiguration configToDelete = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
 
@@ -733,7 +739,11 @@ public class UiV2Admin extends UiServiceLogicBase {
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
       }
-      
+
+      if (!isJobNameValid(jobName)) {
+        throw new RuntimeException("Invalid job name '" + jobName + "'");
+      }
+
       // clear cache since the EL variables need to be cleared and other things
       GrouperDaemonConfiguration.clearImplementationJobNameCache();
       GrouperDaemonConfiguration configToEdit = GrouperDaemonConfiguration.retrieveImplementationFromJobName(jobName);
@@ -766,8 +776,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
           "/WEB-INF/grouperUi2/admin/adminDaemonJobEdit.jsp"));
-      
-      } finally {
+
+    } catch (SchedulerException re) {
+      throw new RuntimeException("Failure looking up job name", re);
+    } finally {
       GrouperSession.stopQuietly(grouperSession);
     }
   }
@@ -799,6 +811,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       
       if (StringUtils.isBlank(jobName)) {
         throw new RuntimeException("jobName cannnot be blank");
+      }
+
+      if (!isJobNameValid(jobName)) {
+        throw new RuntimeException("Invalid job name '" + jobName + "'");
       }
 
       // clear cache since the EL variables need to be cleared and other things
@@ -1332,7 +1348,10 @@ public class UiV2Admin extends UiServiceLogicBase {
       grouperSession = GrouperSession.start(loggedInSubject);
       
       String jobName = request.getParameter("jobName");
-      
+      if (!isJobNameValid(jobName)) {
+        throw new RuntimeException("Invalid job name '" + jobName + "'");
+      }
+
       AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
       guiDaemonJobs.add(new GuiDaemonJob(jobName));
@@ -1355,7 +1374,8 @@ public class UiV2Admin extends UiServiceLogicBase {
           "/WEB-INF/grouperUi2/admin/adminDaemonJobsViewLogsMoreActions.jsp"));
       
       viewLogsHelper(request, response);
-      
+    } catch (SchedulerException re) {
+      throw new RuntimeException("Failure looking up job name", re);
     } catch (RuntimeException re) {
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
         return;
@@ -1728,5 +1748,7 @@ public class UiV2Admin extends UiServiceLogicBase {
     }
   }
   
-  
+  private boolean isJobNameValid(String jobName) throws SchedulerException {
+    return GrouperLoader.schedulerFactory().getScheduler().checkExists(new JobKey(jobName));
+  }
 }
