@@ -108,6 +108,9 @@ public class CustomUiSql extends CustomUiUserQueryBase {
    */
   private void attachBindVar(GcDbAccess gcDbAccess, Group group, Stem stem, AttributeDef attributeDef, Subject subject, String bindVarLabel,
       String bindVar, String bindVarType) {
+    if (bindVar == null) {
+      bindVar = "";
+    }
     if (bindVarType != null) {
       String originalBindVar = bindVar;
       bindVar = CustomUiUtil.substituteExpressionLanguage(bindVar, group, stem, attributeDef, subject, null);
@@ -121,7 +124,7 @@ public class CustomUiSql extends CustomUiUserQueryBase {
       if ("string".equalsIgnoreCase(bindVarType)) {
         bindVarObject = bindVar;
       } else if ("integer".equalsIgnoreCase(bindVarType)) {
-        bindVarObject = GrouperUtil.longValue(bindVar);
+        bindVarObject = GrouperUtil.longValue(bindVar, -1);
       } else {
         throw new RuntimeException("Invalid bindVarType!  must be string or integer but was '" + bindVarType + "'");
       }

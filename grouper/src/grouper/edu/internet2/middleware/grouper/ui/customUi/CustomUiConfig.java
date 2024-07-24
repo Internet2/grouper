@@ -25,7 +25,54 @@ public class CustomUiConfig {
     this.groupUUIDOrName = groupUUIDOrName;
   }
 
+  private String groupCanSeeUserEnvironment;
+  private String groupCanSeeScreenState;
+  private String groupCanAssignVariables;
+  private String groupOfManagers;
   
+  public String getGroupOfManagers() {
+    return groupOfManagers;
+  }
+  
+  public void setGroupOfManagers(String groupOfManagers) {
+    this.groupOfManagers = groupOfManagers;
+  }
+
+  public String getGroupCanSeeUserEnvironment() {
+    return groupCanSeeUserEnvironment;
+  }
+
+
+  
+  public void setGroupCanSeeUserEnvironment(String groupCanSeeUserEnvironment) {
+    this.groupCanSeeUserEnvironment = groupCanSeeUserEnvironment;
+  }
+
+
+  
+  public String getGroupCanSeeScreenState() {
+    return groupCanSeeScreenState;
+  }
+
+
+  
+  public void setGroupCanSeeScreenState(String groupCanSeeScreenState) {
+    this.groupCanSeeScreenState = groupCanSeeScreenState;
+  }
+
+
+  
+  public String getGroupCanAssignVariables() {
+    return groupCanAssignVariables;
+  }
+
+
+  
+  public void setGroupCanAssignVariables(String groupCanAssignVariables) {
+    this.groupCanAssignVariables = groupCanAssignVariables;
+  }
+
+
   public boolean isEnabled() {
     return enabled;
   }

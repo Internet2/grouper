@@ -22,7 +22,7 @@
                         <div id="add-members">
                           <form id="add-members-form" target="#" class="form-horizontal form-highlight">
                             <div class="control-group" id="add-member-control-group" aria-live="polite" aria-expanded="false">
-                              <label for="groupAddMemberComboID" class="control-label">Person name or ID:</label>
+                              <label for="groupAddMemberComboID" class="control-label">${textContainer.text['guiCustomUiUserLabel']}</label>
                               <div class="controls">
                                 <div id="add-members-container">
   
@@ -38,7 +38,7 @@
                             
                             <div class="control-group">
                               <div class="controls">
-                                <button onclick="ajax('../app/UiV2CustomUi.customUiGroupSubjectSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'add-members-form'}); return false;" 
+                                <button onclick="ajax('../app/UiV2CustomUi.customUiGroupSubjectSubmit?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}&${grouperRequestContainer.customUiContainer.urlParamsForForm}', {formIds: 'add-members-form'}); return false;" 
                                   id="add-members-submit" type="submit" class="btn btn-primary" style="color:black; letter-spacing: .1em;">${textContainer.text['guiCustomUiSelectUser']}</button> 
                               </div>
                             </div>

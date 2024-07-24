@@ -143,7 +143,8 @@ public class CustomUiEngineTest extends GrouperTest {
     
     // ############## subj0 using the app for themself
     customUiEngine = new CustomUiEngine();
-    customUiEngine.processGroup(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ0);
+    customUiEngine.processGroupStep1(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ0);
+    customUiEngine.processGroupStep2(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ0);
 
     String result = customUiEngine.findBestText(CustomUiTextType.header, null);
     assertEquals(header, result);
@@ -156,7 +157,8 @@ public class CustomUiEngineTest extends GrouperTest {
     
     // ############## subj0 using the app for subj1
     customUiEngine = new CustomUiEngine();
-    customUiEngine.processGroup(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1);
+    customUiEngine.processGroupStep1(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1);
+    customUiEngine.processGroupStep2(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ0, SubjectTestHelper.SUBJ1);
 
     result = customUiEngine.findBestText(CustomUiTextType.header, null);
     assertEquals(header, result);
@@ -171,7 +173,8 @@ public class CustomUiEngineTest extends GrouperTest {
     
     // ############## subj1 using the app for subj1
     customUiEngine = new CustomUiEngine();
-    customUiEngine.processGroup(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ1);
+    customUiEngine.processGroupStep1(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ1);
+    customUiEngine.processGroupStep2(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ1, SubjectTestHelper.SUBJ1);
 
     result = customUiEngine.findBestText(CustomUiTextType.header, null);
     assertEquals(header, result);
@@ -184,7 +187,8 @@ public class CustomUiEngineTest extends GrouperTest {
     
     // ############## subj2 using the app for subj2
     customUiEngine = new CustomUiEngine();
-    customUiEngine.processGroup(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ2, SubjectTestHelper.SUBJ2);
+    customUiEngine.processGroupStep1(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ2, SubjectTestHelper.SUBJ2);
+    customUiEngine.processGroupStep2(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ2, SubjectTestHelper.SUBJ2);
 
     result = customUiEngine.findBestText(CustomUiTextType.header, null);
     assertEquals(header, result);
@@ -197,7 +201,8 @@ public class CustomUiEngineTest extends GrouperTest {
     
     // ############## subj3 using the app for subj3
     customUiEngine = new CustomUiEngine();
-    customUiEngine.processGroup(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ3, SubjectTestHelper.SUBJ3);
+    customUiEngine.processGroupStep1(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ3, SubjectTestHelper.SUBJ3);
+    customUiEngine.processGroupStep2(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ3, SubjectTestHelper.SUBJ3);
 
     result = customUiEngine.findBestText(CustomUiTextType.header, null);
     assertEquals(header, result);
@@ -210,7 +215,8 @@ public class CustomUiEngineTest extends GrouperTest {
     
     // ############## subj4 using the app for subj4
     customUiEngine = new CustomUiEngine();
-    customUiEngine.processGroup(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ4, SubjectTestHelper.SUBJ4);
+    customUiEngine.processGroupStep1(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ4, SubjectTestHelper.SUBJ4);
+    customUiEngine.processGroupStep2(o365twoStepSelfEnrolled, SubjectTestHelper.SUBJ4, SubjectTestHelper.SUBJ4);
 
     result = customUiEngine.findBestText(CustomUiTextType.header, null);
     assertEquals(header, result);
