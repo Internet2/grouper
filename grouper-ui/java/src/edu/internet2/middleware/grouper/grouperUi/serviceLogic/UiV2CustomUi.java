@@ -183,6 +183,7 @@ public class UiV2CustomUi {
   
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
+    customUiContainer.setManagerAction(true);
     
     try {
   
@@ -253,7 +254,7 @@ public class UiV2CustomUi {
       GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
       CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
 
-      if (customUiContainer.getMember() != null && !customUiContainer.isManager()) {
+      if (customUiContainer.isManagerAction() && !customUiContainer.isManager()) {
         throw new RuntimeException("Not manager! " + SubjectHelper.getPretty(loggedInSubject));
       }
       
