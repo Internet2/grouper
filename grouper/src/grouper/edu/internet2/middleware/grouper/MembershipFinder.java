@@ -72,6 +72,9 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.service.ServiceRole;
 import edu.internet2.middleware.grouper.subj.LazySubject;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
 import edu.internet2.middleware.subject.SubjectNotFoundException;
@@ -118,6 +121,35 @@ import edu.internet2.middleware.subject.provider.SourceManager;
  */
 public class MembershipFinder {
 
+  /**
+   * take in the group uuid or name and the subject and cache if in group for 2 minutes
+   */
+  private static ExpirableCache<MultiKey, Boolean> groupUuidOrNameSubjectSourceIdSubjectIdToInGroup = new ExpirableCache<>(2);
+  
+  /**
+   * see if subject is in group, do not check READ security, and cache for two minutes
+   * @param groupUuidOrName
+   * @param subject
+   * @return true if in group and false if not
+   */
+  public static boolean hasMemberCacheNoCheckSecurity(String groupUuidOrName, Subject subject) {
+    
+    MultiKey groupUuidOrNameSubjectSourceIdSubjectId = new MultiKey(groupUuidOrName, subject.getSourceId(), subject.getId());
+    
+    Boolean hasMember = groupUuidOrNameSubjectSourceIdSubjectIdToInGroup.get(groupUuidOrNameSubjectSourceIdSubjectId);
+    if (hasMember == null) {
+      
+      String sql = "select count(1) from grouper_memberships_lw_v gmlv "
+          + " where group_" + (groupUuidOrName.contains(":") ? "name" : "id") + " = ? and subject_source = ? and subject_id = ? and list_name = 'members'";
+
+      int rows = new GcDbAccess().sql(sql).addBindVar(groupUuidOrName).addBindVar(subject.getSourceId()).addBindVar(subject.getId()).select(int.class);
+      hasMember = rows > 0;
+      groupUuidOrNameSubjectSourceIdSubjectIdToInGroup.put(groupUuidOrNameSubjectSourceIdSubjectId, hasMember);
+    }
+    return hasMember;
+    
+  }
+  
   /**
    * if the subject has a membership in the group
    */

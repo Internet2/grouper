@@ -351,7 +351,7 @@ public class CustomUiEngine {
    * @param customUiUserType
    * @return the list of beans
    */
-  private List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeans() {
+  public List<CustomUiUserQueryConfigBean> customUiUserQueryConfigBeans() {
     return this.customUiUserQueryConfigBeans;
   }
 
@@ -537,6 +537,18 @@ public class CustomUiEngine {
     String enabledString = customUiConfigProperties.getOrDefault(configPrefix+"enabled", "true");
     customUiConfig.setEnabled(GrouperUtil.booleanValue(enabledString));
 
+    String groupCanSeeUserEnvironmentString = customUiConfigProperties.get(configPrefix+"groupCanSeeUserEnvironment");
+    customUiConfig.setGroupCanSeeUserEnvironment(groupCanSeeUserEnvironmentString);
+
+    String groupOfManagersString = customUiConfigProperties.get(configPrefix+"groupOfManagers");
+    customUiConfig.setGroupOfManagers(groupOfManagersString);
+
+    String groupCanSeeScreenStateString = customUiConfigProperties.get(configPrefix+"groupCanSeeScreenState");
+    customUiConfig.setGroupCanSeeScreenState(groupCanSeeScreenStateString);
+
+    String groupCanAssignVariablesString = customUiConfigProperties.get(configPrefix+"groupCanAssignVariables");
+    customUiConfig.setGroupCanAssignVariables(groupCanAssignVariablesString);
+
     String externalizedTextString = customUiConfigProperties.getOrDefault(configPrefix+"externalizedText", "false");
     customUiConfig.setExternalizedText(GrouperUtil.booleanValue(externalizedTextString));
 
@@ -585,7 +597,7 @@ public class CustomUiEngine {
         queryConfigBean.setConfigId(configIdForUserQuery);
         
         String enabledForUserQuery = customUiConfigProperties.get(queryPrefix + "enabled");
-        queryConfigBean.setEnabled(GrouperUtil.booleanObjectValue(enabledForUserQuery));
+        queryConfigBean.setEnabled(GrouperUtil.booleanValue(GrouperUtil.booleanObjectValue(enabledForUserQuery), true));
         
         String errorLabel = customUiConfigProperties.get(queryPrefix + "errorLabel");
         queryConfigBean.setErrorLabel(errorLabel);
@@ -642,8 +654,12 @@ public class CustomUiEngine {
         String variableToAssignOnError = customUiConfigProperties.get(queryPrefix + "variableToAssignOnError");
         queryConfigBean.setVariableToAssignOnError(variableToAssignOnError);
         
-        String variableType = customUiConfigProperties.get(queryPrefix + "variableType");
+        String variableType = StringUtils.defaultIfBlank(customUiConfigProperties.get(queryPrefix + "variableType"), "string");
         queryConfigBean.setVariableType(variableType);
+
+        String allowAssignFromUrl = customUiConfigProperties.get(queryPrefix + "allowAssignFromUrl");
+        queryConfigBean.setAllowAssignFromUrl(GrouperUtil.booleanObjectValue(allowAssignFromUrl));
+
       } catch (RuntimeException re) {
         GrouperUtil.injectInException(re, "Error with customUI query bean: " + queryConfigBean);
         throw re;
@@ -815,6 +831,7 @@ public class CustomUiEngine {
       attributes.get(prefix + "variableToAssign").setValue(customUiUserQueryConfigBean.getVariableToAssign());
       attributes.get(prefix + "variableToAssignOnError").setValue(customUiUserQueryConfigBean.getVariableToAssignOnError());
       attributes.get(prefix + "variableType").setValue(customUiUserQueryConfigBean.getVariableType());
+      attributes.get(prefix + "allowAssignFromUrl").setValue(GrouperUtil.stringValue(customUiUserQueryConfigBean.getAllowAssignFromUrl()));
       
       i++;
     }
@@ -909,7 +926,7 @@ public class CustomUiEngine {
    * @param subjectOperatedOn1
    * @param subjectLoggedIn1
    */
-  public void processGroup(final Group group1, final Subject subjectLoggedIn1, final Subject subjectOperatedOn1) {
+  public void processGroupStep1(final Group group1, final Subject subjectLoggedIn1, final Subject subjectOperatedOn1) {
     long startedNanos = System.nanoTime();
     this.debugMap.put("group", group1.getName());
     this.debugMap.put("subjectUserId", subjectOperatedOn1.getId());
@@ -926,6 +943,43 @@ public class CustomUiEngine {
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
           
           CustomUiConfig customUiConfigBean = retrieveCustomUiConfigBean(group);
+          CustomUiEngine.this.setCustomUiConfig(customUiConfigBean);
+          
+          return null;
+        }
+      } );
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, group1.getName() + ", " + SubjectUtils.subjectToString(subjectOperatedOn1) + ", " + SubjectUtils.subjectToString(subjectLoggedIn1));
+      throw re;
+    } finally {
+      this.debugMap.put("processGroupStep1Millis", ((System.nanoTime() - startedNanos)/1000000));
+      if (LOG.isDebugEnabled()) {
+        LOG.debug(GrouperUtil.mapToString(this.debugMap));
+      }
+    }
+  }
+  
+  /**
+   * process a group for lite ui
+   * @param subjectOperatedOn1
+   * @param subjectLoggedIn1
+   */
+  public void processGroupStep2(final Group group1, final Subject subjectLoggedIn1, final Subject subjectOperatedOn1) {
+    long startedNanos = System.nanoTime();
+    this.debugMap.put("group", group1.getName());
+    this.debugMap.put("subjectUserId", subjectOperatedOn1.getId());
+    if (!SubjectHelper.eq(subjectOperatedOn1, subjectLoggedIn1)) {
+      this.debugMap.put("subjectManagerId", subjectOperatedOn1.getId());
+    }
+    
+    this.group = group1;
+    this.subjectOperatedOn = subjectOperatedOn1;
+    this.subjectLoggedIn = subjectLoggedIn1;
+    try {
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          CustomUiConfig customUiConfigBean = CustomUiEngine.this.getCustomUiConfig();
           CustomUiEngine.this.runUserQueries(customUiConfigBean.getCustomUiUserQueryConfigBeans());
           CustomUiEngine.this.parseCustomUiTextConfigBeans(customUiConfigBean.getCustomUiTextConfigBeans());
           
@@ -936,13 +990,23 @@ public class CustomUiEngine {
       GrouperUtil.injectInException(re, group1.getName() + ", " + SubjectUtils.subjectToString(subjectOperatedOn1) + ", " + SubjectUtils.subjectToString(subjectLoggedIn1));
       throw re;
     } finally {
-      this.debugMap.put("processGroupMillis", ((System.nanoTime() - startedNanos)/1000000));
+      this.debugMap.put("processGroupstep2Millis", ((System.nanoTime() - startedNanos)/1000000));
       if (LOG.isDebugEnabled()) {
         LOG.debug(GrouperUtil.mapToString(this.debugMap));
       }
     }
   }
   
+  private CustomUiConfig customUiConfig;
+  
+  public CustomUiConfig getCustomUiConfig() {
+    return customUiConfig;
+  }
+
+  public void setCustomUiConfig(CustomUiConfig customUiConfigBean) {
+    this.customUiConfig = customUiConfigBean;
+  }
+
   /**
    * 
    * @param jsons
@@ -1217,6 +1281,14 @@ public class CustomUiEngine {
    */
   public void evaluateCustomUiUserQueryConfigBeanJsons() {
     for (CustomUiUserQueryConfigBean customUiUserQueryConfigBean : this.customUiUserQueryConfigBeans()) {
+      
+      String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
+      
+      // this was overriden in URL or whatever
+      if (this.userQueryVariables().containsKey(variableToAssign)) {
+        continue;
+      }
+      
       Subject subject = this.subject(customUiUserQueryConfigBean);
       String userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
       CustomUiUserQueryType customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
@@ -1229,25 +1301,47 @@ public class CustomUiEngine {
       if (!StringUtils.isBlank(variableToAssignOnError)) {
         this.userQueryVariables().put(variableToAssignOnError, false);
       }
+
+      String urlParamValue = null;
+      
+      userQueryTypeString = customUiUserQueryConfigBean.getUserQueryType();
+      customUiUserQueryType = CustomUiUserQueryType.valueOfIgnoreCase(userQueryTypeString, true);
+
+      if (GrouperUtil.booleanValue(customUiUserQueryConfigBean.getAllowAssignFromUrl(), false)
+          || customUiUserQueryType == CustomUiUserQueryType.url) {
+        urlParamValue = this.getUrlParameters().get(variableToAssign);
+      }
       
       // check optional and require fields
-      try {
-        Object result = customUiUserQueryType.evaluate(this, customUiUserQueryConfigBean, group, subject, stem, attributeDef);
-        String variableToAssign = customUiUserQueryConfigBean.getVariableToAssign();
-        this.userQueryVariables().put(variableToAssign, result);
-      } catch (RuntimeException re) {
-        String error = "Error evaluating: " + customUiUserQueryConfigBean;
-        LOG.error(error, re);
-        if (!StringUtils.isBlank(variableToAssignOnError)) {
-          if (this.error != null) {
-            this.error += "\n";
+      if (!GrouperUtil.booleanValue(customUiUserQueryConfigBean.getAllowAssignFromUrl(), false) || customUiUserQueryType == null) {
+        try {
+          Object result = customUiUserQueryType.evaluate(this, customUiUserQueryConfigBean, group, subject, stem, attributeDef);
+          this.userQueryVariables().put(variableToAssign, result);
+        } catch (RuntimeException re) {
+          String error = "Error evaluating: " + customUiUserQueryConfigBean;
+          LOG.error(error, re);
+          if (!StringUtils.isBlank(variableToAssignOnError)) {
+            if (this.error != null) {
+              this.error += "\n";
+            }
+            this.error += error + "\n" + GrouperUtil.getFullStackTrace(re);
+            this.userQueryVariables().put(variableToAssignOnError, true);
+          } else {
+            throw new RuntimeException(error, re);
           }
-          this.error += error + "\n" + GrouperUtil.getFullStackTrace(re);
-          this.userQueryVariables().put(variableToAssignOnError, true);
-        } else {
-          throw new RuntimeException(error, re);
         }
       }
+      
+
+      if (GrouperUtil.booleanValue(customUiUserQueryConfigBean.getAllowAssignFromUrl(), false)
+          || customUiUserQueryType == CustomUiUserQueryType.url) {
+        if (!StringUtils.isBlank(urlParamValue)) {
+          CustomUiVariableType customUiVariableType = CustomUiVariableType.valueOfIgnoreCase(customUiUserQueryConfigBean.getVariableType(), false);
+          Object urlParamValueObject = customUiVariableType.convertTo(urlParamValue);
+          this.userQueryVariables().put(variableToAssign, urlParamValueObject);
+        }
+      }
+
     }
   }
 
@@ -1277,6 +1371,12 @@ public class CustomUiEngine {
    * user query names and values
    */
   private Map<String, Object> theUserQueryVariables = new HashMap<String, Object>();
+
+  /**
+   * user query names and values if allowed
+   */
+  private Map<String, String> urlParameters = new HashMap<String, String>();
+
   
   /**
    * 
@@ -1562,6 +1662,23 @@ public class CustomUiEngine {
    */
   public static CustomUiEngine threadLocalCustomUiEngine() {
     return threadLocalCustomUiEngine.get();
+  }
+
+  /**
+   * url params can be sent in to the custom ui if allowed
+   * @param urlParamVariables
+   */
+  public void setUrlParameters(Map<String, String> urlParamVariables) {
+    this.urlParameters = urlParamVariables;
+    
+  }
+
+  /**
+   * url params can be sent in to the custom ui if allowed
+   * @return
+   */
+  public Map<String, String> getUrlParameters() {
+    return urlParameters;
   }
   
 }

@@ -19,17 +19,24 @@ public enum CustomUiTextType {
   
   /**
    * if can see user environment
+   * @deprecated this is configured in the main custom ui part now, not here
+   * 
    */
+  @Deprecated
   canSeeUserEnvironment,
   
   /**
    * if can assign screen state
+   * @deprecated this is configured in the main custom ui part now, not here
    */
+  @Deprecated
   canSeeScreenState,
   
   /**
    * if can assign variables, as user of app
+   * @deprecated this is configured in the main custom ui part now, not here
    */
+  @Deprecated
   canAssignVariables,
   
   /**

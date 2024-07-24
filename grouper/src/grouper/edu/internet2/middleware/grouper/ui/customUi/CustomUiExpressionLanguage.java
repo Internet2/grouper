@@ -4,6 +4,8 @@
  */
 package edu.internet2.middleware.grouper.ui.customUi;
 
+import java.util.Map;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -36,10 +38,13 @@ public class CustomUiExpressionLanguage extends CustomUiUserQueryBase {
 
     try {
 
+      CustomUiEngine customUiEngine = this.getCustomUiEngine();
+      Map<String, Object> userQueryVariables = customUiEngine.userQueryVariables();
+      
       customUiVariableType = GrouperUtil.defaultIfNull(customUiVariableType, CustomUiVariableType.BOOLEAN);
       
       // dont substitute the sql, for security reasons
-      String result = CustomUiUtil.substituteExpressionLanguage(script, group, stem, attributeDef, subject, null);
+      String result = CustomUiUtil.substituteExpressionLanguage(script, group, stem, attributeDef, subject, userQueryVariables);
       
       Object resultObject = customUiVariableType.convertTo(result);
 

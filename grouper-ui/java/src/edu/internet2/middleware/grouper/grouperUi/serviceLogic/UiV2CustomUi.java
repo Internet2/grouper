@@ -16,6 +16,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -188,10 +189,6 @@ public class UiV2CustomUi {
       grouperSession = GrouperSession.start(loggedInSubject);
 
       lookupGroup(request);
-      
-      if (!customUiContainer.isManager()) {
-        throw new RuntimeException("Not manager! " + SubjectHelper.getPretty(loggedInSubject));
-      }
 
       String subjectString = request.getParameter("groupAddMemberComboName");
       
@@ -252,7 +249,14 @@ public class UiV2CustomUi {
       Member member = lookupMember(request);
 
       customUiGroupLogic(request, member.getSubject());   
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+      CustomUiContainer customUiContainer = grouperRequestContainer.getCustomUiContainer();
 
+      if (customUiContainer.getMember() != null && !customUiContainer.isManager()) {
+        throw new RuntimeException("Not manager! " + SubjectHelper.getPretty(loggedInSubject));
+      }
+      
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
       // replace outer too
@@ -352,55 +356,65 @@ public class UiV2CustomUi {
       return;
     }
 
+    final Map<String, String> urlParamVariables = new HashMap<String, String>();
+    Enumeration<String> parameterNames = request.getParameterNames();
+    if (parameterNames != null) {
+      while (parameterNames.hasMoreElements()) {
+        String parameterName = parameterNames.nextElement();
+        if (parameterName.startsWith("cu_")) {
+          urlParamVariables.put(parameterName, request.getParameter(parameterName));
+        }
+      }
+    }
+
+    final Group[] group = new Group[1];
+    final CustomUiEngine[] customUiEngine = new CustomUiEngine[1];
+    
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
       
       public Object callback(GrouperSession inner_grouperSession) throws GrouperSessionException {
 
-        Group group = lookupGroup(request);
+        group[0] = lookupGroup(request);
         
-        CustomUiEngine customUiEngine = new CustomUiEngine();
+        customUiEngine[0] = new CustomUiEngine();
         
-        customUiContainer.setCustomUiEngine(customUiEngine);
+        customUiEngine[0].setUrlParameters(urlParamVariables);
         
-        customUiEngine.processGroup(group, loggedInSubject, subject);
+        customUiContainer.setCustomUiEngine(customUiEngine[0]);
 
-        customUiEngine.userQueryVariables().put("cu_managerIsLoggedIn", customUiContainer.isManager());
-        customUiEngine.userQueryVariables().put("cu_grouperEnroll", customUiContainer.isEnroll());
+        customUiEngine[0].processGroupStep1(group[0], loggedInSubject, subject);
+
+        customUiEngine[0].userQueryVariables().put("cu_managerIsLoggedIn", customUiContainer.isManager());
+        customUiEngine[0].userQueryVariables().put("cu_grouperEnroll", customUiContainer.isEnroll());
 
         return null;
       }
     
     });
 
-    
-    
     if (customUiContainer.isCanAssignVariables()) {
-      Enumeration<String> parameterNames = request.getParameterNames();
-      if (parameterNames != null) {
-        boolean needsReset = false;
+      if (urlParamVariables.size() > 0) {
+        boolean needsReset = true;
         final Map<String, Object> userQueryVariables = customUiContainer.getCustomUiEngine().userQueryVariables();
-        while (parameterNames.hasMoreElements()) {
-          String parameterName = parameterNames.nextElement();
-          if (parameterName.startsWith("cu_")) {
-            needsReset = true;
-            Object currentValue = userQueryVariables.get(parameterName);
-            if (currentValue instanceof Boolean) {
-              userQueryVariables.put(parameterName, GrouperUtil.booleanValue(request.getParameter(parameterName)));
-            } else if (currentValue instanceof Long) {
-              userQueryVariables.put(parameterName, GrouperUtil.longValue(request.getParameter(parameterName)));
-            } else if (currentValue instanceof String) {
-              userQueryVariables.put(parameterName, request.getParameter(parameterName));
-            } else {
-              String newValue = request.getParameter(parameterName);
-              boolean isBoolean = false;
-              try {
-                GrouperUtil.booleanValue(newValue);
-                isBoolean = true;
-              } catch (Exception e) {
-                // ignore
-              }
-              userQueryVariables.put(parameterName, isBoolean ? GrouperUtil.booleanValue(newValue) : newValue);
+        for (String parameterName : urlParamVariables.keySet()) {
+          String urlParamValue = urlParamVariables.get(parameterName);
+          Object currentValue = userQueryVariables.get(parameterName);
+          if (currentValue instanceof Boolean) {
+            userQueryVariables.put(parameterName, GrouperUtil.booleanValue(urlParamValue));
+          } else if (currentValue instanceof Long) {
+            userQueryVariables.put(parameterName, GrouperUtil.longValue(urlParamValue));
+          } else if (currentValue instanceof String) {
+            userQueryVariables.put(parameterName, urlParamValue);
+          } else {
+            String newValue = urlParamValue;
+            boolean isBoolean = false;
+            try {
+              GrouperUtil.booleanValue(newValue);
+              isBoolean = true;
+            } catch (Exception e) {
+              // ignore
             }
+            userQueryVariables.put(parameterName, isBoolean ? GrouperUtil.booleanValue(newValue) : newValue);
           }
         }
         if (needsReset) {
@@ -408,6 +422,19 @@ public class UiV2CustomUi {
         }
       }
     }
+    
+    GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      public Object callback(GrouperSession inner_grouperSession) throws GrouperSessionException {
+        
+        customUiEngine[0].processGroupStep2(group[0], loggedInSubject, subject);
+
+        return null;
+      }
+    
+    });
+
+    
     if (customUiContainer.isCanSeeScreenState()) {
       customUiContainer.getCustomUiEngine().generateCustomUiTextResultsAll(customUiContainer.overrideMap());
     }
