@@ -385,6 +385,11 @@ public class CustomUiContainer {
     
     if (this.manager == null && this.customUiEngine != null) {
       
+      boolean turnOffManager = GrouperUtil.booleanValue(this.customUiEngine.getUrlParameters().get("cu_grouperTurnOffManager"), false) ;
+      if (turnOffManager) {
+        this.manager = false;
+      }
+      
       final Map<String, Object> userQueryVariables = this.customUiEngine.userQueryVariables();
       if (userQueryVariables != null) {
         Boolean overrideOff = (Boolean)userQueryVariables.get("cu_grouperTurnOffManager");
@@ -396,16 +401,17 @@ public class CustomUiContainer {
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    
-    String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupCanSeeScreenState();
-    
-    if (!StringUtils.isBlank(groupUuidOrName)) {
-      Subject subjectLoggedIn = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (this.manager == null) {
       
-      this.manager = MembershipFinder.hasMemberCacheNoCheckSecurity(groupUuidOrName, subjectLoggedIn);
+      String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupCanSeeScreenState();
       
+      if (!StringUtils.isBlank(groupUuidOrName)) {
+        Subject subjectLoggedIn = GrouperUiFilter.retrieveSubjectLoggedIn();
+        
+        this.manager = MembershipFinder.hasMemberCacheNoCheckSecurity(groupUuidOrName, subjectLoggedIn);
+        
+      }
     }
-
     
     if (this.manager == null) {
       // else if can optin
@@ -641,6 +647,8 @@ public class CustomUiContainer {
   }
   
   private String currentConfigSuffix;
+
+  private boolean managerAction;
   
   public String getCurrentConfigSuffix() {
     return currentConfigSuffix;
@@ -649,6 +657,19 @@ public class CustomUiContainer {
   
   public void setCurrentConfigSuffix(String currentConfigSuffix) {
     this.currentConfigSuffix = currentConfigSuffix;
+  }
+
+  
+
+  
+  public boolean isManagerAction() {
+    return managerAction;
+  }
+
+
+  public void setManagerAction(boolean theManagerAction) {
+    this.managerAction = theManagerAction;
+    
   }
   
 }
