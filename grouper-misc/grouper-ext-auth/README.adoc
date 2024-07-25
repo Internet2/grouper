@@ -77,6 +77,9 @@ external.authentication.saml.keystorePath = file:/opt/grouper/sp-keystore.p12
 external.authentication.saml.keystorePassword = testme
 external.authentication.saml.privateKeyPassword = testme
 external.authentication.saml.attributeAsId = urn:oid:0.9.2342.19200300.100.1.1
+
+#external.authentication.exclusions = /status
+
 ----
 The three Path properties above (serviceProviderMetadataPath, identityProviderMetadataPath, and keystorePath) can handle various urls:
 
@@ -96,6 +99,10 @@ without this. The `keystorePassword` and `privateKeyPassword` refer to the passp
 
 The `attributeAsId` value is optional, and refers to the OID of a response attribute to use for the username, if it is
 not in the  nameId field.
+
+Property `external.authentication.exclusions` is optional, and represents the URI's that will be allowed without
+authentication. The default is /status, so that the health check endpoint can be accessed by external monitoring systems.
+To disable this exclusion, set the value to blank.
 
 For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/saml.html[] and
 https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-saml/src/main/java/org/pac4j/saml/config/SAML2Configuration.java[]
