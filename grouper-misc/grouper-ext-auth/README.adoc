@@ -100,7 +100,7 @@ without this. The `keystorePassword` and `privateKeyPassword` refer to the passp
 The `attributeAsId` value is optional, and refers to the OID of a response attribute to use for the username, if it is
 not in the  nameId field.
 
-Property `external.authentication.exclusions` is optional, and represents the URI's that will be allowed without
+Property `external.authentication.exclusions` is optional, and represents the URI's (comma-separated) that will be allowed without
 authentication. The default is /status, so that the health check endpoint can be accessed by external monitoring systems.
 To disable this exclusion, set the value to blank.
 
