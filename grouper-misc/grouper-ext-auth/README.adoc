@@ -8,7 +8,7 @@ authentication library. Features include:
 
 
 
-== Setup for Grouper Version 4.x/5.x
+== Setup for Grouper
 
 NOTE: For a fully integrated sample configuration, see the docker-compose setup in the `src/test/docker` folder of the Git
 repository. The environment includes sample Grouper configurations for SAML2, OIDC, or CAS, along with a Shibboleth IDP
@@ -16,10 +16,10 @@ that can authenticate Grouper using any of these methods.
 
 === Adding the plugin jar to the image
 
-The latest version of the pac4j plugin jar can be downloaded from
-https://github.internet2.edu/internet2/grouper-ext-auth/releases[]). The downloaded file can have the version number in
-the file name, but it is  recommended to leave it out of the name when copied into the container. This way, the
-configuration does not need to  be changed every time the version changes. For example:
+The latest version of the pac4j plugin jar can be downloaded from https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/grouper-ext-auth/[the Maven repository]
+(if available), or https://github.internet2.edu/internet2/grouper-ext-auth/releases[]). The downloaded file can have the
+version number in the file name, but it is  recommended to leave it out of the name when copied into the container. This
+way, the configuration does not need to  be changed every time the version changes. For example:
 
 [source, dockerfile]
 ----
@@ -42,8 +42,8 @@ grouper.osgi.framework.boot.delegation=org.osgi.*,javax.*,org.apache.commons.log
 grouperOsgiPlugin.0.jarName = grouper-authentication-plugin.jar
 ----
 
-`grouper.osgi.jar.dir` should point to the directory you copied the file to in your image build file.
-`grouperOsgiPlugin.0.jarName` is be the name of the file you copied in, inside of the OSGI plugin directory.
+The `grouper.osgi.jar.dir` property should point to the directory you copied the file to in your image build file.
+Property `grouperOsgiPlugin.0.jarName` is the name of the file you copied in, inside of the OSGI plugin directory.
 
 === Configuring the UI or WS for authentication
 
