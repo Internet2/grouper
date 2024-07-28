@@ -21,6 +21,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
+import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.app.customUi.CustomUiConfiguration;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
@@ -43,6 +44,22 @@ import edu.internet2.middleware.subject.Subject;
  *
  */
 public class CustomUiContainer {
+  
+  public String getUrlParamsForForm() {
+    
+    StringBuilder result = new StringBuilder();
+    
+    boolean first = true;
+    for (String key : this.customUiEngine.getUrlParameters().keySet()) {
+      String value = GrouperUtil.defaultString(this.customUiEngine.getUrlParameters().get(key));
+      if (!first) {
+        result.append("&");
+      }
+      result.append(GrouperUtil.escapeUrlEncode(key)).append("=").append(GrouperUtil.escapeUrlEncode(value));
+      
+    }
+    return result.toString();
+  }
   
   /**
    * custom ui config user is currently viewing/editing 
@@ -180,12 +197,14 @@ public class CustomUiContainer {
   public boolean isCanAssignVariables() {
     if (this.canAssignVariables == null) {
 
-      Boolean result = GrouperUtil.booleanObjectValue(this.getTextTypeToText().get(CustomUiTextType.canAssignVariables));
-      if (result == null) {
-        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-        result = PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject);
+      String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupCanAssignVariables();
+      
+      Subject subjectLoggedIn = GrouperUiFilter.retrieveSubjectLoggedIn();
+      if (!StringUtils.isBlank(groupUuidOrName)) {
+        this.canAssignVariables = MembershipFinder.hasMemberCacheNoCheckSecurity(groupUuidOrName, subjectLoggedIn);
+      } else {
+        this.canAssignVariables = false;
       }
-      this.canAssignVariables = result;
     }
     return this.canAssignVariables;
   }
@@ -289,11 +308,17 @@ public class CustomUiContainer {
    */
   public boolean isCanSeeUserEnvironment() {
     if (this.canSeeUserEnvironment == null) {
-      Boolean result = GrouperUtil.booleanObjectValue(this.getTextTypeToText().get(CustomUiTextType.canSeeUserEnvironment));
-      if (result == null) {
-        result = this.isManager();
+      
+      String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupCanSeeUserEnvironment();
+      
+      Subject subjectLoggedIn = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      if (!StringUtils.isBlank(groupUuidOrName)) {
+        this.canSeeUserEnvironment = MembershipFinder.hasMemberCacheNoCheckSecurity(groupUuidOrName, subjectLoggedIn);
+      } else {
+        this.canSeeUserEnvironment = false;
       }
-      this.canSeeUserEnvironment = result;
+      
     }
     return this.canSeeUserEnvironment;
   }
@@ -324,12 +349,15 @@ public class CustomUiContainer {
   public boolean isCanSeeScreenState() {
     if (this.canSeeScreenState == null) {
       
-      Boolean result = GrouperUtil.booleanObjectValue(this.getTextTypeToText().get(CustomUiTextType.canSeeScreenState));
-      if (result == null || !result) {
-        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-        result = PrivilegeHelper.isWheelOrRootOrReadonlyRoot(loggedInSubject);
+      String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupCanSeeScreenState();
+      
+      Subject subjectLoggedIn = GrouperUiFilter.retrieveSubjectLoggedIn();
+      
+      if (!StringUtils.isBlank(groupUuidOrName)) {
+        this.canSeeScreenState = MembershipFinder.hasMemberCacheNoCheckSecurity(groupUuidOrName, subjectLoggedIn);
+      } else {
+        this.canSeeScreenState = false;
       }
-      this.canSeeScreenState = result;
     }
     return this.canSeeScreenState;
   }
@@ -357,6 +385,11 @@ public class CustomUiContainer {
     
     if (this.manager == null && this.customUiEngine != null) {
       
+      boolean turnOffManager = GrouperUtil.booleanValue(this.customUiEngine.getUrlParameters().get("cu_grouperTurnOffManager"), false) ;
+      if (turnOffManager) {
+        this.manager = false;
+      }
+      
       final Map<String, Object> userQueryVariables = this.customUiEngine.userQueryVariables();
       if (userQueryVariables != null) {
         Boolean overrideOff = (Boolean)userQueryVariables.get("cu_grouperTurnOffManager");
@@ -367,30 +400,45 @@ public class CustomUiContainer {
     }      
 
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
-    // else if can optin
-    final Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
-
-    MultiKey readerKey = new MultiKey(loggedInSubject.getSourceId(), loggedInSubject.getId(), group.getName(), "readers");
-    MultiKey updaterKey = new MultiKey(loggedInSubject.getSourceId(), loggedInSubject.getId(), group.getName(), "updaters");
-    Boolean readerResult = null;
-    Boolean updaterResult = null;
     
     if (this.manager == null) {
-      readerResult = subjectSourceSubjectIdGroupNameFieldNameCache.get(readerKey);
-      updaterResult = subjectSourceSubjectIdGroupNameFieldNameCache.get(updaterKey);
-      if (readerResult != null && updaterResult != null) {
-        this.manager = readerResult && updaterResult;
+      
+      String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupCanSeeScreenState();
+      
+      if (!StringUtils.isBlank(groupUuidOrName)) {
+        Subject subjectLoggedIn = GrouperUiFilter.retrieveSubjectLoggedIn();
+        
+        this.manager = MembershipFinder.hasMemberCacheNoCheckSecurity(groupUuidOrName, subjectLoggedIn);
+        
       }
     }
-
+    
     if (this.manager == null) {
-      readerResult = group.canHavePrivilege(loggedInSubject, "readers", false);
-      updaterResult = group.canHavePrivilege(loggedInSubject, "updaters", false);
+      // else if can optin
+      final Group group = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().getGuiGroup().getGroup();
   
-      this.manager = readerResult && updaterResult;
-      
-      subjectSourceSubjectIdGroupNameFieldNameCache.put(readerKey, readerResult);
-      subjectSourceSubjectIdGroupNameFieldNameCache.put(updaterKey, updaterResult);
+      MultiKey readerKey = new MultiKey(loggedInSubject.getSourceId(), loggedInSubject.getId(), group.getName(), "readers");
+      MultiKey updaterKey = new MultiKey(loggedInSubject.getSourceId(), loggedInSubject.getId(), group.getName(), "updaters");
+      Boolean readerResult = null;
+      Boolean updaterResult = null;
+    
+      if (this.manager == null) {
+        readerResult = subjectSourceSubjectIdGroupNameFieldNameCache.get(readerKey);
+        updaterResult = subjectSourceSubjectIdGroupNameFieldNameCache.get(updaterKey);
+        if (readerResult != null && updaterResult != null) {
+          this.manager = readerResult && updaterResult;
+        }
+      }
+    
+      if (this.manager == null) {
+        readerResult = group.canHavePrivilege(loggedInSubject, "readers", false);
+        updaterResult = group.canHavePrivilege(loggedInSubject, "updaters", false);
+    
+        this.manager = readerResult && updaterResult;
+        
+        subjectSourceSubjectIdGroupNameFieldNameCache.put(readerKey, readerResult);
+        subjectSourceSubjectIdGroupNameFieldNameCache.put(updaterKey, updaterResult);
+      }
     }
     return this.manager;
   }
@@ -599,6 +647,8 @@ public class CustomUiContainer {
   }
   
   private String currentConfigSuffix;
+
+  private boolean managerAction;
   
   public String getCurrentConfigSuffix() {
     return currentConfigSuffix;
@@ -607,6 +657,19 @@ public class CustomUiContainer {
   
   public void setCurrentConfigSuffix(String currentConfigSuffix) {
     this.currentConfigSuffix = currentConfigSuffix;
+  }
+
+  
+
+  
+  public boolean isManagerAction() {
+    return managerAction;
+  }
+
+
+  public void setManagerAction(boolean theManagerAction) {
+    this.managerAction = theManagerAction;
+    
   }
   
 }

@@ -1001,7 +1001,15 @@ public class GrouperScim2ApiCommands {
       if (StringUtils.equals(fieldName, "id")) {
         urlSuffix = "/Groups/" + GrouperUtil.escapeUrlEncode(fieldValue);
       } else {
-        urlSuffix = "/Groups?filter=" + GrouperUtil.escapeUrlEncode(fieldName)
+        int pageSize = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueInt(
+                "grouper.wsBearerToken." + configId + ".pageSize", 50);
+        pageSize = GrouperLoaderConfig.retrieveConfig()
+            .propertyValueInt(
+                "grouper.wsBearerToken." + configId + ".groupPageSize", pageSize);
+
+        // paging in there for bitwarden
+        urlSuffix = "/Groups?startIndex=1&count="+pageSize+"&filter=" + GrouperUtil.escapeUrlEncode(fieldName)
             + "%20eq%20" + GrouperUtil.escapeUrlEncode("\"" + StringEscapeUtils.escapeJson(fieldValue) + "\"");
       }
       

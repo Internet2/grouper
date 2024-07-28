@@ -1,29 +1,38 @@
 = Grouper External Authentication Plugin
 
-Grouper plugin that provides configurable authentication. Features include
+Grouper plugin that provides configurable authentication. The plugin uses version 5.7.2 of pac4j, a standalone
+authentication library. Features include:
 
 * Authentication for UI, without requiring a separate process or container
 * Supports SAML2, OIDC, and CAS
 
-== Usage
 
-=== Grouper Version 4.x
+
+== Setup for Grouper
 
 NOTE: For a fully integrated sample configuration, see the docker-compose setup in the `src/test/docker` folder of the Git
 repository. The environment includes sample Grouper configurations for SAML2, OIDC, or CAS, along with a Shibboleth IDP
 that can authenticate Grouper using any of these methods.
 
-. Add plugin to Grouper image (latest versions can be downloaded from https://github.internet2.edu/internet2/grouper-ext-auth/releases[])
-+
+=== Adding the plugin jar to the image
+
+The latest version of the pac4j plugin jar can be downloaded from https://repo1.maven.org/maven2/edu/internet2/middleware/grouper/grouper-ext-auth/[the Maven repository]
+(if available), or https://github.internet2.edu/internet2/grouper-ext-auth/releases[]). The downloaded file can have the
+version number in the file name, but it is  recommended to leave it out of the name when copied into the container. This
+way, the configuration does not need to  be changed every time the version changes. For example:
+
 [source, dockerfile]
 ----
 COPY grouper-authentication-plugin.jar /opt/grouper/plugins
 ----
 
-. Enable Plugins
-+
-In `grouper.properties`, add properties
-+
+The default location for plugin jars is
+/opt/grouper/plugins, but you can can use an alternate location and configure Grouper to use that directory.
+
+=== Enabling the plugin in grouper.properties
+
+In grouper.properties, add the following:
+
 [source, properties]
 ----
 grouper.osgi.enable = true
@@ -32,21 +41,27 @@ grouper.osgi.framework.boot.delegation=org.osgi.*,javax.*,org.apache.commons.log
 
 grouperOsgiPlugin.0.jarName = grouper-authentication-plugin.jar
 ----
-+
-`grouper.osgi.jar.dir` should point to the directory you copied the file to in your image build file
-+
-`grouperOsgiPlugin.0.jarName` should be the name of the file you copied in
 
-. Configure UI
-+
-In `grouper-ui.properties, add properties appropriate for desired authentication. Note that only one can be used.
-+
-Most of the configuration for the underlying authentication library is exposed to the Grouper configuration. Any field in the Java classes can be directly set using the field name or a setter used by using a related property (setting `attribute=value` will call `setAttribute(value)` )
+The `grouper.osgi.jar.dir` property should point to the directory you copied the file to in your image build file.
+Property `grouperOsgiPlugin.0.jarName` is the name of the file you copied in, inside of the OSGI plugin directory.
 
-.. SAML2
-+
+=== Configuring the UI or WS for authentication
+
+In grouper-ui.properties (or grouper-ws.properties for WS), add properties appropriate for desired authentication. Note that only one authentication
+type can be used.
+
+If you do not already have a grouper.properties and/or grouper-ui.properties
+because you are storing configuration in the database, it is recommended to create files specifically for the pac4 configuration,
+so that you can fix any login issues offline, in case you are locked out of the UI.
+
+Most of the configuration for the underlying authentication library is exposed to the Grouper configuration. Any field
+in the Java classes can be directly set using the field name or a setter used by using a related property (setting
+`attribute=value` will call `setAttribute(value)` )
+
+==== SAML2
+
 For SAML2, for example:
-+
+
 [source,properties]
 ----
 grouper.is.extAuth.enabled = true
@@ -57,25 +72,47 @@ external.authentication.saml.identityProviderEntityId = https://idp-host-name/id
 external.authentication.saml.serviceProviderEntityId = http://localhost:8080/grouper
 external.authentication.saml.serviceProviderMetadataPath = file:/opt/grouper/sp-metadata.xml
 external.authentication.saml.identityProviderMetadataPath = file:/opt/grouper/idp-metadata.xml
-external.authentication.saml.keystorePath = file:/opt/grouper/here.key
+external.authentication.saml.keystorePath = file:/opt/grouper/sp-keystore.p12
+#external.authentication.saml.keyStoreType = PKCS12
 external.authentication.saml.keystorePassword = testme
 external.authentication.saml.privateKeyPassword = testme
 external.authentication.saml.attributeAsId = urn:oid:0.9.2342.19200300.100.1.1
-----
-The three __Path properties above (serviceProviderMetadataPath, identityProviderMetadataPath, and keystorePath) can handle various urls:
 
+#external.authentication.exclusions = /status
+
+----
+The three Path properties above (serviceProviderMetadataPath, identityProviderMetadataPath, and keystorePath) can handle various urls:
 
 * the _resource:_ or the _classpath:_ prefixes refer to a classpath
 * the _http:_ or the _https:_ prefixes refer to a web url
 * the _file:_ prefix or no prefix at all refer to a local filesystem file
 
-+
-For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/saml.html[] and https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-saml/src/main/java/org/pac4j/saml/config/SAML2Configuration.java[]
+The serviceProviderMetadataPath is optional, and pac4j will generate a new file at that location if it does not exist.
+If there is an existing SP metadata definition, it will use the HTTP-POST ACS url as the callback endpoint after login.
+However, the recommended callback URL to use is `<grouperContextUrl>/callback` for proper functionality. If pac4j generates
+the SP xml file, it will use `<grouperContextUrl>/callback?client_name=client` for the ACS url. The ACS url needs to be
+registered with your IDP for login to succeed.
 
-.. OIDC
-+
+Pac4j uses a keystore instead of separate PEM files for the SP key and certificate. Either a JKS or PKCS12 file type can
+be used. The `keyStoreType` configuration property is optional, as pac4j should be able to determine the file format
+without this. The `keystorePassword` and `privateKeyPassword` refer to the passphrase used when setting up the keystore.
+
+The `attributeAsId` value is optional, and refers to the OID of a response attribute to use for the username, if it is
+not in the  nameId field.
+
+Property `external.authentication.exclusions` is optional, and represents the URI's (comma-separated) that will be allowed without
+authentication. The default is /status, so that the health check endpoint can be accessed by external monitoring systems.
+To disable this exclusion, set the value to blank.
+
+For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/saml.html[] and
+https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-saml/src/main/java/org/pac4j/saml/config/SAML2Configuration.java[]
+
+See the section below for specific instructions on migrating from a Shibboleth SP to pac4j.
+
+====  OIDC
+
 For OIDC, for example:
-+
+
 [source,properties]
 ----
 grouper.is.extAuth.enabled = true
@@ -88,13 +125,13 @@ external.authentication.oidc.secret = *****
 external.authentication.oidc.claimAsUsername = preferred_username
 
 ----
-+
+
 For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/openid-connect.html[] and https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-oidc/src/main/java/org/pac4j/oidc/config/OidcConfiguration.java[]
 
-.. CAS
-+
+==== CAS
+
 For CAS, for example:
-+
+
 [source,properties]
 ----
 grouper.is.extAuth.enabled = true
@@ -105,13 +142,61 @@ external.authentication.provider = cas
 external.authentication.cas.prefixUrl = https://idp-host-name/idp/profile/cas
 external.authentication.cas.protocol = CAS20
 ----
-+
+
 For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/cas.html[] and https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-cas/src/main/java/org/pac4j/cas/config/CasConfiguration.java[]
 
-=== Version 5.x+
+=== Converting a Grouper image from Shibboleth SP to pac4j configuration
 
-TODO
+The following tips describe the basic steps needed to move from a Shibboleth SP running inside a Grouper container to a
+pac4j SAML configuration.
+
+1) Include the pac4j jar file into your image (or mount it at runtime)
+
+Download the jar, then copy into the image via the Dockerfile or mount into a running container, as described above.
+
+2) Convert the SP cert and key PEM files to a keystore
+
+Pac4j uses a keystore to read certificates instead of PEM files. The locations of the key and certificate files are
+defined in your /etc/shibboleth/shibboleth2.xml file, in the `<CredentialResolver>` section. use the following command to convert
+these into a PKCS12 keystore, renaming filenames as needed. The command will ask for a password, which will need to go
+into the configuration in the `keystorePassword` and `privateKeyPassword` properties.
+
+[source,bash]
+----
+openssl pkcs12 -export -out sp-keystore.p12 -inkey sp-key.pem -in sp-cert.pem
+----
+
+If there is also a CA certificate chain to include, the `-certfile ca-cert.pem` option can be added.
+
+3) Extract other properties
+
+Other files and properties needed for pac4j can be extracted from shibboleth2.xml, or from the currently running Shibboleth SP:
+
+- identityProviderEntityId: From shibboleth2.xml, `<SSO entityID="YOUR_IDP_ENTITYID" ...>`
+- serviceProviderEntityId: From shibboleth2.xml, `<ApplicationDefaults entityID="YOUR_SP_ENTITYID" ...>`
+- serviceProviderMetadataPath; The location of the SP metadata, which will be generated by pac4j if the file is missing.
+If pac4j generates the file, it will use `<grouperContextUrl>/callback?client_name=client` as the ACS callback endpoint.
+If you use your own existing SP metadata (from existing SP or IDP metadata files, or the deprecated /shibboleth.SSO/Metadata
+endpoint), you can set your own ACS url, but `<grouperContextUrl>/callback` (with or without extra query parameters) is
+the only one to reliably work.
+- identityProviderMetadataPath: From shibboleth2.xml, `<MetadataProvider>` node. This could be either a URL or a file.
+- attributeAsId (optional): If you are not using a nameId for the username and instead getting it from an attribute, this is the
+OID for it. The attribute you are currently using will be in shibboleth2.xml, likely the first item in the
+`ApplicationDefaults REMOTE_USER="..."` list. The OID for it is in its entry in attribute-map.xml.
+
+4) Change the ACS endpoint
+
+The callback endpoint after login will no longer be `/Shibboleth.sso/SAML2/POST`. The correct one for pac4j will be
+`<grouperContextUrl>/callback?client_name=client` (default), or a custom one if you have it defined in your SP metadata.
+This will need to be changed in the `<AssertionConsumerService>` SAML:2.0:bindings:HTTP-POST
+entry in the IDP metadata.
+
+5) Add files to the Docker image, and update grouper.properties and grouper-ui.properties.
+
+The keystore and metadata files need to be added to the Docker image, or mounted at runtime. Pac4j configuration is to be
+added to the appropriate Grouper configuration files residing in /opt/grouper/grouperWebapp/WEB-INF/classes.
 
 == More Information
 
-If assistance is needed (e.g., bugs, errors, configuration samples), feel free to open a ticket in the github repository or ask on the Slack channel
+If assistance is needed (e.g., bugs, errors, configuration samples), feel free to open a ticket in the github repository
+or ask on the #incommon-grouper Slack channel.

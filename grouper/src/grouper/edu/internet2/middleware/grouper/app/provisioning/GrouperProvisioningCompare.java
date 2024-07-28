@@ -7,11 +7,15 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
@@ -1581,6 +1585,41 @@ public class GrouperProvisioningCompare {
     int groupDeleteSkipsDueToUnmarkedProvisionable = 0;
     
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
+      
+      Set<String> groupIdsDeletedInGrouper = new HashSet<String>();
+      
+      if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfUnmarkedProvisionable()) {
+        // determine if non-provisionable groups are deleted in grouper or not
+        Set<String> groupIdsTotal = new HashSet<String>();
+        
+        for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappersForDelete) {
+          ProvisioningGroup groupToDelete = null;
+          
+          if (provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
+            groupToDelete = provisioningGroupWrapper.getTargetProvisioningGroup();
+          } else {
+            groupToDelete = provisioningGroupWrapper.getGrouperTargetGroup();
+          }
+          
+          if (groupToDelete == null) {
+            continue;
+          }
+          
+          if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+            groupIdsTotal.add(provisioningGroupWrapper.getGcGrouperSyncGroup().getGroupId());
+          }
+        }
+        
+        Set<String> groupIdsExistInGrouper = GrouperDAOFactory.getFactory().getGroup().findByUuids(groupIdsTotal, false)
+            .stream()
+            .filter(Objects::nonNull)
+            .map(Group::getId)
+            .collect(Collectors.toSet());
+        
+        groupIdsDeletedInGrouper.addAll(groupIdsTotal);
+        groupIdsDeletedInGrouper.removeAll(groupIdsExistInGrouper);
+      }
+            
       for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappersForDelete) {
         
         ProvisioningGroup groupToDelete = null;
@@ -1599,8 +1638,10 @@ public class GrouperProvisioningCompare {
         
         if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfUnmarkedProvisionable() && 
             provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
-          groupDeleteSkipsDueToUnmarkedProvisionable++;
-          continue;
+          if (!groupIdsDeletedInGrouper.contains(provisioningGroupWrapper.getGcGrouperSyncGroup().getGroupId())) {
+            groupDeleteSkipsDueToUnmarkedProvisionable++;
+            continue;
+          }
         }
         
         if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfNotExistInGrouper()) {

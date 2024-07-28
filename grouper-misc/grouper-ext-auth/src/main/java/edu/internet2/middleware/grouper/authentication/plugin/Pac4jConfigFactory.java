@@ -41,10 +41,12 @@ public class Pac4jConfigFactory implements ConfigFactory {
 
             PathMatcher pathMatcher = new PathMatcher();
 
-            for (String exclusion : grouperConfig.propertyValueString("external.authentication.exclusions", "/status").split(",")) {
-                pathMatcher.excludeBranch(StringUtils.trim(exclusion));
+            String securityExclusionsPaths = grouperConfig.propertyValueString("external.authentication.exclusions", "/status");
+            if (securityExclusionsPaths != null) {
+                for (String exclusion : securityExclusionsPaths.split(",")) {
+                    pathMatcher.excludeBranch(StringUtils.trim(exclusion));
+                }
             }
-
             config.addMatcher("securityExclusions", pathMatcher);
             return config;
         } catch (IllegalAccessException | InstantiationException | NoSuchMethodException | InvocationTargetException e) {

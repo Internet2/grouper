@@ -484,6 +484,29 @@ public enum CustomUiUserQueryType {
 
       CustomUiVariableType customUiVariableType = CustomUiVariableType.valueOfIgnoreCase(customUiUserQueryConfigBean.getVariableType(), false);
 
+      // bind vars from other vars
+      for (CustomUiUserQueryConfigBean customUiUserQueryConfigBeanCurrent : customUiEngine.customUiUserQueryConfigBeans()) {
+
+        if (StringUtils.equals(customUiUserQueryConfigBean.getBindVar0(), customUiUserQueryConfigBeanCurrent.getVariableToAssign())) {
+         
+          customUiUserQueryConfigBean.setBindVar0(GrouperUtil.stringValue(customUiEngine.userQueryVariables().get(customUiUserQueryConfigBeanCurrent.getVariableToAssign())));
+          
+        }
+        
+        if (StringUtils.equals(customUiUserQueryConfigBean.getBindVar1(), customUiUserQueryConfigBeanCurrent.getVariableToAssign())) {
+          
+          customUiUserQueryConfigBean.setBindVar1(GrouperUtil.stringValue(customUiEngine.userQueryVariables().get(customUiUserQueryConfigBeanCurrent.getVariableToAssign())));
+          
+        }
+        
+        if (StringUtils.equals(customUiUserQueryConfigBean.getBindVar2(), customUiUserQueryConfigBeanCurrent.getVariableToAssign())) {
+          
+          customUiUserQueryConfigBean.setBindVar2(GrouperUtil.stringValue(customUiEngine.userQueryVariables().get(customUiUserQueryConfigBeanCurrent.getVariableToAssign())));
+          
+        }
+        
+      }
+      
       Object result = customUiSql.sqlResult(customUiUserQueryConfigBean.getConfigId(), customUiUserQueryConfigBean.getQuery(), 
           group, stem, attributeDef, subject, customUiUserQueryConfigBean.getBindVar0(), customUiUserQueryConfigBean.getBindVar0type(), 
           customUiUserQueryConfigBean.getBindVar1(), customUiUserQueryConfigBean.getBindVar1type(), customUiUserQueryConfigBean.getBindVar2(), 
@@ -507,6 +530,50 @@ public enum CustomUiUserQueryType {
           null, null, null, null, argumentMap);
     }
   }, 
+  /**
+   * do a url query
+   */
+  url {
+
+    @Override
+    public Set<String> requiredFieldNames() {
+      return urlRequiredFieldNames;
+    }
+
+    @Override
+    public Set<String> optionalFieldNames() {
+      return urlOptionaldFieldNames;
+    }
+
+    @Override
+    public void validate(CustomUiUserQueryConfigBean customUiUserQueryConfigBean,
+        Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
+      
+    }
+
+    @Override
+    public Object evaluate(CustomUiEngine customUiEngine,
+        CustomUiUserQueryConfigBean customUiUserQueryConfigBean, Group group,
+        Subject subject, Stem stem, AttributeDef attributeDef) {
+      return null;
+    }
+
+    @Override
+    public String description(CustomUiEngine customUiEngine,
+        CustomUiUserQueryConfigBean customUiUserQueryConfigBean, Group group,
+        Subject subject, Stem stem, AttributeDef attributeDef,
+        Map<String, Object> argumentMap) {
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionUrl']}", 
+          group, stem, attributeDef, subject, argumentMap, true);
+    }
+
+    @Override
+    public String label(Map<String, Object> argumentMap) {
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryTypeLabel_" + this.name().toLowerCase() + "']}", 
+          null, null, null, null, argumentMap);
+    }
+  }, 
+
   /**
    * check provisioning in box
    */
@@ -721,6 +788,26 @@ public enum CustomUiUserQueryType {
   /**
    * sql required
    */
+  private static Set<String> urlRequiredFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN
+      );
+
+  /**
+   * sql optional
+   */
+  private static Set<String> urlOptionaldFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_ENABLED, 
+      CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_ORDER,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN_ON_ERROR,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TYPE
+      );
+    
+  /**
+   * url required
+   */
   private static Set<String> sqlRequiredFieldNames = GrouperUtil.toSet(
       CustomUiUserQueryConfigBean.FIELD_LABEL,
       CustomUiUserQueryConfigBean.FIELD_QUERY,
@@ -729,7 +816,7 @@ public enum CustomUiUserQueryType {
       );
 
   /**
-   * sql optional
+   * url optional
    */
   private static Set<String> sqlOptionaldFieldNames = GrouperUtil.toSet(
       CustomUiUserQueryConfigBean.FIELD_ATTRIBUTE_DEF_ID, 
