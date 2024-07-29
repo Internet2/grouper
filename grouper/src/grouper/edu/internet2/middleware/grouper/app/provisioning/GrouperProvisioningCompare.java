@@ -685,11 +685,13 @@ public class GrouperProvisioningCompare {
             if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject())) {
 
               if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, grouperValue)) {
-                GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "unresolvableDeleteMembership", 1);
-                grouperProvisioningUpdatable.addInternal_objectChange(
-                    new ProvisioningObjectChange(attributeName, 
-                        ProvisioningObjectChangeAction.delete, targetValue, null)
-                    );
+                if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
+                  GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "unresolvableDeleteMembership", 1);
+                  grouperProvisioningUpdatable.addInternal_objectChange(
+                      new ProvisioningObjectChange(attributeName, 
+                          ProvisioningObjectChangeAction.delete, targetValue, null)
+                      );
+                }
               } else {
                 grouperProvisioningUpdatable.addInternal_objectChange(
                     new ProvisioningObjectChange(attributeName, 
@@ -780,10 +782,12 @@ public class GrouperProvisioningCompare {
               provisioningMembershipWrapper = GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).get(deleteValue);
             }
             if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject())) {
-              grouperProvisioningUpdatable.addInternal_objectChange(
-                  new ProvisioningObjectChange(attributeName, 
-                      ProvisioningObjectChangeAction.delete, deleteValue, null)
-                  );
+              if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
+                grouperProvisioningUpdatable.addInternal_objectChange(
+                    new ProvisioningObjectChange(attributeName, 
+                        ProvisioningObjectChangeAction.delete, deleteValue, null)
+                    );
+              }
             }
           }  
         }
@@ -1585,15 +1589,18 @@ public class GrouperProvisioningCompare {
     int groupDeleteSkipsDueToUnmarkedProvisionable = 0;
     
     if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroups()) {
-      
-      Set<String> groupIdsDeletedInGrouper = new HashSet<String>();
-      
+            
       if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfUnmarkedProvisionable()) {
         // determine if non-provisionable groups are deleted in grouper or not
         Set<String> groupIdsTotal = new HashSet<String>();
+        Map<String, ProvisioningGroupWrapper> groupIdsToProvisioningGroupWrapper = new HashMap<String, ProvisioningGroupWrapper>();
         
         for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappersForDelete) {
           ProvisioningGroup groupToDelete = null;
+          
+          if (provisioningGroupWrapper.getProvisioningStateGroup().isGroupExistsInGrouper() != null) {
+            continue;
+          }
           
           if (provisioningGroupWrapper.getTargetProvisioningGroup() != null) {
             groupToDelete = provisioningGroupWrapper.getTargetProvisioningGroup();
@@ -1606,7 +1613,9 @@ public class GrouperProvisioningCompare {
           }
           
           if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
-            groupIdsTotal.add(provisioningGroupWrapper.getGcGrouperSyncGroup().getGroupId());
+            String groupId = provisioningGroupWrapper.getGcGrouperSyncGroup().getGroupId();
+            groupIdsTotal.add(groupId);
+            groupIdsToProvisioningGroupWrapper.put(groupId, provisioningGroupWrapper);
           }
         }
         
@@ -1616,8 +1625,10 @@ public class GrouperProvisioningCompare {
             .map(Group::getId)
             .collect(Collectors.toSet());
         
-        groupIdsDeletedInGrouper.addAll(groupIdsTotal);
-        groupIdsDeletedInGrouper.removeAll(groupIdsExistInGrouper);
+        for (String groupId : groupIdsTotal) {
+          boolean groupExistsInGrouper = groupIdsExistInGrouper.contains(groupId);
+          groupIdsToProvisioningGroupWrapper.get(groupId).getProvisioningStateGroup().setGroupExistsInGrouper(groupExistsInGrouper);
+        }
       }
             
       for (ProvisioningGroupWrapper provisioningGroupWrapper : provisioningGroupWrappersForDelete) {
@@ -1638,7 +1649,10 @@ public class GrouperProvisioningCompare {
         
         if (!this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfUnmarkedProvisionable() && 
             provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
-          if (!groupIdsDeletedInGrouper.contains(provisioningGroupWrapper.getGcGrouperSyncGroup().getGroupId())) {
+          
+          boolean groupExistsInGrouper = provisioningGroupWrapper.getProvisioningStateGroup().isGroupExistsInGrouper();
+          
+          if (groupExistsInGrouper) {
             groupDeleteSkipsDueToUnmarkedProvisionable++;
             continue;
           }

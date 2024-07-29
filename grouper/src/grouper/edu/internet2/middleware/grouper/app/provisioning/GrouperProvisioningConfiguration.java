@@ -2148,6 +2148,8 @@ public abstract class GrouperProvisioningConfiguration {
 
   private boolean deleteGroupsIfUnmarkedProvisionable = true;
 
+  private boolean deleteMembershipsIfGroupUnmarkedProvisionable = true;
+
   /**
    * 
    * @return
@@ -2185,6 +2187,15 @@ public abstract class GrouperProvisioningConfiguration {
   public void setDeleteGroupsIfUnmarkedProvisionable(
       boolean deleteGroupsIfUnmarkedProvisionable) {
     this.deleteGroupsIfUnmarkedProvisionable = deleteGroupsIfUnmarkedProvisionable;
+  }
+  
+  public boolean isDeleteMembershipsIfGroupUnmarkedProvisionable() {
+    return deleteMembershipsIfGroupUnmarkedProvisionable;
+  }
+  
+  public void setDeleteMembershipsIfGroupUnmarkedProvisionable(
+      boolean deleteMembershipsIfGroupUnmarkedProvisionable) {
+    this.deleteMembershipsIfGroupUnmarkedProvisionable = deleteMembershipsIfGroupUnmarkedProvisionable;
   }
 
   public boolean isDeleteMembershipsIfGrouperCreated() {
@@ -2940,6 +2951,7 @@ public abstract class GrouperProvisioningConfiguration {
   
       this.deleteMembershipsIfGrouperCreated = false;
       
+      this.deleteMembershipsIfGroupUnmarkedProvisionable = false;
     }
 
     
@@ -2962,6 +2974,8 @@ public abstract class GrouperProvisioningConfiguration {
 
       this.deleteMembershipsIfGrouperCreated = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGrouperCreated", false), 
           (deleteMemberships && !this.deleteMembershipsIfNotExistInGrouper && !this.deleteMembershipsIfGrouperDeleted));
+      
+      this.deleteMembershipsIfGroupUnmarkedProvisionable = GrouperUtil.booleanValue(this.retrieveConfigBoolean("deleteMembershipsIfGroupUnmarkedProvisionable", false), true);
     }
 
     boolean errorHandlingShow = GrouperUtil.booleanValue(this.retrieveConfigBoolean("errorHandlingShow", false), false);

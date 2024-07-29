@@ -11,6 +11,8 @@ import java.util.TreeSet;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.Group;
+import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
@@ -1002,6 +1004,8 @@ public class GrouperProvisioningBehavior {
 
   private Boolean deleteGroupsIfUnmarkedProvisionable;
   
+  private Boolean deleteMembershipsIfGroupUnmarkedProvisionable;
+  
   private Boolean deleteGroupsIfGrouperDeleted;
 
   private Boolean deleteEntitiesIfGrouperCreated;
@@ -1212,9 +1216,29 @@ public class GrouperProvisioningBehavior {
    * @return false
    */
   public boolean isDeleteMembership(ProvisioningMembershipWrapper provisioningMembershipWrapper) {
-    
+
     if (provisioningMembershipWrapper == null) {
       return this.isDeleteMembershipsIfNotExistInGrouper();
+    }
+    
+    if ((this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOperateOnGrouperGroups() && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteGroupsIfUnmarkedProvisionable()) ||
+        (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isOperateOnGrouperMemberships() && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfGroupUnmarkedProvisionable())) {
+      
+      ProvisioningGroupWrapper provisioningGroupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+      if (provisioningGroupWrapper != null) {
+        if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && !provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable()) {
+          // we don't delete unmarked groups, the group is unmarked.  So we just need to verify that it's not deleted.
+          if (provisioningGroupWrapper.getProvisioningStateGroup().isGroupExistsInGrouper() == null) {
+            // TODO is there a way to do this in batch for all the groups of interest or is this situation infrequent enough that it doesn't matter??
+            Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(provisioningGroupWrapper.getGcGrouperSyncGroup().getGroupId(), false);
+            provisioningGroupWrapper.getProvisioningStateGroup().setGroupExistsInGrouper(group != null);
+          }
+          
+          if (provisioningGroupWrapper.getProvisioningStateGroup().isGroupExistsInGrouper()) {
+            return false;
+          }
+        }
+      }
     }
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()) {
@@ -1508,6 +1532,15 @@ public class GrouperProvisioningBehavior {
     
     deleteGroupsIfUnmarkedProvisionable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteGroupsIfUnmarkedProvisionable();
     return deleteGroupsIfUnmarkedProvisionable;
+  }
+  
+  public boolean isDeleteMembershipsIfGroupUnmarkedProvisionable() {
+    if (this.deleteMembershipsIfGroupUnmarkedProvisionable != null) {
+      return deleteMembershipsIfGroupUnmarkedProvisionable;
+    }
+    
+    deleteMembershipsIfGroupUnmarkedProvisionable = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsIfGroupUnmarkedProvisionable();
+    return deleteMembershipsIfGroupUnmarkedProvisionable;
   }
   
   public boolean isDeleteGroupsIfNotExistInGrouper() {

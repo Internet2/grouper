@@ -1320,7 +1320,7 @@ public class GrouperProvisioningConfigurationValidation {
     boolean anythingSet = false;
     for (String key : new String[] { "insertMemberships", "selectMemberships", "deleteMemberships", "deleteMembershipsIfNotExistInGrouper", 
         "deleteMembershipsIfGrouperDeleted", "deleteMembershipsIfGrouperCreated", "deleteValueIfManagedByGrouper",
-        "deleteMembershipsOnlyInTrackedGroups"}) {
+        "deleteMembershipsOnlyInTrackedGroups","deleteMembershipsIfGroupUnmarkedProvisionable"}) {
       if (!customizeCrud) {
 
           if (!StringUtils.isBlank(suffixToConfigValue.get(key))) {

@@ -223,4 +223,23 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   public void setTranslatedMemberships(boolean theTranslatedMemberships) {
     this.translatedMemberships = theTranslatedMemberships;
   }
+  
+  private Boolean groupExistsInGrouper = null;
+
+  /**
+   * Does this group exist in grouper.  null means it hasn't been checked.
+   * @return boolean
+   */
+  public Boolean isGroupExistsInGrouper() {
+    return groupExistsInGrouper;
+  }
+
+  /**
+   * @param groupExistsInGrouper
+   */
+  public void setGroupExistsInGrouper(Boolean groupExistsInGrouper) {
+    this.groupExistsInGrouper = groupExistsInGrouper;
+  }
+  
+  
 }
