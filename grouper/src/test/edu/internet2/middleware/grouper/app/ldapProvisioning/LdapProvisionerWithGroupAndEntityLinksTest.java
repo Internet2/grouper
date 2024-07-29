@@ -269,7 +269,8 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
           
     Subject jsmith = SubjectFinder.findById("jsmith", true);
     Subject banderson = SubjectFinder.findById("banderson", true);
-    
+    Subject kwhite = SubjectFinder.findById("kwhite", true);
+
     if (!isFull) {
       fullProvision();
       incrementalProvision();
@@ -388,6 +389,10 @@ public class LdapProvisionerWithGroupAndEntityLinksTest extends GrouperProvision
     testGroup4.delete();
     testGroup5.delete();
     testGroup6.delete();
+    
+    // changes memberships for testGroup, should not change in ldap
+    testGroup.deleteMember(jsmith);
+    testGroup.addMember(kwhite);
     
     if (isFull) {
       fullProvision();

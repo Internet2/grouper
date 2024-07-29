@@ -150,7 +150,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
     //TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
-    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsIncremental"));
+    TestRunner.run(new SqlProvisionerTest("testSqlProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalseIncremental"));
     
   }
   
@@ -231,6 +231,176 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     dropTableSyncTable("testgrouper_prov_mship1");
     
   }
+  
+  public void testSqlProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalseFull() {
+    sqlProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalse(true);
+  }
+
+  public void testSqlProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalseIncremental() {
+    sqlProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalse(false);
+  }
+  
+  public void sqlProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalse(boolean isFull) {
+    
+    SqlProvisionerTestUtils.configureSqlProvisioner(new SqlProvisionerTestConfigInput()
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignMembershipTableName("testgrouper_prov_mship0")
+        .assignMembershipAttributeCount(2)
+    );
+
+    new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner.sqlProvTest.deleteMembershipsIfGroupUnmarkedProvisionable").value("false").store();
+
+    if (!isFull) {
+      fullProvision();
+      incrementalProvision();
+    }
+    
+    new StemSave(this.grouperSession).assignName("test").save();
+    
+    // mark some groups to provision
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test:testGroup2").save();
+    Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:testGroup3").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0);
+    testGroup.addMember(SubjectTestHelper.SUBJ1);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ0);
+    testGroup2.addMember(SubjectTestHelper.SUBJ2);
+    
+    testGroup3.addMember(SubjectTestHelper.SUBJ1);
+    testGroup3.addMember(SubjectTestHelper.SUBJ2);
+    
+    final GrouperProvisioningAttributeValue attributeValueProvision = new GrouperProvisioningAttributeValue();
+    attributeValueProvision.setDirectAssignment(true);
+    attributeValueProvision.setDoProvision("sqlProvTest");
+    attributeValueProvision.setTargetName("sqlProvTest");
+    
+    final GrouperProvisioningAttributeValue attributeValueNotProvision = new GrouperProvisioningAttributeValue();
+    attributeValueNotProvision.setDirectAssignment(true);
+    attributeValueNotProvision.setDoProvision(null);
+    attributeValueNotProvision.setTargetName("sqlProvTest");
+
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValueProvision, testGroup);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValueProvision, testGroup2);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValueProvision, testGroup3);
+    
+    //lets sync these over
+
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    }
+    
+    String sql = "select group_name, subject_id from testgrouper_prov_mship0";
+    
+    List<Object[]> dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    Set<MultiKey> membershipsInTable = new HashSet<MultiKey>();    
+    for (Object[] row: dataInTable) {
+      membershipsInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(6, membershipsInTable.size());
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.1")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.2")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup3", "test.subject.1")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup3", "test.subject.2")));
+
+    
+    // mark as do not provision
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValueNotProvision, testGroup);
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValueNotProvision, testGroup2);
+
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    }
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    membershipsInTable = new HashSet<MultiKey>();    
+    for (Object[] row: dataInTable) {
+      membershipsInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(6, membershipsInTable.size());
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.1")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.2")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup3", "test.subject.1")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup3", "test.subject.2")));
+
+    // check group sync objects
+    GcGrouperSync gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
+    assertFalse(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId()).isProvisionable());
+    assertFalse(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId()).isProvisionable());
+    assertTrue(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId()).isProvisionable());
+    
+    // membership changes shouldn't update unmarked groups
+    testGroup.addMember(SubjectTestHelper.SUBJ3);
+    testGroup2.addMember(SubjectTestHelper.SUBJ3);
+    testGroup3.addMember(SubjectTestHelper.SUBJ3);
+    testGroup.deleteMember(SubjectTestHelper.SUBJ0);
+    
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    }
+    
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    membershipsInTable = new HashSet<MultiKey>();    
+    for (Object[] row: dataInTable) {
+      membershipsInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(7, membershipsInTable.size());
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup", "test.subject.1")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.2")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup3", "test.subject.1")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup3", "test.subject.2")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup3", "test.subject.3")));
+
+    // check group sync objects
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
+    assertFalse(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId()).isProvisionable());
+    assertFalse(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId()).isProvisionable());
+    assertTrue(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId()).isProvisionable());
+    
+    
+    // delete groups
+    testGroup.delete();
+    testGroup3.delete();
+    
+    if (isFull) {
+      fullProvision();
+    } else {
+      incrementalProvision();
+    }
+
+    dataInTable = new GcDbAccess().sql(sql).selectList(Object[].class);
+    membershipsInTable = new HashSet<MultiKey>();    
+    for (Object[] row: dataInTable) {
+      membershipsInTable.add(new MultiKey(row));
+    }
+    
+    assertEquals(2, membershipsInTable.size());
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.0")));
+    assertTrue(membershipsInTable.contains(new MultiKey("test:testGroup2", "test.subject.2")));
+
+    // check group sync objects
+    gcGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, "sqlProvTest");
+    assertFalse(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup.getId()).isProvisionable());
+    assertFalse(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup2.getId()).isProvisionable());
+    assertFalse(gcGrouperSync.getGcGrouperSyncGroupDao().groupRetrieveByGroupId(testGroup3.getId()).isProvisionable());
+  }
+
   
   public void testSimpleMembershipGroupNameSubjectId() {
     
