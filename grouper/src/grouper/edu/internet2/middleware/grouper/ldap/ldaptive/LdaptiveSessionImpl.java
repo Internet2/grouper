@@ -22,6 +22,7 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -51,6 +52,7 @@ import org.ldaptive.ModifyOperation;
 import org.ldaptive.ModifyRequest;
 import org.ldaptive.ModifyResponse;
 import org.ldaptive.PooledConnectionFactory;
+import org.ldaptive.Result;
 import org.ldaptive.ResultCode;
 import org.ldaptive.SearchOperation;
 import org.ldaptive.SearchRequest;
@@ -60,8 +62,10 @@ import org.ldaptive.SimpleBindRequest;
 import org.ldaptive.control.util.PagedResultsClient;
 import org.ldaptive.dn.Dn;
 import org.ldaptive.handler.LdapEntryHandler;
+import org.ldaptive.handler.ResultPredicate;
 import org.ldaptive.handler.SearchResultHandler;
 import org.ldaptive.props.SearchRequestPropertySource;
+import org.ldaptive.referral.DefaultReferralConnectionFactory;
 import org.ldaptive.referral.FollowSearchReferralHandler;
 import org.ldaptive.referral.FollowSearchResultReferenceHandler;
 
@@ -480,16 +484,16 @@ public class LdaptiveSessionImpl implements LdapSession {
     if (LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers() != null) {
       resultHandlers.addAll(Arrays.asList(LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers()));
     }
-    
+
+    final Set<ResultCode> ignoreResultCodes = ldapConfig.getSearchIgnoreResultCodes();
     if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-      resultHandlers.add(new FollowSearchReferralHandler());
-      resultHandlers.add(new FollowSearchResultReferenceHandler());
+      resultHandlers.add(new FollowSearchReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())));
+      resultHandlers.add(new FollowSearchResultReferenceHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())));
+      ignoreResultCodes.add(ResultCode.REFERRAL);
     }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
-      search.setThrowCondition(result -> 
-        !result.getResultCode().equals(ResultCode.SUCCESS) && 
-        !ldapConfig.getSearchIgnoreResultCodes().contains(result.getResultCode()));
+      search.setThrowCondition(new IgnoreResultCodePredicate(ignoreResultCodes));
       if (entryHandlers != null) {
         search.setEntryHandlers(entryHandlers);
       }
@@ -499,9 +503,7 @@ public class LdaptiveSessionImpl implements LdapSession {
       response = search.execute(searchRequest);
     } else {
       PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
-      client.setThrowCondition(result ->
-        !result.getResultCode().equals(ResultCode.SUCCESS) &&
-          !ldapConfig.getSearchIgnoreResultCodes().contains(result.getResultCode()));
+      client.setThrowCondition(new IgnoreResultCodePredicate(ignoreResultCodes));
       if (entryHandlers != null) {
         client.setEntryHandlers(entryHandlers);
       }
@@ -523,15 +525,16 @@ public class LdaptiveSessionImpl implements LdapSession {
       LdapEntry rootLdapEntry;
 
       LdapConfiguration ldapConfig = LdapConfiguration.getConfig(ldapServerId);
+      final Set<ResultCode> ignoreResultCodes = ldapConfig.getSearchIgnoreResultCodes();
 
       SearchOperation search = new SearchOperation(ldap);
-      search.setThrowCondition(result -> 
-        !result.getResultCode().equals(ResultCode.SUCCESS) && 
-        !ldapConfig.getSearchIgnoreResultCodes().contains(result.getResultCode()));
-      
       if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-        search.setSearchResultHandlers(new FollowSearchReferralHandler(), new FollowSearchResultReferenceHandler());
+        search.setSearchResultHandlers(
+          new FollowSearchReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())),
+          new FollowSearchResultReferenceHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())));
+        ignoreResultCodes.add(ResultCode.REFERRAL);
       }
+      search.setThrowCondition(new IgnoreResultCodePredicate(ldapConfig.getSearchIgnoreResultCodes()));
 
       SearchResponse response = search.execute(SearchRequest.builder()
         .dn("")
@@ -980,6 +983,26 @@ public class LdaptiveSessionImpl implements LdapSession {
           poolMap.remove(id);
         }
       }
+    }
+  }
+
+  /** Custom predicate for ignoring specific result codes. */
+  private static class IgnoreResultCodePredicate implements ResultPredicate {
+
+    private final Set<ResultCode> ignoreResultCodes;
+
+    IgnoreResultCodePredicate(final Set<ResultCode> codes) {
+      ignoreResultCodes = new HashSet<>(codes);
+    }
+
+    @Override
+    public boolean test(Result result) {
+      return !result.getResultCode().equals(ResultCode.SUCCESS) && !ignoreResultCodes.contains(result.getResultCode());
+    }
+
+    @Override
+    public String toString() {
+      return getClass().getSimpleName() + "@" + hashCode() + "::" + "ignoreResultCodes=" + ignoreResultCodes;
     }
   }
 }
