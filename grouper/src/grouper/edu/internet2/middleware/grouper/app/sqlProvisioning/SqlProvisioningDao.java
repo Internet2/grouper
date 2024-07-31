@@ -663,12 +663,12 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
             insertDelete[2] = provisioningObjectChange.getNewValue();
             
             int attributeColumnsToInsertSize = attributeColumnsToInsert.size();
-            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
-              attributeColumnsToInsertSize++;
-            }
-            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
-              attributeColumnsToInsertSize++;
-            }
+//            if (StringUtils.isNotBlank(sqlLastModifiedColumn)) {
+//              attributeColumnsToInsertSize++;
+//            }
+//            if (StringUtils.isNotBlank(sqlDeletedColumn)) {
+//              attributeColumnsToInsertSize++;
+//            }
             Object[] insertData = new Object[attributeColumnsToInsertSize];
             attributeTableInserts.add(insertData);
             insertData[0] = entityIdentifierValueNew;
