@@ -3,13 +3,17 @@ package edu.internet2.middleware.grouper.app.sqlProvisioning;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBehaviorMembershipType;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttributeValueType;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -59,11 +63,97 @@ import edu.internet2.middleware.grouperClient.collections.MultiKey;
  */
 public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
 
+  private boolean deletedOldData = false;
+  
+  public void deleteOldData() {
+    
+    if (deletedOldData) {
+      return;
+    }
+    
+    synchronized(this) {
+      if (deletedOldData) {
+        return;
+      }
+      GrouperProvisioner grouperProvisioner = this.getGrouperProvisioner();
+      Map<String, Object> debugMap = grouperProvisioner.getDebugMap();
+      SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+  
+      debugMap.put("sqlRemoveDeletedDataAfterHours", sqlProvisioningConfiguration.getSqlRemoveDeletedDataAfterHours());
+  
+      if (grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync() && sqlProvisioningConfiguration.getSqlRemoveDeletedDataAfterHours() > -1) {
+  
+        String sqlDeletedColumnName = sqlProvisioningConfiguration.getSqlDeletedColumnName();
+        String sqlLastModifiedColumnName = sqlProvisioningConfiguration.getSqlLastModifiedColumnName();
+        
+        if (!StringUtils.isBlank(sqlLastModifiedColumnName) && !StringUtils.isBlank(sqlLastModifiedColumnName)) {
+          
+          String sqlLastModifiedColumnType = sqlProvisioningConfiguration.getSqlLastModifiedColumnType();
+  
+          Object deleteBefore = System.currentTimeMillis() - (sqlProvisioningConfiguration.getSqlRemoveDeletedDataAfterHours() * 60 * 60 * 1000L);
+          if (StringUtils.equals(sqlLastModifiedColumnType, "timestamp")) {
+            deleteBefore = new Timestamp((long)deleteBefore);
+          } else if (!StringUtils.equals(sqlLastModifiedColumnType, "long")) {
+            throw new RuntimeException("Invalid sqlLastModifiedColumnType: '"+sqlLastModifiedColumnType+"'");
+          }
+          
+          String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
+          
+
+          
+          int totalCount = 0;
+          
+          if (!StringUtils.isBlank(sqlProvisioningConfiguration.getMembershipTableName())) {
+            int count = SqlProvisionerCommands.removeOldDeletedObjects(dbExternalSystemConfigId, sqlProvisioningConfiguration.getMembershipTableName(), 
+                sqlDeletedColumnName, sqlLastModifiedColumnName, deleteBefore);
+            totalCount += count;
+          }
+          if (!StringUtils.isBlank(sqlProvisioningConfiguration.getEntityAttributesTableName())) {
+            int count = SqlProvisionerCommands.removeOldDeletedObjects(dbExternalSystemConfigId, sqlProvisioningConfiguration.getEntityAttributesTableName(), 
+                sqlDeletedColumnName, sqlLastModifiedColumnName, deleteBefore);
+            totalCount += count;
+          }
+          if (!StringUtils.isBlank(sqlProvisioningConfiguration.getEntityTableName())) {
+            int count = SqlProvisionerCommands.removeOldDeletedObjects(dbExternalSystemConfigId, sqlProvisioningConfiguration.getEntityTableName(), 
+                sqlDeletedColumnName, sqlLastModifiedColumnName, deleteBefore);
+            totalCount += count;
+          }
+          if (!StringUtils.isBlank(sqlProvisioningConfiguration.getGroupAttributesTableName())) {
+            int count = SqlProvisionerCommands.removeOldDeletedObjects(dbExternalSystemConfigId, sqlProvisioningConfiguration.getGroupAttributesTableName(), 
+                sqlDeletedColumnName, sqlLastModifiedColumnName, deleteBefore);
+            totalCount += count;
+          }
+          if (!StringUtils.isBlank(sqlProvisioningConfiguration.getGroupTableName())) {
+            int count = SqlProvisionerCommands.removeOldDeletedObjects(dbExternalSystemConfigId, sqlProvisioningConfiguration.getGroupTableName(), 
+                sqlDeletedColumnName, sqlLastModifiedColumnName, deleteBefore);
+            totalCount += count;
+          }
+          
+          debugMap.put("sqlRemoveDeletedDataRows", totalCount);
+  
+          
+        } else {
+  
+          debugMap.put("sqlRemoveDeletedData", false);
+  
+        }
+        
+      } else {
+        debugMap.put("sqlRemoveDeletedData", false);
+      }
+      
+      deletedOldData = true;
+    }
+  }
+  
   /**
    * 
    */
   @Override
   public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
+    
+    deleteOldData();
+    
     SqlProvisioningConfiguration sqlProvisioningConfiguration = (SqlProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
     
     String dbExternalSystemConfigId = sqlProvisioningConfiguration.getDbExternalSystemConfigId();
@@ -104,6 +194,9 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
    * @return the target provisioning Memberships
    */
   public TargetDaoRetrieveMembershipsResponse retrieveMemberships(TargetDaoRetrieveMembershipsRequest targetDaoRetrieveMembershipsRequest) {
+
+    deleteOldData();
+    
     TargetDaoRetrieveMembershipsResponse targetDaoRetrieveMembershipsResponse = new TargetDaoRetrieveMembershipsResponse();
     List<ProvisioningMembership> memberships = retrieveMemberships(targetDaoRetrieveMembershipsRequest.getTargetGroups(), 
         targetDaoRetrieveMembershipsRequest.getTargetEntities(), targetDaoRetrieveMembershipsRequest.getTargetMemberships());
@@ -1521,6 +1614,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoRetrieveAllGroupsResponse retrieveAllGroups(TargetDaoRetrieveAllGroupsRequest targetDaoRetrieveAllGroupsRequest) {
     
+    deleteOldData();
+    
     boolean includeMemberships = targetDaoRetrieveAllGroupsRequest.isIncludeAllMembershipsIfApplicable();
 
     GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
@@ -1629,6 +1724,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   public TargetDaoRetrieveMembershipsByGroupsResponse retrieveMembershipsByGroups(
       TargetDaoRetrieveMembershipsByGroupsRequest targetDaoRetrieveMembershipsByGroupsRequest) {
     
+    deleteOldData();
+    
     List<ProvisioningMembership> memberships = this.retrieveMemberships(targetDaoRetrieveMembershipsByGroupsRequest.getTargetGroups(), null, null);
     
     TargetDaoRetrieveMembershipsByGroupsResponse response = new TargetDaoRetrieveMembershipsByGroupsResponse(memberships);
@@ -1643,6 +1740,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoRetrieveMembershipsByEntitiesResponse retrieveMembershipsByEntities(
       TargetDaoRetrieveMembershipsByEntitiesRequest targetDaoRetrieveMembershipsByEntitiesRequest) {
+    
+    deleteOldData();
     
     List<ProvisioningMembership> memberships = this.retrieveMemberships(null, targetDaoRetrieveMembershipsByEntitiesRequest.getTargetEntities(), null);
     
@@ -1816,6 +1915,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoRetrieveGroupsResponse retrieveGroups(TargetDaoRetrieveGroupsRequest targetDaoRetrieveGroupsRequest) {
     
+    deleteOldData();
+    
     boolean includeMemberships = targetDaoRetrieveGroupsRequest.isIncludeAllMembershipsIfApplicable();
 
     GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
@@ -1900,9 +2001,22 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
         
         List<String> columnsToFilterOn = GrouperUtil.toList(targetDaoRetrieveGroupsRequest.getSearchAttribute());
         
+        GrouperProvisioningConfigurationAttribute searchAttributeConfig = groupAttributeNameToConfigAttribute.get(targetDaoRetrieveGroupsRequest.getSearchAttribute());
+        GrouperProvisioningConfigurationAttributeValueType valueType = searchAttributeConfig.getValueType();
+        
+        List<Object> idsToRetrieve2 = new ArrayList<Object>();
+        
+        if (valueType != null) {
+          for (int i=0;i<idsToRetrieve.size();i++) {
+            idsToRetrieve2.add(valueType.convert(idsToRetrieve.get(i)));
+          }
+        } else {
+          idsToRetrieve2.addAll(idsToRetrieve);
+        }
+        
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
             dbExternalSystemConfigId, groupTablePrimaryColNamesList, groupTableName, null, null, 
-            columnsToFilterOn, idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
+            columnsToFilterOn, idsToRetrieve2, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
       } else if (filterByAttribute) {
         groupPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
@@ -1944,6 +2058,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
    */
   @Override
   public TargetDaoRetrieveAllEntitiesResponse retrieveAllEntities(TargetDaoRetrieveAllEntitiesRequest targetDaoRetrieveAllEntitiesRequest) {
+    
+    deleteOldData();
     
     boolean includeMemberships = targetDaoRetrieveAllEntitiesRequest.isIncludeAllMembershipsIfApplicable();
 
@@ -2061,6 +2177,8 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoRetrieveEntitiesResponse retrieveEntities(TargetDaoRetrieveEntitiesRequest targetDaoRetrieveEntitiesRequest) {
     
+    deleteOldData();
+    
     boolean includeMemberships = targetDaoRetrieveEntitiesRequest.isIncludeAllMembershipsIfApplicable();
 
     GrouperProvisioningBehaviorMembershipType membershipType = this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType();
@@ -2141,9 +2259,22 @@ public class SqlProvisioningDao extends GrouperProvisionerTargetDaoBase {
       List<Object[]> entityPrimaryAttributeValues = null;
 
       if (filterByColumn) {
+        GrouperProvisioningConfigurationAttribute searchAttributeConfig = entityAttributeNameToConfigAttribute.get(targetDaoRetrieveEntitiesRequest.getSearchAttribute());
+        GrouperProvisioningConfigurationAttributeValueType valueType = searchAttributeConfig.getValueType();
+        
+        List<Object> idsToRetrieve2 = new ArrayList<Object>();
+        
+        if (valueType != null) {
+          for (int i=0;i<idsToRetrieve.size();i++) {
+            idsToRetrieve2.add(valueType.convert(idsToRetrieve.get(i)));
+          }
+        } else {
+          idsToRetrieve2.addAll(idsToRetrieve);
+        }
+
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsColumnFilter(
             dbExternalSystemConfigId, entityTablePrimaryColNamesList, entityTableName, null, null, 
-            GrouperUtil.toList(targetDaoRetrieveEntitiesRequest.getSearchAttribute()), idsToRetrieve, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
+            GrouperUtil.toList(targetDaoRetrieveEntitiesRequest.getSearchAttribute()), idsToRetrieve2, sqlProvisioningConfiguration.getSqlDeletedColumnName(), false);
         
       } else if (filterByAttribute) {
         entityPrimaryAttributeValues = SqlProvisionerCommands.retrieveObjectsAttributeFilter(dbExternalSystemConfigId, 
