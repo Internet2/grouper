@@ -795,7 +795,12 @@ public class GrouperGoogleApiCommands {
 
       List<GrouperGoogleGroup> results = new ArrayList<GrouperGoogleGroup>();
       
-      String domain = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector." + configId + ".domain");
+      String domain = GrouperConfig.retrieveConfig().propertyValueString("grouper.googleConnector." + configId + ".groupDomain");
+      
+      if (StringUtils.isBlank(domain)) {
+    	  domain = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.googleConnector." + configId + ".domain");
+      }
+      
 
       String nextPageToken = null;
       boolean firstRequest = true;
