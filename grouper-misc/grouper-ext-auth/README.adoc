@@ -151,6 +151,16 @@ external.authentication.cas.protocol = CAS20
 
 For more information and more options, see https://www.pac4j.org/5.7.x/docs/clients/cas.html[] and https://github.com/pac4j/pac4j/blob/5.7.x/pac4j-cas/src/main/java/org/pac4j/cas/config/CasConfiguration.java[]
 
+=== Logging
+
+Since it is an independent plugin, the log4j setup used by Grouper is not used. Instead, it is bundled with
+https://www.slf4j.org/api/org/slf4j/simple/SimpleLogger.html[slf4j-simple],  a basic but functional logger. Log levels and
+formats can be controlled through Java system properties. For example:
+
+----
+GROUPER_EXTRA_CATALINA_OPTS=-Dorg.slf4j.simpleLogger.log.org.pac4j=info
+----
+
 === Converting a Grouper image from Shibboleth SP to pac4j configuration
 
 The following tips describe the basic steps needed to move from a Shibboleth SP running inside a Grouper container to a
