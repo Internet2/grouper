@@ -6,6 +6,7 @@ import edu.internet2.middleware.grouper.authentication.plugin.GrouperAuthenticat
 import org.apache.commons.logging.Log;
 
 import java.util.Map;
+import java.util.Objects;
 import java.util.TimerTask;
 import java.util.regex.Pattern;
 
@@ -24,7 +25,7 @@ public class ReinitializingTimer extends TimerTask {
         if (first.size() != second.size()) {
             return false;
         }
-        return first.entrySet().stream().allMatch(e -> e.getValue().equals(second.get(e.getKey())));
+        return first.entrySet().stream().allMatch(e -> Objects.equals(e.getValue(), second.get(e.getKey())));
     }
 
     @Override
