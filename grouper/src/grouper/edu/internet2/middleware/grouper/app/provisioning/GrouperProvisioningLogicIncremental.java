@@ -1675,20 +1675,23 @@ public class GrouperProvisioningLogicIncremental {
 
         membershipWrapperIterator = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().iterator();
 
-        //recalc or not
-        while(membershipWrapperIterator.hasNext()) {
-          
-          ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipWrapperIterator.next();
-          if (provisioningMembershipWrapper.getGroupIdMemberId() == null) {
-            continue;
-          }
+        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc()) {
 
-          if (StringUtils.equals(groupId, (String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0))) {
+          //only when recalc
+          while(membershipWrapperIterator.hasNext()) {
             
-            membershipWrapperIterator.remove();
-            this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
-            convertToGroupSyncMemberships++;
-            
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = membershipWrapperIterator.next();
+            if (provisioningMembershipWrapper.getGroupIdMemberId() == null) {
+              continue;
+            }
+  
+            if (StringUtils.equals(groupId, (String)provisioningMembershipWrapper.getGroupIdMemberId().getKey(0))) {
+              
+              membershipWrapperIterator.remove();
+              this.getGrouperProvisioner().retrieveGrouperProvisioningDataIndex().getGroupUuidMemberUuidToProvisioningMembershipWrapper().remove(provisioningMembershipWrapper.getGroupIdMemberId());
+              convertToGroupSyncMemberships++;
+              
+            }
           }
         }
       }
