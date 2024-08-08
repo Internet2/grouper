@@ -619,7 +619,7 @@ public class AttestationStemSave {
                 groupIdCanAttest = groupCanAttest.getId();
               }
               
-               if (!StringUtils.isBlank(reportMarkerAttributeAssignId)) {
+              if (StringUtils.isBlank(reportMarkerAttributeAssignId)) {
                 if (!StringUtils.isBlank(reportConfigName)) {
                   GrouperReportConfigurationBean grouperReportConfigurationBean =  GrouperReportConfigService.getGrouperReportConfigBean(stem, reportConfigName);
                   if (grouperReportConfigurationBean == null) {
@@ -723,14 +723,13 @@ public class AttestationStemSave {
               
               String todayDate = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
               
-              // can only mark as attested if a report
-              if (GrouperUtil.booleanValue(markAsAttested, false) && StringUtils.isBlank(reportMarkerAttributeAssignId)) {
-                
-                throw new RuntimeException("Cannot set mark as attested for a non report attestation on a folder");
-                
-              }
-              
-              if (GrouperUtil.booleanValue(markAsAttested, false) && !StringUtils.isBlank(reportMarkerAttributeAssignId)) {
+              if (GrouperUtil.booleanValue(markAsAttested, false)) {
+
+                // can only mark as attested if a report
+                if (StringUtils.isBlank(reportMarkerAttributeAssignId)) {
+                  
+                  throw new RuntimeException("Cannot set mark as attested for a non report attestation on a folder");
+                }
                 
                 String currentValue = markerAttributeNewlyAssigned ? null : 
                   markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
@@ -761,25 +760,6 @@ public class AttestationStemSave {
                 throw new RuntimeException("Cant have a report with an email group!  Use a groupCanAttest instead");
               }
               
-              if (GrouperUtil.booleanValue(markAsAttested, false) && theAttestationType != null && theAttestationType == AttestationType.report) {
-                
-                String daysUntilRecertifyString = markerAttributeAssign == null ? null : 
-                    markerAttributeAssign.getAttributeValueDelegate().retrieveValueString(
-                        GrouperAttestationJob.retrieveAttributeDefNameDaysUntilRecertify().getName());
-                String newDateCertified = new SimpleDateFormat("yyyy/MM/dd").format(new Date());
-                GrouperAttestationJob.updateCalculatedDaysLeft(markerAttributeAssign, newDateCertified, daysUntilRecertifyString, true, new boolean[]{});
-//                markerAttributeAssign.getAttributeValueDelegate().assignValueString(GrouperAttestationJob.retrieveAttributeDefNameDateCertified().getName(), newDateCertified);
-                
-                //              {
-                //              
-                //              
-                //              boolean[] madeChange = new boolean[1];
-                //              
-                //              hasChange = hasChange || madeChange[0];
-                //            }
-              }
-              
-
               if (!markerAttributeNewlyAssigned && !hasChange) {
                 AttestationStemSave.this.saveResultType = SaveResultType.NO_CHANGE;
                 return markerAttributeAssign;
