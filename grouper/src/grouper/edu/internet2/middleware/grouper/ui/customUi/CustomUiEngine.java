@@ -516,6 +516,11 @@ public class CustomUiEngine {
     return null;
   }
   
+  /**
+   * get the config
+   * @param group
+   * @return
+   */
   public CustomUiConfig retrieveCustomUiConfigBean(Group group) {
     
     String configId = retrieveCustomUiConfigurationConfigId(group, true);

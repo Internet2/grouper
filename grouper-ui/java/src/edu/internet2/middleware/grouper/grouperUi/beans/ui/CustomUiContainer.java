@@ -403,7 +403,7 @@ public class CustomUiContainer {
     
     if (this.manager == null) {
       
-      String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupCanSeeScreenState();
+      String groupUuidOrName = this.getCustomUiEngine().getCustomUiConfig().getGroupOfManagers();
       
       if (!StringUtils.isBlank(groupUuidOrName)) {
         Subject subjectLoggedIn = GrouperUiFilter.retrieveSubjectLoggedIn();
