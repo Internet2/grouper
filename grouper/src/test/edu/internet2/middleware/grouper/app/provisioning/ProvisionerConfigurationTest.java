@@ -8,6 +8,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleSubSection;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
@@ -29,9 +30,23 @@ public class ProvisionerConfigurationTest extends GrouperTest {
   }
   
   public static void main(String[] args) {
-    TestRunner.run(new ProvisionerConfigurationTest("testLdapProvisionerConfigurationInsertEditDelete"));
+    TestRunner.run(new ProvisionerConfigurationTest("testSqlProvisionerConfigurationInsertEditDelete"));
   }
   
+  private GrouperSession grouperSession = null;
+  
+  @Override
+  protected void setUp() {
+    super.setUp();
+    this.grouperSession = GrouperSession.startRootSession();
+  }
+
+  @Override
+  protected void tearDown() {
+    super.tearDown();
+    GrouperSession.stopQuietly(this.grouperSession);
+  }
+
   public void testLdapProvisionerConfigurationInsertEditDelete() {
     
     LdapProvisionerConfiguration provisionerConfiguration = new LdapProvisionerConfiguration();

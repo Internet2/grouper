@@ -22,6 +22,11 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   private String dbExternalSystemConfigId;
   
   private String membershipTableName;
+  
+//  # remove deleted data after hours.  Defaults to 1 week
+//  # {valueType: "integer", required: false, order: 76201, subSection: "general2", defaultValue: "168"}
+  private int sqlRemoveDeletedDataAfterHours = 168;
+
 
 //  private String membershipUserColumn;
     
@@ -31,7 +36,19 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
   
 //  private String membershipGroupValueFormat;
   
-//  private String membershipCreationNumberOfAttributes;
+
+  public int getSqlRemoveDeletedDataAfterHours() {
+    return sqlRemoveDeletedDataAfterHours;
+  }
+
+
+
+  
+  public void setSqlRemoveDeletedDataAfterHours(int sqlRemoveDeletedDataAfterHours) {
+    this.sqlRemoveDeletedDataAfterHours = sqlRemoveDeletedDataAfterHours;
+  }
+
+  //  private String membershipCreationNumberOfAttributes;
 //  
 //  private String membershipCreationColumnTemplate_attr_0;
 //  
@@ -296,7 +313,7 @@ public class SqlProvisioningConfiguration extends GrouperProvisioningConfigurati
     this.sqlLastModifiedColumnType = this.retrieveConfigString("sqlLastModifiedColumnType", false);
     this.sqlDeletedColumnName = this.retrieveConfigString("sqlDeletedColumnName", false);
     
-    
+    this.sqlRemoveDeletedDataAfterHours = GrouperUtil.intValue(this.retrieveConfigInt("sqlRemoveDeletedDataAfterHours", false), this.sqlRemoveDeletedDataAfterHours);
     
     this.groupTableIdColumn = this.retrieveConfigString("groupTableIdColumn", false);
     

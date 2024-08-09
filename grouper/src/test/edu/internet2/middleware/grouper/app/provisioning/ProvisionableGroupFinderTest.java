@@ -30,8 +30,17 @@ public class ProvisionableGroupFinderTest extends GrouperTest {
     GrouperCheckConfig.checkGroups();
     GrouperCheckConfig.waitUntilDoneWithExtraConfig();
     setupProvisioningConfig();
+    this.grouperSession = GrouperSession.startRootSession();
   }
   
+  private GrouperSession grouperSession = null;
+
+  @Override
+  protected void tearDown() {
+    super.tearDown();
+    GrouperSession.stopQuietly(this.grouperSession);
+  }
+
   private void setupProvisioningConfig() {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.url", "ldap://localhost:389");

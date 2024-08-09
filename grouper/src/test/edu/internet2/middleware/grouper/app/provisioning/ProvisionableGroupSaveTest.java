@@ -18,10 +18,19 @@ public class ProvisionableGroupSaveTest extends GrouperTest {
   @Override
   protected void setUp() {
     super.setUp();
+    this.grouperSession = GrouperSession.startRootSession();
     setupProvisioningConfig();
     
   }
   
+  private GrouperSession grouperSession = null;
+  
+  @Override
+  protected void tearDown() {
+    super.tearDown();
+    GrouperSession.stopQuietly(this.grouperSession);
+  }
+
   private void setupProvisioningConfig() {
     
     GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put("ldap.personLdap.url", "ldap://localhost:389");

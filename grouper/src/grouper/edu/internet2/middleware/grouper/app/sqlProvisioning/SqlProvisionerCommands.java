@@ -442,6 +442,48 @@ public class SqlProvisionerCommands {
     
     
   }
+  
+  /**
+   * this will remove deleted data too old
+   * @param dbExternalSystemConfigId 
+   * @param ownerTableName 
+   * @param deletedColumnName 
+   * @param lastUpdatedColumnName 
+   * @param olderThanTime 
+   * @return number of records deleted
+   */
+  public static int removeOldDeletedObjects(
+      String dbExternalSystemConfigId, String ownerTableName, String deletedColumnName, String lastUpdatedColumnName,
+      Object olderThanTime) {
+    
+    String sql = "select " + lastUpdatedColumnName + " from " + ownerTableName + " where " + deletedColumnName + " = 'T' and " + lastUpdatedColumnName + " < ?";
+
+    List<Object[]> timesToDelete = new GcDbAccess().connectionName(dbExternalSystemConfigId)
+      .sql(sql.toString()).addBindVar(olderThanTime).selectList(Object[].class);
+    
+    if (GrouperUtil.length(timesToDelete) == 0) {
+      return 0;
+    }
+    
+    List<List<Object>> batchBindVarsForTable = new ArrayList<List<Object>>();
+    for (Object[] timeToDelete : timesToDelete) {
+
+      List<Object> bindVars = new ArrayList<Object>();
+      batchBindVarsForTable.add(bindVars);
+      
+      bindVars.add(timeToDelete[0]);
+    }
+    
+    int[] executeBatchSql = new GcDbAccess().connectionName(dbExternalSystemConfigId).batchSize(900)
+        .sql("delete from " + ownerTableName + " where " + deletedColumnName + " = 'T' and " + lastUpdatedColumnName + " = ?").batchBindVars(batchBindVarsForTable).executeBatchSql();
+    
+    int result = 0;
+    for (int executeBatchRow : executeBatchSql) {
+      result += executeBatchRow;
+    }
+    
+    return result;
+  }
  
 
   /**

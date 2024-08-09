@@ -30,9 +30,11 @@ public class CallbackFilterDecorator extends CallbackFilter implements Reinitial
     public void init(FilterConfig filterConfig) throws ServletException {
         super.init(filterConfig);
         this.initDecorator();
-        TimerTask timerTask = new ReinitializingTimer(this);
         int period = ConfigUtils.getBestGrouperConfiguration().propertyValueInt("external.authentication.config.reload.milliseconds", 60 * 1000);
-        this.timer.schedule(timerTask, period, period);
+        if (period > 0) {
+            TimerTask timerTask = new ReinitializingTimer(this);
+            this.timer.schedule(timerTask, period, period);
+        }
     }
 
     public void initDecorator() {
