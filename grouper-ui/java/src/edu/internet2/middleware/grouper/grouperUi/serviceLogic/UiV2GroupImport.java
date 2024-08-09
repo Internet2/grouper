@@ -513,7 +513,7 @@ public class UiV2GroupImport {
       final Timestamp startDate;
       try {
         String startDateString = request.getParameter("startDate");
-        startDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(startDateString);
+        startDate = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(startDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#member-start-date",
@@ -524,7 +524,7 @@ public class UiV2GroupImport {
       final Timestamp endDate;
       try {
         String endDateString = request.getParameter("endDate");
-        endDate = GrouperUtil.stringToTimestampTimeRequiredWithoutSeconds(endDateString);
+        endDate = GrouperUtil.stringToTimestampTimeRequiredLocalDateTime(endDateString);
       } catch (Exception e) {
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error,
             "#member-end-date",
