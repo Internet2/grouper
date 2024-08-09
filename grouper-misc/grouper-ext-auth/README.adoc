@@ -67,6 +67,10 @@ For SAML2, for example:
 grouper.is.extAuth.enabled = true
 external.authentication.grouperContextUrl = https://grouper-ui.unicon.local/grouper
 
+## Set this to match your SSO lifetime, or <= 0 to not check the authn issueInstant; Note, if value is too low pac4j
+## returns a 500 error instead of redirecting to the IDP. Default is 3600
+# external.authentication.saml.maximumAuthenticationLifetime = 3600
+
 external.authentication.provider = saml
 external.authentication.saml.identityProviderEntityId = https://idp-host-name/idp/shibboleth
 external.authentication.saml.serviceProviderEntityId = http://localhost:8080/grouper
@@ -196,6 +200,10 @@ If you use your own existing SP metadata (from existing SP or IDP metadata files
 endpoint), you can set your own ACS url, but `<grouperContextUrl>/callback` (with or without extra query parameters) is
 the only one to reliably work.
 - identityProviderMetadataPath: From shibboleth2.xml, `<MetadataProvider>` node. This could be either a URL or a file.
+- maximumAuthenticationLifetime (optional, default 3600): Number of seconds to honor the authentication response
+issueInstant time. Nominally from shibboleth2.xml, `<Sessions>` timeout attribute. But for pac4j, ideally it should
+match the IDP's idp.authn.defaultLifetime (in conf/auth/authn.properties) since pac4j does not correctly redirect to
+the IDP on an issueInstant that is too old. Can also set to 0 or below to disable authn instant checking.
 - attributeAsId (optional): If you are not using a nameId for the username and instead getting it from an attribute, this is the
 OID for it. The attribute you are currently using will be in shibboleth2.xml, likely the first item in the
 `ApplicationDefaults REMOTE_USER="..."` list. The OID for it is in its entry in attribute-map.xml.
