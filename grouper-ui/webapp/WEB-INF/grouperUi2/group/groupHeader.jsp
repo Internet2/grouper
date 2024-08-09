@@ -122,13 +122,13 @@
                                   <label for="member-start-date"
                                     class="control-label">${textContainer.text['groupViewStartDate'] }</label>
                                   <div class="controls">
-                                    <input type="text" name="startDate"  placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-start-date"><span class="help-block">${textContainer.text['groupViewStartDateSubtext'] }</span>
+                                    <input type="datetime-local" step="1" name="startDate"  placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-start-date"><span class="help-block">${textContainer.text['groupViewStartDateSubtext'] }</span>
                                   </div>
                                 </div>
                                 <div class="control-group">
                                   <label for="member-end-date" class="control-label">${textContainer.text['groupViewEndDate'] }</label>
                                   <div class="controls">
-                                    <input type="text" name="endDate" placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-end-date"><span class="help-block">${textContainer.text['groupViewEndDateSubtext'] }</span>
+                                    <input type="datetime-local" step="1" name="endDate" placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-end-date"><span class="help-block">${textContainer.text['groupViewEndDateSubtext'] }</span>
                                   </div>
                                 </div>
                               </c:if>

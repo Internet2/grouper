@@ -243,13 +243,13 @@ ${grouper:titleFromKeyAndText('groupImportPageTitle', grouperRequestContainer.gr
                 <label for="member-start-date"
                   class="control-label">${textContainer.text['groupImportStartDate'] }</label>
                 <div class="controls">
-                  <input type="text" name="startDate"  placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-start-date"><span class="help-block">${textContainer.text['groupImportStartDateSubtext'] }</span>
+                  <input type="datetime-local" step="1" name="startDate"  placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-start-date"><span class="help-block">${textContainer.text['groupImportStartDateSubtext'] }</span>
                 </div>
               </div>
               <div class="control-group">
                 <label for="member-end-date" class="control-label">${textContainer.text['groupImportEndDate'] }</label>
                 <div class="controls">
-                  <input type="text" name="endDate" placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-end-date"><span class="help-block">${textContainer.text['groupImportEndDateSubtext'] }</span>
+                  <input type="datetime-local" step="1" name="endDate" placeholder="${textContainer.text['membershipEditDatePlaceholder'] }" id="member-end-date"><span class="help-block">${textContainer.text['groupImportEndDateSubtext'] }</span>
                 </div>
               </div>
               <div class="form-actions">
