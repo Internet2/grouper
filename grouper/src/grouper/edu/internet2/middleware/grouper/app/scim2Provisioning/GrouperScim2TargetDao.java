@@ -85,10 +85,6 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
       for (GrouperScim2Group grouperScim2Group : grouperScim2Groups) {
         
-        if (scimConfiguration.isDisableGroupsInsteadOfDelete() && grouperScim2Group != null && !GrouperUtil.booleanValue(grouperScim2Group.getActive(), true)) {
-          continue;
-        }
-
         ProvisioningGroup targetGroup = grouperScim2Group.toProvisioningGroup();
         results.add(targetGroup);
       }
@@ -346,7 +342,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       } else {
         
         GrouperScim2Group grouperScim2Group = retrieveGroupHelper(
-            scimConfiguration, grouperTargetGroup, scimConfiguration.isDisableGroupsInsteadOfDelete());
+            scimConfiguration, grouperTargetGroup);
   
         targetGroup = grouperScim2Group == null ? null
             : grouperScim2Group.toProvisioningGroup();
@@ -361,7 +357,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
   public GrouperScim2Group retrieveGroupHelper(
       GrouperScim2ProvisionerConfiguration scimConfiguration,
-      ProvisioningGroup grouperTargetGroup, boolean filterInactive) {
+      ProvisioningGroup grouperTargetGroup) {
     
     GrouperScim2Group grouperScim2Group = null;
 
@@ -371,9 +367,6 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           scimConfiguration.getAcceptHeader(),
           "id",
           grouperTargetGroup.getId(), groupIdToMembershipEntityIds);
-      if (filterInactive && grouperScim2Group != null &&  !GrouperUtil.booleanValue(grouperScim2Group.getActive(), true)) {
-        grouperScim2Group = null;
-      }
     }
 
     String displayName = grouperTargetGroup.getDisplayName();
@@ -382,9 +375,6 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           scimConfiguration.getBearerTokenExternalSystemConfigId(), 
           scimConfiguration.getAcceptHeader(),
           "displayName", displayName, groupIdToMembershipEntityIds);
-      if (filterInactive && grouperScim2Group != null && !GrouperUtil.booleanValue(grouperScim2Group.getActive(), true)) {
-        grouperScim2Group = null;
-      }
 
     }
     return grouperScim2Group;
@@ -407,35 +397,13 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       
-      if (scimConfiguration.isIncludeActiveOnGroupCreate()) {
-        fieldNamesToInsert.add("active");
-      }
-      
       GrouperScim2Group grouperScim2Group = null;
       
-      if (scimConfiguration.isDisableGroupsInsteadOfDelete()) {
-
-        grouperScim2Group = retrieveGroupHelper(scimConfiguration, targetGroup, false);
-        
-        if (grouperScim2Group != null && !GrouperUtil.booleanValue(grouperScim2Group.getActive(), true)) {
-          Map<String, ProvisioningObjectChangeAction> attributeToChange = new HashMap<>();
-          grouperScim2Group.setActive(true);
-          attributeToChange.put("active", ProvisioningObjectChangeAction.update);
-          GrouperScim2ApiCommands.patchScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
-              scimConfiguration.getAcceptHeader(), grouperScim2Group, attributeToChange);
-
-        }
-        
-      }
+      grouperScim2Group = GrouperScim2Group.fromProvisioningGroup(targetGroup, null);
       
-      if (grouperScim2Group == null) {
-        
-        grouperScim2Group = GrouperScim2Group.fromProvisioningGroup(targetGroup, null);
-        
-        GrouperScim2ApiCommands.createScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
-            scimConfiguration.getAcceptHeader(),
-            grouperScim2Group, fieldNamesToInsert);
-      }
+      GrouperScim2ApiCommands.createScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
+          scimConfiguration.getAcceptHeader(),
+          grouperScim2Group, fieldNamesToInsert);
       
       targetGroup.setProvisioned(true);
 
@@ -702,19 +670,9 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
       GrouperScim2Group grouperScim2Group = GrouperScim2Group.fromProvisioningGroup(targetGroup, null);
 
-      if (scimConfiguration.isDisableGroupsInsteadOfDelete()) {
-        
-        Map<String, ProvisioningObjectChangeAction> attributeToChange = new HashMap<>();
-        grouperScim2Group.setActive(false);
-        attributeToChange.put("active", ProvisioningObjectChangeAction.update);
-        GrouperScim2ApiCommands.patchScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
-            scimConfiguration.getAcceptHeader(), grouperScim2Group, attributeToChange);
-        
-      } else {
-        GrouperScim2ApiCommands.deleteScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
-            scimConfiguration.getAcceptHeader(),
-            grouperScim2Group.getId());
-      }
+      GrouperScim2ApiCommands.deleteScimGroup(scimConfiguration.getBearerTokenExternalSystemConfigId(), 
+          scimConfiguration.getAcceptHeader(),
+          grouperScim2Group.getId());
       
       targetGroup.setProvisioned(true);
 
