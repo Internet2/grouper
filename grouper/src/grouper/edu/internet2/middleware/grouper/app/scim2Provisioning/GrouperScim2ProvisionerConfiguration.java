@@ -17,8 +17,6 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   
   private String acceptHeader;
   
-  private boolean disableGroupsInsteadOfDelete = false;
-  
   public boolean isGithubOrgConfiguration() {
     return StringUtils.equals("Github", this.getScimType())
         && this.isOperateOnGrouperGroups()
@@ -28,8 +26,6 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   private boolean disableEntitiesInsteadOfDelete = false;
   
   private boolean includeActiveOnEntityCreate = true;
-  
-  private boolean includeActiveOnGroupCreate = true;
   
   private Map<String, String> entityAttributeJsonValueType = new HashMap<>();
   
@@ -78,15 +74,6 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
 
 
 
-  public boolean isDisableGroupsInsteadOfDelete() {
-    return disableGroupsInsteadOfDelete;
-  }
-
-  
-  public void setDisableGroupsInsteadOfDelete(boolean disableGroupsInsteadOfDelete) {
-    this.disableGroupsInsteadOfDelete = disableGroupsInsteadOfDelete;
-  }
-
   
   public boolean isDisableEntitiesInsteadOfDelete() {
     return disableEntitiesInsteadOfDelete;
@@ -108,26 +95,15 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   }
 
   
-  public boolean isIncludeActiveOnGroupCreate() {
-    return includeActiveOnGroupCreate;
-  }
-
-  
-  public void setIncludeActiveOnGroupCreate(boolean includeActiveOnGroupCreate) {
-    this.includeActiveOnGroupCreate = includeActiveOnGroupCreate;
-  }
-
   @Override
   public void configureSpecificSettings() {
     
     this.bearerTokenExternalSystemConfigId = this.retrieveConfigString("bearerTokenExternalSystemConfigId", true);
     this.scimType = this.retrieveConfigString("scimType", true);
     this.acceptHeader = this.retrieveConfigString("acceptHeader", false);
-    this.disableGroupsInsteadOfDelete = GrouperUtil.booleanValue(this.retrieveConfigBoolean("disableGroupsInsteadOfDelete", false), false);
     this.disableEntitiesInsteadOfDelete = GrouperUtil.booleanValue(this.retrieveConfigBoolean("disableEntitiesInsteadOfDelete", false), false);
 
     this.includeActiveOnEntityCreate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("includeActiveOnEntityCreate", false), true);
-    this.includeActiveOnGroupCreate = GrouperUtil.booleanValue(this.retrieveConfigBoolean("includeActiveOnGroupCreate", false), true);
     
     for (String attributeName : this.getTargetEntityAttributeNameToConfig().keySet()) {
       GrouperProvisioningConfigurationAttribute configurationAttribute = this.getTargetEntityAttributeNameToConfig().get(attributeName);

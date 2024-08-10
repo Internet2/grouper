@@ -64,9 +64,6 @@ public class GrouperScim2Group {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       grouperScim2Group.setId(targetGroup.getId());
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
-      grouperScim2Group.setActive(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("active"), true));
-    }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {     
       
@@ -181,8 +178,6 @@ public class GrouperScim2Group {
       targetGroup.assignAttributeValue("externalId", this.externalId);
     }
     
-    targetGroup.assignAttributeValue("active", this.active);
-    
     if (this.customAttributes != null) {
       GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration) targetGroup.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
@@ -234,7 +229,6 @@ public class GrouperScim2Group {
     
     grouperScimGroup.setCreatedJson(GrouperUtil.jsonJacksonGetString(metaNode, "created"));
     grouperScimGroup.setLastModifiedJson(GrouperUtil.jsonJacksonGetString(metaNode, "lastModified"));
-    grouperScimGroup.setActive(GrouperUtil.booleanValue(GrouperUtil.jsonJacksonGetBoolean(groupNode, "active"), true));
     
     if (groupNode.get("schemas") != null) {
       Set<String> schemasStringSet = GrouperUtil.jsonJacksonGetStringSet(groupNode, "schemas");
@@ -328,9 +322,6 @@ public class GrouperScim2Group {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("externalId")) {      
       GrouperUtil.jsonJacksonAssignString(result, "externalId", this.externalId);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("active")) {      
-      GrouperUtil.jsonJacksonAssignBoolean(result, "active", GrouperUtil.booleanValue(this.active, true));
-    }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("schemas")) {      
       if (!StringUtils.isBlank(this.schemas)) {
@@ -380,18 +371,6 @@ public class GrouperScim2Group {
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_gdisp_name_idx", false, "display_name");
     }
-  }
-
-  private Boolean active = true;
-  
-  
-  public Boolean getActive() {
-    return active;
-  }
-
-  
-  public void setActive(Boolean active) {
-    this.active = active;
   }
 
   /**
