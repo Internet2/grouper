@@ -107,7 +107,7 @@ public class LdapGrouperExternalSystem extends GrouperExternalSystem {
     String urlString = this.retrieveAttributes().get("url").getValue();
     if (!StringUtils.isBlank(urlString)) {
       LdapURL url = new LdapURL(urlString);
-      if (!url.isDefaultBaseDn()) {
+      if (!url.getUrl().isDefaultBaseDn()) {
         validationErrorsToDisplay.put(this.retrieveAttributes().get("url").getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationLdapUrlContainsBaseDN"));
       }
     }

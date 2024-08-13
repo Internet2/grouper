@@ -40,9 +40,9 @@ public class GrouperRangeEntryHandler extends RangeEntryHandler {
         entry.setDn(dn);
 
         LdapURL ldapURL = getConnection().getLdapURL();
-        String baseDn = ldapURL != null ? ldapURL.getBaseDn() : null;
+        String baseDn = ldapURL != null ? ldapURL.getUrl().getBaseDn() : null;
         
-        if (!StringUtils.isBlank(baseDn) && !ldapURL.isDefaultBaseDn() && dn.toLowerCase().endsWith(baseDn.toLowerCase())) {
+        if (!StringUtils.isBlank(baseDn) && !ldapURL.getUrl().isDefaultBaseDn() && dn.toLowerCase().endsWith(baseDn.toLowerCase())) {
           String dnWithoutSuffix = dn.substring(0, dn.length() - baseDn.length());
           dnWithoutSuffix = dnWithoutSuffix.trim().replaceAll(",$", "");
           entry.setDn(dnWithoutSuffix);

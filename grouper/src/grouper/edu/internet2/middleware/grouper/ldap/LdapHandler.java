@@ -24,10 +24,11 @@ package edu.internet2.middleware.grouper.ldap;
  * reference to the ldap session object
  * @version $Id: HibernateHandler.java,v 1.3 2009-02-06 16:33:18 mchyzer Exp $
  * @author mchyzer
- * @param <T> 
+ * @param <T>
+ * @param <R>
  */
 
-public interface LdapHandler<T> {
+public interface LdapHandler<T, R> {
 
   /**
    * This method will be called with the hibernate session object to do 
@@ -37,5 +38,5 @@ public interface LdapHandler<T> {
    * @return the return value to be passed to return value of callback method
    * @throws Exception 
    */
-  public Object callback(LdapHandlerBean<T> ldapHandlerBean) throws Exception;
+  R callback(LdapHandlerBean<T> ldapHandlerBean) throws Exception;
 }

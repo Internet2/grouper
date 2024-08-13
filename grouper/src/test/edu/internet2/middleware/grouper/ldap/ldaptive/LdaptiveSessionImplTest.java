@@ -434,6 +434,21 @@ public class LdaptiveSessionImplTest {
   }
 
   @Test
+  public void addAndDeleteReferral() {
+    LdapEntry entry = new LdapEntry("uid=lsayer,ou=referral,dc=internet2,dc=edu");
+    entry.addAttribute(new LdapAttribute("objectclass", "inetOrgPerson"));
+    entry.addAttribute(new LdapAttribute("cn", "Leo Sayer"));
+    entry.addAttribute(new LdapAttribute("givenName", "Leo"));
+    entry.addAttribute(new LdapAttribute("sn", "Sayer"));
+    entry.addAttribute(new LdapAttribute("uid", "lsayer"));
+    entry.addAttribute(new LdapAttribute("uidNumber", "1006"));
+    entry.addAttribute(new LdapAttribute("mail", "lsayer@internet2.edu"));
+    entry.addAttribute(new LdapAttribute("telephoneNumber", "8169894347"));
+    session.create(SERVER_ID_REFERRAL, entry);
+    session.delete(SERVER_ID_REFERRAL, "uid=lsayer,ou=referral,dc=internet2,dc=edu");
+  }
+
+  @Test
   public void delete() {
     LdapEntry entry = new LdapEntry("uid=hmancini,ou=people,dc=internet2,dc=edu");
     entry.addAttribute(new LdapAttribute("objectclass", "inetOrgPerson"));
