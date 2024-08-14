@@ -77,6 +77,23 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                       </select>
                     </div>
                   </div>
+
+                  <div class="row-fluid" style="margin-top: 0.5em">
+                    <div class="span1">&nbsp;</div>
+                    <div class="span4" style="white-space: nowrap;">
+                      <select name="daemonJobsStatusFilter" id="daemonJobsStatusFilterId">
+                        <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsStatusSearchNamePlaceholder'] }</option>
+                        <c:forEach items="${grouperRequestContainer.adminContainer.daemonJobsStatusFilters}" var="daemonJobsStatusFilter" >
+                          <option value="${grouper:escapeHtml(daemonJobsStatusFilter.value)}"
+                            ${grouperRequestContainer.adminContainer.daemonJobsStatusFilter == daemonJobsStatusFilter.value ? 'selected="selected"' : ''}>
+                              ${grouper:escapeHtml(daemonJobsStatusFilter.name) }
+                          </option>
+                        </c:forEach>
+                      </select>
+                    </div>
+                  </div>
+
+
                   <div class="row-fluid" style="margin-top: 0.5em">
                     <div class="span1">&nbsp;</div>
                     <div class="span3" style="white-space: nowrap;">
@@ -85,16 +102,6 @@ ${grouper:title('adminDaemonJobsPageTitle')}
                            ${grouperRequestContainer.adminContainer.daemonJobsShowExtendedResults ? 'checked="checked"' : ''} 
                            >${textContainer.text['daemonJobsFilterShowExtendedResults']}
  
-                      </label>
-                    </div>
-                  </div>
-                  <div class="row-fluid" style="margin-top: 0.5em; margin-bottom: 0.5em">
-                    <div class="span1">&nbsp;</div>
-                    <div class="span3" style="white-space: nowrap;">
-                      <label class="checkbox">
-                        <input type="checkbox" name="daemonJobsFilterShowOnlyErrors" id="daemonJobsFilterShowOnlyErrorsId" 
-                        ${grouperRequestContainer.adminContainer.daemonJobsShowOnlyErrors ? 'checked="checked"' : ''}
-                        >${textContainer.text['daemonJobsFilterShowOnlyErrors']}
                       </label>
                     </div>
                   </div>

@@ -1358,7 +1358,7 @@ public class GrouperLoaderContainer {
       return TextContainer.retrieveFromRequest().getText().get("grouperLoaderSchedulerStateNotScheduled");
     }
     
-    return guiDaemonJob.getState();
+    return guiDaemonJob.getStateDescription();
   }
   
   /**

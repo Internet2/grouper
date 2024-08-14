@@ -48,7 +48,7 @@ extends GrouperUiBrowser {
 
     this.getGrouperPage().getPage().locator("#miscDaemonJobsLink").click();
     this.waitForJspToLoad("adminDaemonJobs");
-    this.getGrouperPage().getPage().locator("#daemonJobsFilterShowOnlyErrorsId").check();
+    this.getGrouperPage().getPage().locator("#daemonJobsStatusFilterId").selectOption("ANY_ERROR");
     this.getGrouperPage().getPage().locator("#applyfilterdaemonjobs").click();
     this.waitForJspToLoad("adminDaemonJobsContents");
     String pageOptions = GrouperUiConfigInApi.retrieveConfig()

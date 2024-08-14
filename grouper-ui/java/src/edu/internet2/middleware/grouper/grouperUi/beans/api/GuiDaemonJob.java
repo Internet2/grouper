@@ -24,7 +24,6 @@ import java.util.List;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 import org.hibernate.criterion.Criterion;
 import org.hibernate.criterion.Restrictions;
 import org.quartz.CronTrigger;
@@ -78,10 +77,15 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   private String schedule;
   
   /**
-   * state of job
+   * state of job for Ui, may contain html
+   */
+  private String stateDescription;
+
+  /**
+   * state of job, RUNNING, ENABLED, or DISABLED
    */
   private String state;
-  
+
   /**
    * next fire time
    */
@@ -151,6 +155,8 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   private boolean isMultiple;
   
   private boolean isLoader;
+
+  private boolean isEnabled;
   
   public String getEditQueryParam() {
     GrouperLoaderType loaderType = GrouperLoaderType.typeForThisName(jobName);
@@ -213,7 +219,7 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
       Date nextFireTime = null;
       Date prevFireTime = null;
       
-      boolean isEnabled = false;
+      this.isEnabled = false;
       Date startTimeIfRunning = GrouperLoader.internal_getJobStartTimeIfRunning(jobName);
       boolean isRunning = startTimeIfRunning != null;
       
@@ -236,7 +242,7 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
         }
         
         if (triggerState != Trigger.TriggerState.PAUSED) {
-          isEnabled = true;
+          this.isEnabled = true;
         }
         
         if (schedule.length() > 0) {
@@ -288,7 +294,7 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
       
       this.setSchedule(schedule.toString());
       
-      if (isEnabled && nextFireTime != null) {
+      if (this.isEnabled && nextFireTime != null) {
         this.setNextFireTime(sdf.format(nextFireTime));
       }
       
@@ -305,19 +311,22 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
         Long timeRunningSeconds = (System.currentTimeMillis() - startTimeIfRunning.getTime()) / 1000;
         String currentState = TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStateRunning") +
             "<br />" + GrouperUiUtils.convertSecondsToString(timeRunningSeconds.intValue());
-        this.setState(currentState);
-      } else if (isEnabled) {
-        this.setState(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStateEnabled"));
+        this.setStateDescription(currentState);
+        this.setState("RUNNING");
+      } else if (this.isEnabled) {
+        this.setStateDescription(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStateEnabled"));
+        this.setState("ENABLED");
       } else {
-        this.setState(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStateDisabled"));
+        this.setStateDescription(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStateDisabled"));
+        this.setState("DISABLED");
       }
 
       // the job wont run if isJobRunning, so add that here, dont show the button if so
-      if (!isRunning && isEnabled && !GrouperLoader.isJobRunning(jobName, false)) {
+      if (!isRunning && this.isEnabled && !GrouperLoader.isJobRunning(jobName, false)) {
         this.setShowMoreActionsRunNow(true);
       }
       
-      if (isEnabled) {
+      if (this.isEnabled) {
         this.setShowMoreActionsDisable(true);
       } else {
         this.setShowMoreActionsEnable(true);
@@ -364,7 +373,7 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
           this.setOverallStatus("SUCCESS");
           this.setOverallStatusDescription("Found a success on " + GrouperUtil.dateStringValue(lastSuccess)  + " in grouper_loader_log for job name: " + jobName + " which is within the threshold of " + minutesSinceLastSuccess + " minutes");
         } else {
-          if (isEnabled) {
+          if (this.isEnabled) {
             this.setOverallStatus("ERROR");
           } else {
             this.setOverallStatus("DISABLED");
@@ -481,21 +490,35 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   /**
    * @return the state
    */
-  public String getState() {
-    return state;
+  public String getStateDescription() {
+    return stateDescription;
   }
 
 
   
   /**
-   * @param state the state to set
+   * @param stateDescription the state to set
+   */
+  public void setStateDescription(String stateDescription) {
+    this.stateDescription = stateDescription;
+  }
+
+  /**
+   *
+   * @return state of job; can be RUNNING, ENABLED, or DISABLED
+   */
+  public String getState() {
+    return state;
+  }
+
+  /**
+   *
+   * @param state state of job; can be RUNNING, ENABLED, or DISABLED
    */
   public void setState(String state) {
     this.state = state;
   }
 
-
-  
   /**
    * @return the prevFireTime
    */
@@ -723,6 +746,10 @@ public class GuiDaemonJob implements Serializable, Comparable<GuiDaemonJob> {
   
   public boolean isLoader() {
     return isLoader;
+  }
+
+  public boolean isEnabled() {
+    return isEnabled;
   }
 
   /**

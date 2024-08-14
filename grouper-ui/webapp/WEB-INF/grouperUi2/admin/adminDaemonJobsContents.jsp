@@ -61,7 +61,7 @@
                         <tr class="adminDaemonJobEntry">
                           <td class="expand foo-clicker" style="white-space: nowrap;"><a href="#" class="adminDaemonJobNameLink"
                             onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');">${guiDaemonJob.jobName}</a></td>
-                          <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.state}</span></td>
+                          <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.stateDescription}</span></td>
                           <td class="expand foo-clicker"
                             style="color: White;
                             background-color: ${guiDaemonJob.overallStatus == 'SUCCESS' ? 'green' : (guiDaemonJob.overallStatus == 'ERROR' ? 'red' : 'gray')};
