@@ -2668,8 +2668,8 @@ function grouperAssignDaemonUrl() {
   url += '?operation=UiV2Admin.daemonJobs';
   url += '&daemonJobsFilter=' + $("#daemonJobsFilterId").val();
   url += '&daemonJobsCommonFilter=' + $("#daemonJobsCommonFilterId option:selected").val();
+  url += '&daemonJobsStatusFilter=' + $("#daemonJobsStatusFilterId option:selected").val();
   url += '&daemonJobsFilterShowExtendedResults[]=' + ($("#daemonJobsFilterShowExtendedResultsId").is(':checked') ? 'on' : '');
-  url += '&daemonJobsFilterShowOnlyErrors[]=' + ($("#daemonJobsFilterShowOnlyErrorsId").is(':checked') ? 'on' : '');
   url = encodeURI(url);
   history.pushState(null, null, url);
 }

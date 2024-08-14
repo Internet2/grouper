@@ -245,6 +245,7 @@ public class UiV2Admin extends UiServiceLogicBase {
   
       //clear out form
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsFilter", ""));
+      guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsStatusFilter", ""));
       guiResponseJs.addAction(GuiScreenAction.newFormFieldValue("daemonJobsFilterShowExtendedResults", ""));
       
       //get the unfiltered jobs
@@ -315,14 +316,14 @@ public class UiV2Admin extends UiServiceLogicBase {
     
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
-    try {      
+    try {
       //if the user is allowed
       if (!daemonJobsAllowed()) {
         return false;
       }
-      
+
       Scheduler scheduler = GrouperLoader.schedulerFactory().getScheduler();
-      
+
       {
         String action = request.getParameter("action");
         String jobName = request.getParameter("jobName");
@@ -355,9 +356,9 @@ public class UiV2Admin extends UiServiceLogicBase {
 
 
       AdminContainer adminContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getAdminContainer();
-      
+
       List<GuiDaemonJob> guiDaemonJobs = new ArrayList<GuiDaemonJob>();
-      
+
       // action was taken from logs screen
       String source = request.getParameter("source");
       if (StringUtils.equals(source, "logs")) {
@@ -367,19 +368,19 @@ public class UiV2Admin extends UiServiceLogicBase {
         adminContainer.setGuiDaemonJobs(guiDaemonJobs);
         return true;
       }
-                  
+
       String daemonJobsFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsFilter"));
       adminContainer.setDaemonJobsFilter(daemonJobsFilter);
-      
+
       String daemonJobsCommonFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsCommonFilter"));
       adminContainer.setDaemonJobsCommonFilter(daemonJobsCommonFilter);
-      
+
+      String daemonJobsStatusFilter = StringUtils.trimToEmpty(request.getParameter("daemonJobsStatusFilter"));
+      adminContainer.setDaemonJobsStatusFilter(daemonJobsStatusFilter);
+
       String showExtendedResults = request.getParameter("daemonJobsFilterShowExtendedResults");
       adminContainer.setDaemonJobsShowExtendedResults(StringUtils.equals(showExtendedResults, "on"));
 
-      String daemonJobsFilterShowOnlyErrors = request.getParameter("daemonJobsFilterShowOnlyErrors");
-      adminContainer.setDaemonJobsShowOnlyErrors(StringUtils.equals(daemonJobsFilterShowOnlyErrors, "on"));
-      
       Set<JobKey> jobKeys = scheduler.getJobKeys(GroupMatcher.anyJobGroup());
 
       List<String> allJobNamesAfterFilter = new ArrayList<String>();
@@ -403,7 +404,7 @@ public class UiV2Admin extends UiServiceLogicBase {
             }
           }
         }
-      
+
         if (shouldAdd == null || shouldAdd) {
           allJobNamesAfterFilter.add(jobName);
         }
@@ -413,56 +414,79 @@ public class UiV2Admin extends UiServiceLogicBase {
 
       // see which jobs are not failsafe approved and need approval
       Set<String> jobNamesNeedApprovalNotApproved = GrouperFailsafe.retrieveJobNamesNeedApprovalNotApproved();
-      
-      if (adminContainer.isDaemonJobsShowOnlyErrors()) {
-        
-        // i guess get all, and filter from there
-        for (String jobName : allJobNamesAfterFilter) {
-          
-          GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
-          
-          if ((guiDaemonJob.getOverallStatus() != null && guiDaemonJob.getOverallStatus().toLowerCase().contains("error"))
-              || (guiDaemonJob.getLastRunStatus() != null && guiDaemonJob.getLastRunStatus().toLowerCase().contains("error"))
-              ){
+
+        if (!StringUtils.isBlank(daemonJobsStatusFilter)) {
+          // i guess get all, and filter from there
+          for (String jobName : allJobNamesAfterFilter) {
+
+            boolean wasAdded = false;
+
+            GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
+
+            if (StringUtils.equals("ENABLED", daemonJobsStatusFilter)) {
+              if (guiDaemonJob.isEnabled()) {
+                guiDaemonJobs.add(guiDaemonJob);
+                wasAdded = true;
+              }
+            }
+            if (!wasAdded && StringUtils.equals("DISABLED", daemonJobsStatusFilter)) {
+              if (!guiDaemonJob.isEnabled()) {
+                guiDaemonJobs.add(guiDaemonJob);
+                wasAdded = true;
+              }
+            }
+            if (!wasAdded && StringUtils.equals("RUNNING", daemonJobsStatusFilter)) {
+              if (StringUtils.equals("RUNNING", guiDaemonJob.getState())) {
+                guiDaemonJobs.add(guiDaemonJob);
+                wasAdded = true;
+              }
+            }
+            if (!wasAdded && StringUtils.equals("ANY_ERROR", daemonJobsStatusFilter)) {
+              if ((guiDaemonJob.getOverallStatus() != null && guiDaemonJob.getOverallStatus().toLowerCase().contains("error"))
+                      || (guiDaemonJob.getLastRunStatus() != null && guiDaemonJob.getLastRunStatus().toLowerCase().contains("error"))) {
+                guiDaemonJobs.add(guiDaemonJob);
+                wasAdded = true;
+              }
+            }
+            if (!wasAdded && (StringUtils.equals(guiDaemonJob.getOverallStatus(), daemonJobsStatusFilter)
+                      || (StringUtils.equals(guiDaemonJob.getLastRunStatus(), daemonJobsStatusFilter)))) {
+              guiDaemonJobs.add(guiDaemonJob);
+              wasAdded = true;
+            }
+          }
+
+          //ok lets do paging
+          GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
+          GrouperPagingTag2.processRequest(request, guiPaging, null);
+          guiPaging.setTotalRecordCount(guiDaemonJobs.size());
+
+          // screen is too slow so let's fetch only 10 records
+          String pageSizeString = request.getParameter("pagingTagPageSize");
+          if (StringUtils.isBlank(pageSizeString) && guiPaging.getPageSize() > 10) {
+            guiPaging.setPageSize(10);
+          }
+
+          guiDaemonJobs = GrouperUtil.batchList(guiDaemonJobs, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
+        } else {
+          GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
+          GrouperPagingTag2.processRequest(request, guiPaging, null);
+          guiPaging.setTotalRecordCount(allJobNamesAfterFilter.size());
+
+          // screen is too slow so let's fetch only 10 records
+          String pageSizeString = request.getParameter("pagingTagPageSize");
+          if (StringUtils.isBlank(pageSizeString) && guiPaging.getPageSize() > 10) {
+            guiPaging.setPageSize(10);
+          }
+
+          List<String> currentJobNames = GrouperUtil.batchList(allJobNamesAfterFilter, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
+
+          for (String jobName : currentJobNames) {
+
+            GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
             guiDaemonJobs.add(guiDaemonJob);
           }
-          
         }
 
-        //ok lets do paging
-        GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
-        GrouperPagingTag2.processRequest(request, guiPaging, null);
-        guiPaging.setTotalRecordCount(guiDaemonJobs.size());
-        
-        // screen is too slow so let's fetch only 10 records
-        String pageSizeString = request.getParameter("pagingTagPageSize");
-        if (StringUtils.isBlank(pageSizeString) && guiPaging.getPageSize() > 10) {
-          guiPaging.setPageSize(10);
-        }
-        
-        guiDaemonJobs = GrouperUtil.batchList(guiDaemonJobs, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
-        
-      } else {
-      
-        GuiPaging guiPaging = adminContainer.getDaemonJobsGuiPaging();
-        GrouperPagingTag2.processRequest(request, guiPaging, null);
-        guiPaging.setTotalRecordCount(allJobNamesAfterFilter.size());
-        
-        // screen is too slow so let's fetch only 10 records
-        String pageSizeString = request.getParameter("pagingTagPageSize");
-        if (StringUtils.isBlank(pageSizeString) && guiPaging.getPageSize() > 10) {
-          guiPaging.setPageSize(10);
-        }
-        
-        List<String> currentJobNames = GrouperUtil.batchList(allJobNamesAfterFilter, guiPaging.getPageSize(), (guiPaging.getPageNumber() - 1));
-        
-        for (String jobName : currentJobNames) {
-          
-          GuiDaemonJob guiDaemonJob = new GuiDaemonJob(jobName);
-          guiDaemonJobs.add(guiDaemonJob);
-        }
-      }
-      
       for (GuiDaemonJob guiDaemonJob : GrouperUtil.nonNull(guiDaemonJobs)) {
         guiDaemonJob.assignFailsafeNeedsApproval(jobNamesNeedApprovalNotApproved.contains(guiDaemonJob.getJobName()));
       }

@@ -62,8 +62,6 @@ public class AdminContainer {
   
   private boolean daemonJobsShowExtendedResults = false;
   
-  private boolean daemonJobsShowOnlyErrors = false;
-  
   private List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs;
 
   private String guiJobHistoryDateFrom;
@@ -286,22 +284,6 @@ public class AdminContainer {
     return GrouperUiConfig.retrieveConfig().propertyValueInt("uiV2.admin.daemonJobs.refreshCount", 30);
   }
 
-  
-  
-  /**
-   * @return the daemonJobsShowOnlyErrors
-   */
-  public boolean isDaemonJobsShowOnlyErrors() {
-    return this.daemonJobsShowOnlyErrors;
-  }
-
-  
-  /**
-   * @param daemonJobsShowOnlyErrors1 the daemonJobsShowOnlyErrors to set
-   */
-  public void setDaemonJobsShowOnlyErrors(boolean daemonJobsShowOnlyErrors1) {
-    this.daemonJobsShowOnlyErrors = daemonJobsShowOnlyErrors1;
-  }
 
   /**
    * @return the daemonJobsShowExtendedResults
@@ -428,7 +410,55 @@ public class AdminContainer {
       List<GuiHib3GrouperLoaderLog> guiHib3GrouperLoaderLogs) {
     this.guiHib3GrouperLoaderLogs = guiHib3GrouperLoaderLogs;
   }
-  
+
+
+  private List<GuiOption> daemonJobsStatusFilters;
+
+  /**
+   *
+   * @return list of status filters
+   */
+  public List<GuiOption> getDaemonJobsStatusFilters() {
+    if (this.daemonJobsStatusFilters == null) {
+
+      this.daemonJobsStatusFilters = new ArrayList<GuiOption>();
+
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterEnabled"), "ENABLED", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterDisabled"), "DISABLED", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterRunning"), "RUNNING", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterAnyError"), "ANY_ERROR", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterFailsafeError"), "ERROR_FAILSAFE", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterSubjectProblems"), "SUBJECT_PROBLEMS", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterStarted"), "STARTED", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterSuccess"), "SUCCESS", null));
+      this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterWarning"), "WARNING", null));
+    }
+
+    return daemonJobsStatusFilters;
+  }
+
+  /**
+   * The chosen status filter
+   */
+  private String daemonJobsStatusFilter;
+
+  /**
+   *
+   * @return daemonJobsStatusFilter
+   */
+  public String getDaemonJobsStatusFilter() {
+    return daemonJobsStatusFilter;
+  }
+
+  /**
+   *
+   * @param daemonJobsStatusFilter
+   * @return daemonJobsStatusFilter
+   */
+  public void setDaemonJobsStatusFilter(String daemonJobsStatusFilter) {
+    this.daemonJobsStatusFilter = daemonJobsStatusFilter;
+  }
+
   /**
    * 
    * @return number of rows
