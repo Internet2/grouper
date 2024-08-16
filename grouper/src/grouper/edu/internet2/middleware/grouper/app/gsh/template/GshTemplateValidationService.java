@@ -37,6 +37,8 @@ public class GshTemplateValidationService {
       gshTemplateDecorateForUiInput.setCurrentSubject(gshTemplateExec.getCurrentUser());
       gshTemplateDecorateForUiInput.setActAsSubject(gshTemplateExec.getActAsSubject());
       gshTemplateDecorateForUiInput.setTemplateConfigId(gshTemplateExec.getConfigId());
+      gshTemplateDecorateForUiInput.setOwnerStemName(gshTemplateExec.getOwnerStemName());
+      gshTemplateDecorateForUiInput.setOwnerGroupName(gshTemplateExec.getOwnerGroupName());
       Map<String, GshTemplateInputConfigAndValue> gshTemplateInputConfigAndValues = new LinkedHashMap<>();
       Map<String, GshTemplateInput> nameToGshTemplateInput = new HashMap<>(); 
       for (GshTemplateInput gshTemplateInput : GrouperUtil.nonNull(gshTemplateExec.getGshTemplateInputs())) {

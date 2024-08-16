@@ -1141,8 +1141,11 @@ public class UiV2Template {
             gshTemplateDecorateForUiInput.setEventConfigId(request.getParameter("eventConfigId"));
             gshTemplateDecorateForUiInput.setSubmit(submit);
             gshTemplateDecorateForUiInput.setNewForm(newTemplate);
+            gshTemplateDecorateForUiInput.setOwnerGroupName(group == null ? null : group.getName());
+            gshTemplateDecorateForUiInput.setOwnerStemName(stem == null ? null : stem.getName());
             executeForTemplateV2instance.decorateTemplateForUiDisplay(gshTemplateDecorateForUiInput);
-            
+            //line for a breakpoint
+            gshTemplateDecorateForUiInput.getEventConfigId();
           }
           if (customTemplateInputs == null) {
             return;

@@ -64,7 +64,19 @@ public class GshTemplateDecorateForUiInput {
    * input config id of the event that triggered the call or null if new template
    */
   private String eventConfigId;
+  private String ownerStemName;
+  private String ownerGroupName;
   
+  
+  public String getOwnerStemName() {
+    return ownerStemName;
+  }
+
+  
+  public String getOwnerGroupName() {
+    return ownerGroupName;
+  }
+
   /**
    * input config id of the event that triggered the call or null if new template
    * @return
@@ -126,6 +138,16 @@ public class GshTemplateDecorateForUiInput {
 
   public Subject getActAsSubject() {
     return actAsSubject;
+  }
+
+  public void setOwnerStemName(String ownerStemName) {
+    this.ownerStemName = ownerStemName;
+    
+  }
+
+  public void setOwnerGroupName(String ownerGroupName) {
+    this.ownerGroupName = ownerGroupName;
+    
   }
   
   
