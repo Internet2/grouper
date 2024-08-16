@@ -3537,9 +3537,12 @@ public class GrouperProvisioningLogic {
       }
       
       provisioningEntityWrapper.setGrouperProvisioningEntity(grouperProvisioningEntity);
-      provisioningEntityWrapper.getProvisioningStateEntity().setDelete(true);
-      provisioningEntityWrapper.getProvisioningStateEntity().setUpdate(false);
-      provisioningEntityWrapper.getProvisioningStateEntity().setCreate(false);
+      if (provisioningEntityWrapper.getGcGrouperSyncMember() != null &&
+    		  GrouperUtil.booleanValue(provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget(), false)) {
+		  provisioningEntityWrapper.getProvisioningStateEntity().setDelete(true);
+	      provisioningEntityWrapper.getProvisioningStateEntity().setUpdate(false);
+	      provisioningEntityWrapper.getProvisioningStateEntity().setCreate(false);
+      }
       
       if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable()) {
         provisioningEntityWrapper.getGcGrouperSyncMember().setProvisionable(false);
@@ -3615,9 +3618,12 @@ public class GrouperProvisioningLogic {
         }
         
         provisioningGroupWrapper.setGrouperProvisioningGroup(grouperProvisioningGroup);
-        provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
-        provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
-        provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
+        
+        if (GrouperUtil.booleanValue(gcGrouperSyncGroup.getInTarget(), false)) {
+        	provisioningGroupWrapper.getProvisioningStateGroup().setDelete(true);
+        	provisioningGroupWrapper.getProvisioningStateGroup().setUpdate(false);
+            provisioningGroupWrapper.getProvisioningStateGroup().setCreate(false);
+        }
         
         groupUuidToProvisioningGroupWrapper.put(gcGrouperSyncGroup.getGroupId(), provisioningGroupWrapper);
         
@@ -3700,7 +3706,10 @@ public class GrouperProvisioningLogic {
         }
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
-        provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
+        
+        if (GrouperUtil.booleanValue(gcGrouperSyncMembership.getInTarget(), false)) {        	
+        	provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
+        }
         
         groupUuidMemberUuidToProvisioningMembershipWrapper.put(provisioningMembershipWrapper.getGroupIdMemberId(), provisioningMembershipWrapper);
         
