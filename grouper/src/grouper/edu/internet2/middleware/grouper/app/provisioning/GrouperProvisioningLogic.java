@@ -3,6 +3,7 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
@@ -1638,7 +1639,7 @@ public class GrouperProvisioningLogic {
     // run a full sync
     GrouperProvisioner grouperProvisionerFullSync = GrouperProvisioner.retrieveProvisioner(this.getGrouperProvisioner().getConfigId());
     grouperProvisionerFullSync.setGcGrouperSyncHeartbeat(this.getGrouperProvisioner().getGcGrouperSyncHeartbeat());
-    Map<String, Object> newDebugMap = new LinkedHashMap<String, Object>();
+    Map<String, Object> newDebugMap = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
     newDebugMap.put("incrementalDebugMap", GrouperUtil.mapToString(this.getGrouperProvisioner().getDebugMap()) + "\n\n");
     
     grouperProvisionerFullSync.setDebugMap(newDebugMap);

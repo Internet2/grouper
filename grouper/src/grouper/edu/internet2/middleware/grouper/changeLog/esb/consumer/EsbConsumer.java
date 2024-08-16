@@ -20,6 +20,7 @@
 package edu.internet2.middleware.grouper.changeLog.esb.consumer;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
@@ -449,7 +450,7 @@ public class EsbConsumer extends ChangeLogConsumerBase {
 
     long startNanos = System.nanoTime();
     
-    this.debugMapOverall = new LinkedHashMap<String, Object>();
+    this.debugMapOverall = Collections.synchronizedMap(new LinkedHashMap<String, Object>());
 
     this.debugMapOverall.put("type", "consumer");
     this.debugMapOverall.put("finalLog", false);

@@ -87,7 +87,7 @@ public class ProvisioningConsumer extends ProvisioningSyncConsumer {
       EsbEventContainer lastEvent = esbEventContainers.get(esbEventContainers.size()-1);
       lastSequenceNumber = lastEvent.getSequenceNumber();
     }
-
+    grouperProvisioner.getDebugMap().put("lastSequenceNumber", lastSequenceNumber);
     GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(grouperProvisioningType);
     grouperProvisioningOutput.copyToHib3LoaderLog();
     hib3GrouperLoaderLog.store();
