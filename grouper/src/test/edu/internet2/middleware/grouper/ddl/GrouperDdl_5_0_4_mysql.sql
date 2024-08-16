@@ -1870,68 +1870,6 @@ CREATE UNIQUE INDEX grouper_duo_user_user_name_idx ON grouper_prov_duo_user (use
 
 CREATE UNIQUE INDEX grouper_duo_user_id_idx ON grouper_prov_duo_user (user_id, config_id);
 
-CREATE TABLE grouper_prov_scim_user
-(
-    config_id VARCHAR(50) NOT NULL,
-    active VARCHAR(1) NULL,
-    cost_center VARCHAR(256) NULL,
-    department VARCHAR(256) NULL,
-    display_name VARCHAR(256) NULL,
-    division VARCHAR(256) NULL,
-    email_type VARCHAR(256) NULL,
-    email_value VARCHAR(256) NULL,
-    email_type2 VARCHAR(256) NULL,
-    email_value2 VARCHAR(256) NULL,
-    employee_number VARCHAR(256) NULL,
-    external_id VARCHAR(256) NULL,
-    family_name VARCHAR(256) NULL,
-    formatted_name VARCHAR(256) NULL,
-    given_name VARCHAR(256) NULL,
-    id VARCHAR(256) NOT NULL,
-    middle_name VARCHAR(256) NULL,
-    phone_number VARCHAR(256) NULL,
-    phone_number_type VARCHAR(256) NULL,
-    phone_number2 VARCHAR(256) NULL,
-    phone_number_type2 VARCHAR(256) NULL,
-    the_schemas VARCHAR(256) NULL,
-    title VARCHAR(256) NULL,
-    user_name VARCHAR(256) NULL,
-    user_type VARCHAR(256) NULL,
-    PRIMARY KEY (config_id, id(180))
-);
-
-CREATE INDEX grouper_prov_scim_user_idx1 ON grouper_prov_scim_user (email_value, config_id);
-
-CREATE INDEX grouper_prov_scim_user_idx2 ON grouper_prov_scim_user (user_name, config_id);
-
-CREATE TABLE grouper_prov_scim_user_attr
-( 
-    config_id VARCHAR(50) NOT NULL,
-    id VARCHAR(256) NOT NULL,
-    attribute_name VARCHAR(256) NULL,
-    attribute_value VARCHAR(4000) NULL
-);
-
-ALTER TABLE  grouper_prov_scim_user_attr ADD CONSTRAINT grouper_prov_scim_usat_fk FOREIGN KEY (config_id, id) REFERENCES grouper_prov_scim_user(config_id, id) on delete cascade;
-
-CREATE INDEX grouper_prov_scim_usat_idx1 ON grouper_prov_scim_user_attr (id(100), config_id, attribute_name(100));
-
-CREATE INDEX grouper_prov_scim_usat_idx2 ON grouper_prov_scim_user_attr (id(100), config_id, attribute_value(100));
-
-CREATE TABLE grouper_prov_azure_user
-(
-    config_id VARCHAR(50) NOT NULL,
-    account_enabled VARCHAR(1) NULL,
-    display_name VARCHAR(256) NULL,
-    id VARCHAR(256) NOT NULL,
-    mail_nickname VARCHAR(256) NULL,
-    on_premises_immutable_id VARCHAR(256) NULL,
-    user_principal_name VARCHAR(256) NULL,
-    PRIMARY KEY (config_id, id(180))
-);
- 
-CREATE INDEX grouper_prov_azure_user_idx1 ON grouper_prov_azure_user (user_principal_name, config_id);
-
 CREATE TABLE grouper_mship_req_change
 (
     id BIGINT NOT NULL,
@@ -2840,6 +2778,6 @@ CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subjec
 CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS  select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ;
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V47, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 46, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V46, '));
 commit;

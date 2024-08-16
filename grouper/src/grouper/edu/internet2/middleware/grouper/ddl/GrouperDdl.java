@@ -2880,12 +2880,15 @@ public enum GrouperDdl implements DdlVersionable {
 
     @Override
     public String getGrouperVersion() {
-      return null;
+      return "5.0.5";
     }
 
     @Override
     public void updateVersionFromPrevious(Database database,
         DdlVersionBean ddlVersionBean) {
+    	GrouperDdl5_12_0.addGrouperProvAzureUserTable(database, ddlVersionBean);
+        GrouperDdl5_12_0.addGrouperProvAzureUserIndex(ddlVersionBean, database);
+        GrouperDdl5_12_0.addGrouperProvAzureUserComments(database, ddlVersionBean);
     }
   },
   V48 {

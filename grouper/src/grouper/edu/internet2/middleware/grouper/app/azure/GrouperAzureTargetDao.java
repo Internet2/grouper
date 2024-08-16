@@ -85,9 +85,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
           .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
+      
+      boolean lookupOwners = azureConfiguration.getTargetGroupAttributeNameToConfig().containsKey("groupOwners");
 
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands
-          .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId());
+          .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), lookupOwners);
 
       for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
         ProvisioningGroup targetGroup = grouperAzureGroup.toProvisioningGroup();
@@ -120,12 +122,21 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands
           .retrieveAzureUsers(azureConfiguration.getAzureExternalSystemConfigId());
 
+      Map<ProvisioningEntity, Object> targetEntityToNativeEntity = new HashMap<>();
+      
       for (GrouperAzureUser grouperAzureUser : grouperAzureUsers) {
         ProvisioningEntity targetEntity = grouperAzureUser.toProvisioningEntity();
         results.add(targetEntity);
+        targetEntityToNativeEntity.put(targetEntity, grouperAzureUser);
+      }
+      
+      TargetDaoRetrieveAllEntitiesResponse response = new TargetDaoRetrieveAllEntitiesResponse(results);
+      
+      if (targetDaoRetrieveAllEntitiesRequest.isIncludeNativeEntity()) {
+      	response.setTargetEntityToTargetNativeEntity(targetEntityToNativeEntity);
       }
 
-      return new TargetDaoRetrieveAllEntitiesResponse(results);
+      return response;
     } finally {
       this.addTargetDaoTimingInfo(
           new TargetDaoTimingInfo("retrieveAllEntities", startNanos));
@@ -156,13 +167,20 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       List<ProvisioningEntity> targetEntitiesFromAzure = new ArrayList<>();
       
+      Map<ProvisioningEntity, Object> targetEntityToNativeEntity = new HashMap<>();
+      
       for (GrouperAzureUser userFromAuzre: azureUsers) {
         targetEntitiesFromAzure.add(userFromAuzre.toProvisioningEntity());
+        targetEntityToNativeEntity.put(userFromAuzre.toProvisioningEntity(), userFromAuzre);
       }
       
       TargetDaoRetrieveEntitiesResponse response = new TargetDaoRetrieveEntitiesResponse();
       response.setTargetEntities(targetEntitiesFromAzure);
-
+      
+      if (targetDaoRetrieveEntitiesRequest.isIncludeNativeEntity()) {
+    	response.setTargetEntityToTargetNativeEntity(targetEntityToNativeEntity);
+      }
+      
       return response;
     } finally {
       this.addTargetDaoTimingInfo(new TargetDaoTimingInfo("retrieveEntities", startNanos));
@@ -189,9 +207,11 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         }
       }
       
+      boolean lookupOwners = azureConfiguration.getTargetGroupAttributeNameToConfig().containsKey("groupOwners");
+      
       // we can retrieve by id or displayName
       List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups(
-          azureConfiguration.getAzureExternalSystemConfigId(), fieldValues, targetDaoRetrieveGroupsRequest.getSearchAttribute());
+          azureConfiguration.getAzureExternalSystemConfigId(), fieldValues, targetDaoRetrieveGroupsRequest.getSearchAttribute(), lookupOwners);
       
       
       List<ProvisioningGroup> targetGroupsFromAzure = new ArrayList<>();
@@ -255,7 +275,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
           String[] ownersArray = GrouperUtil.splitTrim(grouperAzureGroup.getOwners(), ",");
           
           Set<String> ownersToBeSaved = new HashSet<>();
-          Set<Object> usersToFetchFromTarget = new HashSet<>();
+          Set<Object> usersToPrefixUrl = new HashSet<>();
           
           for (String owner: ownersArray) {
             if (owner.startsWith("http://") || owner.startsWith("https://")) { // if it's already proper url format
@@ -264,15 +284,15 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
               ownersToBeSaved.add(ownerIdentifierToOwnerUrl.get(owner));
             } else {
               // try to go fetch it and populate the cache
-              usersToFetchFromTarget.add(owner);
+              usersToPrefixUrl.add(owner);
             }
           }
           
           
-          if (usersToFetchFromTarget.size() > 0) {
+          if (usersToPrefixUrl.size() > 0) {
             
             TargetDaoRetrieveEntitiesByValuesRequest request = new TargetDaoRetrieveEntitiesByValuesRequest();
-            request.setSearchValues(usersToFetchFromTarget);
+            request.setSearchValues(usersToPrefixUrl);
             
             TargetDaoRetrieveEntitiesByValuesResponse valuesResponse = this.getGrouperProvisioner()
                 .retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntitiesBySearchValues(request);
@@ -462,11 +482,16 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     long startNanos = System.nanoTime();
     List<ProvisioningGroup> targetGroups = targetDaoUpdateGroupsRequest.getTargetGroups();
     
+    GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+    
     Map<GrouperAzureGroup, ProvisioningGroup> azureGroupToTargetGroup = new HashMap<>();
     Map<GrouperAzureGroup, Set<String>> azureGroupToFieldNamesToUpdate = new HashMap<>();
     
     for (ProvisioningGroup targetGroup: targetGroups) {
       GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
+      if (StringUtils.isBlank(grouperAzureGroup.getId())) {
+        continue;
+      }
       azureGroupToTargetGroup.put(grouperAzureGroup, targetGroup);
       
       Set<String> fieldNamesToUpdate = new HashSet<String>();
@@ -475,12 +500,55 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
         fieldNamesToUpdate.add(fieldName);
       }
       
+      if (StringUtils.isNotBlank(grouperAzureGroup.getOwners())) {
+        // transform it into something that can be ingested by azure
+        
+        String[] ownersArray = GrouperUtil.splitTrim(grouperAzureGroup.getOwners(), ",");
+        
+        Set<String> ownersToBeSaved = new HashSet<>();
+        Set<Object> usersToFetchFromTarget = new HashSet<>();
+        
+        for (String owner: ownersArray) {
+          if (owner.startsWith("http://") || owner.startsWith("https://")) { // if it's already proper url format
+            ownersToBeSaved.add(owner);
+          } else if (ownerIdentifierToOwnerUrl.get(owner) != null) {
+            ownersToBeSaved.add(ownerIdentifierToOwnerUrl.get(owner));
+          } else {
+            // try to go fetch it and populate the cache
+            usersToFetchFromTarget.add(owner);
+          }
+        }
+        
+        
+        if (usersToFetchFromTarget.size() > 0) {
+          
+          TargetDaoRetrieveEntitiesByValuesRequest request = new TargetDaoRetrieveEntitiesByValuesRequest();
+          request.setSearchValues(usersToFetchFromTarget);
+          
+          TargetDaoRetrieveEntitiesByValuesResponse valuesResponse = this.getGrouperProvisioner()
+              .retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntitiesBySearchValues(request);
+          Map<Object, ProvisioningEntity> searchValueToTargetEntity = valuesResponse.getSearchValueToTargetEntity();
+          
+          for (Object searchValue: searchValueToTargetEntity.keySet()) {
+            ProvisioningEntity targetEntity = searchValueToTargetEntity.get(searchValue);
+            String id = targetEntity.getId();
+            String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+                "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
+            String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+id;
+            ownersToBeSaved.add(url);
+            ownerIdentifierToOwnerUrl.put(searchValue, url);
+          }
+        }
+        
+        grouperAzureGroup.setOwners(GrouperUtil.join(ownersToBeSaved.iterator(), ","));
+        
+      }
+      
       azureGroupToFieldNamesToUpdate.put(grouperAzureGroup, fieldNamesToUpdate);
       
     }
     
     try {
-      GrouperAzureConfiguration azureConfiguration = (GrouperAzureConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       Map<GrouperAzureGroup, Exception> groupToMaybeException = GrouperAzureApiCommands.updateAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), azureGroupToFieldNamesToUpdate);
       
@@ -536,6 +604,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     
     for (ProvisioningEntity targetEntity: targetEntities) {
       GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromProvisioningEntity(targetEntity, null);
+      if (StringUtils.isBlank(grouperAzureUser.getId())) {
+        continue;
+      }
       azureUserToTargetEntity.put(grouperAzureUser, targetEntity);
       
       Set<String> fieldNamesToUpdate = new HashSet<String>();
@@ -610,6 +681,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (ProvisioningGroup targetGroup: targetGroups) {
         GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
+        if (StringUtils.isBlank(grouperAzureGroup.getId())) {
+          continue;
+        }
         grouperAzureGroups.add(grouperAzureGroup);
         azureGroupToTargetGroup.put(grouperAzureGroup, targetGroup);
       }
@@ -879,6 +953,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       for (ProvisioningEntity targetEntity: targetEntities) {
         GrouperAzureUser grouperAzureUser = GrouperAzureUser.fromProvisioningEntity(targetEntity, null);
+        if (StringUtils.isBlank(grouperAzureUser.getId())) {
+          continue;
+        }
         grouperAzureUsers.add(grouperAzureUser);
         azureUserToTargetEntity.put(grouperAzureUser, targetEntity);
       }
