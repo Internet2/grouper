@@ -2109,4 +2109,70 @@ public class GrouperDdlUtilsTest extends GrouperTest {
         grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
   }
   
+  
+  /**
+   * 
+   */
+  public void testUpgradeFrom5_11_0To5_12_0ddlUtils() {
+    
+    //lets make sure everything is there on install
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_azure_user"));
+  
+    GrouperDdlEngine grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_51_postgres.sql
+    // get to 5.0.4
+    File scriptToGetTo5_0_4 = retrieveScriptFile("GrouperDdl_5_11_0_" + GrouperDdlUtils.databaseType() + ".sql");
+    
+    GrouperDdlUtils.sqlRun(scriptToGetTo5_0_4, true, true);
+  
+    // stuff gone
+    assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_azure_user"));
+  
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  
+    GrouperDdlEngine.addDllWorkerTableIfNeeded(null);
+    //first make sure the DB ddl is up to date
+    new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_azure_user"));
+  
+    scriptToGetTo5_0_4.delete();
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
+    assertEquals(
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings", 0,
+        grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+  }
 }

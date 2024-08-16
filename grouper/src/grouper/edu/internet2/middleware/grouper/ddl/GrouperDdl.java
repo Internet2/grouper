@@ -2775,6 +2775,11 @@ public enum GrouperDdl implements DdlVersionable {
       GrouperDdl5_11_0.addGrouperProvScimUserAttributeTable(database, ddlVersionBean);
       GrouperDdl5_11_0.addGrouperProvScimUserAttributeIndex(ddlVersionBean, database);
       GrouperDdl5_11_0.addGrouperProvScimUserAttributeComments(database, ddlVersionBean);
+      
+      GrouperDdl5_12_0.addGrouperProvAzureUserTable(database, ddlVersionBean);
+      GrouperDdl5_12_0.addGrouperProvAzureUserIndex(ddlVersionBean, database);
+      GrouperDdl5_12_0.addGrouperProvAzureUserComments(database, ddlVersionBean);
+
 
     }
   },
