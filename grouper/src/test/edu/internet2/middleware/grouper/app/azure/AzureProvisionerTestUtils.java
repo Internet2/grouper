@@ -372,6 +372,7 @@ public class AzureProvisionerTestUtils {
       configureProvisionerSuffix(provisioningTestConfigInput, "groupMatchingAttribute0name", "displayName");
 
       
+      configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAdvancedAttribute", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.showAttributeCrud", "true");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "mailNickname");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
@@ -390,6 +391,7 @@ public class AzureProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "allowOnlyMembersToPost", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "resourceProvisioningOptionsTeam", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "hideGroupInOutlook", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAdvancedAttribute", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.showAttributeCrud", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.insert", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.name", "allowOnlyMembersToPost");
@@ -397,6 +399,7 @@ public class AzureProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpression", "${grouperUtil.defaultString(grouperProvisioningGroup.retrieveAttributeValueString('md_grouper_allowOnlyMembersToPost'), 'false')}");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.translateExpressionType", "translationScript");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.3.update", "false");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAdvancedAttribute", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.showAttributeCrud", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.insert", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.4.name", "welcomeEmailDisabled");
@@ -408,6 +411,7 @@ public class AzureProvisionerTestUtils {
         
         if (provisioningTestConfigInput.getGroupAttributeCount() == 6) {
           
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAdvancedAttribute", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeCrud", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.insert", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "groupOwners");
