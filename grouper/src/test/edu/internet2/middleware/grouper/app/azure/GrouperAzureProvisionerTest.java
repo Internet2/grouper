@@ -72,7 +72,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   private static final int AZURE_MEMBERSHIPS_TO_CREATE = AZURE_STRESS ? 200000 : 2000;
   
   public static void main(String[] args) {
-    TestRunner.run(new GrouperAzureProvisionerTest("azureUpdateGroupDescriptionIncremental"));
+    TestRunner.run(new GrouperAzureProvisionerTest("testFullSyncAzure"));
     //realAzureAddUsers();
   }
 
@@ -152,7 +152,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     for (int i=AZURE_GROUPS_TO_CREATE;i<AZURE_GROUPS_TO_CREATE*2;i++) {
       String name = "test" + i;
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(name),  "displayName");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(name),  "displayName", false);
       if (grouperAzureGroups == null || grouperAzureGroups.size() == 0) {
         GrouperAzureGroup grouperAzureGroup = new GrouperAzureGroup();
         grouperAzureGroup.setDisplayName(name);
@@ -268,7 +268,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     GrouperAzureApiCommands.deleteAzureUsers("myAzure", grouperAzureUsersToDelete);
 
-    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
     
     GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups);
 
@@ -549,7 +549,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-    List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+    List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
     assertEquals(AZURE_GROUPS_TO_CREATE, azureGroups.size());
     
     azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
@@ -592,7 +592,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-    azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+    azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
     assertTrue(azureGroups.size() == AZURE_GROUPS_TO_CREATE);
     
     azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
@@ -615,7 +615,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-    azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+    azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
     assertTrue(azureGroups.size() == 0);
 
     azureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure");
@@ -660,7 +660,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     Subject fred = SubjectFinder.findById("Fred400", true);
     
     boolean sleep = false;
-    List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test:test0"), "displayName");
+    List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test:test0"), "displayName", false);
     if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
       GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
       sleep = true;
@@ -689,7 +689,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     }
 
     // this will create tables
-    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
 
     Stem stem = new StemSave(grouperSession).assignName("test").save();
     
@@ -713,7 +713,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
     //lets sync these over
     
-    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName", false);
     if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
       GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
       GrouperUtil.sleep(10000);
@@ -732,7 +732,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
     
     assertTrue(1 <= grouperProvisioningOutput.getInsert());
-    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName", false);
     assertEquals(1, grouperAzureGroups1.size());
 
     grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
@@ -754,7 +754,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
     
     assertEquals(0, grouperProvisioningOutput.getInsert());
-    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName", false);
     assertEquals(1, grouperAzureGroups1.size());
 
     grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
@@ -780,7 +780,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName", false);
     assertEquals(1, grouperAzureGroups1.size());
     
   }
@@ -824,7 +824,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
         
     azureAddUsersHelper(5000, 5000+userCount);
 
-    List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test_test0"), "displayName");
+    List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test_test0"), "displayName", false);
     if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
       GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
       sleep = true;
@@ -838,7 +838,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     incrementalProvision(configId);
 
     // this will create tables
-    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
 
     Stem stem = new StemSave(grouperSession).assignName("test").save();
     
@@ -881,7 +881,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
     
     assertTrue(1 <= grouperProvisioningOutput.getInsert());
-    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test_test0"), "displayName");
+    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test_test0"), "displayName", false);
     assertEquals(1, grouperAzureGroups1.size());
 
     List<GrouperAzureUser> grouperAzureUsers = null;
@@ -905,7 +905,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test_test0"), "displayName");
+    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test_test0"), "displayName", false);
     assertEquals(1, grouperAzureGroups1.size());
 
     grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(subjects.get(1).getId() + "@" + domain), "userPrincipalName");
@@ -950,7 +950,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     }
 
     // this will create tables
-    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+    List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
 
     Stem stem = new StemSave(grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
@@ -980,7 +980,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
 
     //lets sync these over
     
-    List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName");
+    List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName", false);
     if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
       GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
       GrouperUtil.sleep(10000);
@@ -997,7 +997,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
     
     assertTrue(1 <= grouperProvisioningOutput.getInsert());
-    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName");
+    grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName", false);
     assertNotNull(grouperAzureGroups1);
 
     List<GrouperAzureUser> grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId()), "userPrincipalName");
@@ -1061,7 +1061,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName");
+    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName", false);
     assertNotNull(grouperAzureGroups);
     assertTrue(grouperAzureGroups.size() > 0);
     
@@ -1088,7 +1088,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
 
-    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName");
+    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName", false);
     assertNotNull(grouperAzureGroups);
     assertTrue(grouperAzureGroups.size() > 0);
     
@@ -1118,7 +1118,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
     grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
     
-    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName");
+    grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getExtension()), "displayName", false);
     assertTrue(grouperAzureGroups.size() == 0);
     
     grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId()), "userPrincipalName");
@@ -1276,7 +1276,11 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     }
     
     try {
-      AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput().assignGroupAttributeCount(5));
+      AzureProvisionerTestUtils.configureAzureProvisioner(new AzureProvisionerTestConfigInput()
+    		  .assignGroupAttributeCount(5)
+    		  //.assignRealAzure(true)
+    		  .addExtraConfig("loadEntitiesToGrouperTable", "true")
+    		  );
             
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -1480,7 +1484,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       
-      List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
      
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
@@ -1567,7 +1571,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
       GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       
-      List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
      
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
@@ -1695,7 +1699,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
           .assignGroupAttributeCount(5));
       
       // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
   
       Stem stem = new StemSave(grouperSession).assignName("test").save();
       Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
@@ -1839,7 +1843,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
           .addExtraConfig("resourceProvisioningOptionsTeam", "true"));
       
       // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
   
       
       GrouperSession grouperSession = GrouperSession.startRootSession();
@@ -1989,7 +1993,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
     
     try {
       // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
   
       assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_azure_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup").list(GrouperAzureGroup.class).size());
@@ -2083,7 +2087,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
             .addExtraConfig("resourceProvisioningOptionsTeam", "true"));
       
       // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
   
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -2178,7 +2182,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
           );
       
       // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
   
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -2339,7 +2343,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
           );
             
       String azureGroupDisplayName = "test:test0";
-      List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName");
+      List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false);
       if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
         GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
         sleep = true;
@@ -2353,7 +2357,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       incrementalProvision(configId);
   
       // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
   
       Stem stem = new StemSave(grouperSession).assignName("test").save();
       
@@ -2398,7 +2402,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
       
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
-      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName");
+      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false);
       assertEquals(1, grouperAzureGroups1.size());
   
       List<GrouperAzureUser> grouperAzureUsers = null;
@@ -2464,7 +2468,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcObject());
       assertTrue(provisioningEntityWrapper.getProvisioningStateEntity().isRecalcEntityMemberships());
       
-      grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName");
+      grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(azureGroupDisplayName), "displayName", false);
       assertEquals(1, grouperAzureGroups1.size());
 
       grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(subjects.get(0).getId() + "@" + domain), "userPrincipalName");
@@ -2495,7 +2499,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       Subject fred = SubjectFinder.findById("Fred400", true);
       
       boolean sleep = false;
-      List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test:test0"), "displayName");
+      List<GrouperAzureGroup> grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList("test:test0"), "displayName", false);
       if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
         GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
         sleep = true;
@@ -2524,7 +2528,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       }
   
       // this will create tables
-      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure");
+      List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", false);
   
       Stem stem = new StemSave(grouperSession).assignName("test").save();
       
@@ -2548,7 +2552,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
   
       //lets sync these over
       
-      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName", false);
       if (grouperAzureGroups1 != null && grouperAzureGroups1.size() > 0) {
         GrouperAzureApiCommands.deleteAzureGroups("myAzure", grouperAzureGroups1);
         GrouperUtil.sleep(10000);
@@ -2567,7 +2571,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
       
       assertTrue(1 <= grouperProvisioningOutput.getInsert());
-      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+      grouperAzureGroups1 = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName", false);
       assertEquals(1, grouperAzureGroups1.size());
   
       grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
@@ -2590,7 +2594,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput();
   
-      grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName");
+      grouperAzureGroups = GrouperAzureApiCommands.retrieveAzureGroups("myAzure", Arrays.asList(testGroup.getName()), "displayName", false);
       assertEquals(1, grouperAzureGroups1.size());
 
       grouperAzureUsers = GrouperAzureApiCommands.retrieveAzureUsers("myAzure", Arrays.asList(fred.getId() + "@" + domain), "userPrincipalName");
