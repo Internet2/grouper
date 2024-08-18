@@ -76,10 +76,10 @@ public class LdapSyncCompare extends GrouperProvisioningCompare {
       rdns = dn.getRDns();
     } else {
       rdns = new ArrayList<>();
-      List<RDn> remainingRdns = dn.getRDns();
+      List<RDn> remainingRdns = new ArrayList<>(dn.getRDns());
       Dn baseDn = new Dn(baseDnString);
       
-      while (remainingRdns.size() > 0) {
+      while (!remainingRdns.isEmpty()) {
         if (new Dn(remainingRdns).isSame(baseDn)) {
           // the rest is the base
           break;

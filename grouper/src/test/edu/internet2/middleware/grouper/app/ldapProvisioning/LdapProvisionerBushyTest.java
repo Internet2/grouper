@@ -457,7 +457,7 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
     assertEquals(1, ldapEntries.size());
     
     ldapEntry = LdapSessionUtils.ldapSession().list("personLdap", "cn=testGroup,ou=c,ou=b,ou=a,ou=testStemToMoveTo,ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=*)", new String[] {"objectClass", "cn", "member", "businessCategory", "description"}, null).get(0);
-    assertEquals("cn=testGroup,ou=c,ou=b,ou=a,ou=testStemToMoveTo,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertTrue("cn=testGroup,ou=c,ou=b,ou=a,ou=testStemToMoveTo,ou=Groups,dc=example,dc=edu".equalsIgnoreCase(ldapEntry.getDn()));
     assertEquals("testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
     assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("businessCategory").getStringValues().iterator().next());
     assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());

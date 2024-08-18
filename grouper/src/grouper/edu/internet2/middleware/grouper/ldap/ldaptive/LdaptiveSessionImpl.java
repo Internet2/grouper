@@ -22,7 +22,10 @@ import java.util.HashSet;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 import java.util.Set;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
@@ -66,6 +69,10 @@ import org.ldaptive.handler.ResultPredicate;
 import org.ldaptive.handler.SearchResultHandler;
 import org.ldaptive.props.SearchRequestPropertySource;
 import org.ldaptive.referral.DefaultReferralConnectionFactory;
+import org.ldaptive.referral.FollowAddReferralHandler;
+import org.ldaptive.referral.FollowDeleteReferralHandler;
+import org.ldaptive.referral.FollowModifyDnReferralHandler;
+import org.ldaptive.referral.FollowModifyReferralHandler;
 import org.ldaptive.referral.FollowSearchReferralHandler;
 import org.ldaptive.referral.FollowSearchResultReferenceHandler;
 
@@ -168,8 +175,7 @@ public class LdaptiveSessionImpl implements LdapSession {
    * @param ldapHandler is the logic of the ldap calls
    * @return the result of the handler
    */
-  private Object callbackLdapSession(String ldapServerId, LdapHandler<ConnectionFactory> ldapHandler) {
-    Object ret;
+  private <R> R callbackLdapSession(String ldapServerId, LdapHandler<ConnectionFactory, R> ldapHandler) {
     try {
       PooledConnectionFactory blockingLdapPool = getPooledConnectionFactory(ldapServerId);
       if (LOG.isDebugEnabled()) {
@@ -177,14 +183,13 @@ public class LdaptiveSessionImpl implements LdapSession {
       }
       LdapHandlerBean<ConnectionFactory> ldapHandlerBean = new LdapHandlerBean<>();
       ldapHandlerBean.setLdap(blockingLdapPool);
-      ret = ldapHandler.callback(ldapHandlerBean);
+      return ldapHandler.callback(ldapHandlerBean);
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, "Problem with ldap connection: " + ldapServerId);
       throw re;
     } catch (Exception e) {
       throw new RuntimeException("Problem with ldap connection: " + ldapServerId, e);
     }
-    return ret;
   }
 
   /**
@@ -196,25 +201,20 @@ public class LdaptiveSessionImpl implements LdapSession {
     
     try {
       
-      return (List<R>)callbackLdapSession(ldapServerId, ldapHandlerBean -> {
+      return callbackLdapSession(ldapServerId, ldapHandlerBean -> {
 
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
 
-        SearchResponse searchResult = processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[] { attributeName }, null);
-
         List<R> result = new ArrayList<>();
-        for (LdapEntry entry : searchResult.getEntries()) {
+        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, entry -> {
           LdapAttribute attribute = entry.getAttribute(attributeName);
-
           if (attribute == null && StringUtils.equals("dn", attributeName)) {
             String nameInNamespace = entry.getDn();
             R attributeValue = GrouperUtil.typeCast(nameInNamespace, returnType);
             result.add(attributeValue);
           } else {
-
             if (attribute != null) {
               for (Object attributeValue : attribute.getStringValues()) {
-
                 attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
                 if (attributeValue != null) {
                   result.add((R)attributeValue);
@@ -222,7 +222,8 @@ public class LdaptiveSessionImpl implements LdapSession {
               }
             }
           }
-        }
+          return null;
+        });
 
         if (LOG.isDebugEnabled()) {
           LOG.debug("Found " + result.size() + " results for serverId: " + ldapServerId + ", searchDn: " + searchDn
@@ -249,33 +250,30 @@ public class LdaptiveSessionImpl implements LdapSession {
     
     try {
       
-      return (Map<String, List<R>>)callbackLdapSession(ldapServerId, ldapHandlerBean -> {
+      return callbackLdapSession(ldapServerId, ldapHandlerBean -> {
 
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
 
-        SearchResponse searchResult = processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[] { attributeName }, null);
-
         Map<String, List<R>> result = new HashMap<>();
-        int subObjectCount = 0;
-        for (LdapEntry entry : searchResult.getEntries()) {
-
+        AtomicInteger subObjectCount = new AtomicInteger();
+        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, entry -> {
           List<R> valueResults = new ArrayList<>();
           String nameInNamespace = entry.getDn();
 
           result.put(nameInNamespace, valueResults);
 
           LdapAttribute attribute = entry.getAttribute(attributeName);
-
           if (attribute != null) {
             for (Object attributeValue : attribute.getStringValues()) {
               attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
               if (attributeValue != null) {
-                subObjectCount++;
+                subObjectCount.incrementAndGet();
                 valueResults.add((R)attributeValue);
               }
             }
           }
-        }
+          return null;
+        });
 
         if (LOG.isDebugEnabled()) {
           LOG.debug("Found " + result.size() + " results, (" + subObjectCount + " sub-results) for serverId: " + ldapServerId + ", searchDn: " + searchDn
@@ -302,13 +300,15 @@ public class LdaptiveSessionImpl implements LdapSession {
 
     try {
       
-      return (List<edu.internet2.middleware.grouper.ldap.LdapEntry>)callbackLdapSession(ldapServerId, ldapHandlerBean -> {
+      return callbackLdapSession(ldapServerId, ldapHandlerBean -> {
 
+        List<edu.internet2.middleware.grouper.ldap.LdapEntry> entries = new ArrayList<>();
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
-
-        SearchResponse searchResults = processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, attributeNames, sizeLimit);
-
-        return getLdapEntriesFromSearchResult(searchResults, attributeNames);
+        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, attributeNames, sizeLimit, e -> {
+          entries.add(getLdapEntryFromSearchResult(e, attributeNames));
+          return null;
+        });
+        return entries;
       });
     } catch (RuntimeException re) {
       GrouperUtil.injectInException(re, "Error querying ldap server id: " + ldapServerId + ", searchDn: " + searchDn
@@ -321,7 +321,7 @@ public class LdaptiveSessionImpl implements LdapSession {
   @Override
   public List<edu.internet2.middleware.grouper.ldap.LdapEntry> read(String ldapServerId, String searchDn, List<String> dnList, String[] attributeNames) {
     try {
-      return (List<edu.internet2.middleware.grouper.ldap.LdapEntry>)callbackLdapSession(ldapServerId, ldapHandlerBean -> {
+      return callbackLdapSession(ldapServerId, ldapHandlerBean -> {
 
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
 
@@ -345,13 +345,17 @@ public class LdaptiveSessionImpl implements LdapSession {
             }
 
             String filter = "(|" + builder + ")";
-            SearchResponse searchResults = processSearchRequest(ldapServerId, ldap, searchDn, LdapSearchScope.SUBTREE_SCOPE, filter, attributeNames, null);
-            results.addAll(getLdapEntriesFromSearchResult(searchResults, attributeNames));
+            processSearchRequest(ldapServerId, ldap, searchDn, LdapSearchScope.SUBTREE_SCOPE, filter, attributeNames, null, e -> {
+              results.add(getLdapEntryFromSearchResult(e, attributeNames));
+              return null;
+            });
           }
         } else {
           for (String dn : dnList) {
-            SearchResponse searchResults = processSearchRequest(ldapServerId, ldap, dn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", attributeNames, null);
-            results.addAll(getLdapEntriesFromSearchResult(searchResults, attributeNames));
+            processSearchRequest(ldapServerId, ldap, dn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", attributeNames, null, e -> {
+              results.add(getLdapEntryFromSearchResult(e, attributeNames));
+              return null;
+            });
           }
         }
 
@@ -421,7 +425,8 @@ public class LdaptiveSessionImpl implements LdapSession {
     return ldaptiveModificationType;
   }
   
-  private SearchResponse processSearchRequest(String ldapServerId, ConnectionFactory ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Integer sizeLimit) throws LdapException {
+  private SearchResponse processSearchRequest(
+    String ldapServerId, ConnectionFactory ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Integer sizeLimit, LdapEntryHandler entryHandler) throws LdapException {
 
     SearchRequest searchRequest = new SearchRequest();
 
@@ -479,7 +484,13 @@ public class LdaptiveSessionImpl implements LdapSession {
     if (this.debug) {
       this.debugLog.append("Ldaptive searchRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(searchRequest.toString(), 2000)).append("\n");
     }
-    LdapEntryHandler[] entryHandlers = LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers();
+    List<LdapEntryHandler> entryHandlers = Arrays.stream(
+      Optional.ofNullable(LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers())
+        .orElse(new LdapEntryHandler[0]))
+      .collect(Collectors.toList());
+    if (entryHandler != null) {
+      entryHandlers.add(entryHandler);
+    }
     List<SearchResultHandler> resultHandlers = new ArrayList<>();
     if (LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers() != null) {
       resultHandlers.addAll(Arrays.asList(LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers()));
@@ -487,15 +498,16 @@ public class LdaptiveSessionImpl implements LdapSession {
 
     final Set<ResultCode> ignoreResultCodes = ldapConfig.getSearchIgnoreResultCodes();
     if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-      resultHandlers.add(new FollowSearchReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())));
-      resultHandlers.add(new FollowSearchResultReferenceHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())));
-      ignoreResultCodes.add(ResultCode.REFERRAL);
+      // referrals should be followed before any other search result handlers
+      // the boolean parameter indicates that failure to follow referrals should raise an exception
+      resultHandlers.add(0, new FollowSearchReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
+      resultHandlers.add(1, new FollowSearchResultReferenceHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
     }
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
       search.setThrowCondition(new IgnoreResultCodePredicate(ignoreResultCodes));
-      if (entryHandlers != null) {
-        search.setEntryHandlers(entryHandlers);
+      if (!entryHandlers.isEmpty()) {
+        search.setEntryHandlers(entryHandlers.toArray(new LdapEntryHandler[0]));
       }
       if (!resultHandlers.isEmpty()) {
         search.setSearchResultHandlers(resultHandlers.toArray(new SearchResultHandler[0]));
@@ -504,8 +516,8 @@ public class LdaptiveSessionImpl implements LdapSession {
     } else {
       PagedResultsClient client = new PagedResultsClient(ldap, pageSize);
       client.setThrowCondition(new IgnoreResultCodePredicate(ignoreResultCodes));
-      if (entryHandlers != null) {
-        client.setEntryHandlers(entryHandlers);
+      if (!entryHandlers.isEmpty()) {
+        client.setEntryHandlers(entryHandlers.toArray(new LdapEntryHandler[0]));
       }
       if (!resultHandlers.isEmpty()) {
         client.setSearchResultHandlers(resultHandlers.toArray(new SearchResultHandler[0]));
@@ -532,7 +544,6 @@ public class LdaptiveSessionImpl implements LdapSession {
         search.setSearchResultHandlers(
           new FollowSearchReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())),
           new FollowSearchResultReferenceHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig())));
-        ignoreResultCodes.add(ResultCode.REFERRAL);
       }
       search.setThrowCondition(new IgnoreResultCodePredicate(ldapConfig.getSearchIgnoreResultCodes()));
 
@@ -575,59 +586,45 @@ public class LdaptiveSessionImpl implements LdapSession {
     return pageSize;
   }
 
-  private List<edu.internet2.middleware.grouper.ldap.LdapEntry> getLdapEntriesFromSearchResult(SearchResponse searchResults, String[] attributeNames) {
+  private edu.internet2.middleware.grouper.ldap.LdapEntry getLdapEntryFromSearchResult(LdapEntry searchResult, String[] attributeNames) {
+    String nameInNamespace = searchResult.getDn();
 
-    List<edu.internet2.middleware.grouper.ldap.LdapEntry> results = new ArrayList<>();
+    edu.internet2.middleware.grouper.ldap.LdapEntry entry = new edu.internet2.middleware.grouper.ldap.LdapEntry(nameInNamespace);
 
-    int count = 0;
-    ArrayList<LdapEntry> searchResultArrayList = (ArrayList<LdapEntry>) searchResults.getEntries();
-    for (LdapEntry searchResult : searchResultArrayList) {
-      
-      // conserve memory
-      searchResultArrayList.set(count, null);
-      count++;
+    boolean useAttributeNamesFromResult = false;
 
-      String nameInNamespace = searchResult.getDn();
-      
-      edu.internet2.middleware.grouper.ldap.LdapEntry entry = new edu.internet2.middleware.grouper.ldap.LdapEntry(nameInNamespace);
-
-      boolean useAttributeNamesFromResult = false;
-      
-      if (attributeNames == null) {
-        useAttributeNamesFromResult = true;
-      } else {
-        // ReturnAttribute could be all user or all operational or both
-        for (String attributeName : attributeNames) {
-          if (StringUtils.equals("*", attributeName)) {
-            useAttributeNamesFromResult = true;
-          } else if (StringUtils.equals("+", attributeName)) {
-            useAttributeNamesFromResult = true;
-          }
-        }
-      }
-
-      if (useAttributeNamesFromResult) {
-        attributeNames = searchResult.getAttributeNames();
-      }
+    if (attributeNames == null) {
+      useAttributeNamesFromResult = true;
+    } else {
+      // ReturnAttribute could be all user or all operational or both
       for (String attributeName : attributeNames) {
-        edu.internet2.middleware.grouper.ldap.LdapAttribute attribute = new edu.internet2.middleware.grouper.ldap.LdapAttribute(attributeName);
-        
-        LdapAttribute sourceAttribute = searchResult.getAttribute(attributeName);
-        if (sourceAttribute != null) {
-          if (sourceAttribute.isBinary()) {
-            attribute.setBinaryValues(sourceAttribute.getBinaryValues());
-          } else {
-            attribute.setStringValues(sourceAttribute.getStringValues());
-          }
+        if (StringUtils.equals("*", attributeName)) {
+          useAttributeNamesFromResult = true;
+        } else if (StringUtils.equals("+", attributeName)) {
+          useAttributeNamesFromResult = true;
         }
-        
-        entry.addAttribute(attribute);
       }
-      
-      results.add(entry);
     }
-    
-    return results;
+
+    if (useAttributeNamesFromResult) {
+      attributeNames = searchResult.getAttributeNames();
+    }
+    for (String attributeName : attributeNames) {
+      edu.internet2.middleware.grouper.ldap.LdapAttribute attribute = new edu.internet2.middleware.grouper.ldap.LdapAttribute(attributeName);
+
+      LdapAttribute sourceAttribute = searchResult.getAttribute(attributeName);
+      if (sourceAttribute != null) {
+        if (sourceAttribute.isBinary()) {
+          attribute.setBinaryValues(sourceAttribute.getBinaryValues());
+        } else {
+          attribute.setStringValues(sourceAttribute.getStringValues());
+        }
+      }
+
+      entry.addAttribute(attribute);
+    }
+
+    return entry;
   }
 
   @Override
@@ -647,11 +644,9 @@ public class LdaptiveSessionImpl implements LdapSession {
         delete.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
         DeleteRequest deleteRequest = new DeleteRequest(dn);
 
-        /* No support for following referrals on delete
         if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-          delete.setResultHandlers(new FollowSearchReferralHandler());
+          delete.setReferralResultHandler(new FollowDeleteReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
         }
-        */
         if (debug) {
           debugLog.append("Ldaptive deleteRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(deleteRequest.toString(), 2000)).append("\n");
         }
@@ -697,7 +692,7 @@ public class LdaptiveSessionImpl implements LdapSession {
         throw new RuntimeException("No dn!");
       }
       
-      return (Boolean)callbackLdapSession(ldapServerId, ldapHandlerBean -> {
+      return callbackLdapSession(ldapServerId, ldapHandlerBean -> {
 
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
 
@@ -723,11 +718,9 @@ public class LdaptiveSessionImpl implements LdapSession {
         add.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
         AddRequest addRequest = new AddRequest(ldapEntry.getDn(), ldaptiveAttributes);
 
-        /* No support for following referrals on add
         if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-          addRequest.setReferralHandler(new AddReferralHandler());
+          add.setReferralResultHandler(new FollowAddReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
         }
-        */
         if (debug) {
           debugLog.append("Ldaptive addRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(addRequest.toString(), 2000)).append("\n");
         }
@@ -749,11 +742,9 @@ public class LdaptiveSessionImpl implements LdapSession {
             modify.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
             ModifyRequest modifyRequest = new ModifyRequest(ldapEntry.getDn(), ldaptiveModifications.toArray(new AttributeModification[] { }));
 
-            /* No support for following referrals on modify
             if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-              modifyRequest.setReferralHandler(new ModifyReferralHandler());
+              modify.setReferralResultHandler(new FollowModifyReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
             }
-            */
             if (debug) {
               debugLog.append("Ldaptive addModifyRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
             }
@@ -794,7 +785,7 @@ public class LdaptiveSessionImpl implements LdapSession {
       //  throw new RuntimeException("oldDn and newDn must have the same parent DN");
       //}
 
-      return (Boolean)callbackLdapSession(ldapServerId, ldapHandlerBean -> {
+      return callbackLdapSession(ldapServerId, ldapHandlerBean -> {
 
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
 
@@ -807,12 +798,9 @@ public class LdaptiveSessionImpl implements LdapSession {
         modifyDn.setThrowCondition(result -> !result.getResultCode().equals(ResultCode.SUCCESS));
         ModifyDnRequest modifyDnRequest = new ModifyDnRequest(oldDn, new Dn(newDn).getRDn().format(null), true, parentDnIfDifferent);
 
-        /* No support for following referrals on modify dn
         if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-          modifyDnRequest.setReferralHandler(new ModifyDnReferralHandler());
+          modifyDn.setReferralResultHandler(new FollowModifyDnReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
         }
-        */
-
         if (debug) {
           debugLog.append("Ldaptive moveRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(modifyDnRequest.toString(), 2000)).append("\n");
         }
@@ -832,7 +820,7 @@ public class LdaptiveSessionImpl implements LdapSession {
             // note that this exception could also happen if the oldDn exists but the newDn is an invalid location - in that case we should still end up throwing the original exception below
 
             try {
-              processSearchRequest(ldapServerId, ldap, newDn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", new String[] { "objectclass" }, null);
+              processSearchRequest(ldapServerId, ldap, newDn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", new String[] { "objectclass" }, null, null);
               return false;
             } catch (LdapException e2) {
               if (e2.getResultCode() == ResultCode.NO_SUCH_OBJECT) {
@@ -891,12 +879,9 @@ public class LdaptiveSessionImpl implements LdapSession {
         modify.setExceptionHandler(e -> {throw new RuntimeException(e);});
         ModifyRequest modifyRequest = new ModifyRequest(dn, ldaptiveModifications.toArray(new AttributeModification[] { }));
 
-        /* No support for following referrals on modify
         if ("follow".equals(GrouperLoaderConfig.retrieveConfig().propertyValueString("ldap." + ldapServerId + ".referral"))) {
-          modifyRequest.setReferralHandler(new ModifyReferralHandler());
+          modify.setReferralResultHandler(new FollowModifyReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
         }
-        */
-
         if (debug) {
           debugLog.append("Ldaptive modifyRequest (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(modifyRequest.toString(), 2000)).append("\n");
         }
@@ -922,7 +907,7 @@ public class LdaptiveSessionImpl implements LdapSession {
     ConnectionValidator validator = ldap.getValidator();
     boolean valid = false;
     if (validator != null) {
-      valid = (Boolean) callbackLdapSession(ldapServerId, ldapHandlerBean -> {
+      valid = callbackLdapSession(ldapServerId, ldapHandlerBean -> {
         try (Connection conn = ldapHandlerBean.getLdap().getConnection()) {
           conn.open();
           return validator.apply(conn);

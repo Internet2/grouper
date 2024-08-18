@@ -75,7 +75,7 @@ final class LdaptiveConfiguration {
     String urlString = ldaptiveProperties.getProperty("org.ldaptive.ldapUrl");
     if (!StringUtils.isBlank(urlString)) {
       LdapURL url = new LdapURL(urlString);
-      if (!url.isDefaultBaseDn()) {
+      if (!url.getUrl().isDefaultBaseDn()) {
         throw new RuntimeException("Base DN not allowed to be configured in the ldap URL: " + urlString);
       }
     }
