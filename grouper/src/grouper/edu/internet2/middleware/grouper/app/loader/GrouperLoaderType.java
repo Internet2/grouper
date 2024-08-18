@@ -2621,6 +2621,7 @@ public enum GrouperLoaderType {
     
     if (StringUtils.equals(GrouperLoader.GROUPER_LOADER_TYPE, attributeName)) {
       String query = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_QUERY, false, false);
+      query = GrouperLoaderJob.substituteExpression(query);
       if (!StringUtils.isBlank(query)) {
         query = query.toLowerCase();
         String preFrom = GrouperUtil.prefixOrSuffix(query, "from", true);

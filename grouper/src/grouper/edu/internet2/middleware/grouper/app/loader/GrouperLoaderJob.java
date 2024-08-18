@@ -22,7 +22,9 @@ package edu.internet2.middleware.grouper.app.loader;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.apache.commons.lang.ObjectUtils;
 import org.apache.commons.lang.StringUtils;
@@ -60,6 +62,7 @@ import edu.internet2.middleware.grouper.hooks.logic.VetoTypeGrouper;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafeBean;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouper.util.GrouperUtilElSafe;
 
 
 /**
@@ -375,6 +378,38 @@ public class GrouperLoaderJob implements Job {
   }
 
   /**
+   * if this value starts with ${ and ends with } then evaluate the expression, e.g.
+   * ${edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig.retrieveConfig().propertyValueString("loaderSqlQueryFor_testLoader2")}
+   * otherwise return the original value
+   * @param string
+   * @return
+   */
+  public static String substituteExpression(String string) {
+    if (string == null) {
+      return string;
+    }
+    String script = string.trim();
+
+    if (!script.startsWith("${") || !script.endsWith("}")) {
+      return string;
+    }
+
+    Map<String, Object> elVariableMap = new HashMap<String, Object>();
+    try {
+      
+
+      elVariableMap.put("grouperUtil", new GrouperUtil());
+
+      return GrouperUtil.stringValue(GrouperUtil.substituteExpressionLanguageScript(script, elVariableMap, true, false, false));
+    } catch (RuntimeException re) {
+      GrouperUtil.injectInException(re, ", script: '" + script + "', ");
+      GrouperUtil.injectInException(re, GrouperUtil.toStringForLog(elVariableMap));
+      throw re;
+    }
+
+  }
+  
+  /**
    * run a job (either from quartz or outside)
    * @param hib3GrouploaderLog will get information, most importantly the job name
    * @param jobGroup if a group job, this is the group object
@@ -440,6 +475,7 @@ public class GrouperLoaderJob implements Job {
         grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
         GrouperLoaderLogger.addLogEntry("overallLog", "dbName", grouperLoaderDbName);
         grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_QUERY);
+        grouperLoaderQuery = substituteExpression(grouperLoaderQuery);
         GrouperLoaderLogger.addLogEntry("overallLog", "query", grouperLoaderQuery);
         groupTypesString = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_TYPES);
         if (!StringUtils.isBlank(groupTypesString)) {
@@ -450,6 +486,7 @@ public class GrouperLoaderJob implements Job {
           GrouperLoaderLogger.addLogEntry("overallLog", "groupsLike", groupLikeString);
         }
         groupQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(jobGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
+        groupQuery = GrouperLoaderJob.substituteExpression(groupQuery);
         if (!StringUtils.isBlank(groupQuery)) {
           GrouperLoaderLogger.addLogEntry("overallLog", "groupQuery", groupQuery);
         }

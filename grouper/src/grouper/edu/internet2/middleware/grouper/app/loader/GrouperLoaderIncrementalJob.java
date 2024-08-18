@@ -357,10 +357,13 @@ public class GrouperLoaderIncrementalJob implements Job {
           if (isSQLLoader) {
 
             final String grouperLoaderDbName = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_DB_NAME);
-            final String grouperLoaderQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_QUERY);
+            String grouperLoaderQuery1 = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_QUERY);
+            final String grouperLoaderQuery = GrouperLoaderJob.substituteExpression(grouperLoaderQuery1);
             final String grouperLoaderAndGroups = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_AND_GROUPS);
             final String grouperLoaderGroupsLike = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUPS_LIKE);
-            final String grouperLoaderGroupQuery = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
+            String grouperLoaderGroupQuery1 = GrouperLoaderType.attributeValueOrDefaultOrNull(loaderGroup, GrouperLoader.GROUPER_LOADER_GROUP_QUERY);
+            final String grouperLoaderGroupQuery = GrouperLoaderJob.substituteExpression(grouperLoaderGroupQuery1);
+
 
             for (final Row row : rowsByGroup.get(loaderGroupName).values()) {
   
