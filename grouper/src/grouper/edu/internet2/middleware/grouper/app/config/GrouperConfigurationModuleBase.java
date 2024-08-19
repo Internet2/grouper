@@ -848,12 +848,6 @@ public abstract class GrouperConfigurationModuleBase {
     // in order for that repeat group
     Map<String, Map<String, GrouperConfigurationModuleAttribute>> repeatGroups = new LinkedHashMap<String, Map<String, GrouperConfigurationModuleAttribute>>();
     
-    // order index of the first item in the repeat group
-    // which is also in the list of items that don't include the repeat group
-    //  so when we iterate through and we see an item with that index in this map,
-    // we will substitute that repeat group
-    Map<Integer, String> orderToRepeatGroup = new TreeMap<Integer, String>(); 
-    
     // temp result is all the config items without the full repeat groups but including
     // the first item of the repeat group
     Iterator<Entry<String, GrouperConfigurationModuleAttribute>> iterator = sorted.iterator();
@@ -874,7 +868,6 @@ public abstract class GrouperConfigurationModuleBase {
           Map<String, GrouperConfigurationModuleAttribute> map = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
           map.put(entry.getKey(), entry.getValue());
           repeatGroups.put(repeatGroup, map);
-          orderToRepeatGroup.put(entry.getValue().getConfigItemMetadata().getOrder(), repeatGroup);
         }
       }
     }
@@ -882,19 +875,23 @@ public abstract class GrouperConfigurationModuleBase {
     // all items including repeat group in order
     Map<String, GrouperConfigurationModuleAttribute> finalResult = new LinkedHashMap<String, GrouperConfigurationModuleAttribute>();
     
+    Set<String> repeatGroupsSeen = new HashSet<String>();
+    
     // place repeat groups in the sorted based on the order
     for (Map.Entry<String, GrouperConfigurationModuleAttribute> entry: sorted) {
       
-      int orderWithoutRepeatGroup= entry.getValue().getConfigItemMetadata().getOrder();
-      
+      String repeatGroupName = entry.getValue().getConfigItemMetadata().getRepeatGroup();
+
       // if this is the first item of the repeat group then put the repeat group in the index instead of the item
       // the repeat group contains this item so don't also add this item
       // Note: subsections are sorted by the first item that has the subsection and the order index in another method
       // repeat groups will create subsections based on the repeat group label and the repeat group iterator
-      String repeatGroupName = orderToRepeatGroup.get(orderWithoutRepeatGroup);
       if (StringUtils.isNotBlank(repeatGroupName)) {
-        Map<String, GrouperConfigurationModuleAttribute> map = repeatGroups.get(repeatGroupName);
-        finalResult.putAll(map);
+        if (!repeatGroupsSeen.contains(repeatGroupName)) {
+          Map<String, GrouperConfigurationModuleAttribute> map = repeatGroups.get(repeatGroupName);
+          finalResult.putAll(map);
+          repeatGroupsSeen.add(repeatGroupName);
+        }
       } else {
         // this is not the first item of the repeat group so just add it
         finalResult.put(entry.getKey(), entry.getValue());

@@ -1,11 +1,17 @@
 package edu.internet2.middleware.grouper.app.ldapToSql;
 
+import java.util.List;
+import java.util.Map;
+
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.daemon.GrouperDaemonConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderType;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDaemonOtherJobLdapToSqlConfiguration extends GrouperDaemonConfiguration {
 
@@ -60,4 +66,31 @@ public class GrouperDaemonOtherJobLdapToSqlConfiguration extends GrouperDaemonCo
     }
     return false;
   }
+  
+  @Override
+  public void validatePreSave(boolean isInsert, List<String> errorsToDisplay, Map<String, String> validationErrorsToDisplay) {
+    
+    super.validatePreSave(isInsert, errorsToDisplay, validationErrorsToDisplay);
+    
+    if (errorsToDisplay.size() > 0 || validationErrorsToDisplay.size() > 0) {
+      return;
+    } 
+
+    boolean foundUnique = false;
+    for (int i=0;i<30;i++) {
+
+      GrouperConfigurationModuleAttribute uniqueKey = this.retrieveAttributes().get("ldapSqlAttribute." + i + ".uniqueKey");
+      if (uniqueKey != null && uniqueKey.isHasValue() && GrouperUtil.booleanValue(uniqueKey.getValueOrExpressionEvaluationValue(), false)) {
+        foundUnique = true;
+        break;
+      }
+
+    }
+
+    if (!foundUnique) {
+      errorsToDisplay.add(GrouperTextContainer.textOrNull("grouperDaemonOtherJobLdapToSqlConfigurationNoUniques"));
+    }
+    
+  }
+
 }
