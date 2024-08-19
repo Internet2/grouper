@@ -2050,7 +2050,7 @@ CREATE TABLE grouper_prov_azure_user
     mail_nickname VARCHAR2(256) NULL,
     on_premises_immutable_id VARCHAR2(256) NULL,
     user_principal_name VARCHAR2(256) NULL,
-    PRIMARY KEY (config_id, id(180))
+    PRIMARY KEY (config_id, id)
 );
   
 CREATE INDEX grouper_prov_azure_user_idx1 ON grouper_prov_azure_user (user_principal_name, config_id);
