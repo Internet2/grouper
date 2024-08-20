@@ -415,12 +415,12 @@ public class AdminContainer {
 
   /**
    *
-   * @return list of status filters
+   * @return list of status filters for the All daemons page
    */
   public List<GuiOption> getDaemonJobsStatusFilters() {
     if (this.daemonJobsStatusFilters == null) {
 
-      this.daemonJobsStatusFilters = new ArrayList<GuiOption>();
+      this.daemonJobsStatusFilters = new ArrayList<>();
 
       this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterEnabled"), "ENABLED", null));
       this.daemonJobsStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("adminDaemonJobsStatusFilterDisabled"), "DISABLED", null));
@@ -457,6 +457,31 @@ public class AdminContainer {
   public void setDaemonJobsStatusFilter(String daemonJobsStatusFilter) {
     this.daemonJobsStatusFilter = daemonJobsStatusFilter;
   }
+
+  private List<GuiOption> daemonLogStatusFilters;
+
+  /**
+   *
+   * @return list of status filters for the loader log page
+   */
+  public List<GuiOption> getDaemonLogStatusFilters() {
+    if (this.daemonLogStatusFilters == null) {
+
+      this.daemonLogStatusFilters = new ArrayList<>();
+
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_SUCCESS"), "SUCCESS", null));
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_STARTED"), "STARTED", null));
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_RUNNING"), "RUNNING", null));
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_ANY_ERROR"), "ANY_ERROR", null));
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_ERROR_FAILSAFE"), "ERROR_FAILSAFE", null));
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_SUBJECT_PROBLEMS"), "SUBJECT_PROBLEMS", null));
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_WARNING"), "WARNING", null));
+      this.daemonLogStatusFilters.add(new GuiOption(TextContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_CONFIG_ERROR"), "CONFIG_ERROR", null));
+    }
+
+    return daemonLogStatusFilters;
+  }
+
 
   /**
    * 

@@ -240,33 +240,43 @@ public class UiV2GrouperLoader {
       }
     }
 
-    {
-      List<String> statuses = new ArrayList<String>();
-      if (StringUtils.equals("true", request.getParameter("statusSuccessName"))) {
-        statuses.add("SUCCESS");
-      }
-      if (StringUtils.equals("true", request.getParameter("statusErrorName"))) {
-        statuses.add("ERROR");
-      }
-      if (StringUtils.equals("true", request.getParameter("statusStartedName"))) {
-        statuses.add("STARTED");
-      }
-      if (StringUtils.equals("true", request.getParameter("statusRunningName"))) {
-        statuses.add("RUNNING");
-      }
-      if (StringUtils.equals("true", request.getParameter("statusConfigErrorName"))) {
-        statuses.add("CONFIG_ERROR");
-      }
-      if (StringUtils.equals("true", request.getParameter("statusSubjectProblemsName"))) {
-        statuses.add("SUBJECT_PROBLEMS");
-      }
-      if (StringUtils.equals("true", request.getParameter("statusWarningName"))) {
-        statuses.add("WARNING");
-      }
-      if (statuses.size() > 0) {
-        criterionList.add(Restrictions.in("status", statuses));
+    String statusFilter = request.getParameter("daemonLogsStatusFilter");
+    if (!GrouperUtil.isBlank(statusFilter)) {
+      switch (statusFilter) {
+        case "CONFIG_ERROR":
+        case "ERROR_FAILSAFE":
+        case "RUNNING":
+        case "STARTED":
+        case "SUBJECT_PROBLEMS":
+        case "SUCCESS":
+        case "WARNING":
+          criterionList.add(Restrictions.eq("status", statusFilter));
+          break;
+        case "ANY_ERROR":
+          criterionList.add(Restrictions.or(
+                  Restrictions.eq("status", "ERROR"),
+                  Restrictions.eq("status", "ERROR_FAILSAFE"),
+                  Restrictions.eq("status", "SUBJECT_PROBLEMS"),
+                  Restrictions.eq("status", "WARNING")
+          ));
+          break;
+        default:
+          break;
       }
     }
+
+    if (StringUtils.equals("true", request.getParameter("filterZeroCountTotal"))) {
+      criterionList.add(Restrictions.ne("totalCount", 0));
+    }
+    if (StringUtils.equals("true", request.getParameter("filterZeroCountCrud"))) {
+      criterionList.add(Restrictions.or(
+                Restrictions.ne("insertCount", 0),
+                Restrictions.ne("updateCount", 0),
+                Restrictions.ne("deleteCount", 0),
+                Restrictions.ne("unresolvableSubjectCount", 0)
+      ));
+    }
+
     QueryOptions queryOptions = null;
     
     {

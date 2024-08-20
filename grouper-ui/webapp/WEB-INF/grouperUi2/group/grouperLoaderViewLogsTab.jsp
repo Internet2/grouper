@@ -23,7 +23,7 @@
                   </div>
                 </div>
                 
-                <form class="form-inline form-small form-filter" id="logFilterFormId">
+                <form class="form-inline form-filter" id="logFilterFormId">
                 
                   <div class="row-fluid">
                     <div class="span1">
@@ -92,27 +92,33 @@
 
                   <div class="row-fluid">
                     <div class="span2">
-                      <label for="statusSuccessId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsShowStatus'] }</label>
+                      <label for="daemonLogsStatusFilterId" class="control-label" style="white-space: nowrap">${textContainer.text['daemonJobsStatusSearchNamePlaceholder'] }</label>
                     </div>
-                    <div class="span9" style="white-space: nowrap;">
-                    
-                      <span style="white-space: nowrap;"><input type="checkbox" name="statusSuccessName" id="statusSuccessId" value="true" /> 
-                        ${textContainer.text['grouperLoaderStatus_SUCCESS'] }</span> &nbsp;
-                      <span style="white-space: nowrap;"><input type="checkbox" name="statusErrorName" id="statusErrorId" value="true" /> 
-                        ${textContainer.text['grouperLoaderStatus_ERROR'] }</span> &nbsp;
-                      <span style="white-space: nowrap;"><input type="checkbox" name="statusStartedName" id="statusStartedId" value="true" /> 
-                        ${textContainer.text['grouperLoaderStatus_STARTED'] }</span> &nbsp;
-                      <span style="white-space: nowrap;"><input type="checkbox" name="statusRunningName" id="statusRunningId" value="true" /> 
-                        ${textContainer.text['grouperLoaderStatus_RUNNING'] }</span> &nbsp;
-                      <span style="white-space: nowrap;"><input type="checkbox" name="statusWarningName" id="statusWarningId" value="true" /> 
-                        ${textContainer.text['grouperLoaderStatus_WARNING'] }</span> &nbsp;
-                      <span style="white-space: nowrap;"><input type="checkbox" name="statusConfigErrorName" id="statusConfigErrorId" value="true" /> 
-                        ${textContainer.text['grouperLoaderStatus_CONFIG_ERROR'] }</span> &nbsp;
-                      <span style="white-space: nowrap;"><input type="checkbox" name="statusSubjectProblemsName" id="statusSubjectProblemsId" value="true" /> 
-                        ${textContainer.text['grouperLoaderStatus_SUBJECT_PROBLEMS'] }</span> &nbsp;
+                    <div class="span4" style="white-space: nowrap;">
+                      <select name="daemonLogsStatusFilter" id="daemonLogsStatusFilterId">
+                        <option value="" style="color:#aaaaaa !important">${textContainer.textEscapeXml['daemonJobsStatusSearchNamePlaceholder'] }</option>
+                        <c:forEach items="${grouperRequestContainer.adminContainer.daemonLogStatusFilters}" var="daemonLogsStatusFilter" >
+                          <option value="${grouper:escapeHtml(daemonLogsStatusFilter.value)}">
+                              ${grouper:escapeHtml(daemonLogsStatusFilter.name) }
+                          </option>
+                        </c:forEach>
+                      </select>
                     </div>
                   </div>
-                  
+
+                  <div class="row-fluid">
+                    <div class="span2">
+                      <label for="filterZeroCountTotalId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsFilterZeroCount'] }</label>
+                    </div>
+                    <div class="span9" style="white-space: nowrap;">
+
+                      <span style="white-space: nowrap;"><input type="checkbox" name="filterZeroCountTotal" id="filterZeroCountTotalId" value="true" />
+                        ${textContainer.text['grouperLoaderZeroFilter_Total'] }</span> &nbsp;
+                      <span style="white-space: nowrap;"><input type="checkbox" name="filterZeroCountCrud" id="filterZeroCountCrudId" value="true" />
+                        ${textContainer.text['grouperLoaderZeroFilter_CRUD'] }</span> &nbsp;
+                    </div>
+                  </div>
+
                   <div class="row-fluid">
                     <div class="span2">
                       <label for="numberOfRowsId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsNumberOfRows'] }</label>
