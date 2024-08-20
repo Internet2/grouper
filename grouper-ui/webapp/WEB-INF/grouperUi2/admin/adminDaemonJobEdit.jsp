@@ -123,7 +123,7 @@
 	                        onclick="ajax('../app/UiV2Admin.editDaemonSubmit', {formIds: 'editDaemonFormId'}); return false;">
                           &nbsp; 
                      <a class="btn btn-cancel" role="button"
-                          onclick="return guiV2link('operation=UiV2Admin.daemonJobs'); return false;"
+                          onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${grouper:escapeHtml(grouperRequestContainer.adminContainer.guiGrouperDaemonConfiguration.jobName)}'); return false;"
                           >${textContainer.text['grouperDaemonConfigCancelButton'] }</a>
                    
                    </div>

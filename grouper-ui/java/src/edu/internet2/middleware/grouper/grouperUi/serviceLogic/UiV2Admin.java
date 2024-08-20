@@ -882,8 +882,8 @@ public class UiV2Admin extends UiServiceLogicBase {
         scheduler.resumeJob(jobKey);
       }
       
-      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.daemonJobs')"));
-      
+      guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Admin.viewLogs&jobName=" + GrouperUtil.escapeUrlEncode(jobName) + "')"));
+
       guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.success, 
           TextContainer.retrieveFromRequest().getText().get("grouperDaemonConfigAddEditSuccess")));
       
