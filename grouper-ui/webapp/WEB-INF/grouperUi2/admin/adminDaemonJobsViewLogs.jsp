@@ -83,7 +83,7 @@
 
                   <div class="row-fluid">
                     <div class="span2">
-                      <label for="daemonLogsStatusFilterId" class="control-label" style="white-space: nowrap">${textContainer.text['daemonJobsStatusSearchNamePlaceholder'] }</label>
+                      <label for="daemonLogsStatusFilterId" class="control-label" style="white-space: nowrap">${textContainer.text['daemonJobsStatusSearchNamePlaceholder'] }:</label>
                     </div>
                     <div class="span4" style="white-space: nowrap;">
                       <select name="daemonLogsStatusFilter" id="daemonLogsStatusFilterId">
@@ -99,7 +99,7 @@
 
                   <div class="row-fluid">
                     <div class="span2">
-                      <label for="filterZeroCountTotalId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsFilterZeroCount'] }</label>
+                      <label for="filterZeroCountTotalId" class="control-label" style="white-space: nowrap">${textContainer.text['grouperLoaderLogsFilterZeroCount'] }:</label>
                     </div>
                     <div class="span9" style="white-space: nowrap;">
 
