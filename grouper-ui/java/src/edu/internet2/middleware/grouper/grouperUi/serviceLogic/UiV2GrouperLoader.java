@@ -20,6 +20,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -78,6 +79,7 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
+import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -4607,7 +4609,6 @@ public class UiV2GrouperLoader {
    * @param request
    * @param response
    */
-  @SuppressWarnings("deprecation")
   public void loaderOverall(HttpServletRequest request, HttpServletResponse response) {
   
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
@@ -4627,21 +4628,108 @@ public class UiV2GrouperLoader {
       //not sure who can see attributes etc, just go root
       GrouperSession.stopQuietly(grouperSession);
       grouperSession = GrouperSession.startRootSession();
-      
+
+      loaderOverallHelper(request, response);
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId",
+          "/WEB-INF/grouperUi2/group/grouperLoaderOverall.jsp"));
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#loaderJobsResultsId",
+          "/WEB-INF/grouperUi2/group/grouperLoaderOverallContents.jsp"));
+
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  public void loaderOverallFilter(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      if (!canSeeLoader) {
+        return;
+      }
+
+      //not sure who can see attributes etc, just go root
+      GrouperSession.stopQuietly(grouperSession);
+      grouperSession = GrouperSession.startRootSession();
+
+      loaderOverallHelper(request, response);
+
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#loaderJobsResultsId",
+              "/WEB-INF/grouperUi2/group/grouperLoaderOverallContents.jsp"));
+
+    } catch (RuntimeException re) {
+      if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
+        return;
+      }
+      throw re;
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
+  }
+
+  private void loaderOverallHelper(HttpServletRequest request, HttpServletResponse response) {
+
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+    GrouperSession grouperSession = null;
+
+    GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+    try {
+      grouperSession = GrouperSession.start(loggedInSubject);
+
+      boolean canSeeLoader = GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().isCanSeeLoader();
+      if (!canSeeLoader) {
+        return;
+      }
+
+      //not sure who can see attributes etc, just go root
+      GrouperSession.stopQuietly(grouperSession);
+      grouperSession = GrouperSession.startRootSession();
+
       List<GuiGrouperLoaderJob> guiGrouperLoaderJobs = new ArrayList<GuiGrouperLoaderJob>();
-      GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().setGuiGrouperLoaderJobs(guiGrouperLoaderJobs);
-      
+
+      String groupNameFilter = request.getParameter("loaderJobsFilter");
+      String typeFilter = request.getParameter("loaderJobsCommonFilter");
+      String statusFilter = request.getParameter("loaderJobsStatusFilter");
+
       {
-        Set<Group> groups = GrouperLoaderType.retrieveGroups(grouperSession);
-        
+        Set<Group> groups;
+        if (GrouperUtil.isBlank(groupNameFilter)) {
+          groups = GrouperLoaderType.retrieveGroups(grouperSession);
+        } else {
+          groups = GrouperLoaderType.retrieveGroups(grouperSession).stream()
+                  .filter(group -> group.getName().contains(groupNameFilter))
+                  .collect(Collectors.toSet());
+        }
+
+        // SQL loaders
         for (Group group : GrouperUtil.nonNull(groups)) {
           
           GuiGrouperLoaderJob guiGrouperLoaderJob = new GuiGrouperLoaderJob();
-          guiGrouperLoaderJobs.add(guiGrouperLoaderJob);
-          
+
           guiGrouperLoaderJob.setGuiGroup(new GuiGroup(group));
           
           String grouperLoaderType = group.getAttributeValue(GrouperLoader.GROUPER_LOADER_TYPE, false, false);
+
+          // type filter
+          if (!GrouperUtil.isBlank(typeFilter) && !GrouperUtil.equals(typeFilter, grouperLoaderType)) {
+            continue;
+          }
 
           if (!StringUtils.isBlank(grouperLoaderType)) {
 
@@ -4736,24 +4824,37 @@ public class UiV2GrouperLoader {
             guiGrouperLoaderJob.setSourceDescription(description);
             
           }
-          
+
+          guiGrouperLoaderJobs.add(guiGrouperLoaderJob);
         }
         
       }
+
+      // LDAP loaders
       Set<AttributeAssign> ldapAttributeAssigns = GrouperLoaderType.retrieveLdapAttributeAssigns();
       
       for (AttributeAssign ldapAttributeAssign : GrouperUtil.nonNull(ldapAttributeAssigns)) {
         
         GuiGrouperLoaderJob guiGrouperLoaderJob = new GuiGrouperLoaderJob();
-        guiGrouperLoaderJobs.add(guiGrouperLoaderJob);
-        
+
         Group group = ldapAttributeAssign.getOwnerGroup();
         if (group == null) {
           continue;
         }
+
+        // name filter
+        if (!GrouperUtil.isBlank(groupNameFilter) && !group.getName().contains(groupNameFilter)) {
+          continue;
+        }
+
         guiGrouperLoaderJob.setGuiGroup(new GuiGroup(group));
 
         String grouperLoaderType = ldapAttributeAssign.getAttributeValueDelegate().retrieveValueString(LoaderLdapUtils.grouperLoaderLdapTypeName());
+
+        // type filter
+        if (!GrouperUtil.isBlank(typeFilter) && !GrouperUtil.equals(typeFilter, grouperLoaderType)) {
+          continue;
+        }
 
         if (!StringUtils.isBlank(grouperLoaderType)) {
 
@@ -4814,9 +4915,12 @@ public class UiV2GrouperLoader {
           guiGrouperLoaderJob.setSchedule(schedule.toString());
         }
 
-        
+        guiGrouperLoaderJobs.add(guiGrouperLoaderJob);
       }
-      
+
+
+      List<GuiGrouperLoaderJob> filteredGuiGrouperLoaderJobs = new ArrayList<GuiGrouperLoaderJob>();
+
       for (GuiGrouperLoaderJob guiGrouperLoaderJob : guiGrouperLoaderJobs) {
         List<Criterion> criterionList = new ArrayList<Criterion>();
         
@@ -4834,32 +4938,45 @@ public class UiV2GrouperLoader {
           .options(queryOptions).list(Hib3GrouperLoaderLog.class, allCriteria);
 
         StringBuilder message = new StringBuilder();
-        
-        boolean success = loaderSuccessFromLogs(message, jobName, GrouperUtil.length(loaderLogs) > 0 ? loaderLogs.get(0) : null, false);
-        
-        if (success) {
-          guiGrouperLoaderJob.setStatus("SUCCESS");
-        } else {
-          guiGrouperLoaderJob.setStatus("ERROR");
-        }
-        
-        if (GrouperUtil.length(loaderLogs) > 0) {
-          Hib3GrouperLoaderLog hib3GrouperLoaderLog = loaderLogs.get(0);
-          guiGrouperLoaderJob.setChanges(GrouperUtil.intValue(hib3GrouperLoaderLog.getDeleteCount(), 0) 
-              + GrouperUtil.intValue(hib3GrouperLoaderLog.getInsertCount(), 0) 
-              + GrouperUtil.intValue(hib3GrouperLoaderLog.getUpdateCount(), 0));
-          guiGrouperLoaderJob.setCount(GrouperUtil.intValue(hib3GrouperLoaderLog.getTotalCount(), 0));
-        }
-        
-        guiGrouperLoaderJob.setStatusDescription(message.toString());
-        
-      }
-      
-      Collections.sort(guiGrouperLoaderJobs);
-      
-      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
-          "/WEB-INF/grouperUi2/group/grouperLoaderOverall.jsp"));
 
+        Hib3GrouperLoaderLog lastLoaderLog = GrouperUtil.length(loaderLogs) > 0 ? loaderLogs.get(0) : null;
+
+        // filter on last log status
+        if (!GrouperUtil.isBlank(statusFilter)) {
+          // never run -> only show on error filter
+          if (lastLoaderLog == null) {
+            if (!"ANY_ERROR".equals(statusFilter)) {
+              continue;
+            }
+          } else if ("ANY_ERROR".equals(statusFilter)) {
+            if ("SUCCESS".equals(lastLoaderLog.getStatus())
+                    || "RUNNING".equals(lastLoaderLog.getStatus())
+                    ||"STARTED".equals(lastLoaderLog.getStatus())
+            ) {
+              continue;
+            }
+          } else if (!statusFilter.equals(lastLoaderLog.getStatus())) {
+            continue;
+          }
+        }
+
+        if (lastLoaderLog != null) {
+          guiGrouperLoaderJob.setStatus(lastLoaderLog.getStatus());
+
+          guiGrouperLoaderJob.setChanges(GrouperUtil.intValue(lastLoaderLog.getDeleteCount(), 0)
+                  + GrouperUtil.intValue(lastLoaderLog.getInsertCount(), 0)
+                  + GrouperUtil.intValue(lastLoaderLog.getUpdateCount(), 0));
+          guiGrouperLoaderJob.setCount(GrouperUtil.intValue(lastLoaderLog.getTotalCount(), 0));
+        }
+
+        guiGrouperLoaderJob.setStatusDescription(message.toString());
+
+        filteredGuiGrouperLoaderJobs.add(guiGrouperLoaderJob);
+      }
+
+      Collections.sort(filteredGuiGrouperLoaderJobs);
+
+      GrouperRequestContainer.retrieveFromRequestOrCreate().getGrouperLoaderContainer().setGuiGrouperLoaderJobs(filteredGuiGrouperLoaderJobs);
     } catch (RuntimeException re) {
       if (GrouperUiUtils.vetoHandle(GuiResponseJs.retrieveGuiResponseJs(), re)) {
         return;
@@ -4870,6 +4987,5 @@ public class UiV2GrouperLoader {
     }
   }
 
-  
-  
+
 }

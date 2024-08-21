@@ -23,107 +23,75 @@ ${grouper:title('loaderJobsPageTitle')}
 
             <div class="row-fluid">
               <div class="span12">
+                <form class="form-inline form-filter" id="loaderJobsFilterFormId">
+                  <div class="row-fluid">
+                    <div class="span1">
+                      <label for="loaderJobsFilterId" style="white-space: nowrap;">${textContainer.text['grouperLoaderOverallColumnHeaderGroup'] }:</label>
+                    </div>
+                    <div class="span4" style="white-space: nowrap;">
+                      <input type="text" name="loaderJobsFilter" id="loaderJobsFilterId" class="span12"
+                          placeholder="${textContainer.text['grouperLoaderOverallColumnHeaderGroup'] }"
+                      />
+                    </div>
+                  </div>
+
+                  <div class="row-fluid" style="margin-top: 0.5em">
+                    <div class="span1">
+                      <label for="loaderJobsCommonFilterId">${textContainer.text['grouperLoaderOverallColumnHeaderType'] }:</label>
+                    </div>
+                    <div class="span4" style="white-space: nowrap;">
+                      <select name="loaderJobsCommonFilter" id="loaderJobsCommonFilterId">
+                        <option value="" style="color:#aaaaaa !important">${textContainer.retrieveFromRequest().getText().get('daemonJobsCommonSearchNamePlaceholder')}</option>
+                        <option>SQL_SIMPLE</option>option>
+                        <option>SQL_GROUP_LIST</option>option>
+                        <option>LDAP_SIMPLE</option>option>
+                        <option>LDAP_GROUP_LIST</option>option>
+                        <option>LDAP_GROUPS_FROM_ATTRIBUTES</option>option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row-fluid" style="margin-top: 0.5em">
+                    <div class="span1">
+                      <label for="xxx">${textContainer.text['grouperLoaderOverallColumnHeaderStatus'] }:</label>
+                    </div>
+                    <div class="span4" style="white-space: nowrap;">
+                      <select name="loaderJobsStatusFilter" id="loaderJobsStatusFilterId">
+                        <option value="" style="color:#aaaaaa !important">${textContainer.retrieveFromRequest().getText().get('daemonJobsStatusSearchNamePlaceholder')}</option>
+                          <option value="SUCCESS">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_SUCCESS")}</option>
+                          <option value="STARTED">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_STARTED")}</option>
+                          <option value="RUNNING">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_RUNNING")}</option>
+                          <option value="ANY_ERROR">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_ANY_ERROR")}</option>
+                          <option value="ERROR_FAILSAFE">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_ERROR_FAILSAFE")}</option>
+                          <option value="SUBJECT_PROBLEMS">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_SUBJECT_PROBLEMS")}</option>
+                          <option value="WARNING">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_WARNING")}</option>
+                          <option value="CONFIG_ERROR">${textContainer.retrieveFromRequest().getText().get("grouperLoaderStatus_CONFIG_ERROR")}</option>
+                      </select>
+                    </div>
+                  </div>
+
+                  <div class="row-fluid" style="margin-top: 1em; margin-bottom: 1em">
+                    <div class="span2">&nbsp;</div>
+                    <a class="btn" role="button" id="applyfilterloaderjobs" aria-controls="groupFilterResultsId" href="#"
+                       onclick="ajax('../app/UiV2GrouperLoader.loaderOverallFilter', {formIds: 'loaderJobsFilterFormId'}); return false;">
+                        ${textContainer.text['daemonJobsSearchButton'] }
+                    </a>
+                    <a href="#" class="btn" role="button"
+                       onclick="document.getElementById('loaderJobsFilterFormId').reset(); ajax('../app/UiV2GrouperLoader.loaderOverall', {formIds: 'loaderJobsFilterFormId'}); return false;">
+                        ${textContainer.text['daemonJobsResetButton'] }
+                    </a>
+                  </div>
+                </form>
+
                 <c:choose>
                   <c:when test="${fn:length(grouperRequestContainer.grouperLoaderContainer.guiGrouperLoaderJobs) == 0}">
                     <p>${textContainer.text['miscellaneousLoaderOverallNoJobs'] }</p>
                   </c:when>
                   <c:otherwise>
-      
-                    <table class="table table-hover table-bordered table-striped table-condensed data-table table-bulk-update table-privileges footable">
-                      <thead>
-                        <tr>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipGroup']}">${textContainer.text['grouperLoaderOverallColumnHeaderGroup'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipStatus']}">${textContainer.text['grouperLoaderOverallColumnHeaderStatus'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipActions']}">${textContainer.text['grouperLoaderOverallColumnHeaderActions'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipCount']}">${textContainer.text['grouperLoaderOverallColumnHeaderCount'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipChanges']}">${textContainer.text['grouperLoaderOverallColumnHeaderChanges'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipType']}">${textContainer.text['grouperLoaderOverallColumnHeaderType'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipSource']}">${textContainer.text['grouperLoaderOverallColumnHeaderSource'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipSchedule']}">${textContainer.text['grouperLoaderOverallColumnHeaderSchedule'] }</span></th>
-                          <th data-hide="phone" style="white-space: nowrap; text-align: left;">
-                          <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
-                        data-original-title="${textContainer.textEscapeDouble['grouperLoaderOverallColumnTooltipQuery']}">${textContainer.text['grouperLoaderOverallColumnHeaderQuery'] }</span></th>
-                        </tr>
-                      </thead>
-                      <tbody>
-                        <c:set var="i" value="0" />
-                        <c:forEach  items="${grouperRequestContainer.grouperLoaderContainer.guiGrouperLoaderJobs}" 
-                          var="guiGrouperLoaderJob">
-                          <tr>
-                            <td class="expand foo-clicker" style="white-space: nowrap;">${guiGrouperLoaderJob.guiGroup.shortLinkWithIcon}
-                            </td>
-                            <td class="expand foo-clicker" 
-                               style="color: White; 
-                               background-color: ${guiGrouperLoaderJob.status == 'SUCCESS' ? 'green' : (guiGrouperLoaderJob.status == 'ERROR' ? 'red' : '')}; 
-                               font-weight: bold;">
-                            <span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" class="grouperTooltip" style="border-bottom-color: white;"
-                                data-original-title="${grouper:escapeHtml(guiGrouperLoaderJob.statusDescription)}">${guiGrouperLoaderJob.status}</span>
-                            </td>
-                            <td class="expand foo-clicker">
-                              <div class="btn-group btn-block">
 
-					                      <a data-toggle="dropdown" href="#" aria-label="${textContainer.text['ariaLabelGuiMoreGrouperLoaderActions']}" id="more-action-button" class="btn btn-medium btn-block dropdown-toggle" 
-					                        aria-haspopup="true" aria-expanded="false" role="menu" onclick="$('#grouper-loader-more-options').is(':visible') === true ? $(this).attr('aria-expanded','false') : $(this).attr('aria-expanded',function(index, currentValue) { $('#grouper-loader-more-options li').first().focus();return true;});">
-					                          ${textContainer.text['grouperLoaderViewMoreActionsButton'] } <span class="caret"></span></a>
-					  
-					                      <ul class="dropdown-menu dropdown-menu-right" id="grouper-loader-more-options">
+                    <div id="loaderJobsResultsId" role="region" aria-live="polite">
+                      </div>
 
-					                        <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loader&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-					                            >${textContainer.text['grouperLoaderMoreActionsViewLoader'] }</a></li>
-					                            
-				                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.viewLogs&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-				                              >${textContainer.text['grouperLoaderMoreActionsViewLoaderLogs'] }</a></li>
-  
-			                            <li><a href="#" onclick="ajax('../app/UiV2Group.updateLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-			                              >${textContainer.text['groupRunLoaderProcessButton'] }</a></li>
-
-				                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.loaderDiagnostics&groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-				                              >${textContainer.text['grouperLoaderDiagnosticsButton'] }</a></li>
-
-				                          <li><a href="#" onclick="return guiV2link('operation=UiV2GrouperLoader.editGrouperLoader?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-				                              >${textContainer.text['grouperLoaderEditConfiguration'] }</a></li>
-
-				                          <li><a href="#" onclick="ajax('../app/UiV2Group.scheduleLoaderGroup?groupId=${guiGrouperLoaderJob.guiGroup.group.id}'); return false;"
-				                            >${textContainer.text['groupScheduleLoaderProcessButton'] }</a></li>
-					                            
-					                      </ul>
-					                    </div>
-                            </td>
-                            <td class="expand foo-clicker">${guiGrouperLoaderJob.count}
-                            </td>
-                            <td class="expand foo-clicker">${guiGrouperLoaderJob.changes}
-                            </td>
-                            <td class="expand foo-clicker">${guiGrouperLoaderJob.type}
-                            </td>
-                            <td class="expand foo-clicker"><span rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" class="grouperTooltip"
-                                data-original-title="${grouper:escapeHtml(guiGrouperLoaderJob.sourceDescription)}">${guiGrouperLoaderJob.source}</span>
-                            
-                            </td>
-                            <td class="expand foo-clicker">${guiGrouperLoaderJob.schedule}
-                            </td>
-                            <td class="expand foo-clicker"><input type="text" value="${grouper:escapeHtml(guiGrouperLoaderJob.query)}" style="width: 50em"/>
-                            </td>
-                          </tr>
-                          <c:set var="i" value="${i+1}" />
-                        </c:forEach>
-                      </tbody>
-                    </table>
                   </c:otherwise>
                 </c:choose>
               </div>
