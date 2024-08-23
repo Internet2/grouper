@@ -117,67 +117,62 @@ public class TestMembership12 extends GrouperTest {
 
       // Test 1
       gA.addCompositeMember(CompositeType.UNION, gB, gC);
-      gB.addMember(gA.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 8, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
-      // undo
-      gB.deleteMember(gA.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
+      
+      try {
+        gB.addMember(gA.toSubject());
+        fail("Didn't throw exception");
+      } catch (Exception e) {
+        // good
+      }
       
       
       // Test 2
-      gC.addMember(gA.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 8, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
-      // undo
-      gC.deleteMember(gA.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
-      
+      try {
+        gC.addMember(gA.toSubject());
+        fail("Didn't throw exception");
+      } catch (Exception e) {
+        // good
+      }
       
       // Test 3
       gB.addMember(gD.toSubject());
-      gD.addMember(gA.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 16, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
-      // undo
-      gD.deleteMember(gA.toSubject());
-      gB.deleteMember(gD.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
       
+      try {
+        gD.addMember(gA.toSubject());
+        fail("Didn't throw exception");
+      } catch (Exception e) {
+        // good
+      }
+      
+      gB.deleteMember(gD.toSubject());
       
       // Test 4
       gD.addMember(gA.toSubject());
-      gB.addMember(gD.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 16, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
-      // undo
-      gB.deleteMember(gD.toSubject());
-      gD.deleteMember(gA.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 5, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
       
+      try {
+        gB.addMember(gD.toSubject());
+        fail("Didn't throw exception");
+      } catch (Exception e) {
+        // good
+      }
+      
+      gD.deleteMember(gA.toSubject());
+
       
       // Test 5
       gB.addMember(gD.toSubject());
       gD.addMember(gE.toSubject());
       gE.addMember(gF.toSubject());
-      gF.addMember(gA.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 29, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
+      
+      try {
+        gF.addMember(gA.toSubject());
+        fail("Didn't throw exception");
+      } catch (Exception e) {
+        // good
+      }
+      
       // undo
-      gF.deleteMember(gA.toSubject());
       gE.deleteMember(gF.toSubject());
       runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 10, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
@@ -186,13 +181,14 @@ public class TestMembership12 extends GrouperTest {
       
       // Test 6
       gF.addMember(gA.toSubject());
-      gE.addMember(gF.toSubject());
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 29, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
+      try {
+        gE.addMember(gF.toSubject());
+        fail("Didn't throw exception");
+      } catch (Exception e) {
+        // good
+      }
 
-      // undo
-      gE.deleteMember(gF.toSubject());
-      runCompositeMembershipChangeLogConsumer();
+
       T.amount("Number of list memberships", 14, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
       
@@ -200,12 +196,14 @@ public class TestMembership12 extends GrouperTest {
       // Test 7
       gA.deleteCompositeMember();
       gE.addMember(gF.toSubject());
-      gA.addCompositeMember(CompositeType.UNION, gB, gC);
-      runCompositeMembershipChangeLogConsumer();
-      T.amount("Number of list memberships", 29, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
-
-      // undo
-      gA.deleteCompositeMember();
+      
+      try {
+        gA.addCompositeMember(CompositeType.UNION, gB, gC);
+        fail("Didn't throw exception");
+      } catch (Exception e) {
+        // good
+      }
+      
       runCompositeMembershipChangeLogConsumer();
       T.amount("Number of list memberships", 14, MembershipFinder.internal_findAllByCreatedAfter(r.rs, before, fieldMembers).size());
 
