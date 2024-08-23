@@ -32,6 +32,7 @@
 
 package edu.internet2.middleware.grouper.validator;
 import edu.internet2.middleware.grouper.Composite;
+import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.internal.dao.GroupDAO;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
@@ -58,6 +59,9 @@ public class CompositeValidator extends GrouperValidator {
   public static final String INVALID_RIGHTFACTORUUID = "composite has invalid rightFactorUUID";
   public static final String INVALID_TYPE            = "composite has invalid type";
   public static final String INVALID_UUID            = "composite has invalid uuid";
+  
+  public static final String INVALID_OWNERLEFTCYCLEINDIRECT  = "composite owner is a member of left factor";
+  public static final String INVALID_OWNERRIGHTCYCLEINDIRECT = "composite owner is a member of right factor";
 
   // PROTECTED CLASS METHODS //
 
@@ -114,7 +118,15 @@ public class CompositeValidator extends GrouperValidator {
           v.setErrorMessage(INVALID_RIGHTFACTOR);
         }
         else {
-          v.setIsValid(true);
+          Group ownerGroup = GrouperDAOFactory.getFactory().getGroup().findByUuid(_c.getFactorOwnerUuid(), true);
+          String ownerMemberUuid = ownerGroup.toMember().getUuid();
+          if (GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndMemberAndField(_c.getLeftFactorUuid(), ownerMemberUuid, Group.getDefaultList(), true).size() > 0) {
+            v.setErrorMessage(INVALID_OWNERLEFTCYCLEINDIRECT);
+          } else if (GrouperDAOFactory.getFactory().getMembership().findAllByGroupOwnerAndMemberAndField(_c.getRightFactorUuid(), ownerMemberUuid, Group.getDefaultList(), true).size() > 0) {
+            v.setErrorMessage(INVALID_OWNERRIGHTCYCLEINDIRECT);
+          } else {
+            v.setIsValid(true);
+          }
         }
       }
       catch (GrouperDAOException eDAO) {

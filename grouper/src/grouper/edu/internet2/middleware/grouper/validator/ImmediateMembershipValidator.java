@@ -32,12 +32,21 @@
 
 package edu.internet2.middleware.grouper.validator;
 
+import java.util.ArrayList;
+import java.util.List;
+
+import org.hibernate.type.StringType;
+import org.hibernate.type.Type;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningSettings;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.MemberNotFoundException;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -59,6 +68,8 @@ public class ImmediateMembershipValidator extends MembershipValidator {
 
   /** */
   public static final String INVALID_CIRCULAR    = "membership cannot be circular";
+  /** */
+  public static final String INVALID_CIRCULAR_VIA_COMPOSITE    = "membership cannot be circular via a composite";
   /** */
   public static final String INVALID_DEPTH       = "membership depth != 0";
   /** */
@@ -97,6 +108,8 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     }
     else if ( v._isCircular(_ms) )                            { // cannot be a direct member of oneself
       v.setErrorMessage(INVALID_CIRCULAR);
+    } else if (v._isCircularViaComposite(_ms)) {
+      v.setErrorMessage(INVALID_CIRCULAR_VIA_COMPOSITE);
     } else if (GrouperConfig.ALL.equals(_ms.getMember().getSubjectId()) && _ms.getFieldId().equals(Group.getDefaultList().getUuid())) {
       v.setErrorMessage("GrouperAll can't be member of a group.");
     } else if (GrouperConfig.ALL.equals(_ms.getMember().getSubjectId()) && _ms.getField().isGroupAccessField() && 
@@ -145,5 +158,33 @@ public class ImmediateMembershipValidator extends MembershipValidator {
     return false;
   }
 
+  private boolean _isCircularViaComposite(Membership membership) {
+    
+    if (membership.getOwnerGroupId() != null && membership.getField().equals(Group.getDefaultList()) && membership.getMember().getSubjectTypeId().equals("group")) {
+      String sql = "select count(*) from grouper_composites gc, grouper_group_set ggs1, grouper_group_set ggs2 "
+          + "where (gc.left_factor = ggs1.owner_group_id or gc.right_factor=ggs1.owner_group_id) "
+          + "and ggs1.member_group_id = ? and ggs1.field_id = ? "
+          + "and ggs2.owner_group_id = ? and ggs2.member_group_id = gc.owner and ggs2.field_id = ?";
+      
+      List<Object> params = new ArrayList<Object>();
+      params.add(membership.getOwnerGroupId());
+      params.add(membership.getFieldId());
+      params.add(membership.getMember().getSubjectId());
+      params.add(membership.getFieldId());
+
+      List<Type> types = new ArrayList<Type>();
+      types.add(StringType.INSTANCE);
+      types.add(StringType.INSTANCE);
+      types.add(StringType.INSTANCE);
+      types.add(StringType.INSTANCE);
+      
+      int count = HibernateSession.bySqlStatic().select(int.class, sql, params, types);
+      if (count > 0) {
+        return true;
+      }
+    }
+
+    return false;
+  }
 }
 

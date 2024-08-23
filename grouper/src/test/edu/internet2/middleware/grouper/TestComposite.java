@@ -59,7 +59,7 @@ public class TestComposite extends GrouperTest {
 
   public static void main(String[] args) {
     //TestRunner.run(TestComposite.class);
-    TestRunner.run(new TestComposite("testAddUnionWithTwoCompositeChildrenAndCompositeParent"));
+    TestRunner.run(new TestComposite("testCompositeCircularMembershipAddOwnerInFactor"));
   }
   GrouperSession grouperSession = null;
   @Override
@@ -2332,6 +2332,44 @@ public class TestComposite extends GrouperTest {
   }
 
   
+  public void testCompositeCircularCompositeAddOwnerInFactor() {
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group ownerGroup = new GroupSave(this.grouperSession).assignName("test:ownerGroup").save();
+    Group leftGroup = new GroupSave(this.grouperSession).assignName("test:leftGroup").save();
+    Group rightGroup = new GroupSave(this.grouperSession).assignName("test:rightGroup").save();
+    Group sub1Group = new GroupSave(this.grouperSession).assignName("test:sub1Group").save();
+    Group sub2Group = new GroupSave(this.grouperSession).assignName("test:sub2Group").save();
+
+    rightGroup.addMember(sub1Group.toSubject());
+    sub1Group.addMember(sub2Group.toSubject());
+    sub2Group.addMember(ownerGroup.toSubject());
+    
+    try {
+      ownerGroup.addCompositeMember(CompositeType.COMPLEMENT, leftGroup, rightGroup);
+      fail("Didn't throw exception");
+    } catch (MemberAddException e) {
+      // good
+    }
+  }
   
+  public void testCompositeCircularMembershipAddOwnerInFactor() {
+    Stem stem = new StemSave(this.grouperSession).assignName("test").save();
+    Group ownerGroup = new GroupSave(this.grouperSession).assignName("test:ownerGroup").save();
+    Group leftGroup = new GroupSave(this.grouperSession).assignName("test:leftGroup").save();
+    Group rightGroup = new GroupSave(this.grouperSession).assignName("test:rightGroup").save();
+    Group sub1Group = new GroupSave(this.grouperSession).assignName("test:sub1Group").save();
+    Group sub2Group = new GroupSave(this.grouperSession).assignName("test:sub2Group").save();
+    ownerGroup.addCompositeMember(CompositeType.COMPLEMENT, leftGroup, rightGroup);
+
+    rightGroup.addMember(sub1Group.toSubject());
+    sub2Group.addMember(ownerGroup.toSubject());
+    
+    try {
+      sub1Group.addMember(sub2Group.toSubject());
+      fail("Didn't throw exception");
+    } catch (Exception e) {
+      // good
+    }
+  }
 }
 
