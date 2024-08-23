@@ -2724,6 +2724,19 @@ function showLinkToRefreshProvisioningConfig(focusOnElementName, provisionerConf
   
 }
 
+function handleGuiV2LinkClick(event, url, options) {
+  // Check if the event is a left-click without Ctrl or Meta (Cmd) keys
+  if (!event.ctrlKey && !event.metaKey && event.button === 0) {
+    event.preventDefault(); // Prevent the default action (navigating to the URL)
+
+    // Perform the AJAX call here
+    return guiV2link(url, options)
+  } else {
+    // right-click etc. goes to the url page without ajax
+    return true;
+  }
+}
+
 // sometimes window is blocked on back button
 $(window).on("unload", function() {
   $.unblockUI();

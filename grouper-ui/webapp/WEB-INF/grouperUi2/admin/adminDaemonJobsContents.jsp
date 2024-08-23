@@ -59,8 +59,10 @@
                     <tbody>
                       <c:forEach items="${grouperRequestContainer.adminContainer.guiDaemonJobs}" var="guiDaemonJob">
                         <tr class="adminDaemonJobEntry">
-                          <td class="expand foo-clicker" style="white-space: nowrap;"><a href="#" class="adminDaemonJobNameLink"
-                            onclick="return guiV2link('operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');">${guiDaemonJob.jobName}</a></td>
+                          <td class="expand foo-clicker" style="white-space: nowrap;">
+                            <a class="adminDaemonJobNameLink" href="?operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}"
+                              onclick="return handleGuiV2LinkClick(event, 'operation=UiV2Admin.viewLogs&jobName=${grouper:escapeUrl(guiDaemonJob.jobName)}');">${guiDaemonJob.jobName}</a>
+                          </td>
                           <td class="expand foo-clicker"><span style='white-space: nowrap'>${guiDaemonJob.stateDescription}</span></td>
                           <td class="expand foo-clicker"
                             style="color: White;
