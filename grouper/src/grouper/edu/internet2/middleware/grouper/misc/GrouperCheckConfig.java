@@ -2641,28 +2641,10 @@ public class GrouperCheckConfig {
             String groupName = recentMembershipsRootStemName + ":" + GrouperRecentMemberships.GROUPER_RECENT_MEMBERSHIPS_LOADER_GROUP_NAME;
             
             Group group = groupNameToGroup.get(groupName);
-            
-            String descriptionIfEnabled = "Holds the loader configuration of the recent memberships job that populates the recent memberships groups configured by attributes.  This is enabled in grouper.properties";
-            String descriptionIfDisabled = "Holds the loader configuration of the recent memberships job that populates the recent memberships groups configured by attributes.  This is not enabled in grouper.properties";
-
-            boolean recentMembershipsEnabled = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.recentMemberships.loaderJob.enable", true);
-            String descriptionShouldBe = recentMembershipsEnabled ? descriptionIfEnabled : descriptionIfDisabled;
-
-            Boolean changeLoader = null;
-
             if (group != null) {
-              changeLoader = !StringUtils.equals(descriptionShouldBe, group.getDescription());
-            }
-            
-            if (group == null) {
-              changeLoader = (changeLoader != null && changeLoader) || recentMembershipsEnabled;
-            }
-            
-            // if its new or the state has changed
-            if (changeLoader != null && changeLoader) {
               GrouperRecentMemberships.setupRecentMembershipsLoaderJob(group);
             }
-  
+
           }
           
           AttributeAutoCreateHook.registerHookIfNecessary();
