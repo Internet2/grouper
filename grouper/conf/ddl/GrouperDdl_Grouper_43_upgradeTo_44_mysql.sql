@@ -103,7 +103,7 @@ CREATE TABLE grouper_prov_azure_user
     PRIMARY KEY (config_id, id(180))
 );
  
-CREATE INDEX grouper_prov_azure_user_idx1 ON grouper_prov_azure_user (user_principal_name, config_id);
+CREATE INDEX grouper_prov_azure_user_idx1 ON grouper_prov_azure_user (user_principal_name(180), config_id);
 
 update grouper_ddl set last_updated = date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), history = substring(concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V', db_version, ' to V44, ', history), 1, 3500), db_version = 44 where object_name = 'Grouper';
 commit;

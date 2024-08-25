@@ -180,7 +180,7 @@ COMMENT ON COLUMN grouper_prov_scim_user_attr.attribute_name IS 'scim user attri
 COMMENT ON COLUMN grouper_prov_scim_user_attr.attribute_value IS 'scim user attribute value';
  
  
- CREATE TABLE grouper_prov_azure_user
+CREATE TABLE grouper_prov_azure_user
 (
     config_id VARCHAR(50) NOT NULL,
     account_enabled VARCHAR(1) NULL,

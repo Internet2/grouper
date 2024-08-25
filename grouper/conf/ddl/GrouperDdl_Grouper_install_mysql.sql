@@ -1912,7 +1912,7 @@ CREATE TABLE grouper_prov_azure_user
     PRIMARY KEY (config_id, id(180))
 );
  
-CREATE INDEX grouper_prov_azure_user_idx1 ON grouper_prov_azure_user (user_principal_name, config_id);
+CREATE INDEX grouper_prov_azure_user_idx1 ON grouper_prov_azure_user (user_principal_name(180), config_id);
 
 CREATE TABLE grouper_mship_req_change
 (
