@@ -2498,7 +2498,7 @@ public class GrouperCheckConfig {
             String messagesRootStemName = GrouperBuiltinMessagingSystem.messageRootStemName();
 
             Stem messagesStem = stemNameToStem.get(messagesRootStemName);
-            
+
             {
               //TODO do action lists more efficiently
               //see if attributeDef for topics is there
