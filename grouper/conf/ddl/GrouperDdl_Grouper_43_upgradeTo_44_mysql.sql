@@ -60,7 +60,7 @@ CREATE TABLE grouper_prov_scim_user
     family_name VARCHAR(256) NULL,
     formatted_name VARCHAR(256) NULL,
     given_name VARCHAR(256) NULL,
-    id VARCHAR(256) NOT NULL,
+    id VARCHAR(180) NOT NULL,
     middle_name VARCHAR(256) NULL,
     phone_number VARCHAR(256) NULL,
     phone_number_type VARCHAR(256) NULL,
@@ -70,7 +70,7 @@ CREATE TABLE grouper_prov_scim_user
     title VARCHAR(256) NULL,
     user_name VARCHAR(256) NULL,
     user_type VARCHAR(256) NULL,
-    PRIMARY KEY (config_id, id(180))
+    PRIMARY KEY (config_id, id)
 );
  
 CREATE INDEX grouper_prov_scim_user_idx1 ON grouper_prov_scim_user (email_value, config_id);

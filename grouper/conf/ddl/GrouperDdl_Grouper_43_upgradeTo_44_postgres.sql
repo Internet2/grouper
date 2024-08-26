@@ -84,7 +84,7 @@ CREATE TABLE grouper_prov_scim_user
     family_name VARCHAR(256),
     formatted_name VARCHAR(256),
     given_name VARCHAR(256),
-    id VARCHAR(256) NOT NULL,
+    id VARCHAR(180) NOT NULL,
     middle_name VARCHAR(256),
     phone_number VARCHAR(256),
     phone_number_type VARCHAR(256),

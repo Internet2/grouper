@@ -3,7 +3,7 @@ CREATE TABLE grouper_prov_azure_user
     config_id VARCHAR2(50) NOT NULL,
     account_enabled VARCHAR2(1) NULL,
     display_name VARCHAR2(256) NULL,
-    id VARCHAR2(256) NOT NULL,
+    id VARCHAR2(180) NOT NULL,
     mail_nickname VARCHAR2(256) NULL,
     on_premises_immutable_id VARCHAR2(256) NULL,
     user_principal_name VARCHAR2(256) NULL,
