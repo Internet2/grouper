@@ -90,13 +90,13 @@ public class MidPointProvisionerTest extends GrouperProvisioningBaseTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();
     
 // TODO   dropTableSyncTables();
     GrouperSession.stopQuietly(this.grouperSession);
 
+    super.tearDown();
   }
   
   /**

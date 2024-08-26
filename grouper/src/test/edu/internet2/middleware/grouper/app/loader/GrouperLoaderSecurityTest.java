@@ -159,8 +159,8 @@ public class GrouperLoaderSecurityTest extends GrouperTest {
   @Override
   protected void tearDown() {
     GrouperSession.stopQuietly(this.grouperSession);
-    super.tearDown();
     GroupTypeSecurityHook.resetCacheSettings();
+    super.tearDown();
   }
 
   /**

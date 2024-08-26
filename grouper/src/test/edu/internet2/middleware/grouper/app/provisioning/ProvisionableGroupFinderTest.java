@@ -37,8 +37,8 @@ public class ProvisionableGroupFinderTest extends GrouperTest {
 
   @Override
   protected void tearDown() {
-    super.tearDown();
     GrouperSession.stopQuietly(this.grouperSession);
+    super.tearDown();
   }
 
   private void setupProvisioningConfig() {

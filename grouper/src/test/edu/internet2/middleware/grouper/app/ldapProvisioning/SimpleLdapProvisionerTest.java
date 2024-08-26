@@ -110,11 +110,11 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     
     SourceManager.getInstance().internal_removeSource("personLdapSource");
     GrouperSession.stopQuietly(this.grouperSession);
 
+    super.tearDown();
   }
   
   /**

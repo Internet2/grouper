@@ -93,11 +93,12 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     
     SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();  
     GrouperSession.stopQuietly(this.grouperSession);
+
+    super.tearDown();
   }
   
   public void testGroupAndMembershipInsertAndDelete() {

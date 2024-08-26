@@ -90,11 +90,11 @@ public class LdapProvisionerBushyTest extends GrouperProvisioningBaseTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     
     SourceManager.getInstance().internal_removeSource("personLdapSource");
     GrouperSession.stopQuietly(this.grouperSession);
 
+    super.tearDown();
   }
   
   public void testFullLdapBushy() {
