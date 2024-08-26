@@ -13,7 +13,7 @@ public class GrouperDdl5_12_0 {
   public static boolean buildingToThisVersionAtLeast(DdlVersionBean ddlVersionBean) {
     int buildingToVersion = ddlVersionBean.getBuildingToVersion();
     //TODO increment this in v5
-    boolean buildingToThisVersionAtLeast = GrouperDdl.V47.getVersion() <= buildingToVersion;
+    boolean buildingToThisVersionAtLeast = GrouperDdl.V44.getVersion() <= buildingToVersion;
 
     return buildingToThisVersionAtLeast;
   }
