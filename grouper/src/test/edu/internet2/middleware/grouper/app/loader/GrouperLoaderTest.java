@@ -1852,11 +1852,11 @@ public class GrouperLoaderTest extends GrouperTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     //TODO dropTestgrouperLoaderTables();
     GrouperSession.stopQuietly(this.grouperSession);
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
 
+    super.tearDown();
   }
 
   /**

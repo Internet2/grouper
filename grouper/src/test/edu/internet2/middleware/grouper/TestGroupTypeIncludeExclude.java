@@ -1456,8 +1456,8 @@ public class TestGroupTypeIncludeExclude extends GrouperTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     GrouperSession.stopQuietly(this.grouperSession);
+    super.tearDown();
   }
   
 }

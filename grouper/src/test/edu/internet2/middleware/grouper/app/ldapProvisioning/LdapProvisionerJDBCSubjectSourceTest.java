@@ -103,12 +103,12 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     
     SubjectConfig.retrieveConfig().propertiesOverrideMap().clear();
     GrouperClientConfig.retrieveConfig().propertiesOverrideMap().clear();    
     GrouperSession.stopQuietly(this.grouperSession);
 
+    super.tearDown();
   }
   
   
