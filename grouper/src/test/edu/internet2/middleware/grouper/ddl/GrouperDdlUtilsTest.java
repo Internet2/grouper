@@ -70,7 +70,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   public static void main(String[] args) {
     //GrouperTest.setupTests();
     //TestRunner.run(GrouperDdlUtilsTest.class);
-    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom4_11_0To4_14_0ddlUtils"));
+    TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_6_16To2_6_18aDdlUtils"));
     //TestRunner.run(new GrouperDdlUtilsTest("testUpgradeFrom2_5static"));
     //TestRunner.run(new GrouperDdlUtilsTest("testAutoInstall"));
     
@@ -319,7 +319,6 @@ public class GrouperDdlUtilsTest extends GrouperTest {
    */
   @Override
   protected void tearDown() {
-    super.tearDown();
     //yes print annoying messages to user again
     GrouperDdlUtils.internal_printDdlUpdateMessage = true;
     GrouperDdlUtils.autoDdl2_5orAbove = null;
@@ -338,6 +337,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     
     //first make sure the DB ddl is up to date
     new GrouperDdlEngine().updateDdlIfNeededWithStaticSql(null);
+
+    super.tearDown();
+
   }
 
   /**
@@ -2113,7 +2115,7 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   /**
    * 
    */
-  public void testUpgradeFrom5_11_0To5_12_0ddlUtils() {
+  public void testUpgradeFrom2_6_16To2_6_18aDdlUtils() {
     
     //lets make sure everything is there on install
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_azure_user"));
@@ -2137,9 +2139,9 @@ public class GrouperDdlUtilsTest extends GrouperTest {
   
     //edu/internet2/middleware/grouper/ddl/GrouperDdl_2_5_51_postgres.sql
     // get to 5.0.4
-    File scriptToGetTo5_0_4 = retrieveScriptFile("GrouperDdl_5_11_0_" + GrouperDdlUtils.databaseType() + ".sql");
+    File scriptToGetTo2_6_16 = retrieveScriptFile("GrouperDdl_2_6_16_" + GrouperDdlUtils.databaseType() + ".sql");
     
-    GrouperDdlUtils.sqlRun(scriptToGetTo5_0_4, true, true);
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_16, true, true);
   
     // stuff gone
     assertFalse(GrouperDdlUtils.assertTableThere(true, "grouper_prov_azure_user"));
@@ -2161,13 +2163,47 @@ public class GrouperDdlUtilsTest extends GrouperTest {
     //lets make sure everything is there on upgrade
     assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_azure_user"));
   
-    scriptToGetTo5_0_4.delete();
+    // try from upgrade step
+    // drop everything
+    new GrouperDdlEngine().assignFromUnitTest(true)
+      .assignDropBeforeCreate(true).assignWriteAndRunScript(true).assignDropOnly(true)
+      .assignMaxVersions(null).assignPromptUser(true).runDdl();
+  
+    // get to 2.6.16    
+    GrouperDdlUtils.sqlRun(scriptToGetTo2_6_16, true, true);
+    
+    // stuff gone
+    assertTrue(GrouperDdlUtils.assertTableThere(false, "grouper_prov_azure_user"));
+  
     
     grouperDdlEngine = new GrouperDdlEngine();
     grouperDdlEngine.assignFromUnitTest(true)
         .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
         .assignDropOnly(false)
         .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    
+    assertTrue(grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors, "
+        + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount() + " warnings",
+        0 < grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount()
+            + grouperDdlEngine.getGrouperDdlCompareResult().getWarningCount());
+
+    UpgradeTasks.V11.updateVersionFromPrevious(null);
+    UpgradeTasks.V12.updateVersionFromPrevious(null);
+    UpgradeTasks.V13.updateVersionFromPrevious(null);
+  
+    //lets make sure everything is there on upgrade
+    assertTrue(GrouperDdlUtils.assertTableThere(true, "grouper_prov_azure_user"));
+  
+    scriptToGetTo2_6_16.delete();
+
+    
+    
+    grouperDdlEngine = new GrouperDdlEngine();
+    grouperDdlEngine.assignFromUnitTest(true)
+        .assignDropBeforeCreate(false).assignWriteAndRunScript(false)
+        .assignDropOnly(false)
+        .assignMaxVersions(null).assignPromptUser(true).assignDeepCheck(true).runDdl();
+    
     assertEquals(
         grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount() + " errors", 0,
         grouperDdlEngine.getGrouperDdlCompareResult().getErrorCount());
