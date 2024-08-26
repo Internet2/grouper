@@ -2491,7 +2491,7 @@ public class GrouperCheckConfig {
                 groupMessagingRoleGroup = (Group)messagesStem.addChildRole(GrouperUtil.extensionFromName(grouperMessageNameOfRole), 
                     GrouperUtil.extensionFromName(grouperMessageNameOfRole));
                 if (wasInCheckConfig) {
-                  String error = "auto-created role: " + groupMessagingRoleGroup.getName();
+                  String error = "Auto-created role: " + groupMessagingRoleGroup.getName();
                   LOG.warn(error);
                 }
               }
