@@ -85,12 +85,18 @@ public class GrouperDdlCompare {
     this.result.getResult().insert(0, "\n");
 
     if (this.result.getErrorCount() == 0 && this.result.getWarningCount() == 0) {
-      this.result.getResult().insert(0, "SUCCESS: Database DDL is correct!\n");
+      String summary = "SUCCESS: Database DDL is correct!\n";
+      this.result.getResult().insert(0, summary);
+      this.result.getResult().append("\n\n" + summary);
     } else if (this.result.getErrorCount() > 0) {
-      this.result.getResult().insert(0, "ERROR: Database DDL has " + this.result.getErrorCount() 
-        + " errors and " + this.result.getWarningCount() + " warnings!\n");
+      String summary = "ERROR: Database DDL has " + this.result.getErrorCount() 
+        + " errors and " + this.result.getWarningCount() + " warnings!\n";
+      this.result.getResult().insert(0, summary);
+      this.result.getResult().append("\n\n" + summary);
     } else if (this.result.getWarningCount() > 0) {
-      this.result.getResult().insert(0, "WARNING: Database DDL has " + this.result.getWarningCount() + " warnings!\n");
+      String summary = "WARNING: Database DDL has " + this.result.getWarningCount() + " warnings!\n";
+      this.result.getResult().insert(0, summary);
+      this.result.getResult().append("\n\n" + summary);
     }
     this.result.getResult().insert(0, "\n");
 
