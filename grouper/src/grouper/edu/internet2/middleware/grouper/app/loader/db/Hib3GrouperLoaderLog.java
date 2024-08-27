@@ -114,7 +114,7 @@ public class Hib3GrouperLoaderLog implements HibGrouperLifecycle {
   private String status;
   
   /** when the job started */
-  private Timestamp startedTime;
+  private Timestamp startedTime = new Timestamp(System.currentTimeMillis());
 
   /** when the record was last updated */
   private Timestamp lastUpdated;
