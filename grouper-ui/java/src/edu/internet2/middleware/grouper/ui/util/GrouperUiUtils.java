@@ -1374,6 +1374,7 @@ public class GrouperUiUtils {
    * lazy load
    * @return sourceId cache
    */
+  @Deprecated
   private static GrouperCache<String, String> sourceIdToSourceTextIdCache() {
     if (sourceIdToSourceTextIdCache == null) {
       synchronized(GrouperStartup.class) {
@@ -1388,10 +1389,12 @@ public class GrouperUiUtils {
   }
 
   /**
-   * convert a source id to a text id (use the source id if not configured to be different)
+   * convert a source id to a text id (use the source id if not configured to be different).
+   * The mapping cache used for this is never populated, so this is could be a candidate for refactoring
    * @param sourceId
    * @return the text id
    */
+  @Deprecated
   public static String convertSourceIdToTextId(String sourceId) {
     GrouperCache<String, String> theSourceIdToTextIdCache = sourceIdToSourceTextIdCache();
     String textId = theSourceIdToTextIdCache.get(sourceId);

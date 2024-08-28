@@ -359,14 +359,20 @@ public class SubjectSourceDiagnostics {
           } else {
             GuiSubject guiSubject = new GuiSubject(theSubject);
             subjectApiReport.append("Short link with icon: " + guiSubject.getShortLinkWithIcon() + "\n");
-            subjectApiReport.append("  - This is configured in grouper.text.en.us.base.properties with guiSubjectShortLink\n");
-            subjectApiReport.append("  - Also configured in grouper-ui.properties with grouperUi.screenLabel2.sourceId.X\n");
-            subjectApiReport.append("  - By default this is the name of the subject with a tooltip for description\n");
-            
+            subjectApiReport.append("  - Appearance of the subject in most places: its own subject page heading, in search results, in group members, etc.\n");
+            //subjectApiReport.append("  - Configured in grouper.text.en.us.base.properties with guiSubjectShortLink\n");
+            subjectApiReport.append("  - Optionally configured per subject source in grouper-ui.properties\n");
+            subjectApiReport.append("    - icon is grouperUi.screenSubjectIcon2.screenHtmlEl.X, or default `&lt;i class=\"fa fa-user\"&gt;&lt;/i&gt;`\n");
+            subjectApiReport.append("    - label is grouperUi.screenLabel2.screenEl.X, or default to subject name\n");
+            subjectApiReport.append("  - tooltip is subject description, if different from subject name\n");
+
+            subjectApiReport.append("\n");
             subjectApiReport.append("Long label with icon: " + guiSubject.getScreenLabelLongWithIcon() + "\n");
-            subjectApiReport.append("  - This is not used in the new UI\n");
-            subjectApiReport.append("  - It is configured in grouper-ui.properties with grouperUi.subjectImg.screenEl.\n");
-            subjectApiReport.append("  - By default this is the description of the subject\n");
+            subjectApiReport.append("  - This is used in the Member Add drop down\n");
+            //subjectApiReport.append("  - Configured in grouper.text.en.us.base.properties with guiSubjectLongLinkWithIcon\n");
+            subjectApiReport.append("  - Optionally configured per subject source in grouper-ui.properties\n");
+            subjectApiReport.append("    - icon is grouperUi.screenSubjectIcon2.screenHtmlEl.X, or default `&lt;i class=\"fa fa-user\"&gt;&lt;/i&gt;`\n");
+            subjectApiReport.append("    - label is grouperUi.subjectImgLong.screenEl.X, or default to subject description\n");
             
           }
         }
