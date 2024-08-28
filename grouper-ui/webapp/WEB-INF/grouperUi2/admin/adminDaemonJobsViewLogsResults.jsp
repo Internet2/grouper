@@ -99,9 +99,9 @@
                         
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.startedTime}</td>
                         <td style="white-space: nowrap">${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.endedTime}</td>
-                        <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.millis}</td>
-                        <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.millisGetData}</td>
-                        <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.millisLoadData}</td>
+                        <td>${guiHib3GrouperLoaderLog.totalElapsedFormatted}</td>
+                        <td>${guiHib3GrouperLoaderLog.getDataElapsedFormatted}</td>
+                        <td>${guiHib3GrouperLoaderLog.loadDataElapsedFormatted}</td>
                         <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.totalCount}</td>
                         <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.insertCount}</td>
                         <td>${guiHib3GrouperLoaderLog.hib3GrouperLoaderLog.updateCount}</td>
