@@ -19,12 +19,14 @@
  */
 package edu.internet2.middleware.grouper.hibernate;
 
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 
+import org.hibernate.internal.SessionImpl;
 import org.hibernate.type.StringType;
 
 import junit.textui.TestRunner;
@@ -52,10 +54,12 @@ import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.internal.dao.GrouperDAOException;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.internal.dao.QueryPaging;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.NamingPrivilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
  *
@@ -67,7 +71,7 @@ public class HibernateSessionTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new HibernateSessionTest("testEnabledDisabledDaemon"));
+    TestRunner.run(new HibernateSessionTest("testRollbackGcDbAccess"));
     //TestRunner.run(HibernateSessionTest.class);
   }
   
@@ -143,6 +147,41 @@ public class HibernateSessionTest extends GrouperTest {
     
     Group group = GroupFinder.findByName(grouperSession, "test:testGroup", false);
     assertNull(group);
+  }
+  
+  /**
+   * 
+   */
+  public void testRollbackGcDbAccess() {
+
+    int grouperLoaderLogRowsOrig = new GcDbAccess().sql("select count(1) from grouper_loader_log").select(int.class);
+    
+    final GrouperSession grouperSession = GrouperSession.startRootSession();
+
+    HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+      
+      @Override
+      public Object callback(HibernateHandlerBean hibernateHandlerBean)
+          throws GrouperDAOException {
+
+        new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup").save();
+        
+        Connection connection = ((SessionImpl)hibernateHandlerBean.getHibernateSession().getSession()).connection();
+        
+        insertIntoDbGcDbAccess(connection);
+        
+        hibernateHandlerBean.getHibernateSession().rollback(GrouperRollbackType.ROLLBACK_NOW);
+                
+        return null;
+      }
+    });
+
+    Group group = GroupFinder.findByName(grouperSession, "test:testGroup", false);
+    assertNull(group);
+    
+    int grouperLoaderLogRowsNew = new GcDbAccess().sql("select count(1) from grouper_loader_log").select(int.class);
+
+    assertEquals(grouperLoaderLogRowsOrig, grouperLoaderLogRowsNew);
   }
   
   /**
@@ -384,6 +423,12 @@ public class HibernateSessionTest extends GrouperTest {
     hib3GrouperLoaderLog.setJobType(GrouperLoaderType.OTHER_JOB.name());
     hib3GrouperLoaderLog.setStatus(GrouperLoaderStatus.SUCCESS.name());
     HibernateSession.byObjectStatic().saveOrUpdate(hib3GrouperLoaderLog);
+
+  }
+  
+  public static void insertIntoDbGcDbAccess(Connection connection) {
+    new GcDbAccess().connection(connection).sql("insert into grouper_loader_log (id, job_name, status, job_type, started_time) values (?, ?, ?, ?, ?)")
+      .addBindVar(GrouperUuid.getUuid()).addBindVar("OTHER_JOB_attestationDaemon").addBindVar("SUCCESS").addBindVar("OTHER_JOB").addBindVar(new Timestamp(System.currentTimeMillis())).executeSql();
 
   }
   
