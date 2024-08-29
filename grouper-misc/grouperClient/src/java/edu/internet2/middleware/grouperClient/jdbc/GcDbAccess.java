@@ -24,12 +24,13 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 
 
@@ -2888,6 +2889,31 @@ public class GcDbAccess {
     return connectionCreateNew(connectionName, url);
   }
 
+  /**
+   * pass in a connection to leverage transactions from caller
+   * <pre>
+   * HibernateSession.callbackHibernateSession(GrouperTransactionType.READ_WRITE_NEW, AuditControl.WILL_NOT_AUDIT, new HibernateHandler() {
+   *  
+   *  @Override
+   *  public Object callback(HibernateHandlerBean hibernateHandlerBean)
+   *      throws GrouperDAOException {
+   *
+   *    new GroupSave(grouperSession).assignCreateParentStemsIfNotExist(true).assignName("test:testGroup").save();
+   *       
+   *    Connection connection = ((SessionImpl)hibernateHandlerBean.getHibernateSession().getSession()).connection();
+   *        
+   *    new GcDbAccess().connection(connection).
+   *      sql("insert into grouper_loader_log (id, job_name, status, job_type, started_time) values (?, ?, ?, ?, ?)").
+   *      addBindVar(GrouperUuid.getUuid()).addBindVar("OTHER_JOB_attestationDaemon").addBindVar("SUCCESS").
+   *      addBindVar("OTHER_JOB").addBindVar(new Timestamp(System.currentTimeMillis())).executeSql();
+   *                
+   *    return null;
+   *  }
+   * });
+   * </pre>
+   * @param connection
+   * @return
+   */
   public GcDbAccess connection(Connection connection) {
     this.connection = connection;
     this.connectionProvided = true;
