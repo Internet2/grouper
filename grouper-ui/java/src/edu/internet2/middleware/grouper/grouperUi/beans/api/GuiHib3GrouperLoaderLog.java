@@ -7,6 +7,7 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
@@ -17,7 +18,7 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-
+import java.util.Locale;
 
 /**
  * gui class to display a loader log
@@ -37,7 +38,7 @@ public class GuiHib3GrouperLoaderLog {
    * gui group of group being loaded if applicable
    */
   private GuiGroup loadedGuiGroup;
-  
+
   /**
    * get the loaded group, not null if there are multiple
    * @return the loaded group
@@ -244,4 +245,78 @@ public class GuiHib3GrouperLoaderLog {
   public GuiHib3GrouperLoaderLog() {
   }
 
+  private String convertMillisToTime(Integer millis) {
+    String unit = GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.admin.daemonJob.elapsedTimeUnit", "milliseconds");
+
+    if (millis == null) {
+      return null;
+    }
+
+    if (millis == 0) {
+      return "0";
+    }
+
+    Locale locale = GrouperUiFilter.retrieveLocale();
+    String result;
+
+    switch (unit) {
+      case "seconds":
+        result = String.format(locale, "%.2f", millis / 1000f);
+        break;
+      case "minutes":
+        result = String.format(locale, "%.2f", millis/60000f);
+        break;
+      case "h:m:s":
+        long millis2 = millis;
+        long hours2 = millis2 / (1000 * 60 * 60);
+        millis2 %= (1000 * 60 * 60);
+        long minutes2 = millis2 / (1000 * 60);
+        millis2 %= (1000 * 60);
+        long seconds2 = millis2 / 1000;
+        long ms2 = millis2 % 1000;
+
+        result = String.format("%d:%02d:%02d.%03d", hours2, minutes2, seconds2, ms2);
+        break;
+      case "hms":
+        long millis3 = millis;
+        long hours3 = millis3 / (1000 * 60 * 60);
+        millis3 %= (1000 * 60 * 60);
+        long minutes3 = millis3 / (1000 * 60);
+        millis3 %= (1000 * 60);
+        float seconds3 = millis3 / 1000f;
+
+        StringBuffer buffer = new StringBuffer();
+        if (hours3 > 0) {
+          buffer.append(hours3 + "h");
+        }
+        if (hours3 > 0 || minutes3 > 0) {
+          buffer.append(minutes3 + "m");
+        }
+        if (hours3 > 0 || minutes3 > 0 || seconds3 > 0) {
+          buffer.append(String.format(locale, "%.2f", seconds3) + "s");
+        } else {
+          buffer.append(millis3 + "ms");
+        }
+
+        result = buffer.toString();
+        break;
+      case "milliseconds":
+      default:
+        result = millis.toString();
+    }
+
+    return result;
+  }
+
+  public String getTotalElapsedFormatted() {
+    return convertMillisToTime(hib3GrouperLoaderLog.getMillis());
+  }
+
+  public String getGetDataElapsedFormatted() {
+    return convertMillisToTime(hib3GrouperLoaderLog.getMillisGetData());
+  }
+
+  public String getLoadDataElapsedFormatted() {
+    return convertMillisToTime(hib3GrouperLoaderLog.getMillisLoadData());
+  }
 }
