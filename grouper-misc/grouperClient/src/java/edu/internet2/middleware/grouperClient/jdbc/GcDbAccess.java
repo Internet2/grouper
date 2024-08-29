@@ -210,6 +210,7 @@ public class GcDbAccess {
    */
   public GcDbAccess connectionName(String theConnectionName) {
     this.connectionName = theConnectionName;
+    this.connectionProvided = false;
     return this;
   }
   
@@ -219,7 +220,7 @@ public class GcDbAccess {
    * @param endOnlyIfStarted
    */
   public static void transactionEnd(GcTransactionEnd transactionEnd, boolean endOnlyIfStarted) {
-    transactionEnd(transactionEnd, endOnlyIfStarted, null);
+    transactionEnd(transactionEnd, endOnlyIfStarted, null, false);
   }
   
   /**
@@ -227,10 +228,25 @@ public class GcDbAccess {
    * @param transactionEnd
    * @param endOnlyIfStarted
    * @param connectionName 
+   * @param connectionProvided if connection is provided
    */
   public static void transactionEnd(GcTransactionEnd transactionEnd, boolean endOnlyIfStarted, String connectionName) {
+    transactionEnd(transactionEnd, endOnlyIfStarted, connectionName, false);
+  }
+  
+  /**
+   * end a transaction
+   * @param transactionEnd
+   * @param endOnlyIfStarted
+   * @param connectionName 
+   * @param connectionProvided if connection is provided
+   */
+  public static void transactionEnd(GcTransactionEnd transactionEnd, boolean endOnlyIfStarted, String connectionName, boolean connectionProvided) {
     
-    ConnectionBean connectionBean = connection(false, false, connectionName);
+    if (connectionProvided) {
+      return;
+    }
+    ConnectionBean connectionBean = connection(false, false, connectionName, false, null);
     
     Connection connection = connectionBean.getConnection();
     
@@ -240,7 +256,11 @@ public class GcDbAccess {
 
     ConnectionBean.transactionEnd(connectionBean, transactionEnd, endOnlyIfStarted, true, false);
   }
-  
+
+  /**
+   * If the connection is provided externally
+   */
+  private boolean connectionProvided;
 
   /**
    * The connection that we are using.
@@ -1444,7 +1464,7 @@ public class GcDbAccess {
     
     try{
 
-      connectionBean = connection(true, true, this.connectionName);
+      connectionBean = connection(true, true, this.connectionName, this.connectionProvided, this.connection);
       
       // Make a new connection.
       this.connection = connectionBean.getConnection();
@@ -1836,6 +1856,27 @@ public class GcDbAccess {
   public static class ConnectionBean {
     
     /**
+     * If the connection is provided externally
+     */
+    private boolean connectionProvided;
+
+    /**
+     * If the connection is provided externally
+     * @return
+     */
+    public boolean isConnectionProvided() {
+      return connectionProvided;
+    }
+
+    /**
+     * If the connection is provided externally
+     * @param connectionProvided
+     */
+    public void setConnectionProvided(boolean connectionProvided) {
+      this.connectionProvided = connectionProvided;
+    }
+
+    /**
      * if we are in a transaction
      */
     private boolean inTransaction;
@@ -1933,6 +1974,10 @@ public class GcDbAccess {
         return;
       }
 
+      if (connectionBean.isConnectionProvided()) {
+        return;
+      }
+      
       if (!connectionBean.isInTransaction()) {
         if (errorIfNoTransaction) {
           throw new RuntimeException("Cannot end a transaction when not in a transaction!");
@@ -1982,6 +2027,9 @@ public class GcDbAccess {
      */
     public static void closeIfStarted(ConnectionBean connectionBean) {
       
+      if (connectionBean.isConnectionProvided()) {
+        return;
+      }
       ConnectionBean.transactionEnd(connectionBean, GcTransactionEnd.rollback, true, false, true);
 
       if (connectionBean != null && connectionBean.isConnectionStarted()) {
@@ -2013,15 +2061,30 @@ public class GcDbAccess {
    * @param needsTransaction 
    * @param startIfNotStarted generally you start if not started
    * @param connectionName name of connection in properties file
+   * @param isConnectionProvided if this connection is provided externally
+   * @param providedConnection the connection that is provided
    * @return a connectionbean which wraps the connection never return null
    */
-  private static ConnectionBean connection(boolean needsTransaction, boolean startIfNotStarted, String connectionName) {
+  private static ConnectionBean connection(boolean needsTransaction, boolean startIfNotStarted, String connectionName, boolean isConnectionProvided, Connection providedConnection) {
 
+    ConnectionBean connectionBean = new ConnectionBean();
+    
+    if (isConnectionProvided) {
+      connectionBean.setConnection(providedConnection);
+      try {
+        connectionBean.setConnectionStarted(!providedConnection.isClosed());
+        connectionBean.setInTransaction(providedConnection.getTransactionIsolation() != Connection.TRANSACTION_NONE);
+        connectionBean.setTransactionStarted(providedConnection.getTransactionIsolation() != Connection.TRANSACTION_NONE);
+        connectionBean.setConnectionProvided(true);
+      } catch (SQLException sqle) {
+        throw new RuntimeException("error", sqle);
+      }
+      return connectionBean;
+    }
+    
     if (GrouperClientUtils.isBlank(connectionName)) {
       connectionName = GrouperClientUtils.defaultIfBlank(connectionName, GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.jdbc.defaultName"));
     }
-    
-    ConnectionBean connectionBean = new ConnectionBean();
     
     Map<String,Connection> connectionMapByName = connectionThreadLocal.get();
 
@@ -2213,7 +2276,7 @@ public class GcDbAccess {
     
     try{
 
-      connectionBean = connection(false, true, this.connectionName);
+      connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
       
       // Make a new connection.
       this.connection = connectionBean.getConnection();
@@ -2265,7 +2328,7 @@ public class GcDbAccess {
     
     try{
 
-      connectionBean = connection(false, true, this.connectionName);
+      connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
       
       // Make a new connection.
       this.connection = connectionBean.getConnection();
@@ -2322,7 +2385,7 @@ public class GcDbAccess {
 
     try{
 
-      connectionBean = connection(false, true, this.connectionName);
+      connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
       
       // Make a new connection.
       this.connection = connectionBean.getConnection();
@@ -2370,7 +2433,7 @@ public class GcDbAccess {
     
     try{
 
-      connectionBean = connection(false, true, this.connectionName);
+      connectionBean = connection(false, true, this.connectionName, this.connectionProvided, this.connection);
       
       // Make a new connection.
       this.connection = connectionBean.getConnection();
@@ -2823,5 +2886,11 @@ public class GcDbAccess {
       // ignore
     }
     return connectionCreateNew(connectionName, url);
+  }
+
+  public GcDbAccess connection(Connection connection) {
+    this.connection = connection;
+    this.connectionProvided = true;
+    return this;
   }
 }
