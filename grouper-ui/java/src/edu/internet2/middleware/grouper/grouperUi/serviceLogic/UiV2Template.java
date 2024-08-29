@@ -28,6 +28,7 @@ import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
+import edu.internet2.middleware.grouper.app.gsh.GrouperGroovysh;
 import edu.internet2.middleware.grouper.app.gsh.template.GshOutputLine;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateDecorateForUiInput;
@@ -1266,7 +1267,14 @@ public class UiV2Template {
             gshTemplateDecorateForUiInput.setEventConfigId(request.getParameter("eventConfigId"));
             gshTemplateDecorateForUiInput.setSubmit(submit);
             gshTemplateDecorateForUiInput.setNewForm(newTemplate);
-            executeForTemplateV2instance.decorateTemplateForUiDisplay(gshTemplateDecorateForUiInput);
+            try {
+              executeForTemplateV2instance.decorateTemplateForUiDisplay(gshTemplateDecorateForUiInput);
+            } catch (Throwable t) {
+
+              t = GrouperGroovysh.handleGshException(executeForTemplateV2instance.isLightWeight(), executeForTemplateV2instance.getScriptPrependHeaders(), executeForTemplateV2instance.getSource(), t);
+              throw GrouperUtil.exceptionConvertToRuntime(t, null);
+            }
+
             
           }
           if (customTemplateInputs == null) {
