@@ -15,7 +15,7 @@
                             
                             <c:if test="${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership != null}">
                              <c:choose>
-			                  <c:when test="${grouperRequestContainer.provisioningContainer.gcGrouperSyncMembership.inTarget}">
+			                  <c:when test="${grouperRequestContainer.provisioningContainer.guiGrouperSyncObject.gcGrouperSyncMembership.inTarget}">
 			                    ${textContainer.text['provisioningConfigTableHeaderInTargetYesLabel']}
 			                  </c:when>
 			                  <c:otherwise>
