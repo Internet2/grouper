@@ -805,7 +805,7 @@ function guiEqualsIgnoreCase(a, b) {
 
 
 function guiAssignCurrentTimestampToBrowserElement() {
-  var ajaxElement = $('span:contains("ajax")');
+  var ajaxElement = $('span.grouperJspClass:contains("ajax")');
   if (ajaxElement.length == 0) {
     return;
   }
