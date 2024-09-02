@@ -981,6 +981,10 @@ public class UiV2Group {
       }
     
       String subjectString = request.getParameter("groupAddMemberComboName");
+      
+      if (StringUtils.isBlank(subjectString)) {
+        subjectString = request.getParameter("groupAddMemberComboNameDisplay");
+      }
   
       Subject subject = null;
       
