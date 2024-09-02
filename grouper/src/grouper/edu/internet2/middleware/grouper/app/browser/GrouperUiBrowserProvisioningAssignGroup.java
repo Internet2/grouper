@@ -94,17 +94,17 @@ public class GrouperUiBrowserProvisioningAssignGroup extends GrouperUiBrowser {
    * @return this object
    */
   public GrouperUiBrowserProvisioningAssignGroup browse() {
-    this.navigateToGroup(groupToAssignName);
+    this.getGrouperPage().navigateToGroup(groupToAssignName);
     this.getGrouperPage().getPage().locator("#more-action-button").click();
 
     this.getGrouperPage().getPage().locator("#groupMoreActionsProvisioningButtonId").click();
-    this.waitForJspToLoad("provisioningGroupProvisioners");
+    this.getGrouperPage().waitForJspToLoad("provisioningGroupProvisioners");
     this.getGrouperPage().getPage().locator("#actions_" + provisionerName + "_id").click();
 
     this.getGrouperPage().getPage().locator("#provisionToGroup_" + provisionerName + "_id").click();
-    this.waitForJspToLoad("provisioningGroupProvisioners");
+    this.getGrouperPage().waitForJspToLoad("provisioningGroupProvisioners");
     GrouperUtil.sleep(600);
-    findMessageInMessages("provisioningEditSaveSuccess", true);
+    this.getGrouperPage().findMessageInMessages("provisioningEditSaveSuccess", true);
     return this;
   }
 

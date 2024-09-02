@@ -108,10 +108,10 @@ public class GrouperUiBrowserMembershipFinder extends GrouperUiBrowser {
   }
 
   public GrouperUiBrowserMembershipFinder browse() {
-    this.navigateToGroup(groupToLookInName);
+    this.getGrouperPage().navigateToGroup(groupToLookInName);
     this.getGrouperPage().getPage().locator("#table-filter").fill(subject.getId());
     this.getGrouperPage().getPage().locator("#filterSubmitId").click();
-    this.waitForJspToLoad("groupContents");
+    this.getGrouperPage().waitForJspToLoad("groupContents");
     // Looping through the pages 1000 times, breaking when the desired group is found
     int timeToLive = 1000;
     OUTER: while (true) {
@@ -134,7 +134,7 @@ public class GrouperUiBrowserMembershipFinder extends GrouperUiBrowser {
       } else {
         this.getGrouperPage().getPage().locator("#groupFilterResultsId")
             .locator("#pagingNextLink").click();
-        this.waitForJspToLoad("groupContents");
+        this.getGrouperPage().waitForJspToLoad("groupContents");
       }
 
     }

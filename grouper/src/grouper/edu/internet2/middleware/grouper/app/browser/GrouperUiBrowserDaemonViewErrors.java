@@ -41,22 +41,28 @@ extends GrouperUiBrowser {
    * @throws InterruptedException 
    */
   public GrouperUiBrowserDaemonViewErrors browse() {
-    this.navigateToGrouperHome();
+    this.getGrouperPage().navigateToGrouperHome();
     this.getGrouperPage().getPage().locator("#leftMenuMiscellaneousLink").click();
 
-    this.waitForJspToLoad("miscellaneous");
+    this.getGrouperPage().waitForJspToLoad("miscellaneous");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
 
     this.getGrouperPage().getPage().locator("#miscDaemonJobsLink").click();
-    this.waitForJspToLoad("adminDaemonJobs");
+    this.getGrouperPage().waitForJspToLoad("adminDaemonJobs");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     this.getGrouperPage().getPage().locator("#daemonJobsStatusFilterId").selectOption("ANY_ERROR");
     this.getGrouperPage().getPage().locator("#applyfilterdaemonjobs").click();
-    this.waitForJspToLoad("adminDaemonJobsContents");
+    this.getGrouperPage().waitForJspToLoad("adminDaemonJobsContents");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
     String pageOptions = GrouperUiConfigInApi.retrieveConfig()
         .propertyValueString("pager.pagesize.selection");
     List<String> pageOptionsList = GrouperUtil.splitTrimToList(pageOptions, " ");
     String highestOption = pageOptionsList.get(pageOptionsList.size() - 1);
     this.getGrouperPage().getPage().locator("#show-entries").selectOption(highestOption);
-    this.waitForJspToLoad("adminDaemonJobsContents");
+    
+    this.getGrouperPage().waitForJspToLoad("adminDaemonJobsContents");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
 
     grouperUiBrowserDaemonErrors = this.getGrouperPage().getPage().locator("#daemontable")
         .locator(".adminDaemonJobNameLink").allTextContents();

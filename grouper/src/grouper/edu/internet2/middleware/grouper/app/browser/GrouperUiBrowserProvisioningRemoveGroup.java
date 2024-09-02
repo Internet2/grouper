@@ -93,14 +93,14 @@ public class GrouperUiBrowserProvisioningRemoveGroup extends GrouperUiBrowser {
    * @return this object
    */
   public GrouperUiBrowserProvisioningRemoveGroup browse() {
-    this.navigateToGroup(groupToRemoveName);
+    this.getGrouperPage().navigateToGroup(groupToRemoveName);
     this.getGrouperPage().getPage().locator("#more-action-button").click();
     this.getGrouperPage().getPage().locator("#groupMoreActionsProvisioningButtonId").click();
-    this.waitForJspToLoad("provisioningGroupProvisioners");
+    this.getGrouperPage().waitForJspToLoad("provisioningGroupProvisioners");
     this.getGrouperPage().getPage().locator("#actions_" + provisionerName + "_id").click();
     this.getGrouperPage().getPage().locator("#doNotProvisionToGroup_" + provisionerName + "_id").click();
-    this.waitForJspToLoad("provisioningGroupProvisioners");
-    findMessageInMessages("provisioningEditSaveSuccess", true);
+    this.getGrouperPage().waitForJspToLoad("provisioningGroupProvisioners");
+    this.getGrouperPage().findMessageInMessages("provisioningEditSaveSuccess", true);
     return this;
   }
 
