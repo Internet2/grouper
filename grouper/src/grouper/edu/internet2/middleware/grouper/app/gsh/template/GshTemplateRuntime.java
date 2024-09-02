@@ -167,4 +167,18 @@ public class GshTemplateRuntime {
     return ownerGroupName;
   }
   
+  private GrouperGroovyRuntime grouperGroovyRuntime;
+
+  public void setGrouperGroovyRuntime(GrouperGroovyRuntime grouperGroovyRuntime) {
+    this.grouperGroovyRuntime = grouperGroovyRuntime;
+    
+  }
+
+  
+  public GrouperGroovyRuntime getGrouperGroovyRuntime() {
+    return grouperGroovyRuntime;
+  }
+  
+  
+  
 }
