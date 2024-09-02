@@ -4141,7 +4141,7 @@ public class GrouperUtil {
 
   public static final DateFormat timestampIsoUtcMicrosWithoutZtoString = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSS");
   
-  {
+  static {
     timestampIsoUtcMicrosWithoutZtoString.setTimeZone(TimeZone.getTimeZone("UTC"));
   }
 
@@ -10408,7 +10408,7 @@ public class GrouperUtil {
     return abbreviate(str, 0, maxWidth);
   }
 
-  public RuntimeException exceptionConvertToRuntime(Throwable t) {
+  public static RuntimeException exceptionConvertToRuntime(Throwable t) {
     return exceptionConvertToRuntime(t, null);
   }
 
