@@ -102,11 +102,11 @@ public class GrouperUiBrowserMembershipRemove extends GrouperUiBrowser {
      * @return
      */
     public GrouperUiBrowserMembershipRemove browse()  {
-      this.findMembership(groupToRemoveFromName, subject);
+      this.getGrouperPage().findMembership(groupToRemoveFromName, subject);
       this.getGrouperPage().getPage().locator("#membersToDeleteFormId [data-gr-member-checkbox=\"" + subject.getSourceId() + "||" + subject.getId() + "\"]").check();
       this.getGrouperPage().getPage().locator("#groupRemoveSelectedMembersButton").click();
-      this.waitForJspToLoad("groupContents");
-      this.findLiteralTextInMessages("Success: removed 1 members", true);
+      this.getGrouperPage().waitForJspToLoad("groupContents");
+      this.getGrouperPage().findLiteralTextInMessages("Success: removed 1 members", true);
       return this;
   }
   

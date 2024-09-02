@@ -74,14 +74,21 @@ public class GrouperUiBrowserGroupDelete
    * it through the more actions button. At the end, it verifies an ajax refresh and a success message.
    */
   public GrouperUiBrowserGroupDelete browse() {
-    this.navigateToGroup(groupToDeleteName); 
+    this.getGrouperPage().navigateToGroup(groupToDeleteName); 
     this.getGrouperPage().getPage().locator("#more-action-button").click();
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     GrouperUtil.sleep(500);
     this.getGrouperPage().getPage().locator("#groupActionsGroupDeleteButton").click();
-    this.waitForJspToLoad("groupDelete");
+
+    this.getGrouperPage().waitForJspToLoad("groupDelete");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
     this.getGrouperPage().getPage().locator("#groupDeleteConfirmButton").click();
-    this.waitForJspToLoad(null);
-    this.findMessageInMessages("groupDeleteSuccess", true);
+
+    this.getGrouperPage().waitForJspToLoad(null);
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
+    this.getGrouperPage().findMessageInMessages("groupDeleteSuccess", true);
     return this;
   }
 

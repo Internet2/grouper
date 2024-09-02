@@ -135,26 +135,29 @@ public class GrouperUiBrowserGroupCreate
    * Method used to programmatically create a new group
    */
   public GrouperUiBrowserGroupCreate browse() {
-    this.navigateToGrouperHome();
+    this.getGrouperPage().navigateToGrouperHome();
     this.getGrouperPage().getPage().locator("#homepageCreateGroupButton").click();
-    this.waitForJspToLoad("newGroup");
+    this.getGrouperPage().waitForJspToLoad("newGroup");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     this.getGrouperPage().getPage().locator("#parentFolderComboId").fill(stemName);
     this.getGrouperPage().getPage().locator("#groupName").fill(groupDisplayExtension);
     if (!StringUtils.equals(groupDisplayExtension, groupExtension)) {
       this.getGrouperPage().getPage().locator("#nameDifferentThanIdId").check();
       
       // Waiting for the javascript to finish
+      GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
       GrouperUtil.sleep(5);
       this.getGrouperPage().getPage().locator("#groupId").fill(groupExtension);
     }
     this.getGrouperPage().getPage().locator("#groupDescription").fill(description);
     this.getGrouperPage().getPage().locator("#newgroupsavebutton").click();
-    
+
     // Null because both the same page (if it is a failure) or a new group page (if it is a success) could load.
     // We are waiting for anything to finish
-    this.waitForJspToLoad(null);
+    this.getGrouperPage().waitForJspToLoad(null);
     GrouperUtil.sleep(500);
-    this.findMessageInMessages("groupCreateSuccess", true);
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+    this.getGrouperPage().findMessageInMessages("groupCreateSuccess", true);
     return this;
   }
   

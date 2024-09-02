@@ -137,17 +137,19 @@ public class GrouperUiBrowserMembershipAdd extends GrouperUiBrowser {
    * @return
    */
   public GrouperUiBrowserMembershipAdd browse() {
-    this.navigateToGroup(groupToAddToName);
+    this.getGrouperPage().navigateToGroup(groupToAddToName);
     this.getGrouperPage().getPage().locator("#show-add-block").click();
     // No ajax refresh so must sleep
     GrouperUtil.sleep(300);
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     
     this.getGrouperPage().getPage().locator("#groupAddMemberComboId")
         .fill(subject.getSourceId() + "||" + subject.getId());
     this.getGrouperPage().getPage().keyboard().press("Enter");
     this.getGrouperPage().getPage().locator("#add-members-submit").click();
     GrouperUtil.sleep(1000);
-    this.findMessageInMessages("groupAddMemberMadeChangesSuccess", true);
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+    this.getGrouperPage().findMessageInMessages("groupAddMemberMadeChangesSuccess", true);
     return this;
   }
 

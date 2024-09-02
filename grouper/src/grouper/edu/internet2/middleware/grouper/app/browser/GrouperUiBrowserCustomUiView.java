@@ -49,15 +49,19 @@ public class GrouperUiBrowserCustomUiView extends GrouperUiBrowser {
   }
   
   public GrouperUiBrowserCustomUiView browse() {
-    this.navigateToGrouperHome();
+    this.getGrouperPage().navigateToGrouperHome();
     this.getGrouperPage().getPage().locator("#leftMenuMiscellaneousLink").click();
-    this.waitForJspToLoad("miscellaneous");
+    this.getGrouperPage().waitForJspToLoad("miscellaneous");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     this.getGrouperPage().getPage().locator("#miscCustomUiLink").click();
-    this.waitForJspToLoad("customUiConfigs");
+    this.getGrouperPage().waitForJspToLoad("customUiConfigs");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     this.getGrouperPage().getPage().locator("#actions_" + customUiConfigId + "_id").click();
     GrouperUtil.sleep(300);
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     this.getGrouperPage().getPage().locator("#run_" + customUiConfigId + "_id").click();
-    this.waitForJspToLoad("indexCustomUi");
+    this.getGrouperPage().waitForJspToLoad("indexCustomUi");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
     return this;
   }
 

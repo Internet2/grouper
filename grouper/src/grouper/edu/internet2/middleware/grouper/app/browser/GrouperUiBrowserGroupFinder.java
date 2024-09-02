@@ -92,7 +92,7 @@ extends GrouperUiBrowser {
    * Method used to find a group
    */
   public GrouperUiBrowserGroupFinder browse() {
-    navigateToGroup(groupToFindName);
+    this.getGrouperPage().navigateToGroup(groupToFindName);
     return this;
   }
 }

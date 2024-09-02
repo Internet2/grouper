@@ -82,7 +82,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
   public void testVersion() {
     GrouperPage grouperPage = new GrouperPage();
     try {
-      grouperPage = grouperPage.initializePage();
+      grouperPage = grouperPage.initializePage("chromium");
       grouperPage.getPage().navigate("http://GrouperSystem:pass@localhost:8080/grouper");
       GrouperUiBrowserGeneralVerifyVersion grouperUiBrowserGeneralVerifyVersion = new GrouperUiBrowserGeneralVerifyVersion(
           grouperPage).browse();
@@ -112,7 +112,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
     cleanUpBeforeTest();
     GrouperPage grouperPage = new GrouperPage();
     try {
-      grouperPage.initializePage();
+      grouperPage.initializePage("chromium");
       grouperPage.getPage().navigate("http://GrouperSystem:pass@localhost:8080/grouper");
       GrouperUiBrowserDaemonViewErrors grouperUiBrowserDaemonViewErrors = null;
 
@@ -138,7 +138,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
             .save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserGroupCreate grouperUiBrowserGroupCreate = new GrouperUiBrowserGroupCreate(
@@ -166,7 +166,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
             .assignCreateParentStemsIfNotExist(true).save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserGroupFinder grouperUiBrowserGroupFinder = new GrouperUiBrowserGroupFinder(
@@ -193,7 +193,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
             .assignCreateParentStemsIfNotExist(true).save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserGroupDelete grouperUiBrowserGroupDelete = new GrouperUiBrowserGroupDelete(
@@ -222,7 +222,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
             .assignCreateParentStemsIfNotExist(true).save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserGroupEdit grouperUiBrowserGroupEdit = new GrouperUiBrowserGroupEdit(
@@ -254,7 +254,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
             .assignCreateParentStemsIfNotExist(true).save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserGroupEdit grouperUiBrowserGroupEdit = new GrouperUiBrowserGroupEdit(
@@ -299,7 +299,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
 
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserMembershipFinder grouperUiBrowserMembershipFinder = new GrouperUiBrowserMembershipFinder(
@@ -329,7 +329,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
         group.addMember(subject);
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserMembershipRemove grouperUiBrowserMembershipRemove = new GrouperUiBrowserMembershipRemove(
@@ -359,7 +359,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
         Subject subject = SubjectFinder.findById("test.subject.5", true);
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserMembershipAdd grouperUiBrowserMembershipAdd = new GrouperUiBrowserMembershipAdd(
@@ -389,7 +389,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
         
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserTemplateRun grouperUiBrowserTemplateRun = new GrouperUiBrowserTemplateRun(
@@ -425,7 +425,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
             .assignCreateParentStemsIfNotExist(true).save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserTemplateRun grouperUiBrowserTemplateRun = new GrouperUiBrowserTemplateRun(
@@ -454,7 +454,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
         new StemSave().assignName("test").save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserTemplateRun grouperUiBrowserTemplateRun = new GrouperUiBrowserTemplateRun(
@@ -485,7 +485,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
             .assignCreateParentStemsIfNotExist(true).save();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserCustomUiView grouperUiBrowserCustomUiView = new GrouperUiBrowserCustomUiView(
@@ -514,7 +514,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
         group.deleteAllMemberships();
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserProvisioningAssignGroup grouperUiBrowserProvisioningAssignGroup = new GrouperUiBrowserProvisioningAssignGroup(
@@ -553,7 +553,7 @@ public class GrouperUiBrowserTest extends GrouperTestBase {
 
         GrouperPage grouperPage = new GrouperPage();
         try {
-          grouperPage.initializePage();
+          grouperPage.initializePage("chromium");
           grouperPage.getPage()
               .navigate("http://GrouperSystem:pass@localhost:8080/grouper");
           GrouperUiBrowserProvisioningRemoveGroup grouperUiBrowserProvisioningRemoveGroup = new GrouperUiBrowserProvisioningRemoveGroup(

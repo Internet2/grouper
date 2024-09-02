@@ -89,12 +89,15 @@ public class GrouperUiBrowserGeneralVerifyVersion
   * Method used to verify that the browser starts with the correct version.
   */
   public GrouperUiBrowserGeneralVerifyVersion browse() {
-    this.navigateToGrouperHome();
+    this.getGrouperPage().navigateToGrouperHome();
     this.getGrouperPage().getPage().locator("#leftMenuMiscellaneousLink").click();
     
-    this.waitForJspToLoad("miscellaneous");
+    this.getGrouperPage().waitForJspToLoad("miscellaneous");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
     this.getGrouperPage().getPage().locator("#miscConfigureLink").click();
-    this.waitForJspToLoad("configureIndex");
+    this.getGrouperPage().waitForJspToLoad("configureIndex");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
  
 
     // These versions are in hidden spans in the .jsp
@@ -110,7 +113,7 @@ public class GrouperUiBrowserGeneralVerifyVersion
       throw new RuntimeException("Expected version: " + expectedVersion
           + " is not the same as Ui version: " + uiVersion);
     }
-    uiVersion = this.getUiVersion();
+
     return this;
   }
   

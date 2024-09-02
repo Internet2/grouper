@@ -141,12 +141,17 @@ public class GrouperUiBrowserGroupEdit
    *  Method used to programmatically edit a group
    */
   public GrouperUiBrowserGroupEdit browse() {
-    this.navigateToGroup(groupToEditName);
+    this.getGrouperPage().navigateToGroup(groupToEditName);
     this.getGrouperPage().getPage().locator("#more-action-button").click();
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
     // No ajax here so must sleep
     GrouperUtil.sleep(100);
     this.getGrouperPage().getPage().locator("#groupActionsEditGroupButton").click();
-    this.waitForJspToLoad("groupEdit");
+
+    this.getGrouperPage().waitForJspToLoad("groupEdit");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
     if (groupDisplayExtension != null) {
       this.getGrouperPage().getPage().locator("#groupName").fill(groupDisplayExtension);
     }
@@ -158,6 +163,8 @@ public class GrouperUiBrowserGroupEdit
     }
     // See if alternate Id path is suggested to update
     GrouperUtil.sleep(1000);
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
     if (this.getGrouperPage().getPage().locator("#groupRenameUpdateAlternateName")
         .isChecked() && this.getGrouperPage().getPage().locator("#groupRenameUpdateAlternateName")
         .isVisible()) {
@@ -165,8 +172,10 @@ public class GrouperUiBrowserGroupEdit
       this.getGrouperPage().getPage().locator("#groupRenameUpdateAlternateName").uncheck();
     }
     this.getGrouperPage().getPage().locator("#editGroupSaveButton").click();
-    this.waitForJspToLoad("viewGroup");
-    this.findMessageInMessages("groupEditSuccess", true);
+    this.getGrouperPage().waitForJspToLoad("viewGroup");
+    GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
+
+    this.getGrouperPage().findMessageInMessages("groupEditSuccess", true);
     return this;
   }
 

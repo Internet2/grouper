@@ -210,35 +210,40 @@ public class GrouperUiBrowserTemplateRun extends GrouperUiBrowser {
             + "You have passed both a stem: " + stemToExecuteInName + ", and a group: " + groupToExecuteInName);
       }
       else if (stemToExecuteInName == null && groupToExecuteInName == null) {
-        this.navigateToGrouperHome();
+        this.getGrouperPage().navigateToGrouperHome();
         this.getGrouperPage().getPage().locator("#leftMenuMiscellaneousLink").click();
-        this.waitForJspToLoad("miscellaneous");
+        this.getGrouperPage().waitForJspToLoad("miscellaneous");
+        GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         this.getGrouperPage().getPage().locator("#miscGshTemplatesLink").click();
-        this.waitForJspToLoad("gshTemplateConfigs");
+        this.getGrouperPage().waitForJspToLoad("gshTemplateConfigs");
+        GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         this.getGrouperPage().getPage().locator("#actions_" + gshTemplateConfigId + "_id").click();
         GrouperUtil.sleep(200);
         this.getGrouperPage().getPage().locator("#stemTemplateActionsRunTemplateButton").click();
       }
       else if (groupToExecuteInName != null) {
-        this.navigateToGroup(groupToExecuteInName);
+        this.getGrouperPage().navigateToGroup(groupToExecuteInName);
         this.getGrouperPage().getPage().locator("#more-action-button").click();
         GrouperUtil.sleep(200);
+        GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         this.getGrouperPage().getPage().locator("#groupMoreActionsRunTemplateButton").click();
-        this.waitForJspToLoad("newTemplate");
+        this.getGrouperPage().waitForJspToLoad("newTemplate");
+        GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         this.getGrouperPage().getPage().locator("#templateTypeId").selectOption(gshTemplateConfigId);
-        this.getGrouperPage().getPage().locator("#filterSubmitId").click();
       }
       else if (stemToExecuteInName != null) {
-        this.navigateToStem(stemToExecuteInName);
+        this.getGrouperPage().navigateToStem(stemToExecuteInName);
         this.getGrouperPage().getPage().locator("#moreActionsButton").click();
         GrouperUtil.sleep(200);
+        GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         this.getGrouperPage().getPage().locator("#stemMoreActionsRuntTemplateButton").click();
-        this.waitForJspToLoad("newTemplate");
+        this.getGrouperPage().waitForJspToLoad("newTemplate");
+        GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         this.getGrouperPage().getPage().locator("#templateTypeId").selectOption(gshTemplateConfigId);
-        this.getGrouperPage().getPage().locator("#filterSubmitId").click();
       }
       
-      this.waitForJspToLoad("newTemplate");
+      this.getGrouperPage().waitForJspToLoad("newTemplate");
+      GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
       
       for (String inputId : gshTemplateInputValueMap.keySet()) {
         String value = gshTemplateInputValueMap.get(inputId);
@@ -251,7 +256,8 @@ public class GrouperUiBrowserTemplateRun extends GrouperUiBrowser {
         }
         else if (StringUtils.equals("select", htmlTagName)) {
           inputLocator.selectOption(value);
-          this.waitForJspToLoad("newTemplate");
+          this.getGrouperPage().waitForJspToLoad("newTemplate");
+          GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
         }
       }
       this.getGrouperPage().getPage().locator("#filterSubmitId").click();
@@ -276,6 +282,7 @@ public class GrouperUiBrowserTemplateRun extends GrouperUiBrowser {
           }
         }
       }
+      GrouperUtil.sleep(this.getGrouperPage().getMillisWaitAfterClick());
       return this;
 
     }
