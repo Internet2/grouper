@@ -171,7 +171,7 @@
         <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
         <ldaptive.version>1.2.4</ldaptive.version>
         <!-- if you change this version make sure container substitution still works -->
-        <playwright.version>1.43.0</playwright.version>
+        <playwright.version>1.46.0</playwright.version>
         <aws.java.sdk.core>1.12.267</aws.java.sdk.core>
         <aws.java.sdk.s3>1.12.267</aws.java.sdk.s3>
         <aws.java.sdk.sqs>1.12.267</aws.java.sdk.sqs>
