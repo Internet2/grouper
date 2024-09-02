@@ -461,6 +461,8 @@ public class GshTemplateExec {
       this.grouperGroovyRuntime = new GrouperGroovyRuntime();
     }
     grouperGroovyInput.assignGrouperGroovyRuntime(this.grouperGroovyRuntime);
+    gshTemplateRuntime.setGrouperGroovyRuntime(GshTemplateExec.this.grouperGroovyRuntime);
+
     
     for (GshTemplateInputConfig inputConfig: templateConfig.getGshTemplateInputConfigs()) {
       
