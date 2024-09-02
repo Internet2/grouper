@@ -145,6 +145,7 @@ public class GrouperUiBrowserMembershipAdd extends GrouperUiBrowser {
     
     this.getGrouperPage().getPage().locator("#groupAddMemberComboId")
         .fill(subject.getSourceId() + "||" + subject.getId());
+    GrouperUtil.sleep(100);
     this.getGrouperPage().getPage().keyboard().press("Enter");
     this.getGrouperPage().getPage().locator("#add-members-submit").click();
     GrouperUtil.sleep(1000);
