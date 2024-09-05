@@ -293,6 +293,10 @@ public class UsduService {
         
       for (Member member: unresolvedMembers) {
         SubjectResolutionAttributeValue subjectResolutionAttributeValue = getSubjectResolutionAttributeValue(member, attributeAssignValueFinderResult);
+        
+        if (subjectResolutionAttributeValue == null) {
+          continue;
+        }
       
         if (subjectResolutionAttributeValue.isDeleted()) {
   
