@@ -4862,9 +4862,15 @@ public class GrouperInstaller {
     File webAppDir = new File(containerDirString + "webapp");
     webAppDir.mkdirs();
         
+    File docsDir = new File(containerDirString + "webapp" + File.separator + "docs");
+    docsDir.mkdirs();
+        
     // let's start with grouper-ui/webapp directory. We will copy everything else later
     GrouperInstallerUtils.copyDirectory(new File(grouperUntarredReleaseDir + File.separator + "grouper-ui" + File.separator+"webapp"), webAppDir);
     
+    GrouperInstallerUtils.copyDirectory(new File(grouperUntarredReleaseDir + File.separator + "grouper-ws" + File.separator + "grouper-ws" 
+        + File.separator + "webapp" + File.separator + "docs"), docsDir);
+
     File webInfDir = new File(webAppDir+File.separator+"WEB-INF");
     webInfDir.mkdirs(); // should already be there
     
