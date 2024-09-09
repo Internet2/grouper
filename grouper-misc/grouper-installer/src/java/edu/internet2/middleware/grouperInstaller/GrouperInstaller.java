@@ -11013,7 +11013,7 @@ public class GrouperInstaller {
     reportOnConflictingJars(libWsDir.getAbsolutePath());
 
     // now download plugins intothe plugin directory
-    downloadGrouperPluginJarsIntoPluginDirectory(pluginsDir);
+    // downloadGrouperPluginJarsIntoPluginDirectory(pluginsDir);
 
     // copy apache-tomcat-x.y.z to tomcat
     // why can't uncompressed directory has the same name??? :((
