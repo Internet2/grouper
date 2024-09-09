@@ -1172,7 +1172,7 @@ public class UiV2GrouperLoader {
                 + "<br />" + StringUtils.replace(GrouperUtil.xmlEscape(errorMessage), "\n", "<br />")));
             hasError = true;
           }
-          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject);
+          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject);
           if (jexlScriptAnalysis != null && 
               (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
             throw new RuntimeException("not allowed");
@@ -1931,7 +1931,13 @@ public class UiV2GrouperLoader {
         }    
       }
       
-      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperLoaderJexlScript, subject, loggedInSubject);
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+
+      grouperDataEngine.loadFieldsAndRows(grouperConfig);
+
+      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject);
       
       GuiSubject guiSubject = subject != null ? new GuiSubject(subject): null;
       

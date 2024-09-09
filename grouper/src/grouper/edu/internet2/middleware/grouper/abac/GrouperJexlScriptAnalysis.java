@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.abac;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+
 public class GrouperJexlScriptAnalysis {
 
   public GrouperJexlScriptAnalysis() {
@@ -51,6 +53,16 @@ public class GrouperJexlScriptAnalysis {
 
   public void setWarningMessage(String warningMessage) {
     this.warningMessage = warningMessage;
+  }
+
+  private GrouperDataEngine grouperDataEngine;
+  
+  public void setGrouperDataEngine(GrouperDataEngine grouperDataEngine) {
+    this.grouperDataEngine = grouperDataEngine;
+  }
+  
+  public GrouperDataEngine getGrouperDataEngine() {
+    return grouperDataEngine;
   }
   
 }

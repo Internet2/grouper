@@ -15,6 +15,7 @@ import org.apache.commons.jexl3.parser.ASTArguments;
 import org.apache.commons.jexl3.parser.ASTArrayLiteral;
 import org.apache.commons.jexl3.parser.ASTEQNode;
 import org.apache.commons.jexl3.parser.ASTERNode;
+import org.apache.commons.jexl3.parser.ASTFunctionNode;
 import org.apache.commons.jexl3.parser.ASTIdentifier;
 import org.apache.commons.jexl3.parser.ASTIdentifierAccess;
 import org.apache.commons.jexl3.parser.ASTJexlScript;
@@ -58,6 +59,7 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
@@ -81,36 +83,42 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   public static void main(String[] args) {
 
     try {
-      GrouperSession.startRootSession();
+      GrouperSession grouperSession = GrouperSession.startRootSession();
       
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+
+      grouperDataEngine.loadFieldsAndRows(grouperConfig);
+
       Subject subject = SubjectFinder.findById("test.subject.1", true);
       
-      //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup')", subject));
-      //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject));
-      //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2')", subject));
-      //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject));
-      //System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', 'name==staff && dept==english')", subject));
-      //System.out.println(analyzeJexlScriptHtml("entity.memberOf('test:testGroup') || (entity.memberOf('test:testGroup2') && entity.memberOf('test:testGroup3'))", subject));
-      //System.out.println(analyzeJexlScriptHtml("entity.hasRow('affiliation', \"affiliationCode=='staff' && affiliationOrg==1234\") "
-      //    + "|| (entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2'))", subject));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup')", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2')", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.hasRow('affiliation', 'name==staff && dept==english')", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') || (entity.memberOf('test:testGroup2') && entity.memberOf('test:testGroup3'))", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.hasRow('affiliation', \"affiliationCode=='staff' && affiliationOrg==1234\") "
+      //    + "|| (entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2'))", subject, grouperSession.getSubject()));
       
       
-      //System.out.println(analyzeJexlScriptHtml("entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known && cp_org == 'Perelman School of Medicine' \") "
-      //    + "&& entity.memberOf('penn:ref:member') && !entity.memberOf('penn:ref:lockout') && entity.hasAttribute('cp_role', 'desktop-user')", subject));
+      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known && cp_org == 'Perelman School of Medicine' \") "
+          + "&& entity.memberOf('penn:ref:member') && !entity.memberOf('penn:ref:lockout') && entity.hasAttribute('cp_role', 'desktop-user')", subject, grouperSession.getSubject()));
 
-      System.out.println(analyzeJexlScriptHtml("(entity.hasRow('cp_user', \"(cp_active || !cp_blocked) && cp_known "
-          + "&& cp_org == 'Perelman School of Medicine' \") "
-          + " || entity.hasRow('cp_user', \"(cp_active || !cp_blocked) && cp_known "
-          + "&& cp_org == 'Perelman School of Medicine' \")) && (!entity.memberOf('penn:ref:member') "
-          + "|| entity.memberOf('penn:ref:lockout') ) && entity.hasAttribute('cp_role', 'desktop-user')", null, subject));
+      //  System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "(entity.hasRow('cp_user', \"(cp_active || !cp_blocked) && cp_known "
+      //      + "&& cp_org == 'Perelman School of Medicine' \") "
+      //      + " || entity.hasRow('cp_user', \"(cp_active || !cp_blocked) && cp_known "
+      //      + "&& cp_org == 'Perelman School of Medicine' \")) && (!entity.memberOf('penn:ref:member') "
+      //      + "|| entity.memberOf('penn:ref:lockout') ) && entity.hasAttribute('cp_role', 'desktop-user')", null, subject));
       
-      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup')")));
-      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')")));
-      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2')")));
-      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.memberOf('test:testGroup') || (entity.memberOf('test:testGroup2') && entity.memberOf('test:testGroup3'))")));
-      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.hasAttribute('active')")));
-      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.hasAttribute('active', 'true')")));
-      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript("entity.hasRow('affiliation', 'name==staff && dept==english')")));
+      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript(grouperDataEngine, "entity.memberOf('test:testGroup')")));
+      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript(grouperDataEngine, "entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')")));
+      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript(grouperDataEngine, "entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2')")));
+      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript(grouperDataEngine, "entity.memberOf('test:testGroup') || (entity.memberOf('test:testGroup2') && entity.memberOf('test:testGroup3'))")));
+      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript(grouperDataEngine, "entity.hasAttribute('active')")));
+      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript(grouperDataEngine, "entity.hasAttribute('active', 'true')")));
+      //System.out.println(GrouperUtil.toStringForLog(analyzeJexlScript(grouperDataEngine, "entity.hasRow('affiliation', 'name==staff && dept==english')")));
       
       
       // A & !B
@@ -157,18 +165,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
   }
   
-  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(String jexlScript, Subject subject, Subject loggedInSubject) {
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript, Subject subject, Subject loggedInSubject) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
-    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(jexlScript);
+    GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(grouperDataEngine, jexlScript);
     
-    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
-    
-    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
-    
-    grouperDataEngine.loadFieldsAndRows(grouperConfig);
-
     for (GrouperJexlScriptPart grouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
       
       GcDbAccess gcDbAccess = new GcDbAccess();
@@ -266,6 +268,10 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
           }
   
+        } else if (StringUtils.equals(argumentString, "bindVar")) {
+          
+          Object value = argument.getKey(1);
+          gcDbAccess.addBindVar(value);
         }
         argumentIndex++;
       }   
@@ -293,7 +299,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
    * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup).  Used for bind variables
    * @return the sql
    */
-  public static GrouperJexlScriptAnalysis analyzeJexlScript(String jexlStript) {
+  public static GrouperJexlScriptAnalysis analyzeJexlScript(GrouperDataEngine grouperDataEngine, String jexlStript) {
 
     jexlStript = jexlStript.trim();
     if (jexlStript.startsWith("${") && jexlStript.endsWith("}")) {
@@ -311,6 +317,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
 
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = new GrouperJexlScriptAnalysis();
+    grouperJexlScriptAnalysis.setGrouperDataEngine(grouperDataEngine);
     GrouperJexlScriptPart grouperJexlScriptPart = new GrouperJexlScriptPart();
     grouperJexlScriptAnalysis.getGrouperJexlScriptParts().add(grouperJexlScriptPart);
     
@@ -424,14 +431,22 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (astArguments.jjtGetNumChildren() != 2) {
         throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
       }
-      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
       }
       if (!(astArguments.jjtGetChild(1) instanceof ASTArrayLiteral)) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
       }
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
-      String attributeAlias = astStringLiteral.getLiteral();
+      String attributeAlias = null;
+      
+      if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
+        ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+        attributeAlias = astStringLiteral.getLiteral();
+      } else if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        GrouperUtil.assertion(false, "Not expecting type of first argument");
+      }
       
       ASTArrayLiteral astArrayLiteral = (ASTArrayLiteral)astArguments.jjtGetChild(1);
       
@@ -494,11 +509,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       if (astArguments.jjtGetNumChildren() != 1 && astArguments.jjtGetNumChildren() != 2) {
         throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
       }
-      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
       }
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
-      String attributeAlias = astStringLiteral.getLiteral();
+      String attributeAlias = null;
+      
+      if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
+        ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+        attributeAlias = astStringLiteral.getLiteral();
+      } else if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        GrouperUtil.assertion(false, "Not expecting type of first argument");
+      }
+
       if (astArguments.jjtGetNumChildren() == 1) {
 
         grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? and gdfa.member_internal_id = gm.internal_id and gdfa.value_integer = 1) ");
@@ -545,20 +569,140 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           }
         }
       }
-    } else if (StringUtils.equals("hasRow", astIdentifierAccess.getName())) {
+    } else if (StringUtils.equals("hasAttributeLike", astIdentifierAccess.getName())) {
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
       if (astArguments.jjtGetNumChildren() != 2) {
         throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
       }
-      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
       }
       if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
         throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
       }
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+      String attributeAlias = null;
+      
+      if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
+        ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+        attributeAlias = astStringLiteral.getLiteral();
+      } else if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        GrouperUtil.assertion(false, "Not expecting type of first argument");
+      }
+      
+      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
+      String likeString = astStringLiteral.getLiteral();
+
+      GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+      GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+      
+      if (fieldDataType != GrouperDataFieldType.integer && fieldDataType != GrouperDataFieldType.string) {
+        throw new RuntimeException("The 'hasAttributeLike' function must be used on strings or integers! " + attributeAlias + " -> " + fieldDataType.name());
+      }
+      
+      if (fieldDataType == GrouperDataFieldType.string) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa, grouper_dictionary gd where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and gd.the_text like ? " 
+            + (GrouperDdlUtils.isOracle() ? " escape '\\' " : "") + " and gdfa.value_dictionary_internal_id = gd.internal_id ) ");
+      } else if (fieldDataType == GrouperDataFieldType.integer) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and gdfa.value_integer like ? " 
+            + (GrouperDdlUtils.isOracle() ? " escape '\\' " : "") + " ) ");
+      }
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", likeString));
+      
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+        .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeLikeValue")).append(" '")
+        .append(GrouperUtil.xmlEscape(likeString)).append("'");
+
+    } else if (StringUtils.equals("hasAttributeRegex", astIdentifierAccess.getName())) {
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
+      }
+      String attributeAlias = null;
+      
+      if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
+        ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+        attributeAlias = astStringLiteral.getLiteral();
+      } else if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        GrouperUtil.assertion(false, "Not expecting type of first argument");
+      }
+
+      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
+      String regexString = astStringLiteral.getLiteral();
+
+      GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+      GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+      
+      if (fieldDataType != GrouperDataFieldType.integer && fieldDataType != GrouperDataFieldType.string) {
+        throw new RuntimeException("The 'hasAttributeRegex' function must be used on strings or integers! " + attributeAlias + " -> " + fieldDataType.name());
+      }
+      
+      String regexPart = null;
+      
+      if (fieldDataType == GrouperDataFieldType.string) {
+        if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isMysql()) {
+          regexPart = "REGEXP_LIKE (gd.the_text, ?) ";
+        } else if (GrouperDdlUtils.isPostgres()) {
+          regexPart = "gd.the_text ~ ? ";
+        } else {
+          throw new RuntimeException("Not expecting database!");
+        }
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa, grouper_dictionary gd where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and " + regexPart 
+            + " and gdfa.value_dictionary_internal_id = gd.internal_id ) ");
+      } else if (fieldDataType == GrouperDataFieldType.integer) {
+        if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isMysql()) {
+          regexPart = "REGEXP_LIKE (gdfa.value_integer, ?) ";
+        } else if (GrouperDdlUtils.isPostgres()) {
+          regexPart = "cast(gdfa.value_integer as varchar) ~ ? ";
+        } else {
+          throw new RuntimeException("Not expecting database!");
+        }
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+            + "and gdfa.member_internal_id = gm.internal_id and " + regexPart  + " ) ");
+      }
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", regexString));
+      
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+        .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeRegexValue")).append(" '")
+        .append(GrouperUtil.xmlEscape(regexString)).append("'");
+
+    } else if (StringUtils.equals("hasRow", astIdentifierAccess.getName())) {
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
+      }
+      String rowAlias = null;
+      
+      if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
+        ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+        rowAlias = astStringLiteral.getLiteral();
+      } else if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        rowAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        GrouperUtil.assertion(false, "Not expecting type of first argument");
+      }
+      
       ASTStringLiteral scriptLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
-      String rowAlias = astStringLiteral.getLiteral();
  
       GrouperJexlScriptPart rowJexlScriptPart = new GrouperJexlScriptPart();
       rowJexlScriptPart.getWhereClause().append(" exists (select 1 from grouper_data_row_assign gdra where gdra.data_row_internal_id = ? and gdra.member_internal_id = gm.internal_id and ( ");
@@ -617,6 +761,137 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttribute"))
         .append(" '").append(GrouperUtil.xmlEscape(rowAlias)).append("'");
+
+    } else if (jexlNode instanceof ASTFunctionNode && jexlNode.jjtGetNumChildren() > 0
+        && jexlNode.jjtGetChild(0) instanceof ASTIdentifier 
+        && StringUtils.equalsIgnoreCase("hasAttributeRegex", ((ASTIdentifier)jexlNode.jjtGetChild(0)).getName())) {
+      
+      if (jexlNode.jjtGetNumChildren() != 2 || (!(jexlNode.jjtGetChild(1) instanceof ASTArguments))) {
+        throw new RuntimeException("Expecting two JEXL children: " + jexlNode.getClass().getName() + ", children: " 
+            + jexlNode.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+      
+      ASTArguments astArguments = (ASTArguments)jexlNode.jjtGetChild(1);
+
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Expecting two arguments: " + astArguments.getClass().getName() + ", children: " 
+            + astArguments.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+      String attributeAlias = null;
+
+      if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        throw new RuntimeException("Expecting first argument to be identifer: " 
+            + astArguments.jjtGetChild(0).getClass().getName() + ", jexlNode: " + jexlNode);
+      }
+      
+      String regexString = null;
+
+      if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
+        regexString = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
+      } else {
+        throw new RuntimeException("Expecting second argument to be string: " 
+            + astArguments.jjtGetChild(1).getClass().getName() + ", jexlNode: " + jexlNode);
+      }
+
+      GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+      GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+      
+      if (fieldDataType != GrouperDataFieldType.integer && fieldDataType != GrouperDataFieldType.string) {
+        throw new RuntimeException("The 'hasAttributeRegex' function must be used on strings or integers! " + attributeAlias + " -> " + fieldDataType.name());
+      }
+
+      String regexPart = null;
+      
+      if (fieldDataType == GrouperDataFieldType.string) {
+        if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isMysql()) {
+          regexPart = "REGEXP_LIKE (gd.the_text, ?) ";
+        } else if (GrouperDdlUtils.isPostgres()) {
+          regexPart = "gd.the_text ~ ? ";
+        } else {
+          throw new RuntimeException("Not expecting database!");
+        }
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa, grouper_dictionary gd where gdrfa.data_field_internal_id = ? "
+            + " and data_row_assign_internal_id = gdra.internal_id and " + regexPart 
+            + " and gdrfa.value_dictionary_internal_id = gd.internal_id ) ");
+      } else if (fieldDataType == GrouperDataFieldType.integer) {
+        if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isMysql()) {
+          regexPart = "REGEXP_LIKE (gdfa.value_integer, ?) ";
+        } else if (GrouperDdlUtils.isPostgres()) {
+          regexPart = "cast(gdfa.value_integer as varchar) ~ ? ";
+        } else {
+          throw new RuntimeException("Not expecting database!");
+        }
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where gdrfa.data_field_internal_id = ? "
+            + " and data_row_assign_internal_id = gdra.internal_id and gdrfa.value_integer " + regexPart 
+            + " ) ");
+      }
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", regexString));
+      
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+        .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeRegexValue")).append(" '")
+        .append(GrouperUtil.xmlEscape(regexString)).append("'");
+
+      
+    } else if (jexlNode instanceof ASTFunctionNode && jexlNode.jjtGetNumChildren() > 0
+        && jexlNode.jjtGetChild(0) instanceof ASTIdentifier 
+        && StringUtils.equalsIgnoreCase("hasAttributeLike", ((ASTIdentifier)jexlNode.jjtGetChild(0)).getName())) {
+      
+      if (jexlNode.jjtGetNumChildren() != 2 || (!(jexlNode.jjtGetChild(1) instanceof ASTArguments))) {
+        throw new RuntimeException("Expecting two JEXL children: " + jexlNode.getClass().getName() + ", children: " 
+            + jexlNode.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+      
+      ASTArguments astArguments = (ASTArguments)jexlNode.jjtGetChild(1);
+
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Expecting two arguments: " + astArguments.getClass().getName() + ", children: " 
+            + astArguments.jjtGetNumChildren() + ", jexlNode: " + jexlNode);
+      }
+      String attributeAlias = null;
+
+      if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        throw new RuntimeException("Expecting first argument to be identifer: " 
+            + astArguments.jjtGetChild(0).getClass().getName() + ", jexlNode: " + jexlNode);
+      }
+      
+      String likeString = null;
+
+      if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
+        likeString = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
+      } else {
+        throw new RuntimeException("Expecting second argument to be string: " 
+            + astArguments.jjtGetChild(1).getClass().getName() + ", jexlNode: " + jexlNode);
+      }
+
+      GrouperDataFieldConfig grouperDataFieldConfig = grouperJexlScriptAnalysis.getGrouperDataEngine().getFieldConfigByAlias().get(attributeAlias.toLowerCase());
+      GrouperDataFieldType fieldDataType = grouperDataFieldConfig.getFieldDataType();
+      
+      if (fieldDataType != GrouperDataFieldType.integer && fieldDataType != GrouperDataFieldType.string) {
+        throw new RuntimeException("The 'hasAttributeLike' function must be used on strings or integers! " + attributeAlias + " -> " + fieldDataType.name());
+      }
+      
+      if (fieldDataType == GrouperDataFieldType.string) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa, grouper_dictionary gd where gdrfa.data_field_internal_id = ? "
+            + "and data_row_assign_internal_id = gdra.internal_id and gd.the_text like ? " 
+            + (GrouperDdlUtils.isOracle() ? " escape '\\' " : "") + " and gdrfa.value_dictionary_internal_id = gd.internal_id ) ");
+      } else if (fieldDataType == GrouperDataFieldType.integer) {
+        grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where gdrfa.data_field_internal_id = ? "
+            + "and data_row_assign_internal_id = gdra.internal_id and gdrfa.value_integer like ? " 
+            + (GrouperDdlUtils.isOracle() ? " escape '\\' " : "") + " ) ");
+      }
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", likeString));
+      
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+        .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeLikeValue")).append(" '")
+        .append(GrouperUtil.xmlEscape(likeString)).append("'");
+
+      
       
     } else if (jexlNode instanceof ASTEQNode && 2==jexlNode.jjtGetNumChildren() && jexlNode.jjtGetChild(1) instanceof ASTNullLiteral) {
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
@@ -824,242 +1099,6 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   
 
 
-  /**
-   * 
-   * @param jexlStript
-   * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup).  Used for bind variables
-   * @return the sql
-   */
-  public static String convertJexlScriptToSqlWhereClause(String jexlStript, List<MultiKey> arguments) {
-
-    jexlStript = jexlStript.trim();
-    if (jexlStript.startsWith("${") && jexlStript.endsWith("}")) {
-      jexlStript = jexlStript.substring(2, jexlStript.length()-1);
-    }
-    
-    JexlEngine jexlEngine = new Engine();
-    
-    jexlStript = GrouperUtil.replace(jexlStript, "\n", " ");
-    jexlStript = GrouperUtil.replace(jexlStript, "\r", " ");
-    jexlStript = GrouperUtil.replace(jexlStript, "! ", " ");
-
-    JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
-
-    ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
-
-    StringBuilder result = new StringBuilder();
-    convertJexlScriptToSqlHelper(result, astJexlScript, arguments);
-    return result.toString();
-  }
-
-  /**
-   * has two children
-   * @param result
-   * @param astReference
-   */
-  public static void convertJexlReferenceTwoChildrenToSqlHelper(StringBuilder result, ASTReference astReference, List<MultiKey> arguments) {
-    ASTIdentifier astIdentifier = (ASTIdentifier)astReference.jjtGetChild(0);
-    if (!StringUtils.equals("entity", astIdentifier.getName())) {
-      throw new RuntimeException("Not expecting non-entity: '" + astIdentifier.getName() + "'");
-    }
-    ASTMethodNode astMethodNode = (ASTMethodNode)astReference.jjtGetChild(1);
-    ASTIdentifierAccess astIdentifierAccess = (ASTIdentifierAccess)astMethodNode.jjtGetChild(0);
-    if (StringUtils.equals("memberOf", astIdentifierAccess.getName())) {
-      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
-      if (astArguments.jjtGetNumChildren() != 1) {
-        throw new RuntimeException("Not expecting method with more than one argument! " + astArguments.jjtGetNumChildren());
-      }
-      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
-        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
-      }
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
-      String groupName = astStringLiteral.getLiteral();
-      result.append("exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? and gscm.member_internal_id = gm.internal_id) ");
-      arguments.add(new MultiKey("group", "members", groupName));
-    } else if (StringUtils.equals("hasAttribute", astIdentifierAccess.getName())) {
-      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
-      if (astArguments.jjtGetNumChildren() != 1 && astArguments.jjtGetNumChildren() != 2) {
-        throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
-      }
-      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
-        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
-      }
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
-      String attributeAlias = astStringLiteral.getLiteral();
-      if (astArguments.jjtGetNumChildren() == 1) {
-        result.append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? and gdfa.member_internal_id = gm.internal_id and gdfa.value_integer = 1) ");
-        arguments.add(new MultiKey("attribute", attributeAlias));
-      } else if (astArguments.jjtGetNumChildren() == 2) {
-        if (astArguments.jjtGetChild(1) instanceof ASTNullLiteral) {
-          result.append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
-              + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (arguments.size()+1) + "$$ is null) ");
-          arguments.add(new MultiKey("attribute", attributeAlias));
-          arguments.add(new MultiKey("attributeValue", Void.TYPE));
-          
-        } else {
-          result.append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
-              + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (arguments.size()+1) + "$$ = ?) ");
-          arguments.add(new MultiKey("attribute", attributeAlias));
-          if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
-            arguments.add(new MultiKey("attributeValue", ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral()));
-          } else if (astArguments.jjtGetChild(1) instanceof ASTNumberLiteral) {
-            arguments.add(new MultiKey("attributeValue", ((ASTNumberLiteral)astArguments.jjtGetChild(1)).getLiteral()));
-          } else {
-            throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
-          }
-        }
-      }
-    } else if (StringUtils.equals("hasRow", astIdentifierAccess.getName())) {
-      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
-      if (astArguments.jjtGetNumChildren() != 2) {
-        throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
-      }
-      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
-        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
-      }
-      if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
-        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
-      }
-      ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
-      ASTStringLiteral scriptLiteral = (ASTStringLiteral)astArguments.jjtGetChild(1);
-      String rowAlias = astStringLiteral.getLiteral();
-      
-      result.append("exists (select 1 from grouper_data_row_assign gdra where gdra.data_row_internal_id = ? and gdra.member_internal_id = gm.internal_id and ");
-      arguments.add(new MultiKey("row", rowAlias));
-
-      convertJexlRowToSqlHelper(result, scriptLiteral.getLiteral(), arguments);
-
-      result.append(") ");
-    } else {
-      throw new RuntimeException("Not expecting method name: '" + astIdentifierAccess.getName() + "'");
-    }
-  }
-
-  /**
-   * 
-   * @param jexlStript
-   * @param arguments first one is type (e.g. group), second is list (e.g. members), third is name (e.g. test:testGroup)
-   * @return the sql
-   */
-  public static void convertJexlRowToSqlHelper(StringBuilder result, String jexlStript, List<MultiKey> arguments) {
-
-    jexlStript = jexlStript.trim();
-    if (jexlStript.startsWith("${") && jexlStript.endsWith("}")) {
-      jexlStript = jexlStript.substring(2, jexlStript.length()-1);
-    }
-    
-    JexlEngine jexlEngine = new Engine();
-    
-    JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
-
-    ASTJexlScript astJexlScript = (ASTJexlScript)GrouperUtil.fieldValue(expression, "script");
-
-    convertJexlRowToSqlHelper(result, astJexlScript, arguments);
-  }
-
-
-  public static void convertJexlRowToSqlHelper(StringBuilder result, JexlNode jexlNode, List<MultiKey> arguments) {
-    
-    if (jexlNode instanceof ASTIdentifier && 0==jexlNode.jjtGetNumChildren()) {
-      
-      result.append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
-          + "and gdrfa.data_field_internal_id = ? and gdrfa.value_integer = ?) ");
-      arguments.add(new MultiKey("attribute", ((ASTIdentifier)jexlNode).getName()));
-      arguments.add(new MultiKey("attributeValue", true));
-    } else if (jexlNode instanceof ASTEQNode && 2==jexlNode.jjtGetNumChildren() && jexlNode.jjtGetChild(1) instanceof ASTNullLiteral) {
-      if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
-        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
-            + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
-      }
-      ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
-      
-      result.append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
-          + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (arguments.size()+1) + "$$ is null) ");
-      arguments.add(new MultiKey("attribute", leftPart.getName()));
-      arguments.add(new MultiKey("attributeValue", Void.TYPE));
-      
-    } else if (jexlNode instanceof ASTEQNode && 2==jexlNode.jjtGetNumChildren()) {
-      if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
-        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
-            + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
-      }
-      if (!(jexlNode.jjtGetChild(1) instanceof ASTIdentifier)) {
-        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(1).getClass().getName() 
-            + ", children: " + jexlNode.jjtGetChild(1).jjtGetNumChildren());
-      }
-      ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
-      ASTIdentifier rightPart = (ASTIdentifier)jexlNode.jjtGetChild(1);
-      
-      result.append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
-          + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (arguments.size()+1) + "$$ = ?) ");
-      arguments.add(new MultiKey("attribute", leftPart.getName()));
-      arguments.add(new MultiKey("attributeValue", rightPart.getName()));
-      
-    } else if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
-      convertJexlRowToSqlHelper(result, jexlNode.jjtGetChild(0), arguments);
-    } else if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
-      result.append("(");
-      convertJexlRowToSqlHelper(result, jexlNode.jjtGetChild(0), arguments);
-      result.append(")");
-    } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
-      result.append("not ");
-      convertJexlRowToSqlHelper(result, jexlNode.jjtGetChild(0), arguments);
-    } else if (jexlNode instanceof ASTAndNode) {
-      
-      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
-        if (i>0) {
-          result.append("and ");
-        }
-        convertJexlRowToSqlHelper(result, jexlNode.jjtGetChild(i), arguments);
-      }
-    } else if (jexlNode instanceof ASTOrNode) {
-      
-      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
-        if (i>0) {
-          result.append("or ");
-        }
-        convertJexlRowToSqlHelper(result, jexlNode.jjtGetChild(i), arguments);
-      }
-      
-    } else {
-      throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
-    }
-  }
-  
-  public static void convertJexlScriptToSqlHelper(StringBuilder result, JexlNode jexlNode, List<MultiKey> arguments) {
-    if (jexlNode instanceof ASTJexlScript && 1==jexlNode.jjtGetNumChildren()) {
-      convertJexlScriptToSqlHelper(result, jexlNode.jjtGetChild(0), arguments);
-    } else if (jexlNode instanceof ASTReference && 2==jexlNode.jjtGetNumChildren()) {
-      convertJexlReferenceTwoChildrenToSqlHelper(result, (ASTReference)jexlNode, arguments);
-    } else if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
-      result.append("(");
-      convertJexlScriptToSqlHelper(result, jexlNode.jjtGetChild(0), arguments);
-      result.append(")");
-    } else if (jexlNode instanceof ASTNotNode && 1==jexlNode.jjtGetNumChildren()) {
-      result.append("not ");
-      convertJexlScriptToSqlHelper(result, jexlNode.jjtGetChild(0), arguments);
-    } else if (jexlNode instanceof ASTAndNode) {
-      
-      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
-        if (i>0) {
-          result.append("and ");
-        }
-        convertJexlScriptToSqlHelper(result, jexlNode.jjtGetChild(i), arguments);
-      }
-    } else if (jexlNode instanceof ASTOrNode) {
-      
-      for (int i=0;i<jexlNode.jjtGetNumChildren(); i++) {
-        if (i>0) {
-          result.append("or ");
-        }
-        convertJexlScriptToSqlHelper(result, jexlNode.jjtGetChild(i), arguments);
-      }
-      
-    } else {
-      throw new RuntimeException("Not expecting node type: " + jexlNode.getClass().getName() + ", children: " + jexlNode.jjtGetNumChildren());
-    }
-  }
-  
   private List<GrouperLoaderJexlScriptGroup> grouperLoaderJexlScriptGroups = null;
   
   /**
@@ -1099,7 +1138,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
         //System.out.println(script);
         
-        GrouperJexlScriptAnalysis analyzeJexlScript = analyzeJexlScript(script);
+        GrouperJexlScriptAnalysis analyzeJexlScript = analyzeJexlScript(grouperDataEngine, script);
         GrouperJexlScriptPart grouperJexlScriptPart = analyzeJexlScript.getGrouperJexlScriptParts().get(0);
         List<MultiKey> arguments = grouperJexlScriptPart.getArguments();
         String whereClause = grouperJexlScriptPart.getWhereClause().toString();
@@ -1109,6 +1148,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         
         String previousAttributeAlias = null;
         
+        // TODO put this in the analysis script so all the bind vars are rightt
         for (MultiKey argument : arguments) {
           String argumentString = (String)argument.getKey(0);
           if (StringUtils.equals(argumentString, "group")) {
@@ -1131,6 +1171,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             GrouperDataRowWrapper grouperDataRowWrapper = grouperDataEngine.getGrouperDataProviderIndex().getRowWrapperByLowerAlias().get(rowAlias.toLowerCase());
             GrouperDataRow grouperDataRow = grouperDataRowWrapper.getGrouperDataRow();
             gcDbAccess.addBindVar(grouperDataRow.getInternalId());
+
+          } else if (StringUtils.equals(argumentString, "bindVar")) {
+            
+            Object value = argument.getKey(1);
+            gcDbAccess.addBindVar(value);
 
           } else if (StringUtils.equals(argumentString, "attributeValue")) {
             
@@ -1168,6 +1213,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
               throw new RuntimeException("not expecting type: " + fieldDataType.getClass().getName());
             }
 
+          } else {
+            throw new RuntimeException("not expecting argument string: " + argumentString);
           }
           argumentIndex++;
         }   
