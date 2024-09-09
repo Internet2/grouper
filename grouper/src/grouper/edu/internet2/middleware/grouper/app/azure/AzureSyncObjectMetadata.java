@@ -236,6 +236,32 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
     }
     
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isGroupOwnersManage() &&
+        !this.containsMetadataItemByName("md_grouper_groupOwnersManage")) {
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataAzureGroupOwnersManageDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataAzureGroupOwnersManageLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_groupOwnersManage");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
+      
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
+      valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
+      valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
+      
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+      
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+    }
+    
 
   }
 

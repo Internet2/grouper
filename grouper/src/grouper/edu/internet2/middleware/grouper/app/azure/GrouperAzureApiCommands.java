@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -13,6 +14,7 @@ import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.tuple.Pair;
 import org.apache.commons.logging.Log;
 
 import com.fasterxml.jackson.databind.JsonNode;
@@ -248,7 +250,7 @@ public class GrouperAzureApiCommands {
     int index = 0;
     for (GrouperAzureGroup singleGroupToBeCreated: groupsInOneHttpRequest) {
       
-      ObjectNode jsonToSend = singleGroupToBeCreated.toJson(groupToFieldNamesToInsert.get(singleGroupToBeCreated));
+      ObjectNode jsonToSend = singleGroupToBeCreated.toJson(groupToFieldNamesToInsert.get(singleGroupToBeCreated), true);
       
       jsonToSend.remove("id");
       
@@ -822,7 +824,7 @@ public class GrouperAzureApiCommands {
       
       String id = singleGroupToBeUpdated.getId();
       
-      JsonNode jsonToSend = singleGroupToBeUpdated.toJson(azureGroupToFieldNamesToUpdate.get(singleGroupToBeUpdated));
+      JsonNode jsonToSend = singleGroupToBeUpdated.toJson(azureGroupToFieldNamesToUpdate.get(singleGroupToBeUpdated), false);
       
       ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
       innerRequestNode.put("id", String.valueOf(index));
@@ -1852,7 +1854,7 @@ public class GrouperAzureApiCommands {
           }
           
           GrouperAzureGroup grouperAzureGroup = groupIdToGroup.get(groupId);
-          grouperAzureGroup.setOwners(GrouperUtil.join(ownerIds.iterator(), ","));
+          grouperAzureGroup.setOwners(new HashSet<String>(ownerIds));
           
         }
       }
@@ -2177,6 +2179,274 @@ public class GrouperAzureApiCommands {
     }
    
     
+    
+  }
+  private static void addOwnersToGroupHelper(String configId, Map<String, Object> debugMap, 
+      ArrayList<Pair<String, String>> twentyGroupIdOwnerId, Map<Pair<String, String>, Exception> groupIdOwnerIdToMayBeException) {
+    
+    ArrayList<Pair<String, String>> throttledGroupIdOwnerIdToCreate = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    Map<Integer, Pair<String, String>> indexToPairForThrottling = new HashMap<Integer, Pair<String,String>>();
+    for (Pair<String, String> groupIdOwnerId: twentyGroupIdOwnerId) {
+      
+      ObjectNode jsonToSend = GrouperUtil.jsonJacksonNode();
+      
+      jsonToSend.put("@odata.id", groupIdOwnerId.getRight());
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/groups/"+groupIdOwnerId.getLeft()+"/owners/$ref"); // https://graph.microsoft.com/v1.0/groups/{id}/owners/$ref
+      innerRequestNode.put("method", "POST");
+      innerRequestNode.set("body", jsonToSend);
+      
+      ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();
+      headersNode.put("Content-Type", "application/json");
+      innerRequestNode.set("headers", headersNode);
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      indexToPairForThrottling.put(index, groupIdOwnerId);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int indexFromRequest = GrouperUtil.intValue(id);
+        
+        Pair<String, String> groupIdOwnerId = indexToPairForThrottling.get(indexFromRequest);
+        
+        if (statusCode == 429) {
+          throttledGroupIdOwnerIdToCreate.add(groupIdOwnerId);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          groupIdOwnerIdToMayBeException.put(groupIdOwnerId, new RuntimeException(error.toString()));
+          
+        } else { 
+          //all good
+        }
+      }
+    }
+    
+    if (throttledGroupIdOwnerIdToCreate.size() > 0) {
+      
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      addOwnersToGroupHelper(configId, debugMap, throttledGroupIdOwnerIdToCreate, groupIdOwnerIdToMayBeException);
+    }
+    
+  }
+
+  public static void addOwnersToGroup(String azureExternalSystemConfigId, Map<String, Set<String>> groupIdsToOwners) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "addOwnersToGroup");
+
+    long startTime = System.nanoTime();
+    
+    Map<Pair<String, String>, Exception> groupIdOwnerIdToMayBeException = new HashMap<>();
+
+    try {
+      
+      Set<Pair<String, String>> groupIdOwnerId = new HashSet<Pair<String,String>>();
+      for (String groupId: groupIdsToOwners.keySet()) {
+        Set<String> owners = groupIdsToOwners.get(groupId);
+        for (String owner: owners) {
+          groupIdOwnerId.add(Pair.of(groupId, owner));
+        }
+      }
+      
+      List<ArrayList<Pair<String, String>>> twentyGroupIdOwnerIds  = splitArrayList(new ArrayList<Pair<String, String>>(groupIdOwnerId), 20); 
+      
+      for (ArrayList<Pair<String, String>> twentyGroupIdOwnerId: twentyGroupIdOwnerIds) {
+        addOwnersToGroupHelper(azureExternalSystemConfigId, debugMap, twentyGroupIdOwnerId, groupIdOwnerIdToMayBeException);
+      }
+      
+//      return groupToMayBeException;
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
+    
+  }
+
+
+  private static <T> List<ArrayList<T>> splitArrayList(ArrayList<T> original, int size) { 
+    List<ArrayList<T>> subLists = new ArrayList<>(); 
+
+    for (int i = 0; i < original.size(); i += size) { 
+        int end = Math.min(i + size, original.size()); 
+        subLists.add(new ArrayList<>(original.subList(i, end))); 
+    } 
+
+    return subLists; 
+  } 
+  
+  private static void removeOwnersFromGroupHelper(String configId, Map<String, Object> debugMap, 
+      ArrayList<Pair<String, String>> twentyGroupIdOwnerId, Map<Pair<String, String>, Exception> groupIdOwnerIdToMayBeException) {
+    
+    ArrayList<Pair<String, String>> throttledGroupIdOwnerIdToDelete = new ArrayList<>();
+    
+    int secondsToSleep = -1;
+    
+    ObjectNode mainRequestsNode  = GrouperUtil.jsonJacksonNode();
+    ArrayNode requestsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    mainRequestsNode.set("requests", requestsArrayNode);
+    
+    int index = 0;
+    Map<Integer, Pair<String, String>> indexToPairForThrottling = new HashMap<Integer, Pair<String,String>>();
+    for (Pair<String, String> groupIdOwnerId: twentyGroupIdOwnerId) {
+      
+      ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
+      innerRequestNode.put("id", String.valueOf(index));
+      innerRequestNode.put("url", "/groups/"+groupIdOwnerId.getLeft()+"/owners/"+groupIdOwnerId.getRight()+"/$ref"); // https://graph.microsoft.com/v1.0/groups/{id}/owners/{id}/$ref
+      innerRequestNode.put("method", "DELETE");
+      
+      ObjectNode headersNode  = GrouperUtil.jsonJacksonNode();
+      headersNode.put("Content-Type", "application/json");
+      innerRequestNode.set("headers", headersNode);
+      
+      requestsArrayNode.add(innerRequestNode);
+      
+      indexToPairForThrottling.put(index, groupIdOwnerId);
+      
+      index++;
+      
+    }
+    
+    String jsonStringToSend = GrouperUtil.jsonJacksonToString(mainRequestsNode);
+    JsonNode mainResponseNode = executeMethod(debugMap, "POST", configId, "/$batch/",
+        GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+    
+    if (mainResponseNode != null) {
+      ArrayNode responses = (ArrayNode) GrouperUtil.jsonJacksonGetNode(mainResponseNode, "responses");
+      
+      for (int i = 0; i < (responses == null ? 0 : responses.size()); i++) {
+        JsonNode oneResponse = responses.get(i);
+        Integer statusCode = GrouperUtil.jsonJacksonGetInteger(oneResponse, "status");
+        String id = GrouperUtil.jsonJacksonGetString(oneResponse, "id");
+        JsonNode bodyNode = GrouperUtil.jsonJacksonGetNode(oneResponse, "body");
+        
+        int indexFromRequest = GrouperUtil.intValue(id);
+        
+        Pair<String, String> groupIdOwnerId = indexToPairForThrottling.get(indexFromRequest);
+        
+        if (statusCode == 429) {
+          throttledGroupIdOwnerIdToDelete.add(groupIdOwnerId);
+          
+          int localSecondsToSleep = retrieveSecondsToSleep(oneResponse);
+          secondsToSleep = Math.max(localSecondsToSleep, secondsToSleep);
+          
+        } else if (statusCode != 204) {
+          
+          StringBuilder error = buildError(oneResponse, statusCode, bodyNode);
+          
+          groupIdOwnerIdToMayBeException.put(groupIdOwnerId, new RuntimeException(error.toString()));
+          
+        } else { 
+          //all good
+        }
+      }
+    }
+    
+    if (throttledGroupIdOwnerIdToDelete.size() > 0) {
+      
+      if (secondsToSleep < 0) {
+        secondsToSleep = 155;
+      }
+      
+      GrouperUtil.sleep(secondsToSleep * 1000);
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleSleepSeconds", secondsToSleep);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleSleepSeconds", secondsToSleep);
+      }
+      
+      GrouperUtil.mapAddValue(debugMap, "azureThrottleCount", 1);
+      if (GrouperProvisioner.retrieveCurrentGrouperProvisioner() != null) {
+        GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
+      }
+      
+      removeOwnersFromGroupHelper(configId, debugMap, throttledGroupIdOwnerIdToDelete, groupIdOwnerIdToMayBeException);
+    }
+    
+  }
+
+  public static void removeOwnersFromGroup(String azureExternalSystemConfigId, Map<String, Set<String>> groupIdsToOwners) {
+    
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("method", "removeOwnersFromGroup");
+
+    long startTime = System.nanoTime();
+    
+    Map<Pair<String, String>, Exception> groupIdOwnerIdToMayBeException = new HashMap<>();
+
+    try {
+      
+      Set<Pair<String, String>> groupIdOwnerId = new HashSet<Pair<String,String>>();
+      for (String groupId: groupIdsToOwners.keySet()) {
+        Set<String> owners = groupIdsToOwners.get(groupId);
+        for (String owner: owners) {
+          groupIdOwnerId.add(Pair.of(groupId, owner));
+        }
+      }
+      
+      List<ArrayList<Pair<String, String>>> twentyGroupIdOwnerIds  = splitArrayList(new ArrayList<Pair<String, String>>(groupIdOwnerId), 20); 
+      
+      for (ArrayList<Pair<String, String>> twentyGroupIdOwnerId: twentyGroupIdOwnerIds) {
+        removeOwnersFromGroupHelper(azureExternalSystemConfigId, debugMap, twentyGroupIdOwnerId, groupIdOwnerIdToMayBeException);
+      }
+      
+//      return groupToMayBeException;
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    } finally {
+      GrouperAzureLog.azureLog(debugMap, startTime);
+    }
     
   }
 

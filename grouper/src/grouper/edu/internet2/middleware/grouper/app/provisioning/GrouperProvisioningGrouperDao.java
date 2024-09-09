@@ -1053,25 +1053,48 @@ public class GrouperProvisioningGrouperDao {
         grouperProvisioningEntity.assignAttributeValue("grouperSubjectUnresolvable", true);
       }
       
-      if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
-        if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
-          JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
-          for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
-            if (grouperProvisioningObjectMetadataItem.isShowForMember()) {
-              
-              String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
-              if (metadataItemName.startsWith("md_")) {
-                if (jsonNode.has(metadataItemName)) {
-                  GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
-                      GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
-                  String value = GrouperUtil.jsonJacksonGetString(jsonNode, metadataItemName);
-                  grouperProvisioningEntity.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
-                }
-              }
+      JsonNode jsonMetadatNode = null;
+      if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
+        jsonMetadatNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
+      }
+      
+      for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : GrouperUtil.nonNull(grouperProvisioningObjectMetadataItems)) {
+        if (grouperProvisioningObjectMetadataItem.isShowForMember()) {
+          
+          String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
+          if (metadataItemName.startsWith("md_")) {
+            GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+                GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
+            if (jsonMetadatNode != null && jsonMetadatNode.has(metadataItemName)) {
+              String value = GrouperUtil.jsonJacksonGetString(jsonMetadatNode, metadataItemName);
+              grouperProvisioningEntity.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
+            } else if (grouperProvisioningObjectMetadataItem.getDefaultValue() != null) {
+              Object defaultValue = grouperProvisioningObjectMetadataItem.getDefaultValue();
+              grouperProvisioningEntity.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(defaultValue));
             }
           }
         }
       }
+      
+//      if (GrouperUtil.length(grouperProvisioningObjectMetadataItems) > 0) {
+//        if (!StringUtils.isBlank(jsonMetadata) && !StringUtils.equals("{}", jsonMetadata)) {
+//          JsonNode jsonNode = GrouperUtil.jsonJacksonNode(jsonMetadata);
+//          for (GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem : grouperProvisioningObjectMetadataItems) {
+//            if (grouperProvisioningObjectMetadataItem.isShowForMember()) {
+//              
+//              String metadataItemName = grouperProvisioningObjectMetadataItem.getName();
+//              if (metadataItemName.startsWith("md_")) {
+//                if (jsonNode.has(metadataItemName)) {
+//                  GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
+//                      GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
+//                  String value = GrouperUtil.jsonJacksonGetString(jsonNode, metadataItemName);
+//                  grouperProvisioningEntity.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
+//                }
+//              }
+//            }
+//          }
+//        }
+//      }
       
       results.add(grouperProvisioningEntity);
     }

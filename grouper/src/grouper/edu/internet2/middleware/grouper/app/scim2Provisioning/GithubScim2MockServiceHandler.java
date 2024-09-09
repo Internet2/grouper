@@ -774,7 +774,7 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
         
       } else {
         
-        if (StringUtils.isBlank(employeeNumber)) {
+        if (GrouperScim2User.builtInAttributes.contains(path)) {
           Object newValue = "active".equals(path) ? GrouperUtil.jsonJacksonGetBoolean(operation, "value") : GrouperUtil.jsonJacksonGetString(operation, "value");
           Object oldValue = GrouperUtil.fieldValue(grouperScimUser, path);
           
@@ -804,6 +804,9 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
     if (StringUtils.isNotBlank(employeeNumber)) {
       String sql = "update mock_scim_user set service_now_emp_num = ? where id = ?";
       new GcDbAccess().sql(sql).addBindVar(employeeNumber).addBindVar(grouperScimUser.getId()).executeSql();
+    } else {
+      String sql = "update mock_scim_user set service_now_emp_num = null where id = ?";
+      new GcDbAccess().sql(sql).addBindVar(grouperScimUser.getId()).executeSql();
     }
     
     ObjectNode objectNode = grouperScimUser.toJson(null);

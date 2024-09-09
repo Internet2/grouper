@@ -576,7 +576,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     
     HibernateSession.byObjectStatic().save(grouperAzureGroup);
     
-    JsonNode resultNode = grouperAzureGroup.toJson(null);
+    JsonNode resultNode = grouperAzureGroup.toJson(null, true);
     
     return new MultiKey(201, resultNode);
 
@@ -629,7 +629,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     
     HibernateSession.byObjectStatic().save(grouperAzureGroup);
     
-    JsonNode resultNode = grouperAzureGroup.toJson(null);
+    JsonNode resultNode = grouperAzureGroup.toJson(null, true);
 
     mockServiceResponse.setResponseCode(201);
     mockServiceResponse.setContentType("application/json");
@@ -754,7 +754,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
     
     for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-      valueNode.add(grouperAzureGroup.toJson(fieldsToRetrieve));
+      valueNode.add(grouperAzureGroup.toJson(fieldsToRetrieve, true));
     }
     
     resultNode.set("value", valueNode);
@@ -817,7 +817,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     }
     
     for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
-      valueNode.add(grouperAzureGroup.toJson(fieldsToRetrieve));
+      valueNode.add(grouperAzureGroup.toJson(fieldsToRetrieve, true));
     }
     
     resultNode.set("value", valueNode);
@@ -853,7 +853,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
 //      mockServiceResponse.setContentType("application/json");
 
-      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(fieldsToRetrieve);
+      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(fieldsToRetrieve, true);
 //      mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
       
       return new MultiKey(200, objectNode);
@@ -900,7 +900,7 @@ public class AzureMockServiceHandler extends MockServiceHandler {
 
       mockServiceResponse.setContentType("application/json");
 
-      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(fieldsToRetrieve);
+      ObjectNode objectNode = grouperAzureGroups.get(0).toJson(fieldsToRetrieve, true);
       mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
 
     } else if (GrouperUtil.length(grouperAzureGroups) == 0) {
