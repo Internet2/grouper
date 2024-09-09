@@ -371,7 +371,7 @@ public class GrouperScim2ApiCommands {
           case insert:
             operationNode.put("op", "add");
             
-            if (grouperScim2User.getCustomAttributes() == null || !grouperScim2User.getCustomAttributes().containsKey(fieldToUpdate)) {
+            if (GrouperScim2User.builtInAttributes.contains(fieldToUpdate)) {
               operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate)));
             }
             
@@ -379,7 +379,7 @@ public class GrouperScim2ApiCommands {
           case update:
             operationNode.put("op", "replace");
             Object resolvedObject = null;
-            if (grouperScim2User.getCustomAttributes() == null || !grouperScim2User.getCustomAttributes().containsKey(fieldToUpdate)) {
+            if (GrouperScim2User.builtInAttributes.contains(fieldToUpdate)) {
               resolvedObject = GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate);
               if (resolvedObject != null && resolvedObject instanceof Boolean) {
                 operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
@@ -412,7 +412,7 @@ public class GrouperScim2ApiCommands {
           fieldToUpdate = "name.givenName";
         }
         
-        if (grouperScim2User.getCustomAttributes() != null && grouperScim2User.getCustomAttributes().containsKey(fieldToUpdate)) {
+        if (!GrouperScim2User.builtInAttributes.contains(fieldToUpdate)) {
           
           if (grouperScim2User.getCustomAttributeNameToJsonPointer() != null && grouperScim2User.getCustomAttributeNameToJsonPointer().containsKey(fieldToUpdate)) {
             String jsonPointer = grouperScim2User.getCustomAttributeNameToJsonPointer().get(fieldToUpdate);
@@ -496,7 +496,7 @@ public class GrouperScim2ApiCommands {
             operationNode.put("op", "add");
 //            operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
             
-            if (grouperScim2Group.getCustomAttributes() == null || !grouperScim2Group.getCustomAttributes().containsKey(fieldToUpdate)) {
+            if (GrouperScim2Group.builtInAttributes.contains(fieldToUpdate)) {
               operationNode.put("value", GrouperUtil.stringValue(GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate)));
             }
             
@@ -504,7 +504,7 @@ public class GrouperScim2ApiCommands {
           case update:
             operationNode.put("op", "replace");
             Object resolvedObject = null;
-            if (grouperScim2Group.getCustomAttributes() == null || !grouperScim2Group.getCustomAttributes().containsKey(fieldToUpdate)) {
+            if (GrouperScim2Group.builtInAttributes.contains(fieldToUpdate)) {
               resolvedObject = GrouperUtil.fieldValue(grouperScim2Group, fieldToUpdate);
               if (resolvedObject != null && resolvedObject instanceof Boolean) {
                 operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
@@ -525,7 +525,7 @@ public class GrouperScim2ApiCommands {
         }
 //        operationNode.put("path", fieldToUpdate);
         
-        if (grouperScim2Group.getCustomAttributes() != null && grouperScim2Group.getCustomAttributes().containsKey(fieldToUpdate)) {
+        if (!GrouperScim2Group.builtInAttributes.contains(fieldToUpdate)) {
           
           if (grouperScim2Group.getCustomAttributeNameToJsonPointer() != null && grouperScim2Group.getCustomAttributeNameToJsonPointer().containsKey(fieldToUpdate)) {
             String jsonPointer = grouperScim2Group.getCustomAttributeNameToJsonPointer().get(fieldToUpdate);

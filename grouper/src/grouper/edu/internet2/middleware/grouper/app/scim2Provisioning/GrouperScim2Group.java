@@ -43,6 +43,8 @@ public class GrouperScim2Group {
     System.out.println(grouperScimUser.toString());
     
   }
+  
+  public static final Set<String> builtInAttributes = GrouperUtil.toSet("displayName", "externalId", "id", "schemas");
 
   /**
    * 
@@ -235,42 +237,44 @@ public class GrouperScim2Group {
       grouperScimGroup.schemas = GrouperUtil.join(schemasStringSet.iterator(), ',');
     }
     
-    
-    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
-    
-    Map<String, String> attributeJsonPointers = scimConfig.getGroupAttributeJsonPointer();
-    
-    for (String attributeName: attributeJsonPointers.keySet()) {
-      String jsonPointer = attributeJsonPointers.get(attributeName);
-      JsonNode jsonNode = GrouperUtil.jsonJacksonGetNodeFromJsonPointer(groupNode, jsonPointer);
-      if (jsonNode == null) {
-        continue;
-      }
+    // if calling outside of the provisioner then none of the custom attributes is known
+    if (grouperProvisioner != null) {
+      GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
       
-      if (grouperScimGroup.customAttributes == null) {
-        grouperScimGroup.customAttributes = new HashMap<>();
-      }
-      if (grouperScimGroup.customAttributeNameToJsonPointer == null) {
-        grouperScimGroup.customAttributeNameToJsonPointer = new HashMap<>();
-      }
-      grouperScimGroup.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
-      if (jsonNode.isArray()) {
-        ArrayNode arrayNode = (ArrayNode) jsonNode;
-        if (arrayNode.size() > 0) {
-          Set<String> attributeValues = GrouperUtil.jsonJacksonGetStringSetFromJsonPointer(groupNode, jsonPointer);
-          attributeValues.remove(null);
-          attributeValues.remove("");
-          grouperScimGroup.customAttributes.put(attributeName, attributeValues);
+      Map<String, String> attributeJsonPointers = scimConfig.getGroupAttributeJsonPointer();
+      
+      for (String attributeName: attributeJsonPointers.keySet()) {
+        String jsonPointer = attributeJsonPointers.get(attributeName);
+        JsonNode jsonNode = GrouperUtil.jsonJacksonGetNodeFromJsonPointer(groupNode, jsonPointer);
+        if (jsonNode == null) {
+          continue;
         }
-      } else if (jsonNode.isValueNode()) { 
-        Object attributeValue = GrouperUtil.jsonJacksonGetStringFromJsonPointer(groupNode, jsonPointer);
-        if (!GrouperUtil.isBlank(attributeValue)) {
-          
-          if (StringUtils.equals(scimConfig.getGroupAttributeJsonValueType().get(attributeName), "boolean")) {
-            attributeValue = GrouperUtil.booleanValue(attributeValue);
+        
+        if (grouperScimGroup.customAttributes == null) {
+          grouperScimGroup.customAttributes = new HashMap<>();
+        }
+        if (grouperScimGroup.customAttributeNameToJsonPointer == null) {
+          grouperScimGroup.customAttributeNameToJsonPointer = new HashMap<>();
+        }
+        grouperScimGroup.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
+        if (jsonNode.isArray()) {
+          ArrayNode arrayNode = (ArrayNode) jsonNode;
+          if (arrayNode.size() > 0) {
+            Set<String> attributeValues = GrouperUtil.jsonJacksonGetStringSetFromJsonPointer(groupNode, jsonPointer);
+            attributeValues.remove(null);
+            attributeValues.remove("");
+            grouperScimGroup.customAttributes.put(attributeName, attributeValues);
           }
-          
-          grouperScimGroup.customAttributes.put(attributeName, attributeValue);
+        } else if (jsonNode.isValueNode()) { 
+          Object attributeValue = GrouperUtil.jsonJacksonGetStringFromJsonPointer(groupNode, jsonPointer);
+          if (!GrouperUtil.isBlank(attributeValue)) {
+            
+            if (StringUtils.equals(scimConfig.getGroupAttributeJsonValueType().get(attributeName), "boolean")) {
+              attributeValue = GrouperUtil.booleanValue(attributeValue);
+            }
+            
+            grouperScimGroup.customAttributes.put(attributeName, attributeValue);
+          }
         }
       }
     }
@@ -368,6 +372,7 @@ public class GrouperScim2Group {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, true, "T");
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "external_id", Types.VARCHAR, "256", false, false);
+//      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "service_now_group_label", Types.VARCHAR, "1024", false, false);
       
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_scim_gdisp_name_idx", false, "display_name");
     }

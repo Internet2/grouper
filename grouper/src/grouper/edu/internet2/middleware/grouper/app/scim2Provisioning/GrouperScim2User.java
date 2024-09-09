@@ -60,6 +60,10 @@ public class GrouperScim2User {
     System.out.println(grouperScimUser.toString());
     
   }
+  
+  public static final Set<String> builtInAttributes = GrouperUtil.toSet("active", "costCenter", "department", "displayName", "division", "emailType", 
+      "emailValue", "emailType2", "emailValue2", "employeeNumber", "externalId", "familyName", "formattedName", "givenName", "id",
+      "middleName", "phoneNumber", "phoneNumberType", "phoneNumber2", "phoneNumberType2", "schemas", "title", "userName", "userType");
 
   @Override
   public String toString() {
@@ -279,45 +283,47 @@ public class GrouperScim2User {
     grouperScimUser.userName = GrouperUtil.jsonJacksonGetString(entityNode, "userName");
     grouperScimUser.userType = GrouperUtil.jsonJacksonGetString(entityNode, "userType");
     
-    GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
-    
-    Map<String, String> attributeJsonPointers = scimConfig.getEntityAttributeJsonPointer();
-    
-    for (String attributeName: attributeJsonPointers.keySet()) {
-      String jsonPointer = attributeJsonPointers.get(attributeName);
-      JsonNode jsonNode = GrouperUtil.jsonJacksonGetNodeFromJsonPointer(entityNode, jsonPointer);
-      if (jsonNode == null) {
-        continue;
-      }
+    // if calling outside of the provisioner then none of the custom attributes is known
+    if (grouperProvisioner != null) {
+      GrouperScim2ProvisionerConfiguration scimConfig = (GrouperScim2ProvisionerConfiguration)grouperProvisioner.retrieveGrouperProvisioningConfiguration();
       
-      if (grouperScimUser.customAttributes == null) {
-        grouperScimUser.customAttributes = new HashMap<>();
-      }
-      if (grouperScimUser.customAttributeNameToJsonPointer == null) {
-        grouperScimUser.customAttributeNameToJsonPointer = new HashMap<>();
-      }
-      grouperScimUser.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
-      if (jsonNode.isArray()) {
-        ArrayNode arrayNode = (ArrayNode) jsonNode;
-        if (arrayNode.size() > 0) {
-          Set<String> attributeValues = GrouperUtil.jsonJacksonGetStringSetFromJsonPointer(entityNode, jsonPointer);
-          attributeValues.remove(null);
-          attributeValues.remove("");
-          grouperScimUser.customAttributes.put(attributeName, attributeValues);
+      Map<String, String> attributeJsonPointers = scimConfig.getEntityAttributeJsonPointer();
+      
+      for (String attributeName: attributeJsonPointers.keySet()) {
+        String jsonPointer = attributeJsonPointers.get(attributeName);
+        JsonNode jsonNode = GrouperUtil.jsonJacksonGetNodeFromJsonPointer(entityNode, jsonPointer);
+        if (jsonNode == null) {
+          continue;
         }
-      } else if (jsonNode.isValueNode()) { 
-        Object attributeValue = GrouperUtil.jsonJacksonGetStringFromJsonPointer(entityNode, jsonPointer);
-        if (!GrouperUtil.isBlank(attributeValue)) {
-          
-          if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
-            attributeValue = GrouperUtil.booleanValue(attributeValue);
+        
+        if (grouperScimUser.customAttributes == null) {
+          grouperScimUser.customAttributes = new HashMap<>();
+        }
+        if (grouperScimUser.customAttributeNameToJsonPointer == null) {
+          grouperScimUser.customAttributeNameToJsonPointer = new HashMap<>();
+        }
+        grouperScimUser.customAttributeNameToJsonPointer.put(attributeName, jsonPointer);
+        if (jsonNode.isArray()) {
+          ArrayNode arrayNode = (ArrayNode) jsonNode;
+          if (arrayNode.size() > 0) {
+            Set<String> attributeValues = GrouperUtil.jsonJacksonGetStringSetFromJsonPointer(entityNode, jsonPointer);
+            attributeValues.remove(null);
+            attributeValues.remove("");
+            grouperScimUser.customAttributes.put(attributeName, attributeValues);
           }
-          
-          grouperScimUser.customAttributes.put(attributeName, attributeValue);
+        } else if (jsonNode.isValueNode()) { 
+          Object attributeValue = GrouperUtil.jsonJacksonGetStringFromJsonPointer(entityNode, jsonPointer);
+          if (!GrouperUtil.isBlank(attributeValue)) {
+            
+            if (StringUtils.equals(scimConfig.getEntityAttributeJsonValueType().get(attributeName), "boolean")) {
+              attributeValue = GrouperUtil.booleanValue(attributeValue);
+            }
+            
+            grouperScimUser.customAttributes.put(attributeName, attributeValue);
+          }
         }
       }
     }
-    
     return grouperScimUser;
   }
 
@@ -544,6 +550,7 @@ public class GrouperScim2User {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "division", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "department", Types.VARCHAR, "256", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "service_now_emp_num", Types.VARCHAR, "256", false, false);
+      
       
     }
     

@@ -269,15 +269,13 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
           fieldNamesToInsert.add("groupTypeUnified");
         }
         
-        if (StringUtils.isNotBlank(grouperAzureGroup.getOwners())) {
+        if (GrouperUtil.length(grouperAzureGroup.getOwners()) > 0) {
           // transform it into something that can be ingested by azure
-          
-          String[] ownersArray = GrouperUtil.splitTrim(grouperAzureGroup.getOwners(), ",");
           
           Set<String> ownersToBeSaved = new HashSet<>();
           Set<Object> usersToPrefixUrl = new HashSet<>();
           
-          for (String owner: ownersArray) {
+          for (String owner: grouperAzureGroup.getOwners()) {
             if (owner.startsWith("http://") || owner.startsWith("https://")) { // if it's already proper url format
               ownersToBeSaved.add(owner);
             } else if (ownerIdentifierToOwnerUrl.get(owner) != null) {
@@ -309,7 +307,7 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
             }
           }
           
-          grouperAzureGroup.setOwners(GrouperUtil.join(ownersToBeSaved.iterator(), ","));
+          grouperAzureGroup.setOwners(ownersToBeSaved);
           
         }
         
@@ -487,6 +485,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     Map<GrouperAzureGroup, ProvisioningGroup> azureGroupToTargetGroup = new HashMap<>();
     Map<GrouperAzureGroup, Set<String>> azureGroupToFieldNamesToUpdate = new HashMap<>();
     
+    Map<String, Set<String>> groupIdsToOwnersSave = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> groupIdsToOwnersDelete = new HashMap<String, Set<String>>();
+    
     for (ProvisioningGroup targetGroup: targetGroups) {
       GrouperAzureGroup grouperAzureGroup = GrouperAzureGroup.fromProvisioningGroup(targetGroup, null);
       if (StringUtils.isBlank(grouperAzureGroup.getId())) {
@@ -495,55 +496,69 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       azureGroupToTargetGroup.put(grouperAzureGroup, targetGroup);
       
       Set<String> fieldNamesToUpdate = new HashSet<String>();
+//      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
+//        String fieldName = provisioningObjectChange.getAttributeName();
+//        fieldNamesToUpdate.add(fieldName);
+//      }
+      
+      Set<String> ownersToBeSaved = new HashSet<>();
+      Set<String> ownersToBeDeleted = new HashSet<>();
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         String fieldName = provisioningObjectChange.getAttributeName();
-        fieldNamesToUpdate.add(fieldName);
+        if (StringUtils.equals(fieldName, "groupOwners")) {
+          boolean manageGroupOwnersInTarget = GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("groupOwnersManage"), true);
+          if (!manageGroupOwnersInTarget) {
+            continue;
+          }
+          if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.insert) {
+            String groupOwnersToBeInsertedString = (String) provisioningObjectChange.getNewValue();
+            if (StringUtils.isBlank(groupOwnersToBeInsertedString)) {
+              continue;
+            }
+            
+            Set<String> usersToPrefixUrl = new HashSet<>();
+            String[] ownersArray = GrouperUtil.splitTrim(groupOwnersToBeInsertedString, ",");
+            for (String owner: ownersArray) {
+              if (owner.startsWith("http://") || owner.startsWith("https://")) { // if it's already proper url format
+                ownersToBeSaved.add(owner);
+              } else {
+                usersToPrefixUrl.add(owner);
+              }
+            }
+            for (String userId: usersToPrefixUrl) {
+              String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
+              String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+userId;
+              ownersToBeSaved.add(url);
+            }
+            
+          } else if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.delete) {
+            String groupOwnersToBeDeletedString = (String) provisioningObjectChange.getOldValue();
+            if (StringUtils.isBlank(groupOwnersToBeDeletedString)) {
+              continue;
+            }
+            
+            Set<String> usersToPrefixUrl = new HashSet<>();
+            String[] ownersArray = GrouperUtil.splitTrim(groupOwnersToBeDeletedString, ",");
+            for (String owner: ownersArray) {
+              ownersToBeDeleted.add(owner);
+            }
+            
+            for (String userId: usersToPrefixUrl) {
+              String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
+                  "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
+              String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+userId;
+              ownersToBeDeleted.add(url);
+            }
+          }
+          
+        } else {          
+          fieldNamesToUpdate.add(fieldName);
+        }
       }
       
-      if (StringUtils.isNotBlank(grouperAzureGroup.getOwners())) {
-        // transform it into something that can be ingested by azure
-        
-        String[] ownersArray = GrouperUtil.splitTrim(grouperAzureGroup.getOwners(), ",");
-        
-        Set<String> ownersToBeSaved = new HashSet<>();
-        Set<Object> usersToFetchFromTarget = new HashSet<>();
-        
-        for (String owner: ownersArray) {
-          if (owner.startsWith("http://") || owner.startsWith("https://")) { // if it's already proper url format
-            ownersToBeSaved.add(owner);
-          } else if (ownerIdentifierToOwnerUrl.get(owner) != null) {
-            ownersToBeSaved.add(ownerIdentifierToOwnerUrl.get(owner));
-          } else {
-            // try to go fetch it and populate the cache
-            usersToFetchFromTarget.add(owner);
-          }
-        }
-        
-        
-        if (usersToFetchFromTarget.size() > 0) {
-          
-          TargetDaoRetrieveEntitiesByValuesRequest request = new TargetDaoRetrieveEntitiesByValuesRequest();
-          request.setSearchValues(usersToFetchFromTarget);
-          
-          TargetDaoRetrieveEntitiesByValuesResponse valuesResponse = this.getGrouperProvisioner()
-              .retrieveGrouperProvisioningTargetDaoAdapter().retrieveEntitiesBySearchValues(request);
-          Map<Object, ProvisioningEntity> searchValueToTargetEntity = valuesResponse.getSearchValueToTargetEntity();
-          
-          for (Object searchValue: searchValueToTargetEntity.keySet()) {
-            ProvisioningEntity targetEntity = searchValueToTargetEntity.get(searchValue);
-            String id = targetEntity.getId();
-            String resourceEndpoint = GrouperLoaderConfig.retrieveConfig().propertyValueString(
-                "grouper.azureConnector."+azureConfiguration.getAzureExternalSystemConfigId()+".resourceEndpoint");
-            String url = GrouperUtil.stripLastSlashIfExists(resourceEndpoint) + "/users/"+id;
-            ownersToBeSaved.add(url);
-            ownerIdentifierToOwnerUrl.put(searchValue, url);
-          }
-        }
-        
-        grouperAzureGroup.setOwners(GrouperUtil.join(ownersToBeSaved.iterator(), ","));
-        
-      }
-      
+      groupIdsToOwnersDelete.put(grouperAzureGroup.getId(), ownersToBeDeleted);
+      groupIdsToOwnersSave.put(grouperAzureGroup.getId(), ownersToBeSaved);
       azureGroupToFieldNamesToUpdate.put(grouperAzureGroup, fieldNamesToUpdate);
       
     }
@@ -551,6 +566,9 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       
       Map<GrouperAzureGroup, Exception> groupToMaybeException = GrouperAzureApiCommands.updateAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), azureGroupToFieldNamesToUpdate);
+      
+      GrouperAzureApiCommands.addOwnersToGroup(azureConfiguration.getAzureExternalSystemConfigId(), groupIdsToOwnersSave);
+      GrouperAzureApiCommands.removeOwnersFromGroup(azureConfiguration.getAzureExternalSystemConfigId(), groupIdsToOwnersDelete);
       
       for (GrouperAzureGroup grouperAzureGroup: groupToMaybeException.keySet()) {
         

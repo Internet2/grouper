@@ -1,15 +1,14 @@
 package edu.internet2.middleware.grouper.app.azure;
 
 import java.sql.Types;
-import java.util.Arrays;
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
-import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
@@ -42,7 +41,7 @@ public class GrouperAzureGroup {
     grouperAzureGroup.setSecurityEnabled(true);
     grouperAzureGroup.setVisibility(AzureVisibility.Private);
 
-    String json = GrouperUtil.jsonJacksonToString(grouperAzureGroup.toJson(null));
+    String json = GrouperUtil.jsonJacksonToString(grouperAzureGroup.toJson(null, false));
     System.out.println(json);
     
     grouperAzureGroup = GrouperAzureGroup.fromJson(GrouperUtil.jsonJacksonNode(json));
@@ -120,6 +119,7 @@ public class GrouperAzureGroup {
     targetGroup.assignAttributeValue("subscribeNewGroupMembers", this.resourceBehaviorOptionsSubscribeNewGroupMembers);
     targetGroup.assignAttributeValue("welcomeEmailDisabled", this.resourceBehaviorOptionsWelcomeEmailDisabled);
     targetGroup.assignAttributeValue("resourceProvisioningOptionsTeam", this.resourceProvisioningOptionsTeam);
+    targetGroup.assignAttributeValue("groupOwners", this.owners);
     
     return targetGroup;
   }
@@ -143,9 +143,12 @@ public class GrouperAzureGroup {
       grouperAzureGroup.setDisplayName(targetGroup.getDisplayName());
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners")) {  
-      String owners = targetGroup.retrieveAttributeValueString("groupOwners");
-      grouperAzureGroup.setOwners(owners);
+    boolean manageGroupOwnersInTarget = GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("groupOwnersManage"), true);
+    grouperAzureGroup.setGroupOwnersManage(manageGroupOwnersInTarget);
+    
+    if ((fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners"))) {  
+      Set<String> owners = (Set<String>)targetGroup.retrieveAttributeValueSet("groupOwners");
+      grouperAzureGroup.setOwners(new HashSet<String>(GrouperUtil.nonNull(owners)));
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {
@@ -226,6 +229,7 @@ public class GrouperAzureGroup {
   private boolean resourceBehaviorOptionsSubscribeNewGroupMembers;
   private boolean resourceBehaviorOptionsWelcomeEmailDisabled;
   private boolean resourceProvisioningOptionsTeam;
+  private boolean groupOwnersManage;
   
   /** if this is true then it has the Unified group type */
   private boolean groupTypeUnified;
@@ -237,17 +241,30 @@ public class GrouperAzureGroup {
   
   private String description;
   private AzureVisibility visibility;
-  private String owners;
+  private Set<String> owners = new HashSet<String>();
 
-  public static final String fieldsToSelect="isAssignableToRole,description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions";
+  public static final String fieldsToSelect="isAssignableToRole,description,displayName,groupTypes,id,mailEnabled,mailNickname,securityEnabled,visibility,resourceBehaviorOptions,resourceProvisioningOptions,groupOwners";
   
   
-  public String getOwners() {
+  public Set<String> getOwners() {
     return owners;
   }
 
+  public String getOwnersCommaSeparated() {
+    if (GrouperUtil.length(owners) == 0) {
+      return null;
+    }
+    return GrouperUtil.join(owners.iterator(), ",");
+  }
   
-  public void setOwners(String owners) {
+  public void setOwnersCommaSeparated(String ownersCommaSeparated) {
+    if (StringUtils.isBlank(ownersCommaSeparated)) {
+      owners = new HashSet<String>();
+    }
+    owners = GrouperUtil.splitTrimToSet(ownersCommaSeparated, ","); 
+  }
+  
+  public void setOwners(Set<String> owners) {
     this.owners = owners;
   }
 
@@ -456,8 +473,7 @@ public class GrouperAzureGroup {
     
     Set<String> owners = GrouperUtil.jsonJacksonGetStringSet(groupNode, "owners@odata.bind");
     if (owners != null && owners.size() > 0) {
-      String ownersJoined = GrouperUtil.join(owners.iterator(), ",");
-      grouperAzureGroup.setOwners(ownersJoined);
+      grouperAzureGroup.setOwners(owners);
     }
     
     return grouperAzureGroup;
@@ -476,19 +492,23 @@ public class GrouperAzureGroup {
    * @param fieldNamesToSet
    * @return the group
    */
-  public ObjectNode toJson(Set<String> fieldNamesToSet) {
+  public ObjectNode toJson(Set<String> fieldNamesToSet, boolean setGroupOwners) {
     ObjectNode result = GrouperUtil.jsonJacksonNode();
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
       result.put("description", this.description);
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners")) {
-      if (StringUtils.isNotBlank(this.owners)) {
-        String[] ownersArray = GrouperUtil.splitTrim(this.owners, ",");
-        if (ownersArray != null && ownersArray.length > 0) {
-          GrouperUtil.jsonJacksonAssignStringArray(result, "owners@odata.bind", Arrays.asList(ownersArray));
+    if ((fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners")) && groupOwnersManage && setGroupOwners) {
+      if (GrouperUtil.length(this.owners) > 0) {
+        List<String> ownersToInsert = new ArrayList<String>();
+        for (String owner: this.owners) {
+          ownersToInsert.add(owner);
+          if (ownersToInsert.size() >= 20) {
+            break;
+          }
         }
+        GrouperUtil.jsonJacksonAssignStringArray(result, "owners@odata.bind", ownersToInsert);
       }
     }
     
@@ -650,7 +670,15 @@ public class GrouperAzureGroup {
   public String getAssignableToRoleDb() {
     return isAssignableToRole ? "T" : "F";
   }
+
   
+  public boolean isGroupOwnersManage() {
+    return groupOwnersManage;
+  }
+
   
-  
+  public void setGroupOwnersManage(boolean groupOwnersManage) {
+    this.groupOwnersManage = groupOwnersManage;
+  }
+    
 }

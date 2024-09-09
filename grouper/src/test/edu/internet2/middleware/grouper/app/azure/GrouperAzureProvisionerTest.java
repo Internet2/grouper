@@ -1584,7 +1584,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsWelcomeEmailDisabledDb());
       assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
       
-      Set<String> ownersSet = GrouperUtil.splitTrimToSet(grouperAzureGroup.getOwners(), ",");
+      Set<String> ownersSet = grouperAzureGroup.getOwners();
       
       assertTrue(ownersSet.contains("https://example.com/1"));
       assertTrue(ownersSet.contains("https://example.com/2"));
@@ -1650,7 +1650,7 @@ public class GrouperAzureProvisionerTest extends GrouperProvisioningBaseTest {
       assertEquals("T", grouperAzureGroup.getResourceBehaviorOptionsWelcomeEmailDisabledDb());
       assertEquals("T", grouperAzureGroup.getResourceProvisioningOptionsTeamDb());
       
-      Set<String> ownersSet = GrouperUtil.splitTrimToSet(grouperAzureGroup.getOwners(), ",");
+      Set<String> ownersSet = grouperAzureGroup.getOwners();
       
       assertTrue(ownersSet.contains("https://a"));
       assertTrue(ownersSet.contains("https://b"));

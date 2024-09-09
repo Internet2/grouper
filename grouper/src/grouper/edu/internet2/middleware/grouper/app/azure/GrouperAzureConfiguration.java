@@ -18,6 +18,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   private boolean welcomeEmailDisabled;
   private boolean azureGroupType;
   private boolean groupOwners;
+  private boolean groupOwnersManage;
   
   private boolean resourceProvisioningOptionsTeam;
 
@@ -26,7 +27,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     super.configureAfterMetadata();
     
     for (String attributeName : new String[] {"assignableToRole", "azureGroupType", 
-        "groupOwners", "allowOnlyMembersToPost", "hideGroupInOutlook",
+        "groupOwners", "groupOwnersManage", "allowOnlyMembersToPost", "hideGroupInOutlook",
         "subscribeNewGroupMembers", "welcomeEmailDisabled", "resourceProvisioningOptionsTeam"}) {
       
       // if metadata exists
@@ -66,6 +67,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     this.assignableToRole = GrouperUtil.booleanValue(this.retrieveConfigString("assignableToRole", false), false);
     this.azureGroupType = GrouperUtil.booleanValue(this.retrieveConfigString("azureGroupType", false), false);
     this.groupOwners = GrouperUtil.booleanValue(this.retrieveConfigString("groupOwners", false), false);
+    this.groupOwnersManage = GrouperUtil.booleanValue(this.retrieveConfigString("groupOwnersManage", false), false);
     this.allowOnlyMembersToPost = GrouperUtil.booleanValue(this.retrieveConfigString("allowOnlyMembersToPost", false), false);
     this.hideGroupInOutlook = GrouperUtil.booleanValue(this.retrieveConfigString("hideGroupInOutlook", false), false);
     this.subscribeNewGroupMembers = GrouperUtil.booleanValue(this.retrieveConfigString("subscribeNewGroupMembers", false), false);
@@ -154,6 +156,15 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   
   public void setResourceProvisioningOptionsTeams(boolean resourceProvisioningOptionsTeam) {
     this.resourceProvisioningOptionsTeam = resourceProvisioningOptionsTeam;
+  }
+  
+  
+  public boolean isGroupOwnersManage() {
+    return groupOwnersManage;
+  }
+
+  public void setGroupOwnersManage(boolean groupOwnersManage) {
+    this.groupOwnersManage = groupOwnersManage;
   }
 
   @Override
