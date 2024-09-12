@@ -18,6 +18,8 @@ package edu.internet2.middleware.grouper.ldap.ldaptive;
 import java.io.BufferedReader;
 import java.io.StringReader;
 import java.net.InetAddress;
+import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.List;
 import java.util.Map;
@@ -25,7 +27,15 @@ import java.util.Properties;
 import com.unboundid.ldap.listener.InMemoryDirectoryServer;
 import com.unboundid.ldap.listener.InMemoryDirectoryServerConfig;
 import com.unboundid.ldap.listener.InMemoryListenerConfig;
+import com.unboundid.ldap.listener.interceptor.InMemoryInterceptedSearchEntry;
+import com.unboundid.ldap.listener.interceptor.InMemoryInterceptedSearchRequest;
+import com.unboundid.ldap.listener.interceptor.InMemoryOperationInterceptor;
+import com.unboundid.ldap.sdk.Attribute;
+import com.unboundid.ldap.sdk.LDAPException;
 import com.unboundid.ldap.sdk.OperationType;
+import com.unboundid.ldap.sdk.ReadOnlySearchRequest;
+import com.unboundid.ldap.sdk.SearchRequest;
+import com.unboundid.ldap.sdk.SearchResultEntry;
 import com.unboundid.ldif.LDIFReader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
@@ -108,6 +118,35 @@ public class LdaptiveSessionImplTest {
     ldap.testPagingReferralLDAP.pagedResultsSize = 1
     ldap.testPagingReferralLDAP.referral = follow
     ldap.testPagingReferralLDAP.searchResultHandlers = edu.vt.middleware.ldap.handler.EntryDnSearchResultHandler
+    ldap.testRangeEntryLDAP.url = ldap://localhost:%PORT%
+    ldap.testRangeEntryLDAP.tls = false
+    ldap.testRangeEntryLDAP.bindDn = cn=manager,dc=internet2,dc=edu
+    ldap.testRangeEntryLDAP.bindCredential = p@ssw0rd0
+    ldap.testRangeEntryLDAP.sizeLimit = 10
+    ldap.testRangeEntryLDAP.timeLimit = PT5S
+    ldap.testRangeEntryLDAP.connectTimeout = PT3S
+    ldap.testRangeEntryLDAP.responseTimeout = PT30M
+    ldap.testRangeEntryLDAP.minPoolSize = 2
+    ldap.testRangeEntryLDAP.maxPoolSize = 5
+    ldap.testRangeEntryLDAP.blockWaitTime = PT1S
+    ldap.testRangeEntryLDAP.blockWaitTime = PT1S
+    ldap.testRangeEntryLDAP.pruneTimerPeriod = 420000
+    ldap.testRangeEntryLDAP.searchResultHandlers = edu.internet2.middleware.grouper.ldap.ldaptive.GrouperRangeEntryHandler
+    ldap.testPagingRangeEntryLDAP.url = ldap://localhost:%PORT%
+    ldap.testPagingRangeEntryLDAP.tls = false
+    ldap.testPagingRangeEntryLDAP.bindDn = cn=manager,dc=internet2,dc=edu
+    ldap.testPagingRangeEntryLDAP.bindCredential = p@ssw0rd0
+    ldap.testPagingRangeEntryLDAP.sizeLimit = 10
+    ldap.testPagingRangeEntryLDAP.timeLimit = PT5S
+    ldap.testPagingRangeEntryLDAP.connectTimeout = PT3S
+    ldap.testPagingRangeEntryLDAP.responseTimeout = PT3S
+    ldap.testPagingRangeEntryLDAP.minPoolSize = 2
+    ldap.testPagingRangeEntryLDAP.maxPoolSize = 5
+    ldap.testPagingRangeEntryLDAP.blockWaitTime = PT1S
+    ldap.testPagingRangeEntryLDAP.blockWaitTime = PT1S
+    ldap.testPagingRangeEntryLDAP.pruneTimerPeriod = 420000
+    ldap.testPagingRangeEntryLDAP.pagedResultsSize = 1
+    ldap.testPagingRangeEntryLDAP.searchResultHandlers = edu.vt.middleware.ldap.handler.EntryDnSearchResultHandler, edu.internet2.middleware.grouper.ldap.ldaptive.GrouperRangeEntryHandler
     """;
 
   private static final String TEST_LDAP_LDIF = """
@@ -122,6 +161,11 @@ public class LdaptiveSessionImplTest {
     description: All people in organization
     objectclass: organizationalunit
     
+    dn: ou=groups,dc=internet2,dc=edu
+    ou: groups
+    description: All groups in organization
+    objectclass: organizationalunit
+
     dn: uid=bbacharach,ou=people,dc=internet2,dc=edu
     objectclass: inetOrgPerson
     cn: Burt Bacharach
@@ -169,6 +213,37 @@ public class LdaptiveSessionImplTest {
     mail: gpitney@internet2.edu
     mail: gene.pitney@internet2.edu
     telephoneNumber: 8169894345
+
+    dn: uid=group1,ou=groups,dc=internet2,dc=edu
+    objectclass: posixGroup
+    description: Group 1
+    gidNumber: 9001
+    memberUid: bbacharach
+    memberUid: dwarwick
+
+    dn: uid=group2,ou=groups,dc=internet2,dc=edu
+    objectclass: posixGroup
+    description: Group 2
+    gidNumber: 9002
+    memberUid: bmanilow
+    memberUid: gpitney
+
+    dn: uid=group3,ou=groups,dc=internet2,dc=edu
+    objectclass: posixGroup
+    description: Group 3
+    gidNumber: 9003
+    memberUid: Alexander
+    memberUid: Adrian
+    memberUid: Aiden
+    memberUid: Amir
+    memberUid: Andrew
+    memberUid: Bailey
+    memberUid: Brooke
+    memberUid: Blake
+    memberUid: Bella
+    memberUid: Brooklyn
+    memberUid: Caleb
+    memberUid: Cameron
     """;
 
   /** Properties configuration id used for testing. */
@@ -183,6 +258,12 @@ public class LdaptiveSessionImplTest {
   /** Properties configuration id used for testing. */
   private static final String SERVER_ID_PAGING_REFERRAL = "testPagingReferralLDAP";
 
+  /** Properties configuration id used for testing. */
+  private static final String SERVER_ID_RANGE_ENTRY = "testRangeEntryLDAP";
+
+  /** Properties configuration id used for testing. */
+  private static final String SERVER_ID_PAGING_RANGE_ENTRY = "testPagingRangeEntryLDAP";
+
   /** LDAP server to test against. */
   private static InMemoryDirectoryServer server;
 
@@ -194,6 +275,9 @@ public class LdaptiveSessionImplTest {
 
   /** Mock to prevent database initialization. */
   private static MockedStatic<ConfigDatabaseLogic> databaseLoader;
+
+  /** Interceptor for testing range entry handler. */
+  private static RangeResultsInMemoryOperationIntercetor opInterceptor = new RangeResultsInMemoryOperationIntercetor();
 
   @BeforeClass
   public static void setup() throws Exception {
@@ -209,6 +293,7 @@ public class LdaptiveSessionImplTest {
       null,
       null);
     config.setListenerConfigs(listenerConfig);
+    config.addInMemoryOperationInterceptor(opInterceptor);
     server = new InMemoryDirectoryServer(config);
     server.importFromLDIF(
       true,
@@ -319,6 +404,47 @@ public class LdaptiveSessionImplTest {
       10);
     Assert.assertNotNull(entries);
     Assert.assertEquals(4, entries.size());
+    Assert.assertNotNull(entries.get(0).getAttribute("entryDn").getStringValues().iterator().next());
+  }
+
+  @Test
+  public void listRangeEntry() {
+    opInterceptor.reset();
+    List<LdapEntry> entries = session.list(
+      SERVER_ID_RANGE_ENTRY,
+      "ou=groups,dc=internet2,dc=edu",
+      LdapSearchScope.SUBTREE_SCOPE,
+      "(uid=group3)",
+      new String[] {"memberUid"},
+      10);
+    Assert.assertNotNull(entries);
+    Assert.assertEquals(1, entries.size());
+    Assert.assertEquals(1, entries.get(0).getAttributes().size());
+    final LdapAttribute memberUid = entries.get(0).getAttribute("memberUid");
+    Assert.assertEquals(12, memberUid.getStringValues().size());
+    Assert.assertEquals(
+      new String[] {"Alexander", "Adrian", "Aiden", "Amir", "Andrew", "Bailey", "Brooke", "Blake", "Bella", "Brooklyn", "Caleb", "Cameron"},
+      memberUid.getStringValues().toArray(String[]::new));
+  }
+
+  @Test
+  public void listPagingRangeEntry() {
+    opInterceptor.reset();
+    List<LdapEntry> entries = session.list(
+      SERVER_ID_PAGING_RANGE_ENTRY,
+      "ou=groups,dc=internet2,dc=edu",
+      LdapSearchScope.SUBTREE_SCOPE,
+      "(uid=group3)",
+      new String[] {"memberUid", "entryDn"},
+      10);
+    Assert.assertNotNull(entries);
+    Assert.assertEquals(1, entries.size());
+    Assert.assertEquals(2, entries.get(0).getAttributes().size());
+    final LdapAttribute memberUid = entries.get(0).getAttribute("memberUid");
+    Assert.assertEquals(12, memberUid.getStringValues().size());
+    Assert.assertEquals(
+      new String[] {"Alexander", "Adrian", "Aiden", "Amir", "Andrew", "Bailey", "Brooke", "Blake", "Bella", "Brooklyn", "Caleb", "Cameron"},
+      memberUid.getStringValues().toArray(String[]::new));
     Assert.assertNotNull(entries.get(0).getAttribute("entryDn").getStringValues().iterator().next());
   }
 
@@ -506,5 +632,73 @@ public class LdaptiveSessionImplTest {
   @Test
   public void testConnection() {
     session.testConnection(SERVER_ID);
+  }
+
+  /** Interceptor for testing range results. */
+  private static class RangeResultsInMemoryOperationIntercetor extends InMemoryOperationInterceptor {
+
+    /** The last range value received. */
+    private String attrRange;
+
+    /** Make this interceptor ready for a new test. */
+    public void reset() {
+      attrRange = null;
+    }
+
+    @Override
+    public void processSearchRequest(final InMemoryInterceptedSearchRequest request) throws LDAPException {
+      final ReadOnlySearchRequest orig = request.getRequest();
+      if (orig.getAttributeList().stream().anyMatch(a -> a.contains(";Range="))) {
+        final SearchRequest newRequest = new SearchRequest(
+          orig.getBaseDN(),
+          orig.getScope(),
+          orig.getFilter(),
+          orig.getAttributeList().stream().map(a -> {
+            if (a.contains(";Range=")) {
+              final String[] option = a.split(";Range=");
+              attrRange = option[1];
+              return option[0];
+            }
+            return a;
+          }).toArray(String[]::new));
+        request.setRequest(newRequest);
+      }
+    }
+
+    @Override
+    public void processSearchEntry(final InMemoryInterceptedSearchEntry entry) {
+      final SearchResultEntry orig = entry.getSearchEntry();
+      if (orig.getDN().equals("uid=group3,ou=groups,dc=internet2,dc=edu")) {
+        final List<Attribute> attrs = new ArrayList<>();
+        for (Attribute a : orig.getAttributes()) {
+          if (a.getName().equals("memberUid")) {
+            if (attrRange == null) {
+              attrs.add(
+                new Attribute(
+                  "memberUid;Range=0-4",
+                  Arrays.stream(a.getValues()).filter(s -> s.startsWith("A")).toArray(String[]::new)));
+            } else if (attrRange.endsWith("5-9")) {
+              attrs.add(
+                new Attribute(
+                  "memberUid;Range=5-9",
+                  Arrays.stream(a.getValues()).filter(s -> s.startsWith("B")).toArray(String[]::new)));
+            } else if (attrRange.endsWith("10-14")) {
+              attrs.add(
+                new Attribute(
+                  "memberUid;Range=10-*",
+                  Arrays.stream(a.getValues()).filter(s -> s.startsWith("C")).toArray(String[]::new)));
+            }
+          } else {
+            attrs.add(a);
+          }
+        }
+        final SearchResultEntry newEntry = new SearchResultEntry(
+          orig.getMessageID(),
+          "uid=group3,ou=groups,dc=internet2,dc=edu",
+          attrs,
+          orig.getControls());
+        entry.setSearchEntry(newEntry);
+      }
+    }
   }
 }

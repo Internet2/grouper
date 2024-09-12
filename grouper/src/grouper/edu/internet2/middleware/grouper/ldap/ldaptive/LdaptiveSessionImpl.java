@@ -206,23 +206,28 @@ public class LdaptiveSessionImpl implements LdapSession {
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
 
         List<R> result = new ArrayList<>();
-        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, entry -> {
-          LdapAttribute attribute = entry.getAttribute(attributeName);
-          if (attribute == null && StringUtils.equals("dn", attributeName)) {
-            String nameInNamespace = entry.getDn();
-            R attributeValue = GrouperUtil.typeCast(nameInNamespace, returnType);
-            result.add(attributeValue);
-          } else {
-            if (attribute != null) {
-              for (Object attributeValue : attribute.getStringValues()) {
-                attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
-                if (attributeValue != null) {
-                  result.add((R)attributeValue);
+        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, response -> {
+          final Iterator<LdapEntry> i = response.getEntries().iterator();
+          while (i.hasNext()) {
+            final LdapEntry entry = i.next();
+            LdapAttribute attribute = entry.getAttribute(attributeName);
+            if (attribute == null && StringUtils.equals("dn", attributeName)) {
+              String nameInNamespace = entry.getDn();
+              R attributeValue = GrouperUtil.typeCast(nameInNamespace, returnType);
+              result.add(attributeValue);
+            } else {
+              if (attribute != null) {
+                for (Object attributeValue : attribute.getStringValues()) {
+                  attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
+                  if (attributeValue != null) {
+                    result.add((R)attributeValue);
+                  }
                 }
               }
             }
+            i.remove();
           }
-          return null;
+          return response;
         });
 
         if (LOG.isDebugEnabled()) {
@@ -256,23 +261,28 @@ public class LdaptiveSessionImpl implements LdapSession {
 
         Map<String, List<R>> result = new HashMap<>();
         AtomicInteger subObjectCount = new AtomicInteger();
-        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, entry -> {
-          List<R> valueResults = new ArrayList<>();
-          String nameInNamespace = entry.getDn();
+        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, response -> {
+          final Iterator<LdapEntry> i = response.getEntries().iterator();
+          while (i.hasNext()) {
+            final LdapEntry entry = i.next();
+            List<R> valueResults = new ArrayList<>();
+            String nameInNamespace = entry.getDn();
 
-          result.put(nameInNamespace, valueResults);
+            result.put(nameInNamespace, valueResults);
 
-          LdapAttribute attribute = entry.getAttribute(attributeName);
-          if (attribute != null) {
-            for (Object attributeValue : attribute.getStringValues()) {
-              attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
-              if (attributeValue != null) {
-                subObjectCount.incrementAndGet();
-                valueResults.add((R)attributeValue);
+            LdapAttribute attribute = entry.getAttribute(attributeName);
+            if (attribute != null) {
+              for (Object attributeValue : attribute.getStringValues()) {
+                attributeValue = GrouperUtil.typeCast(attributeValue, returnType);
+                if (attributeValue != null) {
+                  subObjectCount.incrementAndGet();
+                  valueResults.add((R)attributeValue);
+                }
               }
             }
+            i.remove();
           }
-          return null;
+          return response;
         });
 
         if (LOG.isDebugEnabled()) {
@@ -304,9 +314,14 @@ public class LdaptiveSessionImpl implements LdapSession {
 
         List<edu.internet2.middleware.grouper.ldap.LdapEntry> entries = new ArrayList<>();
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
-        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, attributeNames, sizeLimit, e -> {
-          entries.add(getLdapEntryFromSearchResult(e, attributeNames));
-          return null;
+        processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, attributeNames, sizeLimit, r -> {
+          final Iterator<LdapEntry> i = r.getEntries().iterator();
+          while (i.hasNext()) {
+            final LdapEntry e = i.next();
+            entries.add(getLdapEntryFromSearchResult(e, attributeNames));
+            i.remove();
+          }
+          return r;
         });
         return entries;
       });
@@ -345,16 +360,26 @@ public class LdaptiveSessionImpl implements LdapSession {
             }
 
             String filter = "(|" + builder + ")";
-            processSearchRequest(ldapServerId, ldap, searchDn, LdapSearchScope.SUBTREE_SCOPE, filter, attributeNames, null, e -> {
-              results.add(getLdapEntryFromSearchResult(e, attributeNames));
-              return null;
+            processSearchRequest(ldapServerId, ldap, searchDn, LdapSearchScope.SUBTREE_SCOPE, filter, attributeNames, null, r -> {
+              final Iterator<LdapEntry> iter = r.getEntries().iterator();
+              while (iter.hasNext()) {
+                final LdapEntry e = iter.next();
+                results.add(getLdapEntryFromSearchResult(e, attributeNames));
+                iter.remove();
+              }
+              return r;
             });
           }
         } else {
           for (String dn : dnList) {
-            processSearchRequest(ldapServerId, ldap, dn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", attributeNames, null, e -> {
-              results.add(getLdapEntryFromSearchResult(e, attributeNames));
-              return null;
+            processSearchRequest(ldapServerId, ldap, dn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", attributeNames, null, r -> {
+              final Iterator<LdapEntry> i = r.getEntries().iterator();
+              while (i.hasNext()) {
+                final LdapEntry e = i.next();
+                results.add(getLdapEntryFromSearchResult(e, attributeNames));
+                i.remove();
+              }
+              return r;
             });
           }
         }
@@ -426,7 +451,7 @@ public class LdaptiveSessionImpl implements LdapSession {
   }
   
   private SearchResponse processSearchRequest(
-    String ldapServerId, ConnectionFactory ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Integer sizeLimit, LdapEntryHandler entryHandler) throws LdapException {
+    String ldapServerId, ConnectionFactory ldap, String searchDn, LdapSearchScope ldapSearchScope, String filter, String[] attributeNames, Integer sizeLimit, SearchResultHandler resultHandler) throws LdapException {
 
     SearchRequest searchRequest = new SearchRequest();
 
@@ -488,9 +513,6 @@ public class LdaptiveSessionImpl implements LdapSession {
       Optional.ofNullable(LdaptiveConfiguration.getConfig(ldapServerId).getLdapEntryHandlers())
         .orElse(new LdapEntryHandler[0]))
       .collect(Collectors.toList());
-    if (entryHandler != null) {
-      entryHandlers.add(entryHandler);
-    }
     List<SearchResultHandler> resultHandlers = new ArrayList<>();
     if (LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers() != null) {
       resultHandlers.addAll(Arrays.asList(LdaptiveConfiguration.getConfig(ldapServerId).getSearchResultHandlers()));
@@ -503,6 +525,12 @@ public class LdaptiveSessionImpl implements LdapSession {
       resultHandlers.add(0, new FollowSearchReferralHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
       resultHandlers.add(1, new FollowSearchResultReferenceHandler(new DefaultReferralConnectionFactory(ldap.getConnectionConfig()), true));
     }
+
+    if (resultHandler != null) {
+      // note that resultHandler must be the last result handler in the list
+      resultHandlers.add(resultHandler);
+    }
+
     if (pageSize == null) {
       SearchOperation search = new SearchOperation(ldap);
       search.setThrowCondition(new IgnoreResultCodePredicate(ignoreResultCodes));
@@ -957,7 +985,7 @@ public class LdaptiveSessionImpl implements LdapSession {
   public static void internal_closeAllPools() {
     
     if (poolMap != null) {
-      for (String id : new HashSet<String>(poolMap.keySet())) {
+      for (String id : new HashSet<>(poolMap.keySet())) {
         PooledConnectionFactory pool = poolMap.get(id);
         
         try {
