@@ -1922,7 +1922,7 @@ public class GrouperUtil {
     String rdnAttribute = StringUtils.substringBefore(rdnString, "=");
     String rdnValue     = StringUtils.substringAfter(rdnString, "=");
 
-    if ( StringUtils.isEmpty(rdnValue) || StringUtils.isEmpty(rdnValue) ) {
+    if ( StringUtils.isEmpty(rdnAttribute) || StringUtils.isEmpty(rdnValue) ) {
       throw new RuntimeException("Unable to parse and escape rdn: '" + rdnString + "'");
     }
 
