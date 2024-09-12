@@ -207,6 +207,7 @@ public class LdaptiveSessionImpl implements LdapSession {
 
         List<R> result = new ArrayList<>();
         processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, response -> {
+          debugLogSearchResponse(ldapServerId, response);
           final Iterator<LdapEntry> i = response.getEntries().iterator();
           while (i.hasNext()) {
             final LdapEntry entry = i.next();
@@ -262,6 +263,7 @@ public class LdaptiveSessionImpl implements LdapSession {
         Map<String, List<R>> result = new HashMap<>();
         AtomicInteger subObjectCount = new AtomicInteger();
         processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, new String[]{attributeName}, null, response -> {
+          debugLogSearchResponse(ldapServerId, response);
           final Iterator<LdapEntry> i = response.getEntries().iterator();
           while (i.hasNext()) {
             final LdapEntry entry = i.next();
@@ -315,6 +317,7 @@ public class LdaptiveSessionImpl implements LdapSession {
         List<edu.internet2.middleware.grouper.ldap.LdapEntry> entries = new ArrayList<>();
         ConnectionFactory ldap = ldapHandlerBean.getLdap();
         processSearchRequest(ldapServerId, ldap, searchDn, ldapSearchScope, filter, attributeNames, sizeLimit, r -> {
+          debugLogSearchResponse(ldapServerId, r);
           final Iterator<LdapEntry> i = r.getEntries().iterator();
           while (i.hasNext()) {
             final LdapEntry e = i.next();
@@ -361,6 +364,7 @@ public class LdaptiveSessionImpl implements LdapSession {
 
             String filter = "(|" + builder + ")";
             processSearchRequest(ldapServerId, ldap, searchDn, LdapSearchScope.SUBTREE_SCOPE, filter, attributeNames, null, r -> {
+              debugLogSearchResponse(ldapServerId, r);
               final Iterator<LdapEntry> iter = r.getEntries().iterator();
               while (iter.hasNext()) {
                 final LdapEntry e = iter.next();
@@ -373,6 +377,7 @@ public class LdaptiveSessionImpl implements LdapSession {
         } else {
           for (String dn : dnList) {
             processSearchRequest(ldapServerId, ldap, dn, LdapSearchScope.OBJECT_SCOPE, "(objectclass=*)", attributeNames, null, r -> {
+              debugLogSearchResponse(ldapServerId, r);
               final Iterator<LdapEntry> i = r.getEntries().iterator();
               while (i.hasNext()) {
                 final LdapEntry e = i.next();
@@ -552,12 +557,18 @@ public class LdaptiveSessionImpl implements LdapSession {
       }
       response = client.executeToCompletion(searchRequest);
     }
-    if (this.debug) {
-      this.debugLog.append("Ldaptive searchResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+    if (resultHandler == null) {
+      debugLogSearchResponse(ldapServerId, response);
     }
     return response;
   }
-  
+
+  private void debugLogSearchResponse(final String ldapServerId, final SearchResponse response) {
+    if (this.debug) {
+      this.debugLog.append("Ldaptive searchResponse (").append(ldapServerId).append("): ").append(StringUtils.abbreviate(response.toString(), 2000)).append("\n");
+    }
+  }
+
   private synchronized Integer getDefaultActiveDirectoryPageSize(String ldapServerId, ConnectionFactory ldap) {
     int pageSize = 1000;
     
