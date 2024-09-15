@@ -35,7 +35,7 @@
                               </c:choose>
                             </label>
                           </td>
-                          <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiGroup.parentGuiStem.shortLinkWithIcon} <br/>
+                          <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiGroup.parentGuiStem.linkWithIcon} <br/>
                           <td class="expand foo-clicker">${guiMembershipSubjectContainer.guiGroup.shortLinkWithIcon} <br/>
                           </td>
                           <td data-hide="phone">
