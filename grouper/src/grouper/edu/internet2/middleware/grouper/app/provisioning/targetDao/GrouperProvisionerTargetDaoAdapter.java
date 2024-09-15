@@ -2017,13 +2017,13 @@ public class GrouperProvisionerTargetDaoAdapter extends GrouperProvisionerTarget
     }
     
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(targetDaoRetrieveMembershipsRequest.getTargetMemberships())) {
-      if (provisioningMembership.getProvisioningMembershipWrapper() != null) {        
+      if (provisioningMembership != null && provisioningMembership.getProvisioningMembershipWrapper() != null) {        
         provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setSelectResultProcessed(true);
       }
     }
     
     for (ProvisioningMembership provisioningMembership : targetDaoRetrieveMembershipsResponse.getTargetMemberships()) {
-      if (provisioningMembership.getProvisioningMembershipWrapper() != null) {        
+      if (provisioningMembership != null && provisioningMembership.getProvisioningMembershipWrapper() != null) {        
         provisioningMembership.getProvisioningMembershipWrapper().getProvisioningStateMembership().setSelectResultProcessed(true);
       }
     }

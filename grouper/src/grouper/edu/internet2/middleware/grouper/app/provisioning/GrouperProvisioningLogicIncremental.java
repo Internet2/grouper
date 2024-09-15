@@ -2231,7 +2231,9 @@ public class GrouperProvisioningLogicIncremental {
               if (provisioningMembershipWrapper.getProvisioningStateMembership().isSelect()) {
                 ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
                 provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
-                provisioningMembershipsRecalcForMembershipSync.add(grouperTargetMembership);
+                if (grouperTargetMembership != null) {
+                  provisioningMembershipsRecalcForMembershipSync.add(grouperTargetMembership);
+                }
               }
             }
   
@@ -2350,7 +2352,9 @@ public class GrouperProvisioningLogicIncremental {
       for (ProvisioningGroupWrapper provisioningGroupWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers()) {
         if (provisioningGroupWrapper.getProvisioningStateGroup().isSelect() && 
             provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed() == false) {
-          grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
+          if (provisioningGroupWrapper.getGrouperTargetGroup() != null) {
+            grouperTargetGroupsRecalcForGroupOnly.add(provisioningGroupWrapper.getGrouperTargetGroup());
+          }
           provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
           continue;
         }
@@ -2367,7 +2371,9 @@ public class GrouperProvisioningLogicIncremental {
       for (ProvisioningEntityWrapper provisioningEntityWrapper : this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers()) {
           if (provisioningEntityWrapper.getProvisioningStateEntity().isSelect() && 
               provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed() == false) {
-            grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
+            if (provisioningEntityWrapper.getGrouperTargetEntity() != null) {
+              grouperTargetEntitiesRecalcForEntityOnly.add(provisioningEntityWrapper.getGrouperTargetEntity());
+            }
             provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
             continue;
           }
