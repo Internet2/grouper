@@ -18,14 +18,13 @@ package edu.internet2.middleware.grouper.grouperUi.beans.api;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
-import java.util.LinkedHashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Stem;
@@ -33,11 +32,12 @@ import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesAttri
 import edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
-import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.objectTypes.GuiGrouperObjectTypesAttributeValue;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
 import edu.internet2.middleware.grouper.misc.GrouperObjectSubjectWrapper;
+import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.subject.Subject;
@@ -61,20 +61,28 @@ public abstract class GuiObjectBase {
    * @param grouperObjects
    * @return the gui object bases
    */
-  public static Set<GuiObjectBase> convertFromGrouperObjects(Set<GrouperObject> grouperObjects) {
-    Set<GuiObjectBase> tempObjectBases = new LinkedHashSet<GuiObjectBase>();
+  public static Map<GuiObjectBase, String> convertFromGrouperObjects(Set<GrouperObject> grouperObjects) {
+    Map<GuiObjectBase, String> tempObjectBases = new LinkedHashMap<GuiObjectBase, String>();
     
     for (GrouperObject grouperObject : GrouperUtil.nonNull(grouperObjects)) {
       if (grouperObject instanceof Group) {
-        tempObjectBases.add(new GuiGroup((Group)grouperObject));
+        Stem parentStem = ((Group)grouperObject).getParentStem();
+        String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
+        tempObjectBases.put(new GuiGroup((Group)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof Stem) {
-        tempObjectBases.add(new GuiStem((Stem)grouperObject));
+        Stem parentStem = ((Stem)grouperObject).getParentStem();
+        String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
+        tempObjectBases.put(new GuiStem((Stem)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof AttributeDef) {
-        tempObjectBases.add(new GuiAttributeDef((AttributeDef)grouperObject));
+        Stem parentStem = ((AttributeDef)grouperObject).getParentStem();
+        String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
+        tempObjectBases.put(new GuiAttributeDef((AttributeDef)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof AttributeDefName) {
-        tempObjectBases.add(new GuiAttributeDefName((AttributeDefName)grouperObject));
+        Stem parentStem = ((AttributeDefName)grouperObject).getParentStem();
+        String linkWithIcon = new GuiStem(parentStem).getLinkWithIcon();
+        tempObjectBases.put(new GuiAttributeDefName((AttributeDefName)grouperObject), linkWithIcon);
       } else if (grouperObject instanceof GrouperObjectSubjectWrapper) {
-        tempObjectBases.add(new GuiSubject(((GrouperObjectSubjectWrapper)grouperObject).getSubject()));
+        tempObjectBases.put(new GuiSubject(((GrouperObjectSubjectWrapper)grouperObject).getSubject()), null);
       } else {
         throw new RuntimeException("Not expecting object of type: " 
             + grouperObject.getClass().getSimpleName() + ", " + grouperObject.getName());
@@ -142,7 +150,7 @@ public abstract class GuiObjectBase {
     if (StringUtils.isBlank(parentStemName) || StringUtils.equals(":", parentStemName)) {
       return TextContainer.retrieveFromRequest().getText().get("stem.root.display-name");
     }
-
+    
     return parentStemName.replace(":", " : ");
     
   }

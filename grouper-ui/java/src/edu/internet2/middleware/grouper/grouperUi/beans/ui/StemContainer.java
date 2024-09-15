@@ -440,13 +440,13 @@ public class StemContainer {
   /**
    * groups, stems, etc in this stem which are children, only in the current page
    */
-  private Set<GuiObjectBase> childGuiObjectsAbbreviated;
+  private Map<GuiObjectBase, String> childGuiObjectsAbbreviated;
 
   /**
    * groups, stems, etc in this stem which are children, only in the current page
    * @return gui groups, stems, etc
    */
-  public Set<GuiObjectBase> getChildGuiObjectsAbbreviated() {
+  public Map<GuiObjectBase, String> getChildGuiObjectsAbbreviated() {
     return this.childGuiObjectsAbbreviated;
   }
 
@@ -454,7 +454,7 @@ public class StemContainer {
    * groups, stems, etc in this stem which are children, only in the current page
    * @param childGuiObjectsAbbreviated1
    */
-  public void setChildGuiObjectsAbbreviated(Set<GuiObjectBase> childGuiObjectsAbbreviated1) {
+  public void setChildGuiObjectsAbbreviated(Map<GuiObjectBase, String> childGuiObjectsAbbreviated1) {
     this.childGuiObjectsAbbreviated = childGuiObjectsAbbreviated1;
   }
 

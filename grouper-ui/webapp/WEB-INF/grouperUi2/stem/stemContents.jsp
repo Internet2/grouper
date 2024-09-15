@@ -20,7 +20,7 @@
                     --%>
                     <c:forEach items="${grouperRequestContainer.stemContainer.childGuiObjectsAbbreviated}" var="guiObjectBase">
                       <tr>
-                        <td>${guiObjectBase.shortLinkWithIcon }</td>
+                        <td>${guiObjectBase.key.shortLinkWithIcon }</td>
                       </tr>
                     </c:forEach>
                     

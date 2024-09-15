@@ -9,7 +9,6 @@ import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -95,13 +94,13 @@ public class IndexContainer {
   /**
    * search results
    */
-  private Set<GuiObjectBase> searchGuiObjectsResults = null;
+  private Map<GuiObjectBase, String> searchGuiObjectsResults = null;
   
   /**
    * search results
    * @return the search results
    */
-  public Set<GuiObjectBase> getSearchGuiObjectsResults() {
+  public Map<GuiObjectBase, String> getSearchGuiObjectsResults() {
     return this.searchGuiObjectsResults;
   }
   
@@ -109,7 +108,7 @@ public class IndexContainer {
    * search results
    * @param searchGuiObjectsResults1
    */
-  public void setSearchGuiObjectsResults(Set<GuiObjectBase> searchGuiObjectsResults1) {
+  public void setSearchGuiObjectsResults(Map<GuiObjectBase, String> searchGuiObjectsResults1) {
     this.searchGuiObjectsResults = searchGuiObjectsResults1;
   }
 
@@ -703,13 +702,13 @@ public class IndexContainer {
   /**
    * gui object favorite results from my favorites
    */
-  private Set<GuiObjectBase> guiObjectFavorites = null;
+  private Map<GuiObjectBase, String> guiObjectFavorites = null;
   
   /**
    * gui object favorite results from my favorites
    * @return favorites
    */
-  public Set<GuiObjectBase> getGuiObjectFavorites() {
+  public Map<GuiObjectBase, String> getGuiObjectFavorites() {
     return this.guiObjectFavorites;
   }
 
@@ -717,7 +716,7 @@ public class IndexContainer {
    * gui object favorite results from my favorites
    * @param guiObjectFavorites1
    */
-  public void setGuiObjectFavorites(Set<GuiObjectBase> guiObjectFavorites1) {
+  public void setGuiObjectFavorites(Map<GuiObjectBase, String> guiObjectFavorites1) {
     this.guiObjectFavorites = guiObjectFavorites1;
   }
 
