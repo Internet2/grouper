@@ -113,6 +113,9 @@ public class GrouperProvisioningLogic {
     
     garbageCollectAndLogMemoryIfDebug(debugMap, "AfterRetrieveAllData");
     
+    debugMap.put("state", "clearInvalidErrors");
+    clearInvalidErrors();
+    
     debugMap.put("state", "retrieveSubjectLink");
     this.grouperProvisioner.retrieveGrouperProvisioningLinkLogic().retrieveSubjectLink();
     GrouperDaemonUtils.stopProcessingIfJobPaused();
@@ -259,6 +262,18 @@ public class GrouperProvisioningLogic {
           provisioningMembershipWrapper.getProvisioningEntityWrapper().getProvisioningStateEntity().setSelectAllMembershipsResultProcessed(true);
         }
         provisioningMembershipWrapper.getProvisioningStateMembership().setSelectResultProcessed(true);
+      }
+    }
+    
+    if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedGroups()) {
+      for (ProvisioningGroupWrapper provisioningGroupWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers())) {
+        provisioningGroupWrapper.getProvisioningStateGroup().setSelectResultProcessed(true);
+      }
+    }
+    
+    if (this.grouperProvisioner.getProvisioningStateGlobal().isSelectResultProcessedEntities()) {
+      for (ProvisioningEntityWrapper provisioningEntityWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers())) {
+        provisioningEntityWrapper.getProvisioningStateEntity().setSelectResultProcessed(true);
       }
     }
     
@@ -905,6 +920,76 @@ public class GrouperProvisioningLogic {
     return targetGroupsResponse.getTargetGroups();
     
   }
+  
+  public void clearInvalidErrors() {
+    
+    Set<ProvisioningMembershipWrapper> membershipWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers();
+    Set<ProvisioningGroupWrapper> groupWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningGroupWrappers();
+    Set<ProvisioningEntityWrapper> entityWrappers = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningEntityWrappers();
+    
+    int membershipsErrorsClearedCount = 0;
+    int groupsErrorsClearedCount = 0;
+    int entitiesErrorsClearedCount = 0;
+    
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper: membershipWrappers) {
+      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+      if (gcGrouperSyncMembership != null && !gcGrouperSyncMembership.isInTarget()) {
+        
+        ProvisioningGroupWrapper provisioningGroupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+        if (provisioningGroupWrapper != null) {
+          GcGrouperSyncGroup gcGrouperSyncGroup = provisioningMembershipWrapper.getProvisioningGroupWrapper().getGcGrouperSyncGroup();
+          if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isProvisionable()) {
+            gcGrouperSyncMembership.setErrorCode(null);
+            gcGrouperSyncMembership.setErrorCodeDb(null);
+            gcGrouperSyncMembership.setErrorMessage(null);
+            gcGrouperSyncMembership.setErrorTimestamp(null);
+            membershipsErrorsClearedCount++;
+            continue;
+          }
+        }
+        
+        ProvisioningEntityWrapper provisioningEntityWrapper = provisioningMembershipWrapper.getProvisioningEntityWrapper();
+        if (provisioningEntityWrapper != null) {
+          GcGrouperSyncMember gcGrouperSyncMember = provisioningMembershipWrapper.getProvisioningEntityWrapper().getGcGrouperSyncMember();
+          if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable()) {
+            gcGrouperSyncMembership.setErrorCode(null);
+            gcGrouperSyncMembership.setErrorCodeDb(null);
+            gcGrouperSyncMembership.setErrorMessage(null);
+            gcGrouperSyncMembership.setErrorTimestamp(null);
+            membershipsErrorsClearedCount++;
+          }
+        }
+      }
+    }
+    
+    for (ProvisioningGroupWrapper provisioningGroupWrapper : groupWrappers) {
+      
+      GcGrouperSyncGroup gcGrouperSyncGroup = provisioningGroupWrapper.getGcGrouperSyncGroup();
+      if (gcGrouperSyncGroup != null && !gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getErrorCode() != null) {
+        gcGrouperSyncGroup.setErrorCode(null);
+        gcGrouperSyncGroup.setErrorCodeDb(null);
+        gcGrouperSyncGroup.setErrorMessage(null);
+        gcGrouperSyncGroup.setErrorTimestamp(null);
+        groupsErrorsClearedCount++;
+      }
+    }
+    
+    for (ProvisioningEntityWrapper provisioningEntityWrapper : entityWrappers) {
+      GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
+      if (gcGrouperSyncMember != null && !gcGrouperSyncMember.isProvisionable() && gcGrouperSyncMember.getErrorCode() != null) {
+        gcGrouperSyncMember.setErrorCode(null);
+        gcGrouperSyncMember.setErrorCodeDb(null);
+        gcGrouperSyncMember.setErrorMessage(null);
+        gcGrouperSyncMember.setErrorTimestamp(null);
+        entitiesErrorsClearedCount++;
+      }
+    }
+    
+    this.getGrouperProvisioner().getDebugMap().put("membershipsErrorsClearedCount", membershipsErrorsClearedCount);
+    this.getGrouperProvisioner().getDebugMap().put("groupsErrorsClearedCount", groupsErrorsClearedCount);
+    this.getGrouperProvisioner().getDebugMap().put("entitiesErrorsClearedCount", entitiesErrorsClearedCount);
+    
+  }
 
   /**
    * 
@@ -971,6 +1056,10 @@ public class GrouperProvisioningLogic {
         debugMap.put("state", "recalcActionsDuringFullSync");
         grouperProvisioningLogicIncremental.recalcEventsDuringFullSync();
       }
+      
+      //STEP 5.5
+      debugMap.put("state", "clearInvalidErrors");
+      clearInvalidErrors();
       
       // ######### STEP 6: look for errors based on algorithm and retry those actions
       debugMap.put("state", "addErrorsToQueue");
