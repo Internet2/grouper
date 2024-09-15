@@ -8,20 +8,20 @@
                     </tr>
                   </thead>
                   <tbody>
-
-                    <c:forEach items="${grouperRequestContainer.indexContainer.guiObjectFavorites}" var="guiObject">
-
-                      <%-- <tr>
-                        <td>Root : Applications</td>
-                        <td><i class="fa fa-folder"></i> <a href="#">Directories</a>
-                        </td>
-                      </tr> --%>
-
-                      <tr>
-                        <td>${guiObject.pathColonSpaceSeparated}</td>
-                        <td>${guiObject.shortLinkWithIcon}</td>
-                      </tr>
-
+                  <c:forEach items="${grouperRequestContainer.indexContainer.guiObjectFavorites}" var="guiObjectBase">
+                    <tr>
+                      <td>
+                        <c:choose>
+                          <c:when test="${guiObjectBase.value == null}">
+                            ${guiObjectBase.key.pathColonSpaceSeparated }
+                          </c:when>
+                          <c:otherwise>
+                           ${guiObjectBase.value}
+                          </c:otherwise>
+                        </c:choose>
+                      </td>
+                      <td>${guiObjectBase.key.shortLinkWithIcon }</td>
+                    </tr>
                     </c:forEach>
                   </tbody>
                 </table>

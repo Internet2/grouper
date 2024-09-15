@@ -22,8 +22,17 @@
 --%>
                     <c:forEach items="${grouperRequestContainer.indexContainer.searchGuiObjectsResults}" var="guiObjectBase">
                       <tr>
-                        <td>${guiObjectBase.pathColonSpaceSeparated }</td>
-                        <td>${guiObjectBase.shortLinkWithIcon }</td>
+                        <td>
+                          <c:choose>
+                            <c:when test="${guiObjectBase.value == null}">
+                              ${guiObjectBase.key.pathColonSpaceSeparated }
+                            </c:when>
+                            <c:otherwise>
+                             ${guiObjectBase.value}
+                            </c:otherwise>
+                          </c:choose>
+                        </td>
+                        <td>${guiObjectBase.key.shortLinkWithIcon }</td>
                       </tr>
                     </c:forEach>
                   </tbody>
