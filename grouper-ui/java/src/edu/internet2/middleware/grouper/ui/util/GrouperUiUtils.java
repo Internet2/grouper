@@ -1489,6 +1489,10 @@ public class GrouperUiUtils {
       return label;
 
     }
+    if (StringUtils.equals(screenEl, "${subject.description}")) {
+      //no need for expensive EL substitution
+      return subject.getDescription();
+    }
     //run the screen EL
     Map<String, Object> variableMap = new HashMap<String, Object>();
     variableMap.put("subject", subject);
