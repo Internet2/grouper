@@ -168,7 +168,7 @@ public class GrouperReportInstanceService {
     
     for (GrouperReportInstance instance: instancesToBeDeleted) {
       
-      if (instance.getReportInstanceStatus().equals(GrouperReportInstance.STATUS_SUCCESS)) {
+      if (StringUtils.equals(instance.getReportInstanceStatus(),GrouperReportInstance.STATUS_SUCCESS)) {
         if (instance.isReportStoredInS3()) {
           GrouperReportLogic.deleteFileFromS3(instance);
         } else {
