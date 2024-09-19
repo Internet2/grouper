@@ -584,10 +584,13 @@ public class CustomUiContainer {
     substituteMap.put("textContainer", GrouperTextContainer.retrieveFromRequest());
     substituteMap.put("cu_joinGroupButtonPressed", false);
     substituteMap.put("cu_leaveGroupButtonPressed", false);
+    substituteMap.put("cu_noButtonPressed", false);
     if (this.joinGroupButtonPressed) {
       substituteMap.put("cu_joinGroupButtonPressed", true);
     } else if (this.leaveGroupButtonPressed) {
       substituteMap.put("cu_leaveGroupButtonPressed", true);
+    } else {
+      substituteMap.put("cu_noButtonPressed", true);
     }
     return substituteMap;
   }

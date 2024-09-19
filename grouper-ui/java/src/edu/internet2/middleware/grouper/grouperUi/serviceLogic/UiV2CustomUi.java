@@ -260,6 +260,12 @@ public class UiV2CustomUi {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
+      String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
+      if (!StringUtils.isBlank(redirectToUrl)) {
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeJavascript(redirectToUrl, true) + "'"));
+        return;
+      }
+
       // replace outer too
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#theTopContainer", 
           "/WEB-INF/grouperUi2/index/indexCustomUiTopContainer.jsp"));
