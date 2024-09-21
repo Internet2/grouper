@@ -94,7 +94,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       Subject subject = SubjectFinder.findById("test.subject.1", true);
       
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('penn:ref:mfaEnrolled')", subject, grouperSession.getSubject()));
-      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject()));
+      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled' && 'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject()));
 
       
       
@@ -163,6 +163,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
   //    //     - ASTIdentifier
   //    
   //    arguments.clear();
+    } catch (RuntimeException re) {
+      re.printStackTrace();
     } finally {
       GrouperLoader.shutdownIfStarted();
       GrouperPluginManager.shutdownIfStarted();
@@ -194,8 +196,15 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           }
           String groupName = (String)argument.getKey(2);
           //TODO make this more efficient
-          SqlCacheGroup sqlCacheGroup = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName))).values().iterator().next();
-          gcDbAccess.addBindVar(sqlCacheGroup.getInternalId());
+          Map<MultiKey, SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName)));
+          // if group not found, consider it empty
+          long sqlCacheGroupInternalId = -1;
+          if (GrouperUtil.length(sqlCacheGroups) == 1) {
+            sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
+
+          }
+          gcDbAccess.addBindVar(sqlCacheGroupInternalId);
+          //TODO are we considering group READ like we do with attributes below?
         } else if (StringUtils.equals(argumentString, "attribute")) {
           String attributeAlias = (String)argument.getKey(1);
           GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
@@ -1179,8 +1188,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             }
             String groupName = (String)argument.getKey(2);
             //TODO make this more efficient
-            SqlCacheGroup sqlCacheGroup = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName))).values().iterator().next();
-            gcDbAccess.addBindVar(sqlCacheGroup.getInternalId());
+            Map<MultiKey, SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName)));
+            // if group not found, consider it empty
+            long sqlCacheGroupInternalId = -1;
+            if (GrouperUtil.length(sqlCacheGroups) == 1) {
+              sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
+
+            }
+            gcDbAccess.addBindVar(sqlCacheGroupInternalId);
           } else if (StringUtils.equals(argumentString, "attribute")) {
             String attributeAlias = (String)argument.getKey(1);
             GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
