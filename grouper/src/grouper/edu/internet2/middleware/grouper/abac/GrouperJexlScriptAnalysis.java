@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.abac;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 
 public class GrouperJexlScriptAnalysis {
@@ -27,7 +29,17 @@ public class GrouperJexlScriptAnalysis {
    */
   @Override
   public String toString() {
+
     StringBuilder result = new StringBuilder();
+
+    if (!StringUtils.isBlank(this.getErrorMessage())) {
+      result.append("Error: " + this.getErrorMessage() + "\n");
+    }
+    
+    if (!StringUtils.isBlank(this.getWarningMessage())) {
+      result.append("Warning: " + this.getWarningMessage() + "\n");
+    }
+    
     for (int i=0; i<grouperJexlScriptParts.size(); i++) {
       result.append(i).append(": ").append(grouperJexlScriptParts.get(i)).append("\n");
     }

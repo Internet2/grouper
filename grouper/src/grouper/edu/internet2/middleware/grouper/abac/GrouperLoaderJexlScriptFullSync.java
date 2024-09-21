@@ -93,8 +93,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       Subject subject = SubjectFinder.findById("test.subject.1", true);
       
-      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'test2:test2Group'", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('penn:ref:mfaEnrolled')", subject, grouperSession.getSubject()));
+      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject()));
 
+      
+      
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup')", subject, grouperSession.getSubject()));
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject, grouperSession.getSubject()));
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2')", subject, grouperSession.getSubject()));
@@ -345,6 +348,15 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       return;
     }
 
+    if (jexlNode instanceof ASTStringLiteral) {
+      String literal = ((ASTStringLiteral)jexlNode).getLiteral();
+      if (literal != null && literal.contains(":")) {
+        analyzeJexlMemberOf(theGrouperJexlScriptPart, literal);
+        return;
+      }
+      throw new RuntimeException("Not expecting literal: '" + literal + "'");
+    }
+    
     if (jexlNode instanceof ASTReferenceExpression && 1==jexlNode.jjtGetNumChildren()) {
       theGrouperJexlScriptPart.getWhereClause().append("(");
       theGrouperJexlScriptPart.getDisplayDescription().append("(");
@@ -425,10 +437,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
       String groupName = astStringLiteral.getLiteral();
-      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? and gscm.member_internal_id = gm.internal_id) ");
-      grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
-      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
-        .append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
+      analyzeJexlMemberOf(grouperJexlScriptPart, groupName);
     } else if (StringUtils.equals("hasAttributeAny", astIdentifierAccess.getName())) {
       
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
@@ -725,6 +734,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     } else {
       throw new RuntimeException("Not expecting method name: '" + astIdentifierAccess.getName() + "'");
     }
+  }
+
+  private static void analyzeJexlMemberOf(GrouperJexlScriptPart grouperJexlScriptPart,
+      String groupName) {
+    grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? and gscm.member_internal_id = gm.internal_id) ");
+    grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
+    grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
+      .append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
   }
 
   /**
