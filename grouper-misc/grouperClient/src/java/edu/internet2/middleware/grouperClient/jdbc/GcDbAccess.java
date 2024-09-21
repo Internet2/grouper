@@ -21,8 +21,10 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
@@ -121,6 +123,21 @@ public class GcDbAccess {
    * If you are executing a statement as a batch, this is the batch size
    */
   private int batchSize = -1;
+  
+  /**
+   * Set to true if we're assuming inserts over updates without checking the database
+   */
+  private boolean isInsert = false;
+  
+  /**
+   * If we're doing a batch store and there's an exception, should we retry
+   */
+  private boolean retryBatchStoreFailures = false;
+  
+  /**
+   * If we're retrying a batch store and there are still failures, should we ignore it
+   */
+  private boolean ignoreRetriedBatchStoreFailures = false;
 
   /**
    * batch size
@@ -129,6 +146,31 @@ public class GcDbAccess {
    */
   public GcDbAccess batchSize(int theBatchSize) {
     this.batchSize = theBatchSize;
+    return this;
+  }
+  
+  /**
+   * If we're doing a batch store and there's an exception, should we retry
+   * @param retryBatchStoreFailures
+   * @return this for chaining
+   */
+  public GcDbAccess retryBatchStoreFailures(boolean retryBatchStoreFailures) {
+    this.retryBatchStoreFailures = retryBatchStoreFailures;
+    return this;
+  }
+  
+  public GcDbAccess ignoreRetriedBatchStoreFailures(boolean ignoreRetriedBatchStoreFailures) {
+    this.ignoreRetriedBatchStoreFailures = ignoreRetriedBatchStoreFailures;
+    return this;
+  }
+  
+  /**
+   * Set to true if we're assuming inserts over updates without checking the database
+   * @param isInsert
+   * @return this for chaining
+   */
+  public GcDbAccess isInsert(boolean isInsert) {
+    this.isInsert = isInsert;
     return this;
   }
   
@@ -540,7 +582,181 @@ public class GcDbAccess {
     queryReport.addExecutionTime((System.nanoTime() - nanoTimeStarted) / 1000000);
   }
 
+  /**
+   * <pre>Whether classes (all of which must have the same type) have already been saved to the database, looks for a field(s) with annotation @Persistable(primaryKeyField=true),
+   * assumes that it is a number, and returns true if it is null or larger than 0.</pre>
+   *  @param objects is the object to store to the database.
+   * @return map of objects passed in to boolean if previously persisted
+   */
+  public Map<Object, Boolean> isPreviouslyPersisted(List<Object> objects) {
+    Map<Object, Boolean> results = new LinkedHashMap<>();
+    
+    if (objects.size() == 0) {
+      return results;
+    }
 
+    Field field = GcPersistableHelper.primaryKeyField(objects.get(0).getClass());
+    List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(objects.get(0).getClass());
+
+    // Objects with no PK are never considered previously persisted.
+    if (field == null && compoundPrimaryKeys.size() == 0){
+      for (Object object : objects) {
+        results.put(object, false);
+      }
+      
+      return results;
+    }
+
+    List<Object> objectsToQueryDatabase = new ArrayList<Object>();
+
+    // We have a single primary key.
+    if (field != null) {
+      for (Object object: objects) {
+        Object fieldValue = null;
+        try {
+          fieldValue = field.get(object);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        } 
+  
+        if (fieldValue == null){
+          results.put(object, false);
+        } else if (GcPersistableHelper.primaryKeyManuallyAssigned(field)){
+
+          // If it was manually assigned, we have to check the database.
+          objectsToQueryDatabase.add(object);
+
+        } else if (fieldValue != null && fieldValue instanceof String) {
+          // if field is string, it must be not null
+          results.put(object, true);
+        } else {
+          try {
+            // If field is numeric, it must be > 0.
+            Long theId = new Long(String.valueOf(fieldValue));
+            results.put(object, theId > 0);
+          } catch (Exception e){
+            throw new RuntimeException("Expected primary key field of numeric type but got " + field.getName() + " of type " + field.getClass() + ". You need to override isPreviouslyPersisted() or provide a Persistable annotation for your primary key!", e);
+          }
+        }
+      }
+    }
+
+    // We have multiple primary keys.
+    if (compoundPrimaryKeys.size() > 0){
+      objectsToQueryDatabase.addAll(objects);
+    }
+    
+    if (objectsToQueryDatabase.size() > 0) {
+      
+      List<Field> fields = new ArrayList<>();
+      if (field != null) {
+        fields.add(field);
+      } else {
+        fields.addAll(compoundPrimaryKeys);
+      }
+      
+      List<String> fieldNames = new ArrayList<>();
+      for (Field currentField : fields) {
+        fieldNames.add(GcPersistableHelper.columnName(currentField));
+      }
+      
+      List<Object> theBindVariables = new ArrayList<Object>();
+
+      String theSql = "select " + String.join(",", fieldNames) + " from " + this.tableName(objectsToQueryDatabase.get(0).getClass()) + " where ";
+
+      Iterator<Object> objectsToQueryDatabaseIter = objectsToQueryDatabase.iterator();
+      while (objectsToQueryDatabaseIter.hasNext()) {
+        Object objectToQueryDatabase = objectsToQueryDatabaseIter.next();
+        
+        theSql += " ( ";
+        
+        Iterator<Field> fieldsIter = fields.iterator();
+        while (fieldsIter.hasNext()) {
+          Field currentField = fieldsIter.next();
+          Object fieldValue = null;
+          try {
+            fieldValue = currentField.get(objectToQueryDatabase);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          } 
+          theSql += GcPersistableHelper.columnName(currentField) + " = ? ";
+          
+          if (fieldsIter.hasNext()) {
+            theSql += " and ";
+          }
+          
+          theBindVariables.add(fieldValue);
+        }
+        
+        theSql += " ) ";
+        
+        if (objectsToQueryDatabaseIter.hasNext()) {
+          theSql += " or ";
+        }
+      }
+
+      Long startTime = System.nanoTime();
+
+      List<Object[]> queryResults = new GcDbAccess()
+          .connection(this.connection)
+          .sql(theSql)
+          .bindVars(theBindVariables)
+          .selectList(Object[].class);
+
+      this.addQueryToQueriesAndMillis(theSql, startTime);
+      
+      // create a set of keys that were found in the database
+      Set<MultiKey> foundKeys = new LinkedHashSet<MultiKey>();
+      
+      for (Object[] queryResult : queryResults) {
+        
+        Object[] key = new Object[fields.size()];
+        for (int i = 0; i < queryResult.length; i++) {
+          Object queryResultValue = queryResult[i];
+          Field currentField = fields.get(i);
+          
+          if (currentField.getType() == Long.class || currentField.getType() == long.class) {
+            Long value = ((Number)queryResultValue).longValue();
+            key[i] = value;
+          } else if (currentField.getType() == Integer.class || currentField.getType() == int.class) {
+            Integer value = ((Number)queryResultValue).intValue();
+            key[i] = value;
+          } else if (currentField.getType() == String.class) {
+            String value = (String)queryResultValue;
+            key[i] = value;
+          } else {
+            key[i] = queryResultValue;
+          }
+        }
+        
+        foundKeys.add(new MultiKey(key));
+      }
+      
+      // now check if the objects we queried were found or not
+      for (Object object : objectsToQueryDatabase) {
+        Object[] key = new Object[fields.size()];
+        for (int i = 0; i < fields.size(); i++) {
+          Field currentField = fields.get(i);
+          Object fieldValue = null;
+          try {
+            fieldValue = currentField.get(object);
+          } catch (Exception e) {
+            throw new RuntimeException(e);
+          } 
+
+          key[i] = fieldValue;
+        }
+        
+        if (foundKeys.contains(new MultiKey(key))) {
+          results.put(object, true);
+        } else {
+          results.put(object, false);
+        }
+      }
+    }
+    
+    return results;
+  }
   
   
   /**
@@ -550,100 +766,10 @@ public class GcDbAccess {
    * @return true if so.
    */
   public boolean isPreviouslyPersisted(Object o){
-
-    Field field = GcPersistableHelper.primaryKeyField(o.getClass());
-
-    List<Field> compoundPrimaryKeys =  GcPersistableHelper.compoundPrimaryKeyFields(o.getClass());
-
-
-    // Objects with no PK are never considered previously persisted.
-    if (field == null && compoundPrimaryKeys.size() == 0){
-      return false;
-    }
-
-
-    // We have a single primary key.
-    if (field != null){
-      Object fieldValue = null;
-      try {
-        fieldValue = field.get(o);
-      } catch (Exception e) {
-        throw new RuntimeException(e);
-      } 
-
-      if (fieldValue == null){
-        return false;
-      }
-
-      // If it was manually assigned, we have to check the database.
-      if (GcPersistableHelper.primaryKeyManuallyAssigned(field)){
-
-        Long startTime = System.nanoTime();
-
-        String query = "select count(*) from " + this.tableName(o.getClass()) + " where " +  GcPersistableHelper.columnName(field) + " =  ?";
-
-        int count = new GcDbAccess().connectionName(this.connectionName)
-            .sql(query)
-            .bindVars(fieldValue)
-            .select(int.class);
-
-        addQueryToQueriesAndMillis(query, startTime);
-
-        return count > 0;
-      }
-
-      // if field is string, it must be not null
-      if (fieldValue != null && fieldValue instanceof String) {
-        return true;
-      }
-      
-      // If field is numeric, it must be > 0.
-      try{
-        Long theId = new Long(String.valueOf(fieldValue));
-        return theId > 0;
-      } catch (Exception e){
-        throw new RuntimeException("Expected primary key field of numeric type but got " + field.getName() + " of type " + field.getClass() + ". You need to override isPreviouslyPersisted() or provide a Persistable annotation for your primary key!", e);
-      }
-    }
-
-
-
-
-    // We have multiple primary keys.
-    if (compoundPrimaryKeys.size() > 0){
-
-      List<Object> theBindVariables = new ArrayList<Object>();
-
-      String theSql = "select count(*) from " + this.tableName(o.getClass()) + " where ";
-
-      // Get all of the fields that are involved in the compound keys and build the sql and get bind variables.
-      for (Field compoundPrimaryKey : compoundPrimaryKeys){
-        Object fieldValue = null;
-        try {
-          fieldValue = compoundPrimaryKey.get(o);
-        } catch (Exception e) {
-          throw new RuntimeException(e);
-        } 
-        theSql += GcPersistableHelper.columnName(compoundPrimaryKey) + " = ? and ";
-        theBindVariables.add(fieldValue);
-      }
-      theSql = theSql.substring(0, theSql.length() - 4);
-
-      Long startTime = System.nanoTime();
-
-      int count = new GcDbAccess()
-          .sql(theSql)
-          .bindVars(theBindVariables)
-          .select(int.class);
-
-      this.addQueryToQueriesAndMillis(theSql, startTime);
-
-      return count > 0;
-    }
-
-
-    throw new RuntimeException("No primary key or compound primary keys specified!");
-
+    List<Object> objects = new ArrayList<>();
+    objects.add(o);
+    Map<Object, Boolean> results = isPreviouslyPersisted(objects);
+    return results.get(o);
   }
 
 
@@ -860,6 +986,7 @@ public class GcDbAccess {
         sqlToUse.append(") ");
 
         primaryKeyValue = new GcDbAccess()
+            .connection(this.connection)
             .sql(" select " + GcPersistableHelper.primaryKeySequenceName(primaryKey) + ".nextval from dual")
             .select(primaryKey.getType());
 
@@ -1135,6 +1262,10 @@ public class GcDbAccess {
    */
   private <T> void storeBatchToDatabase(List<T> objects, boolean omitPrimaryKeyPopulation){
     
+    if (objects == null || objects.size() == 0) {
+      return;
+    }
+    
     if ((GrouperClientUtils.length(objects) > 0) && GcPersistableHelper.defaultUpdate(objects.get(0).getClass())) {
       RuntimeException runtimeException = null;
       try {
@@ -1156,7 +1287,32 @@ public class GcDbAccess {
       }
       
     } else {
-      storeBatchToDatabaseHelper(objects, omitPrimaryKeyPopulation);
+      try {
+        storeBatchToDatabaseHelper(objects, omitPrimaryKeyPopulation);
+      } catch (RuntimeException re) {
+        if (!this.retryBatchStoreFailures) {
+          throw re;
+        }
+        
+        if (objects.size() == 1) {
+          if (this.ignoreRetriedBatchStoreFailures) {
+            LOG.warn("Failed to store object: " + objects.get(0));
+          } else {
+            throw re;
+          }
+        }
+        
+        int newBatchSize = 50;
+        if (objects.size() <= 50) {
+          newBatchSize = 1;
+        }
+        
+        int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(objects, newBatchSize, true);
+        for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+          List<?> objectsNewBatch = GrouperClientUtils.batchList(objects, newBatchSize, batchIndex);
+          storeBatchToDatabase(objectsNewBatch, omitPrimaryKeyPopulation);
+        }
+      }
     }
     
   }
@@ -1211,7 +1367,7 @@ public class GcDbAccess {
       boolean persistField = GcPersistableHelper.isPersist(field, objects.get(0).getClass());
       boolean primaryKeyNullAndPersistField = primaryKey == null && persistField;
       boolean primaryKeyManuallyAssignedOrNotPrimaryKey = objects.get(0) instanceof GcSqlAssignPrimaryKey 
-          || GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey) || !GcPersistableHelper.isPrimaryKey(field);
+          || !GcPersistableHelper.isPrimaryKey(field) || GcPersistableHelper.primaryKeyManuallyAssigned(primaryKey);
       if (primaryKeyNullAndPersistField || ( persistField && primaryKeyManuallyAssignedOrNotPrimaryKey)){
         fieldAndIncludeStatuses.put(field, true);
       } else {
@@ -1227,6 +1383,16 @@ public class GcDbAccess {
 
       // Store the primary keys back to the object after we save successfully.
       Map<Integer, Object> indexOfObjectAndPrimaryKeyToSet = new HashMap<Integer, Object>();
+      
+      List<Object> objectsToCheckIfPreviouslyPersisted = new ArrayList<>();
+      for (Object object : objects){
+        if (!(object instanceof GcSqlAssignPrimaryKey) && !this.isInsert) {
+          objectsToCheckIfPreviouslyPersisted.add(object);
+        }
+      }
+      
+      Map<Object, Boolean> isPreviouslyPersisted = isPreviouslyPersisted(objectsToCheckIfPreviouslyPersisted);
+      
       int objectIndex = 0;
 
       for (Object object : objects){
@@ -1236,6 +1402,7 @@ public class GcDbAccess {
         boolean gcSqlAssignPrimaryKey = false;
         
         Boolean isInsert = null;
+        
         if (object instanceof GcSqlAssignPrimaryKey) {
           Object primaryKeyValue = primaryKey.get(object);
           isInsert = primaryKeyValue == null;
@@ -1260,7 +1427,11 @@ public class GcDbAccess {
         if (isInsert != null) {
           isUpdate = !isInsert;
         } else {
-          isUpdate = isPreviouslyPersisted(object);
+          if (this.isInsert) {
+            isUpdate = false;
+          } else {
+            isUpdate = isPreviouslyPersisted.get(object);
+          }
         }
         if (isUpdate){
 
@@ -1347,6 +1518,7 @@ public class GcDbAccess {
             // Get the primary key.
             if (!omitPrimaryKeyPopulation){
               Object primaryKeyValue = new GcDbAccess()
+                  .connection(this.connection)
                   .sql(" select " + GcPersistableHelper.primaryKeySequenceName(primaryKey) + ".nextval from dual")
                   .select(primaryKey.getType().getClass());
               bindVarstoUse.add(primaryKeyValue);
@@ -1387,7 +1559,6 @@ public class GcDbAccess {
       this.executeBatchSql();
       this.sql(null);
       this.batchBindVars(null);
-
 
       // Set the primary keys if there were inserts and we got new ones.
       for (Integer objectIndexInList : indexOfObjectAndPrimaryKeyToSet.keySet()){
@@ -2860,7 +3031,11 @@ public class GcDbAccess {
 
   public GcDbAccess connection(Connection connection) {
     this.connection = connection;
-    this.connectionProvided = true;
+    
+    if (connection != null) {
+      this.connectionProvided = true;
+    }
+    
     return this;
   }
 }
