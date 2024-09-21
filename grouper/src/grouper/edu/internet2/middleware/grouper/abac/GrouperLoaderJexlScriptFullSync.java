@@ -93,6 +93,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
 
       Subject subject = SubjectFinder.findById("test.subject.1", true);
       
+      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'test2:test2Group'", subject, grouperSession.getSubject()));
+
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup')", subject, grouperSession.getSubject()));
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') && entity.memberOf('test:testGroup2')", subject, grouperSession.getSubject()));
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2')", subject, grouperSession.getSubject()));
@@ -103,8 +105,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       //    + "|| (entity.memberOf('test:testGroup') && !entity.memberOf('test:testGroup2'))", subject, grouperSession.getSubject()));
       
       
-      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known && cp_org == 'Perelman School of Medicine' \") "
-          + "&& entity.memberOf('penn:ref:member') && !entity.memberOf('penn:ref:lockout') && entity.hasAttribute('cp_role', 'desktop-user')", subject, grouperSession.getSubject()));
+      //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.hasRow('cp_user', \"cp_active && !cp_blocked && cp_known && cp_org == 'Perelman School of Medicine' \") "
+      //    + "&& entity.memberOf('penn:ref:member') && !entity.memberOf('penn:ref:lockout') && entity.hasAttribute('cp_role', 'desktop-user')", subject, grouperSession.getSubject()));
 
       //  System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "(entity.hasRow('cp_user', \"(cp_active || !cp_blocked) && cp_known "
       //      + "&& cp_org == 'Perelman School of Medicine' \") "
@@ -162,6 +164,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       GrouperLoader.shutdownIfStarted();
       GrouperPluginManager.shutdownIfStarted();
       GrouperShutdown.shutdown();
+      System.exit(0);
     }
   }
   
@@ -307,10 +310,11 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
     
     JexlEngine jexlEngine = new Engine();
-    
+
+    // TODO dont mess with values in strings
     jexlStript = GrouperUtil.replace(jexlStript, "\n", " ");
     jexlStript = GrouperUtil.replace(jexlStript, "\r", " ");
-    jexlStript = GrouperUtil.replace(jexlStript, "! ", " ");
+    jexlStript = jexlStript.replaceAll("!\\s+", "!");
     
     JexlExpression expression = (JexlExpression)jexlEngine.createExpression(jexlStript);
 
