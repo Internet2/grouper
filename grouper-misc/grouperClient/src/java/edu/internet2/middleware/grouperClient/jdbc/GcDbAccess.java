@@ -13,6 +13,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.ResultSetMetaData;
 import java.sql.SQLException;
+import java.sql.Savepoint;
 import java.sql.Types;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -1287,6 +1288,16 @@ public class GcDbAccess {
       }
       
     } else {
+      Savepoint savepoint = null;
+      if (this.retryBatchStoreFailures) {
+        // set savepoint in case we get an error and need to retry
+        try {
+          savepoint = this.connection.setSavepoint();
+        } catch (SQLException e) {
+          throw new RuntimeException("Failed to set savepoint", e);
+        }
+      }
+      
       try {
         storeBatchToDatabaseHelper(objects, omitPrimaryKeyPopulation);
       } catch (RuntimeException re) {
@@ -1296,7 +1307,15 @@ public class GcDbAccess {
         
         if (objects.size() == 1) {
           if (this.ignoreRetriedBatchStoreFailures) {
-            LOG.warn("Failed to store object: " + objects.get(0));
+            LOG.warn("Failed to store object: " + objects.get(0), re);
+            
+            try {
+              this.connection.rollback(savepoint);
+            } catch (SQLException e) {
+              throw new RuntimeException("Failed to rollback to savepoint", e);
+            }
+            
+            return;
           } else {
             throw re;
           }
@@ -1307,8 +1326,17 @@ public class GcDbAccess {
           newBatchSize = 1;
         }
         
+        try {
+          this.connection.rollback(savepoint);
+        } catch (SQLException e) {
+          throw new RuntimeException("Failed to rollback to savepoint", e);
+        }
+        
         int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(objects, newBatchSize, true);
         for (int batchIndex = 0; batchIndex < numberOfBatches; batchIndex++) {
+          this.sql(null);
+          this.batchBindVars(null);
+          
           List<?> objectsNewBatch = GrouperClientUtils.batchList(objects, newBatchSize, batchIndex);
           storeBatchToDatabase(objectsNewBatch, omitPrimaryKeyPopulation);
         }
