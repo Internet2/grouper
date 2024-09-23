@@ -43,6 +43,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningConfiguration;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -258,12 +259,12 @@ public class GrouperDaemonDeleteOldRecords {
    */
   public static void deleteOldSyncData(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
 
-    Timestamp weekAgo = new Timestamp(System.currentTimeMillis()); // TODO - (1000L * 60 * 60 * 24 * 7));
+    Timestamp weekAgo = new Timestamp(System.currentTimeMillis() - (1000L * 60 * 60 * 24 * 7));
     
     // do this for things more than a week old
     Set<String> configIds = new HashSet<String>(new GcDbAccess().sql("""
         select provisioner_name 
-        from grouper_sync where last_updated < ? 
+        from grouper_sync where sync_engine = 'provisioning' and last_updated < ? 
         and (last_full_sync_run is null or last_full_sync_run < ?) 
         and (last_full_sync_start is null or last_full_sync_start < ?)
         and (last_incremental_sync_run is null or last_incremental_sync_run < ?)
@@ -281,10 +282,9 @@ public class GrouperDaemonDeleteOldRecords {
       }
     }
     
-//    if (hib3GrouploaderLog != null) {
-//      hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
-//    }
-
+    for (String configId : configIds) {
+      ProvisioningConfiguration.deleteProvisionerSyncRecords(configId, jobMessage, hib3GrouploaderLog);
+    }
   }
   
   /**
@@ -512,7 +512,7 @@ public class GrouperDaemonDeleteOldRecords {
         }
       } else {
         if (jobMessage != null) {
-          jobMessage.append("Configured to not delete records from DeletedPointInTimeObjects. ");
+          jobMessage.append("Configured to not delete records from DeletedPointInTimeObjects.\n");
         }
       }
       

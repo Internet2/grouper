@@ -33,6 +33,7 @@ import edu.internet2.middleware.grouper.app.google.GoogleProvisionerConfiguratio
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.midpointProvisioning.MidPointProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.remedyV2.RemedyProvisionerConfiguration;
@@ -48,6 +49,7 @@ import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDependencyGroupGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorCode;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
@@ -256,31 +258,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
   @Override
   public void deleteConfig(boolean fromUi) {
     super.deleteConfig(fromUi);
-    GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, this.getConfigId());
-    
-    if (grouperSync == null) return;
-    
-    {
-      List<GcGrouperSyncGroup> grouperSyncGroups = grouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
-      grouperSync.getGcGrouperSyncGroupDao().groupDelete(grouperSyncGroups, true, true);
-    }
-    
-    {
-      List<GcGrouperSyncMember> grouperSyncMembers = grouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
-      grouperSync.getGcGrouperSyncMemberDao().memberDelete(grouperSyncMembers, true, true);
-    }
-    
-    {
-      List<GcGrouperSyncMembership> grouperSyncMemberships = grouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveAll();
-      grouperSync.getGcGrouperSyncMembershipDao().membershipDelete(grouperSyncMemberships, true);
-    }
-    
-    {
-      List<GcGrouperSyncJob> grouperSyncJobs = grouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
-      grouperSync.getGcGrouperSyncJobDao().jobDelete(grouperSyncJobs, true);
-    }
-    
-    grouperSync.getGcGrouperSyncDao().delete();
+    deleteProvisionerSyncRecords(this.getConfigId(), null, null);
     
     // delete full sync and incremental sync daemon
     Pattern pattern = Pattern.compile("^otherJob\\.(.*)\\.provisionerConfigId$");
@@ -345,6 +323,93 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     }
     
     
+  }
+
+  public static void deleteProvisionerSyncRecords(String configId, StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    GcGrouperSync grouperSync = GcGrouperSyncDao.retrieveByProvisionerName(null, configId);
+    
+    if (grouperSync == null) {
+      return;
+    }
+
+    {
+      int rows = grouperSync.getGcGrouperSyncDependencyGroupGroupDao().deleteAll();
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(GrouperUtil.length(rows));
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " sync dependency group/group from provisioner " + configId + "\n");
+      }
+    }
+
+    {
+      int rows = grouperSync.getGcGrouperSyncDependencyGroupUserDao().deleteAll();
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(GrouperUtil.length(rows));
+      }
+      if (jobMessage != null && rows > 0) {
+        jobMessage.append("Deleted " + rows + " sync dependency group/user from provisioner " + configId + "\n");
+      }
+    }
+
+    {
+      List<GcGrouperSyncLog> grouperSyncLogs = grouperSync.getGcGrouperSyncLogDao().internal_logRetrieveFromDbAll();
+      
+      grouperSync.getGcGrouperSyncLogDao().logDelete(grouperSyncLogs);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(GrouperUtil.length(grouperSyncLogs));
+      }
+      if (jobMessage != null && GrouperUtil.length(grouperSyncLogs) > 0) {
+        jobMessage.append("Deleted " + GrouperUtil.length(grouperSyncLogs) + " sync logs from provisioner " + configId + "\n");
+      }
+    }
+    
+    {
+      List<GcGrouperSyncGroup> grouperSyncGroups = grouperSync.getGcGrouperSyncGroupDao().groupRetrieveAll();
+      
+      grouperSync.getGcGrouperSyncGroupDao().groupDelete(grouperSyncGroups, true, true);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(GrouperUtil.length(grouperSyncGroups));
+      }
+      if (jobMessage != null && GrouperUtil.length(grouperSyncGroups) > 0) {
+        jobMessage.append("Deleted " + GrouperUtil.length(grouperSyncGroups) + " sync groups from provisioner " + configId + "\n");
+      }
+    }
+
+    {
+      List<GcGrouperSyncMember> grouperSyncMembers = grouperSync.getGcGrouperSyncMemberDao().memberRetrieveAll();
+      grouperSync.getGcGrouperSyncMemberDao().memberDelete(grouperSyncMembers, true, true);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(GrouperUtil.length(grouperSyncMembers));
+      }
+      if (jobMessage != null && GrouperUtil.length(grouperSyncMembers) > 0) {
+        jobMessage.append("Deleted " + GrouperUtil.length(grouperSyncMembers) + " sync members from provisioner " + configId + "\n");
+      }
+    }
+    
+    {
+      List<GcGrouperSyncMembership> grouperSyncMemberships = grouperSync.getGcGrouperSyncMembershipDao().membershipRetrieveAll();
+      grouperSync.getGcGrouperSyncMembershipDao().membershipDelete(grouperSyncMemberships, true);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(GrouperUtil.length(grouperSyncMemberships));
+      }
+      if (jobMessage != null && GrouperUtil.length(grouperSyncMemberships) > 0) {
+        jobMessage.append("Deleted " + GrouperUtil.length(grouperSyncMemberships) + " sync memberships from provisioner " + configId + "\n");
+      }
+    }
+    
+    {
+      List<GcGrouperSyncJob> grouperSyncJobs = grouperSync.getGcGrouperSyncJobDao().jobRetrieveAll();
+      grouperSync.getGcGrouperSyncJobDao().jobDelete(grouperSyncJobs, true);
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(GrouperUtil.length(grouperSyncJobs));
+      }
+      if (jobMessage != null && GrouperUtil.length(grouperSyncJobs) > 0) {
+        jobMessage.append("Deleted " + GrouperUtil.length(grouperSyncJobs) + " sync jobs from provisioner " + configId + "\n");
+      }
+    }
+    
+    grouperSync.getGcGrouperSyncDao().delete();
   }
 
   /**
