@@ -187,6 +187,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       String previousAttributeAlias = null;
       
+      boolean partsHaveMissingGroup = false;
       for (MultiKey argument : grouperJexlScriptPart.getArguments()) {
         String argumentString = (String)argument.getKey(0);
         if (StringUtils.equals(argumentString, "group")) {
@@ -201,7 +202,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           long sqlCacheGroupInternalId = -1;
           if (GrouperUtil.length(sqlCacheGroups) == 1) {
             sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
-
+          } else {
+            // note non-existent group
+            partsHaveMissingGroup = true;
           }
           gcDbAccess.addBindVar(sqlCacheGroupInternalId);
           //TODO are we considering group READ like we do with attributes below?
@@ -297,7 +300,13 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       int count = gcDbAccess.sql(sql).select(Integer.class);
       grouperJexlScriptPart.setPopulationCount(count);
-      
+
+      if (partsHaveMissingGroup) {
+        StringBuilder newDescription = new StringBuilder(grouperJexlScriptPart.getDisplayDescription());
+        newDescription.append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroupMissingWarning"));
+        grouperJexlScriptPart.setDisplayDescription(newDescription);
+      }
+
       if (subject != null) {
         sql += " and gm.id = ?";
         count = gcDbAccess.sql(sql).addBindVar(member.getId()).select(Integer.class);
