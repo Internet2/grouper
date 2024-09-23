@@ -42,6 +42,7 @@ import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -200,6 +201,24 @@ public class GrouperDaemonDeleteOldRecords {
         jobMessage.append("\nError in verifyTableIdIndexes: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
       }
+
+      try {
+        int count = GrouperProvisioningService.deleteInvalidConfigs();
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(count);
+        }
+        if (jobMessage != null) {
+          jobMessage.append("Deleted " + count + " invalid provisionable assignments\n");
+        }
+
+      } catch (Exception e) {
+        LOG.error("Error deleting invalid provisioning assignments", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeleteInvalidProvisioningConfigs", ExceptionUtils.getFullStackTrace(e));
+        jobMessage.append("\nError deleting invalid provisioning assignments: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        error = true;
+      }
+
+      
       
       try {
         deleteOldSyncData(jobMessage, hib3GrouploaderLog);
