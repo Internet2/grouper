@@ -27,7 +27,6 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectAttributes;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadata;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectMetadataItem;
@@ -3859,7 +3858,7 @@ public class UiV2Provisioning {
         public void run() {
           GrouperSession grouperSession = GrouperSession.startRootSession();
           try {
-            GrouperProvisioningJob.runDaemonStandalone();
+            GrouperProvisioningService.deleteInvalidConfigs();
             DONE[0] = true;
           } catch (RuntimeException re) {
             LOG.error("Error in running daemon", re);

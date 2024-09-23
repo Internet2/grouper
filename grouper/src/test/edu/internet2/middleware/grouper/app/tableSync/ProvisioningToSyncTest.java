@@ -26,7 +26,6 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.AttributeDefSave;

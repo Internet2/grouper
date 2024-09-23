@@ -770,21 +770,25 @@ public class GrouperProvisioningService {
   /**
    * delete all the attribute assigns where the config doesn't exist
    */
-  public static void deleteInvalidConfigs() {
+  public static int deleteInvalidConfigs() {
     Set<String> assignedTargets = getDistinctProvisionerConfigIds();
     Map<String, GrouperProvisioningTarget> validTargets = GrouperProvisioningSettings.getTargets(false);
     
     Set<String> targetsToRemove = new HashSet<String>(assignedTargets);
     targetsToRemove.removeAll(validTargets.keySet());
         
+    int count = 0;
+    
     for (String targetToRemove: targetsToRemove) {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       Set<AttributeAssign> assignments = GrouperDAOFactory.getFactory().getAttributeAssign().findByAttributeDefNameAndValueString(GrouperProvisioningAttributeNames.retrieveAttributeDefNameTarget().getId(), targetToRemove, null);
       for (AttributeAssign assignment : assignments) {
         assignment.getOwnerAttributeAssign().delete();
+        count++;
       }
     }
+    return count;
   }
   
   public static void deleteInvalidIndirectProvisioningAssignments() {

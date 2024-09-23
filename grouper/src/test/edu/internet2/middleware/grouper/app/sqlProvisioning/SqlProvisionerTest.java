@@ -35,7 +35,6 @@ import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeNames;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
-import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningJob;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningOutput;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningService;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
@@ -150,7 +149,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
     //TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
-    TestRunner.run(new SqlProvisionerTest("testSqlProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalseIncremental"));
+    TestRunner.run(new SqlProvisionerTest("testFullSyncAcLille"));
     
   }
   
@@ -2450,7 +2449,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
         // remove 3
         stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
-        GrouperProvisioningJob.runDaemonStandalone();
+        GrouperProvisioningService.deleteInvalidConfigs();
         // add member, remove member
         testGroup.addMember(SubjectTestHelper.SUBJ8, false);
         testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
@@ -2615,7 +2614,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
   
     // remove 3
     stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
-    GrouperProvisioningJob.runDaemonStandalone();
+    GrouperProvisioningService.deleteInvalidConfigs();
     // add member, remove member
     testGroup.addMember(SubjectTestHelper.SUBJ8, false);
     testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
@@ -2850,7 +2849,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
   
     // remove 3
     stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
-    GrouperProvisioningJob.runDaemonStandalone();
+    GrouperProvisioningService.deleteInvalidConfigs();
     // add member, remove member
     testGroup.addMember(SubjectTestHelper.SUBJ8, false);
     testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
@@ -2968,7 +2967,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
       // remove group 3
       stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
-      GrouperProvisioningJob.runDaemonStandalone();
+      GrouperProvisioningService.deleteInvalidConfigs();
 
       // add member, remove member
       testGroup.addMember(SubjectTestHelper.SUBJ8, false);
@@ -3894,7 +3893,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     // remove 3:  note, its not on 3 so im not sure what this is doing
     stem3.getAttributeDelegate().removeAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker());
  
-    GrouperProvisioningJob.runDaemonStandalone();
+    GrouperProvisioningService.deleteInvalidConfigs();
     // add member, remove member
     testGroup.addMember(SubjectTestHelper.SUBJ8, false);
     testGroup.deleteMember(SubjectTestHelper.SUBJ1, false);
