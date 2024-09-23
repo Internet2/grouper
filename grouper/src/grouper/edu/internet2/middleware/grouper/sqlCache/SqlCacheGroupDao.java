@@ -292,8 +292,7 @@ public class SqlCacheGroupDao {
         isFirst = false;
       }
       query.append(" ) ");
-
-      List<Object[]> groupNamesFieldNamesAttributeAssignIds = gcDbAccess.selectList(Object[].class);
+      List<Object[]> groupNamesFieldNamesAttributeAssignIds = gcDbAccess.sql(query.toString()).selectList(Object[].class);
       for (Object[] groupNameFieldNameAttributeAssignId : GrouperUtil.nonNull(groupNamesFieldNamesAttributeAssignIds)) {
         String groupName = (String)groupNameFieldNameAttributeAssignId[0];
         String fieldName = (String)groupNameFieldNameAttributeAssignId[1];
