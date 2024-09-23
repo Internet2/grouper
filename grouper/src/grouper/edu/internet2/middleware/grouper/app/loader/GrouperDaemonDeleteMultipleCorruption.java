@@ -23,10 +23,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -38,6 +38,7 @@ import edu.internet2.middleware.grouper.attr.value.AttributeAssignValue;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 
 /**
@@ -73,6 +74,17 @@ public class GrouperDaemonDeleteMultipleCorruption {
    * @return summary
    */
   public static String fixValues(StringBuilder jobMessage, boolean logOnly, boolean[] error) {
+    return fixValues(jobMessage, logOnly, error, null);
+  }
+
+  /**
+   * 
+   * @param jobMessage
+   * @param logOnly (ignored for usdu)
+   * @param error
+   * @return summary
+   */
+  public static String fixValues(StringBuilder jobMessage, boolean logOnly, boolean[] error, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     if (jobMessage == null) {
       jobMessage = new StringBuilder();
     }
@@ -95,7 +107,11 @@ public class GrouperDaemonDeleteMultipleCorruption {
               + " WHERE gaav2.id != gaav.id AND gaav2.attributeAssignId = gaav.attributeAssignId)")
           .list(Object[].class);
 
-      jobMessage.append("fixValuesCount: " + GrouperUtil.length(listOfObjects)/2);
+      jobMessage.append("fixValuesCount: " + GrouperUtil.length(listOfObjects)/2 + "\n");
+      
+      if (hib3GrouploaderLog != null) {
+        hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(GrouperUtil.length(listOfObjects)/2));
+      }
       
       if (GrouperUtil.length(listOfObjects) == 0) {
         GrouperLoaderLogger.addLogEntry(GrouperDaemonDeleteOldRecords.LOG_LABEL, "fixValuesCount", 0);
@@ -195,6 +211,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
             
             try {
               attributeAssignValueCurrent.delete();
+
             } catch (Exception e) {
               LOG.error("Error deleting attribute assign value: " + attributeAssignValueCurrent, e);
               GrouperUtil.appendIfNotBlank(response, null, "\n", "ERROR deleting attribute assign value!", null);
@@ -255,7 +272,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
     MultiKey multiKey = new MultiKey(keys.toArray());
     return multiKey;
   }
-  
+
   /**
    * 
    * @param jobMessage
@@ -264,6 +281,17 @@ public class GrouperDaemonDeleteMultipleCorruption {
    * @return summary
    */
   public static String fixAssigns(StringBuilder jobMessage, boolean logOnly, boolean[] error) {
+    return fixAssigns(jobMessage, logOnly, error, null);
+  }
+
+  /**
+   * 
+   * @param jobMessage
+   * @param logOnly (ignored for usdu)
+   * @param error
+   * @return summary
+   */
+  public static String fixAssigns(StringBuilder jobMessage, boolean logOnly, boolean[] error, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     if (jobMessage == null) {
       jobMessage = new StringBuilder();
     }
@@ -310,7 +338,7 @@ public class GrouperDaemonDeleteMultipleCorruption {
       }
 
       if (GrouperUtil.length(listOfObjects) == 0) {
-        jobMessage.append("fixAssignsCount: 0");
+        jobMessage.append("fixAssignsCount: 0\n");
         GrouperLoaderLogger.addLogEntry(GrouperDaemonDeleteOldRecords.LOG_LABEL, "fixAssignsCount", 0);
         return "No duplicate assigns found";
       }
@@ -330,7 +358,10 @@ public class GrouperDaemonDeleteMultipleCorruption {
       }
 
       GrouperLoaderLogger.addLogEntry(GrouperDaemonDeleteOldRecords.LOG_LABEL, "fixAssignsCount", GrouperUtil.length(multikeyToAttributeAssigns));
-      jobMessage.append("fixAssignsCount: " + GrouperUtil.length(multikeyToAttributeAssigns));
+      jobMessage.append("fixAssignsCount: " + GrouperUtil.length(multikeyToAttributeAssigns) + "\n");
+      if (hib3GrouploaderLog != null) {
+        hib3GrouploaderLog.addDeleteCount(GrouperUtil.length(multikeyToAttributeAssigns));
+      }
 
       //loop through each attribute assign id
       for (MultiKey attributeAssignOwner : multikeyToAttributeAssigns.keySet()) {

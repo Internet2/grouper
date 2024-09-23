@@ -21,6 +21,8 @@ import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.GregorianCalendar;
+import java.util.HashSet;
+import java.util.Iterator;
 import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
@@ -39,6 +41,7 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
 import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -81,7 +84,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
     try {
       StringBuilder jobMessage = new StringBuilder();
       try {
-        deleteOldGrouperLoaderLogs(jobMessage);
+        deleteOldGrouperLoaderLogs(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldGrouperLoaderLogs", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInGrouperLoaderDelete", ExceptionUtils.getFullStackTrace(e));
@@ -92,7 +95,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       try {
-        deleteOldChangeLogEntries(jobMessage);
+        deleteOldChangeLogEntries(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldChangeLogEntries", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInChangeLogEntryDelete", ExceptionUtils.getFullStackTrace(e));
@@ -104,7 +107,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
-        deleteOldInstrumentationData(jobMessage);
+        deleteOldInstrumentationData(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldInstrumentation", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInInstrumentationDelete", ExceptionUtils.getFullStackTrace(e));
@@ -115,7 +118,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
-        deleteOldAuditEntryNoLoggedInUser(jobMessage);
+        deleteOldAuditEntryNoLoggedInUser(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldAuditEntryNoLoggedInUser", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAuditEntryNoLoggedInUserDelete", ExceptionUtils.getFullStackTrace(e));
@@ -127,7 +130,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
   
       try {
-        deleteOldAuditEntry(jobMessage);
+        deleteOldAuditEntry(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldAuditEntry", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInAuditEntryDelete", ExceptionUtils.getFullStackTrace(e));
@@ -145,13 +148,13 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
           //# if daemon should remove old values which are multi-assigned if the attribute is single valued
           boolean logOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.removeMultiAttributeValuesIfSingleValuedAttributeLogOnly", true);
           boolean[] errorArray = new boolean[]{false};
-          GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, logOnly, errorArray);
+          GrouperDaemonDeleteMultipleCorruption.fixValues(jobMessage, logOnly, errorArray, hib3GrouploaderLog);
           if (errorArray[0]) {
             error = true;
           }
         } else {
           if (jobMessage != null) {
-            jobMessage.append("Configured to not remove multi assigned values if single valued attribute.  ");
+            jobMessage.append("Configured to not remove multi assigned values if single valued attribute.\n");
           }
         }
       } catch (Exception e) {
@@ -171,13 +174,13 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
           boolean logOnly = GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("loader.removeMultiAttributeAssignIfSingleAssignAttributeLogOnly", true);
 
           boolean[] errorArray = new boolean[]{false};
-          GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, logOnly, errorArray);
+          GrouperDaemonDeleteMultipleCorruption.fixAssigns(jobMessage, logOnly, errorArray, hib3GrouploaderLog);
           if (errorArray[0]) {
             error = true;
           }
         } else {
           if (jobMessage != null) {
-            jobMessage.append("Configured to not remove multi attribute assign if single assigned attribute.  ");
+            jobMessage.append("Configured to not remove multi attribute assign if single assigned attribute.\n");
           }
         }
       } catch (Exception e) {
@@ -190,7 +193,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
-        deleteOldDeletedPointInTimeObjects(jobMessage);
+        deleteOldDeletedPointInTimeObjects(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in deleteOldDeletedPointInTime", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeletedPointInTimeDelete", ExceptionUtils.getFullStackTrace(e));
@@ -202,7 +205,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
 
       try {
         boolean[] errorArray = new boolean[]{false};
-        obliterateOldStemsDirectlyInStem(jobMessage, errorArray);
+        obliterateOldStemsDirectlyInStem(jobMessage, errorArray, hib3GrouploaderLog);
         if (errorArray[0]) {
           error = true;
           GrouperLoaderLogger.addLogEntry(LOG_LABEL, "obliterateOldStems.error", true);
@@ -217,13 +220,23 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       try {
-        verifyTableIdIndexes(jobMessage);
+        verifyTableIdIndexes(jobMessage, hib3GrouploaderLog);
       } catch (Exception e) {
         LOG.error("Error in verifyTableIdIndexes", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInVerifyTableIdIndexes", ExceptionUtils.getFullStackTrace(e));
         jobMessage.append("\nError in verifyTableIdIndexes: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
       }
+      
+      try {
+        deleteOldSyncData(jobMessage, hib3GrouploaderLog);
+      } catch (Exception e) {
+        LOG.error("Error deleting old sync data", e);
+        GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInDeleteOldSyncData", ExceptionUtils.getFullStackTrace(e));
+        jobMessage.append("\nError deleting old sync data: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
+        error = true;
+      }
+      
   
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -244,9 +257,50 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
   }
 
   /**
+   * delete old sync data
+   */
+  public static void deleteOldSyncData(StringBuilder jobMessage) {
+    deleteOldSyncData(jobMessage, null);
+  }
+
+  /**
+   * delete old sync data
+   */
+  public static void deleteOldSyncData(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
+
+    Timestamp weekAgo = new Timestamp(System.currentTimeMillis()); // TODO - (1000L * 60 * 60 * 24 * 7));
+    
+    // do this for things more than a week old
+    Set<String> configIds = new HashSet<String>(new GcDbAccess().sql("""
+        select provisioner_name 
+        from grouper_sync where last_updated < ? 
+        and (last_full_sync_run is null or last_full_sync_run < ?) 
+        and (last_full_sync_start is null or last_full_sync_start < ?)
+        and (last_incremental_sync_run is null or last_incremental_sync_run < ?)
+        """).addBindVar(weekAgo).addBindVar(weekAgo).addBindVar(weekAgo).addBindVar(weekAgo).selectList(String.class));
+ 
+    Iterator<String> iterator = configIds.iterator();
+    
+    while (iterator.hasNext()) {
+      String configId = iterator.next();
+      String provisionerClassName = GrouperLoaderConfig.retrieveConfig().propertyValueString("provisioner." + configId + ".class");
+
+      // its configured
+      if (!StringUtils.isBlank(provisionerClassName)) {
+        iterator.remove();
+      }
+    }
+    
+//    if (hib3GrouploaderLog != null) {
+//      hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
+//    }
+
+  }
+  
+  /**
    * @param jobMessage
    */
-  private static void deleteOldInstrumentationData(StringBuilder jobMessage) {
+  private static void deleteOldInstrumentationData(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
     
     try {
@@ -267,7 +321,10 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldInstrumentationDataCount", records);
    
-        jobMessage.append("Deleted " + records + " instrumentation records older than " + daysToKeepLogs + " days old. (" + calendar.getTimeInMillis() + ").  ");
+        jobMessage.append("Deleted " + records + " instrumentation records older than " + daysToKeepLogs + " days old. (" + calendar.getTimeInMillis() + ").\n");
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
+        }
         
         // remove instances that haven't had activity in a while
         long instrumentationInstanceDeletes = 0;
@@ -292,10 +349,13 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
             }
           }
   
-          jobMessage.append("Deleted " + instrumentationInstanceDeletes + " instrumentation instances older than " + daysToKeepInactiveInstances + " days old.  ");
+          if (hib3GrouploaderLog != null) {
+            hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(instrumentationInstanceDeletes));
+          }
+          jobMessage.append("Deleted " + instrumentationInstanceDeletes + " instrumentation instances older than " + daysToKeepInactiveInstances + " days old.\n");
         }
       } else {
-        jobMessage.append("Configured to not delete old instrumentation data.  ");
+        jobMessage.append("Configured to not delete old instrumentation data.\n");
       }
     } finally {
       if (loggerInitted) {
@@ -305,10 +365,11 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
 
   }
 
+
   /**
    * @param jobMessage
    */
-  private static void deleteOldChangeLogEntries(StringBuilder jobMessage) {
+  private static void deleteOldChangeLogEntries(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
 
     try {
@@ -338,10 +399,14 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
           
         }
       
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
+        }
+
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldChangeLogEntriesCount", records);
-        jobMessage.append("Deleted " + records + " records from grouper_change_log_entry older than " + daysToKeepLogs + " days old. (" + time + ").  ");
+        jobMessage.append("Deleted " + records + " records from grouper_change_log_entry older than " + daysToKeepLogs + " days old. (" + time + ").\n");
       } else {
-        jobMessage.append("Configured to not delete records from grouper_change_log_entry table.  ");
+        jobMessage.append("Configured to not delete records from grouper_change_log_entry table.\n");
       }
     } finally {
       if (loggerInitted) {
@@ -353,7 +418,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
   /**
    * @param jobMessage
    */
-  private static void deleteOldGrouperLoaderLogs(StringBuilder jobMessage) {
+  private static void deleteOldGrouperLoaderLogs(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
     
     try {
@@ -376,13 +441,17 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
           records = HibernateSession.bySqlStatic().executeSql("delete from grouper_loader_log where last_updated < ?", 
               HibUtils.listObject(new Timestamp(calendar.getTimeInMillis())), HibUtils.listType(TimestampType.INSTANCE));
         }
-   
+
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
+        }
+        
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldGrouperLoaderLogsCount", records);
 
-        jobMessage.append("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old.  ");
+        jobMessage.append("Deleted " + records + " records from grouper_loader_log older than " + daysToKeepLogs + " days old.\n");
         
       } else {
-        jobMessage.append("Configured to not delete records from grouper_loader_log table.  ");
+        jobMessage.append("Configured to not delete records from grouper_loader_log table.\n");
       }
     } finally {
       if (loggerInitted) {
@@ -395,16 +464,16 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    * @return records deleted
    */
   public static long deleteOldAuditEntryNoLoggedInUser() {
-    return deleteOldAuditEntryNoLoggedInUser(null);
+    return deleteOldAuditEntryNoLoggedInUser(null, null);
   }
   
   /**
    * @param jobMessage
    * @return recordsDeleted
    */
-  public static long deleteOldAuditEntryNoLoggedInUser(StringBuilder jobMessage) {
+  public static long deleteOldAuditEntryNoLoggedInUser(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.audit_entry_no_logged_in_user.days", -1);
-    return deleteOldAuditEntryNoLoggedInUser(jobMessage, daysToKeepLogs);
+    return deleteOldAuditEntryNoLoggedInUser(jobMessage, daysToKeepLogs, hib3GrouploaderLog);
   }
 
   /**
@@ -414,6 +483,16 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    */
   public static long deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage,
       int daysToKeepLogs) {
+    return deleteOldDeletedPointInTimeObjects(jobMessage,
+        daysToKeepLogs, null);
+  }
+  /**
+   * @param jobMessage
+   * @param daysToKeepLogs
+   * @return records deleted
+   */
+  public static long deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage,
+      int daysToKeepLogs, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
     
@@ -432,10 +511,14 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
 
         records = edu.internet2.middleware.grouper.pit.PITUtils.deleteInactiveRecords(new Date(time), false);
       
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
+        }
+        
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteDeletedPointInTimeObjectsCount", records);
   
         if (jobMessage != null) {
-          jobMessage.append("Deleted " + records + " records from DeletedPointInTimeObjects older than " + daysToKeepLogs + " days old. (" + time + ").  ");
+          jobMessage.append("Deleted " + records + " records from DeletedPointInTimeObjects older than " + daysToKeepLogs + " days old. (" + time + ").\n");
         }
       } else {
         if (jobMessage != null) {
@@ -456,7 +539,15 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    * @return records deleted
    */
   public static long deleteOldAuditEntryNoLoggedInUser(int daysToKeepLogs) {
-    return deleteOldAuditEntryNoLoggedInUser(null, daysToKeepLogs);
+    return deleteOldAuditEntryNoLoggedInUser(null, daysToKeepLogs, null);
+  }
+
+  /**
+   * @param daysToKeepLogs
+   * @return records deleted
+   */
+  public static long deleteOldAuditEntryNoLoggedInUser(int daysToKeepLogs, Hib3GrouperLoaderLog hib3GrouploaderLog) {
+    return deleteOldAuditEntryNoLoggedInUser(null, daysToKeepLogs, hib3GrouploaderLog);
   }
 
   /**
@@ -466,6 +557,16 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    */
   public static long deleteOldAuditEntryNoLoggedInUser(StringBuilder jobMessage,
       int daysToKeepLogs) {
+    return deleteOldAuditEntryNoLoggedInUser(jobMessage,
+        daysToKeepLogs, null);
+  }
+  /**
+   * @param jobMessage
+   * @param daysToKeepLogs
+   * @return records deleted
+   */
+  public static long deleteOldAuditEntryNoLoggedInUser(StringBuilder jobMessage,
+      int daysToKeepLogs, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
     
@@ -487,14 +588,18 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
             "select ae.id from AuditEntry ae where ae.createdOnDb < :createdOn and ae.loggedInMemberId is null").setLong("createdOn", time)
             .deleteInBatches(String.class, "AuditEntry", "id");
       
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
+        }
+        
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAuditNotLoggedInCount", records);
   
         if (jobMessage != null) {
-          jobMessage.append("Deleted " + records + " records from audit_entry with null logged in member id and older than " + daysToKeepLogs + " days old. (" + time + ").  ");
+          jobMessage.append("Deleted " + records + " records from audit_entry with null logged in member id and older than " + daysToKeepLogs + " days old. (" + time + ").\n");
         }
       } else {
         if (jobMessage != null) {
-          jobMessage.append("Configured to not delete records from audit_entry table with null logged in member id.  ");
+          jobMessage.append("Configured to not delete records from audit_entry table with null logged in member id.\n");
         }
       }
       
@@ -510,7 +615,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    * @return records deleted
    */
   public static long deleteOldAuditEntry() {
-    return deleteOldAuditEntry(null);
+    return deleteOldAuditEntry(null, null);
   }
 
   /**
@@ -518,16 +623,16 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    * @return records deleted
    */
   public static long deleteOldAuditEntry(int daysToKeepLogs) {
-    return deleteOldAuditEntry(null, daysToKeepLogs);
+    return deleteOldAuditEntry(null, daysToKeepLogs, null);
   }
 
   /**
    * @param jobMessage
    * @return recordsDeleted
    */
-  public static long deleteOldAuditEntry(StringBuilder jobMessage) {
+  public static long deleteOldAuditEntry(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.audit_entry.days", -1);
-    return deleteOldAuditEntry(jobMessage, daysToKeepLogs);
+    return deleteOldAuditEntry(jobMessage, daysToKeepLogs, hib3GrouploaderLog);
   }
 
   /**
@@ -537,6 +642,16 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    */
   public static long deleteOldAuditEntry(StringBuilder jobMessage,
       int daysToKeepLogs) {
+    return deleteOldAuditEntry(jobMessage,
+        daysToKeepLogs, null);
+  }
+  /**
+   * @param jobMessage
+   * @param daysToKeepLogs
+   * @return records deleted
+   */
+  public static long deleteOldAuditEntry(StringBuilder jobMessage,
+      int daysToKeepLogs, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     
     boolean loggerInitted = GrouperLoaderLogger.initializeThreadLocalMap(LOG_LABEL);
     
@@ -558,14 +673,18 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
             "select ae.id from AuditEntry ae where ae.createdOnDb < :createdOn").setLong("createdOn", time)
             .deleteInBatches(String.class, "AuditEntry", "id");
       
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(records));
+        }
+        
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "deleteOldAuditCount", records);
   
         if (jobMessage != null) {
-          jobMessage.append("Deleted " + records + " records from audit_entry older than " + daysToKeepLogs + " days old. (" + time + ").  ");
+          jobMessage.append("Deleted " + records + " records from audit_entry older than " + daysToKeepLogs + " days old. (" + time + ").\n");
         }
       } else {
         if (jobMessage != null) {
-          jobMessage.append("Configured to not delete records from audit_entry table.  ");
+          jobMessage.append("Configured to not delete records from audit_entry table.\n");
         }
       }
       
@@ -589,16 +708,25 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    * @return records deleted
    */
   public static long deleteOldDeletedPointInTimeObjects(int daysToKeepLogs) {
-    return deleteOldDeletedPointInTimeObjects(null, daysToKeepLogs);
+    return deleteOldDeletedPointInTimeObjects(null, daysToKeepLogs, null);
   }
+
 
   /**
    * @param jobMessage
    * @return recordsDeleted
    */
   public static long deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage) {
+    return deleteOldDeletedPointInTimeObjects(jobMessage, null);
+  }
+
+  /**
+   * @param jobMessage
+   * @return recordsDeleted
+   */
+  public static long deleteOldDeletedPointInTimeObjects(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     int daysToKeepLogs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("loader.retain.db.point_in_time_deleted_objects.days", -1);
-    return deleteOldDeletedPointInTimeObjects(jobMessage, daysToKeepLogs);
+    return deleteOldDeletedPointInTimeObjects(jobMessage, daysToKeepLogs, hib3GrouploaderLog);
   }
 
   /**
@@ -736,6 +864,15 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    * @return recordsDeleted
    */
   public static long obliterateOldStemsDirectlyInStem(StringBuilder jobMessage, boolean[] error) {
+    return obliterateOldStemsDirectlyInStem(jobMessage, error, null);
+  }
+  
+  /**
+   * @param jobMessage
+   * @param error 
+   * @return recordsDeleted
+   */
+  public static long obliterateOldStemsDirectlyInStem(StringBuilder jobMessage, boolean[] error, Hib3GrouperLoaderLog hib3GrouploaderLog) {
     
     Pattern daysPattern = Pattern.compile("^loader\\.retain\\.db\\.folder\\.(.*)\\.days$");
 
@@ -778,7 +915,11 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
       index++;
     }
     
-    return obliterateOldStemsDirectlyInStem(jobMessage, deleteOldStemsSet, error);
+    long foldersDeleted = obliterateOldStemsDirectlyInStem(jobMessage, deleteOldStemsSet, error);
+    if (hib3GrouploaderLog != null) {
+      hib3GrouploaderLog.addDeleteCount(GrouperUtil.intValue(foldersDeleted));
+    }
+    return foldersDeleted;
   }
 
   /**
@@ -923,6 +1064,14 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
    * verify that table id indexes
    */
   public static void verifyTableIdIndexes(StringBuilder jobMessage) {
+    verifyTableIdIndexes(jobMessage, null);
+    
+  }
+
+  /**
+   * verify that table id indexes
+   */
+  public static void verifyTableIdIndexes(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
 
     //lets see if there are any nulls
     for (TableIndexType tableIndexType : TableIndexType.values()) {
@@ -940,6 +1089,9 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
           if (gcTableSyncColumnMetadata == null) {
             continue;
           }
+        }
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addUpdateCount(GrouperUtil.length(ids));
         }
         
         List<String> ids = HibernateSession.bySqlStatic().listSelect(
