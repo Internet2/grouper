@@ -720,7 +720,7 @@ public enum CustomUiUserQueryType {
         throw new RuntimeException("You need to pass a script or groupName");
       }
       
-      if (!hasDuoGroupName && !StringUtils.isBlank(customUiUserQueryConfigBean.getScript())) {
+      if (hasDuoGroupName && !StringUtils.isBlank(customUiUserQueryConfigBean.getScript())) {
         throw new RuntimeException("If you are not querying an duo user, you cannot pass a 'script'");
       }
     }
