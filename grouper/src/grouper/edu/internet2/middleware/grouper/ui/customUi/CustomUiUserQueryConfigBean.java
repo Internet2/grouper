@@ -128,6 +128,9 @@ public class CustomUiUserQueryConfigBean {
   /** constant for field name for: groupName */
   public static final String FIELD_GROUP_NAME = "groupName";
 
+  /** constant for field name for: duoGroupName */
+  public static final String FIELD_DUO_GROUP_NAME = "duoGroupName";
+
   /** constant for field name for: label */
   public static final String FIELD_LABEL = "label";
 
@@ -592,7 +595,29 @@ public class CustomUiUserQueryConfigBean {
   
   
   
+  /**
+   * specify duo group name
+   */
+  private String duoGroupName;
   
+  
+  
+  /**
+   * specify duo group name
+   * @return name
+   */
+  public String getDuoGroupName() {
+    return this.duoGroupName;
+  }
+
+  /**
+   * specify duo group name
+   * @param duoGroupName1
+   */
+  public void setDuoGroupName(String duoGroupName1) {
+    this.duoGroupName = duoGroupName1;
+  }
+
   /**
    * if hard coding the azure group id put it here
    * @return the azureGroupId
