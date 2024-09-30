@@ -51,7 +51,13 @@ public class GrouperDuoApiCommands {
 //    System.out.println("userByName: "+userByName);
     
 //    associateUserToGroup("duo1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
-    disassociateUserFromGroup("duo1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
+//    disassociateUserFromGroup("duo1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
+    
+    JsonNode jsonNode = retrieveDuoUserByNameJsonNode("duoAdminProdReadonly", "mchyzer", true);
+    
+    System.out.println(jsonNode);
+    
+    System.exit(0);
     
   }
 
@@ -263,7 +269,7 @@ public class GrouperDuoApiCommands {
     
   }
 
-  private static JsonNode executeMethod(Map<String, Object> debugMap,
+  public static JsonNode executeMethod(Map<String, Object> debugMap,
       String httpMethodName, String configId,
       String urlSuffix, Set<Integer> allowedReturnCodes, int[] returnCode, 
       Map<String, String> params,
@@ -932,17 +938,44 @@ public class GrouperDuoApiCommands {
     }
 
   }
-  
+
   /**
    * @param configId
    * @param username
    * @return
    */
   public static GrouperDuoUser retrieveDuoUserByName(String configId, String username) {
+    return retrieveDuoUserByName(configId, username, false);
+  }
+
+  /**
+   * @param configId
+   * @param username
+   * @param includeLoadedFields true for more info
+   * @return
+   */
+  public static GrouperDuoUser retrieveDuoUserByName(String configId, String username, boolean includeLoadedFields) {
+
+    JsonNode userNode = retrieveDuoUserByNameJsonNode(configId, username, includeLoadedFields);
+    if (userNode == null) {
+      return null;
+    }
+    GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, includeLoadedFields);
+    return grouperDuoUser;
+
+  }
+  
+  /**
+   * @param configId
+   * @param username
+   * @param includeLoadedFields true for more info
+   * @return
+   */
+  public static JsonNode retrieveDuoUserByNameJsonNode(String configId, String username, boolean includeLoadedFields) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "retrieveDuoUserByName");
+    debugMap.put("method", "retrieveDuoUserJsonNodeByName");
 
     long startTime = System.nanoTime();
 
@@ -963,8 +996,29 @@ public class GrouperDuoApiCommands {
         throw new RuntimeException("How can there be more than one user with the same username in duo?? '" + username + "'");
       } else {
         JsonNode userNode = usersArray.get(0);
-        GrouperDuoUser grouperDuoUser = GrouperDuoUser.fromJson(userNode, false);
-        return grouperDuoUser;
+        
+        //  {"alias1":"mchyzer-kadm","alias2":null,"alias3":null,"alias4":null,
+        //  "aliases":{"alias1":"mchyzer-kadm"},
+        //  "created":1695930463,"desktoptokens":[],"email":"","enable_auto_prompt":true,"firstname":"",
+        //  "groups":[
+        //  {"desc":"This is the early adopters group for DUO changes.","group_id":"abc123","mobile_otp_enabled":false,"name":"EarlyAdopters","push_enabled":false,"sms_enabled":false,"status":"Active","voice_enabled":false},
+        //  {"desc":"Member's of the ISC IAM Program. This group will typically used for early adoption/new features in DUO for testing and piloting purposes.","group_id":"abc123","mobile_otp_enabled":false,"name":"ISC IAM Program","push_enabled":false,"sms_enabled":false,"status":"Active","voice_enabled":false}],
+        //  "is_enrolled":true,"last_directory_sync":null,"last_login":1727537850,"lastname":"","lockout_reason":null,"notes":"",
+        //  "phones":[
+        //  {"activated":true,"capabilities":["auto","push","sms","phone","mobile_otp"],"extension":"","last_seen":"2024-09-28T21:28:48","model":"Apple iPhone SE","name":"phone 1","number":"+1123456","phone_id":"abc123","platform":"Apple iOS","postdelay":"","predelay":"","sms_passcodes_sent":true,"type":"Mobile"},
+        //  {"activated":false,"capabilities":["auto","phone"],"extension":"","last_seen":"","model":"Unknown","name":"phone 2","number":"+1123456","phone_id":"abc123","platform":"Unknown","postdelay":"","predelay":"","sms_passcodes_sent":true,"type":"Landline"},
+        //  {"activated":false,"capabilities":["auto","phone"],"extension":"","last_seen":"","model":"Unknown","name":"phone 3","number":"+1123456","phone_id":"abc123","platform":"Unknown","postdelay":"","predelay":"","sms_passcodes_sent":false,"type":"Landline"}],
+        //  "realname":"",
+        //  "status":"active",
+        //  "tokens":[{"serial":"pennprod__10021368__hotp__0","token_id":"abc123","totp_step":null,"type":"h6"},
+        //  {"serial":"pennprod__10021368__hotp__500000","token_id":"abc123","totp_step":null,"type":"h6"},
+        //  {"serial":"pennprod__10021368__totp__30","token_id":"abc123","totp_step":30,"type":"t6"}],
+        //  "u2ftokens":[],
+        //  "user_id":"abc123","username":"mchyzer","webauthncredentials":[{"credential_name":"Touch ID","date_added":1699543237,"label":"Chrome on Mac","webauthnkey":"abc123"},
+        //  {"credential_name":"iCloud Keychain","date_added":1712852003,"label":"iCloud Keychain","webauthnkey":"abc123"}]}
+        
+        
+        return userNode;
       }
       
     } catch (RuntimeException re) {

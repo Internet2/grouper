@@ -172,7 +172,7 @@ public class CustomUiAzure extends CustomUiUserQueryBase {
       String graphVersion = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".graphVersion");
       String subjectIdValueFormat = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".subjectIdValueFormat");
   
-      String requireSubjectAttribute = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.azureConnector." + configId + ".requireSubjectAttribute");
+      String requireSubjectAttribute = GrouperConfig.retrieveConfig().propertyValueString("grouper.azureConnector." + configId + ".requireSubjectAttribute");
       
       if (!StringUtils.isBlank(requireSubjectAttribute)) {
         if (StringUtils.isBlank(subject.getAttributeValue(requireSubjectAttribute))) {

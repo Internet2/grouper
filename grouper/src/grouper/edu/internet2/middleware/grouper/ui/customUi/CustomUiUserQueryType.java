@@ -680,7 +680,124 @@ public enum CustomUiUserQueryType {
           null, null, null, null, argumentMap);
     }
   
+  }, 
+  
+  /**
+   * check something in azure
+   */
+  duo{
+  
+    @Override
+    public Set<String> requiredFieldNames() {
+      return duoRequiredFieldNames;
+    }
+  
+    @Override
+    public Set<String> optionalFieldNames() {
+      return duoOptionaldFieldNames;
+    }
+  
+    @Override
+    public void validate(CustomUiUserQueryConfigBean customUiUserQueryConfigBean, Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
+  
+      boolean hasDuoGroupName = !StringUtils.isBlank(customUiUserQueryConfigBean.getGroupName());
+      boolean hasUserScript = !StringUtils.isBlank(customUiUserQueryConfigBean.getScript());
+      
+      int queryCount = 0;
+      if (hasDuoGroupName) {
+        queryCount++;
+        if (!StringUtils.isBlank(customUiUserQueryConfigBean.getVariableType())) {
+          throw new RuntimeException("If you arent doing a user query then you cant set variableType");
+        }
+  
+      }
+      if (hasUserScript) {
+        queryCount++;
+      }
+      
+      // could be a user query with 
+      if (queryCount == 0 ) {
+        throw new RuntimeException("You need to pass a script or groupName");
+      }
+      
+      if (!hasDuoGroupName && !StringUtils.isBlank(customUiUserQueryConfigBean.getScript())) {
+        throw new RuntimeException("If you are not querying an duo user, you cannot pass a 'script'");
+      }
+    }
+  
+    @Override
+    public Object evaluate(CustomUiEngine customUiEngine, CustomUiUserQueryConfigBean customUiUserQueryConfigBean,
+        Group group, Subject subject, Stem stem, AttributeDef attributeDef) {
+      
+      CustomUiDuo customUiDuo = new CustomUiDuo();
+      customUiDuo.setCustomUiEngine(customUiEngine);
+      customUiDuo.setDebugMapPrefix(customUiUserQueryConfigBean.getVariableToAssign());
+      
+      if (!StringUtils.isBlank(customUiUserQueryConfigBean.getDuoGroupName())) {
+        boolean result = customUiDuo.hasDuoMembershipByDuoGroupName(customUiUserQueryConfigBean.getConfigId(), customUiUserQueryConfigBean.getDuoGroupName(), subject);
+        
+        return result;
+      }
+      
+      // user
+      Map<String, Object> duoUser = customUiDuo.retrieveDuoUserOrFromCache(customUiUserQueryConfigBean.getConfigId(), subject);
+      
+      // dont substitute the sql, for security reasons
+      String result = CustomUiUtil.substituteExpressionLanguage(customUiUserQueryConfigBean.getScript(), group, stem, attributeDef, subject, duoUser);
+      
+      CustomUiVariableType customUiVariableType = CustomUiVariableType.valueOfIgnoreCase(customUiUserQueryConfigBean.getVariableType(), false);
+      
+      Object resultObject = customUiVariableType.convertTo(result);
+      return resultObject;
+    }
+  
+    @Override
+    public String description(CustomUiEngine customUiEngine, CustomUiUserQueryConfigBean customUiUserQueryConfigBean, 
+        Group group, Subject subject, Stem stem, AttributeDef attributeDef, Map<String, Object> argumentMap) {
+      
+      if (!StringUtils.isBlank(customUiUserQueryConfigBean.getDuoGroupName())) {
+      
+        return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionDuoGroupName']}", 
+            group, null, null, subject, argumentMap, true);
+      }
+      
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryDescriptionDuoExpression']}", 
+          null, null, null, subject, argumentMap, true);
+        
+    }
+  
+    @Override
+    public String label(Map<String, Object> argumentMap) {
+      return CustomUiUtil.substituteExpressionLanguage("${textContainer.text['guiCustomUiUserQueryTypeLabel_" + this.name().toLowerCase() + "']}", 
+          null, null, null, null, argumentMap);
+    }
+  
   };
+
+  /**
+   * duo required
+   */
+  private static Set<String> duoRequiredFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_CONFIG_ID,
+      CustomUiUserQueryConfigBean.FIELD_ERROR_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_LABEL,
+      CustomUiUserQueryConfigBean.FIELD_USER_QUERY_TYPE,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TO_ASSIGN_ON_ERROR
+      );
+
+  /**
+   * duo optional
+   */
+  private static Set<String> duoOptionaldFieldNames = GrouperUtil.toSet(
+      CustomUiUserQueryConfigBean.FIELD_ENABLED, 
+      CustomUiUserQueryConfigBean.FIELD_FOR_LOGGED_IN_USER,
+      CustomUiUserQueryConfigBean.FIELD_SCRIPT, 
+      CustomUiUserQueryConfigBean.FIELD_DUO_GROUP_NAME,
+      CustomUiUserQueryConfigBean.FIELD_ORDER,
+      CustomUiUserQueryConfigBean.FIELD_VARIABLE_TYPE
+      );
+    
 
   /**
    * azure required
