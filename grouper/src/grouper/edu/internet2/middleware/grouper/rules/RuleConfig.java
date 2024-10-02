@@ -224,7 +224,13 @@ public class RuleConfig {
     }
     return new ArrayList<>();
   }
-
+  
+  public String getPatternHelperText() {
+    if ( StringUtils.isNotBlank(this.pattern) && !StringUtils.equals(this.pattern, "custom")) {
+      return RulePattern.valueOf(this.pattern).getHelperText();
+    }
+    return "";
+  }
   
   public String getCheckType() {
     return checkType;

@@ -182,6 +182,11 @@ public enum RulePattern {
       return false;
     }
 
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("VetoInFolderIfNotEligibleDueToGroupHelperText");
+    }
+    
   },
   
   InheritedPrivilegesOnFolders {
@@ -420,6 +425,11 @@ public enum RulePattern {
       return true;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("InheritedPrivilegesOnFoldersHelperText");
+    }
+    
   },
   
   InheritedPrivilegesOnAttributeDefinitions {
@@ -655,7 +665,10 @@ public enum RulePattern {
       return true;
     }
     
-    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("InheritedPrivilegesOnAttributeDefinitionsHelperText");
+    }
     
   },
   
@@ -894,6 +907,11 @@ public enum RulePattern {
       return true;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("InheritedPrivilegesOnGroupsHelperText");
+    }
+    
   },
   
   AddSelfPrivilegesToNewGroups {
@@ -1032,6 +1050,11 @@ public enum RulePattern {
       return false;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("AddSelfPrivilegesToNewGroupsHelperText");
+    }
+    
   },
   
   AddDisabledDateOnInvalidMembership {
@@ -1138,10 +1161,13 @@ public enum RulePattern {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
         List<MultiKey> valuesAndLabels = new ArrayList<>();
-        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup"));
+        
+        MultiKey valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfAddedToGroup"));
         valuesAndLabels.add(valueAndLabel);
-        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfAddedToGroup"));
+        
+        valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup"));
         valuesAndLabels.add(valueAndLabel);
+       
         attribute.setDropdownValuesAndLabels(valuesAndLabels);
         attribute.setShow(true);
         attribute.setConfigSuffix("AddDisabledDateOnInvalidMembership.checkIfRemovedFromGroup");
@@ -1247,6 +1273,10 @@ public enum RulePattern {
       return true;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipHelperText");
+    }
     
   },
   
@@ -1338,6 +1368,11 @@ public enum RulePattern {
       }
       
       return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("AddDisabledDateOnMembershipHelperText");
     }
     
   },
@@ -1446,6 +1481,11 @@ public enum RulePattern {
       }
       
       return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("AddMemberToGroupIfAddedToAnotherGroupHelperText");
     }
     
   },
@@ -1559,6 +1599,11 @@ public enum RulePattern {
       }
       
       return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("AddMemberToGroupIfRemovedFromAnotherGroupHelperText");
     }
     
   },
@@ -1712,6 +1757,12 @@ public enum RulePattern {
       }
       
       return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      String text = GrouperTextContainer.textOrNull("AddCreatedGroupsToAnotherGroupHelperText");
+      return text;
     }
      
   },
@@ -1884,6 +1935,11 @@ public enum RulePattern {
     @Override
     public boolean isDaemonAssignableByNonAdmin() {
       return true;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToGroupHelperText");
     }
      
   },
@@ -2139,6 +2195,11 @@ public enum RulePattern {
       return false;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("SendEmailWhenGroupMemberInvalidDueToFolderHelperText");
+    }
+    
   },
   
   SendEmailMembershipAddDueToFolder {
@@ -2330,6 +2391,11 @@ public enum RulePattern {
       }
       
       return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("SendEmailMembershipAddDueToFolderHelperText");
     }
     
   },
@@ -2564,6 +2630,10 @@ public enum RulePattern {
       return true;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("SendEmailDueToDisabledDateHelperText");
+    }
     
   },
   
@@ -2669,6 +2739,11 @@ public enum RulePattern {
       }
       
       return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("VetoIfNewMembershipIsNotAGroupHelperText");
     }
     
   },
@@ -2830,6 +2905,11 @@ public enum RulePattern {
       return true;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToFolderHelperText");
+    }
+    
   },
   
   VetoIfNotEligibleDueToGroup {
@@ -2843,10 +2923,16 @@ public enum RulePattern {
       
       String checkIfRemovedFromGroup = patternPropertiesValues.get("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup");
       
+      String arg1Message = null;
+      
       if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
         ruleConfig.setCheckType(RuleCheckType.membershipRemove.name());
+        arg1Message = GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupRemoveArg1Message");
+        ruleConfig.setThenArg0("rule.entity.remove.must.be.a.member.of.stem.b");
       } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
         ruleConfig.setCheckType(RuleCheckType.membershipAdd.name());
+        arg1Message = GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupArg1Message");
+        ruleConfig.setThenArg0("rule.entity.must.be.a.member.of.stem.b");
       }
       
       ruleConfig.setCheckOwnerUuidOrName(ruleConfig.getGrouperObject().getName());
@@ -2857,9 +2943,7 @@ public enum RulePattern {
       ruleConfig.setIfConditionOwner("anotherGroup");
       
       ruleConfig.setThenOption(RuleThenEnum.veto.name());
-      ruleConfig.setThenArg0("rule.entity.must.be.a.member.of.stem.b");
       
-      String arg1Message = GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupArg1Message");
       arg1Message = arg1Message.replace("##targetGroup##", group);
       ruleConfig.setThenArg1(arg1Message);
       
@@ -2916,10 +3000,13 @@ public enum RulePattern {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
         List<MultiKey> valuesAndLabels = new ArrayList<>();
-        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup"));
+        
+        MultiKey valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfAddedToGroup"));
         valuesAndLabels.add(valueAndLabel);
-        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfAddedToGroup"));
+        
+        valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup"));
         valuesAndLabels.add(valueAndLabel);
+       
         attribute.setDropdownValuesAndLabels(valuesAndLabels);
         attribute.setShow(true);
         attribute.setConfigSuffix("VetoIfNotEligibleDueToGroup.checkIfRemovedFromGroup");
@@ -2929,9 +3016,9 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipRemove) {            
+          if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipRemove) {            
             attribute.setValue("T");
-          } else if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.flattenedMembershipAdd) {
+          } else if (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd) {
             attribute.setValue("F");
           }
         }
@@ -2948,8 +3035,8 @@ public enum RulePattern {
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
-        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
-          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
+        if (ruleDefinition != null && ruleDefinition.getIfCondition() != null) {
+          attribute.setValue(ruleDefinition.getIfCondition().getIfOwnerName());
         }
         elements.add(attribute);
       }
@@ -2974,9 +3061,10 @@ public enum RulePattern {
           (ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd || ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipRemove) &&
           ruleDefinition.getIfCondition() != null && (ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoEnabledMembership || 
               ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.groupHasNoImmediateEnabledMembership) && 
-          ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.veto &&
-          StringUtils.equals(ruleDefinition.getThen().getThenEnumArg0(), "rule.entity.must.be.a.member.of.stem.b") &&
-          StringUtils.startsWith(ruleDefinition.getThen().getThenEnumArg1(), GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupArg1MessagePrefix"))) {
+          ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.veto && 
+          StringUtils.equalsAny(ruleDefinition.getThen().getThenEnumArg0(), "rule.entity.must.be.a.member.of.stem.b", "rule.entity.remove.must.be.a.member.of.stem.b")
+          && StringUtils.startsWithAny(ruleDefinition.getThen().getThenEnumArg1(), GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupArg1MessagePrefix"), 
+              GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupRemoveArg1MessagePrefix"))) {
         return true;
       }
       
@@ -2986,6 +3074,11 @@ public enum RulePattern {
     @Override
     public boolean isDaemonApplicable() {
       return true;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("VetoIfNotEligibleDueToGroupHelperText");
     }
     
   },
@@ -3086,6 +3179,11 @@ public enum RulePattern {
       }
       
       return false;
+    }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("VetoIfTooManyMembersHelperText");
     }
     
   },
@@ -3239,8 +3337,14 @@ public enum RulePattern {
     public boolean isDaemonApplicable() {
       return true;
     }
+    
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("RemoveInvalidMembershipDueToFolderHelperText");
+    }
      
   }, 
+  
   SendEmailAfterNewMembership {
   
     @Override
@@ -3409,7 +3513,14 @@ public enum RulePattern {
       return false;
     }
     
-  }, SendEmailAfterMembershipRemove {
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("SendEmailAfterNewMembershipHelperText");
+    }
+    
+  }, 
+  
+  SendEmailAfterMembershipRemove {
   
     @Override
     public Map<String, List<String>> save(RuleConfig ruleConfig, String attributeAssignId) {
@@ -3578,6 +3689,11 @@ public enum RulePattern {
       return false;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("SendEmailAfterMembershipRemoveHelperText");
+    }
+    
   }, 
   
   AddDisabledDateOnInvalidMembershipDueToFolder {
@@ -3589,11 +3705,11 @@ public enum RulePattern {
       
       String gracePeriod = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.gracePeriod");
       String addIfNotThere = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.addIfNotThere");
-      String checkIfRemovedFromGroup = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup");
+      String checkIfRemovedFromFolder = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromFolder");
       
-      if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+      if (StringUtils.equals(checkIfRemovedFromFolder, "T")) {
         ruleConfig.setCheckType(RuleCheckType.flattenedMembershipRemoveInFolder.name());
-      } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+      } else if (StringUtils.equals(checkIfRemovedFromFolder, "F")) {
         ruleConfig.setCheckType(RuleCheckType.flattenedMembershipAddInFolder.name());
       }
       
@@ -3622,7 +3738,7 @@ public enum RulePattern {
       String folderScope = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.stemScope");
       String gracePeriod = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.gracePeriod");
       
-      String checkIfRemovedFromGroup = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup");
+      String checkIfRemovedFromFolder = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromFolder");
      
       Stem stem = StemFinder.findByName(folder, false);
       if (stem == null) {
@@ -3637,9 +3753,9 @@ public enum RulePattern {
       
       if (stem != null && loggedInSubject != null) {
         StemPrivilegeStrategy stemPrivilegeStrategy = null;
-        if (StringUtils.equals(checkIfRemovedFromGroup, "T")) {
+        if (StringUtils.equals(checkIfRemovedFromFolder, "T")) {
           stemPrivilegeStrategy = RuleCheckType.flattenedMembershipRemoveInFolder.getStemPrivilegeStrategy();
-        } else if (StringUtils.equals(checkIfRemovedFromGroup, "F")) {
+        } else if (StringUtils.equals(checkIfRemovedFromFolder, "F")) {
           stemPrivilegeStrategy = RuleCheckType.flattenedMembershipAddInFolder.getStemPrivilegeStrategy();
         }
         
@@ -3689,15 +3805,18 @@ public enum RulePattern {
         GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
         attribute.setFormElement(ConfigItemFormElement.DROPDOWN);
         List<MultiKey> valuesAndLabels = new ArrayList<>();
-        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup"));
+        
+        MultiKey valueAndLabel = new MultiKey("T", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromFolder"));
         valuesAndLabels.add(valueAndLabel);
-        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfAddedToGroup"));
+        
+        valueAndLabel = new MultiKey("F", GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfAddedToFolder"));
         valuesAndLabels.add(valueAndLabel);
+       
         attribute.setDropdownValuesAndLabels(valuesAndLabels);
         attribute.setShow(true);
-        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup");
-        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup.label"));
-        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromGroup.description"));
+        attribute.setConfigSuffix("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromFolder");
+        attribute.setLabel(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromFolder.label"));
+        attribute.setDescription(GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromFolder.description"));
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
@@ -3820,6 +3939,11 @@ public enum RulePattern {
       return true;
     }
     
+    @Override
+    public String getHelperText() {
+      return GrouperTextContainer.textOrNull("AddDisabledDateOnInvalidMembershipDueToFolderHelperText");
+    }
+    
   };
   
   
@@ -3860,6 +3984,8 @@ public enum RulePattern {
    * @return
    */
   public abstract boolean isApplicableForGroups();
+  
+  public abstract String getHelperText();
   
   /**
    * based on rule config attributes, check if the current enum is the pattern

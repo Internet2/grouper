@@ -17,7 +17,13 @@
                           <span class="requiredField" rel="tooltip" data-html="true" data-delay-show="200" data-placement="right" 
                           data-original-title="${textContainer.textEscapeDouble['grouperRequiredTooltip']}">*</span>
                           <br />
-                          <span class="description">${textContainer.text['grouperRulePatternHint']}</span>
+                          <span class="description">
+                          ${textContainer.text['grouperRulePatternHint']}
+                          <c:if test="${!grouper:isBlank(grouperRequestContainer.rulesContainer.ruleConfig.pattern) and grouperRequestContainer.rulesContainer.ruleConfig.pattern != 'custom'}">
+                            <br/>
+                            ${grouperRequestContainer.rulesContainer.ruleConfig.patternHelperText}
+                          </c:if>
+                          </span>
                         </td>
                       </tr>
                       
