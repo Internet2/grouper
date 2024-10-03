@@ -61,11 +61,43 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperProxyBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import net.minidev.json.JSONObject;
 
 public class GrouperOidc {
 
+  private static ExpirableCache<Boolean, String> oidcConfigIdCache = new ExpirableCache<Boolean, String>(5);
+
+  public static String externalSystemConfigIdForUi() {
+  
+    String externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
+    
+    if(externalSystemConfigIdForUi == null) {
+      synchronized (oidcConfigIdCache) {
+        externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
+        if (externalSystemConfigIdForUi == null) {
+          Pattern pattern = Pattern.compile("^grouper\\.oidcExternalSystem\\.(.*)\\.clientId$");
+          Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
+          
+          for (String configId: GrouperUtil.nonNull(configIds)) {
+            if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".useForUi", false) && 
+                GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".enabled", true)) {
+              GrouperUtil.assertion(StringUtils.isBlank(externalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+externalSystemConfigIdForUi +" ,"+configId);
+              externalSystemConfigIdForUi = configId;
+            }
+          }
+          oidcConfigIdCache.put(Boolean.TRUE, GrouperUtil.defaultString(externalSystemConfigIdForUi));
+        }
+        
+      }
+      
+    }
+    
+    return externalSystemConfigIdForUi;
+
+  }
+  
   public static void main(String[] args) {
 
 //    System.out.println(Morph.encrypt(""));
@@ -671,6 +703,7 @@ public class GrouperOidc {
 
   public GrouperOidc assignAuthorizationCode(String authorizationCode) {
     this.oidcCodeString = authorizationCode;
+    GrouperUtil.assertion(authorizationCode == null || !authorizationCode.contains("&state="), "Only the code should be assigned to the authorization code, not the state too!");
     return this;
   }
 
