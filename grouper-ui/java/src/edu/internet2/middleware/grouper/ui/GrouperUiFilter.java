@@ -82,6 +82,7 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.authentication.GrouperOidc;
+import edu.internet2.middleware.grouper.authentication.GrouperOidcConfig;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
@@ -130,8 +131,6 @@ import edu.internet2.middleware.subject.SubjectNotUniqueException;
 
 public class GrouperUiFilter implements Filter {
   
-  private static ExpirableCache<Boolean, String> oidcConfigIdCache = new ExpirableCache<Boolean, String>(5);
-
   static {
     GrouperStatusServlet.registerStartup();
   }
@@ -388,22 +387,51 @@ public class GrouperUiFilter implements Filter {
         try {
           String sourceIds = GrouperUiConfig.retrieveConfig().propertyValueString("grouper.ui.authentication.sourceIds");
           if (StringUtils.isBlank(sourceIds)) {
-            subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
-          } else {
-            Subject theSubjectLoggedIn = null;
-            for (String sourceId : GrouperUtil.splitTrim(sourceIds, ",")) {
-              Subject tempSubject = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
-              if (tempSubject != null) {
-                if (theSubjectLoggedIn == null) {
-                  theSubjectLoggedIn = tempSubject;
-                } else {
-                  throw new SubjectNotUniqueException("Found multiple matching subjects: '" + userIdLoggedIn + "'");
-                }
+            String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi();
+            if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
+              GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(externalSystemConfigIdForUi);
+              String sourceId = grouperOidcConfig.getSubjectSourceId();
+              String subjectIdType = grouperOidcConfig.getSubjectIdType();
+              if (!StringUtils.isBlank(sourceId)) {
+                
+                if (StringUtils.equals("subjectId", subjectIdType)) {
+                  subjectLoggedIn = SubjectFinder.findByIdAndSource(userIdLoggedIn, sourceId, false);
+                } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
+                  subjectLoggedIn = SubjectFinder.findByIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
+                  subjectLoggedIn = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                }                
+              } else {
+                if (StringUtils.equals("subjectId", subjectIdType)) {
+                  subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn, false);
+                } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
+                  subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn, false);
+                } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
+                  subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, false);
+                }                
+                
               }
             }
-            subjectLoggedIn = theSubjectLoggedIn;
-            if (subjectLoggedIn == null) {
-              throw new SubjectNotFoundException("Cannot find subject by id or identifier: '" + userIdLoggedIn + "'");
+          }
+          if (subjectLoggedIn == null) {
+            if (StringUtils.isBlank(sourceIds)) {
+              subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
+            } else {
+              Subject theSubjectLoggedIn = null;
+              for (String sourceId : GrouperUtil.splitTrim(sourceIds, ",")) {
+                Subject tempSubject = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                if (tempSubject != null) {
+                  if (theSubjectLoggedIn == null) {
+                    theSubjectLoggedIn = tempSubject;
+                  } else {
+                    throw new SubjectNotUniqueException("Found multiple matching subjects: '" + userIdLoggedIn + "'");
+                  }
+                }
+              }
+              subjectLoggedIn = theSubjectLoggedIn;
+              if (subjectLoggedIn == null) {
+                throw new SubjectNotFoundException("Cannot find subject by id or identifier: '" + userIdLoggedIn + "'");
+              }
             }
           }
         } catch (RuntimeException re) {
@@ -682,28 +710,7 @@ public class GrouperUiFilter implements Filter {
       
       if (StringUtils.isBlank(remoteUser)) {
         
-        String externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
-        
-        if(externalSystemConfigIdForUi == null) {
-          synchronized (oidcConfigIdCache) {
-            externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
-            if (externalSystemConfigIdForUi == null) {
-              Pattern pattern = Pattern.compile("^grouper\\.oidcExternalSystem\\.(.*)\\.clientId$");
-              Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
-              
-              for (String configId: GrouperUtil.nonNull(configIds)) {
-                if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".useForUi", false) && 
-                    GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".enabled", true)) {
-                  GrouperUtil.assertion(StringUtils.isBlank(externalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+externalSystemConfigIdForUi +" ,"+configId);
-                  externalSystemConfigIdForUi = configId;
-                }
-              }
-              oidcConfigIdCache.put(Boolean.TRUE, GrouperUtil.defaultString(externalSystemConfigIdForUi));
-            }
-            
-          }
-          
-        }
+        String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi();
         
         if (StringUtils.isNotBlank(externalSystemConfigIdForUi)) {
           
