@@ -773,6 +773,12 @@ public class GrouperUiFilter implements Filter {
 
           remoteUser = grouperOidc.findSubjectClaim();
           
+          if (StringUtils.isBlank(remoteUser)) {
+            throw new RuntimeException("Cannot find " + grouperOidc.getGrouperOidcConfig().getSubjectIdType() + " from attribute '" 
+                + grouperOidc.getGrouperOidcConfig().getSubjectIdClaimName() + "' in  oidc claim attribute names: " 
+                + GrouperUtil.toStringForLog(GrouperUtil.nonNull(grouperOidc.getClaimSourceAttributes()).keySet()));
+          }
+          
           remoteUser = StringUtils.trim(remoteUser);
           
           httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);

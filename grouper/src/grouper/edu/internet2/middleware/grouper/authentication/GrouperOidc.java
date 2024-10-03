@@ -6,6 +6,7 @@ import java.net.Proxy;
 import java.net.URI;
 import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Set;
 import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -157,6 +158,11 @@ public class GrouperOidc {
 
   private GrouperOidcConfig grouperOidcConfig;
   
+  
+  public GrouperOidcConfig getGrouperOidcConfig() {
+    return grouperOidcConfig;
+  }
+
   /**
    * access token from code
    * @return
@@ -547,7 +553,7 @@ public class GrouperOidc {
      
       debugMap.put("subjectIdClaimName", subjectIdClaimName);
       
-      String subjectId = GrouperOidc.this.getClaimSourceAttributes().get(subjectIdClaimName);
+      String subjectId = this.getClaimSourceAttributes().get(subjectIdClaimName);
       return subjectId;
       
     }
@@ -556,7 +562,7 @@ public class GrouperOidc {
     
   }
   
-  private Map<String, String> getClaimSourceAttributes() {
+  public Map<String, String> getClaimSourceAttributes() {
     if (this.grouperOidcConfig.getClaimSource() == GrouperOIDCClaimSource.userInfoEndpoint) {
       return this.userInfoAttributes;
     }
