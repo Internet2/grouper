@@ -289,7 +289,8 @@ public class SqlCacheMembershipDao {
     Map<MultiKey, Long> sourceIdSubjectIdToInternalId = MemberFinder.findInternalIdsByNames(sourceIdSubjectIds);
     
     List<List<Object>> bindVarsAll = new ArrayList<>();
-    
+    Set<SqlCacheGroup> sqlCacheGroupsToUpdate = new HashSet<>();
+
     for (MultiKey ownerNameFieldNameSourceIdSubjectIdStartedMilli : ownerNameFieldNameSourceIdSubjectIdList) {
 
       MultiKey sourceIdSubjectId = ownerNameFieldNameSourceIdSubjectIdStartedMilliToSourceIdSubjectId.get(ownerNameFieldNameSourceIdSubjectIdStartedMilli);
@@ -317,34 +318,18 @@ public class SqlCacheMembershipDao {
       }
       
       bindVarsAll.add(GrouperUtil.toListObject(sqlCacheGroup.getInternalId(), memberInternalId));
-      
-      
+      sqlCacheGroup.setMembershipSize(sqlCacheGroup.getMembershipSize() - 1);
+      sqlCacheGroupsToUpdate.add(sqlCacheGroup);
     }   
-    
-    Set<SqlCacheGroup> sqlCacheGroupsToUpdate = new HashSet<>();
     
     int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
 
-    int[] rowsChanged = new GcDbAccess().connection(connection).batchSize(batchSize).sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id = ? and member_internal_id = ?")
+    new GcDbAccess().connection(connection).batchSize(batchSize).sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id = ? and member_internal_id = ?")
       .batchBindVars(bindVarsAll).executeBatchSql();
-    int result = 0;
-    for (int i = 0; i < rowsChanged.length; i++) {
-      int rowChanged = rowsChanged[i];
-      result += rowChanged;
-      
-      if (rowChanged == 1) {
-        // deduct from group count
-        long sqlCacheGroupInternalId = (Long)bindVarsAll.get(i).get(0);
-        SqlCacheGroup sqlCacheGroup = internalIdToSqlCacheGroup.get(sqlCacheGroupInternalId);
-        
-        sqlCacheGroup.setMembershipSize(sqlCacheGroup.getMembershipSize() - 1);
-        sqlCacheGroupsToUpdate.add(sqlCacheGroup);
-      }
-    }
-    
+
     SqlCacheGroupDao.store(sqlCacheGroupsToUpdate, connection, false);
 
-    return result;
+    return bindVarsAll.size();
   }
   
   /**
