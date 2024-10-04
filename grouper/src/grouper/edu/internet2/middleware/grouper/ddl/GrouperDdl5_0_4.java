@@ -412,21 +412,15 @@ public class GrouperDdl5_0_4 {
     final String tableName = SqlCacheMembership.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP;
     
     Table grouperSqlCacheMembershipTable = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
-  
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMembershipTable, SqlCacheMembership.COLUMN_CREATED_ON,
-        Types.TIMESTAMP, null, false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMembershipTable, SqlCacheMembership.COLUMN_FLATTENED_ADD_TIMESTAMP,
         Types.TIMESTAMP, null, false, true);
 
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMembershipTable, SqlCacheMembership.COLUMN_INTERNAL_ID,
-        Types.BIGINT, "20", false, true);
-
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMembershipTable, SqlCacheMembership.COLUMN_MEMBER_INTERNAL_ID,
-        Types.BIGINT, "20", false, true);
+        Types.BIGINT, "20", true, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheMembershipTable, SqlCacheMembership.COLUMN_SQL_CACHE_GROUP_INTERNAL_ID,
-        Types.BIGINT, "20", false, true);
+        Types.BIGINT, "20", true, true);
         
   }
   
@@ -481,16 +475,6 @@ public class GrouperDdl5_0_4 {
 
     GrouperDdlUtils.ddlutilsTableComment(ddlVersionBean, SqlCacheMembership.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP, 
         "Cached memberships based on group and list");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-        SqlCacheMembership.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP, 
-        SqlCacheMembership.COLUMN_INTERNAL_ID, 
-        "internal integer id for this table.  Do not refer to this outside of Grouper.  This will differ per env (dev/test/prod)");
-
-    GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
-        SqlCacheMembership.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP, 
-        SqlCacheMembership.COLUMN_CREATED_ON, 
-        "when this cache row was created");
 
     GrouperDdlUtils.ddlutilsColumnComment(ddlVersionBean, 
         SqlCacheMembership.TABLE_GROUPER_SQL_CACHE_MEMBERSHIP, 

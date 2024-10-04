@@ -31,11 +31,15 @@
 */
 
 package edu.internet2.middleware.grouper;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -55,6 +59,10 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -79,6 +87,8 @@ import edu.internet2.middleware.subject.Subject;
  * </p>
  */
 public class StemFinder {
+
+  private static ExpirableCache<String, Long> stemNameToIdIndexCache = new ExpirableCache<>(60);
 
   /**
    * find by names
@@ -1199,5 +1209,61 @@ public class StemFinder {
     return null;
   }
 
+  /**
+   * this will cache for a minute, find id index by name
+   * @param stemNames2
+   * @return the id indexes
+   */
+  public static Map<String, Long> findIdIndexesByNames(final Set<String> stemNames2) {
+    final Map<String, Long> result = new HashMap<String, Long>();
+    final Set<String> stemNamesToFind = new HashSet<>(stemNames2);
+    
+    // try the cache
+    for (String stemName : GrouperUtil.nonNull(stemNames2)) {
+      Long idIndex = stemNameToIdIndexCache.get(stemName);
+      if (idIndex != null) {
+        result.put(stemName, idIndex);
+        stemNamesToFind.remove(stemName);
+      }
+    }
+
+    if (stemNamesToFind.size() == 0) {
+      return result;
+    }
+    
+    List<String> stemNamesToFindList = new ArrayList<String>(stemNamesToFind);
+
+    // one bind var in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(stemNamesToFindList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfStemNames = GrouperClientUtils.batchList(stemNamesToFindList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select name, id_index from grouper_stems where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      for (int i=0;i<batchOfStemNames.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" name = ? ");
+        gcDbAccess.addBindVar(stemNamesToFindList.get(i));
+      }
+      
+      List<Object[]> nameAndIdIndexes = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] nameAndIdIndex : GrouperUtil.nonNull(nameAndIdIndexes)) {
+        String stemName = (String)nameAndIdIndex[0];
+        Long idIndex = GrouperUtil.longObjectValue(nameAndIdIndex[1], false);
+        result.put(stemName, idIndex);
+      }
+      
+    }
+    
+    return result;
+  }
 }
 

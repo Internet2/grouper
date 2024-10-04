@@ -274,6 +274,144 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     }
   }
   ,
+  V21 {
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          if (!GrouperDdlUtils.assertTableThere(true, "grouper_sql_cache_mship")) {
+            return null;
+          }
+          
+          if (GrouperDdlUtils.assertTableThere(true, "grouper_sql_cache_mship_v")) {
+            if (GrouperDdlUtils.assertColumnThere(true, "grouper_sql_cache_mship_v", "mship_hst_internal_id")) {
+              HibernateSession.bySqlStatic().executeSql("DROP VIEW grouper_sql_cache_mship_v");
+              otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped view grouper_sql_cache_mship_v");
+            }
+          }
+          
+          if (GrouperDdlUtils.assertColumnThere(true, "grouper_sql_cache_mship", "internal_id")) {
+            HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_mship DROP COLUMN internal_id");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped column grouper_sql_cache_mship.internal_id");
+          }
+          
+          if (GrouperDdlUtils.assertColumnThere(true, "grouper_sql_cache_mship", "created_on")) {
+            HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_mship DROP COLUMN created_on");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped column grouper_sql_cache_mship.created_on");
+          }
+          
+          if (!GrouperDdlUtils.assertColumnThere(true, "grouper_sql_cache_group", "last_membership_sync")) {
+            if (GrouperDdlUtils.isOracle()) {
+              HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_group ADD last_membership_sync DATE");
+            } else if (GrouperDdlUtils.isMysql()) {
+              HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_group ADD COLUMN last_membership_sync DATETIME");
+            } else {
+              HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_group ADD COLUMN last_membership_sync timestamp");
+            }
+            
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column grouper_sql_cache_group.last_membership_sync");
+          }
+          
+          if (!GrouperDdlUtils.assertTableThere(true, "grouper_sql_cache_mship_v")) {
+            HibernateSession.bySqlStatic().executeSql("CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, flattened_add_timestamp, group_id, field_id, member_internal_id, group_internal_id, field_internal_id) AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0,  gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp,  gg.id AS group_id, gf.id AS field_id, gm.internal_id AS member_internal_id,  gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id  FROM grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf,  grouper_groups gg, grouper_members gm  WHERE gscg.group_internal_id = gg.internal_id AND gscg.field_internal_id = gf.internal_id  AND gscm.sql_cache_group_internal_id = gscg.internal_id AND gscm.member_internal_id = gm.internal_id");
+            
+            if (GrouperDdlUtils.isOracle() || GrouperDdlUtils.isPostgres()) {
+              if (GrouperDdlUtils.isOracle()) {
+                HibernateSession.bySqlStatic().executeSql("COMMENT ON TABLE grouper_sql_cache_mship_v IS 'SQL cache mship view'");
+              } else {
+                HibernateSession.bySqlStatic().executeSql("COMMENT ON VIEW grouper_sql_cache_mship_v IS 'SQL cache mship view'");
+              }
+              
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.group_name IS 'group_name: name of group'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.list_name IS 'list_name: name of list e.g. members or admins'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.subject_id IS 'subject_id: subject id'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.subject_identifier0 IS 'subject_identifier0: subject identifier0 from subject source and members table'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.subject_identifier1 IS 'subject_identifier1: subject identifier1 from subject source and members table'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.subject_identifier2 IS 'subject_identifier2: subject identifier2 from subject source and members table'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.subject_source IS 'subject_source: subject source id'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.flattened_add_timestamp IS 'flattened_add_timestamp: when this membership started'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.group_id IS 'group_id: uuid of group'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.field_id IS 'field_id: uuid of field'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.member_internal_id IS 'member_internal_id: member internal id'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.group_internal_id IS 'group_internal_id: group internal id'");
+              HibernateSession.bySqlStatic().executeSql("COMMENT ON COLUMN grouper_sql_cache_mship_v.field_internal_id IS 'field_internal_id: field internal id'");
+            }
+            
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", created view grouper_sql_cache_mship_v");
+          }
+          
+          if (!GrouperDdlUtils.assertPrimaryKeyExists("grouper_sql_cache_mship")) {
+            HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_mship ADD PRIMARY KEY (sql_cache_group_internal_id, member_internal_id)");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added primary key to grouper_sql_cache_mship");
+          }
+          
+          if (!GrouperDdlUtils.assertIndexExists("grouper_sql_cache_group", "grouper_sql_cache_group2_idx")) {
+            HibernateSession.bySqlStatic().executeSql("CREATE INDEX grouper_sql_cache_group2_idx ON grouper_sql_cache_group (last_membership_sync)");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_sql_cache_group2_idx");
+          }
+          
+          return null;
+        }
+      });
+    }
+  }
+  ,
+  V22 {
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          
+          if (!GrouperDdlUtils.assertTableThere(true, "grouper_pit_stems")) {
+            return null;
+          }
+          
+          if (!GrouperDdlUtils.assertColumnThere(true, "grouper_pit_stems", "source_id_index")) {
+            if (GrouperDdlUtils.isOracle()) {
+              HibernateSession.bySqlStatic().executeSql("ALTER TABLE GROUPER_PIT_STEMS ADD source_id_index NUMBER(38)");
+            } else {
+              HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_pit_stems ADD COLUMN source_id_index BIGINT");
+            }
+            
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column grouper_pit_stems.source_id_index");
+          }
+         
+          if (!GrouperDdlUtils.assertColumnThere(true, "grouper_pit_attribute_def", "source_id_index")) {
+            if (GrouperDdlUtils.isOracle()) {
+              HibernateSession.bySqlStatic().executeSql("ALTER TABLE GROUPER_PIT_ATTRIBUTE_DEF ADD source_id_index NUMBER(38)");
+            } else {
+              HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_pit_attribute_def ADD COLUMN source_id_index BIGINT");
+            }
+            
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added column grouper_pit_attribute_def.source_id_index");
+          }
+          
+          if (!GrouperDdlUtils.assertIndexExists("grouper_pit_stems", "pit_stem_source_idindex_idx")) {
+            HibernateSession.bySqlStatic().executeSql("CREATE INDEX pit_stem_source_idindex_idx ON grouper_pit_stems (source_id_index)");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index pit_stem_source_idindex_idx");
+          }
+          
+          if (!GrouperDdlUtils.assertIndexExists("grouper_pit_attribute_def", "pit_attrdef_source_idindex_idx")) {
+            HibernateSession.bySqlStatic().executeSql("CREATE INDEX pit_attrdef_source_idindex_idx ON grouper_pit_attribute_def (source_id_index)");
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index pit_attrdef_source_idindex_idx");
+          }
+          
+          new GcDbAccess().sql("update grouper_pit_stems  ps set source_id_index = (select s.id_index from grouper_stems  s where ps.source_id = s.id) where ps.source_id_index is null and ps.active='T'").executeSql();
+          new GcDbAccess().sql("update grouper_pit_attribute_def  pad set source_id_index = (select ad.id_index from grouper_attribute_def ad where pad.source_id = ad.id) where pad.source_id_index is null and pad.active='T'").executeSql();
+          
+          return null;
+        }
+      });
+    }
+  }
+  ,
   V9{
     
     @Override

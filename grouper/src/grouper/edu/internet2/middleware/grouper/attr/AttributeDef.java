@@ -2041,7 +2041,8 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name.name(), this.getName(), 
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId.name(), this.getStemId(),
         ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description.name(), this.getDescription(),
-        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType.name(), this.getAttributeDefTypeDb()).save();
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType.name(), this.getAttributeDefTypeDb(),
+        ChangeLogLabels.ATTRIBUTE_DEF_DELETE.idIndex.name(), "" + this.getIdIndex()).save();
 
     Hib3AttributeDefDAO.attributeDefCacheRemove(this);
 
@@ -2075,7 +2076,8 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
         ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name(), this.getName(), 
         ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name(), this.getStemId(),
         ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), this.getDescription(),
-        ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType.name(), this.getAttributeDefTypeDb()).save();
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType.name(), this.getAttributeDefTypeDb(),
+        ChangeLogLabels.ATTRIBUTE_DEF_ADD.idIndex.name(), "" + this.getIdIndex()).save();
 
     GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.ATTRIBUTE_DEF, 
         AttributeDefHooks.METHOD_ATTRIBUTE_DEF_PRE_INSERT, HooksAttributeDefBean.class, 

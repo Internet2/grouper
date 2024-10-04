@@ -233,7 +233,7 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
       .byHqlStatic()
       .createQuery("select def from AttributeDef def where " +
           "not exists (select 1 from PITAttributeDef pitAttributeDef, PITStem pitStem where pitAttributeDef.stemId = pitStem.id " +
-          "            and def.id = pitAttributeDef.sourceId and def.nameDb = pitAttributeDef.nameDb and def.stemId = pitStem.sourceId) " +
+          "            and def.id = pitAttributeDef.sourceId and def.nameDb = pitAttributeDef.nameDb and def.stemId = pitStem.sourceId and def.idIndex = pitAttributeDef.sourceIdIndex) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = def.id " +
           "    and type.actionName='addAttributeDef' and type.changeLogCategory='attributeDef' and type.id=temp.changeLogTypeId) " +

@@ -323,7 +323,7 @@ public class GrouperTest extends GrouperTestBase {
     
     SyncToGrouper.reclaimMemory = false;
 
-
+    GrouperSession.startRootSession();
   }
 
   protected void setupInitDb() {

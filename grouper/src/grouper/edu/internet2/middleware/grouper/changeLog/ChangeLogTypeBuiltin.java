@@ -203,7 +203,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   GROUP_DELETE(new ChangeLogType("group", "deleteGroup", 
       ChangeLogLabels.GROUP_DELETE.id, ChangeLogLabels.GROUP_DELETE.name, ChangeLogLabels.GROUP_DELETE.parentStemId,
-      ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description, ChangeLogLabels.GROUP_DELETE.idIndex)),
+      ChangeLogLabels.GROUP_DELETE.displayName, ChangeLogLabels.GROUP_DELETE.description, ChangeLogLabels.GROUP_DELETE.idIndex,
+      ChangeLogLabels.GROUP_DELETE.internalId)),
   
   /**
    * enable group
@@ -247,7 +248,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   ENTITY_DELETE(new ChangeLogType("entity", "deleteEntity", 
       ChangeLogLabels.ENTITY_DELETE.id, ChangeLogLabels.ENTITY_DELETE.name, ChangeLogLabels.ENTITY_DELETE.parentStemId,
-      ChangeLogLabels.ENTITY_DELETE.displayName, ChangeLogLabels.ENTITY_DELETE.description)),
+      ChangeLogLabels.ENTITY_DELETE.displayName, ChangeLogLabels.ENTITY_DELETE.description,
+      ChangeLogLabels.ENTITY_DELETE.internalId)),
   
   /**
    * disable entity
@@ -262,7 +264,7 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   ATTRIBUTE_DEF_ADD(new ChangeLogType("attributeDef", "addAttributeDef", 
       ChangeLogLabels.ATTRIBUTE_DEF_ADD.id, ChangeLogLabels.ATTRIBUTE_DEF_ADD.name, 
       ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId, ChangeLogLabels.ATTRIBUTE_DEF_ADD.description,
-      ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType)),
+      ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType, ChangeLogLabels.ATTRIBUTE_DEF_ADD.idIndex)),
 
   /**
    * attribute def update
@@ -280,14 +282,14 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
   ATTRIBUTE_DEF_DELETE(new ChangeLogType("attributeDef", "deleteAttributeDef", 
       ChangeLogLabels.ATTRIBUTE_DEF_DELETE.id, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.name, 
       ChangeLogLabels.ATTRIBUTE_DEF_DELETE.stemId, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.description,
-      ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType)),
+      ChangeLogLabels.ATTRIBUTE_DEF_DELETE.attributeDefType, ChangeLogLabels.ATTRIBUTE_DEF_DELETE.idIndex)),
 
   /**
    * stem add
    */
   STEM_ADD(new ChangeLogType("stem", "addStem", 
       ChangeLogLabels.STEM_ADD.id, ChangeLogLabels.STEM_ADD.name, ChangeLogLabels.STEM_ADD.parentStemId,
-      ChangeLogLabels.STEM_ADD.displayName, ChangeLogLabels.STEM_ADD.description)),
+      ChangeLogLabels.STEM_ADD.displayName, ChangeLogLabels.STEM_ADD.description, ChangeLogLabels.STEM_ADD.idIndex)),
 
   /**
    * stem update
@@ -303,7 +305,8 @@ public enum ChangeLogTypeBuiltin implements ChangeLogTypeIdentifier {
    */
   STEM_DELETE(new ChangeLogType("stem", "deleteStem", 
       ChangeLogLabels.STEM_DELETE.id, ChangeLogLabels.STEM_DELETE.name, ChangeLogLabels.STEM_DELETE.parentStemId,
-      ChangeLogLabels.STEM_DELETE.displayName, ChangeLogLabels.STEM_DELETE.description)),
+      ChangeLogLabels.STEM_DELETE.displayName, ChangeLogLabels.STEM_DELETE.description,
+      ChangeLogLabels.STEM_DELETE.idIndex)),
 
   /**
    * member add

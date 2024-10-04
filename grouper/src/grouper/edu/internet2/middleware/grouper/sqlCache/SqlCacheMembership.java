@@ -3,18 +3,15 @@ package edu.internet2.middleware.grouper.sqlCache;
 import java.sql.Timestamp;
 
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionary;
-import edu.internet2.middleware.grouper.tableIndex.TableIndex;
-import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableClass;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
-import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 @GcPersistableClass(tableName="grouper_sql_cache_mship", defaultFieldPersist=GcPersist.doPersist)
-public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionable {
+public class SqlCacheMembership implements GcDbVersionable {
 
   public SqlCacheMembership() {
     
@@ -53,10 +50,7 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
   }
 
   public void storePrepare() {
-    if (this.createdOn == null) {
-      this.createdOn = new Timestamp(System.currentTimeMillis());
-    }
-    
+
   }
 
   /**
@@ -69,9 +63,7 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
   
     //dbVersion  DONT CLONE
   
-    sqlCacheGroup.createdOn = this.createdOn;
     sqlCacheGroup.flattenedAddTimestamp = this.flattenedAddTimestamp;
-    sqlCacheGroup.internalId = this.internalId;
     sqlCacheGroup.memberInternalId = this.memberInternalId;
     sqlCacheGroup.sqlCacheGroupInternalId = this.sqlCacheGroupInternalId;
   
@@ -96,47 +88,11 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
     return new EqualsBuilder()
 
       //dbVersion  DONT EQUALS
-      .append(this.createdOn, other.createdOn)
       .append(this.flattenedAddTimestamp, other.flattenedAddTimestamp)
-      .append(this.internalId, other.internalId)
       .append(this.memberInternalId, other.memberInternalId)
       .append(this.sqlCacheGroupInternalId, other.sqlCacheGroupInternalId)
         .isEquals();
 
-  }
-
-  /**
-   * internal integer id
-   */
-  @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=true)
-  private long internalId = -1;
-  
-  /**
-   * internal integer id
-   * @return
-   */
-  public long getInternalId() {
-    return internalId;
-  }
-
-  /**
-   * internal integer id
-   * @param internalId
-   */
-  public void setInternalId(long internalId) {
-    this.internalId = internalId;
-  }
-
-  /**
-   * 
-   */
-  @Override
-  public boolean gcSqlAssignNewPrimaryKeyForInsert() {
-    if (this.internalId != -1) {
-      return false;
-    }
-    this.internalId = TableIndex.reserveId(TableIndexType.sqlGroupCache);
-    return true;
   }
 
   /**
@@ -163,6 +119,7 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
   /**
    * internal id of the member of this group/list
    */
+  @GcPersistableField(compoundPrimaryKey=true, primaryKeyManuallyAssigned=true)
   private Long memberInternalId;
   
   /**
@@ -184,6 +141,7 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
   /**
    * refers to which group and list this membership refers to
    */
+  @GcPersistableField(compoundPrimaryKey=true, primaryKeyManuallyAssigned=true)
   private Long sqlCacheGroupInternalId;
   
   /**
@@ -201,33 +159,7 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
   public void setSqlCacheGroupInternalId(Long sqlCacheGroupInternalId) {
     this.sqlCacheGroupInternalId = sqlCacheGroupInternalId;
   }
-
-  /**
-   * when this row was created
-   */
-  private Timestamp createdOn;
-
-  /**
-   * store the internal id to use when the db access stores the object
-   */
-  @GcPersistableField(persist = GcPersist.dontPersist)
-  private Long tempInternalIdOnDeck = null;
   
-  /**
-   * when this row was created
-   * @return
-   */
-  public Timestamp getCreatedOn() {
-    return createdOn;
-  }
-
-  /**
-   * when this row was created
-   * @param createdOn
-   */
-  public void setCreatedOn(Timestamp createdOn) {
-    this.createdOn = createdOn;
-  }
 
   public SqlCacheMembership getDbVersion() {
     return this.dbVersion;
@@ -241,33 +173,11 @@ public class SqlCacheMembership implements GcSqlAssignPrimaryKey, GcDbVersionabl
     return GrouperClientUtils.toStringReflection(this, null);
   }
 
-  /**
-   * store the internal id to use when the db access stores the object
-   * @return
-   */
-  public Long getTempInternalIdOnDeck() {
-    return tempInternalIdOnDeck;
-  }
-
-  /**
-   * store the internal id to use when the db access stores the object
-   * @param tempInternalIdOnDeck
-   */
-  public void setTempInternalIdOnDeck(Long tempInternalIdOnDeck) {
-    this.tempInternalIdOnDeck = tempInternalIdOnDeck;
-  }
-
   /** table name for sql cache */
   public static final String TABLE_GROUPER_SQL_CACHE_MEMBERSHIP = "grouper_sql_cache_mship";
-  
-  /** created on col in db */
-  public static final String COLUMN_CREATED_ON = "created_on";
 
   /** when this member was last added to this group after they werent a member before */
   public static final String COLUMN_FLATTENED_ADD_TIMESTAMP = "flattened_add_timestamp";
-
-  /** internal id on col in db */
-  public static final String COLUMN_INTERNAL_ID = "internal_id";
 
   /** internal id of the member of this group/list */
   public static final String COLUMN_MEMBER_INTERNAL_ID = "member_internal_id";

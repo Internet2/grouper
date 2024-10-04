@@ -3791,7 +3791,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         this.getUuid(), ChangeLogLabels.STEM_DELETE.name.name(), 
         this.getName(), ChangeLogLabels.STEM_DELETE.parentStemId.name(), this.getParentUuid(),
         ChangeLogLabels.STEM_DELETE.displayName.name(), this.getDisplayName(),
-        ChangeLogLabels.STEM_DELETE.description.name(), this.getDescription()).save();
+        ChangeLogLabels.STEM_DELETE.description.name(), this.getDescription(),
+        ChangeLogLabels.STEM_DELETE.idIndex.name(), "" + this.getIdIndex()).save();
   }
 
   /**
@@ -3816,7 +3817,8 @@ public class Stem extends GrouperAPI implements GrouperHasContext, Owner,
         this.getUuid(), ChangeLogLabels.STEM_ADD.name.name(), 
         this.getName(), ChangeLogLabels.STEM_ADD.parentStemId.name(), this.getParentUuid(),
         ChangeLogLabels.STEM_ADD.displayName.name(), this.getDisplayName(),
-        ChangeLogLabels.STEM_ADD.description.name(), this.getDescription()).save();
+        ChangeLogLabels.STEM_ADD.description.name(), this.getDescription(),
+        ChangeLogLabels.STEM_ADD.idIndex.name(), "" + this.getIdIndex()).save();
   }
 
   /** see if already in onPreUpdate, dont go in again */

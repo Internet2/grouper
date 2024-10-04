@@ -15,6 +15,7 @@
  */
 package edu.internet2.middleware.grouper.changeLog;
 
+import java.sql.Connection;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
@@ -29,6 +30,8 @@ import org.apache.commons.logging.Log;
 import org.hibernate.type.StringType;
 import org.hibernate.type.Type;
 
+import edu.internet2.middleware.grouper.Field;
+import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
@@ -64,11 +67,14 @@ import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.pit.PITMembership;
 import edu.internet2.middleware.grouper.pit.PITRoleSet;
 import edu.internet2.middleware.grouper.pit.PITStem;
-import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.Privilege;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheMembershipDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+
+import org.hibernate.internal.SessionImpl;
 
 /**
  * convert the temp objects to regular objects
@@ -408,79 +414,10 @@ public class ChangeLogTempToEntity {
                   GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(new LinkedHashSet<ChangeLogEntry>(currentBatch), false);
                 }
                 
-                // save to the cached data tables
-                Map<MultiKey, MultiKey> cachedDataAdds = new LinkedHashMap<MultiKey, MultiKey>();
-                Collection<MultiKey> cachedDataDeletes = new LinkedHashSet<MultiKey>();
-                String membershipAddChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId();
-                String membershipDeleteChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId();
-                String privilegeAddChangeLogTypeId = ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId();
-                String privilegeDeleteChangeLogTypeId = ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId();
-                for (ChangeLogEntry changeLogEntry : changeLogEntriesToSave) {
-                  if (membershipAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
-                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType))) {
-                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
-                      String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName);
-                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId);
-                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId);
-                      long createdOnLong = changeLogEntry.getCreatedOn().getTime();
-                      
-                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
-                      MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLong);
-                      if (cachedDataDeletes.contains(key)) {
-                        cachedDataDeletes.remove(key);
-                      } else {
-                        cachedDataAdds.put(key, value);
-                      }
-                    }
-                  } else if (membershipDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
-                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType))) {
-                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
-                      String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName);
-                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId);
-                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
-                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
-                      if (cachedDataAdds.containsKey(key)) {
-                        cachedDataAdds.remove(key);
-                      } else {
-                        cachedDataDeletes.add(key);
-                      }
-                    }
-                  } else if (privilegeAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
-                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType)) && Membership.OWNER_TYPE_GROUP.equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerType))) {
-                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName);
-                      String fieldName = AccessPrivilege.privToList(Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName), true));
-                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId);
-                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId);
-                      long createdOnLong = changeLogEntry.getCreatedOn().getTime();
-                      
-                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
-                      MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLong);
-                      if (cachedDataDeletes.contains(key)) {
-                        cachedDataDeletes.remove(key);
-                      } else {
-                        cachedDataAdds.put(key, value);
-                      }
-                    }
-                  } else if (privilegeDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
-                    if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType)) && Membership.OWNER_TYPE_GROUP.equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerType))) {
-                      String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName);
-                      String fieldName = AccessPrivilege.privToList(Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName), true));
-                      String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId);
-                      String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId);
-                      MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
-                      if (cachedDataAdds.containsKey(key)) {
-                        cachedDataAdds.remove(key);
-                      } else {
-                        cachedDataDeletes.add(key);
-                      }
-                    }
-                  }
-                }
-                
-                SqlCacheMembershipDao.insertSqlCacheMembershipsIfCacheable(cachedDataAdds.values());
-                SqlCacheMembershipDao.deleteSqlCacheMembershipsIfCacheable(cachedDataDeletes);
+                Connection connection = ((SessionImpl)hibernateHandlerBean.getHibernateSession().getSession()).connection();
+                syncCacheTables(connection, changeLogEntriesToSave);
               }
-              
+                            
               // up to 1000 bind vars seem to be ok for oracle, mysql, and postgres
               if (tempChangeLogEntryListProcessed.size() > 0) {
                 //delete from the temp
@@ -530,6 +467,245 @@ public class ChangeLogTempToEntity {
     }
     
     return count;
+  }
+  
+  private static void syncCacheTables(Connection connection, List<ChangeLogEntry> changeLogEntriesToSave) {
+    if (changeLogEntriesToSave.size() == 0) {
+      return;
+    }
+    
+    @SuppressWarnings("unchecked")
+    Set<Field> fields = FieldFinder.findAll();
+                    
+    Map<MultiKey, MultiKey> cachedMembershipDataAdds = new LinkedHashMap<MultiKey, MultiKey>();
+    Collection<MultiKey> cachedMembershipDataDeletes = new LinkedHashSet<MultiKey>();
+    Map<MultiKey, Timestamp> cachedOwnerFieldEnabledDates = new LinkedHashMap<MultiKey, Timestamp>();
+    Map<MultiKey, Timestamp> cachedOwnerFieldDisabledDates = new LinkedHashMap<MultiKey, Timestamp>();
+    
+    String membershipAddChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId();
+    String membershipDeleteChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId();
+    String privilegeAddChangeLogTypeId = ChangeLogTypeBuiltin.PRIVILEGE_ADD.getChangeLogType().getId();
+    String privilegeDeleteChangeLogTypeId = ChangeLogTypeBuiltin.PRIVILEGE_DELETE.getChangeLogType().getId();
+    String groupDeleteChangeLogTypeId = ChangeLogTypeBuiltin.GROUP_DELETE.getChangeLogType().getId();
+    String groupAddChangeLogTypeId = ChangeLogTypeBuiltin.GROUP_ADD.getChangeLogType().getId();
+    String stemDeleteChangeLogTypeId = ChangeLogTypeBuiltin.STEM_DELETE.getChangeLogType().getId();
+    String stemAddChangeLogTypeId = ChangeLogTypeBuiltin.STEM_ADD.getChangeLogType().getId();
+    String attributeDefDeleteChangeLogTypeId = ChangeLogTypeBuiltin.ATTRIBUTE_DEF_DELETE.getChangeLogType().getId();
+    String attributeDefAddChangeLogTypeId = ChangeLogTypeBuiltin.ATTRIBUTE_DEF_ADD.getChangeLogType().getId();
+    String entityDeleteChangeLogTypeId = ChangeLogTypeBuiltin.ENTITY_DELETE.getChangeLogType().getId();
+    String entityAddChangeLogTypeId = ChangeLogTypeBuiltin.ENTITY_ADD.getChangeLogType().getId();
+
+    for (ChangeLogEntry changeLogEntry : changeLogEntriesToSave) {
+      if (membershipAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType))) {
+          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
+          String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName);
+          String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId);
+          String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId);
+          long createdOnLong = changeLogEntry.getCreatedOn().getTime();
+          
+          if ("members".equals(fieldName)) {
+            MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
+            MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLong);
+            //if (cachedMembershipDataDeletes.contains(key)) {
+            //  cachedMembershipDataDeletes.remove(key);
+            //} else {
+            //  cachedMembershipDataAdds.put(key, value);
+            //}
+            cachedMembershipDataAdds.put(key, value);
+          }
+        }
+      } else if (membershipDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType))) {
+          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
+          String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName);
+          String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId);
+          String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
+          
+          if ("members".equals(fieldName)) {
+            MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
+            if (cachedMembershipDataAdds.containsKey(key)) {
+              cachedMembershipDataAdds.remove(key);
+            } else {
+              cachedMembershipDataDeletes.add(key);
+            }
+          }
+        }
+      } else if (privilegeAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType))) {
+          String ownerName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName);
+          String fieldName = Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName), true).getListName();
+          String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId);
+          String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId);
+          long createdOnLong = changeLogEntry.getCreatedOn().getTime();
+          
+          MultiKey key = new MultiKey(ownerName, fieldName, sourceId, subjectId);
+          MultiKey value = new MultiKey(ownerName, fieldName, sourceId, subjectId, createdOnLong);
+          //if (cachedMembershipDataDeletes.contains(key)) {
+          //  cachedMembershipDataDeletes.remove(key);
+          //} else {
+          //  cachedMembershipDataAdds.put(key, value);
+          //}
+          cachedMembershipDataAdds.put(key, value);
+        }
+      } else if (privilegeDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType))) {
+          String ownerName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName);
+          String fieldName = Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName), true).getListName();
+          String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId);
+          String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId);
+          MultiKey key = new MultiKey(ownerName, fieldName, sourceId, subjectId);
+          if (cachedMembershipDataAdds.containsKey(key)) {
+            cachedMembershipDataAdds.remove(key);
+          } else {
+            cachedMembershipDataDeletes.add(key);
+          }
+        }
+      } else if (groupDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String internalIdString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_DELETE.internalId);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(internalIdString)) {
+          long internalId = Long.parseLong(internalIdString);
+          
+          for (Field field : fields) {
+            if (field.isGroupAccessField() || field.getName().equals("members")) {
+              cachedOwnerFieldDisabledDates.put(new MultiKey(internalId, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      } else if (groupAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String internalIdString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.GROUP_ADD.internalId);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(internalIdString)) {
+          long internalId = Long.parseLong(internalIdString);
+          
+          for (Field field : fields) {
+            if (field.isGroupAccessField() || field.getName().equals("members")) {
+              cachedOwnerFieldEnabledDates.put(new MultiKey(internalId, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      } else if (stemDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String idIndexString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_DELETE.idIndex);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(idIndexString)) {
+          long idIndex = Long.parseLong(idIndexString);
+          
+          for (Field field : fields) {
+            if (field.isStemListField()) {
+              cachedOwnerFieldDisabledDates.put(new MultiKey(idIndex, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      } else if (stemAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String idIndexString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.idIndex);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(idIndexString)) {
+          long idIndex = Long.parseLong(idIndexString);
+          
+          for (Field field : fields) {
+            if (field.isStemListField()) {
+              cachedOwnerFieldEnabledDates.put(new MultiKey(idIndex, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      } else if (attributeDefDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String idIndexString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_DELETE.idIndex);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(idIndexString)) {
+          long idIndex = Long.parseLong(idIndexString);
+          
+          for (Field field : fields) {
+            if (field.isAttributeDefListField()) {
+              cachedOwnerFieldDisabledDates.put(new MultiKey(idIndex, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      } else if (attributeDefAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String idIndexString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.idIndex);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(idIndexString)) {
+          long idIndex = Long.parseLong(idIndexString);
+          
+          for (Field field : fields) {
+            if (field.isAttributeDefListField()) {
+              cachedOwnerFieldEnabledDates.put(new MultiKey(idIndex, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      } else if (entityDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String internalIdString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ENTITY_DELETE.internalId);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(internalIdString)) {
+          long internalId = Long.parseLong(internalIdString);
+          
+          for (Field field : fields) {
+            if (field.isEntityListField()) {
+              cachedOwnerFieldDisabledDates.put(new MultiKey(internalId, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      } else if (entityAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
+        String internalIdString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ENTITY_ADD.internalId);
+        Timestamp createdOn = changeLogEntry.getCreatedOn();
+
+        if (!GrouperUtil.isEmpty(internalIdString)) {
+          long internalId = Long.parseLong(internalIdString);
+          
+          for (Field field : fields) {
+            if (field.isEntityListField()) {
+              cachedOwnerFieldEnabledDates.put(new MultiKey(internalId, field.getInternalId()), createdOn);
+            }
+          }
+        }
+      }
+    }
+    
+    Collection<MultiKey> sqlCacheOwnersToRetrieve = new LinkedHashSet<MultiKey>(cachedOwnerFieldEnabledDates.keySet());
+    sqlCacheOwnersToRetrieve.addAll(cachedOwnerFieldDisabledDates.keySet());
+    Map<MultiKey, SqlCacheGroup> sqlCacheOwners = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(sqlCacheOwnersToRetrieve, connection);
+                   
+    for (MultiKey multiKey : cachedOwnerFieldEnabledDates.keySet()) {
+      SqlCacheGroup sqlCacheOwner = sqlCacheOwners.get(multiKey);
+      if (sqlCacheOwner == null) {
+        sqlCacheOwner = new SqlCacheGroup();
+        sqlCacheOwner.setGroupInternalId((Long)multiKey.getKey(0));
+        sqlCacheOwner.setFieldInternalId((Long)multiKey.getKey(1));
+        sqlCacheOwner.setMembershipSize(0);
+      }
+      
+      sqlCacheOwner.setEnabledOn(cachedOwnerFieldEnabledDates.get(multiKey));   
+      sqlCacheOwners.put(multiKey, sqlCacheOwner);
+    }
+    
+    for (MultiKey multiKey : cachedOwnerFieldDisabledDates.keySet()) {
+      SqlCacheGroup sqlCacheOwner = sqlCacheOwners.get(multiKey);
+      if (sqlCacheOwner == null) {
+        continue;
+      }
+      
+      sqlCacheOwner.setDisabledOn(cachedOwnerFieldDisabledDates.get(multiKey));  
+      if (sqlCacheOwner.getDisabledOn() != null && sqlCacheOwner.getDisabledOn().getTime() < System.currentTimeMillis()) {
+        sqlCacheOwner.setMembershipSize(0);
+      }
+    }
+    
+    SqlCacheGroupDao.store(sqlCacheOwners.values(), connection, false);
+    SqlCacheMembershipDao.deleteSqlCacheMembershipsIfCacheable(cachedMembershipDataDeletes, connection);
+    SqlCacheMembershipDao.insertSqlCacheMembershipsIfCacheable(cachedMembershipDataAdds.values(), connection);
+    
+    for (SqlCacheGroup sqlCacheOwner : sqlCacheOwners.values()) {
+      if (sqlCacheOwner.getDisabledOn() != null && sqlCacheOwner.getDisabledOn().getTime() < System.currentTimeMillis()) {
+        SqlCacheMembershipDao.deleteSqlCacheMembershipsBySqlCacheGroupInternalId(sqlCacheOwner.getInternalId(), connection);
+      }
+    }
   }
   
   /**
@@ -668,6 +844,8 @@ public class ChangeLogTempToEntity {
     String parentStemId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.parentStemId);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
+    
+    String idIndexString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.idIndex);
 
     PITStem existing = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(id, false);
     if (existing != null) {
@@ -701,6 +879,10 @@ public class ChangeLogTempToEntity {
     pitStem.setContextId(contextId);
     pitStem.setActiveDb("T");
     pitStem.setStartTimeDb(time);
+    
+    if (!StringUtils.isEmpty(idIndexString)) {
+      pitStem.setSourceIdIndex(Long.parseLong(idIndexString));
+    }
     
     pitStem.saveOrUpdate();
   }
@@ -789,6 +971,8 @@ public class ChangeLogTempToEntity {
     String id = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.id);
     String contextId = GrouperUtil.isEmpty(changeLogEntry.getContextId()) ? null : changeLogEntry.getContextId();
     Long time = changeLogEntry.getCreatedOnDb();
+    
+    String idIndexString = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.idIndex);
 
     PITAttributeDef existing = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(id, false);
     if (existing != null) {
@@ -811,6 +995,10 @@ public class ChangeLogTempToEntity {
     pitAttributeDef.setActiveDb("T");
     pitAttributeDef.setStartTimeDb(time);
 
+    if (!StringUtils.isEmpty(idIndexString)) {
+      pitAttributeDef.setSourceIdIndex(Long.parseLong(idIndexString));
+    }
+    
     pitAttributeDef.saveOrUpdate();
   }
   

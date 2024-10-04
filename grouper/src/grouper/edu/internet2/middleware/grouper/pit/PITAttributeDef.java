@@ -51,6 +51,8 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
   /** column */
   public static final String COLUMN_SOURCE_ID = "source_id";
   
+  /** column */
+  public static final String COLUMN_SOURCE_ID_INDEX = "source_id_index";
   
   /** constant for field name for: sourceId */
   public static final String FIELD_SOURCE_ID = "sourceId";
@@ -71,12 +73,16 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
   /** constant for field name for: attributeDefType */
   public static final String FIELD_ATTRIBUTE_DEF_TYPE = "attributeDefType";
 
+  /** constant for field name for: sourceIdIndex */
+  public static final String FIELD_SOURCE_ID_INDEX = "sourceIdIndex";
+  
   /**
    * fields which are included in clone method
    */
   private static final Set<String> CLONE_FIELDS = GrouperUtil.toSet(
       FIELD_CONTEXT_ID, FIELD_HIBERNATE_VERSION_NUMBER, FIELD_ID,
-      FIELD_NAME, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_STEM_ID, FIELD_SOURCE_ID);
+      FIELD_NAME, FIELD_ATTRIBUTE_DEF_TYPE, FIELD_STEM_ID, FIELD_SOURCE_ID,
+      FIELD_SOURCE_ID_INDEX);
 
 
 
@@ -102,6 +108,23 @@ public class PITAttributeDef extends GrouperPIT implements Hib3GrouperVersioned 
 
   /** sourceId */
   private String sourceId;
+  
+  /** sourceIdIndex */
+  private Long sourceIdIndex;
+  
+  /**
+   * @return sourceIdIndex
+   */
+  public Long getSourceIdIndex() {
+    return sourceIdIndex;
+  }
+
+  /**
+   * @param sourceIdIndex
+   */
+  public void setSourceIdIndex(Long sourceIdIndex) {
+    this.sourceIdIndex = sourceIdIndex;
+  }
   
   /**
    * @return source id

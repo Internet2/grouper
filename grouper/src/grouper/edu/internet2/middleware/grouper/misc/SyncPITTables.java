@@ -503,11 +503,12 @@ public class SyncPITTables {
       logDetail("Found missing point in time attribute def with id: " + attr.getId() + ", name: " + attr.getName());
             
       if (saveUpdates) {
-        // note that we may just need to update the name and/or stemId
+        // note that we may just need to update some fields
         PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdActive(attr.getId(), false);
         if (pitAttributeDef != null) {
           PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(attr.getStemId(), true);
           pitAttributeDef.setNameDb(attr.getName());
+          pitAttributeDef.setSourceIdIndex(attr.getIdIndex());
           pitAttributeDef.setStemId(pitStem.getId());
           if (!StringUtils.isEmpty(attr.getContextId())) {
             pitAttributeDef.setContextId(attr.getContextId());
@@ -524,7 +525,8 @@ public class SyncPITTables {
             ChangeLogLabels.ATTRIBUTE_DEF_ADD.name.name(), attr.getName(), 
             ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId.name(), attr.getStemId(),
             ChangeLogLabels.ATTRIBUTE_DEF_ADD.description.name(), attr.getDescription(),
-            ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType.name(), attr.getAttributeDefTypeDb());
+            ChangeLogLabels.ATTRIBUTE_DEF_ADD.attributeDefType.name(), attr.getAttributeDefTypeDb(),
+            ChangeLogLabels.ATTRIBUTE_DEF_ADD.idIndex.name(), "" + attr.getIdIndex());
         
         if (!StringUtils.isEmpty(attr.getContextId())) {
           changeLogEntry.setContextId(attr.getContextId());
@@ -1009,10 +1011,11 @@ public class SyncPITTables {
       logDetail("Found missing point in time stem with id: " + stem.getUuid() + ", name: " + stem.getName());
             
       if (saveUpdates) {
-        // note that we may just need to update the name and/or parentStemId
+        // note that we may just need to update some fields
         PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getUuid(), false);
         if (pitStem != null) {
           pitStem.setNameDb(stem.getNameDb());
+          pitStem.setSourceIdIndex(stem.getIdIndex());
           pitStem.setParentStemId(GrouperDAOFactory.getFactory().getPITStem().findBySourceIdActive(stem.getParentUuid(), true).getId());
           if (!StringUtils.isEmpty(stem.getContextId())) {
             pitStem.setContextId(stem.getContextId());
@@ -1030,7 +1033,8 @@ public class SyncPITTables {
             stem.getUuid(), ChangeLogLabels.STEM_ADD.name.name(), 
             stem.getName(), ChangeLogLabels.STEM_ADD.parentStemId.name(), stem.getParentUuid(),
             ChangeLogLabels.STEM_ADD.displayName.name(), stem.getDisplayName(),
-            ChangeLogLabels.STEM_ADD.description.name(), stem.getDescription());
+            ChangeLogLabels.STEM_ADD.description.name(), stem.getDescription(),
+            ChangeLogLabels.STEM_ADD.idIndex.name(), "" + stem.getIdIndex());
 
         if (!StringUtils.isEmpty(stem.getContextId())) {
           changeLogEntry.setContextId(stem.getContextId());

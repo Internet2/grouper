@@ -6428,7 +6428,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             this.getUuid(), ChangeLogLabels.ENTITY_DELETE.name.name(),
             this.getName(), ChangeLogLabels.ENTITY_DELETE.parentStemId.name(), this.getParentUuid(),
             ChangeLogLabels.ENTITY_DELETE.displayName.name(), this.getDisplayName(),
-            ChangeLogLabels.ENTITY_DELETE.description.name(), this.getDescription()).save();
+            ChangeLogLabels.ENTITY_DELETE.description.name(), this.getDescription(),
+            ChangeLogLabels.ENTITY_DELETE.internalId.name(), "" + this.getInternalId()).save();
       } else {
         new ChangeLogEntry(true, ChangeLogTypeBuiltin.GROUP_DELETE,
             ChangeLogLabels.GROUP_DELETE.id.name(),
@@ -6436,7 +6437,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
             this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
             ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
             ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription(),
-            ChangeLogLabels.GROUP_DELETE.idIndex.name(), "" + this.getIdIndex()).save();
+            ChangeLogLabels.GROUP_DELETE.idIndex.name(), "" + this.getIdIndex(),
+            ChangeLogLabels.GROUP_DELETE.internalId.name(), "" + this.getInternalId()).save();
       }
     } else if (enabling) {
       GrouperHooksUtils.callHooksIfRegistered(this, GrouperHookType.GROUP, 
@@ -6958,7 +6960,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           this.getUuid(), ChangeLogLabels.ENTITY_DELETE.name.name(), 
           this.getName(), ChangeLogLabels.ENTITY_DELETE.parentStemId.name(), this.getParentUuid(),
           ChangeLogLabels.ENTITY_DELETE.displayName.name(), this.getDisplayName(),
-          ChangeLogLabels.ENTITY_DELETE.description.name(), this.getDescription()).save();
+          ChangeLogLabels.ENTITY_DELETE.description.name(), this.getDescription(),
+          ChangeLogLabels.ENTITY_DELETE.internalId.name(), "" + this.getInternalId()).save();
 
     } else {
 
@@ -6969,7 +6972,8 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
           this.getName(), ChangeLogLabels.GROUP_DELETE.parentStemId.name(), this.getParentUuid(),
           ChangeLogLabels.GROUP_DELETE.displayName.name(), this.getDisplayName(),
           ChangeLogLabels.GROUP_DELETE.description.name(), this.getDescription(),
-          ChangeLogLabels.GROUP_DELETE.idIndex.name(), "" + this.getIdIndex()).save();
+          ChangeLogLabels.GROUP_DELETE.idIndex.name(), "" + this.getIdIndex(),
+          ChangeLogLabels.GROUP_DELETE.internalId.name(), "" + this.getInternalId()).save();
 
     }
   }

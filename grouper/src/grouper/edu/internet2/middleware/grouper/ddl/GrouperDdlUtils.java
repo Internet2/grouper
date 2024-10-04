@@ -1996,6 +1996,48 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * See if table has a primary key
+   * @param tableName
+   * @return true or false
+   */
+  public static boolean assertPrimaryKeyExists(String tableName) {
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+    
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+  
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+  
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+  
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    try {
+      connection = grouperDb.connection();
+  
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    
+      Table table = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+      
+      if (table == null) {
+        return false;
+      }
+      
+      return table.hasPrimaryKey();
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  
+  }
+  
+  /**
    * add an index on a table.  drop a misnamed or a misuniqued index which is existing
    * @param database
    * @param ddlVersionBean can be null unless custom script

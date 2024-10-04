@@ -206,7 +206,8 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
           pitStem.setContextId(contextId);
           pitStem.setActiveDb("T");
           pitStem.setStartTimeDb(System.currentTimeMillis() * 1000);
-          
+          pitStem.setSourceIdIndex(stem.getIdIndex());
+
           pitStem.saveOrUpdate();
         }
       }
@@ -361,7 +362,7 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
       .byHqlStatic()
       .createQuery("select s from Stem s where " +
           "not exists (select 1 from PITStem pitStem, PITStem pitParentStem where pitStem.parentStemId = pitParentStem.id" +
-          "            and s.uuid = pitStem.sourceId and s.nameDb = pitStem.nameDb and s.parentUuid = pitParentStem.sourceId) " +
+          "            and s.uuid = pitStem.sourceId and s.nameDb = pitStem.nameDb and s.parentUuid = pitParentStem.sourceId and s.idIndex = pitStem.sourceIdIndex) " +
           "and not exists (select 1 from ChangeLogEntryTemp temp, ChangeLogType type " +
           "    where temp.string01 = s.uuid " +
           "    and type.actionName='addStem' and type.changeLogCategory='stem' and type.id=temp.changeLogTypeId) " +

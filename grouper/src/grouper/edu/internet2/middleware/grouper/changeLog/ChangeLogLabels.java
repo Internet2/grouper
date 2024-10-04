@@ -128,7 +128,10 @@ public class ChangeLogLabels {
     description,
     
     /** idIndex */
-    idIndex;
+    idIndex,
+    
+    /** internalId */
+    internalId;
   };
   
   /**
@@ -249,7 +252,10 @@ public class ChangeLogLabels {
     displayName, 
     
     /** description */
-    description;
+    description,
+    
+    /** internalId */
+    internalId;
   };
   
   /**
@@ -374,7 +380,10 @@ public class ChangeLogLabels {
     description,
     
     /** attributeDefType */
-    attributeDefType;
+    attributeDefType,
+    
+    /** idIndex */
+    idIndex;
   }
 
   /** labels for a attribute def update */
@@ -423,7 +432,10 @@ public class ChangeLogLabels {
     description,
     
     /** attributeDefType */
-    attributeDefType;
+    attributeDefType,
+    
+    /** idIndex */
+    idIndex;
   };
   
   /**
@@ -444,7 +456,10 @@ public class ChangeLogLabels {
     displayName,
     
     /** description */
-    description;
+    description,
+    
+    /** idIndex */
+    idIndex;
   }
 
   /** labels for a stem update */
@@ -496,7 +511,10 @@ public class ChangeLogLabels {
     displayName, 
     
     /** description */
-    description;
+    description,
+    
+    /** idIndex */
+    idIndex;
   };
 
   /**

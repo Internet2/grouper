@@ -824,8 +824,11 @@ CREATE TABLE grouper_pit_stems
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_id_index BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_stem_source_idindex_idx ON grouper_pit_stems (source_id_index);
 
 CREATE INDEX pit_stem_source_id_idx ON grouper_pit_stems (source_id);
 
@@ -849,8 +852,11 @@ CREATE TABLE grouper_pit_attribute_def
     end_time BIGINT,
     context_id VARCHAR(40) NULL,
     hibernate_version_number BIGINT,
+    source_id_index BIGINT not null,
     PRIMARY KEY (id)
 );
+
+CREATE INDEX pit_attrdef_source_idindex_idx ON grouper_pit_attribute_def (source_id_index);
 
 CREATE INDEX pit_attr_def_source_id_idx ON grouper_pit_attribute_def (source_id);
 
@@ -2163,18 +2169,20 @@ CREATE TABLE grouper_sql_cache_group
     created_on DATETIME NOT NULL,
     enabled_on DATETIME NOT NULL,
     disabled_on DATETIME NULL,
+    last_membership_sync DATETIME NULL,
     PRIMARY KEY (internal_id)
 );
 
 CREATE UNIQUE INDEX grouper_sql_cache_group1_idx ON grouper_sql_cache_group (group_internal_id, field_internal_id);
 
+CREATE INDEX grouper_sql_cache_group2_idx ON grouper_sql_cache_group (last_membership_sync);
+
 CREATE TABLE grouper_sql_cache_mship
 (
-    created_on DATETIME NOT NULL,
     flattened_add_timestamp DATETIME NOT NULL,
-    internal_id BIGINT NOT NULL,
     member_internal_id BIGINT NOT NULL,
-    sql_cache_group_internal_id BIGINT NOT NULL
+    sql_cache_group_internal_id BIGINT NOT NULL,
+    PRIMARY KEY (sql_cache_group_internal_id, member_internal_id)
 );
 
 CREATE INDEX grouper_sql_cache_mship1_idx ON grouper_sql_cache_mship (sql_cache_group_internal_id, flattened_add_timestamp);
@@ -2835,7 +2843,7 @@ CREATE VIEW grouper_recent_mships_load_v (group_name, subject_source_id, subject
 
 CREATE VIEW grouper_sql_cache_group_v (group_name, list_name, membership_size, group_id, field_id, group_internal_id, field_internal_id) AS select gg.name group_name, gf.name list_name, membership_size,  gg.id group_id, gf.id field_id, gg.internal_id group_internal_id, gf.internal_id field_internal_id  from grouper_sql_cache_group gscg, grouper_fields gf, grouper_groups gg  where gscg.group_internal_id = gg.internal_id and gscg.field_internal_id = gf.internal_id ;
 
-CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, flattened_add_timestamp, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0,  gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp,  gg.id AS group_id, gf.id AS field_id, gscm.internal_id AS mship_internal_id, gm.internal_id AS member_internal_id,  gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id  FROM grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf,  grouper_groups gg, grouper_members gm  WHERE gscg.group_internal_id = gg.internal_id AND gscg.field_internal_id = gf.internal_id  AND gscm.sql_cache_group_internal_id = gscg.internal_id AND gscm.member_internal_id = gm.internal_id ;
+CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, flattened_add_timestamp, group_id, field_id, member_internal_id, group_internal_id, field_internal_id) AS SELECT gg.name AS group_name, gf.name AS list_name, gm.subject_id, gm.subject_identifier0,  gm.subject_identifier1, gm.subject_identifier2, gm.subject_source, gscm.flattened_add_timestamp,  gg.id AS group_id, gf.id AS field_id, gm.internal_id AS member_internal_id,  gg.internal_id AS group_internal_id, gf.internal_id AS field_internal_id  FROM grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_fields gf,  grouper_groups gg, grouper_members gm  WHERE gscg.group_internal_id = gg.internal_id AND gscg.field_internal_id = gf.internal_id  AND gscm.sql_cache_group_internal_id = gscg.internal_id AND gscm.member_internal_id = gm.internal_id ;
 
 CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS  select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ;
 

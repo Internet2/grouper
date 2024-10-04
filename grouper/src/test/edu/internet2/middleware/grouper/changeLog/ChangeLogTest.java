@@ -101,7 +101,7 @@ public class ChangeLogTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new ChangeLogTest("testAttributeDefPrivileges"));
+    TestRunner.run(new ChangeLogTest("testStems"));
     //TestRunner.run(ChangeLogTest.class);
   }
   
@@ -5473,6 +5473,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(resourcesDef.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.name));
     assertEquals(resourcesDef.getStemId(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.stemId));
     assertEquals(resourcesDef.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.id));
+    assertEquals(resourcesDef.getIdIndex().toString(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.ATTRIBUTE_DEF_ADD.idIndex));
   
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -5506,6 +5507,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(resourcesDef.getName(), pitAttributeDef.getName());
     assertEquals(resourcesDef.getStemId(), pitAttributeDef.getPITStem().getSourceId());
     assertEquals(resourcesDef.getContextId(), pitAttributeDef.getContextId());
+    assertEquals(resourcesDef.getIdIndex(), pitAttributeDef.getSourceIdIndex());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
@@ -5656,6 +5658,7 @@ public class ChangeLogTest extends GrouperTest {
     PITAttributeDef pitAttributeDef3 = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdUnique(resourcesDef3.getId(), false);
     assertNotNull(pitAttributeDef3);
     assertEquals("edu:attrdef3a", pitAttributeDef3.getName());
+    assertEquals(resourcesDef3.getIdIndex(), pitAttributeDef3.getSourceIdIndex());
   }
 
   /**
@@ -6643,6 +6646,7 @@ public class ChangeLogTest extends GrouperTest {
   
     assertEquals(stem.getName(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.name));
     assertEquals(stem.getUuid(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.id));
+    assertEquals(stem.getIdIndex().toString(), changeLogEntry.retrieveValueForLabel(ChangeLogLabels.STEM_ADD.idIndex));
   
     //move the temp objects to the regular change log table
     ChangeLogTempToEntity.convertRecords();
@@ -6677,6 +6681,7 @@ public class ChangeLogTest extends GrouperTest {
     assertEquals(stem.getName(), pitStem.getName());
     assertEquals(stem.getParentUuid(), pitStem.getParentPITStem().getSourceId());
     assertEquals(stem.getContextId(), pitStem.getContextId());
+    assertEquals(stem.getIdIndex(), pitStem.getSourceIdIndex());
     
     Iterator<Field> allFields = FieldFinder.findAll().iterator();
     while (allFields.hasNext()) {
@@ -6826,6 +6831,7 @@ public class ChangeLogTest extends GrouperTest {
     PITStem pitStem3 = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdUnique(stem3.getUuid(), false);
     assertNotNull(pitStem3);
     assertEquals("edu:stem3a", pitStem3.getName());
+    assertEquals(stem3.getIdIndex(), pitStem3.getSourceIdIndex());
     
     //##################################
     // try updating the parent stem id

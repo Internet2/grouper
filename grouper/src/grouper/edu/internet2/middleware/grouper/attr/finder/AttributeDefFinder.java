@@ -19,8 +19,12 @@
  */
 package edu.internet2.middleware.grouper.attr.finder;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -33,6 +37,10 @@ import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
 
@@ -40,6 +48,8 @@ import edu.internet2.middleware.subject.Subject;
  * finder methods for attribute def
  */
 public class AttributeDefFinder {
+
+  private static ExpirableCache<String, Long> attributeDefNameToIdIndexCache = new ExpirableCache<>(60);
 
   /**
    * names of attribute definitions to find
@@ -470,4 +480,60 @@ public class AttributeDefFinder {
     return this;
   }
   
+  /**
+   * this will cache for a minute, find id index by name
+   * @param attributeDefNames2
+   * @return the id indexes
+   */
+  public static Map<String, Long> findIdIndexesByNames(final Set<String> attributeDefNames2) {
+    final Map<String, Long> result = new HashMap<String, Long>();
+    final Set<String> attributeDefNamesToFind = new HashSet<>(attributeDefNames2);
+    
+    // try the cache
+    for (String attributeDefName : GrouperUtil.nonNull(attributeDefNames2)) {
+      Long idIndex = attributeDefNameToIdIndexCache.get(attributeDefName);
+      if (idIndex != null) {
+        result.put(attributeDefName, idIndex);
+        attributeDefNamesToFind.remove(attributeDefName);
+      }
+    }
+
+    if (attributeDefNamesToFind.size() == 0) {
+      return result;
+    }
+    
+    List<String> attributeDefNamesToFindList = new ArrayList<String>(attributeDefNamesToFind);
+
+    // one bind var in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(attributeDefNamesToFindList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfAttributeDefNames = GrouperClientUtils.batchList(attributeDefNamesToFindList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select name, id_index from grouper_attribute_def where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      for (int i=0;i<batchOfAttributeDefNames.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" name = ? ");
+        gcDbAccess.addBindVar(attributeDefNamesToFindList.get(i));
+      }
+      
+      List<Object[]> nameAndIdIndexes = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] nameAndIdIndex : GrouperUtil.nonNull(nameAndIdIndexes)) {
+        String attributeDefName = (String)nameAndIdIndex[0];
+        Long idIndex = GrouperUtil.longObjectValue(nameAndIdIndex[1], false);
+        result.put(attributeDefName, idIndex);
+      }
+      
+    }
+    
+    return result;
+  }
 }

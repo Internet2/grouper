@@ -454,24 +454,6 @@ public enum TableIndexType {
       return false;
     }
   }, 
-  /** index assigned to a sql membership cache entry */
-  sqlMembershipCache{
-  
-    @Override
-    public String tableName() {
-      return "grouper_sql_cache_mship";
-    }
-  
-    @Override
-    public String getIncrementingColumn() {
-      return "internal_id";
-    }
-    
-    @Override
-    public boolean isHasIdColumn() {
-      return false;
-    }
-  }, 
   /** SQL cache dependency type */
   sqlCacheDependency{
   
