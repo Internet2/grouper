@@ -542,7 +542,8 @@ public class GrouperProvisioningCompare {
         if (!provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
           
           boolean isDelete = provisioningMembershipWrapper.getGrouperProvisioningMembership() == null || provisioningMembershipWrapper.getProvisioningStateMembership().isDelete();
-          boolean isInsert = !isDelete && provisioningMembershipWrapper.getGrouperProvisioningMembership() != null && !provisioningMembershipWrapper.getProvisioningStateMembership().isDelete();
+          boolean isInsert = !isDelete && provisioningMembershipWrapper.getGrouperProvisioningMembership() != null && !provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()
+              && provisioningMembershipWrapper.getProvisioningStateMembership().isExistInGrouper();
           
           if (isDelete) {
             if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
@@ -596,7 +597,7 @@ public class GrouperProvisioningCompare {
               ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(value);
               if (recalcProvisioningUpdateable || provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject()) {
                 value = filterDeletedMemberships(grouperAttribute, value);
-                
+                value = filterMembershipsNotInGrouper(grouperAttribute, value);
                 if (value == null) {
                   continue;
                 }
@@ -658,7 +659,8 @@ public class GrouperProvisioningCompare {
       if (!multiValued) {
         if (grouperValue != null) {
           grouperValue = filterDeletedMemberships(grouperAttribute, grouperValue);
-          
+          grouperValue = filterMembershipsNotInGrouper(grouperAttribute, grouperValue);
+
           if (filterNonRecalcMemberships(grouperAttribute, grouperValue, recalcProvisioningUpdateable)) {
             grouperValue = null;
           }
@@ -727,6 +729,7 @@ public class GrouperProvisioningCompare {
         while (iterator.hasNext()) {
           Object value = iterator.next();
           value = filterDeletedMemberships(grouperAttribute, value);
+          value = filterMembershipsNotInGrouper(grouperAttribute, value);
           
           if (filterNonRecalcMemberships(grouperAttribute, value, recalcProvisioningUpdateable)) {
             continue;
@@ -1034,6 +1037,10 @@ public class GrouperProvisioningCompare {
    */
   public Object filterDeletedMemberships(ProvisioningAttribute grouperAttribute, Object grouperValue) {
     
+    if (grouperValue == null) {
+      return null;
+    }
+
     if (grouperAttribute == null || grouperAttribute.getValueToProvisioningMembershipWrapper() == null) {
       return grouperValue;
     }
@@ -1041,6 +1048,32 @@ public class GrouperProvisioningCompare {
     ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(grouperValue);
     
     if (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership().isDelete()) {
+      grouperValue = null;
+    }
+
+    return grouperValue;
+    
+  }
+  
+  /**
+   * if this is a membership and the membership is not in grouper, return null
+   * @param grouperAttribute
+   * @param grouperValue
+   * @return
+   */
+  public Object filterMembershipsNotInGrouper(ProvisioningAttribute grouperAttribute, Object grouperValue) {
+    
+    if (grouperValue == null) {
+      return null;
+    }
+
+    if (grouperAttribute == null || grouperAttribute.getValueToProvisioningMembershipWrapper() == null) {
+      return grouperValue;
+    }
+    
+    ProvisioningMembershipWrapper provisioningMembershipWrapper = grouperAttribute.getValueToProvisioningMembershipWrapper().get(grouperValue);
+    
+    if (provisioningMembershipWrapper != null && !provisioningMembershipWrapper.getProvisioningStateMembership().isInGrouper()) {
       grouperValue = null;
     }
 
@@ -1117,7 +1150,8 @@ public class GrouperProvisioningCompare {
           if (provisioningEntityWrapper.getGcGrouperSyncMember() != null && provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable() && 
               (provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().getInTarget())) {
           
-            if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
+            if (provisioningEntityWrapper.getProvisioningStateEntity().isInGrouper() 
+                && provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
             
               if (provisioningEntityWrapper.getGrouperTargetEntity() != null && provisioningEntityWrapper.getTargetProvisioningEntity() == null) {
                 
@@ -1410,7 +1444,8 @@ public class GrouperProvisioningCompare {
           if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null && provisioningGroupWrapper.getGcGrouperSyncGroup().isProvisionable() 
               && (provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget() == null || !provisioningGroupWrapper.getGcGrouperSyncGroup().getInTarget())) {
           
-            if (provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
+            if (provisioningGroupWrapper.getProvisioningStateGroup().isInGrouper() 
+                && provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
             
               if (provisioningGroupWrapper.getGrouperTargetGroup() != null && provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
                 
@@ -1905,6 +1940,11 @@ public class GrouperProvisioningCompare {
 
           if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(membershipToInsert, null, null)) {
             GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "unresolvableIgnoreMembership", 1);
+            continue;
+          }
+          
+          if (!membershipToInsert.getProvisioningMembershipWrapper().getProvisioningStateMembership().isInGrouper()) {
+            GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "insertMembershipIgnoreNotInGrouper", 1);
             continue;
           }
           

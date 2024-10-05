@@ -723,6 +723,8 @@ public class GrouperProvisioningGrouperDao {
       } else {
         provisioningGroupWrapper.setGrouperProvisioningGroup(provisioningGroup);
       }
+      provisioningGroupWrapper.getProvisioningState().setInGrouper(true);
+
     }
     
     Map<String, ProvisioningEntityWrapper> memberUuidToProvisioningEntityWrapper
@@ -740,6 +742,8 @@ public class GrouperProvisioningGrouperDao {
         provisioningEntityWrapper.setGrouperProvisioningEntity(provisioningEntity);
       }
       provisioningEntityWrapper.getProvisioningStateEntity().setUnresolvable(GrouperUtil.booleanValue(provisioningEntity.retrieveAttributeValueBoolean("grouperSubjectUnresolvable"), false));
+      provisioningEntityWrapper.getProvisioningState().setInGrouper(true);
+
     }
 
     Map<MultiKey, ProvisioningMembershipWrapper> groupUuidMemberUuidToProvisioningMembershipWrapper
@@ -768,6 +772,9 @@ public class GrouperProvisioningGrouperDao {
       } else {
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
       }
+      
+      provisioningMembershipWrapper.getProvisioningState().setInGrouper(true);
+
 //      // if the group retrieved all memberships incrementally, then mark the memberships as recalc
 //      if (!StringUtils.isBlank(provisioningMembership.getProvisioningGroupId()) 
 //          && groupUuidsToRetrieveMemberships.contains(provisioningMembership.getProvisioningGroupId())) {

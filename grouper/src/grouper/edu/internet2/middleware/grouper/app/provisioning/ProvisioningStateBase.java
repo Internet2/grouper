@@ -156,6 +156,31 @@ public class ProvisioningStateBase {
    * if this is for a create in target
    */
   private boolean create;
+  
+  /**
+   * if this is in grouper (and not created from cache), this is for data retrieved from grouper
+   */
+  private boolean inGrouper;
+  
+  
+
+  /**
+   * if this is in grouper (and not created from cache), this is for data retrieved from grouper
+   * @return
+   */
+  public boolean isInGrouper() {
+    return inGrouper;
+  }
+
+
+  /**
+   * if this is in grouper (and not created from cache), this is for data retrieved from grouper
+   * @param inGrouper
+   */
+  public void setInGrouper(boolean inGrouper) {
+    this.inGrouper = inGrouper;
+  }
+
 
   /**
    * if the grouperProvisioningGroup side is for a delete.  includes things that are known 
