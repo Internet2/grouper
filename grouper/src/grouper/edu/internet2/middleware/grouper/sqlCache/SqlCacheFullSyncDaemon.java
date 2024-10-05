@@ -309,8 +309,20 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       List<Object[]> sqlCacheGroupsData = new GcDbAccess().sql("select internal_id, group_internal_id, field_internal_id, membership_size, last_membership_sync from grouper_sql_cache_group where disabled_on is null").selectList(Object[].class);
       LOG.info("sqlCacheGroupsData.size=" + sqlCacheGroupsData.size());
       
-      // sort by membership size desc
-      sqlCacheGroupsData.sort((o1, o2) -> Long.compare(((Number) o2[3]).longValue(), ((Number) o1[3]).longValue()));
+      // sort by membership size desc but prioritze if not been sync'ed
+      sqlCacheGroupsData.sort((o1, o2) -> {
+        long s1 = ((Number) o1[3]).longValue();
+        long s2 = ((Number) o2[3]).longValue();
+
+        if (s1 == -1 && s2 != -1) {
+          return -1;
+        } else if (s2 == -1 && s1 != -1) {
+          return 1;
+        } else {
+          return Long.compare(s2, s1);
+        }
+      });
+      
       
       List<Object[]> sqlCacheGroupDataBatch = new ArrayList<>();
       Map<Long, Timestamp> lastMembershipSyncUpdates = new HashMap<>();
@@ -371,7 +383,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
           batchMembershipSize += membershipSize;
         }
         
-        if (batchMembershipSize >= 10000 || sqlCacheGroupDataBatch.size() >= maxObjectFieldPairMembershipSyncBatchSize) {
+        if (membershipSize == -1 || batchMembershipSize >= 10000 || sqlCacheGroupDataBatch.size() >= maxObjectFieldPairMembershipSyncBatchSize) {
           Timestamp syncTimestamp = new Timestamp(System.currentTimeMillis());
           processBatch(sqlCacheGroupDataBatch);
           
@@ -634,7 +646,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       }
       
       for (Long cacheMembershipsMemberInternalIdToDelete : cacheMembershipsMemberInternalIdsToDelete) {
-        bindVarsSqlCacheMshipDeletes.add(GrouperUtil.toListObject(sqlCacheGroupInternalId, cacheMembershipsMemberInternalIdToDelete));
+        bindVarsSqlCacheMshipDeletes.add(GrouperUtil.toListObject(cacheMembershipsMemberInternalIdToDelete, sqlCacheGroupInternalId));
       }
       
       if (pitMembershipsMemberInternalIds.size() != internalIdToMembershipSize.get(sqlCacheGroupInternalId) ||
@@ -653,7 +665,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     }
     
     if (bindVarsSqlCacheMshipDeletes.size() > 0) {
-      int[] rowsChanged = new GcDbAccess().sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id = ? and member_internal_id = ?").batchBindVars(bindVarsSqlCacheMshipDeletes).executeBatchSql();
+      int[] rowsChanged = new GcDbAccess().sql("delete from grouper_sql_cache_mship where member_internal_id = ? and sql_cache_group_internal_id = ?").batchBindVars(bindVarsSqlCacheMshipDeletes).executeBatchSql();
     
       int count = 0;
       for (int i = 0; i < rowsChanged.length; i++) {

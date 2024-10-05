@@ -344,8 +344,17 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", created view grouper_sql_cache_mship_v");
           }
           
+          if (GrouperDdlUtils.assertIndexExists("grouper_sql_cache_mship", "grouper_sql_cache_mship2_idx")) {
+            if (GrouperDdlUtils.isMysql()) {
+              HibernateSession.bySqlStatic().executeSql("DROP INDEX grouper_sql_cache_mship2_idx ON grouper_sql_cache_mship");
+            } else {
+              HibernateSession.bySqlStatic().executeSql("DROP INDEX grouper_sql_cache_mship2_idx");
+            }
+            otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", dropped index grouper_sql_cache_mship2_idx");
+          }
+          
           if (!GrouperDdlUtils.assertPrimaryKeyExists("grouper_sql_cache_mship")) {
-            HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_mship ADD PRIMARY KEY (sql_cache_group_internal_id, member_internal_id)");
+            HibernateSession.bySqlStatic().executeSql("ALTER TABLE grouper_sql_cache_mship ADD PRIMARY KEY (member_internal_id, sql_cache_group_internal_id)");
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added primary key to grouper_sql_cache_mship");
           }
           

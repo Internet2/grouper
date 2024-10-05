@@ -2182,12 +2182,10 @@ CREATE TABLE grouper_sql_cache_mship
     flattened_add_timestamp DATETIME NOT NULL,
     member_internal_id BIGINT NOT NULL,
     sql_cache_group_internal_id BIGINT NOT NULL,
-    PRIMARY KEY (sql_cache_group_internal_id, member_internal_id)
+    PRIMARY KEY (member_internal_id, sql_cache_group_internal_id)
 );
 
 CREATE INDEX grouper_sql_cache_mship1_idx ON grouper_sql_cache_mship (sql_cache_group_internal_id, flattened_add_timestamp);
-
-CREATE INDEX grouper_sql_cache_mship2_idx ON grouper_sql_cache_mship (member_internal_id, sql_cache_group_internal_id);
 
 CREATE TABLE grouper_sql_cache_mship_hst
 (

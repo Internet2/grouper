@@ -317,14 +317,14 @@ public class SqlCacheMembershipDao {
         continue;
       }
       
-      bindVarsAll.add(GrouperUtil.toListObject(sqlCacheGroup.getInternalId(), memberInternalId));
+      bindVarsAll.add(GrouperUtil.toListObject(memberInternalId, sqlCacheGroup.getInternalId()));
       sqlCacheGroup.setMembershipSize(sqlCacheGroup.getMembershipSize() - 1);
       sqlCacheGroupsToUpdate.add(sqlCacheGroup);
     }   
     
     int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
 
-    new GcDbAccess().connection(connection).batchSize(batchSize).sql("delete from grouper_sql_cache_mship where sql_cache_group_internal_id = ? and member_internal_id = ?")
+    new GcDbAccess().connection(connection).batchSize(batchSize).sql("delete from grouper_sql_cache_mship where member_internal_id = ? and sql_cache_group_internal_id = ?")
       .batchBindVars(bindVarsAll).executeBatchSql();
 
     SqlCacheGroupDao.store(sqlCacheGroupsToUpdate, connection, false);
