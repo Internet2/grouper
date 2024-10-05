@@ -1252,6 +1252,10 @@ public abstract class GrouperProvisioner {
     return GrouperProvisioningLinkLogic.class;
   }
 
+  public GrouperProvisioner getGrouperProvisioner() {
+    return this;
+  }
+  
   /**
    * 
    */

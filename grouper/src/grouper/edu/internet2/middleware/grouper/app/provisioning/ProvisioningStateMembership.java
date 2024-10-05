@@ -97,6 +97,9 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
     if(this.getProvisioningMembershipWrapper().getProvisioningStateMembership().isDelete()) {
       return false;
     }
+    if(!this.getProvisioningMembershipWrapper().getProvisioningStateMembership().isInGrouper()) {
+      return false;
+    }
     return true;
   }
 

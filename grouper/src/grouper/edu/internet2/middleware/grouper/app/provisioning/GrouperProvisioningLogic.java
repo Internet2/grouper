@@ -3833,6 +3833,7 @@ public class GrouperProvisioningLogic {
           
         provisioningMembershipWrapper.setGrouperProvisioningMembership(provisioningMembership);
         
+        // Caused an issue with over inserting...
         if (GrouperUtil.booleanValue(gcGrouperSyncMembership.getInTarget(), false)) {        	
         	provisioningMembershipWrapper.getProvisioningStateMembership().setDelete(true);
         }
