@@ -230,6 +230,8 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         error = true;
       }
 
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+
       try {
         int count = GrouperProvisioningService.deleteInvalidConfigs();
         if (hib3GrouploaderLog != null) {
@@ -246,7 +248,7 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         error = true;
       }
 
-      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
       
       try {
         deleteOldSyncData(jobMessage, hib3GrouploaderLog);
@@ -256,7 +258,6 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
         jobMessage.append("\nError deleting old sync data: " +ExceptionUtils.getFullStackTrace(e)  + "\n");
         error = true;
       }
-      
   
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -1109,12 +1110,13 @@ public class GrouperDaemonDeleteOldRecords extends OtherJobBase {
             continue;
           }
         }
-        if (hib3GrouploaderLog != null) {
-          hib3GrouploaderLog.addUpdateCount(GrouperUtil.length(ids));
-        }
         
         List<String> ids = HibernateSession.bySqlStatic().listSelect(
             String.class, "select " + tableIndexType.getIdColumnName() + " from " + tableIndexType.tableName() + " where " + tableIndexType.getIncrementingColumn() + " is null order by " + tableIndexType.getIdColumnName(), null, null);
+
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.addUpdateCount(GrouperUtil.length(ids));
+        }
 
         if (GrouperUtil.length(ids) > 0) {
           String message = "Found " + GrouperUtil.length(ids) + " " + tableIndexType.name() + " records with null " + tableIndexType.getIncrementingColumn() + "... correcting...";
