@@ -52,7 +52,7 @@ public class GrouperJexlScriptAnalysis {
     return errorMessage;
   }
 
-  
+  //TODO should have multiple errors or warnings or should append?
   public void setErrorMessage(String errorMessage) {
     this.errorMessage = errorMessage;
   }
