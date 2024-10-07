@@ -262,7 +262,7 @@ public class UiV2CustomUi {
 
       String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
       if (!StringUtils.isBlank(redirectToUrl)) {
-        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeJavascript(redirectToUrl, true) + "'"));
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeSingleQuotes(redirectToUrl) + "'"));
         return;
       }
 
@@ -498,7 +498,7 @@ public class UiV2CustomUi {
       String redirectToUrl = (String)customUiContainer.getTextTypeToText().get(CustomUiTextType.redirectToUrl.name());
       if (!StringUtils.isBlank(redirectToUrl)) {
         GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeJavascript(redirectToUrl, true) + "'"));
+        guiResponseJs.addAction(GuiScreenAction.newScript("location.href = '" + GrouperUiUtils.escapeSingleQuotes(redirectToUrl) + "'"));
         return;
       }
 
