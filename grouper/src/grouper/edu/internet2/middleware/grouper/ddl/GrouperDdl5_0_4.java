@@ -294,7 +294,7 @@ public class GrouperDdl5_0_4 {
         Types.TIMESTAMP, null, false, true);
 
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(grouperSqlCacheGroupTable, SqlCacheGroup.COLUMN_DISABLED_ON,
-        Types.TIMESTAMP, null, false, true);
+        Types.TIMESTAMP, null, false, false);
 
 
         
