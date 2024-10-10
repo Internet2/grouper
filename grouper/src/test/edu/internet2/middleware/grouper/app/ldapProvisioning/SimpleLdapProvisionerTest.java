@@ -67,7 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testProvisioningTypeEntityAttributesDeleteValueManagedByGrouperIncremental"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testProvisioningTypeEntityAttributesDeleteValueManagedByGrouperFull"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -2444,9 +2444,6 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     testGroup2.addMember(kwhite, false);
     testGroup2.addMember(whenderson, false);
 
-    // should have one member which will be removed
-    testGroup4.addMember(banderson, false);
-
     if (!isFull) {
       fullProvision("eduPersonEntitlement");
       incrementalProvision("eduPersonEntitlement");
@@ -2475,7 +2472,15 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     if (!isFull) {
       incrementalProvision("eduPersonEntitlement");
     }
+    
+    // should have one member which will be removed
+    testGroup4.addMember(banderson, false);
+    
+    if (!isFull) {
+      incrementalProvision("eduPersonEntitlement");
+    }
 
+    
     // should have no members after this
     testGroup4.deleteMember(banderson);
     
