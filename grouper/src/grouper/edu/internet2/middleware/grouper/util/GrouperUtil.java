@@ -3036,6 +3036,7 @@ public class GrouperUtil {
    */
   public static String jsonJacksonToString(JsonNode jsonNode) {
     try {
+      // mapper.writerWithDefaultPrettyPrinter().writeValueAsString(json);
       String json = objectMapper.writeValueAsString(jsonNode);
       return json;
     } catch (Exception e) {
