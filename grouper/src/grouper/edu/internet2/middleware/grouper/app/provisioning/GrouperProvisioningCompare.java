@@ -1174,12 +1174,11 @@ public class GrouperProvisioningCompare {
             continue;
           }
         }
-        
+
         // deletes
         // note the sync object can be null if it is from target and grouper doesnt know about it
         if (provisioningEntityWrapper.getGcGrouperSyncMember() == null || !provisioningEntityWrapper.getGcGrouperSyncMember().isProvisionable()) {
           
-          boolean deleteMembershipAttributeValues = false;
           if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
             
             if ( (provisioningEntityWrapper.getGrouperTargetEntity() == null || provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) && provisioningEntityWrapper.getTargetProvisioningEntity() != null) { 
@@ -1193,7 +1192,6 @@ public class GrouperProvisioningCompare {
                 continue;
               }
   
-              deleteMembershipAttributeValues = true;
             }
             
           } else {
@@ -1205,88 +1203,86 @@ public class GrouperProvisioningCompare {
                 continue;
               }
               
-              deleteMembershipAttributeValues = true;
             }
             
           }
+        }
            
-          if (deleteMembershipAttributeValues) {
+        if (true) {
+          
+          Set<String> membershipValuesDeleted = new HashSet<>();
+          
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes 
+              && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
+            String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
             
-            Set<String> membershipValuesDeleted = new HashSet<>();
-            
-            if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes 
-                && provisioningEntityWrapper.getGrouperTargetEntity() != null) {
-              String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
-              
-              Set<?> attributeValueSet = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSetForMemberships();
-              ProvisioningAttribute provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().retrieveProvisioningAttribute(attributeForMemberships);
-              boolean deleted = false;
-              for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
-                String membershipValue = GrouperUtil.stringValue(obj);
-                ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
-                if (provisioningMembershipWrapper != null && !provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
-                  continue;
-                }
-  
-                if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
-                  this.membershipDeleteCount++;
-                  if (provisioningMembershipWrapper != null) {
-                    countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
-                  }
-                  provisioningEntityWrapper.getGrouperTargetEntity().addInternal_objectChange(
-                    new ProvisioningObjectChange(attributeForMemberships, 
-                        ProvisioningObjectChangeAction.delete, membershipValue, null)
-                  );
-                  membershipValuesDeleted.add(membershipValue);
-                  if (!deleted) {
-                    deleted = true;
-                    provisioningEntityWrappersForUpdate.add(provisioningEntityWrapper);
-                    //this isnt a delete, its an update!
-                    provisioningEntityWrapper.getProvisioningStateEntity().setDelete(false);
-                  }
-                }
-                
+            Set<?> attributeValueSet = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSetForMemberships();
+            ProvisioningAttribute provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().retrieveProvisioningAttribute(attributeForMemberships);
+            boolean deleted = false;
+            for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
+              String membershipValue = GrouperUtil.stringValue(obj);
+              ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
+              if (provisioningMembershipWrapper != null && !provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
+                continue;
               }
-            }
-            
-            boolean deleteAllMembershipsForUnprovisionableUsers = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteMembershipsForUnprovisionableUsers() && 
-                this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper();
-            
-            if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes && 
-                this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync() && 
-                provisioningEntityWrapper.getTargetProvisioningEntity() != null &&
-                (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper() || deleteAllMembershipsForUnprovisionableUsers)) {
-              
-              String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
-              
-              Set<?> attributeValueSet = provisioningEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSetForMemberships();
-              boolean delete = false;
-              for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
-                String membershipValue = GrouperUtil.stringValue(obj);
-                
-                //already deleted in the above if condition
-                if (membershipValuesDeleted.contains(membershipValue)) {
-                  continue;
+
+              if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
+                this.membershipDeleteCount++;
+                if (provisioningMembershipWrapper != null) {
+                  countDeleteMembershipObjectCount(provisioningMembershipWrapper.getGrouperProvisioningMembership());
                 }
-                
-                if (deleteAllMembershipsForUnprovisionableUsers || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
-                    || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(membershipValue)) {
-                  this.membershipDeleteCount++;
-                  provisioningEntityWrapper.getTargetProvisioningEntity().addInternal_objectChange(
-                    new ProvisioningObjectChange(attributeForMemberships, 
-                        ProvisioningObjectChangeAction.delete, membershipValue, null)
-                  );
-                  delete = true;
+                provisioningEntityWrapper.getGrouperTargetEntity().addInternal_objectChange(
+                  new ProvisioningObjectChange(attributeForMemberships, 
+                      ProvisioningObjectChangeAction.delete, membershipValue, null)
+                );
+                membershipValuesDeleted.add(membershipValue);
+                if (!deleted) {
+                  deleted = true;
+                  provisioningEntityWrappersForUpdate.add(provisioningEntityWrapper);
+                  //this isnt a delete, its an update!
+                  provisioningEntityWrapper.getProvisioningStateEntity().setDelete(false);
                 }
-              }
-              if (delete) {
-                provisioningEntitiesToUpdate.add(provisioningEntityWrapper.getTargetProvisioningEntity());
               }
               
             }
-  
           }
-          continue;
+          
+          boolean deleteAllMembershipsForUnprovisionableUsers = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteMembershipsForUnprovisionableUsers() && 
+              this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper();
+          
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes && 
+              this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync() && 
+              provisioningEntityWrapper.getTargetProvisioningEntity() != null &&
+              (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper() || deleteAllMembershipsForUnprovisionableUsers)) {
+            
+            String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+            
+            Set<?> attributeValueSet = provisioningEntityWrapper.getTargetProvisioningEntity().retrieveAttributeValueSetForMemberships();
+            boolean delete = false;
+            for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
+              String membershipValue = GrouperUtil.stringValue(obj);
+              
+              //already deleted in the above if condition
+              if (membershipValuesDeleted.contains(membershipValue)) {
+                continue;
+              }
+              
+              if (deleteAllMembershipsForUnprovisionableUsers || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
+                  || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(membershipValue)) {
+                this.membershipDeleteCount++;
+                provisioningEntityWrapper.getTargetProvisioningEntity().addInternal_objectChange(
+                  new ProvisioningObjectChange(attributeForMemberships, 
+                      ProvisioningObjectChangeAction.delete, membershipValue, null)
+                );
+                delete = true;
+              }
+            }
+            if (delete) {
+              provisioningEntitiesToUpdate.add(provisioningEntityWrapper.getTargetProvisioningEntity());
+            }
+            
+          }
+
           
         }
         

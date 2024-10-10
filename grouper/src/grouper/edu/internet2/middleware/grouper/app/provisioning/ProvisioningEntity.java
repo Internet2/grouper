@@ -500,6 +500,12 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
 
       ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(deleteValue);
       if (provisioningMembershipWrapper == null) {
+        
+//        if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isIncrementalSync()
+//            && this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()
+//            && 
+//            )
+        
         return false;
       }
       

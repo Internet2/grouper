@@ -67,7 +67,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SimpleLdapProvisionerTest("testLdapProvisionerWithDeleteMembershipsIfGroupUnmarkedProvisionableFalseIncremental"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testProvisioningTypeEntityAttributesDeleteValueManagedByGrouperIncremental"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -2387,6 +2387,9 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     LdapModificationItem item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "somethingExisting"));
     List<LdapModificationItem> ldapModificationItems = new ArrayList<LdapModificationItem>();
     ldapModificationItems.add(item);
+    
+    item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "testGroup4"));
+    ldapModificationItems.add(item);
 
     new LdapSyncDaoForLdap().modify("personLdap", "uid=banderson,ou=People,dc=example,dc=edu", ldapModificationItems);
     
@@ -2424,6 +2427,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:testGroup3").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+    Group testGroup4 = new GroupSave(this.grouperSession).assignName("test:testGroup4").save();
     
     Subject jsmith = SubjectFinder.findById("jsmith", true);
     Subject banderson = SubjectFinder.findById("banderson", true);
@@ -2439,7 +2443,10 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     
     testGroup2.addMember(kwhite, false);
     testGroup2.addMember(whenderson, false);
-    
+
+    // should have one member which will be removed
+    testGroup4.addMember(banderson, false);
+
     if (!isFull) {
       fullProvision("eduPersonEntitlement");
       incrementalProvision("eduPersonEntitlement");
@@ -2465,6 +2472,13 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     
     assertEquals(3, LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(eduPersonEntitlement=*)", new String[] {"uid"}, null).size());
     
+    if (!isFull) {
+      incrementalProvision("eduPersonEntitlement");
+    }
+
+    // should have no members after this
+    testGroup4.deleteMember(banderson);
+    
     if (isFull) {
       fullProvision("eduPersonEntitlement");
     } else {
@@ -2474,17 +2488,14 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    
     List<LdapEntry> ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=banderson)", new String[] {"eduPersonEntitlement"}, null);
     assertEquals(1, ldapEntries.size());
+    LdapEntry ldapEntry = null;
     
-    LdapEntry ldapEntry = ldapEntries.get(0);
-    if (!isFull) {
-      assertEquals(1, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("somethingExisting"));  
-    } else {
-      assertEquals(3, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("student"));
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
-      assertTrue(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("somethingExisting"));
-    }
+    ldapEntry = ldapEntries.get(0);
+    String reason = GrouperUtil.toStringForLog(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues());
+    assertEquals(reason, 3, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+    assertTrue(reason, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("student"));
+    assertTrue(reason, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+    assertTrue(reason, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("somethingExisting"));
     
     ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=adoe)", new String[] {"eduPersonEntitlement"}, null);
     assertEquals(1, ldapEntries.size());
