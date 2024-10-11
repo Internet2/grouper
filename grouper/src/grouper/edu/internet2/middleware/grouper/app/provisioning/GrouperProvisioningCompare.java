@@ -1226,6 +1226,11 @@ public class GrouperProvisioningCompare {
                 continue;
               }
 
+              if (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership() != null
+                  && (provisioningMembershipWrapper.getProvisioningStateMembership().isInGrouper()
+                  || provisioningMembershipWrapper.getProvisioningStateMembership().isValueExistsInGrouper())) {
+                continue;
+              }
               if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
                 this.membershipDeleteCount++;
                 if (provisioningMembershipWrapper != null) {
