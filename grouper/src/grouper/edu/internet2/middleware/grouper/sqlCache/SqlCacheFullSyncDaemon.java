@@ -449,6 +449,8 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
             return -1;
           } else if (s2 == null && s1 != null) {
             return 1;
+          } else if (s1 == null && s2 == null) {
+            return 0;
           } else {
             return Long.compare(s1.getTime(), s2.getTime());
           }
