@@ -61,6 +61,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.rules.RuleUtils;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
@@ -414,6 +415,31 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
           
           new GcDbAccess().sql("update grouper_pit_stems  ps set source_id_index = (select s.id_index from grouper_stems  s where ps.source_id = s.id) where ps.source_id_index is null and ps.active='T'").executeSql();
           new GcDbAccess().sql("update grouper_pit_attribute_def  pad set source_id_index = (select ad.id_index from grouper_attribute_def ad where pad.source_id = ad.id) where pad.source_id_index is null and pad.active='T'").executeSql();
+          
+          return null;
+        }
+      });
+    }
+  }
+  ,
+  V23{
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
+      
+      GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+        
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+
+          AttributeDef sqlCacheableGroupDef = AttributeDefFinder.findByName(SqlCacheGroup.attributeDefFolderName() + ":sqlCacheableGroupDef", false);
+          if (sqlCacheableGroupDef != null) {
+            sqlCacheableGroupDef.delete();
+          }
+          
+          AttributeDef sqlCacheableGroupMarkerDef = AttributeDefFinder.findByName(SqlCacheGroup.attributeDefFolderName() + ":sqlCacheableGroupMarkerDef", false);
+          if (sqlCacheableGroupMarkerDef != null) {
+            sqlCacheableGroupMarkerDef.delete();
+          }
           
           return null;
         }

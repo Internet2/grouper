@@ -3163,36 +3163,6 @@ public class GrouperCheckConfig {
           }
           
           {
-
-            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
-
-            // check attribute def
-            String sqlCacheGroupAttributeDefMarkerName = sqlCacheableGroupFolderName + ":" + SqlCacheGroup.attributeDefMarkerExtension;
-
-            attributeDefSaves.add(new AttributeDefSave().assignName(sqlCacheGroupAttributeDefMarkerName)
-                .assignAttributeDefType(AttributeDefType.attr)
-                .assignToGroup(true)
-                .assignMultiAssignable(true)
-                .assignValueType(AttributeDefValueType.marker));
-
-          }
-          
-          {
-            
-            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
-
-            // check attribute def
-            String sqlCacheGroupAttributeDefAttrName = sqlCacheableGroupFolderName + ":" + SqlCacheGroup.attributeDefExtension;
-
-            attributeDefSaves.add(new AttributeDefSave().assignName(sqlCacheGroupAttributeDefAttrName)
-                .assignAttributeDefType(AttributeDefType.attr)
-                .assignToGroupAssn(true)
-                .assignMultiAssignable(false)
-                .assignValueType(AttributeDefValueType.string));
-
-          }
-          
-          {
             String instrumentationDataRootStemName = InstrumentationDataUtils.grouperInstrumentationDataStemName();
             
             {
@@ -4282,38 +4252,6 @@ public class GrouperCheckConfig {
                 
             checkAttribute(instrumentationDataRootStem, detailsDef, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR, InstrumentationDataUtils.INSTRUMENTATION_DATA_COLLECTOR_UUID_ATTR,
                 attributeDefNameSaves);
-
-          }
-
-          {
-
-            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
-            Stem sqlCacheableGroupFolder = stemNameToStem.get(sqlCacheableGroupFolderName);
-
-            //see if attributeDef is there
-            String sqlCacheableMarkerName = SqlCacheGroup.attributeDefMarkerName();
-            AttributeDef sqlCacheableMarkerDef = nameOfAttributeDefToAttributeDef.get(sqlCacheableMarkerName); 
-                
-            {
-              checkAttribute(sqlCacheableGroupFolder, sqlCacheableMarkerDef, SqlCacheGroup.attributeDefNameMarkerExtension, SqlCacheGroup.attributeDefNameMarkerExtension,
-                  "The specified list of this group is sql cacheable", attributeDefNameSaves);
-            }
-
-          }
-
-          {
-
-            String sqlCacheableGroupFolderName = SqlCacheGroup.attributeDefFolderName();
-            Stem sqlCacheableGroupFolder = stemNameToStem.get(sqlCacheableGroupFolderName);
-
-            //see if attributeDef is there
-            String sqlCacheableAttrName = SqlCacheGroup.attributeDefName();
-            AttributeDef sqlCacheableAttrDef = nameOfAttributeDefToAttributeDef.get(sqlCacheableAttrName); 
-                
-            {
-              checkAttribute(sqlCacheableGroupFolder, sqlCacheableAttrDef, SqlCacheGroup.attributeDefNameExtensionListName, SqlCacheGroup.attributeDefNameExtensionListName,
-                  "This value is the cacheable list, e.g. members, admins, etc", attributeDefNameSaves);
-            }
 
           }
 
