@@ -5,6 +5,7 @@ import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -615,7 +616,7 @@ public abstract class ProvisioningUpdatable {
    */
   private Exception exception;
   
-  private List<ProvisioningObjectChange> internal_objectChanges = null;
+  private Set<ProvisioningObjectChange> internal_objectChanges = null;
   /**
    * more attributes in name/value pairs
    */
@@ -633,7 +634,7 @@ public abstract class ProvisioningUpdatable {
     }
     
     if (this.internal_objectChanges == null) {
-      this.internal_objectChanges = new ArrayList<ProvisioningObjectChange>(1);
+      this.internal_objectChanges = new LinkedHashSet<ProvisioningObjectChange>(1);
     }
     this.internal_objectChanges.add(provisioningObjectChange);
   }
