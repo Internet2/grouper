@@ -56,7 +56,7 @@ public class SqlCacheMembershipTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SqlCacheMembershipTest("testCacheMemberships"));
+    TestRunner.run(new SqlCacheMembershipTest("testCacheMembershipsFlattenedTimestampFix"));
   }
 
   public void testSimpleChangeLog() {
@@ -206,6 +206,128 @@ public class SqlCacheMembershipTest extends GrouperTest {
     
     assertTrue(timestampStemToSubj1 > time3);
     assertTrue(timestampStemToSubj1 < time4);
+  }
+  
+  public void testCacheMembershipsFlattenedTimestampFix() {
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    // we want to make the id index and internal id for groups out of sync to make sure we're saving the actual internal id.
+    TableIndex.reserveIds(TableIndexType.groupInternalId, 10000);
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+    new StemSave().assignName("test").save();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    // make sure nothing is out of sync to begin with
+    runRullSync(true);
+    
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(false).save();
+    Stem testStem = new StemSave().assignName("test:testStem").assignCreateParentStemsIfNotExist(false).save();
+
+    Group childGroup1 = new GroupSave().assignName("test:childGroup1").assignCreateParentStemsIfNotExist(false).save();
+    Group childGroup2 = new GroupSave().assignName("test:childGroup2").assignCreateParentStemsIfNotExist(false).save();
+    Group childGroup3 = new GroupSave().assignName("test:childGroup3").assignCreateParentStemsIfNotExist(false).save();
+    Group childGroup4 = new GroupSave().assignName("test:childGroup4").assignCreateParentStemsIfNotExist(false).save();
+    testGroup.addMember(childGroup1.toSubject());
+    testGroup.addMember(childGroup2.toSubject());
+    testStem.grantPriv(childGroup3.toSubject(), NamingPrivilege.STEM_ADMIN, true);
+    testStem.grantPriv(childGroup4.toSubject(), NamingPrivilege.STEM_ADMIN, true);
+    
+    Member member1 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ1, true);
+    Member member2 = MemberFinder.findBySubject(grouperSession, SubjectTestHelper.SUBJ2, true);
+
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    long originalSize =  new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class);
+
+    // add some stuff that won't matter in the end
+    childGroup1.addMember(SubjectTestHelper.SUBJ1);
+    childGroup1.deleteMember(SubjectTestHelper.SUBJ1);
+    
+    childGroup3.addMember(SubjectTestHelper.SUBJ2);
+    childGroup3.deleteMember(SubjectTestHelper.SUBJ2);
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    sleep(1100);
+    long time1 = System.currentTimeMillis();
+    sleep(1100);
+    
+    childGroup1.addMember(SubjectTestHelper.SUBJ1);
+    childGroup3.addMember(SubjectTestHelper.SUBJ2);
+
+    sleep(1100);
+    long time2 = System.currentTimeMillis();
+    sleep(1100);
+    
+    childGroup2.addMember(SubjectTestHelper.SUBJ1);
+    childGroup4.addMember(SubjectTestHelper.SUBJ2);
+    
+    childGroup1.deleteMember(SubjectTestHelper.SUBJ1);
+    childGroup3.deleteMember(SubjectTestHelper.SUBJ2);
+    
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
+
+    assertEquals(originalSize + 4, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
+    
+    runRullSync(false);
+
+    String sql = "select gscm.flattened_add_timestamp from grouper_sql_cache_mship gscm, grouper_sql_cache_group gscg, grouper_fields gf where gscm.sql_cache_group_internal_id=gscg.internal_id and gscg.field_internal_id=gf.internal_id and gscg.group_internal_id = ? and gf.name = ? and gscm.member_internal_id = ?";
+
+    long timestampStemToSubj2 = new GcDbAccess().sql(sql).addBindVar(testStem.getIdIndex()).addBindVar("stemAdmins").addBindVar(member2.getInternalId()).select(Timestamp.class).getTime();
+    long timestampTestGroupToSubj1 = new GcDbAccess().sql(sql).addBindVar(testGroup.getInternalId()).addBindVar("members").addBindVar(member1.getInternalId()).select(Timestamp.class).getTime();
+
+    assertTrue(timestampStemToSubj2 > time1);
+    assertTrue(timestampTestGroupToSubj1 > time1);
+
+    assertTrue(timestampStemToSubj2 < time2);
+    assertTrue(timestampTestGroupToSubj1 < time2);
+    
+    // now mess up the time
+    new GcDbAccess().sql("update grouper_sql_cache_mship set flattened_add_timestamp = ?").addBindVar(new Timestamp(time1 - 5000)).executeSql();
+    
+    timestampStemToSubj2 = new GcDbAccess().sql(sql).addBindVar(testStem.getIdIndex()).addBindVar("stemAdmins").addBindVar(member2.getInternalId()).select(Timestamp.class).getTime();
+    timestampTestGroupToSubj1 = new GcDbAccess().sql(sql).addBindVar(testGroup.getInternalId()).addBindVar("members").addBindVar(member1.getInternalId()).select(Timestamp.class).getTime();
+
+    assertFalse(timestampStemToSubj2 > time1);
+    assertFalse(timestampTestGroupToSubj1 > time1);
+
+    assertTrue(timestampStemToSubj2 < time2);
+    assertTrue(timestampTestGroupToSubj1 < time2);
+    
+    // and have it fixed
+    runRullSync(true);
+    
+    assertEquals(originalSize + 4, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
+
+    timestampStemToSubj2 = new GcDbAccess().sql(sql).addBindVar(testStem.getIdIndex()).addBindVar("stemAdmins").addBindVar(member2.getInternalId()).select(Timestamp.class).getTime();
+    timestampTestGroupToSubj1 = new GcDbAccess().sql(sql).addBindVar(testGroup.getInternalId()).addBindVar("members").addBindVar(member1.getInternalId()).select(Timestamp.class).getTime();
+
+    assertTrue(timestampStemToSubj2 > time1);
+    assertTrue(timestampTestGroupToSubj1 > time1);
+
+    assertTrue(timestampStemToSubj2 < time2);
+    assertTrue(timestampTestGroupToSubj1 < time2);
+    
+    // mess it up one more time
+    new GcDbAccess().sql("update grouper_sql_cache_mship set member_internal_id = ? where member_internal_id = ?").addBindVar(member1.getInternalId()).addBindVar(member2.getInternalId()).executeSql();
+    
+    assertNull(new GcDbAccess().sql(sql).addBindVar(testStem.getIdIndex()).addBindVar("stemAdmins").addBindVar(member2.getInternalId()).select(Timestamp.class));
+
+    // and have it fixed
+    runRullSync(true);
+    
+    assertEquals(originalSize + 4, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship").select(Long.class));
+
+    timestampStemToSubj2 = new GcDbAccess().sql(sql).addBindVar(testStem.getIdIndex()).addBindVar("stemAdmins").addBindVar(member2.getInternalId()).select(Timestamp.class).getTime();
+    timestampTestGroupToSubj1 = new GcDbAccess().sql(sql).addBindVar(testGroup.getInternalId()).addBindVar("members").addBindVar(member1.getInternalId()).select(Timestamp.class).getTime();
+
+    assertTrue(timestampStemToSubj2 > time1);
+    assertTrue(timestampTestGroupToSubj1 > time1);
+
+    assertTrue(timestampStemToSubj2 < time2);
+    assertTrue(timestampTestGroupToSubj1 < time2);
   }
   
   public void testCacheMemberships() {

@@ -524,7 +524,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     
     // query cache memberships
     GcDbAccess gcDbAccess = new GcDbAccess();
-    StringBuilder sqlQueryCacheMemberships = new StringBuilder("select sql_cache_group_internal_id, member_internal_id from grouper_sql_cache_mship where ");
+    StringBuilder sqlQueryCacheMemberships = new StringBuilder("select sql_cache_group_internal_id, member_internal_id, flattened_add_timestamp from grouper_sql_cache_mship where ");
     boolean isFirst = true;
     for (Object[] sqlCacheGroupData : sqlCacheGroupDataBatch) {
       long internalId = (long)sqlCacheGroupData[0];
@@ -539,14 +539,18 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     
     List<Object[]> cacheMemberships = gcDbAccess.sql(sqlQueryCacheMemberships.toString()).selectList(Object[].class);
     Map<Long, Set<Long>> cacheMembershipsSqlCacheGroupInternalIdToMembers = new HashMap<>();
+    Map<MultiKey, Long> cacheMembershipsFlattenedAddTimeMillis = new HashMap<>();
     for (Object[] cacheMembership : cacheMemberships) {
       long sqlCacheGroupInternalId = GrouperUtil.longObjectValue(cacheMembership[0], false);
       long memberInternalId = GrouperUtil.longObjectValue(cacheMembership[1], false);
-      
+      Timestamp flattenedAddTimestamp = GrouperUtil.timestampObjectValue(cacheMembership[2], false);
+
       if (cacheMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId) == null) {
         cacheMembershipsSqlCacheGroupInternalIdToMembers.put(sqlCacheGroupInternalId, new HashSet<>());
       }
       cacheMembershipsSqlCacheGroupInternalIdToMembers.get(sqlCacheGroupInternalId).add(memberInternalId);
+      
+      cacheMembershipsFlattenedAddTimeMillis.put(new MultiKey(sqlCacheGroupInternalId, memberInternalId), flattenedAddTimestamp.getTime());
     }
     
     // query pit memberships
@@ -680,6 +684,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     // now compare
     List<SqlCacheMembership> sqlCacheMembershipsToInsert = new ArrayList<>();
     List<List<Object>> bindVarsSqlCacheMshipDeletes = new ArrayList<>();
+    List<List<Object>> bindVarsSqlCacheMshipUpdates = new ArrayList<>();
     //List<List<Object>> bindVarsSqlCacheGroupMembershipSizeUpdate = new ArrayList<>();
     Set<Long> sqlCacheGroupIdsForMembershipSizeUpdate = new HashSet<>();
 
@@ -703,6 +708,9 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       Set<Long> cacheMembershipsMemberInternalIdsToDelete = new HashSet<>(cacheMembershipsMemberInternalIds);
       cacheMembershipsMemberInternalIdsToDelete.removeAll(pitMembershipsMemberInternalIds);
       
+      Set<Long> cacheMembershipsMemberInternalIdsUnchanged = new HashSet<>(cacheMembershipsMemberInternalIds);
+      cacheMembershipsMemberInternalIdsUnchanged.retainAll(pitMembershipsMemberInternalIds);
+      
       for (Long cacheMembershipsMemberInternalIdToAdd : cacheMembershipsMemberInternalIdsToAdd) {
         SqlCacheMembership sqlCacheMembershipToInsert = new SqlCacheMembership();
         long membershipAddedLong = pitMembershipsFlattenedAddTimeMicros.get(new MultiKey(ownerInternalIdAndFieldInternalIdMultiKey.getKey(0), ownerInternalIdAndFieldInternalIdMultiKey.getKey(1), cacheMembershipsMemberInternalIdToAdd));
@@ -717,9 +725,19 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
         bindVarsSqlCacheMshipDeletes.add(GrouperUtil.toListObject(cacheMembershipsMemberInternalIdToDelete, sqlCacheGroupInternalId));
       }
       
+      for (Long cacheMembershipsMemberInternalIdUnchanged : cacheMembershipsMemberInternalIdsUnchanged) {
+        long pitMembershipAddedLongMicros = pitMembershipsFlattenedAddTimeMicros.get(new MultiKey(ownerInternalIdAndFieldInternalIdMultiKey.getKey(0), ownerInternalIdAndFieldInternalIdMultiKey.getKey(1), cacheMembershipsMemberInternalIdUnchanged));
+        long cacheMembershipAddedLongMillis = cacheMembershipsFlattenedAddTimeMillis.get(new MultiKey(sqlCacheGroupInternalId, cacheMembershipsMemberInternalIdUnchanged));
+
+        if (Math.abs((pitMembershipAddedLongMicros / 1000) - cacheMembershipAddedLongMillis) > 1000) {
+          bindVarsSqlCacheMshipUpdates.add(GrouperUtil.toListObject(new Timestamp(pitMembershipAddedLongMicros / 1000), cacheMembershipsMemberInternalIdUnchanged, sqlCacheGroupInternalId));
+        }
+      }
+      
       if (pitMembershipsMemberInternalIds.size() != internalIdToMembershipSize.get(sqlCacheGroupInternalId) ||
           sqlCacheMembershipsToInsert.size() > 0 ||
-          bindVarsSqlCacheMshipDeletes.size() > 0) {
+          bindVarsSqlCacheMshipDeletes.size() > 0 ||
+          bindVarsSqlCacheMshipUpdates.size() > 0) {
         //bindVarsSqlCacheGroupMembershipSizeUpdate.add(GrouperUtil.toListObject(pitMembershipsMemberInternalIds.size(), sqlCacheGroupInternalId));
         sqlCacheGroupIdsForMembershipSizeUpdate.add(sqlCacheGroupInternalId);
       }
@@ -732,8 +750,10 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(numberOfInserts);
     }
     
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+
     if (bindVarsSqlCacheMshipDeletes.size() > 0) {
-      int[] rowsChanged = new GcDbAccess().sql("delete from grouper_sql_cache_mship where member_internal_id = ? and sql_cache_group_internal_id = ?").batchBindVars(bindVarsSqlCacheMshipDeletes).executeBatchSql();
+      int[] rowsChanged = new GcDbAccess().sql("delete from grouper_sql_cache_mship where member_internal_id = ? and sql_cache_group_internal_id = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipDeletes).executeBatchSql();
     
       int count = 0;
       for (int i = 0; i < rowsChanged.length; i++) {
@@ -743,6 +763,20 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       
       if (theOtherJobInput != null) {
         theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
+      }
+    }
+    
+    if (bindVarsSqlCacheMshipUpdates.size() > 0) {
+      int[] rowsChanged = new GcDbAccess().sql("update grouper_sql_cache_mship set flattened_add_timestamp = ? where member_internal_id = ? and sql_cache_group_internal_id = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipUpdates).executeBatchSql();
+    
+      int count = 0;
+      for (int i = 0; i < rowsChanged.length; i++) {
+        int rowChanged = rowsChanged[i];
+        count += rowChanged;
+      }
+      
+      if (theOtherJobInput != null) {
+        theOtherJobInput.getHib3GrouperLoaderLog().addUpdateCount(count);
       }
     }
     
