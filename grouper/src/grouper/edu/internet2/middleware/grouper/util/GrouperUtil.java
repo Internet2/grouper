@@ -4175,7 +4175,12 @@ public class GrouperUtil {
   /**
    * 
    */
-  public static final DateFormat timestampHoursMinutesLocalDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
+  public static final DateFormat timestampHoursMinutesLocalDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm");
+
+  /**
+   * 
+   */
+  public static final DateFormat timestampHoursMinutesSecondsLocalDateTime = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss");
 
   /**
    * 
@@ -8184,29 +8189,35 @@ public class GrouperUtil {
   /**
    * <pre>convert a string to timestamp based on the following formats:
    * 2022-02-15T15:27:42
+   * 2022-02-15T15:27
    * </pre>
    * @param input
    * @return the timestamp object
    */
   public static Timestamp stringToTimestampTimeRequiredLocalDateTime(String input) {
-	  
-  	//trim and handle null and empty
+
+    //trim and handle null and empty
     if (isBlank(input)) {
       return null;
     }
     input = input.trim();
     try {
-      Date date = timestampHoursMinutesLocalDateTime.parse(input);
+      Date date = null;
+      try {
+        date = timestampHoursMinutesLocalDateTime.parse(input);
+      } catch (ParseException pe) {
+        date = timestampHoursMinutesSecondsLocalDateTime.parse(input);
+      }
       if (date == null) {
-		  return null;
-	  }
-	  //maybe already a timestamp
-	  if (date instanceof Timestamp) {
-		  return (Timestamp)date;
-	  }
-	  return new Timestamp(date.getTime());
+        return null;
+      }
+      //maybe already a timestamp
+      if (date instanceof Timestamp) {
+        return (Timestamp)date;
+      }
+      return new Timestamp(date.getTime());
     } catch (ParseException pe) {
-      throw new RuntimeException("Invalid timestamp, please use any of the formats: yyyy-MM-dd'T'hh:mm:ss" + input);
+      throw new RuntimeException("Invalid timestamp: " + input);
     }
   }
 
