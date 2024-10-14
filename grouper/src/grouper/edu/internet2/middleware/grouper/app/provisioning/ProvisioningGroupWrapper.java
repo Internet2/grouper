@@ -1,18 +1,12 @@
 package edu.internet2.middleware.grouper.app.provisioning;
 
-import java.util.ArrayList;
-import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
-import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
-import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
 
@@ -24,6 +18,48 @@ public class ProvisioningGroupWrapper extends ProvisioningUpdatableWrapper {
       "email", "email0"
       );
 
+  public void toStringAppend(StringBuilder result, boolean firstField) {
+    if (this.getProvisioningStateGroup().getGrouperIncrementalDataAction() != null) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "action", this.getProvisioningStateGroup().getGrouperIncrementalDataAction(), false);
+    }
+    firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "recalcObject", this.getProvisioningStateGroup().isRecalcObject(), false);
+    firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "recalcMships", this.getProvisioningStateGroup().isRecalcGroupMemberships(), false);
+    if (this.getErrorCode() != null) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "errorCode", this.getErrorCode().name(), false);
+    }
+    if (this.getProvisioningStateGroup().isCreate()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "create", this.getProvisioningStateGroup().isCreate(), false);
+    }
+    if (this.getProvisioningStateGroup().isInsertResultProcessed()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "createProcessed", this.getProvisioningStateGroup().isInsertResultProcessed(), false);
+    }
+    if (this.getProvisioningStateGroup().isDelete()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "delete", this.getProvisioningStateGroup().isDelete(), false);
+    }
+    if (this.getProvisioningStateGroup().isDeleteResultProcessed()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "deleteProcessed", this.getProvisioningStateGroup().isDeleteResultProcessed(), false);
+    }
+    if (this.getProvisioningStateGroup().getMillisSince1970() != null) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "millis1970", this.getProvisioningStateGroup().getMillisSince1970(), false);
+    }
+    if (this.getProvisioningStateGroup().isSelectSomeMemberships()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "selectSomeMemberships", this.getProvisioningStateGroup().isSelectSomeMemberships(), false);
+    }
+    if (this.getProvisioningStateGroup().isSelectAllMemberships()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "selectAllMemberships", this.getProvisioningStateGroup().isSelectAllMemberships(), false);
+    }
+    if (this.getProvisioningStateGroup().isSelectResultProcessed()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "selectProcessed", this.getProvisioningStateGroup().isSelectResultProcessed(), false);
+    }
+    if (this.getProvisioningStateGroup().isUpdate()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "update", this.getProvisioningStateGroup().isUpdate(), false);
+    }
+    if (this.getProvisioningStateGroup().isUpdateResultProcessed()) {
+      firstField = ProvisioningUpdatable.toStringAppendField(result, firstField, "updateProcessed", this.getProvisioningStateGroup().isUpdateResultProcessed(), false);
+    }
+
+  }
+  
   /**
    * get a set of members from another group
    * @param groupName is the group name to check or null if this group

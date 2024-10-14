@@ -1068,7 +1068,7 @@ public abstract class ProvisioningUpdatable {
    * @param fieldValue
    * @return
    */
-  protected static boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue, boolean appendIfEmpty) {
+  public static boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue, boolean appendIfEmpty) {
     if (!appendIfEmpty && (fieldValue == null || GrouperUtil.length(fieldValue) == 0)) {
       return firstField;
     }
