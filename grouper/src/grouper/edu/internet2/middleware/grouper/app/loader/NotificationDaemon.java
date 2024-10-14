@@ -195,6 +195,8 @@ public class NotificationDaemon extends OtherJobBase {
         emailListDbConnection = GrouperLoaderConfig
             .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListDbConnection");
 
+        List<Object> bindVariables = new ArrayList<Object>();
+
         if (StringUtils.isBlank(emailListQuery)) {
           String emailListGroupName = GrouperLoaderConfig
               .retrieveConfig().propertyValueString("otherJob." + jobName + ".emailListGroupName");
@@ -203,14 +205,15 @@ public class NotificationDaemon extends OtherJobBase {
           emailListDbConnection = "grouper";
           GrouperUtil.assertion(StringUtils.isNotBlank(emailListGroupName), "emailListQuery or emailListGroupName is required");
           GrouperUtil.assertion(!emailListGroupName.contains("'"), "emailListGroupName '" + emailListGroupName + "' cannot contain a single quote!");
-          emailListQuery = "select subject_id from grouper_memberships_lw_v where group_name = '" + emailListGroupName + "' and list_name = 'members' order by subject_id ";
+          emailListQuery = "select subject_id from grouper_memberships_lw_v where group_name = ? and list_name = 'members' ";
+          bindVariables.add(emailListGroupName);
           if (!StringUtils.isBlank(subjectSourceId)) {
             
             GrouperUtil.assertion(!subjectSourceId.contains("'"), "subjectSourceId '" + subjectSourceId + "' cannot contain a single quote!");
-            emailListQuery += " and subject_source = '" + subjectSourceId + "'";
-            
+            emailListQuery += " and subject_source = ?";
+            bindVariables.add(subjectSourceId);
           }
-
+          emailListQuery += " order by subject_id";
         } else {
           GrouperUtil.assertion(StringUtils.isNotBlank(emailListQuery), "emailListQuery or emailListGroupName is required");
         }
@@ -286,7 +289,7 @@ public class NotificationDaemon extends OtherJobBase {
         }
         
         results = new GcDbAccess().connectionName(emailListDbConnection)
-            .sql(emailListQuery)
+            .sql(emailListQuery).addBindVars(bindVariables)
             .selectList(Object[].class);
 
         gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromDatabase(emailListDbConnection, emailListQuery);
