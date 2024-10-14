@@ -600,12 +600,7 @@ public enum GrouperProvisioningObjectLogType {
       }
       
       
-      logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString());
-
-      appendWrapper(grouperProvisioner, bean);
-      
-      logMessage.append("\n");
-      
+      logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
       if (objectCount >= 10) {
         break;
       }
@@ -614,19 +609,6 @@ public enum GrouperProvisioningObjectLogType {
     }
   }
 
-  private static String appendWrapper(GrouperProvisioner grouperProvisioner, Object bean) {
-    if (bean instanceof GcGrouperSyncGroup) {
-      GcGrouperSyncGroup gcGrouperSyncGroup = (GcGrouperSyncGroup)bean;
-      ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioner.retrieveGrouperProvisioningDataIndex().getGrouperSyncGroupIdToProvisioningGroupWrapper().get(gcGrouperSyncGroup.getId());
-      if (provisioningGroupWrapper != null) {
-        StringBuilder result = new StringBuilder();
-        provisioningGroupWrapper.toStringAppend(result, false);
-        return ", " + result.toString();
-      }
-    }
-    return "";
-  }
-  
   private static void appendList(StringBuilder logMessage, String label, Collection<?> someList) {
     if (GrouperUtil.length(someList) > 0) {
       logMessage.append(" - ").append(label).append(" (").append(GrouperUtil.length(someList)).append("): ");
