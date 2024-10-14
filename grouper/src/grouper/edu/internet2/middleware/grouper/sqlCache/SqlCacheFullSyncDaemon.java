@@ -2,6 +2,9 @@ package edu.internet2.middleware.grouper.sqlCache;
 
 import java.sql.Date;
 import java.sql.Timestamp;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -730,7 +733,13 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
         long cacheMembershipAddedLongMillis = cacheMembershipsFlattenedAddTimeMillis.get(new MultiKey(sqlCacheGroupInternalId, cacheMembershipsMemberInternalIdUnchanged));
 
         if (Math.abs((pitMembershipAddedLongMicros / 1000) - cacheMembershipAddedLongMillis) > 1000) {
-          bindVarsSqlCacheMshipUpdates.add(GrouperUtil.toListObject(new Timestamp(pitMembershipAddedLongMicros / 1000), cacheMembershipsMemberInternalIdUnchanged, sqlCacheGroupInternalId));
+          // check for possible issue with db not storing timezone and we're in a daylight savings pre and post fall back
+          ZonedDateTime pitZonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(pitMembershipAddedLongMicros / 1000), ZoneId.systemDefault());
+          ZonedDateTime cacheZonedDateTime = ZonedDateTime.ofInstant(Instant.ofEpochMilli(cacheMembershipAddedLongMillis), ZoneId.systemDefault());
+          
+          if (Math.abs(pitZonedDateTime.toLocalDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli() - cacheZonedDateTime.toLocalDateTime().atZone(ZoneId.systemDefault()).toInstant().toEpochMilli()) > 1000) {
+            bindVarsSqlCacheMshipUpdates.add(GrouperUtil.toListObject(new Timestamp(pitMembershipAddedLongMicros / 1000), cacheMembershipsMemberInternalIdUnchanged, sqlCacheGroupInternalId));
+          }
         }
       }
       
@@ -753,30 +762,18 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
 
     if (bindVarsSqlCacheMshipDeletes.size() > 0) {
-      int[] rowsChanged = new GcDbAccess().sql("delete from grouper_sql_cache_mship where member_internal_id = ? and sql_cache_group_internal_id = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipDeletes).executeBatchSql();
+      new GcDbAccess().sql("delete from grouper_sql_cache_mship where member_internal_id = ? and sql_cache_group_internal_id = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipDeletes).executeBatchSql();
     
-      int count = 0;
-      for (int i = 0; i < rowsChanged.length; i++) {
-        int rowChanged = rowsChanged[i];
-        count += rowChanged;
-      }
-      
       if (theOtherJobInput != null) {
-        theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
+        theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(bindVarsSqlCacheMshipDeletes.size());
       }
     }
-    
+
     if (bindVarsSqlCacheMshipUpdates.size() > 0) {
-      int[] rowsChanged = new GcDbAccess().sql("update grouper_sql_cache_mship set flattened_add_timestamp = ? where member_internal_id = ? and sql_cache_group_internal_id = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipUpdates).executeBatchSql();
+      new GcDbAccess().sql("update grouper_sql_cache_mship set flattened_add_timestamp = ? where member_internal_id = ? and sql_cache_group_internal_id = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipUpdates).executeBatchSql();
     
-      int count = 0;
-      for (int i = 0; i < rowsChanged.length; i++) {
-        int rowChanged = rowsChanged[i];
-        count += rowChanged;
-      }
-      
       if (theOtherJobInput != null) {
-        theOtherJobInput.getHib3GrouperLoaderLog().addUpdateCount(count);
+        theOtherJobInput.getHib3GrouperLoaderLog().addUpdateCount(bindVarsSqlCacheMshipUpdates.size());
       }
     }
     
