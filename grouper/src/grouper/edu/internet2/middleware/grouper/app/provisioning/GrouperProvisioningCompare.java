@@ -1184,7 +1184,8 @@ public class GrouperProvisioningCompare {
           if (provisioningEntityWrapper.getProvisioningStateEntity().isSelectResultProcessed()) {
             
             // we dont have a grouper representation or we know its a delete, and the entity exists in target
-            if ( (provisioningEntityWrapper.getGrouperTargetEntity() == null || provisioningEntityWrapper.getProvisioningStateEntity().isDelete()) && provisioningEntityWrapper.getTargetProvisioningEntity() != null) { 
+            if ( (provisioningEntityWrapper.getGrouperTargetEntity() == null || provisioningEntityWrapper.getProvisioningStateEntity().isDelete()
+                || !provisioningEntityWrapper.getProvisioningStateEntity().isInGrouper()) && provisioningEntityWrapper.getTargetProvisioningEntity() != null) { 
               
               // if we are deleting entities, delete it
               if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteEntities()) {
@@ -1193,11 +1194,10 @@ public class GrouperProvisioningCompare {
               }
 
               // if we arent deleting entities, and we are entityAttributes, we need to remove the attributes
-              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() != GrouperProvisioningBehaviorMembershipType.entityAttributes) {
-                continue;
+              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+                deleteMembershipAttributeValues = true;
               }
-  
-              deleteMembershipAttributeValues = true;
+              
             }
             
           } else {
@@ -1217,7 +1217,7 @@ public class GrouperProvisioningCompare {
         }
            
         Set<String> membershipValuesDeleted = new HashSet<>();
-        if (true) {
+        if (!provisioningEntityWrappersForDelete.contains(provisioningEntityWrapper)) {
           
           //if we are entity attributes and there is a grouper target representation
           if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes 
@@ -1227,15 +1227,17 @@ public class GrouperProvisioningCompare {
             Set<?> attributeValueSet = provisioningEntityWrapper.getGrouperTargetEntity().retrieveAttributeValueSetForMemberships();
             ProvisioningAttribute provisioningAttribute = provisioningEntityWrapper.getGrouperTargetEntity().retrieveProvisioningAttribute(attributeForMemberships);
             boolean deleted = false;
+            ProvisioningEntity targetEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
+            Set<?> targetAttributeValueSetForMemberships = targetEntity == null ? null : targetEntity.retrieveAttributeValueSetForMemberships();
             for (Object obj: GrouperUtil.nonNull(attributeValueSet)) {
               String membershipValue = GrouperUtil.stringValue(obj);
               ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper().get(membershipValue);
-              
-              // grouper tracks this as being in the target
-              if (provisioningMembershipWrapper != null && !provisioningMembershipWrapper.getGcGrouperSyncMembership().isInTarget()) {
+             
+              // if its not in the target dont delete it
+              if (targetAttributeValueSetForMemberships != null && !targetAttributeValueSetForMemberships.contains(obj) && !targetAttributeValueSetForMemberships.contains(membershipValue)) {
                 continue;
               }
-
+              
               // find out if it exists in grouper, then do not delete it
               if (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership() != null
                   && (provisioningMembershipWrapper.getProvisioningStateMembership().isInGrouper()
@@ -1267,7 +1269,7 @@ public class GrouperProvisioningCompare {
         }
         
         // if we know the entity is deletable, but we arent deleting entities, then delete the grouper membership attributes
-        if (deleteMembershipAttributeValues) {
+        if (!provisioningEntityWrappersForDelete.contains(provisioningEntityWrapper)) {
 
           boolean deleteAllMembershipsForUnprovisionableUsers = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteMembershipsForUnprovisionableUsers() && 
               this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper();
@@ -1275,7 +1277,8 @@ public class GrouperProvisioningCompare {
           if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes && 
               this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType().isFullSync() && 
               provisioningEntityWrapper.getTargetProvisioningEntity() != null &&
-              (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper() || deleteAllMembershipsForUnprovisionableUsers)) {
+              (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper() 
+                  || deleteAllMembershipsForUnprovisionableUsers || deleteMembershipAttributeValues)) {
             
             String attributeForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
             
@@ -1290,15 +1293,31 @@ public class GrouperProvisioningCompare {
                 continue;
               }
               
-              if (deleteAllMembershipsForUnprovisionableUsers || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
-                  || this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(membershipValue)) {
-                this.membershipDeleteCount++;
-                provisioningEntityWrapper.getTargetProvisioningEntity().addInternal_objectChange(
-                  new ProvisioningObjectChange(attributeForMemberships, 
-                      ProvisioningObjectChangeAction.delete, membershipValue, null)
-                );
-                delete = true;
+              ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+              ProvisioningAttribute provisioningAttribute = grouperTargetEntity == null ? null : grouperTargetEntity.retrieveProvisioningAttribute(attributeForMemberships);
+              ProvisioningMembershipWrapper provisioningMembershipWrapper = provisioningAttribute == null ? null : provisioningAttribute.getValueToProvisioningMembershipWrapper().get(obj);
+              
+              if (provisioningMembershipWrapper != null && (provisioningMembershipWrapper.getProvisioningStateMembership().isInGrouper()
+                  || provisioningMembershipWrapper.getProvisioningStateMembership().isExistInGrouper())) {
+                continue;
               }
+              
+              if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper() 
+                  && !this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(obj) 
+                  && !this.grouperProvisioner.retrieveGrouperProvisioningData().getMembershipValuesThatExistInGrouper().contains(membershipValue)) {
+                continue;
+              }
+
+              if (provisioningMembershipWrapper != null && !this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
+                continue;
+              }
+
+              this.membershipDeleteCount++;
+              provisioningEntityWrapper.getTargetProvisioningEntity().addInternal_objectChange(
+                new ProvisioningObjectChange(attributeForMemberships, 
+                    ProvisioningObjectChangeAction.delete, membershipValue, null)
+              );
+              delete = true;
             }
             if (delete) {
               provisioningEntitiesToUpdate.add(provisioningEntityWrapper.getTargetProvisioningEntity());
