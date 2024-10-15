@@ -172,7 +172,7 @@ public class GrouperNewServiceTemplateLogic extends GrouperTemplateLogicBase {
       args.add(new ServiceActionArgument("stemName", stemPrefix+baseStem+optionalColon+"service:attribute"));
       args.add(new ServiceActionArgument("stemDisplayName", stemPrefixDisplayName+baseStemFriendlyName+optionalColon+"service:attribute"));
       args.add(new ServiceActionArgument("stemDescription", TextContainer.retrieveFromRequest().getText().get("stemServiceAttributeFolderDescription")));
-      ServiceAction levelTwoServiceAction_Three = createNewServiceAction("newAppAttributeFolder", true, 2, "stemServiceBaseFolderCreationConfirmation",
+      ServiceAction levelTwoServiceAction_Three = createNewServiceAction("newAppAttributeFolder", false, 2, "stemServiceBaseFolderCreationConfirmation",
           ServiceActionType.stem, args, levelOneServiceAction_One);
       serviceActionsForStem.add(levelTwoServiceAction_Three);
       levelOneServiceAction_One.addChildServiceAction(levelTwoServiceAction_Three);
