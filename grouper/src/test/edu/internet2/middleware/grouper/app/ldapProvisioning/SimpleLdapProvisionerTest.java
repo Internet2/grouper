@@ -16,8 +16,6 @@ import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyncDaoForLdap;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningBaseTest;
@@ -28,10 +26,6 @@ import edu.internet2.middleware.grouper.app.provisioning.ProvisioningValidationI
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
-import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
-import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
-import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.ldap.LdapAttribute;
 import edu.internet2.middleware.grouper.ldap.LdapEntry;
@@ -40,7 +34,6 @@ import edu.internet2.middleware.grouper.ldap.LdapModificationType;
 import edu.internet2.middleware.grouper.ldap.LdapSearchScope;
 import edu.internet2.middleware.grouper.ldap.LdapSessionUtils;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSync;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncDao;
@@ -50,9 +43,7 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJobSta
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMembership;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.subject.Subject;
-import edu.internet2.middleware.subject.config.SubjectConfig;
 import edu.internet2.middleware.subject.provider.BaseSourceAdapter;
 import edu.internet2.middleware.subject.provider.SourceManager;
 import junit.textui.TestRunner;
@@ -68,7 +59,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityMetadataProvisionerFull"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityProvisionerFullGatech"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -1119,6 +1110,43 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    assertEquals(1, ldapEntries.size());
 
    LdapEntry ldapEntry = ldapEntries.get(0);
+
+   assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
+   assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test:testGroup"));
+   assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test:testGroup3"));
+
+   ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=aanderson)", new String[] {"description"}, null);
+   assertEquals(1, ldapEntries.size());
+
+   ldapEntry = ldapEntries.get(0);
+
+   assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+   assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test:testGroup"));
+
+   ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=abrown)", new String[] {"description"}, null);
+   assertEquals(1, ldapEntries.size());
+
+   ldapEntry = ldapEntries.get(0);
+
+   assertEquals(1, ldapEntry.getAttribute("description").getStringValues().size());
+   assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test:testGroup3"));
+
+   ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=aclark)", new String[] {"description"}, null);
+   assertEquals(1, ldapEntries.size());
+
+   ldapEntry = ldapEntries.get(0);
+
+   assertEquals(0, ldapEntry.getAttribute("description").getStringValues().size());
+   
+   grouperProvisioningOutput = fullProvision("gted_accounts_gtaccountentitlements");
+   grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+
+   assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+   ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=ajohnson)", new String[] {"description"}, null);
+   assertEquals(1, ldapEntries.size());
+
+   ldapEntry = ldapEntries.get(0);
 
    assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
    assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test:testGroup"));
