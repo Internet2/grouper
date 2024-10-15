@@ -1243,7 +1243,9 @@ public class GrouperProvisioningBehavior {
     
     if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()) {
       if (getGrouperProvisioningType() == GrouperProvisioningType.fullProvisionFull) {
-        return provisioningMembershipWrapper.getProvisioningStateMembership().isValueExistsInGrouper();
+        if (provisioningMembershipWrapper.getProvisioningStateMembership().isValueExistsInGrouper()) {
+          return true;
+        }
       }
     }
     
