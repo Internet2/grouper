@@ -8,6 +8,30 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class ProvisioningStateGroup extends ProvisioningStateBase {
 
   /**
+   * deletes the attribute on groups who we arent deleting
+   * note the sync object can be null if it is from target and grouper doesnt know about it
+   */
+  private boolean deleteMembershipAttributeValues;
+
+  /**
+   * deletes the attribute on groups who we arent deleting
+   * note the sync object can be null if it is from target and grouper doesnt know about it
+   * @return
+   */
+  public boolean isDeleteMembershipAttributeValues() {
+    return deleteMembershipAttributeValues;
+  }
+
+  /**
+   * deletes the attribute on groups who we arent deleting
+   * note the sync object can be null if it is from target and grouper doesnt know about it
+   * @param deleteMembershipAttributeValues
+   */
+  public void setDeleteMembershipAttributeValues(boolean deleteMembershipAttributeValues) {
+    this.deleteMembershipAttributeValues = deleteMembershipAttributeValues;
+  }
+
+  /**
    * see if loggable if not logging all objects
    * @return
    */

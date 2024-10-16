@@ -185,7 +185,7 @@ public class LdapProvisionerTestUtils {
    * @param suffix
    * @param value
    */
-  private static void configureProvisionerSuffix(LdapProvisionerTestConfigInput ldapProvisioningTestConfigInput, String suffix, String value) {
+  public static void configureProvisionerSuffix(LdapProvisionerTestConfigInput ldapProvisioningTestConfigInput, String suffix, String value) {
     // if its overridden then dont set
     if (!ldapProvisioningTestConfigInput.getExtraConfig().containsKey(suffix)) {
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("provisioner." + ldapProvisioningTestConfigInput.getConfigId() + "." + suffix).value(value).store();
