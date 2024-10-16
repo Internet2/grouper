@@ -58,7 +58,7 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningDeleteManagedValueInGrouperFull"));    
+    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningDeletedByGrouperInGrouperNotIfUnmarkedProvisionableIncremental"));    
   }
 
   @Override
@@ -255,6 +255,8 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     provisionableGroupMembershipExistedDeletedByGrouper.addMember(aclark);
     
     provisionableGroupCreatedByGrouperUnmarkedProvisionable.addMember(aclark);
+    
+    provisionableGroupExistedUnmarkedProvisionable.addMember(aclark);
     
     provisionableGroupCreatedByGrouperGroupDeletedInGrouper.addMember(aclark);
  
@@ -531,6 +533,280 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
     
     provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
+  }
+
+  public void testProvisioningDeletedByGrouperInGrouperFull() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = true;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = false;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = false;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = false;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = false;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
+  }
+
+
+  public void testProvisioningDeleteManagedValueInGrouperIncremental() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = true;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = true;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = true;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = false;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = false;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = false;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
+  }
+
+  public void testProvisioningDeletedByGrouperInGrouperIncremental() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = true;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = false;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = false;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = false;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = false;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
+  }
+
+  public void testProvisioningCreatedByGrouperInGrouperFull() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = true;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = false;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = false;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = false;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = false;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = true;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
+  }
+
+  public void testProvisioningCreatedByGrouperInGrouperIncremental() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = true;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = false;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = false;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = false;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = false;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = true;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
+  }
+
+  public void testProvisioningDeletedByGrouperInGrouperNotIfUnmarkedProvisionableFull() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = true;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = false;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = false;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = false;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = false;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = false;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
+  }
+
+  public void testProvisioningDeletedByGrouperInGrouperNotIfUnmarkedProvisionableIncremental() {
+    
+    EntityAttributeTestConfig entityAttributeTestConfig = new EntityAttributeTestConfig();
+    entityAttributeTestConfig.deleteMemberships = true;
+    entityAttributeTestConfig.deleteMembershipsIfNotExistInGrouper = false;
+    entityAttributeTestConfig.deleteValueIfManagedByGrouper = false;
+    entityAttributeTestConfig.deleteMembershipsOnlyInTrackedGroups = false;
+    entityAttributeTestConfig.deleteMembershipsIfGroupUnmarkedProvisionable = false;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperDeleted = true;
+    entityAttributeTestConfig.deleteMembershipsIfGrouperCreated = false;
+    
+    OverallResult overallResult = new OverallResult();
+    overallResult.aclarkResult.valueNotInGrouper = true;
+    overallResult.aclarkResult.valueUnprovisionableGroup = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupExisting = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    
+    overallResult.adoeResult.valueNotInGrouper = true;
+    overallResult.adoeResult.valueUnprovisionableGroup = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExisting = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperThenDeleted = false;
+    overallResult.adoeResult.valueProvisionableGroupMembershipExistedDeletedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupMembershipNotInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperUnmarkedProvisionable = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
+    overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    
+    provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
   }
 
 }

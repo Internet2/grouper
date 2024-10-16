@@ -1014,6 +1014,52 @@ public class GrouperProvisioningLogicIncremental {
         // groupIdsThatWereUpdated
         this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalGroup(groupId, this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsForRecalc()
             , this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupMembershipsForRecalc(), System.currentTimeMillis(), null);
+        
+        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupMembershipsForRecalc()) {
+          if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+            GcGrouperSyncGroup gcGrouperSyncGroup = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveByGroupId(groupId);
+
+            if (gcGrouperSyncGroup != null) {
+              String sql = "select member_id from grouper_memberships_lw_v where group_id = ?";
+              GcDbAccess gcDbAccess = new GcDbAccess().addBindVar(groupId);
+              GrouperProvisioningMembershipFieldType membershipFieldType = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getGrouperProvisioningMembershipFieldType();
+
+              if (membershipFieldType == GrouperProvisioningMembershipFieldType.members) {
+                sql += " and list_name = ?";
+                gcDbAccess.addBindVar("members");
+              } else if (membershipFieldType == GrouperProvisioningMembershipFieldType.admin) {
+                sql += " and list_name = ?";
+                gcDbAccess.addBindVar("admins");
+              } else if (membershipFieldType == GrouperProvisioningMembershipFieldType.readAdmin) {
+                sql += " and (list_name = ? or list_name = ?)";
+                gcDbAccess.addBindVar("admins");
+                gcDbAccess.addBindVar("readers");
+              } else if (membershipFieldType == GrouperProvisioningMembershipFieldType.updateAdmin) {
+                sql += " and (list_name = ? or list_name = ?)";
+                gcDbAccess.addBindVar("admins");
+                gcDbAccess.addBindVar("updaters");
+              } else {
+                throw new RuntimeException("Unexpected field type: " + membershipFieldType.name());
+              }
+              gcDbAccess.sql(sql);
+              List<String> memberIds = gcDbAccess.selectList(String.class);
+              if (gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getProvisionableStart() != null && gcGrouperSyncGroup.getProvisionableStart().getTime() > System.currentTimeMillis() - 1000*60*5) {
+                
+                for (String memberId : memberIds) {
+                  this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(groupId, memberId, false, System.currentTimeMillis(), GrouperIncrementalDataAction.insert);
+                }
+              }
+              if (!gcGrouperSyncGroup.isProvisionable() && gcGrouperSyncGroup.getProvisionableEnd() != null && gcGrouperSyncGroup.getProvisionableEnd().getTime() > System.currentTimeMillis() - 1000*60*5) {
+                
+                for (String memberId : memberIds) {
+                  this.getGrouperProvisioner().retrieveGrouperProvisioningData().addIncrementalMembership(groupId, memberId, false, System.currentTimeMillis(), GrouperIncrementalDataAction.delete);
+                }
+              }
+
+            }
+            
+          }
+        }
       }      
     }
   }

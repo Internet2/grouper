@@ -527,7 +527,7 @@ public abstract class ProvisioningUpdatable {
   public abstract boolean canInsertAttribute(String name);
   public abstract boolean canUpdateAttribute(String name);
   public abstract boolean canDeleteAttribute(String name);
-  public abstract boolean canDeleteAttributeValue(String name, Object deleteValue);
+  //public abstract boolean canDeleteAttributeValue(String name, Object deleteValue);
 
   /**
    * see if this object is empty e.g. after translating if empty then dont keep track of group

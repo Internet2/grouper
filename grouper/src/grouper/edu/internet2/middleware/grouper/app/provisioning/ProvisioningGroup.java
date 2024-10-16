@@ -335,50 +335,50 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     return this.canUpdateAttribute(name);
   }
 
-  @Override
-  public boolean canDeleteAttributeValue(String name, Object deleteValue) {
-
-    GrouperProvisioner grouperProvisioner = this.getProvisioningGroupWrapper().getGrouperProvisioner();
-    GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
-
-    if (retrieveGrouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
-        && StringUtils.equals(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), name) ) {
-      
-      if (retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfNotExistInGrouper()) {
-        return true;
-      }
-      
-      ProvisioningAttribute provisioningAttribute = this.retrieveProvisioningAttribute(name);
-      if (provisioningAttribute == null) {
-        return false;
-      }
-
-      Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
-      
-      if (valueToProvisioningMembershipWrapper == null) {
-        return false;
-      }
-
-      ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(deleteValue);
-      if (provisioningMembershipWrapper == null) {
-        return false;
-      }
-      
-      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
-      if (gcGrouperSyncMembership == null) {
-        return false;
-      }
-      if (retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfGrouperDeleted()) {
-        return true;
-      }
-      if (gcGrouperSyncMembership.isInTargetInsertOrExists() && retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfGrouperCreated()) {
-        return true;
-      }
-      return false;
-    }
-    // regular delete was already checked
-    return true;
-  }
+//  @Override
+//  public boolean canDeleteAttributeValue(String name, Object deleteValue) {
+//
+//    GrouperProvisioner grouperProvisioner = this.getProvisioningGroupWrapper().getGrouperProvisioner();
+//    GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior = grouperProvisioner.retrieveGrouperProvisioningBehavior();
+//
+//    if (retrieveGrouperProvisioningBehavior.getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+//        && StringUtils.equals(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), name) ) {
+//      
+//      if (retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfNotExistInGrouper()) {
+//        return true;
+//      }
+//      
+//      ProvisioningAttribute provisioningAttribute = this.retrieveProvisioningAttribute(name);
+//      if (provisioningAttribute == null) {
+//        return false;
+//      }
+//
+//      Map<Object, ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = provisioningAttribute.getValueToProvisioningMembershipWrapper();
+//      
+//      if (valueToProvisioningMembershipWrapper == null) {
+//        return false;
+//      }
+//
+//      ProvisioningMembershipWrapper provisioningMembershipWrapper = valueToProvisioningMembershipWrapper.get(deleteValue);
+//      if (provisioningMembershipWrapper == null) {
+//        return false;
+//      }
+//      
+//      GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
+//      if (gcGrouperSyncMembership == null) {
+//        return false;
+//      }
+//      if (retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfGrouperDeleted()) {
+//        return true;
+//      }
+//      if (gcGrouperSyncMembership.isInTargetInsertOrExists() && retrieveGrouperProvisioningBehavior.isDeleteMembershipsIfGrouperCreated()) {
+//        return true;
+//      }
+//      return false;
+//    }
+//    // regular delete was already checked
+//    return true;
+//  }
 
   /**
    * 

@@ -414,11 +414,11 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     return this.getProvisioningMembershipWrapper().getGrouperProvisioner().retrieveGrouperProvisioningBehavior().canUpdateMembershipAttribute(name);
   }
 
-  @Override
-  public boolean canDeleteAttributeValue(String name, Object deleteValue) {
-    //if can delete attribute name, then all good, assume that has been checked already
-    return true;
-  }
+//  @Override
+//  public boolean canDeleteAttributeValue(String name, Object deleteValue) {
+//    //if can delete attribute name, then all good, assume that has been checked already
+//    return true;
+//  }
 
   @Override
   public String objectTypeName() {
