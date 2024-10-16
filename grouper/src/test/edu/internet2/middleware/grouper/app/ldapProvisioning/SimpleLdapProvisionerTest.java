@@ -59,7 +59,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapEntityProvisionerFullGatech"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testProvisioningTypeEntityAttributesDeleteValueManagedByGrouperFull"));    
   }
   
   public SimpleLdapProvisionerTest() {

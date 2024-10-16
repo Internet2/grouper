@@ -399,11 +399,16 @@ public class GrouperProvisioningLogic {
   
   public void identifyTargetValuesThatExistInGrouper() {
     
+    String attributeNameForMemberships = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+
+    Set<Object> membershipValuesThatExistInGrouperLowerCaseIfNeeded = new HashSet<>();
+
     if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
         == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
       
-      Set<Object> membershipValuesThatExistInGrouper = new HashSet<>();
-      
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeNameForMemberships);
+      boolean caseSensitiveCompare = grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isCaseSensitiveCompare();
+
       Set<ProvisioningGroupWrapper> provisioningGroupWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningGroupWrappers();
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: provisioningGroupWrappers) {
@@ -411,7 +416,14 @@ public class GrouperProvisioningLogic {
         ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
         if (grouperTargetGroup != null) {          
           Set<?> setForMemberships = grouperTargetGroup.retrieveAttributeValueSetForMemberships();
-          membershipValuesThatExistInGrouper.addAll(GrouperUtil.nonNull(setForMemberships));
+          for (Object value : GrouperUtil.nonNull(setForMemberships)) {
+            
+            if (value instanceof String && !caseSensitiveCompare) {
+              membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(((String)value).toLowerCase());
+            } else {
+              membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(value);
+            }
+          }
         }
         
       }
@@ -423,11 +435,16 @@ public class GrouperProvisioningLogic {
         GcGrouperSyncMember gcGrouperSyncMember = provisioningEntityWrapper.getGcGrouperSyncMember();
         if (gcGrouperSyncMember != null) {
           String entityCacheValue = provisioningEntityWrapper.getGcGrouperSyncMember().retrieveField(entityCacheName);
-          membershipValuesThatExistInGrouper.add(entityCacheValue);
+          
+          if (entityCacheValue instanceof String && !caseSensitiveCompare) {
+            membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(((String)entityCacheValue).toLowerCase());
+          } else {
+            membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(entityCacheValue);
+          }
         }
       }
       
-      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setMembershipValuesThatExistInGrouper(membershipValuesThatExistInGrouper);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setMembershipValuesThatExistInGrouperLowercaseIfNeeded(membershipValuesThatExistInGrouperLowerCaseIfNeeded);
       
       for (ProvisioningGroupWrapper provisioningGroupWrapper: provisioningGroupWrappers) {
         ProvisioningGroup targetProvisioningGroup = provisioningGroupWrapper.getTargetProvisioningGroup();
@@ -437,7 +454,13 @@ public class GrouperProvisioningLogic {
         Set<?> setForMemberships = targetProvisioningGroup.retrieveAttributeValueSetForMemberships();
         String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         for (Object obj: GrouperUtil.nonNull(setForMemberships)) {
-          if (membershipValuesThatExistInGrouper.contains(obj)) {
+          
+          Object objLowerCaseIfNeeded = obj;
+          if (obj instanceof String && !caseSensitiveCompare) {
+            objLowerCaseIfNeeded = ((String)obj).toLowerCase();
+          }
+          
+          if (membershipValuesThatExistInGrouperLowerCaseIfNeeded.contains(objLowerCaseIfNeeded)) {
             
             ProvisioningAttribute membershipAttribute = targetProvisioningGroup.retrieveProvisioningAttribute(membershipAttributeName);
             Map<Object,ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper();
@@ -454,6 +477,9 @@ public class GrouperProvisioningLogic {
     } else if (GrouperProvisioningLogic.this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() 
         == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
       
+      GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(attributeNameForMemberships);
+      boolean caseSensitiveCompare = grouperProvisioningConfigurationAttribute == null || grouperProvisioningConfigurationAttribute.isCaseSensitiveCompare();
+
       Set<Object> membershipValuesThatExistInGrouper = new HashSet<>();
       
       Set<ProvisioningEntityWrapper> provisioningEntityWrappers = this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningEntityWrappers();
@@ -463,7 +489,15 @@ public class GrouperProvisioningLogic {
         ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
         if (grouperTargetEntity != null) {          
           Set<?> setForMemberships = grouperTargetEntity.retrieveAttributeValueSetForMemberships();
-          membershipValuesThatExistInGrouper.addAll(GrouperUtil.nonNull(setForMemberships));
+          
+          for (Object value : GrouperUtil.nonNull(setForMemberships)) {
+            
+            if (value instanceof String && !caseSensitiveCompare) {
+              membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(((String)value).toLowerCase());
+            } else {
+              membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(value);
+            }
+          }
         }
         
       }
@@ -474,11 +508,17 @@ public class GrouperProvisioningLogic {
       for (ProvisioningGroupWrapper provisioningGroupWrapper: provisioningGroupWrappers) {
         if (provisioningGroupWrapper.getGcGrouperSyncGroup() != null) {
           String groupCacheValue = provisioningGroupWrapper.getGcGrouperSyncGroup().retrieveField(groupCacheName);
-          membershipValuesThatExistInGrouper.add(groupCacheValue);
+          
+          if (groupCacheValue instanceof String && !caseSensitiveCompare) {
+            membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(((String)groupCacheValue).toLowerCase());
+          } else {
+            membershipValuesThatExistInGrouperLowerCaseIfNeeded.add(groupCacheValue);
+          }
+
         }
       }
       
-      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setMembershipValuesThatExistInGrouper(membershipValuesThatExistInGrouper);
+      this.getGrouperProvisioner().retrieveGrouperProvisioningData().setMembershipValuesThatExistInGrouperLowercaseIfNeeded(membershipValuesThatExistInGrouperLowerCaseIfNeeded);
       
       for (ProvisioningEntityWrapper provisioningEntityWrapper: provisioningEntityWrappers) {
         ProvisioningEntity targetProvisioningEntity = provisioningEntityWrapper.getTargetProvisioningEntity();
@@ -489,7 +529,12 @@ public class GrouperProvisioningLogic {
         String membershipAttributeName = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
         
         for (Object obj: GrouperUtil.nonNull(setForMemberships)) {
-          if (membershipValuesThatExistInGrouper.contains(obj)) {
+          Object objLowerCaseIfNeeded = obj;
+          if (obj instanceof String && !caseSensitiveCompare) {
+            objLowerCaseIfNeeded = ((String)obj).toLowerCase();
+          }
+          
+          if (membershipValuesThatExistInGrouperLowerCaseIfNeeded.contains(objLowerCaseIfNeeded)) {
             
             ProvisioningAttribute membershipAttribute = targetProvisioningEntity.retrieveProvisioningAttribute(membershipAttributeName);
             Map<Object,ProvisioningMembershipWrapper> valueToProvisioningMembershipWrapper = membershipAttribute.getValueToProvisioningMembershipWrapper();

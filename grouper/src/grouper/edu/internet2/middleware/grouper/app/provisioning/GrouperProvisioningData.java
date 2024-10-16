@@ -282,7 +282,7 @@ public class GrouperProvisioningData {
 
   private GrouperProvisioner grouperProvisioner;
 
-  private Set<Object> membershipValuesThatExistInGrouper;
+  private Set<Object> membershipValuesThatExistInGrouperLowercaseIfNeeded;
 
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
@@ -778,13 +778,13 @@ public class GrouperProvisioningData {
     }
   }
 
-  public void setMembershipValuesThatExistInGrouper(Set<Object> membershipValuesThatExistInGrouper) {
-   this.membershipValuesThatExistInGrouper = membershipValuesThatExistInGrouper;
+  public void setMembershipValuesThatExistInGrouperLowercaseIfNeeded(Set<Object> membershipValuesThatExistInGrouper) {
+   this.membershipValuesThatExistInGrouperLowercaseIfNeeded = membershipValuesThatExistInGrouper;
   }
 
   
-  public Set<Object> getMembershipValuesThatExistInGrouper() {
-    return membershipValuesThatExistInGrouper;
+  public Set<Object> getMembershipValuesThatExistInGrouperLowercaseIfNeeded() {
+    return membershipValuesThatExistInGrouperLowercaseIfNeeded;
   }
 
   /**
