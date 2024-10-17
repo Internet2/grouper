@@ -1,0 +1,43 @@
+package edu.internet2.middleware.grouper.app.adobe;
+
+import java.util.Collection;
+
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationValidation;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
+
+public class AdobeProvisoningConfigurationValidation extends GrouperProvisioningConfigurationValidation {
+  
+  @Override
+  public Collection<String> validateGroupAttributeNamesAllowed() {
+    return GrouperUtil.toSet("description");
+
+  }
+
+  @Override
+  public Collection<String> validateGroupAttributeNamesRequired() {
+    return GrouperUtil.toSet("name", "id");
+
+  }
+
+  @Override
+  public boolean validateGroupAttributesRequireString() {
+    return true;
+  }
+
+  @Override
+  public Collection<String> validateEntityAttributeNamesAllowed() {
+    return GrouperUtil.toSet("alias1", "alias2", "alias3", "alias4", "name", "email", "firstName", "lastName");
+  }
+
+  @Override
+  public Collection<String> validateEntityAttributeNamesRequired() {
+    return GrouperUtil.toSet("id", "loginId");
+  }
+
+  @Override
+  public boolean validateEntityAttributesRequireString() {
+    return true;
+  }
+
+  
+}

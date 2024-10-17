@@ -799,6 +799,9 @@ public class GrouperProvisioningLogic {
   public void loadDataToGrouper() {
     loadEntityDataToGrouper();
     loadEntityAttributesDataToGrouper();
+    
+    loadGroupDataToGrouper();
+    loadMembershipDataToGrouper();
   }
 
   public void loadEntityDataToGrouper() {
@@ -902,6 +905,221 @@ public class GrouperProvisioningLogic {
       String newKey = "loadUsers" + StringUtils.capitalize(key);
       debugMap.put(newKey, newValue);
 
+    }
+    
+  }
+  
+  public void loadGroupDataToGrouper() {
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable()) {
+      return;
+    }
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
+      return;
+    }
+    
+ // we need to get data from the table
+    GcTableSync loadGroupsToTableGcTableSync = new GcTableSync();
+    
+    //retrieve the existing data from database
+    GcTableSyncTableBean loadGroupsToTableGcTableSyncTableBeanSql = new GcTableSyncTableBean(loadGroupsToTableGcTableSync);
+    
+    GrouperProvisioningLoader grouperProvisioningLoader = this.grouperProvisioner.retrieveGrouperProvisioningLoader();
+    String tableName = grouperProvisioningLoader.getLoaderGroupTableName();
+    GrouperUtil.assertion(StringUtils.isNotBlank(tableName), "grouperLoaderGroupTableName is blank.");
+    
+    loadGroupsToTableGcTableSyncTableBeanSql.configureMetadata("grouper", tableName);
+    loadGroupsToTableGcTableSync.setDataBeanTo(loadGroupsToTableGcTableSyncTableBeanSql);
+    
+    Set<String> databaseColumnNames = new LinkedHashSet(grouperProvisioningLoader.getLoaderGroupColumnNames());
+
+    Set<String> loadGroupsToTableUniqueKeyColumnNames = new LinkedHashSet(grouperProvisioningLoader.getLoaderGroupKeyColumnNames());
+
+    GcTableSyncTableMetadata gcTableSyncTableMetadata = loadGroupsToTableGcTableSyncTableBeanSql.getTableMetadata();
+
+    gcTableSyncTableMetadata.assignColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
+    gcTableSyncTableMetadata.assignPrimaryKeyColumns(GrouperUtil.join(loadGroupsToTableUniqueKeyColumnNames.iterator(), ','));
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+    
+    String configId = this.getGrouperProvisioner().getConfigId();
+    
+    String sql = "select " + gcTableSyncTableMetadata.columnListAll() + " from " + gcTableSyncTableMetadata.getTableName() + " where config_id = ?";
+    
+    List<Object[]> results = gcDbAccess.sql(sql).addBindVar(configId).selectList(Object[].class);
+
+    GcTableSyncTableData loadGroupsToTableGcTableSyncTableDataSql = new GcTableSyncTableData();
+    loadGroupsToTableGcTableSyncTableDataSql.init(loadGroupsToTableGcTableSyncTableBeanSql, gcTableSyncTableMetadata.lookupColumns(loadGroupsToTableGcTableSyncTableBeanSql.getTableMetadata().columnListAll()), results);
+    loadGroupsToTableGcTableSyncTableDataSql.indexData();
+ 
+    loadGroupsToTableGcTableSyncTableBeanSql.setDataInitialQuery(loadGroupsToTableGcTableSyncTableDataSql);
+    loadGroupsToTableGcTableSyncTableBeanSql.setGcTableSync(loadGroupsToTableGcTableSync);
+
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    debugMap.put("loadGroupsDbUniqueKeys", loadGroupsToTableGcTableSyncTableDataSql.allPrimaryKeys().size());
+    
+    GcTableSyncTableBean gcTableSyncTableBeanFrom = new GcTableSyncTableBean();
+    loadGroupsToTableGcTableSync.setDataBeanFrom(gcTableSyncTableBeanFrom);
+    gcTableSyncTableBeanFrom.setTableMetadata(loadGroupsToTableGcTableSyncTableBeanSql.getTableMetadata());
+    gcTableSyncTableBeanFrom.setGcTableSync(loadGroupsToTableGcTableSync);
+
+    GcTableSyncTableData loadGroupsToTableGcTableSyncTableDataLdap = new GcTableSyncTableData();
+    loadGroupsToTableGcTableSync.getDataBeanFrom().setDataInitialQuery(loadGroupsToTableGcTableSyncTableDataLdap);
+
+    loadGroupsToTableGcTableSyncTableDataLdap.setColumnMetadata(loadGroupsToTableGcTableSyncTableDataSql.getColumnMetadata());
+
+    loadGroupsToTableGcTableSyncTableDataLdap.setGcTableSyncTableBean(loadGroupsToTableGcTableSyncTableDataSql.getGcTableSyncTableBean());
+
+    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
+    
+    List<Object[]> targetTableData = grouperProvisioningLoader.retrieveLoaderGroupTableDataFromDataBean();
+    
+    for (Object[] rowData: targetTableData) {
+      
+      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
+      gcTableSyncRowDatas.add(gcTableSyncRowData);
+      
+      gcTableSyncRowData.setGcTableSyncTableData(loadGroupsToTableGcTableSyncTableDataLdap);
+      
+      gcTableSyncRowData.setData(rowData);
+      
+    }
+    
+    
+    loadGroupsToTableGcTableSyncTableDataLdap.setRows(gcTableSyncRowDatas);
+
+    // compare and sync
+    GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
+    loadGroupsToTableGcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
+
+    loadGroupsToTableGcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
+
+    Map<String, Object> debugMapLocal = new LinkedHashMap<String, Object>();
+    GcTableSyncSubtype.fullSyncFull.syncData(debugMapLocal, loadGroupsToTableGcTableSync);
+
+    // merge the debug maps
+    for (String key : debugMapLocal.keySet()) {
+      
+      Object newValue = debugMapLocal.get(key);
+ 
+      // convert micros to millis
+      if (key.endsWith("Millis")) {
+        if (newValue instanceof Number) {
+          newValue = ((Number)newValue).longValue()/1000;
+        }
+      }
+
+      
+      String newKey = "loadGroups" + StringUtils.capitalize(key);
+      debugMap.put(newKey, newValue);
+
+    }
+    
+  }
+  
+  public void loadMembershipDataToGrouper() {
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isLoadEntitiesToGrouperTable()) {
+      return;
+    }
+    
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isSelectGroupsAll()) {
+      return;
+    }
+    
+    // we need to get data from the table
+    GcTableSync loadMembershipsToTableGcTableSync = new GcTableSync();
+    
+    //retrieve the existing data from database
+    GcTableSyncTableBean loadMembershipsToTableGcTableSyncTableBeanSql = new GcTableSyncTableBean(loadMembershipsToTableGcTableSync);
+    
+    GrouperProvisioningLoader grouperProvisioningLoader = this.grouperProvisioner.retrieveGrouperProvisioningLoader();
+    String tableName = grouperProvisioningLoader.getLoaderMembershipTableName();
+    GrouperUtil.assertion(StringUtils.isNotBlank(tableName), "grouperLoaderMembershipTableName is blank.");
+    
+    loadMembershipsToTableGcTableSyncTableBeanSql.configureMetadata("grouper", tableName);
+    loadMembershipsToTableGcTableSync.setDataBeanTo(loadMembershipsToTableGcTableSyncTableBeanSql);
+    
+    Set<String> databaseColumnNames = new LinkedHashSet(grouperProvisioningLoader.getLoaderGroupColumnNames());
+
+    Set<String> loadMembershipsToTableUniqueKeyColumnNames = new LinkedHashSet(grouperProvisioningLoader.getLoaderMembershipKeyColumnNames());
+
+    GcTableSyncTableMetadata gcTableSyncTableMetadata = loadMembershipsToTableGcTableSyncTableBeanSql.getTableMetadata();
+
+    gcTableSyncTableMetadata.assignColumns(GrouperUtil.join(databaseColumnNames.iterator(), ','));
+    gcTableSyncTableMetadata.assignPrimaryKeyColumns(GrouperUtil.join(loadMembershipsToTableUniqueKeyColumnNames.iterator(), ','));
+    
+    GcDbAccess gcDbAccess = new GcDbAccess().connectionName("grouper");
+    
+    String configId = this.getGrouperProvisioner().getConfigId();
+    
+    String sql = "select " + gcTableSyncTableMetadata.columnListAll() + " from " + gcTableSyncTableMetadata.getTableName() + " where config_id = ?";
+    
+    List<Object[]> results = gcDbAccess.sql(sql).addBindVar(configId).selectList(Object[].class);
+
+    GcTableSyncTableData loadMembershipsToTableGcTableSyncTableDataSql = new GcTableSyncTableData();
+    loadMembershipsToTableGcTableSyncTableDataSql.init(loadMembershipsToTableGcTableSyncTableBeanSql, gcTableSyncTableMetadata.lookupColumns(loadMembershipsToTableGcTableSyncTableBeanSql.getTableMetadata().columnListAll()), results);
+    loadMembershipsToTableGcTableSyncTableDataSql.indexData();
+ 
+    loadMembershipsToTableGcTableSyncTableBeanSql.setDataInitialQuery(loadMembershipsToTableGcTableSyncTableDataSql);
+    loadMembershipsToTableGcTableSyncTableBeanSql.setGcTableSync(loadMembershipsToTableGcTableSync);
+
+    Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
+    debugMap.put("loadMembershipsDbUniqueKeys", loadMembershipsToTableGcTableSyncTableDataSql.allPrimaryKeys().size());
+    
+    GcTableSyncTableBean gcTableSyncTableBeanFrom = new GcTableSyncTableBean();
+    loadMembershipsToTableGcTableSync.setDataBeanFrom(gcTableSyncTableBeanFrom);
+    gcTableSyncTableBeanFrom.setTableMetadata(loadMembershipsToTableGcTableSyncTableBeanSql.getTableMetadata());
+    gcTableSyncTableBeanFrom.setGcTableSync(loadMembershipsToTableGcTableSync);
+
+    GcTableSyncTableData loadMembershipsToTableGcTableSyncTableDataLdap = new GcTableSyncTableData();
+    loadMembershipsToTableGcTableSync.getDataBeanFrom().setDataInitialQuery(loadMembershipsToTableGcTableSyncTableDataLdap);
+
+    loadMembershipsToTableGcTableSyncTableDataLdap.setColumnMetadata(loadMembershipsToTableGcTableSyncTableDataSql.getColumnMetadata());
+
+    loadMembershipsToTableGcTableSyncTableDataLdap.setGcTableSyncTableBean(loadMembershipsToTableGcTableSyncTableDataSql.getGcTableSyncTableBean());
+
+    List<GcTableSyncRowData> gcTableSyncRowDatas = new ArrayList<GcTableSyncRowData>();
+    
+    List<Object[]> targetTableData = grouperProvisioningLoader.retrieveLoaderGroupTableDataFromDataBean();
+    
+    for (Object[] rowData: targetTableData) {
+      
+      GcTableSyncRowData gcTableSyncRowData = new GcTableSyncRowData();
+      gcTableSyncRowDatas.add(gcTableSyncRowData);
+      
+      gcTableSyncRowData.setGcTableSyncTableData(loadMembershipsToTableGcTableSyncTableDataLdap);
+      
+      gcTableSyncRowData.setData(rowData);
+      
+    }
+    
+    loadMembershipsToTableGcTableSyncTableDataLdap.setRows(gcTableSyncRowDatas);
+    // compare and sync
+    GcTableSyncConfiguration gcTableSyncConfiguration = new GcTableSyncConfiguration();
+    loadMembershipsToTableGcTableSync.setGcTableSyncConfiguration(gcTableSyncConfiguration);
+
+    loadMembershipsToTableGcTableSync.setGcTableSyncOutput(new GcTableSyncOutput());
+
+    Map<String, Object> debugMapLocal = new LinkedHashMap<String, Object>();
+    GcTableSyncSubtype.fullSyncFull.syncData(debugMapLocal, loadMembershipsToTableGcTableSync);
+
+    // merge the debug maps
+    for (String key : debugMapLocal.keySet()) {
+      
+      Object newValue = debugMapLocal.get(key);
+ 
+      // convert micros to millis
+      if (key.endsWith("Millis")) {
+        if (newValue instanceof Number) {
+          newValue = ((Number)newValue).longValue()/1000;
+        }
+      }
+
+      
+      String newKey = "loadGroups" + StringUtils.capitalize(key);
+      debugMap.put(newKey, newValue);
     }
     
   }

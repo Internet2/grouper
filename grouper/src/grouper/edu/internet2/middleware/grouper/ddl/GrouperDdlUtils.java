@@ -43,6 +43,24 @@ import java.util.regex.Pattern;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
+import org.apache.tools.ant.DefaultLogger;
+import org.apache.tools.ant.Project;
+import org.apache.tools.ant.taskdefs.SQLExec;
+import org.hibernate.ObjectNotFoundException;
+import org.hibernate.internal.SessionImpl;
+import org.hibernate.type.StringType;
+import org.quartz.impl.jdbcjobstore.PostgreSQLDelegate;
+import org.quartz.impl.jdbcjobstore.StdJDBCDelegate;
+import org.quartz.impl.jdbcjobstore.oracle.OracleDelegate;
+
+import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.GroupTypeFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
+import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.PlatformFactory;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Column;
@@ -55,29 +73,7 @@ import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Reference;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.UniqueIndex;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.platform.SqlBuilder;
-import org.apache.tools.ant.DefaultLogger;
-import org.apache.tools.ant.Project;
-import org.apache.tools.ant.taskdefs.SQLExec;
-import org.hibernate.ObjectNotFoundException;
-import org.hibernate.internal.SessionImpl;
-import org.hibernate.type.StringType;
-import org.quartz.impl.jdbcjobstore.MSSQLDelegate;
-import org.quartz.impl.jdbcjobstore.PostgreSQLDelegate;
-import org.quartz.impl.jdbcjobstore.StdJDBCDelegate;
-import org.quartz.impl.jdbcjobstore.oracle.OracleDelegate;
-
-import edu.internet2.middleware.grouper.FieldFinder;
-import edu.internet2.middleware.grouper.GroupTypeFinder;
-import edu.internet2.middleware.grouper.Member;
-import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
-import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
-import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
-import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
-import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.GrouperRollbackType;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -1996,6 +1992,56 @@ public class GrouperDdlUtils {
   }
   
   /**
+   * see if an foreign key with the given name exists
+   * @param tableName
+   * @param foreignKey
+   * @return true or false
+   */
+  public static boolean assertForeignKeyExists(String tableName, String foreignKeyName) {
+    Platform platform = GrouperDdlUtils.retrievePlatform(false);
+    
+    int javaVersion = GrouperDdlUtils.retrieveDdlJavaVersion("Grouper"); 
+    
+    DdlVersionable ddlVersionableJava = GrouperDdlUtils.retieveVersion("Grouper", javaVersion);
+  
+    DbMetadataBean dbMetadataBean = GrouperDdlUtils.findDbMetadataBean(ddlVersionableJava);
+  
+    //to be safe lets only deal with tables related to this object
+    platform.getModelReader().setDefaultTablePattern(dbMetadataBean.getDefaultTablePattern());
+    //platform.getModelReader().setDefaultTableTypes(new String[]{"TABLES"});
+    platform.getModelReader().setDefaultSchemaPattern(dbMetadataBean.getSchema());
+  
+    //convenience to get the url, user, etc of the grouper db, helps get db connection
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    Connection connection = null;
+    ForeignKey foreignKey = null;
+    try {
+      connection = grouperDb.connection();
+  
+      Database database = platform.readModelFromDatabase(connection, GrouperDdlUtils.PLATFORM_NAME, null,
+        null, null);
+    
+      Table membersTable = GrouperDdlUtils.ddlutilsFindTable(database, tableName, false);
+      
+      if (membersTable == null) {
+        return false;
+      }
+      
+      foreignKey = GrouperDdlUtils.ddlutilsForeignKeyExists(database, membersTable.getName(), foreignKeyName);
+      
+      if (foreignKey == null) {
+        return false;
+      }
+      
+      return true;
+    } finally {
+      GrouperUtil.closeQuietly(connection);
+    }
+  
+  }
+  
+  /**
    * See if table has a primary key
    * @param tableName
    * @return true or false
@@ -2062,7 +2108,24 @@ public class GrouperDdlUtils {
     }
     return null;
   }
+  
+  
+  public static ForeignKey ddlutilsForeignKeyExists(Database database,
+      String tableName, String foreignKey) {
 
+    Table table = GrouperDdlUtils.ddlutilsFindTable(database,tableName, true);
+
+    //at this point, there should not be one of the same name in there
+    for (ForeignKey fk : table.getForeignKeys()) {
+      //if same name but not same, then get rid of it
+      if (StringUtils.equalsIgnoreCase(fk.getName(), foreignKey)) {
+        return fk;
+      }
+    }
+    return null;
+  }
+  
+  
   /**
    * add an index on a table.  drop a misnamed or a misuniqued index which is existing
    * @param database

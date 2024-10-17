@@ -42,6 +42,14 @@ public class GrouperProvisioningLoader {
     return null;
   }
   
+  public String getLoaderGroupTableName() {
+    return null;
+  }
+  
+  public String getLoaderMembershipTableName() {
+    return null;
+  }
+  
   public String getLoaderEntityAttributesTableName() {
     return null;
   }
@@ -50,11 +58,35 @@ public class GrouperProvisioningLoader {
     return null;
   }
   
+  public List<String> getLoaderGroupColumnNames() {
+    return null;
+  }
+  
+  public List<String> getLoaderMembershipColumnNames() {
+    return null;
+  }
+  
   public List<String> getLoaderEntityKeyColumnNames() {
+    return null;
+  }
+  
+  public List<String> getLoaderGroupKeyColumnNames() {
+    return null;
+  }
+  
+  public List<String> getLoaderMembershipKeyColumnNames() {
     return null;
   }
 
   public List<Object[]> retrieveLoaderEntityTableDataFromDataBean() {
+    return null;
+  }
+  
+  public List<Object[]> retrieveLoaderGroupTableDataFromDataBean() {
+    return null;
+  }
+  
+  public List<Object[]> retrieveLoaderMembershipTableDataFromDataBean() {
     return null;
   }
   

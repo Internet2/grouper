@@ -1938,6 +1938,50 @@ CREATE TABLE grouper_prov_azure_user
  
 CREATE INDEX grouper_prov_azure_user_idx1 ON grouper_prov_azure_user (user_principal_name(180), config_id);
 
+CREATE TABLE grouper_prov_adobe_user
+(
+    config_id VARCHAR(100) NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    email VARCHAR(256) NOT NULL,
+    username VARCHAR(256) NOT NULL,
+    status VARCHAR(30) NULL,
+    "type" VARCHAR(30) NULL,
+    firstname VARCHAR(100) NULL,
+    lastname VARCHAR(100) NULL,
+    domain VARCHAR(100) NULL,
+    country VARCHAR(2) NULL,
+    PRIMARY KEY (config_id, user_id)
+);
+ 
+CREATE INDEX grouper_prov_adobe_user_idx1 ON grouper_prov_adobe_user (email, config_id);
+CREATE INDEX grouper_prov_adobe_user_idx2 ON grouper_prov_adobe_user (username, config_id);
+      
+CREATE TABLE grouper_prov_adobe_group
+(
+    config_id VARCHAR(100) NOT NULL,
+    group_id BIGINT NOT NULL,
+    name VARCHAR(2000) NOT NULL,
+    "type" VARCHAR(100) NULL,
+    product_name VARCHAR(2000) NULL,
+    member_count BIGINT NULL,
+    license_quota BIGINT NULL,
+    PRIMARY KEY (config_id, group_id)
+);
+ 
+CREATE INDEX grouper_prov_adobe_group_idx1 ON grouper_prov_adobe_group (name, config_id);
+
+CREATE TABLE grouper_prov_adobe_membership
+(
+    config_id VARCHAR(100) NOT NULL,
+    group_id BIGINT NOT NULL,
+    user_id VARCHAR(100) NOT NULL,
+    PRIMARY KEY (config_id, group_id, user_id)
+);
+
+ALTER TABLE  grouper_prov_adobe_membership ADD CONSTRAINT grouper_prov_adobe_mship_fk1 FOREIGN KEY (config_id, group_id) REFERENCES grouper_prov_adobe_group(config_id, group_id) on delete cascade;
+ALTER TABLE  grouper_prov_adobe_membership ADD CONSTRAINT grouper_prov_adobe_mship_fk2 FOREIGN KEY (config_id, user_id) REFERENCES grouper_prov_adobe_user(config_id, user_id) on delete cascade;
+
+
 CREATE TABLE grouper_mship_req_change
 (
     id BIGINT NOT NULL,
@@ -2846,6 +2890,6 @@ CREATE VIEW grouper_sql_cache_mship_v (group_name, list_name, subject_id, subjec
 CREATE VIEW grouper_sql_cache_mship_hst_v (group_name, list_name, subject_id, subject_identifier0, subject_identifier1, subject_identifier2, subject_source, start_time, end_time, group_id, field_id, mship_hst_internal_id, member_internal_id, group_internal_id, field_internal_id) AS  select  gg.name as group_name, gf.name as list_name, gm.subject_id, gm.subject_identifier0, gm.subject_identifier1,  gm.subject_identifier2, gm.subject_source, gscmh.start_time, gscmh.end_time, gg.id as group_id,  gf.id as field_id, gscmh.internal_id as mship_hst_internal_id, gm.internal_id as member_internal_id,  gg.internal_id as group_internal_id, gf.internal_id as field_internal_id from  grouper_sql_cache_group gscg, grouper_sql_cache_mship_hst gscmh, grouper_fields gf,  grouper_groups gg, grouper_members gm where gscg.group_internal_id = gg.internal_id  and gscg.field_internal_id = gf.internal_id and gscmh.sql_cache_group_internal_id = gscg.internal_id  and gscmh.member_internal_id = gm.internal_id ;
 
 insert into grouper_ddl (id, object_name, db_version, last_updated, history) values 
-('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 47, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
-concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V47, '));
+('c08d3e076fdb4c41acdafe5992e5dc4d', 'Grouper', 48, date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), 
+concat(date_format(current_timestamp(), '%Y/%m/%d %H:%i:%s'), ': upgrade Grouper from V0 to V48, '));
 commit;

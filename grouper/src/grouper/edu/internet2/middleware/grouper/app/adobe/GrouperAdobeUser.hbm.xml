@@ -1,0 +1,67 @@
+<?xml version="1.0"?>
+<!--
+
+    Copyright 2017 Internet2
+
+    Licensed under the Apache License, Version 2.0 (the "License");
+    you may not use this file except in compliance with the License.
+    You may obtain a copy of the License at
+
+      http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing, software
+    distributed under the License is distributed on an "AS IS" BASIS,
+    WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+    See the License for the specific language governing permissions and
+    limitations under the License.
+
+-->
+<!DOCTYPE hibernate-mapping
+    PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
+    "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
+
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.adobe" default-lazy="false">
+  <class name="GrouperAdobeUser" table="mock_adobe_user">
+
+    <meta attribute="implement-equals">true</meta>
+    <meta attribute="session-method">Hib3DAO.getSession();</meta>
+
+    <id name="id" column="user_id">
+      <generator class="assigned" />
+    </id>
+
+    <property name="email" column="email" />
+    <property name="firstName" column="first_name" />
+    <property name="lastName" column="last_name" />
+    <property name="realName" column="real_name" />
+    <property name="userName" column="user_name" />
+    
+    <set name="groups" table="mock_adobe_membership" 
+      inverse="false" lazy="false" fetch="select" cascade="all" >
+        <key>
+            <column name="user_id" not-null="true" />
+        </key>
+        <many-to-many entity-name="edu.internet2.middleware.grouper.app.adobe.GrouperAdobeGroup">
+            <column name="group_id" not-null="true" />
+        </many-to-many>
+    </set>
+    
+    <property name="phones" column="phones" />
+    <property name="aliases" column="aliases" />
+    <property name="notes" column="notes" />
+    <property name="status" column="status" />
+    
+     <property name="alias1" column="alias1" />
+     <property name="alias2" column="alias2" />
+     <property name="alias3" column="alias3" />
+     <property name="alias4" column="alias4" />
+    
+    <property name="pushEnabledDb" column="push_enabled" />
+    <property name="enrolledDb" column="enrolled" />
+    <property name="lastDirectorySync" column="last_directory_sync" />
+    <property name="createdAt" column="created_at" />
+    <property name="lastLogin" column="last_login" />
+
+  </class>
+</hibernate-mapping>
+

@@ -412,6 +412,8 @@ public class AzureProvisionerTestUtils {
         if (provisioningTestConfigInput.getGroupAttributeCount() == 6) {
           
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAdvancedAttribute", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeValueSettings", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.multiValued", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeCrud", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.insert", "true");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.name", "groupOwners");
