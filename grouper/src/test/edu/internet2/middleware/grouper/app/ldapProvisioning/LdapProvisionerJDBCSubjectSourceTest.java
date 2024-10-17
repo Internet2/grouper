@@ -49,7 +49,7 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalDoNotCreateUsers"));    
+    TestRunner.run(new LdapProvisionerJDBCSubjectSourceTest("testIncrementalCreateUsers"));    
   }
   
   public LdapProvisionerJDBCSubjectSourceTest() {
@@ -249,7 +249,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     // try delete
     testGroup.delete();
   
-    incrementalProvision();
+    // MAT error is ok
+    incrementalProvision(defaultConfigId(), true, true, true);
   
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "description", "businessCategory"}, null).size());
   }
@@ -389,7 +390,8 @@ public class LdapProvisionerJDBCSubjectSourceTest extends GrouperProvisioningBas
     // try delete
     testGroup.delete();
   
-    incrementalProvision();
+    // REQ
+    incrementalProvision(defaultConfigId(), true, true, true);
   
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "description", "businessCategory"}, null).size());
   }
