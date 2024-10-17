@@ -645,8 +645,10 @@ public class GrouperProvisioningCompare {
           }
           if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject())) {
             // just a scalar
-            
-            if (!shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, grouperValue)) {
+            grouperValue = filterDeletedMemberships(grouperAttribute, grouperValue);
+            grouperValue = filterMembershipsNotInGrouper(grouperAttribute, grouperValue);
+
+            if (grouperValue != null && !shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(grouperProvisioningUpdatable, grouperAttribute, grouperValue)) {
               grouperProvisioningUpdatable.addInternal_objectChange(
                   new ProvisioningObjectChange(attributeName, 
                       ProvisioningObjectChangeAction.insert, null, grouperValue)
@@ -703,7 +705,7 @@ public class GrouperProvisioningCompare {
               provisioningMembershipWrapper = GrouperUtil.nonNull(grouperAttribute.getValueToProvisioningMembershipWrapper()).get(grouperValue);
             }
             if (recalcProvisioningUpdateable || (provisioningMembershipWrapper != null && provisioningMembershipWrapper.getProvisioningStateMembership().isRecalcObject())) {
-
+              
               if (shouldSkipMembershipAttributeInsertDueToUnresolvableSubject(provisioningUpdatableForDeleteOnly, grouperAttribute, grouperValue)) {
                 if (this.grouperProvisioner.retrieveGrouperProvisioningBehavior().isDeleteMembership(provisioningMembershipWrapper)) {
                   GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "unresolvableDeleteMembership", 1);
