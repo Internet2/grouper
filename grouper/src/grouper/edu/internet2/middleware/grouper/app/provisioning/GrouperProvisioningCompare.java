@@ -402,10 +402,10 @@ public class GrouperProvisioningCompare {
       } catch (RuntimeException e) {
         if (provisioningGroupWrapper != null) {
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignGroupError(provisioningGroupWrapper, GcGrouperSyncErrorCode.ERR, 
-              "attributeName: " + attributeName + ", targetValue: " + targetAttribute + ", grouperValue: " + grouperAttribute + ", group: " + provisioningGroupWrapper.toStringForErrorVerbose());
+              "attributeName: " + attributeName + ", targetValue: " + targetAttribute + ", grouperValue: " + grouperAttribute + ", group: " + provisioningGroupWrapper.toStringForErrorVerbose() + ", " + GrouperUtil.exceptionTruncate(GrouperUtil.getFullStackTrace(e)));
         } else if (provisioningEntityWrapper != null) {
           this.getGrouperProvisioner().retrieveGrouperProvisioningValidation().assignEntityError(provisioningEntityWrapper, GcGrouperSyncErrorCode.ERR, 
-              "attributeName: " + attributeName + ", targetValue: " + targetAttribute + ", grouperValue: " + grouperAttribute + ", entity: " + provisioningEntityWrapper.toStringForErrorVerbose());
+              "attributeName: " + attributeName + ", targetValue: " + targetAttribute + ", grouperValue: " + grouperAttribute + ", entity: " + provisioningEntityWrapper.toStringForErrorVerbose() + ", " + GrouperUtil.exceptionTruncate(GrouperUtil.getFullStackTrace(e)));
         } else {
           throw e;
         }
