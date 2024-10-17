@@ -59,7 +59,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new SimpleLdapProvisionerTest("testProvisioningTypeEntityAttributesDeleteValueManagedByGrouperFull"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testProvisioningTypeEntityAttributesDeleteValueManagedByGrouperIncremental"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -2509,9 +2509,10 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
       
       ldapEntry = ldapEntries.get(0);
       String reason = GrouperUtil.toStringForLog(ldapEntry.getAttribute("eduPersonEntitlement").getStringValues());
-      assertEquals(reason, 3, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
+      assertEquals(reason, 4, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().size());
       assertTrue(reason, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("student"));
       assertTrue(reason, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup3"));
+      assertTrue(reason, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("testGroup4"));
       assertTrue(reason, ldapEntry.getAttribute("eduPersonEntitlement").getStringValues().contains("somethingExisting"));
       
       ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=People,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(uid=adoe)", new String[] {"eduPersonEntitlement"}, null);
