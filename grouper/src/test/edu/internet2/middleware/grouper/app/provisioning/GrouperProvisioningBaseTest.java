@@ -107,7 +107,7 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
   public Hib3GrouperLoaderLog incrementalProvision(String configId, boolean runChangeLog, boolean runConsumer, boolean allowErrors) {
     
     // wait for message cache to clear
-    GrouperUtil.sleep(10000);
+    GrouperUtil.sleep(3000);
 
     if (runChangeLog) {
       GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
