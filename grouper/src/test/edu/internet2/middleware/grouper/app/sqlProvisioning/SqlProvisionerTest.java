@@ -149,7 +149,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
     //TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
-    TestRunner.run(new SqlProvisionerTest("testFullSyncAcLille"));
+    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
     
   }
   
@@ -5785,25 +5785,21 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     
     // mark some folders to provision
-    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
     Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
-    
-    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
-    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:testGroup3").save();
 
-    testGroup.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.ADMIN, false);
-    testGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.ADMIN, false);
+    testGroup3.addMember(SubjectTestHelper.SUBJ4, false);
+    testGroup3.addMember(SubjectTestHelper.SUBJ5, false);
+    testGroup3.addMember(SubjectTestHelper.SUBJ6, false);
 
     testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
     testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
-    
+
     final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
     attributeValue.setDoProvision("sqlProvTest");
     attributeValue.setTargetName("sqlProvTest");
     attributeValue.setStemScopeString("sub");
-  
-    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
   
     // add some entities
     for (int i=0;i<10;i++) {
@@ -5815,6 +5811,19 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       new GcDbAccess().sql("insert into testgrouper_pro_dap_entity_attr (entity_uuid, entity_attribute_name, entity_attribute_value) values (?,?,?)")
         .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
+    
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+
+    fullProvision();
+
+    Group testGroup = new GroupSave(this.grouperSession).assignName("test:testGroup").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+
+    testGroup.grantPriv(SubjectTestHelper.SUBJ4, AccessPrivilege.ADMIN, false);
+    testGroup.grantPriv(SubjectTestHelper.SUBJ5, AccessPrivilege.ADMIN, false);
     
     
     //AttributeAssign attributeAssign = stem.getAttributeDelegate().addAttribute(GrouperProvisioningAttributeNames.retrieveAttributeDefNameMarker()).getAttributeAssign();
@@ -5839,7 +5848,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(1,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg, grouper_groups gg, grouper_fields gf, grouper_groups gg_dep "
         + " where gsdgg.group_id = gg.id and gsdgg.field_id = gf.id and gsdgg.provisionable_group_id = gg_dep.id and gg.name = 'test:testGroup' and gg_dep.name = 'test:testGroup' "
         + " and gf.name = 'admins'").select(int.class).intValue());
-    assertEquals(1,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg").select(int.class).intValue());
+    assertEquals(2,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg").select(int.class).intValue());
 
     assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
     assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
@@ -5861,8 +5870,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       groupNamesInTable.add(new MultiKey(row));
     }
     
-    assertEquals(1, groupNamesInTable.size());
+    assertEquals(2, groupNamesInTable.size());
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
+    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup3"})));
   
     sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr where attribute_name = 'admins'";
     
