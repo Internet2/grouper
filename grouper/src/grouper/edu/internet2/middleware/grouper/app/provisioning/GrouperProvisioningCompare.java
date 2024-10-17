@@ -897,7 +897,10 @@ public class GrouperProvisioningCompare {
           
           
           // Delete if not exist in grouper
-          if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper() && provisioningMembershipWrapper == null) {
+          if (!this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().isDeleteMembershipsIfNotExistInGrouper()
+              && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteMembershipsOnlyInTrackedGroups()
+              && !this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isDeleteValueIfManagedByGrouper()
+              && provisioningMembershipWrapper == null) {
             continue;
           }
           
