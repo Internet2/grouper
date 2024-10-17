@@ -282,7 +282,7 @@ public class GrouperProvisioningData {
 
   private GrouperProvisioner grouperProvisioner;
 
-  private Set<Object> membershipValuesThatExistInGrouperLowercaseIfNeeded;
+  private Set<Object> membershipValuesThatExistInGrouperLowercaseIfNeeded = new HashSet<>();
 
   public GrouperProvisioner getGrouperProvisioner() {
     return grouperProvisioner;
