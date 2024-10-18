@@ -125,11 +125,17 @@ public class GrouperProvisioningAttributeManipulation {
 
     Map<String, GrouperProvisioningConfigurationAttribute> membershipAttributeNameToConfig = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getTargetMembershipAttributeNameToConfig();
     
+    boolean removeAccentedChars = this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isRemoveAccentedChars();
+    int[] removeAccentedCharsCount = new int[] {0};
+
     for (ProvisioningMembership provisioningMembership : GrouperUtil.nonNull(provisioningMemberships)) {
       
       for (GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute : membershipAttributeNameToConfig.values() ) {
         manipulateValue((Collection<Object>)(Object)changedObjects, provisioningMembership, grouperProvisioningConfigurationAttribute, manipulateAttributesMembershipsCount);
         convertNullsEmpties((Collection<Object>)(Object)changedObjects, provisioningMembership, grouperProvisioningConfigurationAttribute, convertNullsEmptyCount);
+        if (removeAccentedChars) {
+          removeAccentedCharacters((Collection<Object>)(Object)changedObjects, provisioningMembership, grouperProvisioningConfigurationAttribute, removeAccentedCharsCount);
+        }
       }
     }
     if (manipulateAttributesMembershipsCount[0] > 0) {
@@ -141,6 +147,10 @@ public class GrouperProvisioningAttributeManipulation {
       convertNullsEmptyCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("convertNullsEmptyCount"), 0);
       this.grouperProvisioner.getDebugMap().put("convertNullsEmptyCount", convertNullsEmptyCount[0]);
       
+    }
+    if (removeAccentedCharsCount[0] > 0) {
+      removeAccentedCharsCount[0] += GrouperUtil.defaultIfNull((Integer)this.grouperProvisioner.getDebugMap().get("removeAccentedCharsCount"), 0);
+      this.grouperProvisioner.getDebugMap().put("removeAccentedCharsCount", removeAccentedCharsCount[0]);
     }
     return changedObjects;
   }
@@ -488,7 +498,7 @@ public class GrouperProvisioningAttributeManipulation {
     }
     
     if (currentValue instanceof String) {
-      String newValue = org.apache.commons.lang3.StringUtils.stripAccents((String)currentValue); 
+      String newValue = removeAccentedCharactersHelper(currentValue);
       if (!GrouperUtil.equals(currentValue, newValue)) {
         provisioningUpdatable.assignAttributeValue(grouperProvisioningConfigurationAttribute.getName(), newValue);
         changedObjects.add(provisioningUpdatable);
@@ -501,12 +511,12 @@ public class GrouperProvisioningAttributeManipulation {
     }
     
     if (currentValue instanceof Collection) {
-      Collection<Object> newCollection = new HashSet<>();
+      Set<Object> newCollection = new HashSet<>();
       Collection collection = (Collection)currentValue;
       boolean changed = false;
       for (Object obj: collection) {
         if (obj instanceof String) {
-          String newIndividualValue = org.apache.commons.lang3.StringUtils.stripAccents((String)obj); 
+          String newIndividualValue = removeAccentedCharactersHelper((String)obj);
           newCollection.add(newIndividualValue);
           if (changed == false && !GrouperUtil.equals(obj, newIndividualValue)) {
             changed = true;
@@ -526,6 +536,20 @@ public class GrouperProvisioningAttributeManipulation {
       
     }
     
+  }
+
+  public String removeAccentedCharactersHelper(Object currentValue) {
+    String newValue = org.apache.commons.lang3.StringUtils.stripAccents((String)currentValue); 
+    if (newValue != null) {
+      //https://www.cl.cam.ac.uk/~mgk25/ucs/quotes.html
+      newValue = StringUtils.replace(newValue, "`", "'");
+      newValue = StringUtils.replace(newValue, "´", "'");
+      newValue = StringUtils.replace(newValue, "‘", "'");
+      newValue = StringUtils.replace(newValue, "’", "'");
+      newValue = StringUtils.replace(newValue, "“", "\"");
+      newValue = StringUtils.replace(newValue, "”", "\"");
+    }
+    return newValue;
   }
   
   /**
