@@ -5,9 +5,12 @@ import java.util.HashSet;
 import java.util.LinkedHashSet;
 import java.util.Set;
 
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.BooleanNode;
 import com.fasterxml.jackson.databind.node.IntNode;
+import com.fasterxml.jackson.databind.node.JsonNodeType;
+import com.fasterxml.jackson.databind.node.NullNode;
 import com.fasterxml.jackson.databind.node.NumericNode;
 import com.fasterxml.jackson.databind.node.TextNode;
 
@@ -20,10 +23,18 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
 
     @Override
     public Object convert(Object value) {
-      if (value == null || value instanceof String) {
+      if (value == null) {
         return value;
       }
       
+      if (value instanceof JsonNode) {
+        JsonNode jsonNode = (JsonNode)value;
+        if (jsonNode.getNodeType() == JsonNodeType.NULL) {
+          return null;
+        }
+        return jsonNode.asText();
+      }
+
       return GrouperUtil.stringValue(value);
     }
     
@@ -41,6 +52,21 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       if (value == null || value instanceof Integer) {
         return value;
       }
+
+      if (value instanceof JsonNode) {
+        JsonNode jsonNode = (JsonNode)value;
+        if (jsonNode.getNodeType() == JsonNodeType.NULL) {
+          return null;
+        }
+        
+        if (jsonNode.getNodeType() == JsonNodeType.NUMBER) {
+          value = jsonNode.numberValue();
+        } else {
+          value = jsonNode.asText();
+        }
+      }
+
+
       return GrouperUtil.intValue(value);
     }
     
@@ -57,12 +83,31 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       
       return true;
     }
+
   },
   
   FLOAT {
 
     @Override
     public Object convert(Object value) {
+      if (value == null) {
+        return value;
+      }
+
+      if (value instanceof JsonNode) {
+        JsonNode jsonNode = (JsonNode)value;
+        if (jsonNode.getNodeType() == JsonNodeType.NULL) {
+          return null;
+        }
+        
+        if (jsonNode.getNodeType() == JsonNodeType.NUMBER) {
+          value = jsonNode.numberValue();
+        } else {
+          value = jsonNode.asText();
+        }
+
+      }
+
       return GrouperUtil.floatObjectValue(value, true);      
     }
     
@@ -88,6 +133,23 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
     @Override
     public Object convert(Object value) {
       
+      if (value == null) {
+        return value;
+      }
+
+      if (value instanceof JsonNode) {
+        JsonNode jsonNode = (JsonNode)value;
+        if (jsonNode.getNodeType() == JsonNodeType.NULL) {
+          return null;
+        }
+        
+        if (jsonNode.getNodeType() == JsonNodeType.BOOLEAN) {
+          return convert(jsonNode.booleanValue());
+        }
+
+        value = jsonNode.asText();
+      }
+
       return GrouperUtil.booleanObjectValue(value);
     }
     
@@ -110,6 +172,17 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
 
     @Override
     public Object convert(Object value) {
+      if (value == null) {
+        return value;
+      }
+      if (value instanceof JsonNode) {
+        JsonNode jsonNode = (JsonNode)value;
+        if (jsonNode.getNodeType() == JsonNodeType.NULL) {
+          return null;
+        }
+        value = jsonNode.asText();
+      }
+      
       return GrouperUtil.toTimestamp(value);
     }
     
@@ -139,30 +212,14 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
         return value;
       }
       
-      if (value instanceof TextNode) {
-        TextNode textNode = (TextNode) value;
-        value = textNode.asText();
-      }
-
-      if (value instanceof String) {
-        Set<String> set = GrouperUtil.splitTrimToSet(value.toString(), ",");
-        Set<String> newSet  = new LinkedHashSet<>();
-        
-        for (String singleValue: set) {
-          newSet.add(GrouperUtil.replace(singleValue, "U+002C", ","));
-        }
-        
-        return newSet;
-      }
-      
       if (value instanceof ArrayNode) {
-      
+        
         ArrayNode arrayNode = (ArrayNode) value;
         
         Set<Object> set = new HashSet<>();
         for (int i=0;i<arrayNode.size();i++) {
           String val = arrayNode.get(i).asText();
-          set.add(val);
+          set.add(GrouperUtil.replace(val, "U+002C", ","));
         }
         
         return set;
@@ -180,7 +237,31 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
         return set;
       }
       
-      return null;
+
+      if (value instanceof JsonNode) {
+        JsonNode jsonNode = (JsonNode)value;
+        if (jsonNode.getNodeType() == JsonNodeType.NULL) {
+          return null;
+        }
+
+        if (!(value instanceof ArrayNode)) {
+          value = jsonNode.asText();
+        }
+
+      }
+
+      if (!(value instanceof String)) {
+        value = GrouperUtil.stringValue(value);
+      }
+
+      Set<String> set = GrouperUtil.splitTrimToSet(value.toString(), ",");
+      Set<String> newSet  = new LinkedHashSet<>();
+      
+      for (String singleValue: set) {
+        newSet.add(GrouperUtil.replace(singleValue, "U+002C", ","));
+      }
+        
+      return newSet;
     }
     
     @Override
@@ -188,8 +269,7 @@ public enum GrouperProvisioningObjectMetadataItemValueType {
       return true;
     }
     
-  }, 
-  ;
+  };
   
   /**
    * convert to type should be
