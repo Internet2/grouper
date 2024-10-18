@@ -1022,6 +1022,47 @@ public abstract class ProvisioningUpdatable {
     if (GrouperUtil.length(this.internal_objectChanges) > 0) {
       int changeCount = 0;
       
+      int inserts = 0;
+      int deletes = 0;
+      int updates = 0;
+      
+      for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
+        
+        switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
+          case insert:
+            inserts++;
+            break;
+          case delete:
+            deletes++;
+            break;
+          case update:
+            updates++;
+            break;
+        }
+      }
+      if (inserts + updates + deletes > 0) {
+        result.append(", (");
+        boolean printedOne = false;
+        if (inserts > 0) {
+          result.append("ins: " + inserts);
+          printedOne = true;
+        }
+        if (updates > 0) {
+          if (printedOne) {
+            result.append(", ");
+            printedOne = true;
+          }
+          result.append("upd: " + updates);
+        }
+        if (deletes > 0) {
+          if (printedOne) {
+            result.append(", ");
+            printedOne = true;
+          }
+          result.append("del: " + deletes);
+        }
+        result.append(")");
+      }
       for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
         
         if (changeCount++ > 100) {
