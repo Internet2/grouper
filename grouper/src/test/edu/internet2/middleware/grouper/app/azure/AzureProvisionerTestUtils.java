@@ -419,6 +419,8 @@ public class AzureProvisionerTestUtils {
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateFromStaticValues", "https://example.com/1,https://example.com/2,https://example.com/3");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.translateExpressionType", "staticValues");
           configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.update", "false");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.showAttributeValueSettings", "true");
+          configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.5.multiValued", "true");
         }
         
         if (provisioningTestConfigInput.isRealAzure()) {
