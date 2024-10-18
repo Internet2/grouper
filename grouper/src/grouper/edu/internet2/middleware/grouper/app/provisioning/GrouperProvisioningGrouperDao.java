@@ -1008,8 +1008,8 @@ public class GrouperProvisioningGrouperDao {
             GrouperProvisioningObjectMetadataItemValueType grouperProvisioningObjectMetadataItemValueType = 
                 GrouperUtil.defaultIfNull(grouperProvisioningObjectMetadataItem.getValueType(), GrouperProvisioningObjectMetadataItemValueType.STRING);
             if (jsonMetadatNode != null && jsonMetadatNode.has(metadataItemName)) {
-              String value = GrouperUtil.jsonJacksonGetString(jsonMetadatNode, metadataItemName);
-              grouperProvisioningGroup.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(value));
+              JsonNode jsonNode = jsonMetadatNode.get(metadataItemName);
+              grouperProvisioningGroup.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(jsonNode));
             } else if (grouperProvisioningObjectMetadataItem.getDefaultValue() != null) {
               Object defaultValue = grouperProvisioningObjectMetadataItem.getDefaultValue();
               grouperProvisioningGroup.assignAttributeValue(metadataItemName, grouperProvisioningObjectMetadataItemValueType.convert(defaultValue));
