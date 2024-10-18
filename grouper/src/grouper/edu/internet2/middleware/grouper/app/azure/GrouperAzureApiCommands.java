@@ -1786,9 +1786,30 @@ public class GrouperAzureApiCommands {
     }
   
   }
-  
+
   private static void retrieveGroupOwnersHelper(String configId, Map<String, Object> debugMap, 
-      List<GrouperAzureGroup> result) {
+      List<GrouperAzureGroup> grouperAzureGroups) {
+
+    try {
+      
+      int numberOfHttpRequests = GrouperUtil.batchNumberOfBatches(grouperAzureGroups, 20, false);
+      
+      for (int httpRequestIndex=0; httpRequestIndex<numberOfHttpRequests; httpRequestIndex++) {
+        
+        List<GrouperAzureGroup> groupsInOneHttpRequest = GrouperUtil.batchList(grouperAzureGroups, 20, httpRequestIndex);
+        
+        retrieveGroupOwnersHelper2(configId, debugMap, groupsInOneHttpRequest);
+      }
+      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
+      throw re;
+    }
+
+  }
+  
+  private static void retrieveGroupOwnersHelper2(String configId, Map<String, Object> debugMap, 
+      List<GrouperAzureGroup> grouperAzureGroups) {
     
     List<GrouperAzureGroup> throttledGroups = new ArrayList<>();
     
@@ -1799,7 +1820,7 @@ public class GrouperAzureApiCommands {
     mainRequestsNode.set("requests", requestsArrayNode);
     
     Map<String, GrouperAzureGroup> groupIdToGroup = new HashMap<String, GrouperAzureGroup>();
-    for (GrouperAzureGroup group: result) {
+    for (GrouperAzureGroup group: grouperAzureGroups) {
       
       ObjectNode innerRequestNode  = GrouperUtil.jsonJacksonNode();
       innerRequestNode.put("id", String.valueOf(group.getId()));
