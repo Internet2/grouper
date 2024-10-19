@@ -1024,46 +1024,108 @@ public abstract class ProvisioningUpdatable {
     if (GrouperUtil.length(this.internal_objectChanges) > 0) {
       int changeCount = 0;
       
-      int inserts = 0;
-      int deletes = 0;
-      int updates = 0;
-      
-      for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
-        
-        switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
-          case insert:
-            inserts++;
-            break;
-          case delete:
-            deletes++;
-            break;
-          case update:
-            updates++;
-            break;
+      for (String attributeName : this.retrieveAttributes().keySet()) {
+        int inserts = 0;
+        int deletes = 0;
+        int updates = 0;
+        for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
+          
+          if (!StringUtils.equals(attributeName, provisioningObjectChange.getAttributeName())) {
+            continue;
+          }
+          
+          switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
+            case insert:
+              inserts++;
+              break;
+            case delete:
+              deletes++;
+              break;
+            case update:
+              updates++;
+              break;
+          }
         }
-      }
-      if (inserts + updates + deletes > 0) {
-        result.append(", (");
-        boolean printedOne = false;
-        if (inserts > 0) {
-          result.append("ins: " + inserts);
-          printedOne = true;
-        }
-        if (updates > 0) {
-          if (printedOne) {
-            result.append(", ");
+        if (inserts + updates + deletes > 0) {
+          result.append(", (").append(attributeName).append(": ");
+          boolean printedOne = false;
+          if (inserts > 0) {
+            result.append("ins: " + inserts);
             printedOne = true;
           }
-          result.append("upd: " + updates);
-        }
-        if (deletes > 0) {
-          if (printedOne) {
-            result.append(", ");
-            printedOne = true;
+          if (updates > 0) {
+            if (printedOne) {
+              result.append(", ");
+              printedOne = true;
+            }
+            result.append("upd: " + updates);
           }
-          result.append("del: " + deletes);
+          if (deletes > 0) {
+            if (printedOne) {
+              result.append(", ");
+              printedOne = true;
+            }
+            result.append("del: " + deletes);
+            
+            if (this instanceof ProvisioningEntity) {
+              ProvisioningEntity provisioningEntity = (ProvisioningEntity)this;
+
+              GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+                  .retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig().get(attributeName);
+              
+              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes
+                  && StringUtils.equals(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), attributeName)
+                  && grouperProvisioningConfigurationAttribute.isMultiValued()) {
+
+                if (provisioningEntity.getProvisioningEntityWrapper() != null && provisioningEntity.getProvisioningEntityWrapper().getProvisioningStateEntity().isRecalcEntityMemberships()) {
+                  int targetSize = 0;
+                  if (provisioningEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity() != null) {
+                    Set<?> targetAttributeSet = provisioningEntity.getProvisioningEntityWrapper().getTargetProvisioningEntity().retrieveAttributeValueSet(attributeName);
+                    targetSize = GrouperUtil.length(targetAttributeSet);
+                    if (targetSize >= deletes) {
+
+                      float percent = (float)deletes / targetSize;
+                      percent*=100;
+                      result.append(" [").append(Math.round(percent)).append("%] ");
+
+                    }
+                  }
+                }
+                
+              }
+              
+            }
+            if (this instanceof ProvisioningGroup) {
+              ProvisioningGroup provisioningGroup = (ProvisioningGroup)this;
+
+              GrouperProvisioningConfigurationAttribute grouperProvisioningConfigurationAttribute = this.getGrouperProvisioner()
+                  .retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+              
+              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes
+                  && StringUtils.equals(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships(), attributeName)
+                  && grouperProvisioningConfigurationAttribute.isMultiValued()) {
+
+                if (provisioningGroup.getProvisioningGroupWrapper() != null && provisioningGroup.getProvisioningGroupWrapper().getProvisioningStateGroup().isRecalcGroupMemberships()) {
+                  int targetSize = 0;
+                  if (provisioningGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null) {
+                    Set<?> targetAttributeSet = provisioningGroup.getProvisioningGroupWrapper().getTargetProvisioningGroup().retrieveAttributeValueSet(attributeName);
+                    targetSize = GrouperUtil.length(targetAttributeSet);
+                    if (targetSize >= deletes) {
+
+                      float percent = (float)deletes / targetSize;
+                      percent*=100;
+                      result.append(" [").append(Math.round(percent)).append("%] ");
+
+                    }
+                  }
+                }
+                
+              }
+            }
+          }
+          
+          result.append(")");
         }
-        result.append(")");
       }
       Set<String> matchesLogValues = null;
       if (this instanceof ProvisioningEntity) {
