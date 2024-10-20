@@ -664,6 +664,8 @@ public class GrouperProvisioningLogicIncremental {
     }
     
     if (messageCountForProvisioner > 0) {
+      this.grouperProvisioner.retrieveGrouperProvisioningOutput().addTotalCount(messageCountForProvisioner);
+
       this.getGrouperProvisioner().getDebugMap().put("messageCountForProvisioner", messageCountForProvisioner);
     }
   
@@ -1160,7 +1162,7 @@ public class GrouperProvisioningLogicIncremental {
     
     this.getGrouperProvisioner().getDebugMap().put("changeLogRawCount", GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
 
-    this.grouperProvisioner.retrieveGrouperProvisioningOutput().setTotalCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
+    this.grouperProvisioner.retrieveGrouperProvisioningOutput().addTotalCount(GrouperUtil.length(this.getGrouperProvisioner().retrieveGrouperProvisioningDataIncrementalInput().getEsbEventContainers()));
     
     Set<String> sourceIdsToProvision = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision();
     

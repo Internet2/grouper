@@ -119,7 +119,7 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
     this.groupIdMemberId = groupIdMemberId;
   }
 
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningMembershipWrapper");
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningMembershipWrapper", "loggableStrong", "loggableWeak");
   
   /**
    * 

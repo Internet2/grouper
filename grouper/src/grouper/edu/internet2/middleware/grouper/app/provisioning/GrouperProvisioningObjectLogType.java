@@ -539,6 +539,9 @@ public enum GrouperProvisioningObjectLogType {
     }
     logMessage.append(":\n");
     int objectCount = 0;
+    int logAllObjectsVerboseCount = grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseCount();
+    logAllObjectsVerboseCount = Math.min(logAllObjectsVerboseCount, 1000);
+    
     Set<Object> loggedAlready = new HashSet<Object>();
     OUTER: for (boolean strong : new boolean[] {true, false}) {
       int remainingBeans = GrouperUtil.length(beans);
@@ -593,7 +596,7 @@ public enum GrouperProvisioningObjectLogType {
           continue;
           
         }
-        if ((strong || remainingBeans > 10-objectCount)
+        if ((strong || remainingBeans > logAllObjectsVerboseCount-objectCount)
             && grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogCertainObjects()
             && (
                 bean instanceof ProvisioningMembership
@@ -664,7 +667,7 @@ public enum GrouperProvisioningObjectLogType {
         }
         
         logMessage.append("\n");
-        if (objectCount >= 10) {
+        if (objectCount >= logAllObjectsVerboseCount) {
           break OUTER;
         }
         objectCount++;
