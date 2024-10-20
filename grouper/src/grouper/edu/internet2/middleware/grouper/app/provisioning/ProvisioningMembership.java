@@ -24,26 +24,26 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
         : GrouperProvisioner.retrieveCurrentGrouperProvisioner().retrieveGrouperProvisioningBehavior().getAttributeNameToIndexTargetMembership()));
   }
   
-  public boolean isLoggableHelper() {
+  public boolean isLoggableHelper(boolean strong) {
     if (this.provisioningEntity != null) {
-      if (this.provisioningEntity.isLoggable()) {
+      if (this.provisioningEntity.isLoggable(strong)) {
         return true;
       }
     }
     if (this.provisioningGroup != null) {
-      if (this.provisioningGroup.isLoggable()) {
+      if (this.provisioningGroup.isLoggable(strong)) {
         return true;
       }
     }
     return false;
   }
   
-  public boolean isLoggable() {
+  public boolean isLoggable(boolean strong) {
     ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getProvisioningMembershipWrapper();
-    if (provisioningMembershipWrapper != null) {
+    if (provisioningMembershipWrapper != null && strong) {
       return provisioningMembershipWrapper.getProvisioningStateMembership().isLoggable();
     }
-    return isLoggableHelper();
+    return isLoggableHelper(strong);
   }
 
   /**

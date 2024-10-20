@@ -333,7 +333,8 @@ public enum GrouperProvisioningObjectLogType {
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      appendProvisioningObjects(grouperProvisioner, logMessage, "Target inserts", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
+      appendProvisioningObjects(grouperProvisioner, logMessage, "Target inserts", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts(), 
+          grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target updates", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target deletes", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target replaces", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces());
@@ -497,6 +498,21 @@ public enum GrouperProvisioningObjectLogType {
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningEntities(), "entities");
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningMemberships(), "memberships");
   }
+  
+  /**
+   * 
+   * @param string
+   * @param grouperProvisioningObjects
+   */
+  private static void appendProvisioningObjects(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
+      GrouperProvisioningLists grouperProvisioningObjects,GrouperProvisioningLists grouperProvisioningObjectsPrevious) {
+    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjectsPrevious.getProvisioningGroups(), "groupsPreviousInWorkflow");
+    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningGroups(), "groups");
+    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjectsPrevious.getProvisioningEntities(), "entitiesPreviousInWorkflow");
+    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningEntities(), "entities");
+    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningMemberships(), "memberships");
+  }
+
 
   /**
    * 
@@ -523,89 +539,100 @@ public enum GrouperProvisioningObjectLogType {
     }
     logMessage.append(":\n");
     int objectCount = 0;
-    int remainingBeans = GrouperUtil.length(beans);
-    for (Object bean : GrouperUtil.nonNull(beans)) {
-      if (bean instanceof MultiKey) {
-        MultiKey multiKey = (MultiKey)bean;
-        StringBuilder beanString = new StringBuilder("[");
-        for (int i=0;i<multiKey.size();i++) {
-          if (i>0) {
-            beanString.append(",");
+    Set<Object> loggedAlready = new HashSet<Object>();
+    OUTER: for (boolean strong : new boolean[] {true, false}) {
+      int remainingBeans = GrouperUtil.length(beans);
+      for (Object bean : GrouperUtil.nonNull(beans)) {
+        if (bean instanceof MultiKey) {
+          MultiKey multiKey = (MultiKey)bean;
+          StringBuilder beanString = new StringBuilder("[");
+          for (int i=0;i<multiKey.size();i++) {
+            if (i>0) {
+              beanString.append(",");
+            }
+            beanString.append(GrouperUtil.stringValue(multiKey.getKey(i).toString()));
           }
-          beanString.append(GrouperUtil.stringValue(multiKey.getKey(i).toString()));
-        }
-        beanString.append("]");
-        bean = beanString.toString();
-      } else if ((!(bean instanceof ProvisioningGroup)) && (!(bean instanceof ProvisioningEntity))  && (!(bean instanceof ProvisioningMembership))) {
-        if ("grouperTargetGroup".equals(field)) {
-          bean = ((ProvisioningGroupWrapper)bean).getGrouperTargetGroup();
-        } else if ("grouperTargetEntity".equals(field)) {
-          bean = ((ProvisioningEntityWrapper)bean).getGrouperTargetEntity();
-        } else if (field != null) {
-          throw new RuntimeException("Not expecting field '" + field + "'");
-        }
-      } else {
-        if (bean instanceof ProvisioningGroup) {
-          ProvisioningGroupWrapper provisioningGroupWrapper = ((ProvisioningGroup)bean).getProvisioningGroupWrapper();
-          if (provisioningGroupWrapper != null && bean != provisioningGroupWrapper.getTargetProvisioningGroup()) {
-            ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
-            if (grouperTargetGroup != null) {
-              bean = grouperTargetGroup;
+          beanString.append("]");
+          bean = beanString.toString();
+        } else if ((!(bean instanceof ProvisioningGroup)) && (!(bean instanceof ProvisioningEntity))  && (!(bean instanceof ProvisioningMembership))) {
+          if ("grouperTargetGroup".equals(field)) {
+            bean = ((ProvisioningGroupWrapper)bean).getGrouperTargetGroup();
+          } else if ("grouperTargetEntity".equals(field)) {
+            bean = ((ProvisioningEntityWrapper)bean).getGrouperTargetEntity();
+          } else if (field != null) {
+            throw new RuntimeException("Not expecting field '" + field + "'");
+          }
+        } else {
+          if (bean instanceof ProvisioningGroup) {
+            ProvisioningGroupWrapper provisioningGroupWrapper = ((ProvisioningGroup)bean).getProvisioningGroupWrapper();
+            if (provisioningGroupWrapper != null && bean != provisioningGroupWrapper.getTargetProvisioningGroup()) {
+              ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper.getGrouperTargetGroup();
+              if (grouperTargetGroup != null) {
+                bean = grouperTargetGroup;
+              }
             }
           }
-        }
-        
-        if (bean instanceof ProvisioningEntity) {
-          ProvisioningEntityWrapper provisioningEntityWrapper = ((ProvisioningEntity)bean).getProvisioningEntityWrapper();
-          if (provisioningEntityWrapper != null && bean != provisioningEntityWrapper.getTargetProvisioningEntity()) {
-            ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
-            if (grouperTargetEntity != null) {
-              bean = grouperTargetEntity;
-            }
-          }
-        }
-        
-        if (bean instanceof ProvisioningMembership) {
-          ProvisioningMembershipWrapper provisioningMembershipWrapper = ((ProvisioningMembership)bean).getProvisioningMembershipWrapper();
-          if (provisioningMembershipWrapper != null&& bean != provisioningMembershipWrapper.getTargetProvisioningMembership()) {
-            ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
-            if (grouperTargetMembership != null) {
-              bean = grouperTargetMembership;
-            }
-          }
-        }
           
-      }
- 
-      if (remainingBeans > 10-objectCount
-          && grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogCertainObjects()
-          && (
-              bean instanceof ProvisioningMembership
-              || (bean instanceof ProvisioningEntity && GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds()) > 0)
-              || (bean instanceof ProvisioningGroup && GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames()) > 0))) {
-        
-        boolean shouldLog = true;
-        
-        if (bean instanceof ProvisioningGroup) {
-          shouldLog = ((ProvisioningGroup)bean).isLoggable();
-        } else if (bean instanceof ProvisioningEntity) {
-          shouldLog = ((ProvisioningEntity)bean).isLoggable();
-        } else if (bean instanceof ProvisioningMembership) {
-          shouldLog = ((ProvisioningMembership)bean).isLoggable();
+          if (bean instanceof ProvisioningEntity) {
+            ProvisioningEntityWrapper provisioningEntityWrapper = ((ProvisioningEntity)bean).getProvisioningEntityWrapper();
+            if (provisioningEntityWrapper != null && bean != provisioningEntityWrapper.getTargetProvisioningEntity()) {
+              ProvisioningEntity grouperTargetEntity = provisioningEntityWrapper.getGrouperTargetEntity();
+              if (grouperTargetEntity != null) {
+                bean = grouperTargetEntity;
+              }
+            }
+          }
+          
+          if (bean instanceof ProvisioningMembership) {
+            ProvisioningMembershipWrapper provisioningMembershipWrapper = ((ProvisioningMembership)bean).getProvisioningMembershipWrapper();
+            if (provisioningMembershipWrapper != null&& bean != provisioningMembershipWrapper.getTargetProvisioningMembership()) {
+              ProvisioningMembership grouperTargetMembership = provisioningMembershipWrapper.getGrouperTargetMembership();
+              if (grouperTargetMembership != null) {
+                bean = grouperTargetMembership;
+              }
+            }
+          }
+            
         }
-
-        if (!shouldLog) {
+   
+        if (loggedAlready.contains(bean)) {
+          remainingBeans--;
           continue;
+          
         }
+        if ((strong || remainingBeans > 10-objectCount)
+            && grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogCertainObjects()
+            && (
+                bean instanceof ProvisioningMembership
+                || (bean instanceof ProvisioningEntity && GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds()) > 0)
+                || (bean instanceof ProvisioningGroup && GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames()) > 0))) {
+          
+          boolean shouldLog = true;
+          
+          if (bean instanceof ProvisioningGroup) {
+            shouldLog = ((ProvisioningGroup)bean).isLoggable(strong);
+          } else if (bean instanceof ProvisioningEntity) {
+            shouldLog = ((ProvisioningEntity)bean).isLoggable(strong);
+          } else if (bean instanceof ProvisioningMembership) {
+            shouldLog = ((ProvisioningMembership)bean).isLoggable(strong);
+          }
+
+          if (!shouldLog) {
+            remainingBeans--;
+            continue;
+          }
+        }
+        
+        loggedAlready.add(bean);
+        
+        logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
+        if (objectCount >= 10) {
+          break OUTER;
+        }
+        objectCount++;
+        remainingBeans--;
       }
       
-      
-      logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");
-      if (objectCount >= 10) {
-        break;
-      }
-      objectCount++;
-      remainingBeans--;
     }
   }
 
@@ -682,6 +709,7 @@ public enum GrouperProvisioningObjectLogType {
       GcGrouperSyncMembership gcGrouperSyncMembership = provisioningMembershipWrapper.getGcGrouperSyncMembership();
       if (gcGrouperSyncMembership != null) {
         if (remainingBeans > 10-objectCount && grouperProvisioningConfiguration.isLogCertainObjects() && !provisioningMembershipWrapper.getProvisioningStateMembership().isLoggable()) {
+          remainingBeans--;
           continue;
         }
 
@@ -739,6 +767,7 @@ public enum GrouperProvisioningObjectLogType {
       if (remainingBeans > 10-objectCount && grouperProvisioningConfiguration.isLogCertainObjects() && GrouperUtil.length(
           grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseSubjectIds()) > 0 
           && !grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseSubjectIds().contains(((GcGrouperSyncMember)bean).getSubjectId())) {
+        remainingBeans--;
         continue;
       }
 
@@ -779,6 +808,7 @@ public enum GrouperProvisioningObjectLogType {
       if (remainingBeans > 10-objectCount && grouperProvisioningConfiguration.isLogCertainObjects() && GrouperUtil.length(
           grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseGroupNames()) > 0 
           && !grouperProvisioningConfiguration.getLogAllObjectsVerboseForTheseGroupNames().contains(((GcGrouperSyncGroup)bean).getGroupName())) {
+        remainingBeans--;
         continue;
       }
       logMessage.append(objectCount).append(". ").append(bean == null ? "null" : bean.toString()).append("\n");

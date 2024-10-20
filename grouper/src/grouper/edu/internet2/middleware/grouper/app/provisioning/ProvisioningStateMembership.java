@@ -14,24 +14,24 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
    */
   public boolean isLoggable() {
     
-    if (this.isLoggableHelper()) {
+    if (this.retrieveLoggableCache(true)) {
       return true;
     }
 
-    if (this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership() != null && this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership().isLoggableHelper()) {
-      this.setLoggable(true);
+    if (this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership() != null && this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership().isLoggableHelper(true)) {
+      this.assignLoggableCache(true);
       return true;
     }
       
     ProvisioningEntityWrapper provisioningEntityWrapper = this.getProvisioningMembershipWrapper().getProvisioningEntityWrapper();
-    if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isLoggable()) {
-      this.setLoggable(true);
+    if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isLoggable(true)) {
+      this.assignLoggableCache(true);
       return true;
     }
 
     ProvisioningGroupWrapper provisioningGroupWrapper = this.getProvisioningMembershipWrapper().getProvisioningGroupWrapper();
-    if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isLoggable()) {
-      this.setLoggable(true);
+    if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isLoggable(true)) {
+      this.assignLoggableCache(true);
       return true;
     }
 

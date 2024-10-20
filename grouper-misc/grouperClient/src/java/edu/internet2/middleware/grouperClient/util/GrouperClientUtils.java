@@ -121,6 +121,23 @@ public class GrouperClientUtils extends GrouperClientCommonUtils {
   }
 
   /**
+   * get the extension from name.  if name is a:b:c, name is c
+   * @param name
+   * @return the name
+   */
+  public static String extensionFromName(String name) {
+    if (isBlank(name)) {
+      return name;
+    }
+    int lastColonIndex = name.lastIndexOf(':');
+    if (lastColonIndex == -1) {
+      return name;
+    }
+    String extension = name.substring(lastColonIndex+1);
+    return extension;
+  }
+
+  /**
    * convert object to json, optionally include object name wrapper
    * @param object
    * @param includeObjectNameWrapper

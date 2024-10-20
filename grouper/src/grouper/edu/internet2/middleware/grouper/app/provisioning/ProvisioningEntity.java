@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -18,18 +19,19 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember
 public class ProvisioningEntity extends ProvisioningUpdatable {
 
   public boolean isLoggableHelper() {
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds().contains(this.getSubjectId())) {
-      return true;
-    }
+    if (this.matchesAttribute(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseEntityAttributes(), 
+        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds())) {
+       return true;
+     }
     return false;
   }
   
-  public boolean isLoggable() {
+  public boolean isLoggable(boolean strong) {
     ProvisioningEntityWrapper provisioningEntityWrapper = this.getProvisioningEntityWrapper();
     if (provisioningEntityWrapper != null) {
-      return provisioningEntityWrapper.getProvisioningStateEntity().isLoggable();
+      return provisioningEntityWrapper.getProvisioningStateEntity().isLoggable(strong);
     }
-    return isLoggableHelper();
+    return strong && isLoggableHelper();
   }
 
   /**
@@ -264,6 +266,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   }
 
   private ProvisioningEntityWrapper provisioningEntityWrapper;
+  private static Set<String> grouperRepresentationAttributeNames = GrouperUtil.toSet("id", "idIndex", "email", "subjectId", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2");
   
   /**
    * id uniquely identifies this record, might be a uuid, or subject id
@@ -528,6 +531,64 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   @Override
   public String objectTypeName() {
     return "entity";
+  }
+
+  /**
+   * 
+   * @param logAllObjectsVerboseEntityAttributes
+   * @param logAllObjectsVerboseForTheseSubjectIds
+   * @return if matches attribute
+   */
+  public boolean matchesAttribute(Set<String> logAllObjectsVerboseEntityAttributes, Set<String> logAllObjectsVerboseForTheseSubjectIds) {
+    if (GrouperUtil.length(logAllObjectsVerboseEntityAttributes) == 0) {
+      return matchesAttribute("subjectId", logAllObjectsVerboseForTheseSubjectIds);
+    }
+    for (String logAllObjectsVerboseEntityAttribute : logAllObjectsVerboseEntityAttributes) {
+      if (matchesAttribute(logAllObjectsVerboseEntityAttribute, logAllObjectsVerboseForTheseSubjectIds)) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  /**
+   * 
+   * @param string
+   * @param logAllObjectsVerboseForTheseSubjectIds
+   * @return
+   */
+  public boolean matchesAttribute(String logAllObjectsVerboseEntityAttribute,
+      Set<String> logAllObjectsVerboseForTheseSubjectIds) {
+    for (String logAllObjectsVerboseForTheseSubjectId : GrouperUtil.nonNull(logAllObjectsVerboseForTheseSubjectIds)) {
+      if (matchesAttribute(logAllObjectsVerboseEntityAttribute, logAllObjectsVerboseForTheseSubjectId)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean matchesAttribute(String logAllObjectsVerboseEntityAttribute, String logAllObjectsVerboseForTheseSubjectId) {
+    
+    if (grouperRepresentationAttributeNames.contains(logAllObjectsVerboseEntityAttribute) && this == this.getProvisioningEntityWrapper().getGrouperProvisioningEntity()) {
+      // "id", "idIndex", "email", "subjectId", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2"
+      if (StringUtils.equals("subjectIdentifier", logAllObjectsVerboseEntityAttribute) 
+          && StringUtils.equals(logAllObjectsVerboseForTheseSubjectId, this.getSubjectIdentifier())) {
+        return true;
+      }
+    }
+    
+    Object attributeValue = this.retrieveAttributeValue(logAllObjectsVerboseEntityAttribute);
+    
+    if (attributeValue == null) {
+      return false;
+    }
+    
+    if (attributeValue instanceof Set) {
+      return ((Set)attributeValue).contains(logAllObjectsVerboseForTheseSubjectId);
+    }
+  
+    return StringUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseSubjectId, GrouperUtil.stringValue(attributeValue));
   }
 
 }
