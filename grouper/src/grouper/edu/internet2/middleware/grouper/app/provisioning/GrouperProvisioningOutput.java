@@ -77,7 +77,7 @@ public class GrouperProvisioningOutput {
   /**
    * total count of records
    */
-  private int totalCount;
+  private int totalCount = 0;
   
   /**
    * total count of records
@@ -576,6 +576,10 @@ public class GrouperProvisioningOutput {
     
     debugMap.put(key, currentValue + value);
     
+  }
+
+  public void addTotalCount(int totalCount1) {
+    this.totalCount += totalCount1;
   }
   
 }

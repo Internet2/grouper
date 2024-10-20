@@ -203,7 +203,7 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
     this.memberId = memberId;
   }
   
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningEntityWrapper");
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningEntityWrapper", "loggableStrong", "loggableWeak");
   
   /**
    * 

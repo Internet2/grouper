@@ -204,7 +204,7 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
   private String groupId;
   
   
-  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningGroupWrapper");
+  private static Set<String> toStringFieldNamesToIgnore = GrouperClientUtils.toSet("provisioningGroupWrapper", "loggableStrong", "loggableWeak");
   
   private ProvisioningGroupWrapper provisioningGroupWrapper = null;
   

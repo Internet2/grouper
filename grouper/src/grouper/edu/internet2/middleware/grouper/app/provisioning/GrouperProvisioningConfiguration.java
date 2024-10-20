@@ -1140,6 +1140,17 @@ public abstract class GrouperProvisioningConfiguration {
     this.logCommandsAlways = logCommandsAlways;
   }
 
+  private int logAllObjectsVerboseCount;
+  
+  public int getLogAllObjectsVerboseCount() {
+    return logAllObjectsVerboseCount;
+  }
+
+  
+  public void setLogAllObjectsVerboseCount(int logAllObjectsVerboseCount) {
+    this.logAllObjectsVerboseCount = logAllObjectsVerboseCount;
+  }
+
   private int logMaxErrorsPerType;
   
   public int getLogMaxErrorsPerType() {
@@ -2814,6 +2825,8 @@ public abstract class GrouperProvisioningConfiguration {
     this.logCommandsOnError = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsOnError", false), false);
     
     this.logMaxErrorsPerType = GrouperUtil.intValue(this.retrieveConfigInt("logMaxErrorsPerType", false), 10);
+    
+    this.logAllObjectsVerboseCount = GrouperUtil.intValue(this.retrieveConfigInt("logAllObjectsVerboseCount", false), 10);
     
     this.debugLog = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("debugLog", false), false);
     
