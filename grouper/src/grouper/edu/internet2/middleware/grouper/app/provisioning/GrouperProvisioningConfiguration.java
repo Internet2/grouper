@@ -1034,6 +1034,31 @@ public abstract class GrouperProvisioningConfiguration {
     return true;
   }
   
+  private boolean runLogicInIncrementalDaemon = true;
+  
+  private boolean runLogicInFullDaemon = true;
+  
+  
+  
+  public boolean isRunLogicInIncrementalDaemon() {
+    return runLogicInIncrementalDaemon;
+  }
+
+  
+  public void setRunLogicInIncrementalDaemon(boolean runLogicInIncrementalDaemon) {
+    this.runLogicInIncrementalDaemon = runLogicInIncrementalDaemon;
+  }
+
+  
+  public boolean isRunLogicInFullDaemon() {
+    return runLogicInFullDaemon;
+  }
+
+  
+  public void setRunLogicInFullDaemon(boolean runLogicInFullDaemon) {
+    this.runLogicInFullDaemon = runLogicInFullDaemon;
+  }
+
   private boolean readOnly;
   
   
@@ -3264,6 +3289,9 @@ public abstract class GrouperProvisioningConfiguration {
     }
     
     this.readOnly = GrouperUtil.booleanValue(this.retrieveConfigBoolean("readOnly", false), false);
+
+    this.runLogicInIncrementalDaemon = GrouperUtil.booleanValue(this.retrieveConfigBoolean("runLogicInIncrementalDaemon", false), true);
+    this.runLogicInFullDaemon = GrouperUtil.booleanValue(this.retrieveConfigBoolean("runLogicInFullDaemon", false), true);
 
     {
       String grouperProvisioningMembershipFieldTypeString = this.retrieveConfigString("membershipFields", false);

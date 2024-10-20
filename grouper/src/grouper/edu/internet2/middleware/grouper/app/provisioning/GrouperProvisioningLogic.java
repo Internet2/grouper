@@ -87,6 +87,10 @@ public class GrouperProvisioningLogic {
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
     Timestamp startTimestamp = new Timestamp(System.currentTimeMillis());
 
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isRunLogicInFullDaemon()) {
+      throw new RuntimeException("Provisioner or global default is set to not run logic in full daemon! runLogicInFullDaemon");
+    }
+    
     this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorMessage(null);
     this.getGrouperProvisioner().getGcGrouperSyncJob().setErrorTimestamp(null);
     
@@ -1043,6 +1047,9 @@ public class GrouperProvisioningLogic {
 
     Map<String, Object> debugMap = this.getGrouperProvisioner().getDebugMap();
 
+    if (!this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isRunLogicInIncrementalDaemon()) {
+      throw new RuntimeException("Provisioner or global default is set to not run logic in incremental daemon! runLogicInIncrementalDaemon");
+    }
 
     GrouperProvisioningLogicIncremental grouperProvisioningLogicIncremental = this.getGrouperProvisioner().retrieveGrouperProvisioningLogicIncremental();
 
