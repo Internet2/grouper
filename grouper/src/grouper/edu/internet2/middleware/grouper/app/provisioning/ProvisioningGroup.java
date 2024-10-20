@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -30,18 +31,19 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
 
 
   public boolean isLoggableHelper() {
-    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames().contains(this.getName())) {
+   if (this.matchesAttribute(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseGroupAttributes(), 
+       this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames())) {
       return true;
     }
     return false;
   }
   
-  public boolean isLoggable() {
+  public boolean isLoggable(boolean strong) {
     ProvisioningGroupWrapper provisioningGroupWrapper = this.getProvisioningGroupWrapper();
     if (provisioningGroupWrapper != null) {
-      return provisioningGroupWrapper.getProvisioningStateGroup().isLoggable();
+      return provisioningGroupWrapper.getProvisioningStateGroup().isLoggable(strong);
     }
-    return isLoggableHelper();
+    return strong && isLoggableHelper();
   }
     
   public static void main(String[] args) {
@@ -405,6 +407,69 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   @Override
   public String objectTypeName() {
     return "group";
+  }
+
+  private static Set<String> grouperRepresentationAttributeNames = GrouperUtil.toSet("id", "idIndex", "name", "displayName", "extension", "displayExtension", "description");
+  
+  /**
+   * 
+   * @param logAllObjectsVerboseGroupAttributes
+   * @param logAllObjectsVerboseForTheseGroupNames
+   * @return if matches attribute
+   */
+  public boolean matchesAttribute(Set<String> logAllObjectsVerboseGroupAttributes, Set<String> logAllObjectsVerboseForTheseGroupNames) {
+    if (GrouperUtil.length(logAllObjectsVerboseGroupAttributes) == 0) {
+      return matchesAttribute("name", logAllObjectsVerboseForTheseGroupNames);
+    }
+    for (String logAllObjectsVerboseGroupAttribute : logAllObjectsVerboseGroupAttributes) {
+      if (matchesAttribute(logAllObjectsVerboseGroupAttribute, logAllObjectsVerboseForTheseGroupNames)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param string
+   * @param logAllObjectsVerboseForTheseGroupNames
+   * @return
+   */
+  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute,
+      Set<String> logAllObjectsVerboseForTheseGroupNames) {
+    for (String logAllObjectsVerboseForTheseGroupName : GrouperUtil.nonNull(logAllObjectsVerboseForTheseGroupNames)) {
+      if (matchesAttribute(logAllObjectsVerboseGroupAttribute, logAllObjectsVerboseForTheseGroupName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute, String logAllObjectsVerboseForTheseGroupName) {
+    
+    if (grouperRepresentationAttributeNames.contains(logAllObjectsVerboseGroupAttribute) && this == this.getProvisioningGroupWrapper().getGrouperProvisioningGroup()) {
+      // "id", "idIndex", "name", "displayName", "extension", "displayExtension", "description"
+      if (StringUtils.equals("extension", logAllObjectsVerboseGroupAttribute) 
+          && StringUtils.equals(logAllObjectsVerboseForTheseGroupName, this.getExtension())) {
+        return true;
+      }
+      if (StringUtils.equals("displayExtension", logAllObjectsVerboseGroupAttribute) 
+          && StringUtils.equals(logAllObjectsVerboseForTheseGroupName, this.getDisplayExtension())) {
+        return true;
+      }
+    }
+    
+    Object attributeValue = this.retrieveAttributeValue(logAllObjectsVerboseGroupAttribute);
+    
+    if (attributeValue == null) {
+      return false;
+    }
+    
+    if (attributeValue instanceof Set) {
+      return ((Set)attributeValue).contains(logAllObjectsVerboseForTheseGroupName);
+    }
+
+    return StringUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, GrouperUtil.stringValue(attributeValue));
   }
 
 }

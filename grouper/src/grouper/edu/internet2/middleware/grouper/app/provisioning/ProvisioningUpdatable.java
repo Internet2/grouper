@@ -1063,32 +1063,62 @@ public abstract class ProvisioningUpdatable {
         }
         result.append(")");
       }
-      for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
-        
-        if (changeCount++ > 100) {
-          result.append(", Only first 100/" + GrouperUtil.length(this.internal_objectChanges) + " object changes displayed");
-          break;
-        }
+      Set<String> matchesLogValues = null;
+      if (this instanceof ProvisioningEntity) {
+        matchesLogValues = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames();
+      }
+      if (this instanceof ProvisioningGroup) {
+        matchesLogValues = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds();
+      }
+      
+      OUTER: for (boolean matchesLog : new boolean[] {GrouperUtil.length(matchesLogValues) > 0, false}) {
+        for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
 
-        if (!firstField) {
-          result.append(", ");
-        } else {
-          firstField = false;
-        }
-
-        result.append(provisioningObjectChange.getProvisioningObjectChangeAction().name().substring(0, 3)).append(" ").append(provisioningObjectChange.getAttributeName()).append(" ");
-        switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
-          case insert:
-            result.append(stringValueWithType(provisioningObjectChange.getNewValue()));
-            break;
-          case delete:
-            result.append(stringValueWithType(provisioningObjectChange.getOldValue()));
-            break;
-          case update:
-            result.append(stringValueWithType(provisioningObjectChange.getOldValue()));
-            result.append(" -> ");
-            result.append(stringValueWithType(provisioningObjectChange.getNewValue()));
-            break;
+          if (matchesLog) {
+            boolean hasOldValue = !GrouperUtil.isBlank(provisioningObjectChange.getOldValue());
+            boolean hasNewValue = !GrouperUtil.isBlank(provisioningObjectChange.getNewValue());
+            
+            if (!hasNewValue && !hasOldValue) {
+              continue;
+            }
+            boolean logThis = false;
+            
+            if (hasNewValue && matchesLogValues.contains(GrouperUtil.stringValue(provisioningObjectChange.getNewValue()))) {
+              logThis = true;
+            }
+            if (hasOldValue && matchesLogValues.contains(GrouperUtil.stringValue(provisioningObjectChange.getOldValue()))) {
+              logThis = true;
+            }
+            if (!logThis) {
+              continue;
+            }
+          }
+          
+          if (changeCount++ > 100) {
+            result.append(", Only first 100/" + GrouperUtil.length(this.internal_objectChanges) + " object changes displayed");
+            break OUTER;
+          }
+  
+          if (!firstField) {
+            result.append(", ");
+          } else {
+            firstField = false;
+          }
+  
+          result.append(provisioningObjectChange.getProvisioningObjectChangeAction().name().substring(0, 3)).append(" ").append(provisioningObjectChange.getAttributeName()).append(" ");
+          switch(provisioningObjectChange.getProvisioningObjectChangeAction()) {
+            case insert:
+              result.append(stringValueWithType(provisioningObjectChange.getNewValue()));
+              break;
+            case delete:
+              result.append(stringValueWithType(provisioningObjectChange.getOldValue()));
+              break;
+            case update:
+              result.append(stringValueWithType(provisioningObjectChange.getOldValue()));
+              result.append(" -> ");
+              result.append(stringValueWithType(provisioningObjectChange.getNewValue()));
+              break;
+          }
         }
       }
     }
@@ -1109,7 +1139,7 @@ public abstract class ProvisioningUpdatable {
    * @param fieldValue
    * @return
    */
-  protected static boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue, boolean appendIfEmpty) {
+  protected boolean toStringAppendField(StringBuilder result, boolean firstField, String fieldName, Object fieldValue, boolean appendIfEmpty) {
     if (!appendIfEmpty && (fieldValue == null || GrouperUtil.length(fieldValue) == 0)) {
       return firstField;
     }
@@ -1129,19 +1159,40 @@ public abstract class ProvisioningUpdatable {
     }
     
     if (fieldValue instanceof Collection) {
+      
+      Set<String> matchesLogValues = null;
+      if (this instanceof ProvisioningEntity) {
+        matchesLogValues = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames();
+      }
+      if (this instanceof ProvisioningGroup) {
+        matchesLogValues = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds();
+      }
+
       int resultInitialLength = result.length();
       int index = 0;
       result.append(fieldValue.getClass().getSimpleName()).append("(").append(GrouperUtil.length(fieldValue)).append("): ");
-      for (Object item : (Collection)fieldValue) {
-        if (index > 0) {
-          result.append(", ");
+      Set<Object> loggedAlready = new HashSet<Object>();
+      OUTER: for (boolean matchesLog : new boolean[] {GrouperUtil.length(matchesLogValues) > 0, false}) {
+        for (Object item : (Collection)fieldValue) {
+          if (loggedAlready.contains(item)) {
+            continue;
+          }
+          if (matchesLog) {
+            if (GrouperUtil.isBlank(item) || !matchesLogValues.contains(GrouperUtil.stringValue(item))) {
+              continue;
+            }
+          }
+          loggedAlready.add(item);
+          if (index > 0) {
+            result.append(", ");
+          }
+          result.append("[").append(index).append("]: ").append(GrouperUtil.stringValue(item));
+          if (result.length() - resultInitialLength > 1000) {
+            result.append("...");
+            break OUTER;
+          }
+          index++;
         }
-        result.append("[").append(index).append("]: ").append(GrouperUtil.stringValue(item));
-        if (result.length() - resultInitialLength > 1000) {
-          result.append("...");
-          break;
-        }
-        index++;
       }
     } else {
       result.append(stringValueWithType(fieldValue));

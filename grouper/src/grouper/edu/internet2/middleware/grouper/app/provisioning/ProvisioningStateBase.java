@@ -7,18 +7,25 @@ package edu.internet2.middleware.grouper.app.provisioning;
  */
 public class ProvisioningStateBase {
   
-  private boolean loggable;
+  private boolean loggableStrong;
+  private boolean loggableWeak;
   
-  public boolean isLoggableHelper() {
-    return loggable;
+  public void assignLoggableCache(boolean strong) {
+    if (strong) {
+      loggableStrong = true;
+    } else {
+      loggableWeak = true;
+    }
   }
-
   
-  public void setLoggable(boolean loggable) {
-    this.loggable = loggable;
+  public boolean retrieveLoggableCache(boolean strong) {
+    if (strong) {
+      return loggableStrong;
+    } else {
+      return loggableWeak;
+    }
   }
-
-
+  
   /**
    * insert, update, or delete
    */

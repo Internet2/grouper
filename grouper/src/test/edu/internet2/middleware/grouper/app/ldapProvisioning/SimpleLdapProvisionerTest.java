@@ -3377,6 +3377,11 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         .assignMembershipAttribute("description")
         .assignEntityAttributeCount(1)
         .assignSubjectSourcesToProvision("personLdapSource")
+        .addExtraConfig("logAllObjectsVerboseForTheseSubjectIds", "aclark")
+        .addExtraConfig("logAllObjectsVerboseEntityAttributes", "uid, subjectId")
+        .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "1000029")
+        .addExtraConfig("logAllObjectsVerboseGroupAttributes", "idIndex, gidNumber")
+        .addExtraConfig("readOnly", "false")
         );
     
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();

@@ -1111,6 +1111,9 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    * additional metadata for group
    */
   private String metadataJson;
+
+  private static Set<String> gcSyncRepresentationAttributeNames = GrouperClientUtils.toSet("id", "subjectId", 
+      "subjectIdentifier", "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3");
   
 
   /**
@@ -1168,6 +1171,81 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
       throw new RuntimeException("Not expecting memberSyncField: '" + syncField + "'");
     }
 
+  }
+
+  /**
+   * 
+   * @param logAllObjectsVerboseGroupAttributes
+   * @param logAllObjectsVerboseForTheseGroupNames
+   * @return if matches attribute
+   */
+  public boolean matchesAttribute(Set<String> logAllObjectsVerboseGroupAttributes, Set<String> logAllObjectsVerboseForTheseGroupNames) {
+    if (GrouperClientUtils.length(logAllObjectsVerboseGroupAttributes) == 0) {
+      return matchesAttribute("subjectId", logAllObjectsVerboseForTheseGroupNames);
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param string
+   * @param logAllObjectsVerboseForTheseGroupNames
+   * @return
+   */
+  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute,
+      Set<String> logAllObjectsVerboseForTheseGroupNames) {
+    for (String logAllObjectsVerboseForTheseGroupName : GrouperClientUtils.nonNull(logAllObjectsVerboseForTheseGroupNames)) {
+      if (matchesAttribute(logAllObjectsVerboseGroupAttribute, logAllObjectsVerboseForTheseGroupName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute, String logAllObjectsVerboseForTheseGroupName) {
+    
+    if (!gcSyncRepresentationAttributeNames.contains(logAllObjectsVerboseGroupAttribute)) {
+      return false;
+    }
+    // "id", "subjectId", 
+    // "subjectIdentifier", 
+    // "entityAttributeValueCache0", "entityAttributeValueCache1", "entityAttributeValueCache2", "entityAttributeValueCache3"
+    if (GrouperClientUtils.equals("subjectId", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            GrouperClientUtils.extensionFromName(this.getSubjectId()))) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("subjectIdentifier", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getSubjectIdentifier())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("id", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equals(logAllObjectsVerboseForTheseGroupName, 
+            this.getMemberId())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("entityAttributeValueCache0", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getEntityAttributeValueCache0())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("entityAttributeValueCache1", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getEntityAttributeValueCache1())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("entityAttributeValueCache2", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getEntityAttributeValueCache2())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("entityAttributeValueCache3", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getEntityAttributeValueCache3())) {
+      return true;
+    }
+    return false;
   }
 
 }

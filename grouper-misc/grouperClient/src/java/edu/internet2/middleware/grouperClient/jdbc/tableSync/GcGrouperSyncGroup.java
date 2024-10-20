@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.sql.Timestamp;
 import java.util.Set;
 
+import org.apache.commons.lang3.builder.EqualsBuilder;
+
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
@@ -15,7 +17,6 @@ import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcSqlAssignPrimaryKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.lang3.builder.EqualsBuilder;
 
 
 /**
@@ -1097,6 +1098,88 @@ public class GcGrouperSyncGroup implements GcSqlAssignPrimaryKey, GcDbVersionabl
       throw new RuntimeException("Not expecting groupSyncField: '" + syncField + "'");
     }
 
+  }
+
+  private static Set<String> gcSyncRepresentationAttributeNames = GrouperClientUtils.toSet("id", "idIndex", "name", "extension", 
+      "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3");
+
+  /**
+   * 
+   * @param logAllObjectsVerboseGroupAttributes
+   * @param logAllObjectsVerboseForTheseGroupNames
+   * @return if matches attribute
+   */
+  public boolean matchesAttribute(Set<String> logAllObjectsVerboseGroupAttributes, Set<String> logAllObjectsVerboseForTheseGroupNames) {
+    if (GrouperClientUtils.length(logAllObjectsVerboseGroupAttributes) == 0) {
+      return matchesAttribute("name", logAllObjectsVerboseForTheseGroupNames);
+    }
+    return false;
+  }
+
+  /**
+   * 
+   * @param string
+   * @param logAllObjectsVerboseForTheseGroupNames
+   * @return
+   */
+  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute,
+      Set<String> logAllObjectsVerboseForTheseGroupNames) {
+    for (String logAllObjectsVerboseForTheseGroupName : GrouperClientUtils.nonNull(logAllObjectsVerboseForTheseGroupNames)) {
+      if (matchesAttribute(logAllObjectsVerboseGroupAttribute, logAllObjectsVerboseForTheseGroupName)) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute, String logAllObjectsVerboseForTheseGroupName) {
+    
+    if (!gcSyncRepresentationAttributeNames.contains(logAllObjectsVerboseGroupAttribute)) {
+      return false;
+    }
+    // "id", "idIndex", "name", "extension", 
+    // "groupAttributeValueCache0", "groupAttributeValueCache1", "groupAttributeValueCache2", "groupAttributeValueCache3"
+    if (GrouperClientUtils.equals("extension", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            GrouperClientUtils.extensionFromName(this.getGroupName()))) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("name", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getGroupName())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("idIndex", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equals(logAllObjectsVerboseForTheseGroupName, 
+            this.getGroupIdIndex())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("id", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equals(logAllObjectsVerboseForTheseGroupName, 
+            this.getGroupId())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("groupAttributeValueCache0", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getGroupAttributeValueCache0())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("groupAttributeValueCache1", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getGroupAttributeValueCache1())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("groupAttributeValueCache2", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getGroupAttributeValueCache2())) {
+      return true;
+    }
+    if (GrouperClientUtils.equals("groupAttributeValueCache3", logAllObjectsVerboseGroupAttribute) 
+        && GrouperClientUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, 
+            this.getGroupAttributeValueCache3())) {
+      return true;
+    }
+    return false;
   }
 
 }

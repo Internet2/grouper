@@ -31,33 +31,73 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
     this.deleteMembershipAttributeValues = deleteMembershipAttributeValues;
   }
 
+  public GrouperProvisioner getGrouperProvisioner() {
+    return this.getProvisioningGroupWrapper().getGrouperProvisioner();
+  }
+  
   /**
    * see if loggable if not logging all objects
    * @return
    */
-  public boolean isLoggable() {
+  public boolean isLoggable(boolean strong) {
     
-    if (this.isLoggableHelper()) {
+    if (retrieveLoggableCache(strong)) {
       return true;
     }
 
     // if not filtering based on group
-    if (GrouperUtil.length(this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames()) == 0) {
-      this.setLoggable(true);
+    Set<String> logAllObjectsVerboseForTheseGroupNames = this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames();
+    Set<String> logAllObjectsVerboseGroupAttributes = this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseGroupAttributes();
+
+    String membershipAttribute = null;
+    if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.groupAttributes) {
+      membershipAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getAttributeNameForMemberships();
+    }
+
+    Set<String> logAllObjectsVerboseForTheseSubjectIds = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds();
+
+
+    if (!strong && membershipAttribute == null || GrouperUtil.length(logAllObjectsVerboseForTheseSubjectIds) == 0) {
+      return false;
+    }
+    
+    if (strong && GrouperUtil.length(logAllObjectsVerboseForTheseGroupNames) == 0) {
+      this.assignLoggableCache(strong);
       return true;
     }
     
+    if (this.getProvisioningGroupWrapper().getGrouperTargetGroup() != null) {
+      if (strong && this.getProvisioningGroupWrapper().getGrouperTargetGroup().matchesAttribute(logAllObjectsVerboseGroupAttributes, logAllObjectsVerboseForTheseGroupNames)) {
+        this.assignLoggableCache(strong);
+        return true;
+      }
+      if (!strong && this.getProvisioningGroupWrapper().getGrouperTargetGroup().matchesAttribute(membershipAttribute, logAllObjectsVerboseForTheseSubjectIds)) {
+        this.assignLoggableCache(strong);
+        return true;
+      }
+    }
+
+    if (this.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null) {
+      if (strong && this.getProvisioningGroupWrapper().getTargetProvisioningGroup().matchesAttribute(logAllObjectsVerboseGroupAttributes, logAllObjectsVerboseForTheseSubjectIds)) {
+        this.assignLoggableCache(strong);
+        return true;
+      }
+      if (!strong && this.getProvisioningGroupWrapper().getTargetProvisioningGroup().matchesAttribute(membershipAttribute, logAllObjectsVerboseForTheseSubjectIds)) {
+        this.assignLoggableCache(strong);
+        return true;
+      }
+    }
+
     if (this.getProvisioningGroupWrapper().getGrouperProvisioningGroup() != null) {
-      if (this.getProvisioningGroupWrapper().getGrouperProvisioningGroup().isLoggableHelper()) {
-        this.setLoggable(true);
+      if (strong && this.getProvisioningGroupWrapper().getGrouperProvisioningGroup().isLoggableHelper()) {
+        this.assignLoggableCache(strong);
         return true;
       }
     }
 
     if (this.getProvisioningGroupWrapper().getGcGrouperSyncGroup() != null) {
-      if (this.getProvisioningGroupWrapper().getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames()
-          .contains(this.getProvisioningGroupWrapper().getGcGrouperSyncGroup().getGroupName())) {
-        this.setLoggable(true);
+      if (strong && this.getProvisioningGroupWrapper().getGcGrouperSyncGroup().matchesAttribute(logAllObjectsVerboseGroupAttributes, logAllObjectsVerboseForTheseGroupNames)) {
+        this.assignLoggableCache(strong);
         return true;
       }
     }
