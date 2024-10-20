@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.provisioning;
 import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncGroup;
+import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncMember;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class ProvisioningStateMembership extends ProvisioningStateBase {
@@ -12,30 +14,77 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
    * see if loggable if not logging all objects
    * @return
    */
-  public boolean isLoggable() {
+  public boolean isLoggable(boolean strong) {
     
-    if (this.retrieveLoggableCache(true)) {
+    if (this.retrieveLoggableCache(strong)) {
       return true;
     }
 
-    if (this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership() != null && this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership().isLoggableHelper(true)) {
-      this.assignLoggableCache(true);
+    if (this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership() != null 
+        && this.getProvisioningMembershipWrapper().getGrouperProvisioningMembership().isLoggableHelper(strong)) {
+      this.assignLoggableCache(strong);
       return true;
     }
-      
+
+    boolean entityMatches = false;
+    
     ProvisioningEntityWrapper provisioningEntityWrapper = this.getProvisioningMembershipWrapper().getProvisioningEntityWrapper();
     if (provisioningEntityWrapper != null && provisioningEntityWrapper.getProvisioningStateEntity().isLoggable(true)) {
-      this.assignLoggableCache(true);
+      entityMatches = true;
+    }
+    if (provisioningEntityWrapper == null) {
+      MultiKey syncGroupIdSyncMemberId = this.getProvisioningMembershipWrapper().getSyncGroupIdSyncMemberId();
+      if (syncGroupIdSyncMemberId != null) {
+        String syncMemberId = (String)syncGroupIdSyncMemberId.getKey(1);
+        GcGrouperSyncMember gcGrouperSyncMember = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncMemberDao().memberRetrieveById(syncMemberId);
+        if (gcGrouperSyncMember != null) {
+          Set<String> logAllObjectsVerboseForTheseEntityNames = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseSubjectIds();
+          Set<String> logAllObjectsVerboseEntityAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseEntityAttributes();
+
+          if (gcGrouperSyncMember.matchesAttribute(logAllObjectsVerboseEntityAttributes, logAllObjectsVerboseForTheseEntityNames)) {
+            entityMatches = true;
+          }            
+        }
+      }
+    }
+
+    if (!strong && entityMatches) {
+      this.assignLoggableCache(strong);
       return true;
     }
+
+    boolean groupMatches = false;
 
     ProvisioningGroupWrapper provisioningGroupWrapper = this.getProvisioningMembershipWrapper().getProvisioningGroupWrapper();
     if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isLoggable(true)) {
-      this.assignLoggableCache(true);
-      return true;
+      groupMatches = true;
+    }
+    if (provisioningGroupWrapper == null) {
+      MultiKey syncGroupIdSyncMemberId = this.getProvisioningMembershipWrapper().getSyncGroupIdSyncMemberId();
+      if (syncGroupIdSyncMemberId != null) {
+        String syncGroupId = (String)syncGroupIdSyncMemberId.getKey(0);
+        GcGrouperSyncGroup gcGrouperSyncGroup = this.getGrouperProvisioner().getGcGrouperSync().getGcGrouperSyncGroupDao().groupRetrieveById(syncGroupId);
+        if (gcGrouperSyncGroup != null) {
+          Set<String> logAllObjectsVerboseForTheseGroupNames = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseForTheseGroupNames();
+          Set<String> logAllObjectsVerboseGroupAttributes = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getLogAllObjectsVerboseGroupAttributes();
+
+          if (gcGrouperSyncGroup.matchesAttribute(logAllObjectsVerboseGroupAttributes, logAllObjectsVerboseForTheseGroupNames)) {
+            groupMatches = true;
+          }            
+        }
+      }
     }
 
-    return false;
+    if (!groupMatches) {
+      return false;
+    }
+
+    if (strong && !entityMatches) {
+      return false;
+    }
+
+    this.assignLoggableCache(strong);
+    return true;
   }
 
 
@@ -111,6 +160,12 @@ public class ProvisioningStateMembership extends ProvisioningStateBase {
 
   public boolean isValueExistsInGrouper() {
     return valueExistsInGrouper;
+  }
+
+
+
+  public GrouperProvisioner getGrouperProvisioner() {
+    return this.getProvisioningMembershipWrapper().getGrouperProvisioner();
   }
   
 }

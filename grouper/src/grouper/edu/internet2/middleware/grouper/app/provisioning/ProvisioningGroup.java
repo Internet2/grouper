@@ -445,16 +445,16 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     return false;
   }
 
-  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute, String logAllObjectsVerboseForTheseGroupName) {
+  public boolean matchesAttribute(String logAllObjectsVerboseGroupAttribute, Object logAllObjectsVerboseForTheseGroupName) {
     
     if (grouperRepresentationAttributeNames.contains(logAllObjectsVerboseGroupAttribute) && this == this.getProvisioningGroupWrapper().getGrouperProvisioningGroup()) {
       // "id", "idIndex", "name", "displayName", "extension", "displayExtension", "description"
       if (StringUtils.equals("extension", logAllObjectsVerboseGroupAttribute) 
-          && StringUtils.equals(logAllObjectsVerboseForTheseGroupName, this.getExtension())) {
+          && StringUtils.equalsIgnoreCase((String)logAllObjectsVerboseForTheseGroupName, this.getExtension())) {
         return true;
       }
       if (StringUtils.equals("displayExtension", logAllObjectsVerboseGroupAttribute) 
-          && StringUtils.equals(logAllObjectsVerboseForTheseGroupName, this.getDisplayExtension())) {
+          && StringUtils.equalsIgnoreCase((String)logAllObjectsVerboseForTheseGroupName, this.getDisplayExtension())) {
         return true;
       }
     }
@@ -466,10 +466,10 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
     }
     
     if (attributeValue instanceof Set) {
-      return ((Set)attributeValue).contains(logAllObjectsVerboseForTheseGroupName);
+      return GrouperUtil.containsConvertType((Set)attributeValue, logAllObjectsVerboseForTheseGroupName);
     }
 
-    return StringUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseGroupName, GrouperUtil.stringValue(attributeValue));
+    return GrouperUtil.equalsIgnoreCaseObject(attributeValue, logAllObjectsVerboseForTheseGroupName);
   }
 
 }

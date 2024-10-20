@@ -11310,6 +11310,46 @@ public class GrouperUtil {
    * @param object2  the second object, may be <code>null</code>
    * @return <code>true</code> if the values of both objects are the same
    */
+  public static boolean equalsIgnoreCaseObject(Object object1, Object object2) {
+    
+    if (object1 instanceof String && object2 instanceof String) {
+      return equalsIgnoreCase((String)object1, (String)object2);
+    }
+    if (object1 instanceof String) {
+      object2 = stringValue(object2);
+    } if (object1 instanceof Integer) {
+      object2 = intValue(object2);
+    } else if (object1 instanceof Long) {
+      object2 = longValue(object2);
+    } else if (object1 instanceof Float) {
+      object2 = floatValue(object2);
+    } else if (object1 instanceof Double) {
+      object2 = doubleValue(object2);
+    } 
+
+    return equals(object1, object2);
+  }
+
+  
+  /**
+   * <p>Compares two objects for equality, where either one or both
+   * objects may be <code>null</code>.</p>
+   *
+   * <pre>
+   * ObjectUtils.equals(null, null)                  = true
+   * ObjectUtils.equals(null, "")                    = false
+   * ObjectUtils.equals("", null)                    = false
+   * ObjectUtils.equals("", "")                      = true
+   * ObjectUtils.equals(Boolean.TRUE, null)          = false
+   * ObjectUtils.equals(Boolean.TRUE, "true")        = false
+   * ObjectUtils.equals(Boolean.TRUE, Boolean.TRUE)  = true
+   * ObjectUtils.equals(Boolean.TRUE, Boolean.FALSE) = false
+   * </pre>
+   *
+   * @param object1  the first object, may be <code>null</code>
+   * @param object2  the second object, may be <code>null</code>
+   * @return <code>true</code> if the values of both objects are the same
+   */
   public static boolean equals(Object object1, Object object2) {
       if (object1 == object2) {
           return true;
@@ -15796,4 +15836,26 @@ public class GrouperUtil {
     }
     return result;
   }
+
+  public static boolean containsConvertType(Collection set, Object value) {
+    
+    if (GrouperUtil.length(set) == 0) {
+      return false;
+    }
+    
+    Object first = set.iterator().next();
+    if (first instanceof String) {
+      value = stringValue(value);
+    } else if (first instanceof Integer) {
+      value = intValue(value);
+    } else if (first instanceof Long) {
+      value = longValue(value);
+    } else if (first instanceof Float) {
+      value = floatValue(value);
+    } else if (first instanceof Double) {
+      value = doubleValue(value);
+    } 
+    return set.contains(value);
+  }
+
 }

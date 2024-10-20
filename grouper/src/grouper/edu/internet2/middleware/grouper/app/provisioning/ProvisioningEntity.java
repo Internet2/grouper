@@ -573,7 +573,7 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     if (grouperRepresentationAttributeNames.contains(logAllObjectsVerboseEntityAttribute) && this == this.getProvisioningEntityWrapper().getGrouperProvisioningEntity()) {
       // "id", "idIndex", "email", "subjectId", "subjectIdentifier", "subjectIdentifier0", "subjectIdentifier1", "subjectIdentifier2"
       if (StringUtils.equals("subjectIdentifier", logAllObjectsVerboseEntityAttribute) 
-          && StringUtils.equals(logAllObjectsVerboseForTheseSubjectId, this.getSubjectIdentifier())) {
+          && StringUtils.equalsIgnoreCase((String)logAllObjectsVerboseForTheseSubjectId, this.getSubjectIdentifier())) {
         return true;
       }
     }
@@ -585,10 +585,10 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
     }
     
     if (attributeValue instanceof Set) {
-      return ((Set)attributeValue).contains(logAllObjectsVerboseForTheseSubjectId);
+      return GrouperUtil.containsConvertType((Set)attributeValue, logAllObjectsVerboseForTheseSubjectId);
     }
   
-    return StringUtils.equalsIgnoreCase(logAllObjectsVerboseForTheseSubjectId, GrouperUtil.stringValue(attributeValue));
+    return GrouperUtil.equalsIgnoreCaseObject(attributeValue, logAllObjectsVerboseForTheseSubjectId);
   }
 
 }
