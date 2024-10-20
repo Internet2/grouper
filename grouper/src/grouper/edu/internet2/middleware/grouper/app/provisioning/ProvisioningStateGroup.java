@@ -78,7 +78,7 @@ public class ProvisioningStateGroup extends ProvisioningStateBase {
     }
 
     if (this.getProvisioningGroupWrapper().getTargetProvisioningGroup() != null) {
-      if (strong && this.getProvisioningGroupWrapper().getTargetProvisioningGroup().matchesAttribute(logAllObjectsVerboseGroupAttributes, logAllObjectsVerboseForTheseSubjectIds)) {
+      if (strong && this.getProvisioningGroupWrapper().getTargetProvisioningGroup().matchesAttribute(logAllObjectsVerboseGroupAttributes, logAllObjectsVerboseForTheseGroupNames)) {
         this.assignLoggableCache(strong);
         return true;
       }

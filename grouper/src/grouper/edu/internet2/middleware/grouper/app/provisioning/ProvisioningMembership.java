@@ -25,23 +25,33 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
   }
   
   public boolean isLoggableHelper(boolean strong) {
-    if (this.provisioningEntity != null) {
-      if (this.provisioningEntity.isLoggable(strong)) {
-        return true;
-      }
+    
+    boolean entityMatches = false;
+    
+    if (this.provisioningEntity != null && this.provisioningEntity.isLoggable(strong)) {
+      entityMatches = true;
     }
+
+    if (strong && !entityMatches) {
+      return false;
+    }
+    if (!strong && entityMatches) {
+      return true;
+    }
+    
     if (this.provisioningGroup != null) {
       if (this.provisioningGroup.isLoggable(strong)) {
         return true;
       }
     }
     return false;
+  
   }
   
   public boolean isLoggable(boolean strong) {
     ProvisioningMembershipWrapper provisioningMembershipWrapper = this.getProvisioningMembershipWrapper();
-    if (provisioningMembershipWrapper != null && strong) {
-      return provisioningMembershipWrapper.getProvisioningStateMembership().isLoggable();
+    if (provisioningMembershipWrapper != null) {
+      return provisioningMembershipWrapper.getProvisioningStateMembership().isLoggable(strong);
     }
     return isLoggableHelper(strong);
   }
