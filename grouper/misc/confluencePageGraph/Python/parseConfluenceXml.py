@@ -77,13 +77,16 @@ for page_object in page_objects:
 
     # Check if the <property name="title"> subnode exists
     if id is not None and title is not None and original_version_obj is None:
-        page_parents[id] = parent_page_id
+        if content_status in {"deleted", "draft"}:
+            print(f"Ignoring {content_status} page: {id} {title}")
+        else:
+            page_parents[id] = parent_page_id
 
-        # Extract and print the value of the <property name="title"> subnode
-        # print(f'{idx}\t{id}\t{title}\t{mod_date}\t{parent_page_id}')
-        page = Page(id, title, mod_date, parent_page_id)
-        # print(page)
-        idx += 1
+            # Extract and print the value of the <property name="title"> subnode
+            # print(f'{idx}\t{id}\t{title}\t{mod_date}\t{parent_page_id}')
+            page = Page(id, title, mod_date, parent_page_id)
+            # print(page)
+            idx += 1
 
 Page.fill_children()
 
@@ -112,10 +115,10 @@ def print_neato(file):
     file.write("""
 digraph "" {
     fontname="Helvetica,Arial,sans-serif";
-    node [shape=circle,height=.12, width=.12, fontsize=3];
+    node [shape=circle,height=.12, width=.25, height=.375, fontsize=9];
     layout=neato;
+    scale=4;
     center="";
-
     """)
 
     for page in Page.page_ids.values():

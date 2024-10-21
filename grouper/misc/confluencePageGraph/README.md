@@ -20,6 +20,8 @@ https://confluence.atlassian.com/doc/export-content-to-word-pdf-html-and-xml-139
 > 
 > You can download the exported XML backup by selecting the file name when the export process has finished.
 
+Make sure you are specifically in the Grouper space to do the export. If you select Custom pages to export, you should see the correct list of pages for the Grouper space, and not the
+internal developer space, etc.
 
 2) Convert bad characters
 
@@ -44,3 +46,5 @@ dot -Tsvg -o legend.svg legend.dot
 ```
 
 5) Open the SVG files in a web browser
+
+Each node is labeled with its page id, and the tooltip is the page title. To get to the Wiki page referred to by its page id, you can use the URL https://spaces.at.internet2.edu/pages/viewinfo.action?pageId={pageId}.
