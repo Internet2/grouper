@@ -36,6 +36,33 @@ public class GrouperProvisioningObjectLog {
     LOG.error(logMessageString);      
   }
 
+  /**
+   * pass in a log message that will be logged at info or higher.  note, a prefix will be added to message
+   * @param logMessage
+   */
+  public void info(String logMessageInput) {
+    StringBuilder logMessage = new StringBuilder("Provisioner '").append(this.grouperProvisioner.getConfigId())
+        .append("' (").append(this.grouperProvisioner.getInstanceId()).append(")")
+        .append(" type '").append(this.grouperProvisioner.retrieveGrouperProvisioningBehavior().getGrouperProvisioningType())
+        .append("': ").append(logMessageInput);
+    
+    String logMessageString = logMessage.toString();
+    logMessageString = this.grouperProvisioner.retrieveGrouperProvisioningLog().prefixLogLinesWithInstanceId(logMessageString);
+
+    if (LOG.isInfoEnabled()) {
+      LOG.info(logMessageString);      
+    } else if (LOG.isWarnEnabled()) {
+      LOG.warn(logMessageString);      
+    } else if (LOG.isErrorEnabled()) {
+      LOG.error(logMessageString);      
+    } else if (LOG.isFatalEnabled()) {
+      LOG.fatal(logMessageString);      
+    } else {
+      throw new RuntimeException("You must log some level of edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningObjectLog!");
+    }
+
+  }
+
   public void debug(GrouperProvisioningObjectLogType state, Object... data) {
     if (!grouperProvisioner.retrieveGrouperProvisioningConfiguration().isLogAllObjectsVerbose()) {
       return;

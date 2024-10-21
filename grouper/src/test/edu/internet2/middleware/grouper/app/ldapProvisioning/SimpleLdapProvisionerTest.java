@@ -3381,7 +3381,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
         .addExtraConfig("logAllObjectsVerboseEntityAttributes", "uid, subjectId")
         .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "1000029")
         .addExtraConfig("logAllObjectsVerboseGroupAttributes", "idIndex, gidNumber")
-        .addExtraConfig("readOnly", "false")
+        .addExtraConfig("logCompareCalculations", "true")
         );
     
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();

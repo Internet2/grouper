@@ -155,9 +155,13 @@ public class ProvisioningGroup extends ProvisioningUpdatable {
   }
 
   public String toString() {
+    return toString(true);
+    
+  }
+  public String toString(boolean includeDataChanges) {
     StringBuilder result = new StringBuilder("Group(");
     boolean firstField = true;
-    firstField = this.toStringProvisioningUpdatable(result, firstField);
+    firstField = this.toStringProvisioningUpdatable(result, firstField, includeDataChanges);
     
     if (this.provisioningGroupWrapper != null) {
       if (this == this.provisioningGroupWrapper.getGrouperProvisioningGroup() || this == this.provisioningGroupWrapper.getGrouperTargetGroup()) {

@@ -333,8 +333,23 @@ public enum GrouperProvisioningObjectLogType {
     @Override
     void logState(GrouperProvisioningObjectLog grouperProvisioningObjectLog,
         GrouperProvisioner grouperProvisioner, StringBuilder logMessage, Object... data) {
-      appendProvisioningObjects(grouperProvisioner, logMessage, "Target inserts", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts(), 
-          grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing());
+      
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningGroups()) > 0) {
+        if (logMessage.charAt(logMessage.length()-1) != '\n') {
+          logMessage.append("\n Target inserts groups (").append(GrouperUtil.length(grouperProvisioner
+              .retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningGroups())).append(")");
+          logMessage.append(" these were inserted in workflow step 'missingGrouperTargetGroupsForCreate', look in the logs above for details");
+        }
+      }
+      if (GrouperUtil.length(grouperProvisioner.retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningEntities()) > 0) {
+        if (logMessage.charAt(logMessage.length()-1) != '\n') {
+          logMessage.append("\n Target inserts entities (").append(GrouperUtil.length(grouperProvisioner
+              .retrieveGrouperProvisioningDataChanges().getGrouperTargetObjectsMissing().getProvisioningEntities())).append(")");
+          logMessage.append(" these were inserted in workflow step 'missingGrouperTargetEntitiesForCreate', look in the logs above for details");
+        }
+      }
+      
+      appendProvisioningObjects(grouperProvisioner, logMessage, "Target inserts", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectInserts());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target updates", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectUpdates());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target deletes", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectDeletes());
       appendProvisioningObjects(grouperProvisioner, logMessage, "Target replaces", grouperProvisioner.retrieveGrouperProvisioningDataChanges().getTargetObjectReplaces());
@@ -495,20 +510,6 @@ public enum GrouperProvisioningObjectLogType {
   private static void appendProvisioningObjects(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
       GrouperProvisioningLists grouperProvisioningObjects) {
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningGroups(), "groups");
-    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningEntities(), "entities");
-    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningMemberships(), "memberships");
-  }
-  
-  /**
-   * 
-   * @param string
-   * @param grouperProvisioningObjects
-   */
-  private static void appendProvisioningObjects(GrouperProvisioner grouperProvisioner, StringBuilder logMessage, String label,
-      GrouperProvisioningLists grouperProvisioningObjects,GrouperProvisioningLists grouperProvisioningObjectsPrevious) {
-    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjectsPrevious.getProvisioningGroups(), "groupsPreviousInWorkflow");
-    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningGroups(), "groups");
-    appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjectsPrevious.getProvisioningEntities(), "entitiesPreviousInWorkflow");
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningEntities(), "entities");
     appendProvisioningObjectsOfType(grouperProvisioner, logMessage, label, grouperProvisioningObjects.getProvisioningMemberships(), "memberships");
   }
