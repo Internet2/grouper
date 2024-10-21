@@ -321,6 +321,10 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
   }
 
   public String toString() {
+    return toString(true);
+    
+  }
+  public String toString(boolean includeDataChanges) {
     StringBuilder result = new StringBuilder("Mship(");
     boolean firstField = true;
     
@@ -349,7 +353,7 @@ public class ProvisioningMembership extends ProvisioningUpdatable {
     
     firstField = toStringAppendField(result, firstField, "groupId", this.provisioningGroupId);
     firstField = toStringAppendField(result, firstField, "entityId", this.provisioningEntityId);
-    firstField = this.toStringProvisioningUpdatable(result, firstField);
+    firstField = this.toStringProvisioningUpdatable(result, firstField, includeDataChanges);
     if (this.provisioningMembershipWrapper != null) {
 
       if (this.provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() != null) {

@@ -23,6 +23,8 @@ import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncErrorC
 
 public abstract class ProvisioningUpdatable {
 
+  public abstract String toString(boolean includeDataActions);
+  
   public Map<String, ProvisioningAttribute> retrieveAttributes() {
     Map<String, ProvisioningAttribute> result = new HashMap<>();
     for (String attributeName : this.attributeNameToIndex.keySet()) {
@@ -981,7 +983,7 @@ public abstract class ProvisioningUpdatable {
     }
   }
  
-  protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField) {
+  protected boolean toStringProvisioningUpdatable(StringBuilder result, boolean firstField, boolean includeObjectChanges) {
     firstField = toStringAppendField(result, firstField, "matchingAttrs", this.matchingIdAttributeNameToValues);
     
     // generally we dont need to print these...
@@ -1072,6 +1074,9 @@ public abstract class ProvisioningUpdatable {
       }
       
       OUTER: for (boolean matchesLog : new boolean[] {GrouperUtil.length(matchesLogValues) > 0, false}) {
+        if (!includeObjectChanges) {
+          break;
+        }
         for (ProvisioningObjectChange provisioningObjectChange : this.internal_objectChanges) {
 
           if (matchesLog) {

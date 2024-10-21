@@ -1038,8 +1038,20 @@ public abstract class GrouperProvisioningConfiguration {
   
   private boolean runLogicInFullDaemon = true;
   
+  private boolean logCompareCalculations = false;
   
   
+  
+  
+  public boolean isLogCompareCalculations() {
+    return logCompareCalculations;
+  }
+
+  
+  public void setLogCompareCalculations(boolean logCompareCalculations) {
+    this.logCompareCalculations = logCompareCalculations;
+  }
+
   public boolean isRunLogicInIncrementalDaemon() {
     return runLogicInIncrementalDaemon;
   }
@@ -2850,6 +2862,8 @@ public abstract class GrouperProvisioningConfiguration {
     this.logCommandsOnError = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCommandsOnError", false), false);
     
     this.logMaxErrorsPerType = GrouperUtil.intValue(this.retrieveConfigInt("logMaxErrorsPerType", false), 10);
+    
+    this.logCompareCalculations = GrouperUtil.defaultIfNull(this.retrieveConfigBoolean("logCompareCalculations", false), false);
     
     this.logAllObjectsVerboseCount = GrouperUtil.intValue(this.retrieveConfigInt("logAllObjectsVerboseCount", false), 10);
     

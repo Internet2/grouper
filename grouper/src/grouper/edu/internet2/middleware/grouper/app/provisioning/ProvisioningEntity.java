@@ -368,9 +368,13 @@ public class ProvisioningEntity extends ProvisioningUpdatable {
   }
 
   public String toString() {
+    return toString(true);
+  }
+
+  public String toString(boolean includeDataActions) {
     StringBuilder result = new StringBuilder("Entity(");
     boolean firstField = true;
-    firstField = this.toStringProvisioningUpdatable(result, firstField);
+    firstField = this.toStringProvisioningUpdatable(result, firstField, includeDataActions);
     
     if (this.provisioningEntityWrapper != null) {
       
