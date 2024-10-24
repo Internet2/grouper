@@ -52,9 +52,26 @@ public class GrouperDuoApiCommands {
     
 //    associateUserToGroup("duo1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
 //    disassociateUserFromGroup("duo1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
+
+    // GrouperDuoUser grouperDuoUserToUpdate = retrieveDuoUserByName("duo_user", "dz10025");
+    // grouperDuoUserToUpdate.setEmail("test1@dartmouth.edu");
+    // grouperDuoUserToUpdate.setRealName("Test1");
+    // System.out.println("grouperDuoUserToUpdate: "+grouperDuoUserToUpdate);
+
+    // Set<String> fieldsToUpdateOnUser = new HashSet<String>();
+    // fieldsToUpdateOnUser.add("name"); // known as 'realname' in duo api
+    // fieldsToUpdateOnUser.add("email");
     
+    // updateDuoUser("duo_user", grouperDuoUserToUpdate, fieldsToUpdateOnUser);
+
+    // GrouperDuoUser updatedDuoUser = retrieveDuoUserByName("duo_user", "dz10025");
+    // System.out.println("updatedDuoUser: "+updatedDuoUser);
+
+    // org.junit.Assert.assertEquals("Email not updated", grouperDuoUserToUpdate.getEmail(), updatedDuoUser.getEmail());
+    // org.junit.Assert.assertEquals("Real Name not updated", grouperDuoUserToUpdate.getRealName(), updatedDuoUser.getRealName());
+
     JsonNode jsonNode = retrieveDuoUserByNameJsonNode("duoAdminProdReadonly", "mchyzer", true);
-    
+
     System.out.println(jsonNode);
     
     System.exit(0);
@@ -806,7 +823,7 @@ public class GrouperDuoApiCommands {
         params.put("lastname", StringUtils.defaultString(grouperDuoUser.getLastName()));
       }
       
-      if (fieldsToUpdate == null || fieldsToUpdate.contains("realname")) {
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("name")) {
         params.put("realname", StringUtils.defaultString(grouperDuoUser.getRealName()));
       }
       
