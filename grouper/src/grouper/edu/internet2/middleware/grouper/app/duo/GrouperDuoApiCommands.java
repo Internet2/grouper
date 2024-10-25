@@ -806,7 +806,7 @@ public class GrouperDuoApiCommands {
         params.put("lastname", StringUtils.defaultString(grouperDuoUser.getLastName()));
       }
       
-      if (fieldsToUpdate == null || fieldsToUpdate.contains("realname")) {
+      if (fieldsToUpdate == null || fieldsToUpdate.contains("name")) {
         params.put("realname", StringUtils.defaultString(grouperDuoUser.getRealName()));
       }
       
