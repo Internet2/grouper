@@ -129,16 +129,17 @@ public class GrouperAdobeApiCommands {
       public boolean setupThrottlingCallback(GrouperHttpClient httpClient) {
         String throttlingBody = StringUtils.trim(httpClient.getResponseBody());
         try {
-          if (StringUtils.isNotBlank(throttlingBody) && ((throttlingBody.contains("error_code") && throttlingBody.contains("\"429050\"")) || throttlingBody.contains("\"error_code\":\"429"))) {
-//            JsonNode node = GrouperUtil.jsonJacksonNode(body);
-//            String errorCode = GrouperUtil.jsonJacksonGetString(node, "error_code");
-//            boolean isThrottle = errorCode != null && errorCode.startsWith("429");
-//            if (isThrottle) {                
+          if (StringUtils.isNotBlank(throttlingBody) && throttlingBody.contains("error_code") && throttlingBody.contains("\"429")) {
+            // {"error_code":"429050","message":"Too many requests"}            
+            JsonNode node = GrouperUtil.jsonJacksonNode(throttlingBody);
+            String errorCode = GrouperUtil.jsonJacksonGetString(node, "error_code");
+            boolean isThrottle = errorCode != null && errorCode.startsWith("429");
+            if (isThrottle) {                
               GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
               return true;
 //              return isThrottle;
 //            }
-            
+            }
           }
         } catch(Exception e) {
           LOG.error("Error: " + debugMap.get("url") + ", " + grouperHttpCall.getResponseCode() + ", " + throttlingBody, e);
@@ -149,7 +150,7 @@ public class GrouperAdobeApiCommands {
           GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
         }
         return isThrottle;
-        }
+      }
     });
     grouperHttpCall.executeRequest();
     
