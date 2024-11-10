@@ -46,12 +46,9 @@ public class GrouperAdobeApiCommands {
     
 //    associateUserToGroup("adobe1", "DUP0LW3MHLGSFMGGQAV3", "DGCXPKWT7MJ7WLQT7CMQ");
     
-//    GrouperAdobeUser grouperAdobeUser = retrieveAdobeUser("adobe", "@upenn.edu", false, "whatever@AdobeOrg");
-    associateUserToGroup("adobe", "@upenn.edu", "_org_admin", "whatever@AdobeOrg");
-  
-    System.exit(0);
-//    System.out.println(grouperAdobeUser);
-    
+    GrouperAdobeUser grouperAdobeUser = retrieveAdobeUser("adobe", "hyzer38@upenn.edu", false, "whatever@AdobeOrg");
+    System.out.println(grouperAdobeUser);
+        
   }
 
   public static void main1(String[] args) {
@@ -130,16 +127,15 @@ public class GrouperAdobeApiCommands {
         String throttlingBody = StringUtils.trim(httpClient.getResponseBody());
         try {
           if (StringUtils.isNotBlank(throttlingBody) && throttlingBody.contains("error_code") && throttlingBody.contains("\"429")) {
-            // {"error_code":"429050","message":"Too many requests"}            
-            JsonNode node = GrouperUtil.jsonJacksonNode(throttlingBody);
-            String errorCode = GrouperUtil.jsonJacksonGetString(node, "error_code");
-            boolean isThrottle = errorCode != null && errorCode.startsWith("429");
-            if (isThrottle) {                
+//            JsonNode node = GrouperUtil.jsonJacksonNode(body);
+//            String errorCode = GrouperUtil.jsonJacksonGetString(node, "error_code");
+//            boolean isThrottle = errorCode != null && errorCode.startsWith("429");
+//            if (isThrottle) {                
               GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
               return true;
 //              return isThrottle;
 //            }
-            }
+            
           }
         } catch(Exception e) {
           LOG.error("Error: " + debugMap.get("url") + ", " + grouperHttpCall.getResponseCode() + ", " + throttlingBody, e);
@@ -150,7 +146,7 @@ public class GrouperAdobeApiCommands {
           GrouperUtil.mapAddValue(debugMap, "throttleCount", 1);
         }
         return isThrottle;
-      }
+        }
     });
     grouperHttpCall.executeRequest();
     
