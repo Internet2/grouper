@@ -18,6 +18,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
   private boolean whoCanViewMembership;
   private boolean whoCanViewGroup;
   private boolean whoCanInvite;
+  private boolean whoCanModerateMembers;
   private boolean allowExternalMembers;
   private boolean whoCanPostMessage;
   private boolean allowWebPosting;
@@ -85,7 +86,17 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
     this.whoCanInvite = whoCanInvite;
   }
 
-  
+
+  public boolean isWhoCanModerateMembers() {
+    return whoCanModerateMembers;
+  }
+
+
+  public void setWhoCanModerateMembers(boolean whoCanModerateMembers) {
+    this.whoCanModerateMembers = whoCanModerateMembers;
+  }
+
+
   public boolean isAllowExternalMembers() {
     return allowExternalMembers;
   }
@@ -207,6 +218,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
     this.whoCanViewMembership = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanViewMembership", false), false);
     this.whoCanViewGroup = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanViewGroup", false), false);
     this.whoCanInvite = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanInvite", false), false);
+    this.whoCanModerateMembers = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanModerateMembers", false), false);
     this.allowExternalMembers = GrouperUtil.booleanValue(this.retrieveConfigString("allowExternalMembers", false), false);
     this.whoCanPostMessage = GrouperUtil.booleanValue(this.retrieveConfigString("whoCanPostMessage", false), false);
     this.allowWebPosting = GrouperUtil.booleanValue(this.retrieveConfigString("allowWebPosting", false), false);

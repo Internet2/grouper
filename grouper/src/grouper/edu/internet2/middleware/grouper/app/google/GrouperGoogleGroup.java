@@ -53,6 +53,7 @@ public class GrouperGoogleGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_membership", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_view_group", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_invite", Types.VARCHAR, "40", false, false);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_moderate_members", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "who_can_post_message", Types.VARCHAR, "40", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "allow_external_members", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(groupTable, "allow_web_posting", Types.VARCHAR, "1", false, false);
@@ -81,6 +82,7 @@ public class GrouperGoogleGroup {
     targetGroup.assignAttributeValue("whoCanViewMembership", this.whoCanViewMembership);
     targetGroup.assignAttributeValue("whoCanViewGroup", this.whoCanViewGroup);
     targetGroup.assignAttributeValue("whoCanInvite", this.whoCanInvite);
+    targetGroup.assignAttributeValue("whoCanModerateMembers", this.whoCanModerateMembers);
     targetGroup.assignAttributeValue("whoCanPostMessage", this.whoCanPostMessage);
     targetGroup.assignAttributeValue("allowExternalMembers", this.allowExternalMembers);
     targetGroup.assignAttributeValue("allowGoogleCommunication", this.allowGoogleCommunication);
@@ -152,7 +154,11 @@ public class GrouperGoogleGroup {
       grouperGoogleGroup.setWhoCanInvite(targetGroup.retrieveAttributeValueString("whoCanInvite"));
     }
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanPostMessage")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanModerateMembers")) {
+      grouperGoogleGroup.setWhoCanModerateMembers(targetGroup.retrieveAttributeValueString("whoCanModerateMembers"));
+    }
+
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanPostMessage")) {
       grouperGoogleGroup.setWhoCanPostMessage(targetGroup.retrieveAttributeValueString("whoCanPostMessage"));
     }
     
@@ -243,6 +249,7 @@ public class GrouperGoogleGroup {
   private String whoCanViewMembership;
   private String whoCanViewGroup;
   private String whoCanInvite;
+  private String whoCanModerateMembers;
   private Boolean allowExternalMembers;
   private Boolean allowGoogleCommunication;
   private String whoCanPostMessage;
@@ -427,17 +434,27 @@ public class GrouperGoogleGroup {
     this.whoCanViewGroup = whoCanViewGroup;
   }
 
-  
+
   public String getWhoCanInvite() {
     return whoCanInvite;
   }
 
-  
+
   public void setWhoCanInvite(String whoCanInvite) {
     this.whoCanInvite = whoCanInvite;
   }
 
-  
+
+  public String getWhoCanModerateMembers() {
+    return whoCanModerateMembers;
+  }
+
+
+  public void setWhoCanModerateMembers(String whoCanModerateMembers) {
+    this.whoCanModerateMembers = whoCanModerateMembers;
+  }
+
+
   public String getWhoCanPostMessage() {
     return whoCanPostMessage;
   }
@@ -541,6 +558,7 @@ public class GrouperGoogleGroup {
     this.whoCanViewMembership = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanViewMembership");
     this.whoCanViewGroup = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanViewGroup");
     this.whoCanInvite = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanInvite");
+    this.whoCanModerateMembers = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanModerateMembers");
     this.allowExternalMembers = GrouperUtil.jsonJacksonGetBoolean(groupSettingsNode, "allowExternalMembers");
     this.allowGoogleCommunication = GrouperUtil.jsonJacksonGetBoolean(groupSettingsNode, "allowGoogleCommunication");
     this.whoCanPostMessage = GrouperUtil.jsonJacksonGetString(groupSettingsNode, "whoCanPostMessage");
@@ -598,7 +616,10 @@ public class GrouperGoogleGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanInvite")) { 
       result.put("whoCanInvite", this.whoCanInvite);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("allowExternalMembers")) {   
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanModerateMembers")) {
+      result.put("whoCanModerateMembers", this.whoCanModerateMembers);
+    }
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("allowExternalMembers")) {
       result.put("allowExternalMembers", this.allowExternalMembers);
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("whoCanPostMessage")) {      

@@ -43,6 +43,7 @@
     <property name="whoCanViewMembership" column="who_can_view_membership" />
     <property name="whoCanViewGroup" column="who_can_view_group" />
     <property name="whoCanInvite" column="who_can_invite" />
+    <property name="whoCanModerateMembers" column="who_can_moderate_members" />
     <property name="whoCanPostMessage" column="who_can_post_message" />
     <property name="allowExternalMembersDb" column="allow_external_members" />
     <property name="sendMessageDenyNotificationDb" column="send_msg_dny_notif" />

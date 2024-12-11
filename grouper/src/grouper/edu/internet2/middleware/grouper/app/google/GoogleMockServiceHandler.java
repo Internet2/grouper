@@ -902,11 +902,13 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     String groupSettingsJson = mockServiceRequest.getRequestBody();
     JsonNode groupSettingsJsonNode = GrouperUtil.jsonJacksonNode(groupSettingsJson);
     grouperGoogleGroup.populateGroupSettings(groupSettingsJsonNode);
-    
-    
-    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanAdd())) {
-      grouperGoogleGroup.setWhoCanAdd(grouperGoogleGroup.getWhoCanAdd());
-    }
+
+
+    /* whoCanAdd is deprecated and ignored */
+    //if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanAdd())) {
+    //  grouperGoogleGroup.setWhoCanAdd(grouperGoogleGroup.getWhoCanAdd());
+    //}
+    grouperGoogleGroup.setWhoCanAdd("ALL_MANAGERS_CAN_ADD");
     if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanJoin())) {
       grouperGoogleGroup.setWhoCanJoin(grouperGoogleGroup.getWhoCanJoin());
     }
@@ -916,8 +918,35 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanViewGroup())) {
       grouperGoogleGroup.setWhoCanViewGroup(grouperGoogleGroup.getWhoCanViewGroup());
     }
-    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanInvite())) {
-      grouperGoogleGroup.setWhoCanInvite(grouperGoogleGroup.getWhoCanInvite());
+    /* whoCanInvite is deprecated and ignored */
+    //if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanInvite())) {
+    //  grouperGoogleGroup.setWhoCanInvite(grouperGoogleGroup.getWhoCanInvite());
+    //}
+    grouperGoogleGroup.setWhoCanInvite("ALL_MANAGERS_CAN_INVITE");
+    if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanModerateMembers())) {
+      grouperGoogleGroup.setWhoCanModerateMembers(grouperGoogleGroup.getWhoCanModerateMembers());
+
+      switch (grouperGoogleGroup.getWhoCanModerateMembers()) {
+        case "NONE":
+          grouperGoogleGroup.setWhoCanAdd("NONE_CAN_ADD");
+          grouperGoogleGroup.setWhoCanInvite("NONE_CAN_INVITE");
+          break;
+        case "OWNERS_ONLY":
+          grouperGoogleGroup.setWhoCanAdd("ALL_OWNERS_CAN_ADD");
+          grouperGoogleGroup.setWhoCanInvite("ALL_OWNERS_CAN_INVITE");
+          break;
+        case "OWNERS_AND_MANAGERS":
+          grouperGoogleGroup.setWhoCanAdd("ALL_MANAGERS_CAN_ADD");
+          grouperGoogleGroup.setWhoCanInvite("ALL_MANAGERS_CAN_INVITE");
+          break;
+        case "ALL_MEMBERS":
+          grouperGoogleGroup.setWhoCanAdd("ALL_MEMBERS_CAN_ADD");
+          grouperGoogleGroup.setWhoCanInvite("ALL_MEMBERS_CAN_INVITE");
+          break;
+        default:
+          throw new IllegalStateException("Unexpected value: " + grouperGoogleGroup.getWhoCanModerateMembers());
+      }
+
     }
     if (StringUtils.isNotBlank(grouperGoogleGroup.getWhoCanPostMessage())) {
       grouperGoogleGroup.setWhoCanPostMessage(grouperGoogleGroup.getWhoCanPostMessage());
