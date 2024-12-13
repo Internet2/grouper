@@ -167,10 +167,10 @@ public class SqlCacheMembershipDaoTest extends GrouperTest {
 //    sqlCacheGroup3.setGroupInternalId(group1.getInternalId());
 //    sqlCacheGroup3.setEnabledOn(new Timestamp(System.currentTimeMillis() - 10*1000*60));
 
-    SqlCacheGroup sqlCacheGroup4 = new SqlCacheGroup();
-    sqlCacheGroup4.setFieldInternalId(members.getInternalId());
-    sqlCacheGroup4.setGroupInternalId(group4.getInternalId());
-    sqlCacheGroup4.setEnabledOn(new Timestamp(currentTimeMillis + 10*1000*60));
+//    SqlCacheGroup sqlCacheGroup4 = new SqlCacheGroup();
+//    sqlCacheGroup4.setFieldInternalId(members.getInternalId());
+//    sqlCacheGroup4.setGroupInternalId(group4.getInternalId());
+//    sqlCacheGroup4.setEnabledOn(new Timestamp(currentTimeMillis + 10*1000*60));
 
     SqlCacheGroup sqlCacheGroup5 = new SqlCacheGroup();
     sqlCacheGroup5.setFieldInternalId(members.getInternalId());
@@ -180,7 +180,7 @@ public class SqlCacheMembershipDaoTest extends GrouperTest {
 
     
     
-    SqlCacheGroupDao.retrieveOrCreateBySqlGroupCache(GrouperUtil.toList(sqlCacheGroup1, sqlCacheGroup2, sqlCacheGroup4, sqlCacheGroup5));
+    SqlCacheGroupDao.retrieveOrCreateBySqlGroupCache(GrouperUtil.toList(sqlCacheGroup1, sqlCacheGroup2, sqlCacheGroup5));
     
     String sqlMembershipView = "select gscmv.group_name, gscmv.list_name, gscmv.subject_source, gscmv.subject_id, gscmv.flattened_add_timestamp from grouper_sql_cache_mship_v gscmv order by 1, 2, 3, 4";
     
@@ -218,8 +218,8 @@ public class SqlCacheMembershipDaoTest extends GrouperTest {
     assertEquals((currentTimeMillis - 2000) * 1000L, GrouperUtil.longObjectValue(groupNameFieldNameSubjectIdSourceIdInDbs.get(1)[4], false).longValue());
 
     List<MultiKey> groupNameFieldNameSubjectIdSourceIdStartedMillisToDelete = GrouperUtil.toList(
-        new MultiKey(group1.getName(), members.getName(), subject1.getSourceId(), subject1.getId()),
-        new MultiKey(group2.getName(), admins.getName(), subject2.getSourceId(), subject2.getId()));
+        new MultiKey(group1.getName(), members.getName(), subject1.getSourceId(), subject1.getId(), System.currentTimeMillis()),
+        new MultiKey(group2.getName(), admins.getName(), subject2.getSourceId(), subject2.getId(), System.currentTimeMillis()));
 
     int deletes = SqlCacheMembershipDao.deleteSqlCacheMembershipsIfCacheable(groupNameFieldNameSubjectIdSourceIdStartedMillisToDelete, null);
 

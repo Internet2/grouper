@@ -71,6 +71,7 @@ import edu.internet2.middleware.grouper.privs.Privilege;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheMembershipDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheMembershipHstDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -478,9 +479,11 @@ public class ChangeLogTempToEntity {
     Set<Field> fields = FieldFinder.findAll();
                     
     Map<MultiKey, MultiKey> cachedMembershipDataAdds = new LinkedHashMap<MultiKey, MultiKey>();
-    Collection<MultiKey> cachedMembershipDataDeletes = new LinkedHashSet<MultiKey>();
+    Map<MultiKey, MultiKey> cachedMembershipDataDeletes = new LinkedHashMap<MultiKey, MultiKey>();
     Map<MultiKey, Timestamp> cachedOwnerFieldEnabledDates = new LinkedHashMap<MultiKey, Timestamp>();
     Map<MultiKey, Timestamp> cachedOwnerFieldDisabledDates = new LinkedHashMap<MultiKey, Timestamp>();
+    
+    Set<MultiKey> membershipsAddedAndDeleted = new LinkedHashSet<MultiKey>();
     
     String membershipAddChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_ADD.getChangeLogType().getId();
     String membershipDeleteChangeLogTypeId = ChangeLogTypeBuiltin.MEMBERSHIP_DELETE.getChangeLogType().getId();
@@ -521,13 +524,18 @@ public class ChangeLogTempToEntity {
           String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName);
           String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId);
           String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
-          
+          long createdOnLongMicros = changeLogEntry.getCreatedOnDb();
+
           if ("members".equals(fieldName)) {
             MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
+            MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLongMicros);
             if (cachedMembershipDataAdds.containsKey(key)) {
-              cachedMembershipDataAdds.remove(key);
+              MultiKey membershipAddMultiKey = cachedMembershipDataAdds.remove(key);
+              
+              // keep track of this in case we need to add a cache history row
+              membershipsAddedAndDeleted.add(new MultiKey(new Object[] {membershipAddMultiKey.getKey(0), membershipAddMultiKey.getKey(1), membershipAddMultiKey.getKey(2), membershipAddMultiKey.getKey(3), membershipAddMultiKey.getKey(4), createdOnLongMicros}));
             } else {
-              cachedMembershipDataDeletes.add(key);
+              cachedMembershipDataDeletes.put(key, value);
             }
           }
         }
@@ -554,11 +562,18 @@ public class ChangeLogTempToEntity {
           String fieldName = Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName), true).getListName();
           String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId);
           String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId);
+          long createdOnLongMicros = changeLogEntry.getCreatedOnDb();
+
           MultiKey key = new MultiKey(ownerName, fieldName, sourceId, subjectId);
+          MultiKey value = new MultiKey(ownerName, fieldName, sourceId, subjectId, createdOnLongMicros);
+          
           if (cachedMembershipDataAdds.containsKey(key)) {
-            cachedMembershipDataAdds.remove(key);
+            MultiKey membershipAddMultiKey = cachedMembershipDataAdds.remove(key);
+            
+            // keep track of this in case we need to add a cache history row
+            membershipsAddedAndDeleted.add(new MultiKey(new Object[] {membershipAddMultiKey.getKey(0), membershipAddMultiKey.getKey(1), membershipAddMultiKey.getKey(2), membershipAddMultiKey.getKey(3), membershipAddMultiKey.getKey(4), createdOnLongMicros}));
           } else {
-            cachedMembershipDataDeletes.add(key);
+            cachedMembershipDataDeletes.put(key, value);
           }
         }
       } else if (groupDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
@@ -698,12 +713,17 @@ public class ChangeLogTempToEntity {
     }
     
     SqlCacheGroupDao.store(sqlCacheOwners.values(), connection, false);
-    SqlCacheMembershipDao.deleteSqlCacheMembershipsIfCacheable(cachedMembershipDataDeletes, connection);
+    SqlCacheMembershipDao.deleteSqlCacheMembershipsIfCacheable(cachedMembershipDataDeletes.values(), connection);
     SqlCacheMembershipDao.insertSqlCacheMembershipsIfCacheable(cachedMembershipDataAdds.values(), connection);
+
+    // we'll keep these separate since hopefully this is rare.
+    SqlCacheMembershipHstDao.insertSqlCacheMembershipHstsIfCacheable(membershipsAddedAndDeleted, connection);
     
     for (SqlCacheGroup sqlCacheOwner : sqlCacheOwners.values()) {
       if (sqlCacheOwner.getDisabledOn() != null && sqlCacheOwner.getDisabledOn().getTime() < System.currentTimeMillis()) {
         SqlCacheMembershipDao.deleteSqlCacheMembershipsBySqlCacheGroupInternalId(sqlCacheOwner.getInternalId(), connection);
+        
+        // Unless there's a reason to do it right away, we'll let the full sync clean up the history table to avoid slowing this down more than it needs to
       }
     }
   }
