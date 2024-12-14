@@ -88,6 +88,16 @@ public class GrouperDataProviderDao {
       GrouperDataGlobalAssignDao.delete(grouperDataRGlobalAssign);
     }
     
+    List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId());
+    for (GrouperDataFieldAssign fieldAssign: dataFieldAssigns) {
+      GrouperDataFieldAssignDao.delete(fieldAssign);
+    }
+    
+    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByProvider(grouperDataProvider.getInternalId());
+    for (GrouperDataRowAssign rowAssign: dataRowAssigns) {
+      GrouperDataRowAssignDao.delete(rowAssign);
+    }
+    
     new GcDbAccess().deleteFromDatabase(grouperDataProvider);
   }
 
