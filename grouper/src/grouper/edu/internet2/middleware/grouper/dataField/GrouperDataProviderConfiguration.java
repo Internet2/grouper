@@ -10,6 +10,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigFileName;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GrouperDataProviderConfiguration extends GrouperConfigurationModuleBase {
   
@@ -70,6 +71,22 @@ public class GrouperDataProviderConfiguration extends GrouperConfigurationModule
     GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
 
     GrouperDataEngine.syncDataProviders(grouperConfig);
+    
+    //delete data provider queries and data provider change log queries
+    List<GrouperDataProviderQueryConfiguration> allDataProviderQueryConfigurations = GrouperDataProviderQueryConfiguration.retrieveAllDataProviderQueryConfigurations();
+    for (GrouperDataProviderQueryConfiguration queryConfig: GrouperUtil.nonNull(allDataProviderQueryConfigurations)) {
+      String providerId = queryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+      if (StringUtils.equals(this.getConfigId(), providerId)) {
+        queryConfig.deleteConfig(fromUi);
+      }
+    }
+    
+    List<GrouperDataProviderChangeLogQueryConfiguration> allDataProviderChangeLogQueryConfigurations = GrouperDataProviderChangeLogQueryConfiguration.retrieveAllDataProviderChangeLogQueryConfigurations();
+    for (GrouperDataProviderChangeLogQueryConfiguration changeLogQueryConfig: GrouperUtil.nonNull(allDataProviderChangeLogQueryConfigurations)) {
+      String providerId = changeLogQueryConfig.retrieveAttributeValueFromConfig("providerConfigId", false);
+      if (StringUtils.equals(this.getConfigId(), providerId)) {
+        changeLogQueryConfig.deleteConfig(fromUi);
+      }
+    }
   }
-
 }
