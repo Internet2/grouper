@@ -767,8 +767,9 @@ public class GoogleMockServiceHandler extends MockServiceHandler {
     String groupId = mockServiceRequest.getPostMockNamePaths()[1];
     
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
-    
-    List<GrouperGoogleGroup> grouperGoogleGroups = HibernateSession.byHqlStatic().createQuery("from GrouperGoogleGroup where id = :theId")
+
+    List<GrouperGoogleGroup> grouperGoogleGroups = HibernateSession.byHqlStatic().createQuery(
+        "from GrouperGoogleGroup where id = :theId or email = :theId")
         .setString("theId", groupId).list(GrouperGoogleGroup.class);
 
     if (GrouperUtil.length(grouperGoogleGroups) == 1) {
