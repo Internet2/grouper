@@ -293,7 +293,10 @@ public class GrouperDataProviderTest extends GrouperTest {
     batchBindVars.add(GrouperUtil.toList("test.subject.1", "F", "T", "F"));
     batchBindVars.add(GrouperUtil.toList("test.subject.2", "T", "T", "T"));
     batchBindVars.add(GrouperUtil.toList("test.subject.3", "F", "F", "F"));
-    
+
+    // bad subject shouldn't cause the load to fail
+    batchBindVars.add(GrouperUtil.toList("test.subject.bogus", "F", "F", "F"));
+
     new GcDbAccess().sql("insert into testgrouper_field_attr (subject_id, active, two_step_enrolled, employee) values (?, ?, ?, ?)")
       .batchBindVars(batchBindVars).executeBatchSql();
     
@@ -306,6 +309,9 @@ public class GrouperDataProviderTest extends GrouperTest {
     batchBindVars.add(GrouperUtil.toList("test.subject.2", "234"));
     batchBindVars.add(GrouperUtil.toList("test.subject.3", "789"));
     batchBindVars.add(GrouperUtil.toList("test.subject.3", "456"));
+    
+    // bad subject shouldn't cause the load to fail
+    batchBindVars.add(GrouperUtil.toList("test.subject.bogus", "456"));
 
     new GcDbAccess().sql("insert into testgrouper_field_attr_multi (subject_id, attribute_value) values (?, ?)")
       .batchBindVars(batchBindVars).executeBatchSql();
@@ -319,6 +325,9 @@ public class GrouperDataProviderTest extends GrouperTest {
     batchBindVars.add(GrouperUtil.toList("test.subject.2", "staff", "F", "span"));
     batchBindVars.add(GrouperUtil.toList("test.subject.3", "fac", "T", "engl"));
     batchBindVars.add(GrouperUtil.toList("test.subject.3", "emer", "T", "math"));
+    
+    // bad subject shouldn't cause the load to fail
+    batchBindVars.add(GrouperUtil.toList("test.subject.bogus", "emer", "T", "math"));
 
     new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values (?, ?, ?, ?)")
       .batchBindVars(batchBindVars).executeBatchSql();
@@ -475,6 +484,9 @@ public class GrouperDataProviderTest extends GrouperTest {
       batchBindVarsChangeLog.add(GrouperUtil.toList(3, "test.subject.2", new Date()));
       batchBindVarsChangeLog.add(GrouperUtil.toList(4, "test.subject.3", new Date()));
       
+      // bad subject shouldn't cause the load to fail
+      batchBindVarsChangeLog.add(GrouperUtil.toList(5, "test.subject.bogus", new Date()));
+
       new GcDbAccess().sql("insert into testgrouper_dp_changelog (id, subject_id, create_timestamp1) values (?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
       
       GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");  
