@@ -110,7 +110,29 @@ public class GoogleSyncObjectMetadata extends GrouperProvisioningObjectMetadata 
       
       grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
     }
-    
+
+    if (((GrouperGoogleConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isWhoCanModerateMembers() &&
+            !this.containsMetadataItemByName("md_grouper_whoCanModerateMembers")) {
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataWhoCanModerateMembersDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataWhoCanModerateMembersLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_whoCanModerateMembers");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+
+      valuesAndLabels.add(new MultiKey("ALL_MEMBERS", "ALL_MEMBERS"));
+      valuesAndLabels.add(new MultiKey("OWNERS_AND_MANAGERS", "OWNERS_AND_MANAGERS"));
+      valuesAndLabels.add(new MultiKey("OWNERS_ONLY", "OWNERS_ONLY"));
+      valuesAndLabels.add(new MultiKey("NONE", "NONE"));
+
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+    }
+
     if (((GrouperGoogleConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isWhoCanViewGroup() &&
         !this.containsMetadataItemByName("md_grouper_whoCanViewGroup")) {
       GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();

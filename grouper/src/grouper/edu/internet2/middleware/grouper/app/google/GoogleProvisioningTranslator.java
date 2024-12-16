@@ -21,7 +21,7 @@ public class GoogleProvisioningTranslator extends GrouperProvisioningTranslator 
     for (ProvisioningGroup grouperProvisioningGroup : GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
       for (String attributeName : new String[] { "whoCanAdd", "whoCanJoin", "whoCanViewMembership", "whoCanViewGroup", "whoCanInvite", 
-          "allowExternalMembers", "whoCanPostMessage", "allowWebPosting"}) {
+          "whoCanModerateMembers", "allowExternalMembers", "whoCanPostMessage", "allowWebPosting"}) {
         String metadataName = "md_grouper_" + attributeName;
         if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
           continue;

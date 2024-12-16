@@ -129,11 +129,15 @@ public class GoogleProvisioningStartWith extends ProvisionerStartWithBase {
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanViewGroup"), false)) {
         provisionerSuffixToValue.put("whoCanViewGroup", "true");
       }
-      
+
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanInvite"), false)) {
         provisionerSuffixToValue.put("whoCanInvite", "true");
       }
-      
+
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanModerateMembers"), false)) {
+        provisionerSuffixToValue.put("whoCanModerateMembers", "true");
+      }
+
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowExternalMembers"), false)) {
         provisionerSuffixToValue.put("allowExternalMembers", "true");
       }

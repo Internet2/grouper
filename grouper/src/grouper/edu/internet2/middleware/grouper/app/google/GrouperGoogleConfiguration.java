@@ -241,7 +241,7 @@ public class GrouperGoogleConfiguration extends GrouperProvisioningConfiguration
     super.configureAfterMetadata();
     
     for (String attributeName : new String[] {"whoCanAdd", "whoCanJoin",
-        "whoCanViewMembership", "whoCanViewGroup", "whoCanInvite",
+        "whoCanViewMembership", "whoCanViewGroup", "whoCanInvite", "whoCanModerateMembers",
         "allowExternalMembers", "whoCanPostMessage", "allowWebPosting"}) {
       
       // if metadata exists
