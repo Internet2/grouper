@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -251,6 +252,7 @@ public class GrouperDataProviderLogic {
         } catch (SubjectNotFoundException e) {
           LOG.warn("Unable to resolve subject " + subjectId, e);
           grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
+          addUnresolvableSubjectToJobMessage(subjectId);
           continue;
         }
         
@@ -305,6 +307,21 @@ public class GrouperDataProviderLogic {
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, false);
     
     calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);    
+  }
+  
+  private void addUnresolvableSubjectToJobMessage(String subjectIdValue) {
+    if (!grouperDataProviderSync.getDebugMap().containsKey("unresolvableSubjectsFirst50")) {
+      grouperDataProviderSync.getDebugMap().put("unresolvableSubjectsFirst50", new LinkedHashSet<String>()); 
+    }
+    
+    @SuppressWarnings("unchecked")
+    Set<String> unresolvableSubjects = (Set<String>)grouperDataProviderSync.getDebugMap().get("unresolvableSubjectsFirst50");
+    
+    if (unresolvableSubjects.size() >= 50) {
+      return;
+    }
+    
+    unresolvableSubjects.add(subjectIdValue);
   }
   
   private void processDataFieldAssignWrappers(List<GrouperDataFieldAssign> grouperDataFieldAssigns) {
@@ -523,6 +540,7 @@ public class GrouperDataProviderLogic {
         } catch (SubjectNotFoundException e) {
           LOG.warn("Unable to resolve subject " + subjectId, e);
           grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
+          addUnresolvableSubjectToJobMessage(subjectId);
           continue;
         }
         
