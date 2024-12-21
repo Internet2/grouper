@@ -43,8 +43,9 @@ public class PspngToNewProvisioningAttributeConversion {
  
   public static void main(String[] args) {
     
-    if (args == null || args.length != 4) {
-      System.out.println("Please provide 4 arguments: the pspng target name, the provisioning framework target name, readonly|notReadonly, deleteOrphans|dontDeleteOrphans");
+    if (args == null || args.length != 6) {
+      System.out.println("Please provide 6 arguments: the pspng target name, the provisioning framework target name, readonly|notReadonly, "
+          + "deleteOrphans|dontDeleteOrphans deletePspngAssignments|dontDeletePspngAssignments, deletePspngAssignmentsOnly|dontDeletePspngAssignmentsOnly");
       return;
     }
     
@@ -71,7 +72,27 @@ public class PspngToNewProvisioningAttributeConversion {
       throw new RuntimeException("4th argument must be deleteOrphans or dontDeleteOrphans! '" + args[3] + "'");
     }
     
-    copyProvisionToAttributesToNewProvisioningAttributes(args[0], args[1], readonly, deleteOrphans);
+    boolean deletePspngAssignments = true;
+
+    if (StringUtils.equalsIgnoreCase(args[4], "deletePspngAssignments")) {
+      deleteOrphans = true;
+    } else if (StringUtils.equalsIgnoreCase(args[4], "dontDeletePspngAssignments")) {
+      deleteOrphans = false;
+    } else {
+      throw new RuntimeException("5th argument must be deletePspngAssignments or dontDeletePspngAssignments! '" + args[4] + "'");
+    }
+
+    boolean deletePspngAssignmentsOnly = false;
+
+    if (StringUtils.equalsIgnoreCase(args[5], "deletePspngAssignmentsOnly")) {
+      deleteOrphans = true;
+    } else if (StringUtils.equalsIgnoreCase(args[5], "dontDeletePspngAssignmentsOnly")) {
+      deleteOrphans = false;
+    } else {
+      throw new RuntimeException("5th argument must be deleteOrphans or dontDeleteOrphans! '" + args[5] + "'");
+    }
+    
+    copyProvisionToAttributesToNewProvisioningAttributes(args[0], args[1], readonly, deleteOrphans, deletePspngAssignments, deletePspngAssignmentsOnly);
     // copyProvisionToAttributesToNewProvisioningAttributes("pspng_activedirectory");
     
     System.exit(0);
@@ -86,6 +107,21 @@ public class PspngToNewProvisioningAttributeConversion {
    * @param deleteOrphans if should remove provisioning framework assignments which do not exist in pspng
    */
   public static void copyProvisionToAttributesToNewProvisioningAttributes(String pspngProvisioningConfigId, String provisioningFrameworkConfigId, boolean readonly, boolean deleteOrphans) {
+    copyProvisionToAttributesToNewProvisioningAttributes(pspngProvisioningConfigId, provisioningFrameworkConfigId, readonly, deleteOrphans,
+      true, false);
+  }
+
+  /**
+   * 
+   * @param pspngProvisioningConfigId pspng config id
+   * @param provisioningFrameworkConfigId provisioning framework config id
+   * @param readonly if should be readonly
+   * @param deleteOrphans if should remove provisioning framework assignments which do not exist in pspng
+   * @param deletePspngAssignments (default true) if pspng assignments should be removed (e.g. cannot rollback)
+   * @param deletePspngAssignmentsOnly (default false) if pspng assignments should be removed only (e.g. done with migration)
+   */
+  public static void copyProvisionToAttributesToNewProvisioningAttributes(String pspngProvisioningConfigId, String provisioningFrameworkConfigId, boolean readonly, boolean deleteOrphans,
+      boolean deletePspngAssignments, boolean deletePspngAssignmentsOnly) {
     
     // get target names configured via misc. screen 
     Set<String> validTargetNames = GrouperProvisioningSettings.getTargets(false).keySet();
@@ -241,7 +277,7 @@ public class PspngToNewProvisioningAttributeConversion {
           System.out.println("Going to assign new provisioning attributes to folder "+doNotProvisionToStem.getName() + " "
               + "with target name "+provisioningFrameworkConfigId + " with provisionable false");
           
-          if (!readonly) {
+          if (!readonly && !deletePspngAssignmentsOnly) {
             GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
             grouperProvisioningAttributeValue.setTargetName(provisioningFrameworkConfigId);
             grouperProvisioningAttributeValue.setDirectAssignment(true);
@@ -265,7 +301,7 @@ public class PspngToNewProvisioningAttributeConversion {
           System.out.println("Going to assign new provisioning attributes to group "+doNotProvisionToGroup.getName() + " "
               + "with target name "+provisioningFrameworkConfigId + " with provisionable false");
 
-          if (!readonly) {
+          if (!readonly && !deletePspngAssignmentsOnly) {
             GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
             grouperProvisioningAttributeValue.setTargetName(provisioningFrameworkConfigId);
             grouperProvisioningAttributeValue.setDirectAssignment(true);
@@ -290,7 +326,7 @@ public class PspngToNewProvisioningAttributeConversion {
           System.out.println("Going to assign new provisioning attributes to folder "+provisionToStem.getName() + " "
               + "with target name "+provisioningFrameworkConfigId + " with provisionable true");
           
-          if (!readonly) {
+          if (!readonly && !deletePspngAssignmentsOnly) {
             GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
             grouperProvisioningAttributeValue.setTargetName(provisioningFrameworkConfigId);
             grouperProvisioningAttributeValue.setDirectAssignment(true);
@@ -315,7 +351,7 @@ public class PspngToNewProvisioningAttributeConversion {
           System.out.println("Going to assign new provisioning attributes to group "+provisionToGroup.getName() + " "
               + "with target name "+provisioningFrameworkConfigId + " with provisionable true");
           
-          if (!readonly) {
+          if (!readonly && !deletePspngAssignmentsOnly) {
             GrouperProvisioningAttributeValue grouperProvisioningAttributeValue = new GrouperProvisioningAttributeValue();
             grouperProvisioningAttributeValue.setTargetName(provisioningFrameworkConfigId);
             grouperProvisioningAttributeValue.setDirectAssignment(true);
@@ -335,7 +371,7 @@ public class PspngToNewProvisioningAttributeConversion {
           }
         }
         
-        if (deleteOrphans) {
+        if (deleteOrphans && !deletePspngAssignmentsOnly) {
           // clear out invalid assignments
           {
             Set<Stem> oldPspngStems = new HashSet<Stem>();
