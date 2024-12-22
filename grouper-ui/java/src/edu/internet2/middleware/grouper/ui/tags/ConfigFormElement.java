@@ -371,7 +371,7 @@ public class ConfigFormElement extends SimpleTagSupport {
       field.append("<td style='vertical-align: top; white-space: nowrap;' >");
       
       if (!readOnly) {
-        field.append("<input style='vertical-align: top; min-height: 10px; margin-right: 2px;' type='checkbox' ");
+        field.append("<input class='config-el-checkbox' type='checkbox' ");
         field.append("name='config_el_"+configId+"' ");
         
         if (hasExpressionLanguage) {
@@ -379,7 +379,7 @@ public class ConfigFormElement extends SimpleTagSupport {
         }
             
         field.append("onchange=\""+ajaxCallback+"\"");
-        field.append("</input><span rel='tooltip' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "' style='border-bottom: 1px dotted #000;'>");
+        field.append("</input><span rel='tooltip' class='config-el-label' title='" + GrouperUtil.xmlEscape(GrouperTextContainer.textOrNull("grouperConfigIsElTooltip")) + "'>");
         field.append(GrouperTextContainer.textOrNull("grouperConfigIsElLabel"));
         field.append("</span>");
       }
@@ -492,7 +492,7 @@ public class ConfigFormElement extends SimpleTagSupport {
           String radioButtonValue = GrouperUtil.stringValue(multiKey.getKey(1));
           boolean checked = StringUtils.equals(key, value);
 
-          field.append("<input type='radio' style='margin-right:3px;margin-top:0px; "+ displayClass+"' id='config_"+configId+(index==0?"":Integer.toString(index))+"_id' name='config_"+configId+"' value='"+key+"' ");
+          field.append("<input type='radio' class='config-radio-button'"+ displayClass+"' id='config_"+configId+(index==0?"":Integer.toString(index))+"_id' name='config_"+configId+"' value='"+key+"' ");
           field.append(checked ? " checked ": "");
           field.append("onchange=\""+ajaxCallback+"\"");
           field.append(">");
@@ -500,9 +500,9 @@ public class ConfigFormElement extends SimpleTagSupport {
           
           if (firstOption) {
             firstOption = false;
-            field.append("<span style='display: inline-block; width: 120px;'>"+radioButtonValue+"</span>");
+            field.append("<span class='config-first-radio-button-label'>"+radioButtonValue+"</span>");
           } else {
-            field.append("<span style='margin-right: 10px;'>"+radioButtonValue+"</span>"); 
+            field.append("<span class='config-radio-button-label'>"+radioButtonValue+"</span>"); 
           }
           
           index++;
