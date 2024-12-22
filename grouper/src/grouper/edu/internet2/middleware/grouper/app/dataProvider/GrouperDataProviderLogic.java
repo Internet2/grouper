@@ -5,11 +5,13 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Member;
@@ -50,12 +52,15 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.subject.Subject;
+import edu.internet2.middleware.subject.SubjectNotFoundException;
 
 /**
  * 
  */
 public class GrouperDataProviderLogic {
   
+  private static final Log LOG = GrouperUtil.getLog(GrouperDataProviderLogic.class);
+      
   private GrouperDataProviderSync grouperDataProviderSync;
   private GrouperDataProvider grouperDataProvider;
 
@@ -235,12 +240,20 @@ public class GrouperDataProviderLogic {
         String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
         
         Subject subject;
-        if (subjectIdType.equals("subjectId")) {
-          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
-              : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);          
-        } else {
-          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findByIdentifier(subjectId, true)
-              : SubjectFinder.findByIdentifierAndSource(subjectId, sourceIdAttribute, true);  
+        
+        try {
+          if (subjectIdType.equals("subjectId")) {
+            subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+                : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);          
+          } else {
+            subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findByIdentifier(subjectId, true)
+                : SubjectFinder.findByIdentifierAndSource(subjectId, sourceIdAttribute, true);  
+          }
+        } catch (SubjectNotFoundException e) {
+          LOG.warn("Unable to resolve subject " + subjectId, e);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
+          addUnresolvableSubjectToJobMessage(subjectId);
+          continue;
         }
         
         Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
@@ -294,6 +307,21 @@ public class GrouperDataProviderLogic {
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, false);
     
     calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);    
+  }
+  
+  private void addUnresolvableSubjectToJobMessage(String subjectIdValue) {
+    if (!grouperDataProviderSync.getDebugMap().containsKey("unresolvableSubjectsFirst50")) {
+      grouperDataProviderSync.getDebugMap().put("unresolvableSubjectsFirst50", new LinkedHashSet<String>()); 
+    }
+    
+    @SuppressWarnings("unchecked")
+    Set<String> unresolvableSubjects = (Set<String>)grouperDataProviderSync.getDebugMap().get("unresolvableSubjectsFirst50");
+    
+    if (unresolvableSubjects.size() >= 50) {
+      return;
+    }
+    
+    unresolvableSubjects.add(subjectIdValue);
   }
   
   private void processDataFieldAssignWrappers(List<GrouperDataFieldAssign> grouperDataFieldAssigns) {
@@ -501,12 +529,19 @@ public class GrouperDataProviderLogic {
         String subjectId = GrouperUtil.stringValue(row[subjectIdZeroIndex]);
         
         Subject subject;
-        if (subjectIdType.equals("subjectId")) {
-          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
-              : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);          
-        } else {
-          subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findByIdentifier(subjectId, true)
-              : SubjectFinder.findByIdentifierAndSource(subjectId, sourceIdAttribute, true);  
+        try {
+          if (subjectIdType.equals("subjectId")) {
+            subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findById(subjectId, true)
+                : SubjectFinder.findByIdAndSource(subjectId, sourceIdAttribute, true);          
+          } else {
+            subject = StringUtils.isBlank(sourceIdAttribute) ? SubjectFinder.findByIdentifier(subjectId, true)
+                : SubjectFinder.findByIdentifierAndSource(subjectId, sourceIdAttribute, true);  
+          }
+        } catch (SubjectNotFoundException e) {
+          LOG.warn("Unable to resolve subject " + subjectId, e);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
+          addUnresolvableSubjectToJobMessage(subjectId);
+          continue;
         }
         
         Member member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true);
