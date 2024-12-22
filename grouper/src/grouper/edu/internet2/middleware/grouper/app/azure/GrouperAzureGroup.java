@@ -80,6 +80,7 @@ public class GrouperAzureGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_hide_group_in_outlook", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_sub_new_group_members", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_welcome_email_disbled", Types.VARCHAR, "1", false, true);
+      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rbo_sub_members_to_cal_events_disabled", Types.VARCHAR, "1", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "rpo_team", Types.VARCHAR, "1", false, true);
 
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_azure_group_disp_idx", false, "display_name");
@@ -118,6 +119,7 @@ public class GrouperAzureGroup {
     targetGroup.assignAttributeValue("hideGroupInOutlook", this.resourceBehaviorOptionsHideGroupInOutlook);
     targetGroup.assignAttributeValue("subscribeNewGroupMembers", this.resourceBehaviorOptionsSubscribeNewGroupMembers);
     targetGroup.assignAttributeValue("welcomeEmailDisabled", this.resourceBehaviorOptionsWelcomeEmailDisabled);
+    targetGroup.assignAttributeValue("subscribeMembersToCalendarEventsDisabled", this.resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled);
     targetGroup.assignAttributeValue("resourceProvisioningOptionsTeam", this.resourceProvisioningOptionsTeam);
     targetGroup.assignAttributeValue("groupOwners", this.owners);
     
@@ -206,6 +208,10 @@ public class GrouperAzureGroup {
       grouperAzureGroup.setResourceBehaviorOptionsWelcomeEmailDisabled(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("welcomeEmailDisabled"), false));
     }
     
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("subscribeMembersToCalendarEventsDisabled")) {      
+      grouperAzureGroup.setResourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("subscribeMembersToCalendarEventsDisabled"), false));
+    }
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("resourceProvisioningOptionsTeam")) {      
       grouperAzureGroup.setResourceProvisioningOptionsTeam(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("resourceProvisioningOptionsTeam"), false));
     }
@@ -228,6 +234,7 @@ public class GrouperAzureGroup {
   private boolean resourceBehaviorOptionsHideGroupInOutlook;
   private boolean resourceBehaviorOptionsSubscribeNewGroupMembers;
   private boolean resourceBehaviorOptionsWelcomeEmailDisabled;
+  private boolean resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled;
   private boolean resourceProvisioningOptionsTeam;
   private boolean groupOwnersManage;
   
@@ -417,6 +424,17 @@ public class GrouperAzureGroup {
     this.resourceBehaviorOptionsWelcomeEmailDisabled = resourceBehaviorOptionsWelcomeEmailDisabled;
   }
 
+  
+  public boolean isResourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled() {
+    return resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled;
+  }
+
+  
+  public void setResourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled(
+      boolean resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled) {
+    this.resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled = resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled;
+  }
+
   /**
    * convert from jackson json
    * @param groupNode
@@ -460,6 +478,9 @@ public class GrouperAzureGroup {
       }
       if (resourceBehaviorOptions.contains("WelcomeEmailDisabled")) {
         grouperAzureGroup.resourceBehaviorOptionsWelcomeEmailDisabled = true;
+      }
+      if (resourceBehaviorOptions.contains("SubscribeMembersToCalendarEventsDisabled")) {
+        grouperAzureGroup.resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled = true;
       }
     }
     
@@ -577,6 +598,9 @@ public class GrouperAzureGroup {
       if (this.resourceBehaviorOptionsWelcomeEmailDisabled) {
         resourceBehaviorOptions.add("WelcomeEmailDisabled");
       }
+      if (this.resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled) {
+        resourceBehaviorOptions.add("SubscribeMembersToCalendarEventsDisabled");
+      }
       // do we need to set null if none set?  hmmm
       if (resourceBehaviorOptions.size() > 0) {
         GrouperUtil.jsonJacksonAssignStringArray(result, "resourceBehaviorOptions", resourceBehaviorOptions);
@@ -651,6 +675,14 @@ public class GrouperAzureGroup {
   
   public void setResourceBehaviorOptionsWelcomeEmailDisabledDb(String resourceBehaviorOptionsWelcomeEmailDisabled) {
     this.resourceBehaviorOptionsWelcomeEmailDisabled = GrouperUtil.booleanValue(resourceBehaviorOptionsWelcomeEmailDisabled, false);
+  }
+
+  public String getResourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabledDb() {
+    return resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled ? "T" : "F";
+  }
+  
+  public void setResourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabledDb(String resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled) {
+    this.resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled = GrouperUtil.booleanValue(resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled, false);
   }
 
   

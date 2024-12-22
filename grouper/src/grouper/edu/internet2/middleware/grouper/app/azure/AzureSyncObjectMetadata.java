@@ -206,6 +206,32 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       
       grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
     }
+    
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isSubscribeMembersToCalendarEventsDisabled() &&
+        !this.containsMetadataItemByName("md_grouper_subscribeMembersToCalendarEventsDisabled")) {
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+      
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataSubscribeMembersToCalendarEventsDisabledDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataSubscribeMembersToCalendarEventsDisabledLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_subscribeMembersToCalendarEventsDisabled");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      grouperProvisioningObjectMetadataItem.setCanUpdate(false);
+      grouperProvisioningObjectMetadataItem.setDefaultValue(false);
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+      
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
+      valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
+      valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
+      
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+    }
 
     if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isResourceProvisioningOptionsTeam() &&
         !this.containsMetadataItemByName("md_grouper_resourceProvisioningOptionsTeam")) {

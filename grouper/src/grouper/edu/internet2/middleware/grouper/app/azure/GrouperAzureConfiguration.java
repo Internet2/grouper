@@ -16,6 +16,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   private boolean hideGroupInOutlook;
   private boolean subscribeNewGroupMembers;
   private boolean welcomeEmailDisabled;
+  private boolean subscribeMembersToCalendarEventsDisabled;
   private boolean azureGroupType;
   private boolean groupOwners;
   private boolean groupOwnersManage;
@@ -28,7 +29,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     
     for (String attributeName : new String[] {"assignableToRole", "azureGroupType", 
         "groupOwners", "groupOwnersManage", "allowOnlyMembersToPost", "hideGroupInOutlook",
-        "subscribeNewGroupMembers", "welcomeEmailDisabled", "resourceProvisioningOptionsTeam"}) {
+        "subscribeNewGroupMembers", "welcomeEmailDisabled", "subscribeMembersToCalendarEventsDisabled", "resourceProvisioningOptionsTeam"}) {
       
       // if metadata exists
       String metadataName = "md_grouper_" + attributeName;
@@ -72,6 +73,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     this.hideGroupInOutlook = GrouperUtil.booleanValue(this.retrieveConfigString("hideGroupInOutlook", false), false);
     this.subscribeNewGroupMembers = GrouperUtil.booleanValue(this.retrieveConfigString("subscribeNewGroupMembers", false), false);
     this.welcomeEmailDisabled = GrouperUtil.booleanValue(this.retrieveConfigString("welcomeEmailDisabled", false), false);
+    this.subscribeMembersToCalendarEventsDisabled = GrouperUtil.booleanValue(this.retrieveConfigString("subscribeMembersToCalendarEventsDisabled", false), false);
     this.resourceProvisioningOptionsTeam = GrouperUtil.booleanValue(this.retrieveConfigString("resourceProvisioningOptionsTeam", false), false);
   }
 
@@ -147,8 +149,18 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   public void setWelcomeEmailDisabled(boolean welcomeEmailDisabled) {
     this.welcomeEmailDisabled = welcomeEmailDisabled;
   }
+  
+  
+  public boolean isSubscribeMembersToCalendarEventsDisabled() {
+    return subscribeMembersToCalendarEventsDisabled;
+  }
 
   
+  public void setSubscribeMembersToCalendarEventsDisabled(
+      boolean subscribeMembersToCalendarEventsDisabled) {
+    this.subscribeMembersToCalendarEventsDisabled = subscribeMembersToCalendarEventsDisabled;
+  }
+
   public boolean isResourceProvisioningOptionsTeam() {
     return resourceProvisioningOptionsTeam;
   }

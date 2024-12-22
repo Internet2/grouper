@@ -27,7 +27,7 @@ public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
     for (ProvisioningGroup grouperProvisioningGroup : GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
       for (String attributeName : new String[] { "assignableToRole", "azureGroupType", "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
-          "welcomeEmailDisabled", "resourceProvisioningOptionsTeam", "groupOwners", "groupOwnersManage"}) {
+          "welcomeEmailDisabled", "subscribeMembersToCalendarEventsDisabled", "resourceProvisioningOptionsTeam", "groupOwners", "groupOwnersManage"}) {
         String metadataName = "md_grouper_" + attributeName;
         if (StringUtils.equals(attributeName, "assignableToRole")) {
           attributeName = "isAssignableToRole";

@@ -44,6 +44,7 @@
     <property name="resourceBehaviorOptionsHideGroupInOutlookDb" column="rbo_hide_group_in_outlook" />
     <property name="resourceBehaviorOptionsSubscribeNewGroupMembersDb" column="rbo_sub_new_group_members" />
     <property name="resourceBehaviorOptionsWelcomeEmailDisabledDb" column="rbo_welcome_email_disbled" />
+    <property name="resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabledDb" column="rbo_sub_members_to_cal_events_disabled" />
     <property name="resourceProvisioningOptionsTeamDb" column="rpo_team" />
 
   </class>

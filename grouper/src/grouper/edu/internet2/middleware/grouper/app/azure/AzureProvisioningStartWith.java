@@ -162,6 +162,9 @@ public class AzureProvisioningStartWith extends ProvisionerStartWithBase {
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWelcomeEmailDisabled"), false)) {
         provisionerSuffixToValue.put("welcomeEmailDisabled", "true");
       }
+      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForSubscribeMembersToCalendarEventsDisabled"), false)) {
+        provisionerSuffixToValue.put("subscribeMembersToCalendarEventsDisabled", "true");
+      }
       
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForResourceProvisioningOptionsTeam"), false)) {
         provisionerSuffixToValue.put("resourceProvisioningOptionsTeam", "true");
