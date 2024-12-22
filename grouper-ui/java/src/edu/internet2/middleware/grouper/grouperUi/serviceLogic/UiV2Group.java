@@ -43,9 +43,6 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
-import edu.internet2.middleware.grouper.ui.util.HttpContentType;
-import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import org.apache.commons.csv.CSVFormat;
 import org.apache.commons.csv.CSVPrinter;
 import org.apache.commons.csv.QuoteMode;
@@ -143,16 +140,19 @@ import edu.internet2.middleware.grouper.subj.SubjectBean;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.subj.UnresolvableSubject;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
+import edu.internet2.middleware.grouper.ui.exceptions.ControllerDone;
 import edu.internet2.middleware.grouper.ui.tags.GrouperPagingTag2;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
+import edu.internet2.middleware.grouper.ui.util.HttpContentType;
 import edu.internet2.middleware.grouper.ui.util.ProgressBean;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
 import edu.internet2.middleware.grouper.util.GrouperFuture;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Source;
 import edu.internet2.middleware.subject.Subject;
@@ -4952,6 +4952,25 @@ public class UiV2Group {
       GuiGroup guiGroup = new GuiGroup(group);
       groupContainer.setGuiGroup(guiGroup);
       
+      Set<Membership> enabledMemberships = group.getMemberships(true);
+      if (GrouperUtil.nonNull(enabledMemberships).size() > 0) {
+        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+            TextContainer.retrieveFromRequest().getText().get("groupCompositeException")));
+        return;
+      }
+      
+      int countOfFutureEnabledDeletedMemberships = 0;
+      Set<Membership> memberships = group.getMemberships(false);
+      for (Membership membership: GrouperUtil.nonNull(memberships)) {
+        if (!membership.isEnabled()) {
+          if (membership.getEnabledTime() != null && membership.getEnabledTime().after(new Date())) {
+            countOfFutureEnabledDeletedMemberships++;
+          }
+        }
+      }
+      
+
+      progressBean.setCountOfFutureEnabledDeletedMemberships(countOfFutureEnabledDeletedMemberships);
       final CompositeType COMPOSITE_TYPE = compositeType;
       GrouperCallable<Void> grouperCallable = new GrouperCallable<Void>("groupComposite") {
         
@@ -5518,9 +5537,14 @@ public class UiV2Group {
           
           //go back to view group
           guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2Group.viewGroup&groupId=" + groupContainer.getGuiGroup().getGroup().getId() + "');"));
-  
-          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
-              TextContainer.retrieveFromRequest().getText().get("groupCompositeSuccess")));
+          
+          if (progressBean.getCountOfFutureEnabledDeletedMemberships() > 0) {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupCompositeCountOfFutureEnabledDeletedMembershipsGreaterThanZero")));
+          } else {
+            guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
+                TextContainer.retrieveFromRequest().getText().get("groupCompositeSuccess")));
+          }
   
         }
       } else {

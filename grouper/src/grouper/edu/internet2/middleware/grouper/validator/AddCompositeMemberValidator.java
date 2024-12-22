@@ -53,7 +53,7 @@ public class AddCompositeMemberValidator extends GrouperValidator {
     }
     else if ( 
       GrouperDAOFactory.getFactory().getMembership().findAllMembershipEntriesByGroupOwnerAndFieldAndType(
-        g.getUuid(), Group.getDefaultList(), "immediate", false
+        g.getUuid(), Group.getDefaultList(), "immediate", true
       ).size() > 0 
     )
     {

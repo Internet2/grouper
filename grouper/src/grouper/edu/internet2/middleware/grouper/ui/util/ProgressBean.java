@@ -41,6 +41,8 @@ public class ProgressBean {
   
   private Exception exception = null;
   
+  private int countOfFutureEnabledDeletedMemberships;
+  
   public Exception getException() {
     return exception;
   }
@@ -198,4 +200,14 @@ public class ProgressBean {
     this.statusCountdown = statusCountdown1;
   }
 
+  public void setCountOfFutureEnabledDeletedMemberships(
+      int countOfFutureEnabledDeletedMemberships) {
+    this.countOfFutureEnabledDeletedMemberships = countOfFutureEnabledDeletedMemberships;
+  }
+
+  
+  public int getCountOfFutureEnabledDeletedMemberships() {
+    return countOfFutureEnabledDeletedMemberships;
+  }
+  
 }

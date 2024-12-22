@@ -1491,6 +1491,18 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
                       return null;
                     }
                   });
+              
+              RulesMembershipBean rulesMembershipBean = new RulesMembershipBean(membership, Group.this, subject);
+
+              //if we are in the default list, then fire a rule
+              if (StringUtils.equals(field.getUuid(), Group.getDefaultList().getUuid())) {
+                
+                //fire rules directly connected to this membership add
+                RuleEngine.fireRule(RuleCheckType.membershipAdd, rulesMembershipBean);
+                //fire rules related to add in stem
+                RuleEngine.fireRule(RuleCheckType.membershipAddInFolder, rulesMembershipBean);
+
+              }
             }
             return hasChange;
           }
@@ -3811,6 +3823,33 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
       )
     );
   } // public Set getMemberships(f)
+  
+  
+  /**
+   * Get memberships of this group.
+   * 
+   * A membership is the object which represents a join of member
+   * and group.  Has metadata like type and creator,
+   * and, if an effective membership, the parent membership
+   * 
+   * <pre class="eg">
+   * Set memberships = g.getMemberships(f);
+   * </pre>
+   * @param enabledOnly 
+   * @return  A set of {@link Membership} objects.
+   * @throws  SchemaException
+   */
+  public Set<Membership> getMemberships(boolean enabledOnly) 
+    throws  SchemaException
+  {
+    return new LinkedHashSet<Membership>( 
+      PrivilegeHelper.canViewMemberships( 
+        GrouperSession.staticGrouperSession(), GrouperDAOFactory.getFactory()
+          .getMembership()
+          .findAllByGroupOwnerAndField(this.getUuid(), getDefaultList(), enabledOnly)
+      )
+    );
+  } // public Set getMemberships(enabledOnly)
 
   /**
    * Get memberships of this group, for a certain collection of members
@@ -5866,6 +5905,14 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
               throw new MemberAddException(vAdd.getErrorMessage() + ", " + errorMessageSuffix);
             }
 
+            
+            Set<Membership> memberships = getMemberships(false);
+            for (Membership membership: GrouperUtil.nonNull(memberships)) {
+              if (!membership.isEnabled()) {
+                membership.delete();
+              }
+            }
+            
             GrouperDAOFactory.getFactory().getComposite().save(c);
             EVENT_LOG.groupAddComposite(session, c, sw);
             
