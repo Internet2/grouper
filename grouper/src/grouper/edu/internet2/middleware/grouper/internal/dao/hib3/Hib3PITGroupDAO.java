@@ -106,6 +106,21 @@ public class Hib3PITGroupDAO extends Hib3DAO implements PITGroupDAO {
     return findBySourceIdActive(id, false, exceptionIfNotFound);
   }
 
+  public PITGroup findBySourceInternalIdActive(long sourceInternalId, boolean exceptionIfNotFound) {
+    PITGroup pitGroup = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitGroup from PITGroup as pitGroup where pitGroup.sourceInternalId = :id and activeDb = 'T'")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceInternalIdActive")
+      .setLong("id", sourceInternalId)
+      .uniqueResult(PITGroup.class);
+
+    if (pitGroup == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITGroup with sourceInternalId=" + sourceInternalId + " not found");
+    }
+    
+    return pitGroup;
+  }
+
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITGroupDAO#findBySourceIdActive(java.lang.String, boolean, boolean)
    */

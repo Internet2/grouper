@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
+import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -119,33 +120,15 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
   }
   
   private void syncMembershipHistory() {
-    // we exclude retrieving pit rows that ended more than 2 years ago, but that might mean that start times saved in the cache history table might not take into account these old memberships when there's overlap.  Assuming for now that it doesn't matter since it's out of range for what we care about, but if we do, then they would need to be pulled in and filtered out later.
-    long twoYearsAgoMicros = (System.currentTimeMillis() - 2*365*24*60*60*1000L) * 1000L;
-    
     List<Object[]> sqlCacheGroupsData = new GcDbAccess().sql("select gscg.internal_id, gscg.group_internal_id, gscg.field_internal_id from grouper_sql_cache_group gscg, grouper_sql_cache_dependency gscd, grouper_sql_cache_depend_type gscdt where gscg.internal_id=gscd.owner_internal_id and gscd.dep_type_internal_id=gscdt.internal_id and gscdt.dependency_category='mshipHistory'").selectList(Object[].class);
     for (Object[] sqlCacheGroupData : sqlCacheGroupsData) {
       long sqlCacheGroupInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[0], false);
       long ownerInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[1], false);
       long fieldInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[2], false);
-      
-      // query cache membership history
-      GcDbAccess gcDbAccess = new GcDbAccess();
-      List<Object[]> cacheMemberships = gcDbAccess.sql("select member_internal_id, start_time, end_time from grouper_sql_cache_mship_hst where sql_cache_group_internal_id = ?").addBindVar(sqlCacheGroupInternalId).selectList(Object[].class);
-      Set<MultiKey> cacheMembershipMultiKeys = new HashSet<MultiKey>();
-      for (Object[] cacheMembership : cacheMemberships) {
-        long memberInternalId = GrouperUtil.longObjectValue(cacheMembership[0], false);
-        long startTimeMicros = GrouperUtil.longObjectValue(cacheMembership[1], false);
-        long endTimeMicros = GrouperUtil.longObjectValue(cacheMembership[2], false);
-        
-        cacheMembershipMultiKeys.add(new MultiKey(memberInternalId, startTimeMicros, endTimeMicros));
-      }
-      
-      // query pit memberships
-      gcDbAccess = new GcDbAccess();
-      StringBuilder sqlQueryPITMemberships = new StringBuilder("select gpm1.member_id, gpgs1.start_time, gpm1.start_time, gpgs1.end_time, gpm1.end_time from grouper_pit_group_set gpgs1, grouper_pit_memberships gpm1 where gpm1.owner_id = gpgs1.member_id and gpm1.field_id = gpgs1.member_field_id and gpgs1.owner_id=? and gpgs1.field_id=? and (gpgs1.end_time is null or gpgs1.end_time > ?) and (gpm1.end_time is null or gpm1.end_time > ?)");
-      String pitFieldId = fieldInternalIdToPITId.get(fieldInternalId);
       Field field = fieldInternalIdToField.get(fieldInternalId);
-      String pitOwnerId;
+      String pitFieldId = fieldInternalIdToPITId.get(field.getInternalId());
+
+      String pitOwnerId = null;
       
       if (field.isGroupAccessField() || field.getName().equals("members")) {
         pitOwnerId = groupInternalIdToPITId.get(ownerInternalId);
@@ -153,158 +136,185 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
         pitOwnerId = stemIdIndexToPITId.get(ownerInternalId);
       } else if (field.isAttributeDefListField()) {
         pitOwnerId = attributeDefIdIndexToPITId.get(ownerInternalId);
-      } else {
-        continue;
       }
       
       if (pitOwnerId == null) {
         continue;
       }
       
-      gcDbAccess.addBindVar(pitOwnerId);      
-      gcDbAccess.addBindVar(pitFieldId);
-      gcDbAccess.addBindVar(twoYearsAgoMicros);
-      gcDbAccess.addBindVar(twoYearsAgoMicros);
-            
-      List<Object[]> pitMemberships = gcDbAccess.sql(sqlQueryPITMemberships.toString()).selectList(Object[].class);
-      
-      // sort based on end time desc
-      pitMemberships.sort(new Comparator<Object[]>() {
-        @Override
-        public int compare(Object[] o1, Object[] o2) {
-          Long o1GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o1[3], true);
-          Long olMembershipEndTimeMicros = GrouperUtil.longObjectValue(o1[4], true);
-          Long o2GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o2[3], true);
-          Long o2MembershipEndTimeMicros = GrouperUtil.longObjectValue(o2[4], true);
-          
-          boolean o1Active = (o1GroupSetEndTimeMicros == null && olMembershipEndTimeMicros == null);
-          boolean o2Active = (o2GroupSetEndTimeMicros == null && o2MembershipEndTimeMicros == null);
-
-          if (o1Active && !o2Active) {
-            return -1;
-          } else if (!o1Active && o2Active) {
-            return 1;
-          } else if (o1Active && o2Active) {
-            return 0;
-          } else {
-            Long o1EndTime = Math.min(o1GroupSetEndTimeMicros != null ? o1GroupSetEndTimeMicros : Long.MAX_VALUE, olMembershipEndTimeMicros != null ? olMembershipEndTimeMicros : Long.MAX_VALUE);
-            Long o2EndTime = Math.min(o2GroupSetEndTimeMicros != null ? o2GroupSetEndTimeMicros : Long.MAX_VALUE, o2MembershipEndTimeMicros != null ? o2MembershipEndTimeMicros : Long.MAX_VALUE);
-            return o2EndTime.compareTo(o1EndTime);
-          }
-        }
-      });
-      
-      Map<Long, Map<Long, Long>> memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros = new HashMap<>();
-      Map<Long, Long> memberInternalIdToLastInsertedEndTimeMicros = new HashMap<>();
-      
-      for (Object[] pitMembership : pitMemberships) {
-        String pitMemberId = (String)pitMembership[0];
-        
-        long groupSetStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[1], false);
-        long membershipStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[2], false);
-        long startTimeMicros = Math.max(groupSetStartTimeMicros, membershipStartTimeMicros);
-        
-        Long groupSetEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[3], true);
-        Long membershipEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[4], true);
-        Long endTimeMicros = null;
-        if (groupSetEndTimeMicros == null && membershipEndTimeMicros != null) {
-          endTimeMicros = membershipEndTimeMicros;
-        } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros == null) {
-          endTimeMicros = groupSetEndTimeMicros;
-        } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros != null) {
-          endTimeMicros = Math.min(groupSetEndTimeMicros, membershipEndTimeMicros);
-        }
-        
-        if (endTimeMicros != null && startTimeMicros > endTimeMicros) {
-          // this is invalid, ignore
-          continue;
-        }
-        
-        Long memberInternalId = pitIdToMemberInternalId.get(pitMemberId);
-        
-        if (memberInternalId == null) {
-          continue;
-        }
-        
-        if (!memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.containsKey(memberInternalId)) {
-          // first time we're seeing this member.  add the flattened membership
-          Long endTimeMicrosAdjusted = endTimeMicros == null ? -1 : endTimeMicros;
-
-          memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.put(memberInternalId, new LinkedHashMap<Long, Long>());
-          memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).put(endTimeMicrosAdjusted, startTimeMicros);
-          
-          memberInternalIdToLastInsertedEndTimeMicros.put(memberInternalId, endTimeMicrosAdjusted);
-        } else {
-          Long lastInsertedEndTimeMicros = memberInternalIdToLastInsertedEndTimeMicros.get(memberInternalId);
-          Long lastInsertedStartTimeMicros = memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).get(lastInsertedEndTimeMicros);
-          
-          if (endTimeMicros == null || endTimeMicros >= lastInsertedStartTimeMicros) {
-            // check if there's an overlap that causes the start time for the flattened membership to decrease
-            if (lastInsertedStartTimeMicros > startTimeMicros) {
-              memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).put(lastInsertedEndTimeMicros, startTimeMicros);
-            }
-          } else {
-            // looks like a new flattened membership
-            memberInternalIdToLastInsertedEndTimeMicros.put(memberInternalId, endTimeMicros);
-            memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).put(endTimeMicros, startTimeMicros);
-          }
-        }
-      }
-      
-      memberInternalIdToLastInsertedEndTimeMicros = null;
-      
-      Set<MultiKey> pitMembershipMultiKeys = new HashSet<MultiKey>();
-      for (long memberInternalId : memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.keySet()) {
-        for (long endTimeMicros : memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).keySet()) {
-          if (endTimeMicros != -1) {
-            long startTimeMicros = memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).get(endTimeMicros);
-            pitMembershipMultiKeys.add(new MultiKey(memberInternalId, startTimeMicros, endTimeMicros));
-          }
-        }
-      }
-
-      memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros = null;
-      
-      // now compare
-      List<SqlCacheMembershipHst> sqlCacheMembershipHstsToInsert = new ArrayList<>();
-      List<List<Object>> bindVarsSqlCacheMshipHstDeletes = new ArrayList<>();
-
-      for (MultiKey pitMembershipMultiKey : pitMembershipMultiKeys) {
-        if (!cacheMembershipMultiKeys.contains(pitMembershipMultiKey)) {
-          SqlCacheMembershipHst sqlCacheMembershipHst = new SqlCacheMembershipHst();
-          sqlCacheMembershipHst.setSqlCacheGroupInternalId(sqlCacheGroupInternalId);
-          sqlCacheMembershipHst.setMemberInternalId((Long)pitMembershipMultiKey.getKey(0));
-          sqlCacheMembershipHst.setStartTime((Long)pitMembershipMultiKey.getKey(1));
-          sqlCacheMembershipHst.setEndTime((Long)pitMembershipMultiKey.getKey(2));
-          sqlCacheMembershipHstsToInsert.add(sqlCacheMembershipHst);
-        }
-      }
-      
-      for (MultiKey cacheMembershipMultiKey : cacheMembershipMultiKeys) {
-        if (!pitMembershipMultiKeys.contains(cacheMembershipMultiKey)) {
-          // the primary key order - member_internal_id, sql_cache_group_internal_id, start_time
-          bindVarsSqlCacheMshipHstDeletes.add(GrouperUtil.toListObject((Long)cacheMembershipMultiKey.getKey(0), sqlCacheGroupInternalId, (Long)cacheMembershipMultiKey.getKey(1)));
-        }
-      }
-      
-      // store
-      int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
-
-      if (bindVarsSqlCacheMshipHstDeletes.size() > 0) {
-        new GcDbAccess().sql("delete from grouper_sql_cache_mship_hst where member_internal_id = ? and sql_cache_group_internal_id = ? and start_time = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipHstDeletes).executeBatchSql();
-      
-        if (theOtherJobInput != null) {
-          theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(bindVarsSqlCacheMshipHstDeletes.size());
-        }
-      }
-      
-      int numberOfInserts = SqlCacheMembershipHstDao.store(sqlCacheMembershipHstsToInsert, null, true, true, true);
+      Hib3GrouperLoaderLog hib3GrouperLoaderLog = null;
       
       if (theOtherJobInput != null) {
-        theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(numberOfInserts);
+        hib3GrouperLoaderLog = theOtherJobInput.getHib3GrouperLoaderLog();
       }
       
+      syncMembershipHistoryIndividual(sqlCacheGroupInternalId, ownerInternalId, pitOwnerId, field, pitFieldId, pitIdToMemberInternalId, hib3GrouperLoaderLog);
+      
       GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
+  }
+  
+  public static void syncMembershipHistoryIndividual(long sqlCacheGroupInternalId, long ownerInternalId, String pitOwnerId, Field field, String pitFieldId, Map<String, Long> pitIdToMemberInternalId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    // we exclude retrieving pit rows that ended more than 2 years ago, but that might mean that start times saved in the cache history table might not take into account these old memberships when there's overlap.  Assuming for now that it doesn't matter since it's out of range for what we care about, but if we do, then they would need to be pulled in and filtered out later.
+    long twoYearsAgoMicros = (System.currentTimeMillis() - 2*365*24*60*60*1000L) * 1000L;
+    
+    // query cache membership history
+    GcDbAccess gcDbAccess = new GcDbAccess();
+    List<Object[]> cacheMemberships = gcDbAccess.sql("select member_internal_id, start_time, end_time from grouper_sql_cache_mship_hst where sql_cache_group_internal_id = ?").addBindVar(sqlCacheGroupInternalId).selectList(Object[].class);
+    Set<MultiKey> cacheMembershipMultiKeys = new HashSet<MultiKey>();
+    for (Object[] cacheMembership : cacheMemberships) {
+      long memberInternalId = GrouperUtil.longObjectValue(cacheMembership[0], false);
+      long startTimeMicros = GrouperUtil.longObjectValue(cacheMembership[1], false);
+      long endTimeMicros = GrouperUtil.longObjectValue(cacheMembership[2], false);
+      
+      cacheMembershipMultiKeys.add(new MultiKey(memberInternalId, startTimeMicros, endTimeMicros));
+    }
+    
+    // query pit memberships
+    gcDbAccess = new GcDbAccess();
+    StringBuilder sqlQueryPITMemberships = new StringBuilder("select gpm1.member_id, gpgs1.start_time, gpm1.start_time, gpgs1.end_time, gpm1.end_time from grouper_pit_group_set gpgs1, grouper_pit_memberships gpm1 where gpm1.owner_id = gpgs1.member_id and gpm1.field_id = gpgs1.member_field_id and gpgs1.owner_id=? and gpgs1.field_id=? and (gpgs1.end_time is null or gpgs1.end_time > ?) and (gpm1.end_time is null or gpm1.end_time > ?)");
+    
+    gcDbAccess.addBindVar(pitOwnerId);      
+    gcDbAccess.addBindVar(pitFieldId);
+    gcDbAccess.addBindVar(twoYearsAgoMicros);
+    gcDbAccess.addBindVar(twoYearsAgoMicros);
+          
+    List<Object[]> pitMemberships = gcDbAccess.sql(sqlQueryPITMemberships.toString()).selectList(Object[].class);
+    
+    // sort based on end time desc
+    pitMemberships.sort(new Comparator<Object[]>() {
+      @Override
+      public int compare(Object[] o1, Object[] o2) {
+        Long o1GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o1[3], true);
+        Long olMembershipEndTimeMicros = GrouperUtil.longObjectValue(o1[4], true);
+        Long o2GroupSetEndTimeMicros = GrouperUtil.longObjectValue(o2[3], true);
+        Long o2MembershipEndTimeMicros = GrouperUtil.longObjectValue(o2[4], true);
+        
+        boolean o1Active = (o1GroupSetEndTimeMicros == null && olMembershipEndTimeMicros == null);
+        boolean o2Active = (o2GroupSetEndTimeMicros == null && o2MembershipEndTimeMicros == null);
+
+        if (o1Active && !o2Active) {
+          return -1;
+        } else if (!o1Active && o2Active) {
+          return 1;
+        } else if (o1Active && o2Active) {
+          return 0;
+        } else {
+          Long o1EndTime = Math.min(o1GroupSetEndTimeMicros != null ? o1GroupSetEndTimeMicros : Long.MAX_VALUE, olMembershipEndTimeMicros != null ? olMembershipEndTimeMicros : Long.MAX_VALUE);
+          Long o2EndTime = Math.min(o2GroupSetEndTimeMicros != null ? o2GroupSetEndTimeMicros : Long.MAX_VALUE, o2MembershipEndTimeMicros != null ? o2MembershipEndTimeMicros : Long.MAX_VALUE);
+          return o2EndTime.compareTo(o1EndTime);
+        }
+      }
+    });
+    
+    Map<Long, Map<Long, Long>> memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros = new HashMap<>();
+    Map<Long, Long> memberInternalIdToLastInsertedEndTimeMicros = new HashMap<>();
+    
+    for (Object[] pitMembership : pitMemberships) {
+      String pitMemberId = (String)pitMembership[0];
+      
+      long groupSetStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[1], false);
+      long membershipStartTimeMicros = GrouperUtil.longObjectValue(pitMembership[2], false);
+      long startTimeMicros = Math.max(groupSetStartTimeMicros, membershipStartTimeMicros);
+      
+      Long groupSetEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[3], true);
+      Long membershipEndTimeMicros = GrouperUtil.longObjectValue(pitMembership[4], true);
+      Long endTimeMicros = null;
+      if (groupSetEndTimeMicros == null && membershipEndTimeMicros != null) {
+        endTimeMicros = membershipEndTimeMicros;
+      } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros == null) {
+        endTimeMicros = groupSetEndTimeMicros;
+      } else if (groupSetEndTimeMicros != null && membershipEndTimeMicros != null) {
+        endTimeMicros = Math.min(groupSetEndTimeMicros, membershipEndTimeMicros);
+      }
+      
+      if (endTimeMicros != null && startTimeMicros > endTimeMicros) {
+        // this is invalid, ignore
+        continue;
+      }
+      
+      Long memberInternalId = pitIdToMemberInternalId.get(pitMemberId);
+      
+      if (memberInternalId == null) {
+        continue;
+      }
+      
+      if (!memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.containsKey(memberInternalId)) {
+        // first time we're seeing this member.  add the flattened membership
+        Long endTimeMicrosAdjusted = endTimeMicros == null ? -1 : endTimeMicros;
+
+        memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.put(memberInternalId, new LinkedHashMap<Long, Long>());
+        memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).put(endTimeMicrosAdjusted, startTimeMicros);
+        
+        memberInternalIdToLastInsertedEndTimeMicros.put(memberInternalId, endTimeMicrosAdjusted);
+      } else {
+        Long lastInsertedEndTimeMicros = memberInternalIdToLastInsertedEndTimeMicros.get(memberInternalId);
+        Long lastInsertedStartTimeMicros = memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).get(lastInsertedEndTimeMicros);
+        
+        if (endTimeMicros == null || endTimeMicros >= lastInsertedStartTimeMicros) {
+          // check if there's an overlap that causes the start time for the flattened membership to decrease
+          if (lastInsertedStartTimeMicros > startTimeMicros) {
+            memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).put(lastInsertedEndTimeMicros, startTimeMicros);
+          }
+        } else {
+          // looks like a new flattened membership
+          memberInternalIdToLastInsertedEndTimeMicros.put(memberInternalId, endTimeMicros);
+          memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).put(endTimeMicros, startTimeMicros);
+        }
+      }
+    }
+    
+    memberInternalIdToLastInsertedEndTimeMicros = null;
+    
+    Set<MultiKey> pitMembershipMultiKeys = new HashSet<MultiKey>();
+    for (long memberInternalId : memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.keySet()) {
+      for (long endTimeMicros : memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).keySet()) {
+        if (endTimeMicros != -1) {
+          long startTimeMicros = memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros.get(memberInternalId).get(endTimeMicros);
+          pitMembershipMultiKeys.add(new MultiKey(memberInternalId, startTimeMicros, endTimeMicros));
+        }
+      }
+    }
+
+    memberInternalIdToEndTimeMicrosToEarliestStartTimeMicros = null;
+    
+    // now compare
+    List<SqlCacheMembershipHst> sqlCacheMembershipHstsToInsert = new ArrayList<>();
+    List<List<Object>> bindVarsSqlCacheMshipHstDeletes = new ArrayList<>();
+
+    for (MultiKey pitMembershipMultiKey : pitMembershipMultiKeys) {
+      if (!cacheMembershipMultiKeys.contains(pitMembershipMultiKey)) {
+        SqlCacheMembershipHst sqlCacheMembershipHst = new SqlCacheMembershipHst();
+        sqlCacheMembershipHst.setSqlCacheGroupInternalId(sqlCacheGroupInternalId);
+        sqlCacheMembershipHst.setMemberInternalId((Long)pitMembershipMultiKey.getKey(0));
+        sqlCacheMembershipHst.setStartTime((Long)pitMembershipMultiKey.getKey(1));
+        sqlCacheMembershipHst.setEndTime((Long)pitMembershipMultiKey.getKey(2));
+        sqlCacheMembershipHstsToInsert.add(sqlCacheMembershipHst);
+      }
+    }
+    
+    for (MultiKey cacheMembershipMultiKey : cacheMembershipMultiKeys) {
+      if (!pitMembershipMultiKeys.contains(cacheMembershipMultiKey)) {
+        // the primary key order - member_internal_id, sql_cache_group_internal_id, start_time
+        bindVarsSqlCacheMshipHstDeletes.add(GrouperUtil.toListObject((Long)cacheMembershipMultiKey.getKey(0), sqlCacheGroupInternalId, (Long)cacheMembershipMultiKey.getKey(1)));
+      }
+    }
+    
+    // store
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+
+    if (bindVarsSqlCacheMshipHstDeletes.size() > 0) {
+      new GcDbAccess().sql("delete from grouper_sql_cache_mship_hst where member_internal_id = ? and sql_cache_group_internal_id = ? and start_time = ?").batchSize(batchSize).batchBindVars(bindVarsSqlCacheMshipHstDeletes).executeBatchSql();
+    
+      if (hib3GrouperLoaderLog != null) {
+        hib3GrouperLoaderLog.addDeleteCount(bindVarsSqlCacheMshipHstDeletes.size());
+      }
+    }
+    
+    int numberOfInserts = SqlCacheMembershipHstDao.store(sqlCacheMembershipHstsToInsert, null, true, true, true);
+    
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addInsertCount(numberOfInserts);
     }
   }
   

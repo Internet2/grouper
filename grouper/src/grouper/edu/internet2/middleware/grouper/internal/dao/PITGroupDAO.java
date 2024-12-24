@@ -65,6 +65,13 @@ public interface PITGroupDAO extends GrouperDAO {
   public PITGroup findBySourceIdActive(String id, boolean exceptionIfNotFound);
   
   /**
+   * @param sourceInternalId
+   * @param exceptionIfNotFound 
+   * @return PITGroup
+   */
+  public PITGroup findBySourceInternalIdActive(long sourceInternalId, boolean exceptionIfNotFound);
+  
+  /**
    * @param ids
    * @return PITMembership
    */

@@ -181,6 +181,21 @@ public class Hib3PITAttributeDefDAO extends Hib3DAO implements PITAttributeDefDA
     return results;
   }
   
+  public PITAttributeDef findBySourceIdIndexActive(long sourceIdIndex, boolean exceptionIfNotFound) {
+    PITAttributeDef pitAttributeDef = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitAttributeDef from PITAttributeDef as pitAttributeDef where pitAttributeDef.sourceIdIndex = :id and activeDb = 'T'")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdIndexActive")
+      .setLong("id", sourceIdIndex)
+      .uniqueResult(PITAttributeDef.class);
+
+    if (pitAttributeDef == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITAttributeDef with sourceIdIndex=" + sourceIdIndex + " not found");
+    }
+    
+    return pitAttributeDef;
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITAttributeDefDAO#deleteInactiveRecords(java.sql.Timestamp)
    */

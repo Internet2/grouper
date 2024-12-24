@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
@@ -56,13 +57,15 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
   }
   
   public void testMembershipHistoryAddDeleteRepeatSingleIncrementalSync() {
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
     Group testGroup1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
    
     testGroup1.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupMembersAttributeName());
    
     // get the dependency table populated
     ChangeLogTempToEntity.convertRecords();
-    runFullSync(true);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
     
     // will be used later
     testGroup1.addMember(SubjectTestHelper.SUBJ2);
@@ -141,6 +144,8 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
   }
   
   public void testMembershipHistoryMultipleDeleteSingleIncrementalSync() {
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
     Group testGroup1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
     Group testGroup2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
     Group testGroup3 = new GroupSave().assignName("test:testGroup3").assignCreateParentStemsIfNotExist(true).save();
@@ -156,7 +161,7 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
 
     // get the dependency table populated
     ChangeLogTempToEntity.convertRecords();
-    runFullSync(true);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
     
     // add some stuff to delete later
     
@@ -334,6 +339,8 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
   }
   
   public void testMembershipHistoryAddDeleteSingleIncrementalSync() {
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
     Group testGroup1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
     Group testGroup2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
     Group testGroup3 = new GroupSave().assignName("test:testGroup3").assignCreateParentStemsIfNotExist(true).save();
@@ -349,7 +356,7 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
 
     // get the dependency table populated
     ChangeLogTempToEntity.convertRecords();
-    runFullSync(true);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
     
     SqlCacheGroup sqlCacheGroupTestGroup1MembersField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testGroup1.getInternalId(), FieldFinder.find("members", true).getInternalId(), null);
     SqlCacheGroup sqlCacheGroupTestGroup2MembersField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testGroup2.getInternalId(), FieldFinder.find("members", true).getInternalId(), null);
@@ -497,6 +504,8 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
   }
   
   public void testMembershipHistoryFlattenedMembershipsIncrementalSync() {
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
     Group testGroup1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
     Group testGroup2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
     Stem testStem1 = new StemSave().assignName("test:testStem1").save();
@@ -526,7 +535,7 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
 
     // get the dependency table populated
     ChangeLogTempToEntity.convertRecords();
-    runFullSync(true);
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
 
     testGroup1.addMember(SubjectTestHelper.SUBJ0);
     Member subj0Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);

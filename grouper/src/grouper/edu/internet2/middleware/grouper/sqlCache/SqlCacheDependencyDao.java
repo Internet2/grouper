@@ -59,6 +59,23 @@ public class SqlCacheDependencyDao {
   }
   
   /**
+   * select cache dependency by dependency type, owner, and dependent
+   * @param depTypeInternalId
+   * @param ownerInternalId
+   * @param dependentInternalId
+   * @return the sql cache dependency
+   */
+  public static SqlCacheDependency retrieveByDepTypeInternalIdOwnerInternalIdDependentInternalId(Long depTypeInternalId, Long ownerInternalId, Long dependentInternalId) {
+    SqlCacheDependency sqlCacheDependency = new GcDbAccess()
+        .sql("select * from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?")
+        .addBindVar(depTypeInternalId)
+        .addBindVar(ownerInternalId)
+        .addBindVar(dependentInternalId)
+        .select(SqlCacheDependency.class);
+    return sqlCacheDependency;
+  }
+  
+  /**
    * select by dependency type internal id
    * @param dependencyTypeInternalId
    * @return the sql cache dependencies

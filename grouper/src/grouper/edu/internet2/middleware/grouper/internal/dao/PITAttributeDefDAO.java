@@ -56,6 +56,13 @@ public interface PITAttributeDefDAO extends GrouperDAO {
    * @return PITAttributeDef
    */
   public PITAttributeDef findBySourceIdActive(String id, boolean exceptionIfNotFound);
+  
+  /**
+   * @param sourceIdIndex
+   * @param exceptionIfNotFound 
+   * @return PITAttributeDef
+   */
+  public PITAttributeDef findBySourceIdIndexActive(long sourceIdIndex, boolean exceptionIfNotFound);
 
   /**
    * @param id

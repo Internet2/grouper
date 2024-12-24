@@ -220,6 +220,21 @@ public class Hib3PITStemDAO extends Hib3DAO implements PITStemDAO {
     return pitStem;
   }
   
+  public PITStem findBySourceIdIndexActive(long sourceIdIndex, boolean exceptionIfNotFound) {
+    PITStem pitStem = HibernateSession
+      .byHqlStatic()
+      .createQuery("select pitStem from PITStem as pitStem where pitStem.sourceIdIndex = :id and activeDb = 'T'")
+      .setCacheable(true).setCacheRegion(KLASS + ".FindBySourceIdIndexActive")
+      .setLong("id", sourceIdIndex)
+      .uniqueResult(PITStem.class);
+
+    if (pitStem == null && exceptionIfNotFound) {
+      throw new RuntimeException("Active PITStem with sourceIdIndex=" + sourceIdIndex + " not found");
+    }
+    
+    return pitStem;
+  }
+  
   /**
    * @see edu.internet2.middleware.grouper.internal.dao.PITStemDAO#findBySourceIdUnique(java.lang.String, boolean)
    */

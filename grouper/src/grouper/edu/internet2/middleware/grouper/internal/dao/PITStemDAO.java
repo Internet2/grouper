@@ -58,6 +58,13 @@ public interface PITStemDAO extends GrouperDAO {
   public PITStem findBySourceIdActive(String id, boolean exceptionIfNotFound);
   
   /**
+   * @param sourceIdIndex
+   * @param exceptionIfNotFound 
+   * @return PITStem
+   */
+  public PITStem findBySourceIdIndexActive(long sourceIdIndex, boolean exceptionIfNotFound);
+  
+  /**
    * @param id
    * @param createIfNotFound 
    * @param exceptionIfNotFound 
