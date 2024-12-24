@@ -53,7 +53,366 @@ public class SqlCacheMembershipHstTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new SqlCacheMembershipHstTest("testMembershipHistoryAddDeleteRepeatSingleIncrementalSync"));
+    TestRunner.run(new SqlCacheMembershipHstTest("testMembershipHistoryChangeLogAddDependencyViaAttribute"));
+  }
+  
+  
+  public void testMembershipHistoryChangeLogAddDependencyViaAttribute() {
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
+    SqlCacheDependencyType sqlCacheDependencyTypeViaAttribute = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_viaAttribute");
+    SqlCacheDependencyType sqlCacheDependencyTypeAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");
+
+    Group testGroup1 = new GroupSave().assignName("test:testGroup1").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroup2 = new GroupSave().assignName("test:testGroup2").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroup3 = new GroupSave().assignName("test:testGroup3").assignCreateParentStemsIfNotExist(true).save();
+    Group testGroup4 = new GroupSave().assignName("test:testGroup4").assignCreateParentStemsIfNotExist(true).save();
+    Stem testStem1 = new StemSave().assignName("test:testStem1").save();
+    Stem testStem2 = new StemSave().assignName("test:testStem2").save();
+    AttributeDef testAttributeDef1 = new AttributeDefSave().assignName("test:testAttributeDef1").save();
+    AttributeDef testAttributeDef2 = new AttributeDefSave().assignName("test:testAttributeDef2").save();
+    
+    testGroup1.addMember(SubjectTestHelper.SUBJ0);
+    testGroup2.addMember(SubjectTestHelper.SUBJ1);
+    testGroup3.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    testGroup3.grantPriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
+    testGroup4.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.ADMIN);
+    testGroup4.grantPriv(SubjectTestHelper.SUBJ3, AccessPrivilege.READ);
+    testStem1.grantPriv(SubjectTestHelper.SUBJ4, NamingPrivilege.STEM_ADMIN);
+    testStem2.grantPriv(SubjectTestHelper.SUBJ5, NamingPrivilege.STEM_ADMIN);
+    testAttributeDef1.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_ADMIN, true);
+    testAttributeDef2.getPrivilegeDelegate().grantPriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_ADMIN, true);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    SqlCacheGroup sqlCacheGroupTestGroup1MembersField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testGroup1.getInternalId(), FieldFinder.find("members", true).getInternalId(), null);
+    SqlCacheGroup sqlCacheGroupTestGroup2MembersField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testGroup2.getInternalId(), FieldFinder.find("members", true).getInternalId(), null);
+    SqlCacheGroup sqlCacheGroupTestGroup3AdminsField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testGroup3.getInternalId(), FieldFinder.find("admins", true).getInternalId(), null);
+    SqlCacheGroup sqlCacheGroupTestGroup4AdminsField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testGroup4.getInternalId(), FieldFinder.find("admins", true).getInternalId(), null);
+    SqlCacheGroup sqlCacheGroupTestStem1AdminsField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testStem1.getIdIndex(), FieldFinder.find("stemAdmins", true).getInternalId(), null);
+    SqlCacheGroup sqlCacheGroupTestStem2AdminsField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testStem2.getIdIndex(), FieldFinder.find("stemAdmins", true).getInternalId(), null);
+    SqlCacheGroup sqlCacheGroupTestAttributeDef1AdminsField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testAttributeDef1.getIdIndex(), FieldFinder.find("attrAdmins", true).getInternalId(), null);
+    SqlCacheGroup sqlCacheGroupTestAttributeDef2AdminsField = SqlCacheGroupDao.retrieveByGroupInternalIdFieldInternalId(testAttributeDef2.getIdIndex(), FieldFinder.find("attrAdmins", true).getInternalId(), null);
+
+    Member subj0Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ0, false);
+    Member subj1Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ1, false);
+    Member subj2Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ2, false);
+    Member subj3Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ3, false);
+    Member subj4Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ4, false);
+    Member subj5Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ5, false);
+    Member subj6Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ6, false);
+    Member subj7Member = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), SubjectTestHelper.SUBJ7, false);
+
+    Membership testGroup1Subj0Membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testGroup1, SubjectTestHelper.SUBJ0, true);
+    Membership testGroup2Subj1Membership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testGroup2, SubjectTestHelper.SUBJ1, true);
+    Membership testGroup3Subj2AdminsMembership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testGroup3, SubjectTestHelper.SUBJ2, FieldFinder.find("admins", true), true);
+    Membership testGroup3Subj3AdminsMembership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testGroup4, SubjectTestHelper.SUBJ3, FieldFinder.find("admins", true), true);
+    Membership testStem1Subj4AdminsMembership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testStem1, SubjectTestHelper.SUBJ4, FieldFinder.find("stemAdmins", true), true);
+    Membership testStem2Subj5AdminsMembership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testStem2, SubjectTestHelper.SUBJ5, FieldFinder.find("stemAdmins", true), true);
+    Membership testAttributeDef1Subj6AdminsMembership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testAttributeDef1, SubjectTestHelper.SUBJ6, FieldFinder.find("attrAdmins", true), true);
+    Membership testAttributeDef2Subj7AdminsMembership = MembershipFinder.findImmediateMembership(GrouperSession.staticGrouperSession(), testAttributeDef2, SubjectTestHelper.SUBJ7, FieldFinder.find("attrAdmins", true), true);
+
+    testGroup1.deleteMember(SubjectTestHelper.SUBJ0);
+    testGroup2.deleteMember(SubjectTestHelper.SUBJ1);
+    testGroup3.revokePriv(SubjectTestHelper.SUBJ2, AccessPrivilege.ADMIN);
+    testGroup3.revokePriv(SubjectTestHelper.SUBJ2, AccessPrivilege.READ);
+    testGroup4.revokePriv(SubjectTestHelper.SUBJ3, AccessPrivilege.ADMIN);
+    testGroup4.revokePriv(SubjectTestHelper.SUBJ3, AccessPrivilege.READ);
+    testStem1.revokePriv(SubjectTestHelper.SUBJ4, NamingPrivilege.STEM_ADMIN);
+    testStem2.revokePriv(SubjectTestHelper.SUBJ5, NamingPrivilege.STEM_ADMIN);
+    testAttributeDef1.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ6, AttributeDefPrivilege.ATTR_ADMIN, true);
+    testAttributeDef2.getPrivilegeDelegate().revokePriv(SubjectTestHelper.SUBJ7, AttributeDefPrivilege.ATTR_ADMIN, true);
+
+    ChangeLogTempToEntity.convertRecords();
+    
+    PITMembership testGroup1Subj0PITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testGroup1Subj0Membership.getImmediateMembershipId(), true);
+    PITMembership testGroup2Subj1PITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testGroup2Subj1Membership.getImmediateMembershipId(), true);
+    PITMembership testGroup3Subj2AdminsPITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testGroup3Subj2AdminsMembership.getImmediateMembershipId(), true);
+    PITMembership testGroup4Subj3AdminsPITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testGroup3Subj3AdminsMembership.getImmediateMembershipId(), true);
+    PITMembership testStem1Subj4AdminsPITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testStem1Subj4AdminsMembership.getImmediateMembershipId(), true);
+    PITMembership testStem2Subj5AdminsPITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testStem2Subj5AdminsMembership.getImmediateMembershipId(), true);
+    PITMembership testAttributeDef1Subj6AdminsPITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testAttributeDef1Subj6AdminsMembership.getImmediateMembershipId(), true);
+    PITMembership testAttributeDef2Subj7AdminsPITMembership = GrouperDAOFactory.getFactory().getPITMembership().findBySourceIdMostRecent(testAttributeDef2Subj7AdminsMembership.getImmediateMembershipId(), true);
+
+    long initialDependencyCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency").select(Long.class);
+    long initialHistoryCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst").select(Long.class);
+
+    // assign some attributes to cache history
+    testGroup1.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupMembersAttributeName());
+    testGroup3.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupAdminsAttributeName());
+    testStem1.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryStemAdminsAttributeName());
+    testAttributeDef1.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryAttributeDefAdminsAttributeName());
+
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
+    long newDependencyCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency").select(Long.class);
+    long newHistoryCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst").select(Long.class);
+
+    assertEquals(initialDependencyCount + 4, newDependencyCount);
+    assertEquals(initialHistoryCount + 4, newHistoryCount);
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId())
+        .addBindVar(subj0Member.getInternalId())
+        .addBindVar(testGroup1Subj0PITMembership.getStartTimeDb())
+        .addBindVar(testGroup1Subj0PITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId())
+        .addBindVar(subj2Member.getInternalId())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId())
+        .addBindVar(subj4Member.getInternalId())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId())
+        .addBindVar(subj6Member.getInternalId())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).select(Integer.class));
+    
+    
+    // assign some more attributes to cache history
+    testGroup2.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupMembersAttributeName());
+    testGroup4.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupAdminsAttributeName());
+    testStem2.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryStemAdminsAttributeName());
+    testAttributeDef2.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryAttributeDefAdminsAttributeName());
+
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
+    newDependencyCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency").select(Long.class);
+    newHistoryCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst").select(Long.class);
+
+    assertEquals(initialDependencyCount + 8, newDependencyCount);
+    assertEquals(initialHistoryCount + 8, newHistoryCount);
+    
+    // confirm the new rows
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup2MembersField.getInternalId())
+        .addBindVar(subj1Member.getInternalId())
+        .addBindVar(testGroup2Subj1PITMembership.getStartTimeDb())
+        .addBindVar(testGroup2Subj1PITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup4AdminsField.getInternalId())
+        .addBindVar(subj3Member.getInternalId())
+        .addBindVar(testGroup4Subj3AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testGroup4Subj3AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestStem2AdminsField.getInternalId())
+        .addBindVar(subj5Member.getInternalId())
+        .addBindVar(testStem2Subj5AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testStem2Subj5AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestAttributeDef2AdminsField.getInternalId())
+        .addBindVar(subj7Member.getInternalId())
+        .addBindVar(testAttributeDef2Subj7AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testAttributeDef2Subj7AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup2MembersField.getInternalId()).addBindVar(sqlCacheGroupTestGroup2MembersField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup4AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestGroup4AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestStem2AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestStem2AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef2AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef2AdminsField.getInternalId()).select(Integer.class));
+    
+    // now remove the assignments just added and make sure it all reverts
+    testGroup2.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupMembersAttributeName());
+    testGroup4.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupAdminsAttributeName());
+    testStem2.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryStemAdminsAttributeName());
+    testAttributeDef2.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryAttributeDefAdminsAttributeName());
+
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
+    newDependencyCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency").select(Long.class);
+    newHistoryCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst").select(Long.class);
+
+    assertEquals(initialDependencyCount + 4, newDependencyCount);
+    assertEquals(initialHistoryCount + 4, newHistoryCount);
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId())
+        .addBindVar(subj0Member.getInternalId())
+        .addBindVar(testGroup1Subj0PITMembership.getStartTimeDb())
+        .addBindVar(testGroup1Subj0PITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId())
+        .addBindVar(subj2Member.getInternalId())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId())
+        .addBindVar(subj4Member.getInternalId())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId())
+        .addBindVar(subj6Member.getInternalId())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).select(Integer.class));
+    
+    
+    // adding and removing assignments should make no difference
+    testGroup2.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupMembersAttributeName());
+    testGroup4.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupAdminsAttributeName());
+    testStem2.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryStemAdminsAttributeName());
+    testAttributeDef2.getAttributeDelegate().assignAttributeByName(SqlCacheGroup.sqlCacheableHistoryAttributeDefAdminsAttributeName());
+    ChangeLogTempToEntity.convertRecords();
+    testGroup2.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupMembersAttributeName());
+    testGroup4.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupAdminsAttributeName());
+    testStem2.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryStemAdminsAttributeName());
+    testAttributeDef2.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryAttributeDefAdminsAttributeName());
+
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
+    newDependencyCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency").select(Long.class);
+    newHistoryCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst").select(Long.class);
+
+    assertEquals(initialDependencyCount + 4, newDependencyCount);
+    assertEquals(initialHistoryCount + 4, newHistoryCount);
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId())
+        .addBindVar(subj0Member.getInternalId())
+        .addBindVar(testGroup1Subj0PITMembership.getStartTimeDb())
+        .addBindVar(testGroup1Subj0PITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId())
+        .addBindVar(subj2Member.getInternalId())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId())
+        .addBindVar(subj4Member.getInternalId())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId())
+        .addBindVar(subj6Member.getInternalId())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeViaAttribute.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).select(Integer.class));
+    
+    // for the remaining (original) dependencies, add another dependency reason
+    SqlCacheDependency sqlCacheDependencyOther1 = new SqlCacheDependency();
+    sqlCacheDependencyOther1.setDependencyTypeInternalId(sqlCacheDependencyTypeAbac.getInternalId());
+    sqlCacheDependencyOther1.setOwnerInternalId(sqlCacheGroupTestGroup1MembersField.getInternalId());
+    sqlCacheDependencyOther1.setDependentInternalId(sqlCacheGroupTestGroup1MembersField.getInternalId());
+    SqlCacheDependencyDao.store(sqlCacheDependencyOther1);
+    
+    SqlCacheDependency sqlCacheDependencyOther2 = new SqlCacheDependency();
+    sqlCacheDependencyOther2.setDependencyTypeInternalId(sqlCacheDependencyTypeAbac.getInternalId());
+    sqlCacheDependencyOther2.setOwnerInternalId(sqlCacheGroupTestGroup3AdminsField.getInternalId());
+    sqlCacheDependencyOther2.setDependentInternalId(sqlCacheGroupTestGroup3AdminsField.getInternalId());
+    SqlCacheDependencyDao.store(sqlCacheDependencyOther2);
+    
+    SqlCacheDependency sqlCacheDependencyOther3 = new SqlCacheDependency();
+    sqlCacheDependencyOther3.setDependencyTypeInternalId(sqlCacheDependencyTypeAbac.getInternalId());
+    sqlCacheDependencyOther3.setOwnerInternalId(sqlCacheGroupTestStem1AdminsField.getInternalId());
+    sqlCacheDependencyOther3.setDependentInternalId(sqlCacheGroupTestStem1AdminsField.getInternalId());
+    SqlCacheDependencyDao.store(sqlCacheDependencyOther3);
+    
+    SqlCacheDependency sqlCacheDependencyOther4 = new SqlCacheDependency();
+    sqlCacheDependencyOther4.setDependencyTypeInternalId(sqlCacheDependencyTypeAbac.getInternalId());
+    sqlCacheDependencyOther4.setOwnerInternalId(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId());
+    sqlCacheDependencyOther4.setDependentInternalId(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId());
+    SqlCacheDependencyDao.store(sqlCacheDependencyOther4);
+    
+    // now unassign the attributes - the attribute dependencies should be removed but the history should remain
+    testGroup1.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupMembersAttributeName());
+    testGroup3.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryGroupAdminsAttributeName());
+    testStem1.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryStemAdminsAttributeName());
+    testAttributeDef1.getAttributeDelegate().removeAttributeByName(SqlCacheGroup.sqlCacheableHistoryAttributeDefAdminsAttributeName());
+
+    ChangeLogTempToEntity.convertRecords();
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_consumer_sqlCacheHistoryIncremental", false);
+
+    newDependencyCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency").select(Long.class);
+    newHistoryCount = new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst").select(Long.class);
+
+    assertEquals(initialDependencyCount + 4, newDependencyCount);
+    assertEquals(initialHistoryCount + 4, newHistoryCount);
+
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId())
+        .addBindVar(subj0Member.getInternalId())
+        .addBindVar(testGroup1Subj0PITMembership.getStartTimeDb())
+        .addBindVar(testGroup1Subj0PITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId())
+        .addBindVar(subj2Member.getInternalId())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testGroup3Subj2AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId())
+        .addBindVar(subj4Member.getInternalId())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testStem1Subj4AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1L, (long)new GcDbAccess().sql("select count(*) from grouper_sql_cache_mship_hst where sql_cache_group_internal_id=? and member_internal_id=? and start_time=? and end_time=?")
+        .addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId())
+        .addBindVar(subj6Member.getInternalId())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getStartTimeDb())
+        .addBindVar(testAttributeDef1Subj6AdminsPITMembership.getEndTimeDb())
+        .select(Long.class));
+    
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeAbac.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).addBindVar(sqlCacheGroupTestGroup1MembersField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeAbac.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestGroup3AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeAbac.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestStem1AdminsField.getInternalId()).select(Integer.class));
+    assertEquals(1, (int)new GcDbAccess().sql("select count(*) from grouper_sql_cache_dependency where dep_type_internal_id = ? and owner_internal_id = ? and dependent_internal_id = ?").addBindVar(sqlCacheDependencyTypeAbac.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).addBindVar(sqlCacheGroupTestAttributeDef1AdminsField.getInternalId()).select(Integer.class));
+    
+    
+    // no changes expected
+    runFullSync(false);
   }
   
   public void testMembershipHistoryAddDeleteRepeatSingleIncrementalSync() {
