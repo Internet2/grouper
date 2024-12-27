@@ -17,6 +17,7 @@ import edu.internet2.middleware.grouper.app.google.GoogleGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.messaging.GrouperInternalMessagingExternalSystem;
 import edu.internet2.middleware.grouper.app.oidc.OidcGrouperExternalSystem;
+import edu.internet2.middleware.grouper.app.okta.OktaGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.remedy.RemedyDigitalMarketplaceGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.remedy.RemedyGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.smtp.SmtpGrouperExternalSystem;
@@ -98,6 +99,7 @@ public abstract class GrouperExternalSystem extends GrouperConfigurationModuleBa
     //TODO remove in v5
     externalTypeClassNamesList.add("edu.internet2.middleware.grouper.o365.Office365GrouperExternalSystem");
     externalTypeClassNamesList.add(OidcGrouperExternalSystem.class.getName());
+    externalTypeClassNamesList.add(OktaGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(RabbitMqGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(RemedyGrouperExternalSystem.class.getName());
     externalTypeClassNamesList.add(RemedyDigitalMarketplaceGrouperExternalSystem.class.getName());
