@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.abac;
 
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -65,6 +66,10 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyType;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyTypeDao;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -1179,6 +1184,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         return null;
       }
       
+      List<SqlCacheDependencyType> sqlCacheDependencyTypes = SqlCacheDependencyTypeDao.retrieveByDependencyCategory("abac");
+      Map<String, SqlCacheDependencyType> nameToSqlCacheDependencyType = new HashMap<String, SqlCacheDependencyType>();
+      for (SqlCacheDependencyType sqlCacheDependencyType : sqlCacheDependencyTypes) {
+        nameToSqlCacheDependencyType.put(sqlCacheDependencyType.getName(), sqlCacheDependencyType);
+      }
+      
+      SqlCacheDependencyType sqlCacheDependencyTypeAbacAttribute = nameToSqlCacheDependencyType.get("abac_attribute");
+      
       for (AttributeAssign attributeAssign : attributeAssigns) {
         GrouperDaemonUtils.stopProcessingIfJobPaused();
 
@@ -1202,7 +1215,9 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         
         String previousAttributeAlias = null;
         
-        // TODO put this in the analysis script so all the bind vars are rightt
+        Set<Long> attributeInternalIds = new HashSet<Long>();
+        
+        // TODO put this in the analysis script so all the bind vars are right
         for (MultiKey argument : arguments) {
           String argumentString = (String)argument.getKey(0);
           if (StringUtils.equals(argumentString, "group")) {
@@ -1225,6 +1240,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get(attributeAlias.toLowerCase());
             GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
             gcDbAccess.addBindVar(grouperDataField.getInternalId());
+            attributeInternalIds.add(grouperDataField.getInternalId());
             previousAttributeAlias = attributeAlias;
           } else if (StringUtils.equals(argumentString, "row")) {
             String rowAlias = (String)argument.getKey(1);
@@ -1277,7 +1293,47 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             throw new RuntimeException("not expecting argument string: " + argumentString);
           }
           argumentIndex++;
-        }   
+        } 
+        
+        String ownerGroupId = attributeAssign.getOwnerGroupId();
+        
+        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerGroupId, false);
+
+        if (group != null) {
+
+          //  grouper_sql_cache_group
+          //  group_internal_id
+          //  field_internal_id
+          MultiKey groupInternalIdFieldInternalId = new MultiKey(group.getInternalId(), Group.getDefaultList().getInternalId());
+          Map<MultiKey, SqlCacheGroup> groupInternalIdsFieldInternalIdToSqlCacheGroup = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(GrouperUtil.toSet(groupInternalIdFieldInternalId));
+          SqlCacheGroup sqlCacheGroup = groupInternalIdsFieldInternalIdToSqlCacheGroup.get(groupInternalIdFieldInternalId);
+          if (sqlCacheGroup != null) {
+            List<SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveAllByDependentId(sqlCacheGroup.getInternalId());
+            Set<Long> attributeInternalIdsInDatabase = new HashSet<>();
+            for (SqlCacheDependency sqlCacheDependency : sqlCacheDependencies) {
+              if (GrouperUtil.equals(sqlCacheDependencyTypeAbacAttribute.getInternalId(), sqlCacheDependency.getDependencyTypeInternalId())) {
+                if (!attributeInternalIds.contains(sqlCacheDependency.getOwnerInternalId())) {
+                  SqlCacheDependencyDao.delete(sqlCacheDependency);
+                } else {
+                  attributeInternalIdsInDatabase.add(sqlCacheDependency.getOwnerInternalId());
+                }
+              }
+            }
+            
+            for (Long attributeInternalId : attributeInternalIds) {
+              if (!attributeInternalIdsInDatabase.contains(attributeInternalId)) {
+                SqlCacheDependency sqlCacheDependency = new SqlCacheDependency();
+                sqlCacheDependency.setDependencyTypeInternalId(sqlCacheDependencyTypeAbacAttribute.getInternalId());
+                sqlCacheDependency.setDependentInternalId(sqlCacheGroup.getInternalId());
+                sqlCacheDependency.setOwnerInternalId(attributeInternalId);
+                SqlCacheDependencyDao.store(sqlCacheDependency);
+              }
+            }
+            
+          }
+          
+        }
+        
         String sql = "select id from grouper_members gm where " + whereClause;
 
 //        System.out.println(script);
@@ -1297,9 +1353,6 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         Set<String> deleteMemberIds = new HashSet<>(previousMemberIds);
         deleteMemberIds.removeAll(memberIds);
         
-        String ownerGroupId = attributeAssign.getOwnerGroupId();
-        
-        Group group = GroupFinder.findByUuid(GrouperSession.staticGrouperSession(), ownerGroupId, false);
         if (group == null) {
           LOG.error("Error group not found '" + ownerGroupId + "'");
           GrouperUtil.mapAddValue(debugMap, "errorsGroupNull", 1);

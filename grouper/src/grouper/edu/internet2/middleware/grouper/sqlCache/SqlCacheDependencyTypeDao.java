@@ -69,6 +69,16 @@ public class SqlCacheDependencyTypeDao {
   }
   
   /**
+   * select by dependency category
+   * @return the sql cache dependency types
+   */
+  public static List<SqlCacheDependencyType> retrieveAll() {
+    List<SqlCacheDependencyType> sqlCacheDependencyTypes = new GcDbAccess()
+        .sql("select * from grouper_sql_cache_depend_type").selectList(SqlCacheDependencyType.class);
+    return sqlCacheDependencyTypes;
+  }
+
+  /**
    * select by dependency category and name
    * @param dependencyCategory
    * @param name
@@ -97,7 +107,7 @@ public class SqlCacheDependencyTypeDao {
     {
       List<SqlCacheDependencyType> sqlCacheDependencyTypes = null;
       try {
-        sqlCacheDependencyTypes = retrieveByDependencyCategory("mshipHistory");
+        sqlCacheDependencyTypes = retrieveAll();
       } catch (Exception e) {
         // table doesnt exist
         return;
@@ -133,13 +143,13 @@ public class SqlCacheDependencyTypeDao {
         sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
       }
       
-      //  if (!names.contains("abac")) {
-      //    SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
-      //    sqlCacheDependencyType.setDependencyCategory("mshipHistory");
-      //    sqlCacheDependencyType.setName("mshipHistory_abac");
-      //    sqlCacheDependencyType.setDescription("Dependency to keep track of sql cache membership history for objects used with ABAC");
-      //    sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
-      //  }
+      if (!names.contains("abac_attribute")) {
+        SqlCacheDependencyType sqlCacheDependencyType = new SqlCacheDependencyType();
+        sqlCacheDependencyType.setDependencyCategory("abac");
+        sqlCacheDependencyType.setName("abac_attribute");
+        sqlCacheDependencyType.setDescription("Dependency to keep track of memberships which affect abac scripted groups");
+        sqlCacheDependencyTypesToStore.add(sqlCacheDependencyType);
+      }
       
       if (sqlCacheDependencyTypesToStore.size() > 0) {
         SqlCacheDependencyTypeDao.store(sqlCacheDependencyTypesToStore);

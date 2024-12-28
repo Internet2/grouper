@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.abac;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
@@ -11,15 +14,29 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.changeLog.ChangeLogHelper;
+import edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperDataField;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderFullSyncJob;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderTest;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyType;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyTypeDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.subject.Subject;
 import junit.textui.TestRunner;
@@ -32,7 +49,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testSimpleHasAttributeAssignmentString"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testSimpleAttributeAssignmentStringIncremental"));
   }
   
   /**
@@ -154,6 +171,98 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     
     assertTrue(members.contains(member0));
     assertTrue(members.contains(member1));
+    
+  }
+  
+  public void testSimpleAttributeAssignmentStringIncremental() {
+    setupDataFields();
+    
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Group testGroup = new GroupSave().assignName("test:testGroup").assignCreateParentStemsIfNotExist(true).save();
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    
+    AttributeDefName attributeDefNameMarker = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptMarker", true);
+    AttributeDefName attributeDefNameScript = AttributeDefNameFinder.findByName("etc:attribute:abacJexlScript:grouperJexlScriptJexlScript", true);
+    
+    AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
+        .assignAttributeDefName(attributeDefNameMarker).save();
+    
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasAttribute('org', '123')");
+    GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_grouperLoaderJexlScriptFullSync");
+
+    
+    List<SqlCacheDependencyType> sqlCacheDependencyTypes = SqlCacheDependencyTypeDao.retrieveByDependencyCategory("abac");
+    Map<String, SqlCacheDependencyType> nameToSqlCacheDependencyType = new HashMap<String, SqlCacheDependencyType>();
+    for (SqlCacheDependencyType sqlCacheDependencyType : sqlCacheDependencyTypes) {
+      nameToSqlCacheDependencyType.put(sqlCacheDependencyType.getName(), sqlCacheDependencyType);
+    }
+    
+    SqlCacheDependencyType sqlCacheDependencyTypeAbacAttribute = nameToSqlCacheDependencyType.get("abac_attribute");
+
+    //  grouper_sql_cache_group
+    //  group_internal_id
+    //  field_internal_id
+    MultiKey groupInternalIdFieldInternalId = new MultiKey(testGroup.getInternalId(), Group.getDefaultList().getInternalId());
+    Map<MultiKey, SqlCacheGroup> groupInternalIdsFieldInternalIdToSqlCacheGroup = SqlCacheGroupDao.retrieveByGroupInternalIdsFieldInternalIds(GrouperUtil.toSet(groupInternalIdFieldInternalId));
+    SqlCacheGroup sqlCacheGroup = groupInternalIdsFieldInternalIdToSqlCacheGroup.get(groupInternalIdFieldInternalId);
+    List<SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveAllByDependentId(sqlCacheGroup.getInternalId());
+    Set<Long> attributeInternalIdsInDatabase = new HashSet<>();
+    for (SqlCacheDependency sqlCacheDependency : sqlCacheDependencies) {
+      if (GrouperUtil.equals(sqlCacheDependencyTypeAbacAttribute.getInternalId(), sqlCacheDependency.getDependencyTypeInternalId())) {
+        attributeInternalIdsInDatabase.add(sqlCacheDependency.getOwnerInternalId());
+      }
+    }
+    
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    
+    grouperDataEngine.loadFieldsAndRows(grouperConfig);
+
+    GrouperDataFieldWrapper grouperDataFieldWrapper = grouperDataEngine.getGrouperDataProviderIndex().getFieldWrapperByLowerAlias().get("org");
+    GrouperDataField grouperDataField = grouperDataFieldWrapper.getGrouperDataField();
+    
+    assertTrue(attributeInternalIdsInDatabase.contains(grouperDataField.getInternalId()));
+
+    
+    //GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
+    //GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_consumer_grouperLoaderJexlScriptIncremental");
+    
+    //  # Object Type Job class
+    //  # {valueType: "class", readOnly: true, mustExtendClass: "edu.internet2.middleware.grouper.changeLog.ChangeLogConsumerBase"}
+    //  changeLog.consumer.grouperObjectTypeIncremental.class = edu.internet2.middleware.grouper.changeLog.esb.consumer.EsbConsumer
+    //
+    //  # {valueType: "class", readOnly: true, mustExtendClass: "edu.internet2.middleware.grouper.esb.listener.EsbListenerBase"}
+    //  changeLog.consumer.grouperObjectTypeIncremental.publisher.class = edu.internet2.middleware.grouper.app.grouperTypes.GrouperObjectTypesEsbListener
+    //
+    //  # object type incremental runs as change log consumer
+    //  # {valueType: "cron"}
+    //  changeLog.consumer.grouperObjectTypeIncremental.quartzCron = 0 * * * * ?
+    //
+    //  # if you want to bump up the number of change log entries for a particular consumer, you can enter that here, per change log consumer
+    //  # defaults to grouper-loader.properties changeLog.changeLogConsumerBatchSize which defaults to 1000
+    //  # {valueType: "integer"}
+    //  changeLog.consumer.grouperObjectTypeIncremental.changeLogConsumerBatchSize =
+
+    
+//    hib3GrouploaderLog.setJobName("");
+//    hib3GrouploaderLog.setStatus(GrouperLoaderStatus.RUNNING.name());
+//    EsbConsumer esbConsumer = new EsbConsumer();
+//    ChangeLogHelper.processRecords("grouperObjectTypeIncremental", hib3GrouploaderLog, esbConsumer);
+//
+//    
+//sdf    
+//    Subject testSubject0 = SubjectFinder.findByIdAndSource("test.subject.0", "jdbc", true);
+//    Member member0 = MemberFinder.findBySubject(grouperSession, testSubject0, true);
+//    Subject testSubject1 = SubjectFinder.findByIdAndSource("test.subject.1", "jdbc", true);
+//    Member member1 = MemberFinder.findBySubject(grouperSession, testSubject1, true);
+//    
+//    Set<Member> members = testGroup.getMembers();
+//    assertEquals(2, members.size());
+//    
+//    assertTrue(members.contains(member0));
+//    assertTrue(members.contains(member1));
     
   }
   

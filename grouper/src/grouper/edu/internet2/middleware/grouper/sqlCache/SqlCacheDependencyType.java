@@ -156,6 +156,14 @@ public class SqlCacheDependencyType implements GcSqlAssignPrimaryKey, GcDbVersio
   }
 
   /**
+   * internal id for foreign keys
+   * @param internalId
+   */
+  public void setInternalId(long internalId) {
+    this.internalId = internalId;
+  }
+
+  /**
    *
    */
   public boolean equalsDeep(Object obj) {
