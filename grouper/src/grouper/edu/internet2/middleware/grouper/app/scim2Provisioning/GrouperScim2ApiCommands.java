@@ -1782,8 +1782,8 @@ public class GrouperScim2ApiCommands {
 
   private static void populateMembershipsFromGroup(Map<String, Set<String>> groupIdToMembershipEntityIds, JsonNode groupNode, GrouperScim2Group grouperScimGroup) {
     if (groupIdToMembershipEntityIds != null && StringUtils.isNotBlank(grouperScimGroup.getId())) {
-      Set<String> entityIds = Collections.synchronizedSet(new HashSet<>());
       if (groupNode.has("members")) {
+        Set<String> entityIds = Collections.synchronizedSet(new HashSet<>());
         ArrayNode membersNode = GrouperUtil.jsonJacksonGetArrayNode(groupNode, "members");
         if (membersNode != null) {
           for (int membersIndex=0; membersIndex<membersNode.size(); membersIndex++) {
@@ -1792,17 +1792,16 @@ public class GrouperScim2ApiCommands {
             entityIds.add(entityId);
           }
         }
-      }
-      Set<String> newEntityIds = groupIdToMembershipEntityIds.get(grouperScimGroup.getId());
-      if (newEntityIds == null) {
-        Set<String> oldEntityIds = groupIdToMembershipEntityIds.put(grouperScimGroup.getId(), entityIds);
-        if (oldEntityIds != null) {
-          entityIds.addAll(oldEntityIds);
+        Set<String> newEntityIds = groupIdToMembershipEntityIds.get(grouperScimGroup.getId());
+        if (newEntityIds == null) {
+          Set<String> oldEntityIds = groupIdToMembershipEntityIds.put(grouperScimGroup.getId(), entityIds);
+          if (oldEntityIds != null) {
+            entityIds.addAll(oldEntityIds);
+          }
+        } else {
+          newEntityIds.addAll(entityIds);
         }
-      } else {
-        newEntityIds.addAll(entityIds);
       }
-      
     }
   }
 
