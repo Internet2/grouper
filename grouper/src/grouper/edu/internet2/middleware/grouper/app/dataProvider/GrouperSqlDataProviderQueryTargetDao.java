@@ -108,7 +108,7 @@ public class GrouperSqlDataProviderQueryTargetDao extends GrouperDataProviderQue
     }
     
     if (timestampColumnIsNumeric == null) {
-      throw new RuntimeException("Didn't find column " + timestampColumnName + " in metdata!");
+      throw new RuntimeException("Didn't find column " + timestampColumnName + " in metadata, select that column!");
     }
     
     GcDbAccess gcDbAccess = new GcDbAccess().connectionName(grouperDataProviderChangeLogQueryConfig.getProviderChangeLogQuerySqlConfigId());
