@@ -982,6 +982,10 @@ public class GrouperScim2ApiCommands {
       if (StringUtils.equals(fieldName, "id")) {
         GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(jsonNode);
         debugMap.put("found", grouperScimUser != null);
+        if (grouperScimUser != null) {
+          populateMembershipsFromUser(grouperScim2MembershipCache, jsonNode,
+              grouperScimUser);
+        }
         return grouperScimUser;
       }
 
@@ -1320,6 +1324,11 @@ public class GrouperScim2ApiCommands {
       if (StringUtils.equals(fieldName, "id")) {
         GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(jsonNode);
         debugMap.put("found", grouperScimGroup != null);
+        if (grouperScimGroup != null) {
+          populateMembershipsFromGroup(grouperScim2MembershipCache, jsonNode,
+              grouperScimGroup);
+        }
+
         return grouperScimGroup;
       }
   
