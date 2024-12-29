@@ -91,7 +91,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       scimSettings.setScimContentType(scimConfiguration.getScimContentType());
 
       List<GrouperScim2Group> grouperScim2Groups = GrouperScim2ApiCommands
-          .retrieveScimGroups(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), groupIdToMembershipEntityIds);
+          .retrieveScimGroups(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2MembershipCache);
 
       for (GrouperScim2Group grouperScim2Group : grouperScim2Groups) {
         
@@ -129,7 +129,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       scimSettings.setScimContentType(scimConfiguration.getScimContentType());
 
       List<GrouperScim2User> grouperScim2Users = GrouperScim2ApiCommands
-          .retrieveScimUsers(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), groupIdToMembershipEntityIds);
+          .retrieveScimUsers(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2MembershipCache);
 
       Map<ProvisioningEntity, Object> targetEntityToNativeEntity = new HashMap<>();
       
@@ -221,14 +221,6 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
   public GrouperScim2User retrieveEntityHelper(
       GrouperScim2ProvisionerConfiguration scimConfiguration,
       ProvisioningEntity grouperTargetEntity, boolean filterInactive) {
-    return retrieveEntityHelper(
-        scimConfiguration,
-        grouperTargetEntity, filterInactive, null);
-  }
-  
-  public GrouperScim2User retrieveEntityHelper(
-      GrouperScim2ProvisionerConfiguration scimConfiguration,
-      ProvisioningEntity grouperTargetEntity, boolean filterInactive, Map<String, Set<String>> entityIdToMembershipEntityIds) {
     
     GrouperScim2User grouperScim2User = null;
     
@@ -244,7 +236,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     if (!StringUtils.isBlank(grouperTargetEntity.getId())) {
       grouperScim2User = GrouperScim2ApiCommands.retrieveScimUser(
           scimConfiguration.getBearerTokenExternalSystemConfigId(), 
-          "id", grouperTargetEntity.getId(), groupIdToMembershipEntityIds, entityIdToMembershipEntityIds, scimSettings);
+          "id", grouperTargetEntity.getId(), grouperScim2MembershipCache, scimSettings);
       if (filterInactive && grouperScim2User != null && !GrouperUtil.booleanValue(grouperScim2User.getActive(), true)) {
         grouperScim2User = null;
       }
@@ -255,7 +247,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         .retrieveAttributeValueString("userName");
     if (grouperScim2User == null && !StringUtils.isBlank(userName)) {
       grouperScim2User = GrouperScim2ApiCommands.retrieveScimUser(
-          scimConfiguration.getBearerTokenExternalSystemConfigId(), "userName", userName, groupIdToMembershipEntityIds, entityIdToMembershipEntityIds, scimSettings);
+          scimConfiguration.getBearerTokenExternalSystemConfigId(), "userName", userName, grouperScim2MembershipCache, scimSettings);
       if (filterInactive && grouperScim2User != null && !GrouperUtil.booleanValue(grouperScim2User.getActive(), true)) {
         grouperScim2User = null;
       }
@@ -274,8 +266,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
   Map<String, List<ProvisioningEntity>> githubOrgs_orgIdToProvisioningEntities = new ConcurrentHashMap<>();
 
-  Map<String, Set<String>> groupIdToMembershipEntityIds = new ConcurrentHashMap<>();
-
+  private GrouperScim2MembershipCache grouperScim2MembershipCache = new GrouperScim2MembershipCache(); 
+  
   private boolean githubOrgs_retrievedData = false;
   
   public void retrieveScimOrgGroupsEntitiesMemberships() {
@@ -325,7 +317,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
         
         scimSettings.setOrgName(orgInUrl);
 
-        List<GrouperScim2User> grouperScim2Users = GrouperScim2ApiCommands.retrieveScimUsers(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), groupIdToMembershipEntityIds);
+        List<GrouperScim2User> grouperScim2Users = GrouperScim2ApiCommands.retrieveScimUsers(scimSettings, scimConfiguration.getBearerTokenExternalSystemConfigId(), grouperScim2MembershipCache);
 
         List<ProvisioningEntity> targetEntities = new ArrayList<>();
         
@@ -419,14 +411,14 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       grouperScim2Group = GrouperScim2ApiCommands.retrieveScimGroup(
           scimConfiguration.getBearerTokenExternalSystemConfigId(),
           "id",
-          grouperTargetGroup.getId(), groupIdToMembershipEntityIds, scimSettings);
+          grouperTargetGroup.getId(), grouperScim2MembershipCache, scimSettings);
     }
 
     String displayName = grouperTargetGroup.getDisplayName();
     if (grouperScim2Group == null && !StringUtils.isBlank(displayName)) {
       grouperScim2Group = GrouperScim2ApiCommands.retrieveScimGroup(
           scimConfiguration.getBearerTokenExternalSystemConfigId(), 
-          "displayName", displayName, groupIdToMembershipEntityIds, scimSettings);
+          "displayName", displayName, grouperScim2MembershipCache, scimSettings);
 
     }
     return grouperScim2Group;
@@ -789,29 +781,6 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
   }
   
   @Override
-  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(
-      TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    
-    TargetDaoRetrieveAllMembershipsResponse response = new TargetDaoRetrieveAllMembershipsResponse();
-    List<ProvisioningMembership> targetMemberships = new ArrayList<>();
-    
-    for (String groupId: groupIdToMembershipEntityIds.keySet()) {
-      
-      for (String entityId: groupIdToMembershipEntityIds.get(groupId)) {
-        ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
-        provisioningMembership.setProvisioningGroupId(groupId);
-        provisioningMembership.setProvisioningEntityId(entityId);
-        targetMemberships.add(provisioningMembership);
-      }
-    }
-    
-    response.setTargetMemberships(targetMemberships);
-    
-    return response;
-    
-  }
-
-  @Override
   public void registerGrouperProvisionerDaoCapabilities(
       GrouperProvisionerDaoCapabilities grouperProvisionerDaoCapabilities) {
     
@@ -823,10 +792,15 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanInsertMemberships(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMemberships(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
-    grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+    
+    if (grouperScim2ProvisionerConfiguration.isScimRetrieveMembershipsByGroup()) {
+      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+    }
 
     if (!githubOrgsScim) {
-      grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
+      if (grouperScim2ProvisionerConfiguration.isScimRetrieveMembershipsByUser()) {
+        grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByEntity(true);
+      }
       grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
       grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
       grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
@@ -841,6 +815,7 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
       grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
       grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
+      
     }
   }
 
@@ -888,14 +863,14 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
      
       } else {
         ProvisioningGroup targetGroup = null;
-        if (!groupIdToMembershipEntityIds.containsKey(grouperTargetGroup.getId())) {
+        if (!grouperScim2MembershipCache.getGroupIdsRetrievedMemberships().contains(grouperTargetGroup.getId())) {
           TargetDaoRetrieveGroupResponse targetDaoRetrieveGroupResponse = retrieveGroup(new TargetDaoRetrieveGroupRequest(grouperTargetGroup, true));
           targetGroup = targetDaoRetrieveGroupResponse.getTargetGroup();
         }
         
         List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
         
-        for (String entityId: GrouperUtil.nonNull(groupIdToMembershipEntityIds.get(grouperTargetGroup.getId()))) {
+        for (String entityId: GrouperUtil.nonNull(grouperScim2MembershipCache.getGroupIdToMembershipUserIds().get(grouperTargetGroup.getId()))) {
           ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
           provisioningMembership.setProvisioningGroupId(grouperTargetGroup.getId());
           provisioningMembership.setProvisioningEntityId(entityId);
@@ -928,34 +903,32 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
           .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       ProvisioningEntity grouperTargetEntity = targetDaoRetrieveMembershipsByEntityRequest.getTargetEntity();
-      TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByGroupResponse = new TargetDaoRetrieveMembershipsByEntityResponse();
+      TargetDaoRetrieveMembershipsByEntityResponse targetDaoRetrieveMembershipsByEntityResponse = new TargetDaoRetrieveMembershipsByEntityResponse();
 
       if (!scimConfiguration.isGithubOrgConfiguration()) {
         
-        Map<String, Set<String>> entityIdToMembershipEntityIds = new HashMap<>();
+        ProvisioningEntity targetEntity = null;
+        if (!grouperScim2MembershipCache.getUserIdsRetrievedMemberships().contains(grouperTargetEntity.getId())) {
+          TargetDaoRetrieveEntityResponse targetDaoRetrieveEntityResponse = retrieveEntity(new TargetDaoRetrieveEntityRequest(grouperTargetEntity, true));
+          targetEntity = targetDaoRetrieveEntityResponse.getTargetEntity();
+        }
         
-        GrouperScim2User grouperScim2User = retrieveEntityHelper(scimConfiguration, grouperTargetEntity, true, entityIdToMembershipEntityIds);
+        List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
         
-        grouperTargetEntity = grouperScim2User == null ? null
-            : grouperScim2User.toProvisioningEntity();
-
+        for (String groupId: GrouperUtil.nonNull(grouperScim2MembershipCache.getUserIdToMembershipGroupIds().get(grouperTargetEntity.getId()))) {
+          ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
+          provisioningMembership.setProvisioningEntityId(grouperTargetEntity.getId());
+          provisioningMembership.setProvisioningGroupId(groupId);
+          targetMemberships.add(provisioningMembership);
+        }
         
-        if (grouperTargetEntity != null) {
-          List<ProvisioningMembership> targetMemberships = new ArrayList<ProvisioningMembership>();
-          
-          for (String groupId: GrouperUtil.nonNull(entityIdToMembershipEntityIds.get(grouperTargetEntity.getId()))) {
-            ProvisioningMembership provisioningMembership = new ProvisioningMembership(false);
-            provisioningMembership.setProvisioningEntityId(grouperTargetEntity.getId());
-            provisioningMembership.setProvisioningGroupId(groupId);
-            targetMemberships.add(provisioningMembership);
-          }
-          
-          targetDaoRetrieveMembershipsByGroupResponse.setTargetMemberships(targetMemberships);
-          targetDaoRetrieveMembershipsByGroupResponse.setTargetEntities(GrouperUtil.toList(grouperTargetEntity));
+        targetDaoRetrieveMembershipsByEntityResponse.setTargetMemberships(targetMemberships);
+        if (targetEntity != null) {
+          targetDaoRetrieveMembershipsByEntityResponse.setTargetEntities(GrouperUtil.toList(targetEntity));
         }
       }
-
-      return targetDaoRetrieveMembershipsByGroupResponse;
+      
+      return targetDaoRetrieveMembershipsByEntityResponse;
     } finally {
       this.addTargetDaoTimingInfo(
           new TargetDaoTimingInfo("retrieveMembershipsByEntity", startNanos));

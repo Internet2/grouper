@@ -36,7 +36,7 @@ public class GrouperScim2ApiCommands {
     GrouperStartup.startup();
     
 
-    GrouperScim2User scimUser = retrieveScimUser("serviceNowReal", "id", "00003f9787005210cd2c41d6cebb35f5", null, null, new ScimSettings());
+    GrouperScim2User scimUser = retrieveScimUser("serviceNowReal", "id", "00003f9787005210cd2c41d6cebb35f5", null, new ScimSettings());
     
     
     Map<String, ProvisioningObjectChangeAction> fieldToAction = new HashMap<String, ProvisioningObjectChangeAction>();
@@ -943,7 +943,7 @@ public class GrouperScim2ApiCommands {
     ScimSettings scimSettings = new ScimSettings();
     scimSettings.setAcceptHeader(acceptHeader);
     scimSettings.setOrgName(orgName);
-    return retrieveScimUser(configId, fieldName, fieldValue, null, null, scimSettings);
+    return retrieveScimUser(configId, fieldName, fieldValue, null, scimSettings);
   }
   
   /**
@@ -953,8 +953,7 @@ public class GrouperScim2ApiCommands {
    * @return
    */
   public static GrouperScim2User retrieveScimUser(String configId, String fieldName, 
-      String fieldValue, Map<String, Set<String>> groupIdToMembershipEntityIds, 
-      Map<String, Set<String>> entityIdToMembershipEntityIds, 
+      String fieldValue, GrouperScim2MembershipCache grouperScim2MembershipCache, 
       ScimSettings scimSettings) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
@@ -1005,9 +1004,7 @@ public class GrouperScim2ApiCommands {
       JsonNode userNode = resourcesNode.get(0);
       GrouperScim2User grouperScimUser = GrouperScim2User.fromJson(userNode);
       debugMap.put("found", grouperScimUser != null);
-      populateMembershipsFromUser(groupIdToMembershipEntityIds, userNode,
-          grouperScimUser);
-      populateUserMembershipsFromUser(entityIdToMembershipEntityIds, userNode,
+      populateMembershipsFromUser(grouperScim2MembershipCache, userNode,
           grouperScimUser);
 
       return grouperScimUser;
@@ -1047,7 +1044,7 @@ public class GrouperScim2ApiCommands {
    * retrieve all users
    * @return the results
    */
-  public static List<GrouperScim2User> retrieveScimUsers(ScimSettings scimSettings, String configId, Map<String, Set<String>> groupIdToMembershipEntityIds) {
+  public static List<GrouperScim2User> retrieveScimUsers(ScimSettings scimSettings, String configId, GrouperScim2MembershipCache grouperScim2MembershipCache) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1120,7 +1117,7 @@ public class GrouperScim2ApiCommands {
             results.add(grouperScimUser);
             idsRetreved.add(grouperScimUser.getId());
             foundNewUser = true;
-            populateMembershipsFromUser(groupIdToMembershipEntityIds, userNode, grouperScimUser);
+            populateMembershipsFromUser(grouperScim2MembershipCache, userNode, grouperScimUser);
           }
         }
         
@@ -1281,24 +1278,13 @@ public class GrouperScim2ApiCommands {
   }
 
   /**
-   * @deprecated
-   */
-  @Deprecated
-  public static GrouperScim2Group retrieveScimGroup(String configId, String acceptHeader, String fieldName,
-      String fieldValue, Map<String, Set<String>> groupIdToMembershipEntityIds) {
-    ScimSettings scimSettings = new ScimSettings();
-    scimSettings.setAcceptHeader(acceptHeader);
-    return retrieveScimGroup(configId, fieldName, fieldValue, groupIdToMembershipEntityIds, scimSettings);
-  }
-  
-  /**
    * @param configId
    * @param fieldName id or userPrincipalName
    * @param fieldValue is value of id or userPrincipalName
    * @return
    */
   public static GrouperScim2Group retrieveScimGroup(String configId, String fieldName,
-      String fieldValue, Map<String, Set<String>> groupIdToMembershipEntityIds, ScimSettings scimSettings) {
+      String fieldValue, GrouperScim2MembershipCache grouperScim2MembershipCache, ScimSettings scimSettings) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
   
@@ -1356,7 +1342,7 @@ public class GrouperScim2ApiCommands {
       JsonNode groupNode = resourcesNode.get(0);
       GrouperScim2Group grouperScimGroup = GrouperScim2Group.fromJson(groupNode);
       debugMap.put("found", grouperScimGroup != null);
-      populateMembershipsFromGroup(groupIdToMembershipEntityIds, groupNode,
+      populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode,
           grouperScimGroup);
       return grouperScimGroup;
   
@@ -1672,20 +1658,10 @@ public class GrouperScim2ApiCommands {
   }
   
   /**
-   * @deprecated
-   */
-  @Deprecated
-  public static List<GrouperScim2Group> retrieveScimGroups(String configId, String acceptHeader, Map<String, Set<String>> groupIdToMembershipEntityIds) {
-    ScimSettings scimSettings = new ScimSettings();
-    scimSettings.setAcceptHeader(acceptHeader);
-    return retrieveScimGroups(scimSettings, configId, groupIdToMembershipEntityIds);
-  }
-  
-  /**
    * retrieve all groups
    * @return the results
    */
-  public static List<GrouperScim2Group> retrieveScimGroups(ScimSettings scimSettings, String configId, Map<String, Set<String>> groupIdToMembershipEntityIds) {
+  public static List<GrouperScim2Group> retrieveScimGroups(ScimSettings scimSettings, String configId, GrouperScim2MembershipCache grouperScim2MembershipCache) {
   
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1755,7 +1731,7 @@ public class GrouperScim2ApiCommands {
             results.add(grouperScimGroup);
             idsRetreved.add(grouperScimGroup.getId());
             foundNewGroup = true;
-            populateMembershipsFromGroup(groupIdToMembershipEntityIds, groupNode, grouperScimGroup);
+            populateMembershipsFromGroup(grouperScim2MembershipCache, groupNode, grouperScimGroup);
           }
         }
         
@@ -1780,78 +1756,41 @@ public class GrouperScim2ApiCommands {
 
   }
 
-  private static void populateMembershipsFromGroup(Map<String, Set<String>> groupIdToMembershipEntityIds, JsonNode groupNode, GrouperScim2Group grouperScimGroup) {
-    if (groupIdToMembershipEntityIds != null && StringUtils.isNotBlank(grouperScimGroup.getId())) {
+  private static void populateMembershipsFromGroup(GrouperScim2MembershipCache grouperScim2MembershipCache, JsonNode groupNode, GrouperScim2Group grouperScimGroup) {
+    String groupId = grouperScimGroup.getId();
+    if (grouperScim2MembershipCache != null && StringUtils.isNotBlank(groupId)) {
+      grouperScim2MembershipCache.addMembershipsForGroup(groupId);
+
       if (groupNode.has("members")) {
-        Set<String> entityIds = Collections.synchronizedSet(new HashSet<>());
         ArrayNode membersNode = GrouperUtil.jsonJacksonGetArrayNode(groupNode, "members");
         if (membersNode != null) {
           for (int membersIndex=0; membersIndex<membersNode.size(); membersIndex++) {
             JsonNode singleMemberNode = membersNode.get(membersIndex);
-            String entityId = GrouperUtil.jsonJacksonGetString(singleMemberNode, "value");
-            entityIds.add(entityId);
+            String userId = GrouperUtil.jsonJacksonGetString(singleMemberNode, "value");
+            grouperScim2MembershipCache.addMembership(groupId, userId);
           }
-        }
-        Set<String> newEntityIds = groupIdToMembershipEntityIds.get(grouperScimGroup.getId());
-        if (newEntityIds == null) {
-          Set<String> oldEntityIds = groupIdToMembershipEntityIds.put(grouperScimGroup.getId(), entityIds);
-          if (oldEntityIds != null) {
-            entityIds.addAll(oldEntityIds);
-          }
-        } else {
-          newEntityIds.addAll(entityIds);
         }
       }
     }
   }
 
-  private static void populateMembershipsFromUser(Map<String, Set<String>> groupIdToMembershipEntityIds, JsonNode userNode, GrouperScim2User grouperScimUser) {
-    if (groupIdToMembershipEntityIds != null && StringUtils.isNotBlank(grouperScimUser.getId())) {
+  private static void populateMembershipsFromUser(GrouperScim2MembershipCache grouperScim2MembershipCache, JsonNode userNode, GrouperScim2User grouperScimUser) {
+    String userId = grouperScimUser.getId();
+    if (grouperScim2MembershipCache != null && StringUtils.isNotBlank(userId)) {
+      grouperScim2MembershipCache.addMembershipsForUser(userId);
       if (userNode.has("groups")) {
         ArrayNode groupsNode = GrouperUtil.jsonJacksonGetArrayNode(userNode, "groups");
         if (groupsNode != null) {
           for (int membersIndex=0; membersIndex<groupsNode.size(); membersIndex++) {
             JsonNode singleMemberNode = groupsNode.get(membersIndex);
             String groupId = GrouperUtil.jsonJacksonGetString(singleMemberNode, "value");
-            Set<String> entityIds = groupIdToMembershipEntityIds.get(groupId);
-            if (entityIds == null) {
-              entityIds = Collections.synchronizedSet(new HashSet<>());
-              Set<String> oldEntityIds = groupIdToMembershipEntityIds.put(groupId, entityIds);
-              if (oldEntityIds != null) {
-                entityIds.addAll(oldEntityIds);
-              }
-            }
-            entityIds.add(grouperScimUser.getId());
+            grouperScim2MembershipCache.addMembership(groupId, userId);
           }
         }
       }
     }
   }
 
-  private static void populateUserMembershipsFromUser(Map<String, Set<String>> userIdToMembershipGroupIds, JsonNode userNode, GrouperScim2User grouperScimUser) {
-    if (userIdToMembershipGroupIds != null && StringUtils.isNotBlank(grouperScimUser.getId())) {
-      if (userNode.has("groups")) {
-        ArrayNode groupsNode = GrouperUtil.jsonJacksonGetArrayNode(userNode, "groups");
-        if (groupsNode != null) {
-          String entityId = grouperScimUser.getId();
-          
-          for (int groupsIndex=0; groupsIndex<groupsNode.size(); groupsIndex++) {
-            JsonNode singleGroupNode = groupsNode.get(groupsIndex);
-            String groupId = GrouperUtil.jsonJacksonGetString(singleGroupNode, "value");
-            Set<String> groupIds = userIdToMembershipGroupIds.get(entityId);
-            if (groupIds == null) {
-              groupIds = Collections.synchronizedSet(new HashSet<>());
-              Set<String> oldGroupIds = userIdToMembershipGroupIds.put(entityId, groupIds);
-              if (oldGroupIds != null) {
-                groupIds.addAll(oldGroupIds);
-              }
-            }
-            groupIds.add(groupId);
-          }
-        }
-      }
-    }
-  }
 
 
 //  public void updateScimUser(String configId,
