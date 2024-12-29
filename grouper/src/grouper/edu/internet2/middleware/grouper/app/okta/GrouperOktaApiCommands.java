@@ -10,6 +10,7 @@ import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -229,7 +230,7 @@ public class GrouperOktaApiCommands {
    * @param configId
    * @return the bearer token
    */
-  private static String retrieveBearerTokenForOktaConfigId(Map<String, Object> debugMap, String configId) {
+  public static String retrieveBearerTokenForOktaConfigId(Map<String, Object> debugMap, String configId) {
     
     String encryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
   
@@ -279,7 +280,12 @@ public class GrouperOktaApiCommands {
     grouperHttpCall.assignProxyUrl(proxyUrl);
     grouperHttpCall.assignProxyType(proxyType);
     
-    String url = tenantDomain + (tenantDomain.endsWith("/") ? "" : "/") +  urlSuffix;
+    String url = "";
+    if (urlSuffix.startsWith("https://")) { // for pagination, we are passing the full url instead of url suffix
+      url = urlSuffix;
+    } else {      
+      url = tenantDomain + (tenantDomain.endsWith("/") ? "" : "/") +  urlSuffix;
+    }
     
     debugMap.put("url", url);
 
@@ -310,10 +316,15 @@ public class GrouperOktaApiCommands {
     int code = -1;
     String json = null;
 
+    Map<String,String> prevNextHeader = new HashMap<String, String>();
     try {
       code = grouperHttpCall.getResponseCode();
       returnCode[0] = code;
       json = grouperHttpCall.getResponseBody();
+      Map<String,String> responseHeaders = grouperHttpCall.getResponseHeaders();
+      if (responseHeaders.containsKey("link")) {
+        prevNextHeader = parseLinkHeader(responseHeaders.get("link"));
+      }
     } catch (Exception e) {
       throw new RuntimeException("Error connecting to '" + debugMap.get("url") + "'", e);
     }
@@ -329,12 +340,60 @@ public class GrouperOktaApiCommands {
     }
 
     try {
-      JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
-      return rootNode;
+      ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+      JsonNode dataNode = GrouperUtil.jsonJacksonNode(json);
+      resultNode.set("data", dataNode);
+      if (prevNextHeader.containsKey("prev") || prevNextHeader.containsKey("next")) {
+        ObjectNode paginationNode = GrouperUtil.jsonJacksonNode();
+        resultNode.set("pagination", paginationNode);
+        if (prevNextHeader.containsKey("prev")) {      
+          GrouperUtil.jsonJacksonAssignString(paginationNode, "prev", prevNextHeader.get("prev"));
+        }
+        if (prevNextHeader.containsKey("next")) { 
+          GrouperUtil.jsonJacksonAssignString(paginationNode, "next", prevNextHeader.get("next"));
+        }
+        
+      }
+      return resultNode;
     } catch (Exception e) {
       throw new RuntimeException("Error parsing response: '" + json + "'", e);
     }
 
+  }
+  
+  private static Map<String, String> parseLinkHeader(String header) {
+    
+    Map<String, String> links = new HashMap<>();
+    
+    if (StringUtils.isBlank(header)) {
+      return links;
+    }
+
+    // Split the header into individual links
+    String[] parts = header.split(", ");
+    for (String part : parts) {
+        // Match the URL and rel value
+        String[] sections = part.split("; ");
+        if (sections.length == 2) {
+            String url = sections[0].trim();
+            String rel = sections[1].trim();
+
+            // Remove the angle brackets from the URL
+            if (url.startsWith("<") && url.endsWith(">")) {
+                url = url.substring(1, url.length() - 1);
+            }
+
+            // Extract the rel value
+            if (rel.startsWith("rel=\"") && rel.endsWith("\"")) {
+                rel = rel.substring(5, rel.length() - 1);
+            }
+
+            // Add to the map
+            links.put(rel, url);
+        }
+    }
+
+    return links;
   }
 
   /**
@@ -358,9 +417,12 @@ public class GrouperOktaApiCommands {
       
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/v1/groups", GrouperUtil.toSet(200), 
           new int[] { -1 }, jsonStringToSend);
-
-      GrouperOktaGroup grouperOktaGroupResult = GrouperOktaGroup.fromJson(jsonNode);
       
+      GrouperOktaGroup grouperOktaGroupResult = null;
+      if (jsonNode != null && jsonNode.has("data")) {        
+        grouperOktaGroupResult = GrouperOktaGroup.fromJson(jsonNode.get("data"));
+      }
+
       return grouperOktaGroupResult;
       
     } catch (RuntimeException re) {
@@ -415,8 +477,11 @@ public class GrouperOktaApiCommands {
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/v1/users",
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
       
-      GrouperOktaUser grouperOktaUserResult = GrouperOktaUser.fromJson(jsonNode);
-
+      GrouperOktaUser grouperOktaUserResult = null;
+      if (jsonNode != null && jsonNode.has("data")) {
+        grouperOktaUserResult = GrouperOktaUser.fromJson(jsonNode.get("data"));
+      }
+      
       return grouperOktaUserResult;
       
     } catch (RuntimeException re) {
@@ -454,13 +519,9 @@ public class GrouperOktaApiCommands {
       //api/v1/groups/00gmvgcs9mpZKSfAX697/users/00umxoh7cgDm3zD9v697
       String urlSuffix = "api/v1/groups/"+groupId+"/users/"+userId;
 
-      JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix, GrouperUtil.toSet(200), 
+      executeMethod(debugMap, "PUT", configId, urlSuffix, GrouperUtil.toSet(204), 
           new int[] { -1 }, jsonStringToSend);
       
-      if (jsonNode == null) {
-        throw new RuntimeException("error creating okta membership for groupId "+groupId+" userId "+userId);
-      }
-
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
@@ -482,9 +543,17 @@ public class GrouperOktaApiCommands {
       if (StringUtils.isBlank(userId)) {
         throw new RuntimeException("id is null");
       }
+      
       //api/v1/users/00umxoh7cgDm3zD9v697
+      int[] returnCode = new int[1];
+      //first delete marks the user as deactivated and the second one actually deletes it
       executeMethod(debugMap, "DELETE", configId, "api/v1/users/"+userId,
-          GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null);
+          GrouperUtil.toSet(200, 204, 404), returnCode, null);
+      
+      if (returnCode[0] == 200 || returnCode[0] == 204) {
+        executeMethod(debugMap, "DELETE", configId, "api/v1/users/"+userId,
+            GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null);
+      }
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -597,7 +666,7 @@ public class GrouperOktaApiCommands {
       }
     
       executeMethod(debugMap, "DELETE", configId, "api/v1/groups/"+groupId,
-          GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null);
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
 
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
@@ -609,7 +678,7 @@ public class GrouperOktaApiCommands {
 
 
   public static List<GrouperOktaGroup> retrieveOktaGroups(String configId, String fieldToSearchFor,
-      String fieldValue, boolean lookupManagers, boolean lookupOwners) {
+      String fieldValue) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -620,46 +689,42 @@ public class GrouperOktaApiCommands {
     try {
 
       List<GrouperOktaGroup> results = new ArrayList<GrouperOktaGroup>();
-      
-      String domain = GrouperConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".groupDomain");
-      
-      if (StringUtils.isBlank(domain)) {
-    	  domain = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".domain");
-      }
-      
 
-      String nextPageToken = null;
+      String nextPageUrl = null;
+      String previousPageUrl = null;
       boolean firstRequest = true;
-      
-      int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.oktaConnector." + configId + ".pageSizeGroup", 200);
       
       String urlSuffixConstant = "api/v1/groups";
       
-      int maxCalls = Math.max(10000000/pageSize, 1);
+      if (StringUtils.isNotBlank(fieldToSearchFor)) {
+        
+        String filterValue = fieldToSearchFor + " eq "+fieldValue;
+        String urlEncodedFilter = GrouperUtil.escapeUrlEncode(filterValue);
+        urlSuffixConstant = urlSuffixConstant + "?filter="+urlEncodedFilter;
+      }
+      
+      int maxCalls = 10000;
       int numberOfCalls = 0;
-      String previousPageToken = null;
-      while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
+      while (StringUtils.isNotBlank(nextPageUrl) || firstRequest) {
         
         if (maxCalls-- < 0) {
           throw new RuntimeException("Endless loop detected! total results so far: " + results.size()
-             + ", itemsPerPage: " + pageSize + ", numberOfCalls: " + numberOfCalls);
+             + ", numberOfCalls: " + numberOfCalls);
         }
         
         firstRequest = false;
         
-        String urlSuffix = urlSuffixConstant;
-        if (StringUtils.isNotBlank(nextPageToken)) {
-          urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
-        }
-        
+        String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
         numberOfCalls++;
         
-        ArrayNode groupsArray = (ArrayNode) jsonNode.get("groups");
+        ArrayNode groupsArray = (ArrayNode) jsonNode.get("data");
         
-        JsonNode nextPageTokenNode = jsonNode.get("nextPageToken");
-        if (nextPageTokenNode != null && nextPageTokenNode.asText() != null) {
-          nextPageToken = nextPageTokenNode.asText();
+        JsonNode paginationNode = jsonNode.get("pagination");
+        if (paginationNode != null && paginationNode.get("next") != null) {
+          nextPageUrl = paginationNode.get("next").asText();
+        } else {
+          nextPageUrl = null;
         }
         
         if (groupsArray == null || groupsArray.size() == 0) {
@@ -673,10 +738,10 @@ public class GrouperOktaApiCommands {
           results.add(grouperOktaGroup);
         }
         
-        if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
+        if (StringUtils.isNotBlank(previousPageUrl) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageUrl, nextPageUrl)) {
           break;
         }
-        previousPageToken = nextPageToken;
+        previousPageUrl = nextPageUrl;
         
       }
       
@@ -704,44 +769,38 @@ public class GrouperOktaApiCommands {
 
       List<GrouperOktaUser> results = new ArrayList<GrouperOktaUser>();
       
-      String domain = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".domain");
-
-      String nextPageToken = null;
+      String nextPageUrl = null;
       boolean firstRequest = true;
       
-      int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.oktaConnector." + configId + ".pageSizeUser", 500);
-
       String urlSuffixConstant = "api/v1/users";
       
-      int maxCalls = Math.max(10000000/pageSize, 1);
+      int maxCalls = 1000000;
       int numberOfCalls = 0;
       String previousPageToken = null;
-      while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
+      while (StringUtils.isNotBlank(nextPageUrl) || firstRequest) {
         
         if (maxCalls-- < 0) {
           throw new RuntimeException("Endless loop detected! total results so far: " + results.size()
-             + ", itemsPerPage: " + pageSize + ", numberOfCalls: " + numberOfCalls);
+             + ", numberOfCalls: " + numberOfCalls);
         }
 
         firstRequest = false;
-        String urlSuffix = urlSuffixConstant;
-        if (StringUtils.isNotBlank(nextPageToken)) {
-          urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
-        }
+        String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+        numberOfCalls++;
         
-        ArrayNode usersArray = (ArrayNode) jsonNode.get("users");
+        ArrayNode usersArray = (ArrayNode) jsonNode.get("data");
+        
+        JsonNode paginationNode = jsonNode.get("pagination");
+        if (paginationNode != null && paginationNode.get("next") != null) {
+          nextPageUrl = paginationNode.get("next").asText();
+        } else {
+          nextPageUrl = null;
+        }
         
         if (usersArray == null || usersArray.size() == 0) {
           break;
-        }
-
-        JsonNode nextPageTokenNode = jsonNode.get("nextPageToken");
-        if (nextPageTokenNode != null && nextPageTokenNode.asText() != null) {
-          nextPageToken = nextPageTokenNode.asText();
-        } else {
-          nextPageToken = null;
         }
 
         for (int i = 0; i < (usersArray == null ? 0 : usersArray.size()); i++) {
@@ -750,10 +809,10 @@ public class GrouperOktaApiCommands {
           results.add(grouperOktaUser);
         }
         
-        if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
+        if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageToken, nextPageUrl)) {
           break;
         }
-        previousPageToken = nextPageToken;
+        previousPageToken = nextPageUrl;
         
       }
       
@@ -787,11 +846,11 @@ public class GrouperOktaApiCommands {
       String urlSuffix = "api/v1/users/"+id;
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
       
-      if (jsonNode == null) {
+      if (jsonNode == null || jsonNode.get("data") == null) {
         return null;
       }
       
-      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(jsonNode);
+      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(jsonNode.get("data"));
       return grouperOktaUser;
       
     } catch (RuntimeException re) {
@@ -822,36 +881,40 @@ public class GrouperOktaApiCommands {
 
       Set<String> memberIds = new HashSet<String>();
       
-      String nextPageToken = null;
+      String nextPageUrl = null;
       boolean firstRequest = true;
       
-      int pageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.oktaConnector." + configId + ".pageSizeMembership", 500);
-
       //api/v1/groups/00gmvgcs9mpZKSfAX697/users
-      String urlSuffixConstant = "api/v1/groups/"+groupId+"/users";
+      String urlSuffixConstant = "api/v1/groups/"+groupId+"/skinny_users";
 
-      int maxCalls = Math.max(10000000/pageSize, 1);
+      int maxCalls = 10000000;
       int numberOfCalls = 0;
-      String previousPageToken = null;
-      while (StringUtils.isNotBlank(nextPageToken) || firstRequest) {
+      String previousPageUrl = null;
+      while (StringUtils.isNotBlank(nextPageUrl) || firstRequest) {
         
         if (maxCalls-- < 0) {
           throw new RuntimeException("Endless loop detected! total results so far: " + memberIds.size()
-             + ", itemsPerPage: " + pageSize + ", numberOfCalls: " + numberOfCalls);
+             + ", numberOfCalls: " + numberOfCalls);
         }
         
         firstRequest = false;
-        String urlSuffix = urlSuffixConstant;
-        if (StringUtils.isNotBlank(nextPageToken)) {
-          urlSuffix = urlSuffix + "&pageToken="+nextPageToken;
-        }
+        String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
         
-        ArrayNode membersArray = (ArrayNode) executeGetMethod(debugMap, configId, urlSuffix);
+        JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
+        numberOfCalls++;
+        
+        ArrayNode membersArray = (ArrayNode)jsonNode.get("data");
         
         if (membersArray == null || membersArray.size() == 0) {
           break;
         }
-
+        
+        JsonNode paginationNode = jsonNode.get("pagination");
+        if (paginationNode != null && paginationNode.get("next") != null) {
+          nextPageUrl = paginationNode.get("next").asText();
+        } else {
+          nextPageUrl = null;
+        }
 
         for (int i = 0; i < (membersArray == null ? 0 : membersArray.size()); i++) {
           JsonNode memberNode = membersArray.get(i);
@@ -861,10 +924,10 @@ public class GrouperOktaApiCommands {
           memberIds.add(memberId);
         }
         
-        if (StringUtils.isNotBlank(previousPageToken) && StringUtils.isNotBlank(nextPageToken) && StringUtils.equals(previousPageToken, nextPageToken)) {
+        if (StringUtils.isNotBlank(previousPageUrl) && StringUtils.isNotBlank(nextPageUrl) && StringUtils.equals(previousPageUrl, nextPageUrl)) {
           break;
         }
-        previousPageToken = nextPageToken;
+        previousPageUrl = nextPageUrl;
         
       }
       
@@ -884,8 +947,7 @@ public class GrouperOktaApiCommands {
    * @param id is the group id
    * @return the okta group
    */
-  public static GrouperOktaGroup retrieveOktaGroup(String configId, 
-      String id, boolean lookupManagers, boolean lookupOwners) {
+  public static GrouperOktaGroup retrieveOktaGroup(String configId, String id) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -898,11 +960,11 @@ public class GrouperOktaApiCommands {
       String urlSuffix = "api/v1/groups/"+id;
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
       
-      if (jsonNode == null) {
+      if (jsonNode == null || jsonNode.get("data") == null) {
         return null;
       }
       
-      GrouperOktaGroup grouperOktaGroup = GrouperOktaGroup.fromJson(jsonNode);
+      GrouperOktaGroup grouperOktaGroup = GrouperOktaGroup.fromJson(jsonNode.get("data"));
       
       return grouperOktaGroup;
     } catch (RuntimeException re) {
@@ -932,7 +994,7 @@ public class GrouperOktaApiCommands {
     try {
      // api/v1/groups/00gmvgcs9mpZKSfAX697/users/00umxoh7cgDm3zD9v697
       executeMethod(debugMap, "DELETE", configId, "api/v1/groups/"+groupId+"/users/"+userId,
-          GrouperUtil.toSet(200, 204, 404), new int[] { -1 }, null);
+          GrouperUtil.toSet(204, 404), new int[] { -1 }, null);
   
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));

@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.messagingProvisioning.MessagingProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.midpointProvisioning.MidPointProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.okta.OktaProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.remedyV2.RemedyProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.remedyV2.digitalMarketplace.DigitalMarketplaceProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2Configuration;
@@ -99,6 +100,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(LdapProvisionerConfiguration.class.getName());
     configClassNamesList.add(MessagingProvisionerConfiguration.class.getName());
     configClassNamesList.add(MidPointProvisionerConfiguration.class.getName());
+    configClassNamesList.add(OktaProvisionerConfiguration.class.getName());
     configClassNamesList.add(GrouperScim2Configuration.class.getName());
     configClassNamesList.add(RemedyProvisionerConfiguration.class.getName());
     configClassNamesList.add(SqlProvisionerConfiguration.class.getName());

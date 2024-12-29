@@ -122,14 +122,16 @@ public class GrouperOktaGroup {
   public static GrouperOktaGroup fromJson(JsonNode groupNode) {
     
     GrouperOktaGroup grouperOktaGroup = new GrouperOktaGroup();
-    grouperOktaGroup.description = GrouperUtil.jsonJacksonGetString(groupNode, "description");
+    grouperOktaGroup.id = GrouperUtil.jsonJacksonGetString(groupNode, "id");
+    
+    JsonNode profileNode = GrouperUtil.jsonJacksonGetNode(groupNode, "profile");
+    
+    grouperOktaGroup.description = GrouperUtil.jsonJacksonGetString(profileNode, "description");
     if (StringUtil.isBlank(grouperOktaGroup.description)) {
       grouperOktaGroup.description = null;
     }
     
-    grouperOktaGroup.name = GrouperUtil.jsonJacksonGetString(groupNode, "name");
-    
-    grouperOktaGroup.id = GrouperUtil.jsonJacksonGetString(groupNode, "id");
+    grouperOktaGroup.name = GrouperUtil.jsonJacksonGetString(profileNode, "name");
     
     return grouperOktaGroup;
   }
@@ -147,12 +149,17 @@ public class GrouperOktaGroup {
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       result.put("id", this.id);
     }
+    
+    ObjectNode profileNode = GrouperUtil.jsonJacksonNode();
+    
     if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
-      result.put("name", this.name);
+      profileNode.put("name", this.name);
     }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
-      result.put("description", this.description);
+      profileNode.put("description", this.description);
     }
+    
+    result.set("profile", profileNode);
     
     return result;
   }

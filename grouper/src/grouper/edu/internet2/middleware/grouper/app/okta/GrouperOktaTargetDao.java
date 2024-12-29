@@ -123,11 +123,8 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
 
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
 
-      boolean lookupManagers = oktaConfiguration.getTargetGroupAttributeNameToConfig().containsKey("managers");
-      boolean lookupOwners = oktaConfiguration.getTargetGroupAttributeNameToConfig().containsKey("owners");
-      
       List<GrouperOktaGroup> grouperOktaGroups = GrouperOktaApiCommands.retrieveOktaGroups(oktaConfiguration.getOktaExternalSystemConfigId(),
-          null, null, lookupManagers, lookupOwners);
+          null, null);
 
       for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
         ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
@@ -155,12 +152,9 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     try {
       GrouperOktaConfiguration oktaConfiguration = (GrouperOktaConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
-      boolean lookupManagers = oktaConfiguration.getTargetGroupAttributeNameToConfig().containsKey("managers");
-      boolean lookupOwners = oktaConfiguration.getTargetGroupAttributeNameToConfig().containsKey("owners");
-      
       List<ProvisioningGroup> targetGroups = new ArrayList<ProvisioningGroup>();
       List<GrouperOktaGroup> grouperOktaGroups = GrouperOktaApiCommands.retrieveOktaGroups(oktaConfiguration.getOktaExternalSystemConfigId(),
-          null, null, lookupManagers, lookupOwners);
+          null, null);
       for (GrouperOktaGroup grouperOktaGroup : grouperOktaGroups) {
         ProvisioningGroup targetGroup = grouperOktaGroup.toProvisioningGroup();
         targetGroups.add(targetGroup);
@@ -235,17 +229,14 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
 
       String attributeValue = GrouperUtil.stringValue(targetDaoRetrieveGroupRequest.getSearchAttributeValue());
       
-      boolean lookupManagers = oktaConfiguration.getTargetGroupAttributeNameToConfig().containsKey("managers");
-      boolean lookupOwners = oktaConfiguration.getTargetGroupAttributeNameToConfig().containsKey("owners");
-      
-      if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute()) || StringUtils.equals("email", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
+      if (StringUtils.equals("id", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
         grouperOktaGroup = GrouperOktaApiCommands.retrieveOktaGroup(oktaConfiguration.getOktaExternalSystemConfigId(), 
-            attributeValue, lookupManagers, lookupOwners);
+            attributeValue);
       } else if (StringUtils.equals("name", targetDaoRetrieveGroupRequest.getSearchAttribute())) {
       
         if (StringUtils.isNotBlank(attributeValue)) {
           List<GrouperOktaGroup> oktaGroups = GrouperOktaApiCommands.retrieveOktaGroups(oktaConfiguration.getOktaExternalSystemConfigId(),
-              "name", attributeValue, lookupManagers, lookupOwners);
+              "name", attributeValue);
           if (oktaGroups.size() == 1) {
             grouperOktaGroup = oktaGroups.get(0);
           } else if (oktaGroups.size() > 1) {
@@ -587,22 +578,18 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
     grouperProvisionerDaoCapabilities.setCanDeleteEntity(true);
     grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
     grouperProvisionerDaoCapabilities.setCanDeleteMembership(true);
+    
     grouperProvisionerDaoCapabilities.setCanInsertEntity(true);
     grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
     grouperProvisionerDaoCapabilities.setCanInsertMembership(true);
-//    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups() &&
-//        this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities()) {
-      grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
-//    }
-//    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllEntities()) {
-      grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
-//    }
-//    if (this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().isSelectAllGroups()) {
-      grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
-//    }
+    
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllData(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
+    grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveEntity(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveGroup(true);
     grouperProvisionerDaoCapabilities.setCanRetrieveMembershipsAllByGroup(true);
+    
     grouperProvisionerDaoCapabilities.setCanUpdateEntity(true);
     grouperProvisionerDaoCapabilities.setCanUpdateGroup(true);
   }

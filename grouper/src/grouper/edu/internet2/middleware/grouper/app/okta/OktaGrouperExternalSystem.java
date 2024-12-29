@@ -51,7 +51,29 @@ public class OktaGrouperExternalSystem extends GrouperExternalSystem {
     String testFakeGroupId = "testFakeGroupId";
     // try to retrieve a fake group and if it's 200 or 404, it's all good
     try {
-      GrouperOktaGroup oktaGroup = GrouperOktaApiCommands.retrieveOktaGroup(this.getConfigId(), testFakeGroupId, false, false);
+//      GrouperOktaUser oktaUser = GrouperOktaApiCommands.retrieveOktaUser(this.getConfigId(), "00umvgfnligMmTnZJ697");
+      
+//      GrouperOktaGroup groupToInsert = new GrouperOktaGroup();
+//      groupToInsert.setName("testGroup1");
+//      groupToInsert.setDescription("testGroup1Description");
+//      
+//      GrouperOktaGroup oktaGroupCreated = GrouperOktaApiCommands.createOktaGroup(this.getConfigId(), groupToInsert, null);
+//      System.out.println(oktaGroupCreated);
+      // 00gn0okazeTcFtRg9697 group Id created
+      
+//      GrouperOktaUser userToInsert = new GrouperOktaUser();
+//      userToInsert.setEmail("test.subject.2@grouper.edu");
+//      userToInsert.setFirstName("firstName2");
+//      userToInsert.setLastName("lastName2");
+//      userToInsert.setLogin("test.subject.2@grouper.edu");
+//      
+//      GrouperOktaUser oktaUserCreated = GrouperOktaApiCommands.createOktaUser(this.getConfigId(), userToInsert);
+//      System.out.println(oktaUserCreated);
+      // 00un0ogmudOnndQE9697 user id created
+      
+//      GrouperOktaApiCommands.deleteOktaUser(this.getConfigId(), "00un0opphe4ywg0ig697");
+      
+      GrouperOktaGroup oktaGroup = GrouperOktaApiCommands.retrieveOktaGroup(this.getConfigId(), testFakeGroupId);
     } catch (Exception e) {
       errors.add("Could not connect with okta external system successfully "+GrouperUtil.escapeHtml(e.getMessage(), true));
     }

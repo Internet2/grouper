@@ -17,15 +17,15 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 public class GrouperOktaUser {
   
-   private String firstName;
-   
-   private String lastName;
-   
-   private String id;
-   
-   private String email;
-   
-   private String login;
+  private String firstName;
+ 
+  private String lastName;
+ 
+  private String id;
+ 
+  private String email;
+ 
+  private String login;
    
 
   public String getFirstName() {

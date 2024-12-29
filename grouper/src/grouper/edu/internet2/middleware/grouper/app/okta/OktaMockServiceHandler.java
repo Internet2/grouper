@@ -61,10 +61,10 @@ public class OktaMockServiceHandler extends MockServiceHandler {
   public static void ensureOktaMockTables() {
     
     try {
-      new GcDbAccess().sql("select count(*) from mock_google_group").select(int.class);
-      new GcDbAccess().sql("select count(*) from mock_google_user").select(int.class);
-      new GcDbAccess().sql("select count(*) from mock_google_auth").select(int.class);
-      new GcDbAccess().sql("select count(*) from mock_google_membership").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_okta_group").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_okta_user").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_okta_auth").select(int.class);
+      new GcDbAccess().sql("select count(*) from mock_okta_membership").select(int.class);
     } catch (Exception e) {
 
       //we need to delete the test table if it is there, and create a new one
@@ -88,10 +88,10 @@ public class OktaMockServiceHandler extends MockServiceHandler {
    * 
    */
   public static void dropOktaMockTables() {
-    MockServiceServlet.dropMockTable("mock_google_membership");
-    MockServiceServlet.dropMockTable("mock_google_user");
-    MockServiceServlet.dropMockTable("mock_google_group");
-    MockServiceServlet.dropMockTable("mock_google_auth");
+    MockServiceServlet.dropMockTable("mock_okta_membership");
+    MockServiceServlet.dropMockTable("mock_okta_user");
+    MockServiceServlet.dropMockTable("mock_okta_group");
+    MockServiceServlet.dropMockTable("mock_okta_auth");
   }
   
   private static boolean mockTablesThere = false;
@@ -572,16 +572,15 @@ public class OktaMockServiceHandler extends MockServiceHandler {
       return;
     }
 
-
-    String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
-    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
+    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("after");
     String groupFilter = mockServiceRequest.getHttpServletRequest().getParameter("query");
 
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
       if (limitInt <= 0) {
-        throw new RuntimeException("maxResults cannot be less than or equal to 0.");
+        throw new RuntimeException("limit cannot be less than or equal to 0.");
       }
       if (limitInt > 200) {
         limitInt = 200;
@@ -631,11 +630,9 @@ public class OktaMockServiceHandler extends MockServiceHandler {
       valueNode.add(objectNode);
     }
     
-    resultNode.set("groups", valueNode);
-    
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(valueNode));
   }
   
   
@@ -881,11 +878,11 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     DecodedJWT decodedJwt = JWT.decode(assertion);
     
-    OktaMockRsaKeyProvider googleMockRsaKeyProvider = new OktaMockRsaKeyProvider();
+    OktaMockRsaKeyProvider oktaMockRsaKeyProvider = new OktaMockRsaKeyProvider();
     
-    Algorithm.RSA256(googleMockRsaKeyProvider).verify(decodedJwt);
+    Algorithm.RSA256(oktaMockRsaKeyProvider).verify(decodedJwt);
     
-    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.google.mock.configId");
+    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.okta.mock.configId");
 
     mockServiceResponse.setResponseCode(200);
 
@@ -979,7 +976,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
   /**
    * convert from jackson json
    * @param grouperOktaUser
-   * @return the grouper google user
+   * @return the grouper okta user
    */
   private static ObjectNode toUserJson(GrouperOktaUser grouperOktaUser) {
     
@@ -1004,7 +1001,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     public RSAPublicKey getPublicKeyById(String keyId) {
       PublicKey publicKey = null;
       try {
-        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.google.mock.publicKey");
+        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.okta.mock.publicKey");
         
         if (StringUtils.isBlank(publicKeyEncoded)) {
           publicKeyEncoded = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuaGc9tsPiKesuG4u534VbiLXIm55oAsV5PX+EaXRQ0Ah+B3VN2K/lO3lL3Dp8KJWiAaN0ItSpfRsWMBcjZgJVSK4Ah3DAejIpuiEU6BU5puukX/j9OuHgBwZ9KycFUZwUL2i//8ChL+2hvgSha3TtGRBLMrGU/HhY/UEBb5UoMmtiTim95YzuoIs0Q85+Ti5tL/JljAU3zjkYfhoGYjQj7EqQyROSjxB52xYFmABWR2FfXSzMJdyVi6w6QWJKt0VtwOzboiJqSl+QypiK6pdn8jKAB5uErYF5Zbf50K38rSF2BzhAqwNEIVWhrx/jB9iu9cyXNx328bWQw2hpDZ6hwIDAQAB";  // rsaKeypair[0];
