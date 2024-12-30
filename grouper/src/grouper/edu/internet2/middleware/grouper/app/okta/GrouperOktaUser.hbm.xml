@@ -20,8 +20,8 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.app.google" default-lazy="false">
-  <class name="GrouperGoogleUser" table="mock_google_user">
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.okta" default-lazy="false">
+  <class name="GrouperOktaUser" table="mock_okta_user">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>
@@ -30,10 +30,10 @@
       <generator class="assigned" />
     </id>
 
-    <property name="primaryEmail" column="primary_email" />
-    <property name="givenName" column="given_name" />
-    <property name="familyName" column="family_name" />
-    <property name="orgUnitPath" column="org_unit_path" />
+    <property name="login" column="login" />
+    <property name="email" column="email" />
+    <property name="firstName" column="first_name" />
+    <property name="lastName" column="last_name" />
     
   </class>
 </hibernate-mapping>

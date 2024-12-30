@@ -68,6 +68,10 @@ import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdlWorker;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
+import edu.internet2.middleware.grouper.app.okta.GrouperOktaAuth;
+import edu.internet2.middleware.grouper.app.okta.GrouperOktaGroup;
+import edu.internet2.middleware.grouper.app.okta.GrouperOktaMembership;
+import edu.internet2.middleware.grouper.app.okta.GrouperOktaUser;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyAuth;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyGroup;
 import edu.internet2.middleware.grouper.app.remedyV2.GrouperRemedyMembership;
@@ -285,6 +289,11 @@ public abstract class Hib3DAO {
         addClass(configuration, TeamDynamixUser.class);
         addClass(configuration, TeamDynamixMembership.class);
         addClass(configuration, TeamDynamixAuth.class);
+        
+        addClass(configuration, GrouperOktaGroup.class);
+        addClass(configuration, GrouperOktaUser.class);
+        addClass(configuration, GrouperOktaMembership.class);
+        addClass(configuration, GrouperOktaAuth.class);
         
       }
       addClass(configuration, Hib3MemberDAO.class);

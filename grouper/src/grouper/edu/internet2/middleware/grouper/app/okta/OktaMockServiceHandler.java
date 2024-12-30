@@ -10,6 +10,8 @@ import java.security.spec.InvalidKeySpecException;
 import java.security.spec.X509EncodedKeySpec;
 import java.util.List;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -21,6 +23,7 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -110,6 +113,9 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     List<String> mockNamePaths = GrouperUtil.toList(mockServiceRequest.getPostMockNamePaths());
     
+    mockNamePaths.remove(0);
+    mockNamePaths.remove(0);
+    
     String[] paths = new String[mockNamePaths.size()];
     paths = mockNamePaths.toArray(paths);
     
@@ -125,12 +131,12 @@ public class OktaMockServiceHandler extends MockServiceHandler {
         return;
       }
       
-      if ("groups".equals(mockNamePaths.get(0)) && "members".equals(mockNamePaths.get(2)) && 3 == mockNamePaths.size()) {
+      if ("groups".equals(mockNamePaths.get(0)) && "users".equals(mockNamePaths.get(2)) && 3 == mockNamePaths.size()) {
         getUsersByGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
 
-      if ("groups".equals(mockNamePaths.get(0)) && 4 == mockNamePaths.size() && "members".equals(mockNamePaths.get(2))) {
+      if ("groups".equals(mockNamePaths.get(0)) && 4 == mockNamePaths.size() && "users".equals(mockNamePaths.get(2))) {
         getUserByGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
@@ -242,8 +248,8 @@ public class OktaMockServiceHandler extends MockServiceHandler {
       return;
     }
 
-    String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
-    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
+    String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
+    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("after");
       
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
@@ -260,14 +266,14 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     ByHqlStatic query = null;
     QueryOptions queryOptions = new QueryOptions();
     if (StringUtils.isNotBlank(pageToken)) {
-      query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser where primaryEmail > :pageToken");
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser where login > :pageToken");
       query.setScalar("pageToken", pageToken);
     } else {
       query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser");
     }
     
     queryOptions.paging(limitInt, 1, true);
-    queryOptions.sort(new QuerySort("primaryEmail", true));
+    queryOptions.sort(new QuerySort("login", true));
     query.options(queryOptions);
     
     grouperOktaUsers = query.list(GrouperOktaUser.class);
@@ -291,7 +297,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(valueNode));
     
   }
   
@@ -308,8 +314,8 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
     
-    List<GrouperOktaUser> grouperOktaUsers = HibernateSession.byHqlStatic().createQuery("select distinct user from GrouperOktaUser user where user.id = :theId or user.primaryEmail = :theEmail")
-        .setString("theId", userId).setString("theEmail", userId).list(GrouperOktaUser.class);
+    List<GrouperOktaUser> grouperOktaUsers = HibernateSession.byHqlStatic().createQuery("select distinct user from GrouperOktaUser user where user.id = :theId or user.login = :theLogin")
+        .setString("theId", userId).setString("theLogin", userId).list(GrouperOktaUser.class);
 
     if (GrouperUtil.length(grouperOktaUsers) == 1) {
       mockServiceResponse.setResponseCode(200);
@@ -461,12 +467,13 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     /**
      * {
-        "primaryEmail": "liz5@viveksachdeva.com",
-        "name": {
-         "givenName": "Elizabeth",
-         "familyName": "Smith"
-        },
-        "password": "testGrouper"
+        
+        "profile": {
+         "firstName": "Elizabeth",
+         "lastName": "Smith",
+         "email": "email@grouper.edu",
+         "login": "email@grouper.edu"
+        }
         }
      */
 
@@ -574,8 +581,8 @@ public class OktaMockServiceHandler extends MockServiceHandler {
 
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
     String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("after");
-    String groupFilter = mockServiceRequest.getHttpServletRequest().getParameter("query");
-
+    String groupFilter = mockServiceRequest.getHttpServletRequest().getParameter("search");
+    
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
       limitInt = GrouperUtil.intValue(limit);
@@ -594,21 +601,41 @@ public class OktaMockServiceHandler extends MockServiceHandler {
 
     if (groupFilter != null) {
       sql.append(whereConj);
-      sql.append(groupFilter);
-      whereConj = " and ";
+      sql.append("name = :name");
+      
+      String regex = "\"([^\"]*)\"";
+
+      // Create a Pattern object
+      Pattern pattern = Pattern.compile(regex);
+
+      // Create a Matcher object
+      Matcher matcher = pattern.matcher(groupFilter);
+
+      // Check if a match is found
+      if (matcher.find()) {
+          // Group 1 contains the content within the quotes
+          String result = matcher.group(1);
+          byHqlStatic.setScalar("name", result);
+      } else {
+          throw new RuntimeException("Could not parse group name from search query");
+      }
+      
+      
+//      sql.append(groupFilter);
+//      whereConj = " and ";
     }
 
-    if (StringUtils.isNotBlank(pageToken)) {
-      sql.append(whereConj);
-      sql.append(" email > :pageToken");
-      byHqlStatic.setScalar("pageToken", pageToken);
-      whereConj = " and ";
-    }
+//    if (StringUtils.isNotBlank(pageToken)) {
+//      sql.append(whereConj);
+//      sql.append(" email > :pageToken");
+//      byHqlStatic.setScalar("pageToken", pageToken);
+//      whereConj = " and ";
+//    }
 
 
     queryOptions.paging(limitInt, 1, true);
     
-    queryOptions.sort(new QuerySort("email", true));
+    queryOptions.sort(new QuerySort("id", true));
 
     List<GrouperOktaGroup> grouperOktaGroups = byHqlStatic.createQuery(sql.toString())
             .options(queryOptions)
@@ -866,13 +893,13 @@ public class OktaMockServiceHandler extends MockServiceHandler {
   public void postAuth(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
     
     String grantType = mockServiceRequest.getHttpServletRequest().getParameter("grant_type");
-    String assertion = mockServiceRequest.getHttpServletRequest().getParameter("assertion");
+    String assertion = mockServiceRequest.getHttpServletRequest().getParameter("client_assertion");
     
     if (StringUtils.isBlank(grantType) || StringUtils.isBlank(assertion)) {
       throw new RuntimeException("grant_type and assertion are required!");
     }
     
-    if (!StringUtils.equals(grantType, "urn:ietf:params:oauth:grant-type:jwt-bearer")) {
+    if (!StringUtils.equals(grantType, "client_credentials")) {
       throw new RuntimeException("grant_type must be set to urn:ietf:params:oauth:grant-type:jwt-bearer");
     }
     
@@ -882,7 +909,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     Algorithm.RSA256(oktaMockRsaKeyProvider).verify(decodedJwt);
     
-    String configId = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.okta.mock.configId");
+    String configId = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouperTest.okta.mock.configId");
 
     mockServiceResponse.setResponseCode(200);
 
@@ -1001,7 +1028,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     public RSAPublicKey getPublicKeyById(String keyId) {
       PublicKey publicKey = null;
       try {
-        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperTest.okta.mock.publicKey");
+        String publicKeyEncoded = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.okta.mock.publicKey");
         
         if (StringUtils.isBlank(publicKeyEncoded)) {
           publicKeyEncoded = "MIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAuaGc9tsPiKesuG4u534VbiLXIm55oAsV5PX+EaXRQ0Ah+B3VN2K/lO3lL3Dp8KJWiAaN0ItSpfRsWMBcjZgJVSK4Ah3DAejIpuiEU6BU5puukX/j9OuHgBwZ9KycFUZwUL2i//8ChL+2hvgSha3TtGRBLMrGU/HhY/UEBb5UoMmtiTim95YzuoIs0Q85+Ti5tL/JljAU3zjkYfhoGYjQj7EqQyROSjxB52xYFmABWR2FfXSzMJdyVi6w6QWJKt0VtwOzboiJqSl+QypiK6pdn8jKAB5uErYF5Zbf50K38rSF2BzhAqwNEIVWhrx/jB9iu9cyXNx328bWQw2hpDZ6hwIDAQAB";  // rsaKeypair[0];

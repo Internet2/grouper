@@ -44,7 +44,7 @@ public class OktaProvisionerTestUtils {
     } else {
       
       String domainName = GrouperConfig.retrieveConfig().propertyValueString("junit.test.tomcat.domainName", "localhost");
-      new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouper.oktaConnector.myOkta.clientId").value("testClientId").store();
+      new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.clientId").value("testClientId").store();
 
       new GrouperDbConfig().configFileName("grouper-loader.properties").propertyName("grouper.oktaConnector.myOkta.tenantDomain").value("http" + (ssl?"s":"") + "://" + domainName + ":" + port + "/grouper/mockServices/okta/").store();
 
@@ -183,10 +183,6 @@ public class OktaProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "class", "edu.internet2.middleware.grouper.app.okta.GrouperOktaProvisioner");
     configureProvisionerSuffix(provisioningTestConfigInput, "debugLog", "true");
         
-    if (GrouperUtil.booleanValue(provisioningTestConfigInput.getExtraConfig().get("deleteEntitiesIfGrouperDeleted"), true)) {
-      configureProvisionerSuffix(provisioningTestConfigInput, "deleteEntitiesIfGrouperDeleted", "true");
-    }
-    
     configureProvisionerSuffix(provisioningTestConfigInput, "oktaExternalSystemConfigId", "myOkta");
 
     
@@ -265,8 +261,6 @@ public class OktaProvisionerTestUtils {
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.name", "description");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
     configureProvisionerSuffix(provisioningTestConfigInput, "targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");
-    
-    configureProvisionerSuffix(provisioningTestConfigInput, "updateGroups", "true");
     
     for (String key: provisioningTestConfigInput.getExtraConfig().keySet()) {
       

@@ -20,8 +20,8 @@
     PUBLIC "-//Hibernate/Hibernate Mapping DTD//EN"
     "http://www.hibernate.org/dtd/hibernate-mapping-3.0.dtd">
 
-<hibernate-mapping package="edu.internet2.middleware.grouper.app.google" default-lazy="false">
-  <class name="GrouperGoogleAuth" table="mock_google_auth">
+<hibernate-mapping package="edu.internet2.middleware.grouper.app.okta" default-lazy="false">
+  <class name="GrouperOktaAuth" table="mock_okta_auth">
 
     <meta attribute="implement-equals">true</meta>
     <meta attribute="session-method">Hib3DAO.getSession();</meta>

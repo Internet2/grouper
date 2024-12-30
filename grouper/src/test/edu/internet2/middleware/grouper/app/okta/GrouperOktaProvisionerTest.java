@@ -46,7 +46,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testFullSyncOktaReal"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testFullSyncOkta"));
     
   }
   
@@ -71,9 +71,9 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     }
     try {
       
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
       
       OktaProvisionerTestUtils.setupOktaExternalSystem();
       
@@ -81,8 +81,8 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
       
       Map<String, String> startWithSuffixToValue = new HashMap<>();
       
-      startWithSuffixToValue.put("googleExternalSystemConfigId", "myOkta");
-      startWithSuffixToValue.put("googlePattern", "manageGroupsManageEntities");
+      startWithSuffixToValue.put("oktaExternalSystemConfigId", "myOkta");
+      startWithSuffixToValue.put("oktaPattern", "manageGroupsManageEntities");
       startWithSuffixToValue.put("userAttributesType", "core");
       startWithSuffixToValue.put("selectAllGroups", "true");
       startWithSuffixToValue.put("manageGroups", "true");
@@ -139,7 +139,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   
       //lets sync these over
       
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_okta_group").select(int.class));
   
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperOktaGroup").list(GrouperOktaGroup.class).size());
       
@@ -233,12 +233,12 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
       // this will create tables
 //      List<GrouperOktaGroup> grouperOktaGroups = GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
 //  
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
-      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_auth").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_auth").executeSql();
 //      
-//      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
+//      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_okta_group").select(int.class));
 //      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperOktaGroup").list(GrouperOktaGroup.class).size());
       
       fullProvision();
@@ -271,7 +271,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   
       GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
       
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_okta_group").select(int.class));
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperOktaGroup").list(GrouperOktaGroup.class).size());
       
       incrementalProvision();
@@ -295,7 +295,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
-      // now run the full sync again and the member should be deleted from mock_google_membership also
+      // now run the full sync again and the member should be deleted from mock_okta_membership also
       incrementalProvision();
       
 //      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperOktaGroup").list(GrouperOktaGroup.class).size());
@@ -379,10 +379,10 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
     // this will create tables
     List<GrouperOktaGroup> grouperOktaGroups = GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
 
-    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
-    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
-    new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
-    //new GcDbAccess().connectionName("grouper").sql("delete from mock_google_auth").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+    new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+    //new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_auth").executeSql();
     
     GrouperSession grouperSession = GrouperSession.startRootSession();
     
@@ -409,7 +409,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
 
     //lets sync these over
     
-    assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
+    assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_okta_group").select(int.class));
 
     assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperOktaGroup").list(GrouperOktaGroup.class).size());
     
@@ -432,10 +432,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public void testFullSyncOkta() throws IOException {
     
     OktaProvisionerTestUtils.setupOktaExternalSystem();
-    OktaProvisionerTestUtils.configureOktaProvisioner(
-        new OktaProvisionerTestConfigInput()
-        .addExtraConfig("deleteEntities", "true")
-        .addExtraConfig("deleteEntitiesIfGrouperDeleted", "true"));
+    OktaProvisionerTestUtils.configureOktaProvisioner(new OktaProvisionerTestConfigInput());
     
     GrouperStartup.startup();
     
@@ -447,10 +444,10 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
       // this will create tables
       List<GrouperOktaGroup> grouperOktaGroups = GrouperOktaApiCommands.retrieveOktaGroups("myOkta", null, null);
   
-//      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_membership").executeSql();
-//      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_group").executeSql();
-//      new GcDbAccess().connectionName("grouper").sql("delete from mock_google_user").executeSql();
-//      //new GcDbAccess().connectionName("grouper").sql("delete from mock_google_auth").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_user").executeSql();
+      //new GcDbAccess().connectionName("grouper").sql("delete from mock_okta_auth").executeSql();
       
       GrouperSession grouperSession = GrouperSession.startRootSession();
       
@@ -477,7 +474,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   
       //lets sync these over
       
-      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_google_group").select(int.class));
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_okta_group").select(int.class));
   
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperOktaGroup").list(GrouperOktaGroup.class).size());
       
@@ -526,7 +523,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
       //now remove one of the subjects from the testGroup
       testGroup.deleteMember(SubjectTestHelper.SUBJ1);
       
-      // now run the full sync again and the member should be deleted from mock_google_membership also
+      // now run the full sync again and the member should be deleted from mock_okta_membership also
       grouperProvisioningOutput = fullProvision();
       grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
       assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperOktaGroup").list(GrouperOktaGroup.class).size());
