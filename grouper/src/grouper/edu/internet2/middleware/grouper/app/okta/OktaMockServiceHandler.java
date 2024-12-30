@@ -131,15 +131,15 @@ public class OktaMockServiceHandler extends MockServiceHandler {
         return;
       }
       
-      if ("groups".equals(mockNamePaths.get(0)) && "users".equals(mockNamePaths.get(2)) && 3 == mockNamePaths.size()) {
+      if ("groups".equals(mockNamePaths.get(0)) && "skinny_users".equals(mockNamePaths.get(2)) && 3 == mockNamePaths.size()) {
         getUsersByGroup(mockServiceRequest, mockServiceResponse);
         return;
       }
 
-      if ("groups".equals(mockNamePaths.get(0)) && 4 == mockNamePaths.size() && "users".equals(mockNamePaths.get(2))) {
-        getUserByGroup(mockServiceRequest, mockServiceResponse);
-        return;
-      }
+//      if ("groups".equals(mockNamePaths.get(0)) && 4 == mockNamePaths.size() && "users".equals(mockNamePaths.get(2))) {
+//        getUserByGroup(mockServiceRequest, mockServiceResponse);
+//        return;
+//      }
 
       if ("users".equals(mockNamePaths.get(0)) && 1 == mockNamePaths.size()) {
         getUsers(mockServiceRequest, mockServiceResponse);
@@ -159,7 +159,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
         deleteUsers(mockServiceRequest, mockServiceResponse);
         return;
       }
-      if ("groups".equals(mockNamePaths.get(0)) && "members".equals(mockNamePaths.get(2))
+      if ("groups".equals(mockNamePaths.get(0)) && "users".equals(mockNamePaths.get(2))
           && 4 == mockNamePaths.size()) {
         disassociateGroupFromUser(mockServiceRequest, mockServiceResponse);
         return;
@@ -180,18 +180,6 @@ public class OktaMockServiceHandler extends MockServiceHandler {
         return;
       }
       
-      if ("groups".equals(mockNamePaths.get(0)) && "members".equals(mockNamePaths.get(2))
-          && 3 == mockNamePaths.size()) {
-        associateGroupWithUser(mockServiceRequest, mockServiceResponse);
-        return;
-      }
-    }
-    
-    if (StringUtils.equals("PATCH", mockServiceRequest.getHttpServletRequest().getMethod())) {
-      if ("settings".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
-        patchGroupSettings(mockServiceRequest, mockServiceResponse);
-        return;
-      }
     }
     
     if (StringUtils.equals("PUT", mockServiceRequest.getHttpServletRequest().getMethod())) {
@@ -201,6 +189,11 @@ public class OktaMockServiceHandler extends MockServiceHandler {
       }
       if ("users".equals(mockNamePaths.get(0)) && 2 == mockNamePaths.size()) {
         updateUser(mockServiceRequest, mockServiceResponse);
+        return;
+      }
+      if ("groups".equals(mockNamePaths.get(0)) && "users".equals(mockNamePaths.get(2))
+          && 4 == mockNamePaths.size()) {
+        associateGroupWithUser(mockServiceRequest, mockServiceResponse);
         return;
       }
     }
@@ -365,7 +358,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
       .setString("groupId", groupId)
       .executeUpdateInt();
 
-    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setResponseCode(204);
   }
   
   public void associateGroupWithUser(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -378,11 +371,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
     
-    String memberIdInJson = mockServiceRequest.getRequestBody();
-    JsonNode memberIdNode = GrouperUtil.jsonJacksonNode(memberIdInJson);
-
-    String userId = memberIdNode.get("id").asText();
-    String role = memberIdNode.get("role") == null ? "MEMBER" : memberIdNode.get("role").asText();
+    String userId = mockServiceRequest.getPostMockNamePaths()[3];
 
     GrouperUtil.assertion(GrouperUtil.length(userId) > 0, "userId is required");
     
@@ -441,19 +430,8 @@ public class OktaMockServiceHandler extends MockServiceHandler {
       HibernateSession.byObjectStatic().update(grouperOktaMembership);
     }
 
-    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-    resultNode.put("type", "GROUP");
-    resultNode.put("role", role);
-    resultNode.put("email", grouperOktaUsers.get(0).getEmail());
-    resultNode.put("id", grouperOktaUsers.get(0).getId());
-    resultNode.put("kind", "directory#member");
-    
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
-
-    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setResponseCode(204);
     mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode)); 
   }
   
   public void postUsers(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
@@ -674,54 +652,22 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     String groupId = mockServiceRequest.getPostMockNamePaths()[1];
     
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
-    
-    String limit = mockServiceRequest.getHttpServletRequest().getParameter("maxResults");
-    String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("pageToken");
-    String role = mockServiceRequest.getHttpServletRequest().getParameter("roles");
 
-    int limitInt = 100;
-    if (StringUtils.isNotBlank(limit)) {
-      limitInt = GrouperUtil.intValue(limit);
-      if (limitInt <= 0) {
-        throw new RuntimeException("maxResults cannot be less than or equal to 0.");
-      }
-      if (limitInt > 200) {
-        limitInt = 200;
-      }
-    }
 
     ByHqlStatic byHqlStatic = HibernateSession.byHqlStatic();
     QueryOptions queryOptions = new QueryOptions();
 
     StringBuffer sql = new StringBuffer("from GrouperOktaUser u where u.id in (select m.userId from GrouperOktaMembership m where m.groupId = :theGroupId");
     byHqlStatic.setString("theGroupId", groupId);
-    if (!GrouperUtil.isBlank(role)) {
-      sql.append(" and role = :theRole");
-      byHqlStatic.setString("theRole", role);
-    }
 
     sql.append(")");
 
-    if (StringUtils.isNotBlank(pageToken)) {
-      sql.append(" and primaryEmail > :pageToken");
-      byHqlStatic.setScalar("pageToken", pageToken);
-    }
-
-    queryOptions.paging(limitInt, 1, true);
-    queryOptions.sort(new QuerySort("primaryEmail", true));
+    queryOptions.sort(new QuerySort("id", true));
 
     List<GrouperOktaUser> grouperOktaUsers = byHqlStatic.createQuery(sql.toString())
             .options(queryOptions)
             .list(GrouperOktaUser.class);
 
-    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
-    
-    int totalRecordCount = queryOptions.getQueryPaging().getTotalRecordCount();
-    if (totalRecordCount > grouperOktaUsers.size()) {
-      
-      String nextPageToken = grouperOktaUsers.get(grouperOktaUsers.size()-1).getLogin();
-      resultNode.put("nextPageToken", nextPageToken);
-    }
     
     ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
     
@@ -729,11 +675,9 @@ public class OktaMockServiceHandler extends MockServiceHandler {
       valueNode.add(toUserJson(grouperOktaUser));
     }
     
-    resultNode.set("members", valueNode);
-    
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
+    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(valueNode));
     
   }
 
@@ -995,7 +939,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
         .createQuery("delete from GrouperOktaUser where id = :theId")
         .setString("theId", userId).executeUpdateInt();
 
-    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setResponseCode(204);
     mockServiceResponse.setContentType("application/json");
         
   }

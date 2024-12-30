@@ -588,7 +588,7 @@ public class GrouperOktaApiCommands {
         
         String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
-        JsonNode jsonNode = executeMethod(debugMap, "POST", configId, urlSuffix,
+        JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, urlSuffix,
             GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
 
         updatedOktaGroup = GrouperOktaGroup.fromJson(jsonNode);
