@@ -914,7 +914,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
         .createQuery("delete from GrouperOktaGroup where id = :theId")
         .setString("theId", groupId).executeUpdateInt();
 
-    mockServiceResponse.setResponseCode(200);
+    mockServiceResponse.setResponseCode(204);
     mockServiceResponse.setContentType("application/json");
         
   }
