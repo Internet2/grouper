@@ -32,7 +32,6 @@ import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
@@ -132,8 +131,6 @@ public class GrouperOktaApiCommands {
           .withExpiresAt(new Date(now + 3600 * 1000L));
         
       String signedJwt = jwtBuilder.sign(algorithm);
-      
-      String bearerToken = null;
       
       GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
       
@@ -676,7 +673,6 @@ public class GrouperOktaApiCommands {
     }
   }
 
-
   public static List<GrouperOktaGroup> retrieveOktaGroups(String configId, String fieldToSearchFor,
       String fieldValue) {
 
@@ -698,9 +694,9 @@ public class GrouperOktaApiCommands {
       
       if (StringUtils.isNotBlank(fieldToSearchFor)) {
         
-        String filterValue = fieldToSearchFor + " eq "+fieldValue;
+        String filterValue = fieldToSearchFor + " eq "+ "\"" + fieldValue + "\"";
         String urlEncodedFilter = GrouperUtil.escapeUrlEncode(filterValue);
-        urlSuffixConstant = urlSuffixConstant + "?filter="+urlEncodedFilter;
+        urlSuffixConstant = urlSuffixConstant + "?search="+urlEncodedFilter;
       }
       
       int maxCalls = 10000;
