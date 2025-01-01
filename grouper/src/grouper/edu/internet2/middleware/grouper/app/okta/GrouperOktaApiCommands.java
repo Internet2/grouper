@@ -578,7 +578,7 @@ public class GrouperOktaApiCommands {
 
       String id = grouperOktaGroup.getId();
       
-      JsonNode jsonToSend = grouperOktaGroup.toJsonGroupOnly(fieldsToUpdate);
+      JsonNode jsonToSend = grouperOktaGroup.toJsonGroupOnly(null);
       
       GrouperOktaGroup updatedOktaGroup = null;
       
@@ -829,7 +829,7 @@ public class GrouperOktaApiCommands {
    * @param id of the user
    * @return okta user
    */
-  public static GrouperOktaUser retrieveOktaUser(String configId, String id) {
+  public static GrouperOktaUser retrieveOktaUser(String configId, String fieldName, String fieldValue) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -839,14 +839,19 @@ public class GrouperOktaApiCommands {
 
     try {
 
-      String urlSuffix = "api/v1/users/"+id;
+      String urlSuffix = "api/v1/users?search="+fieldName+"+eq+%22"+fieldValue+"%22";
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
       
       if (jsonNode == null || jsonNode.get("data") == null) {
         return null;
       }
       
-      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(jsonNode.get("data"));
+      ArrayNode users = (ArrayNode)jsonNode.get("data");
+      if (users.size() == 0 || users.size() > 1) {
+        return null;
+      }
+      
+      GrouperOktaUser grouperOktaUser = GrouperOktaUser.fromJson(users.get(0));
       return grouperOktaUser;
       
     } catch (RuntimeException re) {

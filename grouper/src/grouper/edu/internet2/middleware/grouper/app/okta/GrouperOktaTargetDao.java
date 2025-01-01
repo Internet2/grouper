@@ -236,7 +236,7 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       
         if (StringUtils.isNotBlank(attributeValue)) {
           List<GrouperOktaGroup> oktaGroups = GrouperOktaApiCommands.retrieveOktaGroups(oktaConfiguration.getOktaExternalSystemConfigId(),
-              "name", attributeValue);
+              "profile.name", attributeValue);
           if (oktaGroups.size() == 1) {
             grouperOktaGroup = oktaGroups.get(0);
           } else if (oktaGroups.size() > 1) {
@@ -268,14 +268,19 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperOktaUser grouperOktaUser = null;
 
       String attributeValue = GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue());
-      if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute()) || StringUtils.equals("email", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
+      if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperOktaUser = GrouperOktaApiCommands.retrieveOktaUser(oktaConfiguration.getOktaExternalSystemConfigId(), 
-            attributeValue);
+            "id", attributeValue);
+      }
+      
+      if (StringUtils.equals("login", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
+        grouperOktaUser = GrouperOktaApiCommands.retrieveOktaUser(oktaConfiguration.getOktaExternalSystemConfigId(), 
+            "profile.login", attributeValue);
       }
 
       if (StringUtils.isNotBlank(grouperTargetEntity.getId())) {
         grouperOktaUser = GrouperOktaApiCommands.retrieveOktaUser(
-            oktaConfiguration.getOktaExternalSystemConfigId(), grouperTargetEntity.getId());
+            oktaConfiguration.getOktaExternalSystemConfigId(), "id", grouperTargetEntity.getId());
       }
 
 
