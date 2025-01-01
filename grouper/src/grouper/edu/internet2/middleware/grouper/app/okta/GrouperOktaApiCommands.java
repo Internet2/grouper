@@ -631,7 +631,7 @@ public class GrouperOktaApiCommands {
         throw new RuntimeException("Cant update the id field: " + grouperOktaUser + ", " + GrouperUtil.setToString(fieldsToUpdate));
       }
       
-      JsonNode jsonToSend = grouperOktaUser.toJson(fieldsToUpdate);
+      JsonNode jsonToSend = grouperOktaUser.toJson(null);
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "api/v1/users/"+id,
