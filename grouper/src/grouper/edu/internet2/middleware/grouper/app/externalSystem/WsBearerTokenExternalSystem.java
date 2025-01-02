@@ -131,8 +131,8 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       
       final String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".tokenUrl");
       
-      final String grantType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".grant_type", "client_credentials");
-      final String scope = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".scope", "openid,AdobeID,user_management_sdk");
+      final String grantType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".grant_type");
+      final String scope = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".scope");
       final String clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientId");
       final String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientSecret");
       
