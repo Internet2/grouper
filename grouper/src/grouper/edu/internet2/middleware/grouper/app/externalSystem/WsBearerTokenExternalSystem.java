@@ -1,8 +1,17 @@
 package edu.internet2.middleware.grouper.app.externalSystem;
 
+import java.security.KeyFactory;
+import java.security.NoSuchAlgorithmException;
+import java.security.PrivateKey;
+import java.security.interfaces.RSAPrivateKey;
+import java.security.interfaces.RSAPublicKey;
+import java.security.spec.InvalidKeySpecException;
+import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -10,6 +19,10 @@ import javax.servlet.http.HttpServletRequest;
 
 import org.apache.commons.lang3.StringUtils;
 
+import com.auth0.jwt.JWT;
+import com.auth0.jwt.JWTCreator.Builder;
+import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
@@ -22,6 +35,7 @@ import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.morphString.Morph;
 
 public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
@@ -89,7 +103,7 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
   private static ExpirableCache<String, String> configKeyToExpiresOnAndBearerToken = new ExpirableCache<String, String>();
   
   /**
-   * get bearer token for adobe config id
+   * get bearer token for config id
    * @param configId
    * @return the bearer token
    */
@@ -113,9 +127,37 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     return accessToken;
   }
   
+  static class RsaKeyProvider implements RSAKeyProvider {
+    
+    private RSAPrivateKey privateKey;
+    private String publicKeyId;
+    
+    RsaKeyProvider(PrivateKey privateKey, String publicKeyId) {
+     this.privateKey = (RSAPrivateKey)privateKey; 
+     this.publicKeyId = publicKeyId;
+    }
+    
+    @Override
+    public RSAPublicKey getPublicKeyById(String keyId) {
+      throw new RuntimeException("not implemented");
+    }
+    
+    @Override
+    public String getPrivateKeyId() {
+      return this.publicKeyId;
+    }
+    
+    @Override
+    public RSAPrivateKey getPrivateKey() {
+      return privateKey;
+    }
+      
+  }
+  
+
 
   /**
-   * get access token from adobe
+   * get access token
    * @param debugMap can be null
    * @param configId
    * @param scope
@@ -134,13 +176,66 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       final String grantType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".grant_type");
       final String scope = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".scope");
       final String clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientId");
-      final String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientSecret");
+      
+      String clientCredentialType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".clientCredentialType", "secret");
+
+      if (StringUtils.equals(clientCredentialType, "secret")) {
+        final String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientSecret");
+        grouperHttpClient.addUrlParameter("client_secret", clientSecret);
+        
+      } else if (StringUtils.equals(clientCredentialType, "clientCredentialType")) {
+        String privateKeyString = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".privateKey");
+        String publicKeyId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.oktaConnector." + configId + ".publicKeyId");
+        PrivateKey privateKey;
+        try {
+          
+          privateKeyString = privateKeyString.replace("-----BEGIN PRIVATE KEY-----", "")
+              .replace("-----END PRIVATE KEY-----", "")
+              .replaceAll("\\s+", "");
+
+          // Decode the Base64 encoded key
+          byte[] keyBytes = java.util.Base64.getDecoder().decode(privateKeyString);
+          
+          PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
+          KeyFactory kf = KeyFactory.getInstance("RSA");
+          privateKey = kf.generatePrivate(keySpec);
+          
+        } catch (NoSuchAlgorithmException e) {
+          throw new RuntimeException("Could not reconstruct the private key, the given algorithm could not be found.", e);
+        } catch (InvalidKeySpecException e) {
+          throw new RuntimeException("Could not reconstruct the private key", e);
+        } catch (Exception e) {
+          throw new RuntimeException("Could not construct private key from key contents", e);
+        }
+        
+        Algorithm algorithm = Algorithm.RSA256(new RsaKeyProvider(privateKey, publicKeyId));
+        
+        long now = System.currentTimeMillis();
+        
+        Builder jwtBuilder = JWT.create()
+            .withIssuer(clientId)
+            .withSubject(clientId)
+            .withAudience(url)
+            .withIssuedAt(new Date())
+            .withJWTId(UUID.randomUUID().toString())
+            .withExpiresAt(new Date(now + 3600 * 1000L));
+          
+
+        String signedJwt = jwtBuilder.sign(algorithm);
+
+        grouperHttpClient.addBodyParameter("client_assertion", signedJwt);
+        grouperHttpClient.addBodyParameter("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
+        grouperHttpClient.assignDoNotLogParameters("client_assertion");
+
+      } else {
+        throw new RuntimeException("Not expecting clientCredentialType of '" + clientCredentialType + "', expecting 'secret' or 'publicPrivateKey'!");
+      }
+      
       
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
       grouperHttpClient.assignUrl(url);
       grouperHttpClient.addUrlParameter("grant_type", grantType);
       grouperHttpClient.addUrlParameter("client_id", clientId);
-      grouperHttpClient.addUrlParameter("client_secret", clientSecret);
       grouperHttpClient.addUrlParameter("scope", scope);
       
       grouperHttpClient.assignDoNotLogResponseBody(true);
@@ -181,13 +276,13 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     } catch (RuntimeException re) {
       
       if (debugMap != null) {
-        debugMap.put("adobeTokenError", GrouperUtil.getFullStackTrace(re));
+        debugMap.put("tokenError", GrouperUtil.getFullStackTrace(re));
       }
       throw re;
   
     } finally {
       if (debugMap != null) {
-        debugMap.put("adobeTokenTookMillis", (System.nanoTime()-startedNanos)/1000000);
+        debugMap.put("tokenTookMillis", (System.nanoTime()-startedNanos)/1000000);
       }
     }
   }

@@ -31,6 +31,7 @@ import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
+import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
@@ -42,210 +43,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.morphString.Morph;
 
 public class GrouperOktaApiCommands {
-  
-  /**
-   * cache of config key to encrypted bearer token
-   */
-  private static ExpirableCache<String, String> configKeyToExpiresOnAndBearerToken = new ExpirableCache<String, String>();
-  private static ExpirableCache<String, String> configKeyToExpiresOnAndSettingsToken = new ExpirableCache<String, String>();
-
-  
-  static class OktaRsaKeyProvider implements RSAKeyProvider {
-    
-    private RSAPrivateKey privateKey;
-    private String publicKeyId;
-    
-    OktaRsaKeyProvider(PrivateKey privateKey, String publicKeyId) {
-     this.privateKey = (RSAPrivateKey)privateKey; 
-     this.publicKeyId = publicKeyId;
-    }
-    
-    @Override
-    public RSAPublicKey getPublicKeyById(String keyId) {
-      throw new RuntimeException("not implemented");
-    }
-    
-    @Override
-    public String getPrivateKeyId() {
-      return this.publicKeyId;
-    }
-    
-    @Override
-    public RSAPrivateKey getPrivateKey() {
-      return privateKey;
-    }
-      
-  }
-  
-  /**
-   * get access token from okta
-   * @param debugMap
-   * @param configId
-   * @param scope
-   * @return token in the first index and its expiry in the second index
-   */
-  private static Object[] generateAccessToken(Map<String, Object> debugMap, String configId) {
-    
-    long startedNanos = System.nanoTime();
-    
-    try {
-      
-      String clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".clientId");
-      String tenantDomain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".tenantDomain");
-      String privateKeyString = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".privateKey");
-      String publicKeyId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.oktaConnector." + configId + ".publicKeyId");
-      PrivateKey privateKey;
-      try {
-        
-        privateKeyString = privateKeyString.replace("-----BEGIN PRIVATE KEY-----", "")
-            .replace("-----END PRIVATE KEY-----", "")
-            .replaceAll("\\s+", "");
-
-        // Decode the Base64 encoded key
-        byte[] keyBytes = java.util.Base64.getDecoder().decode(privateKeyString);
-        
-        PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(keyBytes);
-        KeyFactory kf = KeyFactory.getInstance("RSA");
-        privateKey = kf.generatePrivate(keySpec);
-        
-      } catch (NoSuchAlgorithmException e) {
-        throw new RuntimeException("Could not reconstruct the private key, the given algorithm could not be found.", e);
-      } catch (InvalidKeySpecException e) {
-        throw new RuntimeException("Could not reconstruct the private key", e);
-      } catch (Exception e) {
-        throw new RuntimeException("Could not construct private key from key contents", e);
-      }
-      
-      Algorithm algorithm = Algorithm.RSA256(new OktaRsaKeyProvider(privateKey, publicKeyId));
-      
-      long now = System.currentTimeMillis();
-      
-      String tokenUrl = tenantDomain + (tenantDomain.endsWith("/") ? "" : "/") +  "oauth2/v1/token";
-      
-      Builder jwtBuilder = JWT.create()
-          .withIssuer(clientId)
-          .withSubject(clientId)
-          .withAudience(tokenUrl)
-          .withIssuedAt(new Date())
-          .withJWTId(UUID.randomUUID().toString())
-          .withExpiresAt(new Date(now + 3600 * 1000L));
-        
-      String signedJwt = jwtBuilder.sign(algorithm);
-      
-      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-      
-      grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
-      grouperHttpClient.assignUrl(tokenUrl);
-      grouperHttpClient.assignDoNotLogResponseBody(true);
-      grouperHttpClient.assignDoNotLogRequestBody(true);
-      
-      String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".proxyUrl");
-      String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".proxyType");
-      
-      grouperHttpClient.assignProxyUrl(proxyUrl);
-      grouperHttpClient.assignProxyType(proxyType);
-      
-//      String privateKeyFilePath = GrouperConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".serviceAccountPKCS12FilePath");
-//
-//      String privateKeyString = GrouperConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".serviceAccountPrivateKeyPEM");
-//      
-//      PrivateKey privateKey = null;
-//      
-//      if (StringUtils.isNotBlank(privateKeyFilePath)) {
-//        try {
-//          KeyStore keyStore = KeyStore.getInstance("PKCS12");
-//          keyStore.load(new FileInputStream(privateKeyFilePath), "notasecret".toCharArray());
-//          privateKey = (PrivateKey) keyStore.getKey("privatekey", "notasecret".toCharArray());
-//        } catch (Exception e) {
-//          throw new RuntimeException("Could not construct private key from p12 file", e);
-//        }
-//      } else if (StringUtils.isNotBlank(privateKeyString)) {
-//        
-//        try {
-//          
-//          privateKeyString = privateKeyString.replaceAll("\n", "").replace("-----BEGIN PRIVATE KEY-----", "").replace("-----END PRIVATE KEY-----", "");
-//          PKCS8EncodedKeySpec keySpec = new PKCS8EncodedKeySpec(Base64.getDecoder().decode(privateKeyString));
-//          
-//          KeyFactory kf = KeyFactory.getInstance("RSA");
-//          privateKey = kf.generatePrivate(keySpec);
-//          
-//        } catch (NoSuchAlgorithmException e) {
-//          throw new RuntimeException("Could not reconstruct the private key, the given algorithm could not be found.", e);
-//        } catch (InvalidKeySpecException e) {
-//          throw new RuntimeException("Could not reconstruct the private key", e);
-//        }
-//        
-//      } else {
-//        throw new RuntimeException("Supply privateKeyFilePath or privateKeyFileString");
-//      }
-      
-      grouperHttpClient.addBodyParameter("client_assertion", signedJwt);
-      grouperHttpClient.addBodyParameter("scope", "okta.users.manage okta.groups.manage");
-      grouperHttpClient.addBodyParameter("grant_type", "client_credentials");
-      grouperHttpClient.addBodyParameter("client_assertion_type", "urn:ietf:params:oauth:client-assertion-type:jwt-bearer");
-
-      grouperHttpClient.assignDoNotLogParameters("client_assertion");
-      
-      int code = -1;
-      String json = null;
-  
-      try {
-        grouperHttpClient.executeRequest();
-        code = grouperHttpClient.getResponseCode();
-        // System.out.println(code + ", " + postMethod.getResponseBodyAsString());
-        
-        json = grouperHttpClient.getResponseBody();
-      } catch (Exception e) {
-        throw new RuntimeException("Error connecting to '" + tokenUrl + "'", e);
-      }
-  
-      if (code != 200) {
-        throw new RuntimeException("Cant get access token from '" + tokenUrl + "' " + code + ", " + json);
-      }
-      
-      JsonNode jsonObject = GrouperUtil.jsonJacksonNode(json);
-      int expiresInSeconds = GrouperUtil.jsonJacksonGetInteger(jsonObject, "expires_in");
-      String accessToken = GrouperUtil.jsonJacksonGetString(jsonObject, "access_token");
-      return new Object[] {accessToken, expiresInSeconds};
-      
-    } catch (RuntimeException re) {
-      
-      if (debugMap != null) {
-        debugMap.put("oktaTokenError", GrouperUtil.getFullStackTrace(re));
-      }
-      throw re;
-  
-    } finally {
-      if (debugMap != null) {
-        debugMap.put("oktaTokenTookMillis", (System.nanoTime()-startedNanos)/1000000);
-      }
-    }
-  }
-  
-  /**
-   * get bearer token for okta config id
-   * @param configId
-   * @return the bearer token
-   */
-  public static String retrieveBearerTokenForOktaConfigId(Map<String, Object> debugMap, String configId) {
-    
-    String encryptedBearerToken = configKeyToExpiresOnAndBearerToken.get(configId);
-  
-    if (StringUtils.isNotBlank(encryptedBearerToken)) {
-      if (debugMap != null) {
-        debugMap.put("oktaCachedAccessToken", true);
-      }
-      return Morph.decrypt(encryptedBearerToken);
-    }
-    
-    Object[] accessTokenAndExpiry = generateAccessToken(debugMap, configId);
-    
-    String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
-    int timeToLive = expiresInSeconds/60;
-    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive - 5);
-    return accessToken;
-  }
   
   public static JsonNode executeGetMethod(Map<String, Object> debugMap, String configId, String urlSuffix) {
 
@@ -267,12 +64,13 @@ public class GrouperOktaApiCommands {
     GrouperHttpClient grouperHttpCall = new GrouperHttpClient();
     grouperHttpCall.assignDebugMap(debugMap);
     
-    String tenantDomain = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".tenantDomain");
+    GrouperLoaderConfig grouperLoaderConfig = GrouperLoaderConfig.retrieveConfig();
+    String tenantDomain = grouperLoaderConfig.propertyValueStringRequired("grouper.oktaConnector." + configId + ".tenantDomain");
+
+    WsBearerTokenExternalSystem.attachAuthenticationToHttpClient(grouperHttpCall, configId, grouperLoaderConfig, debugMap);
     
-    String bearerToken = retrieveBearerTokenForOktaConfigId(debugMap, configId);
-    
-    String proxyUrl = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".proxyUrl");
-    String proxyType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".proxyType");
+    String proxyUrl = grouperLoaderConfig.propertyValueString("grouper.oktaConnector." + configId + ".proxyUrl");
+    String proxyType = grouperLoaderConfig.propertyValueString("grouper.oktaConnector." + configId + ".proxyType");
     
     grouperHttpCall.assignProxyUrl(proxyUrl);
     grouperHttpCall.assignProxyType(proxyType);
@@ -290,7 +88,6 @@ public class GrouperOktaApiCommands {
     grouperHttpCall.assignGrouperHttpMethod(httpMethodName);
     
     grouperHttpCall.addHeader("Content-Type", "application/json");
-    grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
     grouperHttpCall.assignBody(body);
     
     grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(60*1000L); // 1min
