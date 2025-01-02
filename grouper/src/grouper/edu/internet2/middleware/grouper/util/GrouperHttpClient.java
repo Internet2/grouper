@@ -948,7 +948,7 @@ public class GrouperHttpClient {
       RuntimeException runtimeException = null;
       boolean retry = false;
       try {
-      
+        code = -1;
         this.executeRequestHelper();
         code = this.getResponseCode();
       } catch (Exception e) {
@@ -1194,6 +1194,8 @@ public class GrouperHttpClient {
       }
 
       if (closeableHttpResponse.getAllHeaders() != null){
+        this.getResponseHeaders().clear();
+        this.getResponseHeadersLower().clear();
         for (Header header : closeableHttpResponse.getAllHeaders()){
           this.getResponseHeaders().put(header.getName(), header.getValue());
           this.getResponseHeadersLower().put(header.getName().toLowerCase(), header.getValue());
@@ -1227,6 +1229,7 @@ public class GrouperHttpClient {
             this.assignResponseFile(tempFile);
           }
           else {
+            this.responseBodyHolder.setLength(0);
             this.httpResponseBodyCallback.readBody(inputStream);
           }
         } catch (Exception e){

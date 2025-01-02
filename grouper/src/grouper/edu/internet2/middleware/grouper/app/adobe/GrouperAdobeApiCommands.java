@@ -17,12 +17,9 @@ import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternal
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
-import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.morphString.Morph;
 
 public class GrouperAdobeApiCommands {
   
@@ -125,8 +122,6 @@ public class GrouperAdobeApiCommands {
     
     grouperHttpCall.setRetryForThrottlingOrNetworkIssues(30);
 
-    String errorJson = "{\"error_code\":\"429050\",\"message\":\"Too many requests\"}";
-
     
     grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
       
@@ -135,21 +130,6 @@ public class GrouperAdobeApiCommands {
         String throttlingBody = StringUtils.trim(httpClient.getResponseBody());
         try {
           if (StringUtils.isNotBlank(throttlingBody) && ((throttlingBody.contains("error_code") && throttlingBody.contains("\"429050\"")) || throttlingBody.contains("\"error_code\":\"429"))) {
-            
-            
-            
-            // {"error_code":"429050","message":"Too many requests"}            
-            // sometimes it includes two jsons, the one above, and the normal one... jackson seems to handle this ok
-            
-            if (throttlingBody.startsWith(errorJson)) {
-              String afterError = StringUtils.trim(throttlingBody.substring(errorJson.length()));
-              // theres a JSON after the json
-              if (StringUtils.startsWith(afterError, "{")) {
-                return false;
-              }
-            }
-            
-            
 //            JsonNode node = GrouperUtil.jsonJacksonNode(body);
 //            String errorCode = GrouperUtil.jsonJacksonGetString(node, "error_code");
 //            boolean isThrottle = errorCode != null && errorCode.startsWith("429");
@@ -180,15 +160,6 @@ public class GrouperAdobeApiCommands {
       code = grouperHttpCall.getResponseCode();
       returnCode[0] = code;
       json = grouperHttpCall.getResponseBody();
-      
-      if (json.startsWith(errorJson)) {
-        String afterError = StringUtils.trim(json.substring(errorJson.length()));
-        // theres a JSON after the json
-        if (StringUtils.startsWith(afterError, "{")) {
-          json = afterError;
-        }
-      }
-      
       if (returnBody != null && returnBody.length > 0) {
         returnBody[0] = json;
       }
