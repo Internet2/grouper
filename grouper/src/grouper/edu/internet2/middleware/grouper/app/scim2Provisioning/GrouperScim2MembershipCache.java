@@ -67,7 +67,7 @@ public class GrouperScim2MembershipCache {
       // set the group whether it has memberships or not
       Set<String> userIds = groupIdToMembershipUserIds.get(groupId);
       if (userIds == null) {
-        Collections.synchronizedSet(new HashSet<>());
+        userIds = Collections.synchronizedSet(new HashSet<>());
         Set<String> oldUserIds = groupIdToMembershipUserIds.put(groupId, userIds);
         if (oldUserIds != null) {
           userIds.addAll(oldUserIds);
@@ -80,7 +80,7 @@ public class GrouperScim2MembershipCache {
       // set the group whether it has memberships or not
       Set<String> groupIds = userIdToMembershipGroupIds.get(userId);
       if (groupIds == null) {
-        Collections.synchronizedSet(new HashSet<>());
+        groupIds = Collections.synchronizedSet(new HashSet<>());
         Set<String> oldGroupIds = userIdToMembershipGroupIds.put(userId, groupIds);
         if (oldGroupIds != null) {
           groupIds.addAll(oldGroupIds);
