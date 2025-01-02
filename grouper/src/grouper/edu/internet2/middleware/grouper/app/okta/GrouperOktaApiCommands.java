@@ -293,7 +293,7 @@ public class GrouperOktaApiCommands {
     grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
     grouperHttpCall.assignBody(body);
     
-    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(120*1000L); // 2mins
+    grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(60*1000L); // 1min
     
     grouperHttpCall.setThrottlingCallback(new GrouperHttpThrottlingCallback() {
       
