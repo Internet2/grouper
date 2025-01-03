@@ -16,7 +16,7 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
   
   @Override
   public String getPropertyValueThatIdentifiesThisConfig() {
-    return "googleCommon";
+    return "oktaCommon";
   }
   
   @Override
@@ -24,7 +24,7 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
       Map<String, String> startWithSuffixToValue,
       Map<String, Object> provisionerSuffixToValue) {
     
-    provisionerSuffixToValue.put("googleExternalSystemConfigId", startWithSuffixToValue.get("googleExternalSystemConfigId"));
+    provisionerSuffixToValue.put("oktaExternalSystemConfigId", startWithSuffixToValue.get("oktaExternalSystemConfigId"));
     
     if (StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "entityResolver") || StringUtils.equals(startWithSuffixToValue.get("userAttributesType"), "subjectSourceAndEntityResolver")) {
       provisionerSuffixToValue.put("entityResolver.entityAttributesNotInSubjectSource", "true");
@@ -73,24 +73,12 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
       }
       provisionerSuffixToValue.put("targetGroupAttribute.1.name", "name");
       
-      String groupEmailAttributeValue = startWithSuffixToValue.get("groupEmailAttributeValue");
-      if (StringUtils.equals("script", groupEmailAttributeValue)) {
-        provisionerSuffixToValue.put("targetGroupAttribute.2.translateExpressionType", "translationScript");
-        provisionerSuffixToValue.put("targetGroupAttribute.2.translateExpression", startWithSuffixToValue.get("groupEmailTranslationScript"));
-      } else if (StringUtils.equals("other", groupEmailAttributeValue)) {
-        //do nothing
-      } else { 
-        provisionerSuffixToValue.put("targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
-        provisionerSuffixToValue.put("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", groupEmailAttributeValue);
-      }
-      provisionerSuffixToValue.put("targetGroupAttribute.2.name", "email");
-      
       if (GrouperUtil.booleanValue(startWithSuffixToValue.get("useGroupDescription"), true)) {
         
-        provisionerSuffixToValue.put("numberOfGroupAttributes", 4);
-        provisionerSuffixToValue.put("targetGroupAttribute.3.name", "description");
-        provisionerSuffixToValue.put("targetGroupAttribute.3.translateExpressionType", "grouperProvisioningGroupField");
-        provisionerSuffixToValue.put("targetGroupAttribute.3.translateFromGrouperProvisioningGroupField", "description");
+        provisionerSuffixToValue.put("numberOfGroupAttributes", 3);
+        provisionerSuffixToValue.put("targetGroupAttribute.2.name", "description");
+        provisionerSuffixToValue.put("targetGroupAttribute.2.translateExpressionType", "grouperProvisioningGroupField");
+        provisionerSuffixToValue.put("targetGroupAttribute.2.translateFromGrouperProvisioningGroupField", "description");
       }
       
       provisionerSuffixToValue.put("groupAttributeValueCacheHas", "true");
@@ -109,46 +97,6 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
       provisionerSuffixToValue.put("groupMatchingAttributeCount", "2");
       provisionerSuffixToValue.put("groupMatchingAttribute0name", "name");
       provisionerSuffixToValue.put("groupMatchingAttribute1name", "id");
-      
-    }
-    
-    {
-      
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanAdd"), true)) {
-        provisionerSuffixToValue.put("whoCanAdd", "true");
-      }
-      
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanJoin"), true)) {
-        provisionerSuffixToValue.put("whoCanJoin", "true");
-      }
-      
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanViewMembership"), false)) {
-        provisionerSuffixToValue.put("whoCanViewMembership", "true");
-      }
-      
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanViewGroup"), false)) {
-        provisionerSuffixToValue.put("whoCanViewGroup", "true");
-      }
-
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanInvite"), false)) {
-        provisionerSuffixToValue.put("whoCanInvite", "true");
-      }
-
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanModerateMembers"), false)) {
-        provisionerSuffixToValue.put("whoCanModerateMembers", "true");
-      }
-
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowExternalMembers"), false)) {
-        provisionerSuffixToValue.put("allowExternalMembers", "true");
-      }
-      
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForWhoCanPostMessage"), false)) {
-        provisionerSuffixToValue.put("whoCanPostMessage", "true");
-      }
-
-      if (GrouperUtil.booleanValue(startWithSuffixToValue.get("hasMetadataForAllowWebHosting"), false)) {
-        provisionerSuffixToValue.put("allowWebPosting", "true");
-      }
       
     }
     
@@ -180,13 +128,13 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
     }
     provisionerSuffixToValue.put("targetEntityAttribute.1.name", "email");
     
-    String entityFamilyNameType = startWithSuffixToValue.get("entityFamilyName");
-    if (StringUtils.equals("script", entityFamilyNameType)) {
+    String entityLastNameType = startWithSuffixToValue.get("entityLastName");
+    if (StringUtils.equals("script", entityLastNameType)) {
       provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "translationScript");
-      provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpression", startWithSuffixToValue.get("entityFamilyNameTranslationScript"));
-    } else if (StringUtils.equals("other", entityFamilyNameType)) {
+      provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpression", startWithSuffixToValue.get("entityLastNameTranslationScript"));
+    } else if (StringUtils.equals("other", entityLastNameType)) {
       //do nothing
-    } else if (StringUtils.equals("subjectAttribute", entityFamilyNameType)) {
+    } else if (StringUtils.equals("subjectAttribute", entityLastNameType)) {
 
       provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
       provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache2");
@@ -200,17 +148,17 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
       
     } else { 
       provisionerSuffixToValue.put("targetEntityAttribute.2.translateExpressionType", "grouperProvisioningEntityField");
-      provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", entityFamilyNameType);
+      provisionerSuffixToValue.put("targetEntityAttribute.2.translateFromGrouperProvisioningEntityField", entityLastNameType);
     }
-    provisionerSuffixToValue.put("targetEntityAttribute.2.name", "familyName");
+    provisionerSuffixToValue.put("targetEntityAttribute.2.name", "lastName");
     
-    String entityGivenNameType = startWithSuffixToValue.get("entityGivenName");
-    if (StringUtils.equals("script", entityGivenNameType)) {
+    String entityFirstNameType = startWithSuffixToValue.get("entityFirstName");
+    if (StringUtils.equals("script", entityFirstNameType)) {
       provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "translationScript");
-      provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpression", startWithSuffixToValue.get("entityGivenNameTranslationScript"));
-    } else if (StringUtils.equals("other", entityGivenNameType)) {
+      provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpression", startWithSuffixToValue.get("entityFirstNameTranslationScript"));
+    } else if (StringUtils.equals("other", entityFirstNameType)) {
       //do nothing
-    } else if (StringUtils.equals("subjectAttribute", entityGivenNameType)) {
+    } else if (StringUtils.equals("subjectAttribute", entityFirstNameType)) {
 
       provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
       provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", "entityAttributeValueCache3");
@@ -223,11 +171,24 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
 
     } else { 
       provisionerSuffixToValue.put("targetEntityAttribute.3.translateExpressionType", "grouperProvisioningEntityField");
-      provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", entityGivenNameType);
+      provisionerSuffixToValue.put("targetEntityAttribute.3.translateFromGrouperProvisioningEntityField", entityFirstNameType);
     }
-    provisionerSuffixToValue.put("targetEntityAttribute.3.name", "givenName");
+    provisionerSuffixToValue.put("targetEntityAttribute.3.name", "firstName");
+    
+    String entityLoginSubjectAttributeType = startWithSuffixToValue.get("entityLoginSubjectAttribute");
+    if (StringUtils.equals("script", entityLoginSubjectAttributeType)) {
+      provisionerSuffixToValue.put("targetEntityAttribute.4.translateExpressionType", "translationScript");
+      provisionerSuffixToValue.put("targetEntityAttribute.4.translateExpression", startWithSuffixToValue.get("entityLoginTranslationScript"));
+    } else if (StringUtils.equals("other", entityLoginSubjectAttributeType)) {
+      //do nothing
+    } else { 
+      provisionerSuffixToValue.put("targetEntityAttribute.4.translateExpressionType", "grouperProvisioningEntityField");
+      provisionerSuffixToValue.put("targetEntityAttribute.4.translateFromGrouperProvisioningEntityField", entityLoginSubjectAttributeType);
+    }
+    
+    provisionerSuffixToValue.put("targetEntityAttribute.4.name", "login");
   
-    provisionerSuffixToValue.put("numberOfEntityAttributes", "4");
+    provisionerSuffixToValue.put("numberOfEntityAttributes", "5");
     
     provisionerSuffixToValue.put("entityAttributeValueCacheHas", "true");
 
@@ -239,15 +200,15 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
     provisionerSuffixToValue.put("entityAttributeValueCache1has", "true");
     provisionerSuffixToValue.put("entityAttributeValueCache1source", "target");
     provisionerSuffixToValue.put("entityAttributeValueCache1type", "entityAttribute");
-    provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", "email");
+    provisionerSuffixToValue.put("entityAttributeValueCache1entityAttribute", "login");
     
     provisionerSuffixToValue.put("entityMatchingAttributeCount", "2");
-    provisionerSuffixToValue.put("entityMatchingAttribute0name", "email");
+    provisionerSuffixToValue.put("entityMatchingAttribute0name", "login");
     provisionerSuffixToValue.put("entityMatchingAttribute1name", "id");
     
     provisionerSuffixToValue.put("operateOnGrouperMemberships", "true");
     provisionerSuffixToValue.put("provisioningType", "membershipObjects");
-    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.google.GrouperGoogleProvisioner");
+    provisionerSuffixToValue.put("class", "edu.internet2.middleware.grouper.app.okta.GrouperOktaProvisioner");
     
     if (GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledFullSyncDaemon"), true) || GrouperUtil.booleanValue(startWithSuffixToValue.get("addDisabledIncrementalSyncDaemon"), true)) {
       provisionerSuffixToValue.put("showAdvanced", "true");
@@ -263,7 +224,7 @@ public class OktaProvisioningStartWith extends ProvisionerStartWithBase {
     
     for (String suffixUserJustChanged: suffixesUserJustChanged) {
       
-      if (StringUtils.equals(suffixUserJustChanged, "googlePattern")) {
+      if (StringUtils.equals(suffixUserJustChanged, "oktaPattern")) {
         String valueUserEnteredOnScreen = suffixToValue.get(suffixUserJustChanged);
         if (StringUtils.equals(valueUserEnteredOnScreen, "manageGroupsManageEntities")) {
           result.put("manageGroups", "true");
