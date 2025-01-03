@@ -173,19 +173,18 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       
       final String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".tokenUrl");
       
-      final String grantType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".grant_type");
-      final String scope = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".scope");
+      final String grantType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".grantType");
+      final String scope = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".scopes");
       final String clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientId");
       
-      String clientCredentialType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.oktaConnector." + configId + ".clientCredentialType", "secret");
+      String clientCredentialType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".clientCredentialType", "secret");
 
       if (StringUtils.equals(clientCredentialType, "secret")) {
         final String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientSecret");
         grouperHttpClient.addUrlParameter("client_secret", clientSecret);
-        
-      } else if (StringUtils.equals(clientCredentialType, "clientCredentialType")) {
-        String privateKeyString = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.oktaConnector." + configId + ".privateKey");
-        String publicKeyId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.oktaConnector." + configId + ".publicKeyId");
+      } else if (StringUtils.equals(clientCredentialType, "publicPrivateKey")) {
+        String privateKeyString = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".privateKey");
+        String publicKeyId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.wsBearerToken." + configId + ".publicKeyId");
         PrivateKey privateKey;
         try {
           
