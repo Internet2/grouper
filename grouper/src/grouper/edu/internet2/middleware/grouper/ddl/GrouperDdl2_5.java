@@ -1345,7 +1345,7 @@ public class GrouperDdl2_5 {
           "grouper_sync_mship_gr_idx", true, "grouper_sync_id", "grouper_sync_group_id", "grouper_sync_member_id");
     
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
-          "grouper_sync_mship_me_idx", false, "grouper_sync_member_id", "last_updated");
+          "grouper_sync_mship_mem_idx", false, "grouper_sync_member_id", "last_updated");
     
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, 
           "grouper_sync_mship_me_idx", false, "grouper_sync_group_id", "last_updated");

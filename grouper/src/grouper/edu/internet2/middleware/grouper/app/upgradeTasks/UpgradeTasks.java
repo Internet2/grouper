@@ -436,6 +436,22 @@ public enum UpgradeTasks implements UpgradeTasksInterface {
     public void updateVersionFromPrevious(OtherJobInput otherJobInput) {      
       new UpgradeTaskV18().updateVersionFromPrevious(otherJobInput);
     }
+  }, 
+  V29{
+    @Override
+    public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
+      new UpgradeTaskV29().updateVersionFromPrevious(otherJobInput);
+    }
+    
+    @Override
+    public boolean doesUpgradeTaskHaveDdlWorkToDo() {
+      return new UpgradeTaskV29().doesUpgradeTaskHaveDdlWorkToDo();
+    }
+  
+    @Override
+    public boolean upgradeTaskIsDdl() {
+      return true;
+    }
   }
   ;
   

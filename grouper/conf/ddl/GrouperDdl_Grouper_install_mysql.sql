@@ -1736,6 +1736,8 @@ CREATE UNIQUE INDEX grouper_sync_mship_gr_idx ON grouper_sync_membership (groupe
 
 CREATE INDEX grouper_sync_mship_me_idx ON grouper_sync_membership (grouper_sync_group_id, last_updated);
 
+CREATE INDEX grouper_sync_mship_mem_idx ON grouper_sync_membership (grouper_sync_member_id, last_updated);
+
 CREATE INDEX grouper_sync_mship_sy_idx ON grouper_sync_membership (grouper_sync_id, last_updated);
 
 CREATE INDEX grouper_sync_mship_er_idx ON grouper_sync_membership (grouper_sync_id, error_code, error_timestamp);
