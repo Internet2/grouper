@@ -92,7 +92,6 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     
     configClassNamesList.add(AzureProvisionerConfiguration.class.getName());
     configClassNamesList.add(AdobeProvisionerConfiguration.class.getName());
-    configClassNamesList.add(DigitalMarketplaceProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoRoleProvisionerConfiguration.class.getName());
     configClassNamesList.add(GenericProvisionerConfiguration.class.getName());
@@ -103,6 +102,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(OktaProvisionerConfiguration.class.getName());
     configClassNamesList.add(GrouperScim2Configuration.class.getName());
     configClassNamesList.add(RemedyProvisionerConfiguration.class.getName());
+    configClassNamesList.add(DigitalMarketplaceProvisionerConfiguration.class.getName());
     configClassNamesList.add(SqlProvisionerConfiguration.class.getName());
     configClassNamesList.add(TeamDynamixProvisionerConfiguration.class.getName());
     configClassNamesList.add(BoxProvisionerConfiguration.class.getName());
