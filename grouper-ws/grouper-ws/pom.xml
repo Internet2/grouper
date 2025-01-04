@@ -80,11 +80,6 @@
         <!-- rampart-core 1.6.3 depends on bcprov-jdk15on 1.49, while grouper-ws-scim
              has a transitive dependency on bcprov-jdk15on 1.59 -->
         <dependency>
-            <groupId>org.bouncycastle</groupId>
-            <artifactId>bcprov-jdk15on</artifactId>
-            <version>1.70</version>
-        </dependency>
-        <dependency>
             <groupId>commons-net</groupId>
             <artifactId>commons-net</artifactId>
             <version>3.9.0</version>
