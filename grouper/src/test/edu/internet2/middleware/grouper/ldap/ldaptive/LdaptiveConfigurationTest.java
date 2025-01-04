@@ -23,7 +23,9 @@ import java.util.Enumeration;
 import java.util.List;
 import java.util.Properties;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import org.junit.Assert;
+import org.junit.BeforeClass;
 import org.junit.Test;
 import org.ldaptive.BindConnectionInitializer;
 import org.ldaptive.PooledConnectionFactory;
@@ -33,11 +35,23 @@ import org.ldaptive.handler.DnAttributeEntryHandler;
 import org.ldaptive.handler.LdapEntryHandler;
 import org.ldaptive.handler.SearchResultHandler;
 import org.ldaptive.sasl.Mechanism;
+import org.mockito.MockedStatic;
+import org.mockito.Mockito;
+import static org.mockito.ArgumentMatchers.anyString;
 
 /**
  * Unit test for {@link LdaptiveConfiguration}.
  */
 public class LdaptiveConfigurationTest {
+
+  /** Mock to prevent database initialization. */
+  private static MockedStatic<ConfigDatabaseLogic> databaseLoader;
+
+  @BeforeClass
+  public static void setup() throws Exception {
+    databaseLoader = Mockito.mockStatic(ConfigDatabaseLogic.class);
+    databaseLoader.when(() -> ConfigDatabaseLogic.retrieveConfigInputStream(anyString())).thenReturn(null);
+  }
 
   /**
    * Store configuration properties in {@link GrouperLoaderConfig}.
@@ -76,7 +90,7 @@ public class LdaptiveConfigurationTest {
     Assert.assertNull(factory.getConnectionConfig().getSslConfig());
     Assert.assertNull(factory.getConnectionConfig().getConnectionInitializers());
     SearchConnectionValidator validator = (SearchConnectionValidator) factory.getValidator();
-    Assert.assertEquals(Duration.ofMinutes(30), validator.getValidatePeriod());
+    Assert.assertEquals(Duration.ofMinutes(5), validator.getValidatePeriod());
   }
 
   @Test
@@ -99,7 +113,7 @@ public class LdaptiveConfigurationTest {
     Assert.assertNull(factory.getConnectionConfig().getSslConfig());
     Assert.assertNull(factory.getConnectionConfig().getConnectionInitializers());
     SearchConnectionValidator validator = (SearchConnectionValidator) factory.getValidator();
-    Assert.assertEquals(Duration.ofMinutes(30), validator.getValidatePeriod());
+    Assert.assertEquals(Duration.ofMinutes(5), validator.getValidatePeriod());
   }
 
   @Test
@@ -127,7 +141,7 @@ public class LdaptiveConfigurationTest {
     Assert.assertEquals("mysecret", initializer.getBindCredential().getString());
     Assert.assertNull(initializer.getBindSaslConfig());
     SearchConnectionValidator validator = (SearchConnectionValidator) factory.getValidator();
-    Assert.assertEquals(Duration.ofMinutes(30), validator.getValidatePeriod());
+    Assert.assertEquals(Duration.ofMinutes(5), validator.getValidatePeriod());
   }
 
   @Test
@@ -158,7 +172,7 @@ public class LdaptiveConfigurationTest {
     Assert.assertEquals("/tmp/keyfile", credentialConfig.getKeyFile());
     Assert.assertNull(factory.getConnectionConfig().getConnectionInitializers());
     SearchConnectionValidator validator = (SearchConnectionValidator) factory.getValidator();
-    Assert.assertEquals(Duration.ofMinutes(30), validator.getValidatePeriod());
+    Assert.assertEquals(Duration.ofMinutes(5), validator.getValidatePeriod());
   }
 
   @Test
@@ -189,7 +203,7 @@ public class LdaptiveConfigurationTest {
     Assert.assertEquals(Mechanism.DIGEST_MD5, initializer.getBindSaslConfig().getMechanism());
     Assert.assertEquals("myrealm", initializer.getBindSaslConfig().getRealm());
     SearchConnectionValidator validator = (SearchConnectionValidator) factory.getValidator();
-    Assert.assertEquals(Duration.ofMinutes(30), validator.getValidatePeriod());
+    Assert.assertEquals(Duration.ofMinutes(5), validator.getValidatePeriod());
   }
 
   @Test

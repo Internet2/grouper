@@ -163,7 +163,7 @@
         <p6spy.version>3.6.0</p6spy.version>
         <postgresql.version>42.7.2</postgresql.version>
         <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
-        <ldaptive.version>2.4.0-SNAPSHOT</ldaptive.version>
+        <ldaptive.version>2.4.0</ldaptive.version>
         <unboundid.version>6.0.10</unboundid.version>
         <!-- if you change this version make sure container substitution still works -->
         <playwright.version>1.46.0</playwright.version>
