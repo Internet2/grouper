@@ -8871,7 +8871,7 @@ public class GrouperInstaller {
 
     } else if (GrouperInstallerUtils.equals(paramName, "dbDriver")) {
       
-      subjectPropertiesContents.append("\n#       e.g. mysql:           com.mysql.jdbc.Driver\n"
+      subjectPropertiesContents.append("\n#       e.g. mysql:           com.mysql.cj.jdbc.Driver\n"
           + "#       e.g. p6spy (log sql): com.p6spy.engine.spy.P6SpyDriver\n"
           + "#         for p6spy, put the underlying driver in spy.properties\n"
           + "#       e.g. oracle:          oracle.jdbc.driver.OracleDriver\n"

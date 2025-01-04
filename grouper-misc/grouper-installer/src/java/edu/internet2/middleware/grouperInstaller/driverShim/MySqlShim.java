@@ -13,7 +13,7 @@ public class MySqlShim extends DatabaseShimBase {
    */
   @Override
   public String getDriverClassName() {
-    return "com.mysql.jdbc.Driver";
+    return "com.mysql.cj.jdbc.Driver";
   }
 
 }

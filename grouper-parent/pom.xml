@@ -161,7 +161,7 @@
         <jline.version>2.14.5</jline.version>
         <p6spy.version>3.6.0</p6spy.version>
         <postgresql.version>42.7.2</postgresql.version>
-        <mysql.connector.java.version>8.0.33</mysql.connector.java.version>
+        <mysql.connector.java.version>9.1.0</mysql.connector.java.version>
         <ldaptive.version>2.4.0</ldaptive.version>
         <unboundid.version>6.0.10</unboundid.version>
         <!-- if you change this version make sure container substitution still works -->
@@ -920,8 +920,8 @@
                 <scope>runtime</scope>
             </dependency>
             <dependency>
-                <groupId>mysql</groupId>
-                <artifactId>mysql-connector-java</artifactId>
+                <groupId>com.mysql</groupId>
+                <artifactId>mysql-connector-j</artifactId>
                 <version>${mysql.connector.java.version}</version>
                 <scope>runtime</scope>
             </dependency>

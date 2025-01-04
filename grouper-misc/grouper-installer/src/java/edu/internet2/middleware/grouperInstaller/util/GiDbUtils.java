@@ -285,7 +285,7 @@ public class GiDbUtils {
     if (GrouperInstallerUtils.isBlank(driverClassName)) {
       
       if (isMysql(connectionUrl)) {
-        driverClassName = "com.mysql.jdbc.Driver";
+        driverClassName = "com.mysql.cj.jdbc.Driver";
       } else if (isOracle(connectionUrl)) {
         driverClassName = "oracle.jdbc.driver.OracleDriver";
       } else if (isPostgres(connectionUrl)) { 
