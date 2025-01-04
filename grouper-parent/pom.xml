@@ -97,7 +97,7 @@
         <cglib.version>3.3.0</cglib.version>
         <felix.version>7.0.3</felix.version>
         <jamon.version>2.81</jamon.version>
-        <xstream.version>1.4.20</xstream.version>
+        <xstream.version>1.4.21</xstream.version>
         <jsch.version>0.1.55</jsch.version>
         <commons.vfs2.version>2.4.1</commons.vfs2.version>
         <commons.jexl.version>2.1.1</commons.jexl.version>
