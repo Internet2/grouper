@@ -412,20 +412,15 @@ public class GrouperDdlUtils {
    */
   public static String sqlRun(File scriptFile, boolean fromUnitTest, boolean printErrorToStdOut) {
     GrouperDdlUtils.cachedDdls = null;
-   Properties properties = GrouperHibernateConfig.retrieveConfig().properties();
-     
-   String user = properties.getProperty("hibernate.connection.username");
-   String pass = properties.getProperty("hibernate.connection.password");
-   String url = properties.getProperty("hibernate.connection.url");
-   String driver = properties.getProperty("hibernate.connection.driver_class");
-   pass = Morph.decryptIfFile(pass);
-   driver = GrouperDdlUtils.convertUrlToDriverClassIfNeeded(url, driver);
-   String result = GrouperDdlUtils.sqlRun(scriptFile, driver, url, user, pass, fromUnitTest, printErrorToStdOut);
-
-   if (GrouperDdlUtils.isMysql() && fromUnitTest) {
-     GrouperUtil.sleep(3000);
-   }
-   return result;
+    
+    GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    
+    String result = GrouperDdlUtils.sqlRun(scriptFile, grouperLoaderDb, fromUnitTest, printErrorToStdOut);
+ 
+    if (GrouperDdlUtils.isMysql() && fromUnitTest) {
+      GrouperUtil.sleep(3000);
+    }
+    return result;
   }
   
   /**
@@ -502,7 +497,7 @@ public class GrouperDdlUtils {
    * @param printErrorToStdOut 
    * @return the output
    */
-  public synchronized static String sqlRun(File scriptFile, String driver, String url, String user, String pass, boolean fromUnitTest, boolean printErrorToStdOut) {
+  public synchronized static String sqlRun(File scriptFile, GrouperLoaderDb grouperLoaderDb, boolean fromUnitTest, boolean printErrorToStdOut) {
     
     PrintStream err = System.err;
     PrintStream out = System.out;
@@ -519,7 +514,7 @@ public class GrouperDdlUtils {
     
     boolean deleteScriptAfterward = false;
     
-    if (url.contains(":sqlserver:")) {
+    if (grouperLoaderDb.isSQLServer()) {
       
       String script = GrouperUtil.readFileIntoString(scriptFile);
       //we need to strip these out
@@ -544,7 +539,7 @@ public class GrouperDdlUtils {
     try {
       InputStream inputStream = new FileInputStream(scriptFile);
       InputStreamReader reader = new InputStreamReader(inputStream);
-      runStatements(reader, out);
+      runStatements(grouperLoaderDb, reader, out);
       logMessage = "Script was executed successfully\n";
     } catch (Exception e) {
       
@@ -775,35 +770,27 @@ public class GrouperDdlUtils {
   
       resultString = result.toString();
       
-      runScriptIfShouldAndPrintOutput(resultString, runScript);
+      runScriptIfShouldReturnString("grouper", resultString, runScript, false, true);
     } finally {
       insideBootstrap = false;
     }
     return resultString;
   }
 
-  public static String runScriptIfShouldReturnString(String script, boolean runScript, boolean deleteFileAfterwards) {
-    return runScriptIfShouldReturnString("grouper", script, runScript, deleteFileAfterwards);
-  }
-
-  public static String runScriptIfShouldReturnString(String connectionName, String script, boolean runScript, boolean deleteFileAfterwards) {
+  public static String runScriptIfShouldReturnString(String connectionName, String script, boolean runScript, boolean deleteFileAfterwards, boolean printOut) {
 
     String scriptDirName = GrouperConfig.retrieveConfig().propertyValueString("ddlutils.directory.for.scripts");
     
     File scriptFile = GrouperUtil.newFileUniqueName(scriptDirName, "grouperDdl", ".sql", true);
     GrouperUtil.saveStringIntoFile(scriptFile, script);
-    String result = runScriptFileIfShouldReturnString(connectionName, scriptFile, runScript);
+    String result = runScriptFileIfShouldReturnString(connectionName, scriptFile, runScript, printOut);
     if (deleteFileAfterwards) {
       GrouperUtil.deleteFile(scriptFile);
     }
     return result;
   }
 
-  public static String runScriptFileIfShouldReturnString(File scriptFile, boolean runScript) {
-    return runScriptFileIfShouldReturnString("grouper", scriptFile, runScript);
-  }
-  
-  private static void runStatements(Reader reader, PrintStream out) throws IOException {
+  private static void runStatements(GrouperLoaderDb grouperLoaderDb, Reader reader, PrintStream out) throws IOException {
     StringBuffer sql = new StringBuffer();
 
     BufferedReader in = new BufferedReader(reader);
@@ -836,13 +823,13 @@ public class GrouperDdlUtils {
       sql.append(keepformat ? "\n" : " ").append(line);
 
       if (insideFunction) {
-        if (isPostgres()) {
+        if (grouperLoaderDb.isPostgres()) {
           String regex = "(?i)\\$\\$\\s*LANGUAGE\\s*plpgsql\\s*IMMUTABLE";
           boolean matches = Pattern.compile(regex).matcher(line).find();
           if (matches) {
             insideFunction = false;
           }
-        } else if (isOracle() || isMysql()) {
+        } else if (grouperLoaderDb.isOracle() || grouperLoaderDb.isMysql()) {
           String regex = "(?i)END\\s*;\\s*--\\s*function.*";
           boolean matches = Pattern.compile(regex).matcher(line).find();
           if (matches) {
@@ -850,7 +837,7 @@ public class GrouperDdlUtils {
           }
         }
         if (!insideFunction) {          
-          execSQL(sql.toString(), out);
+          execSQL(grouperLoaderDb, sql.toString(), out);
           sql.replace(0, sql.length(), "");
         }
         continue;
@@ -866,16 +853,16 @@ public class GrouperDdlUtils {
       }
       int lastDelimPos = lastDelimiterPosition(sql, line);
       if (lastDelimPos > -1) {
-        execSQL(sql.substring(0, lastDelimPos), out);
+        execSQL(grouperLoaderDb, sql.substring(0, lastDelimPos), out);
         sql.replace(0, sql.length(), "");
       }
     }
   }
   
-  private static void execSQL(String sql, PrintStream out) {
+  private static void execSQL(GrouperLoaderDb grouperLoaderDb, String sql, PrintStream out) {
     sql = StringUtils.trimToEmpty(sql);
-    out.println("SQL: "+sql);
-    int count = new GcDbAccess().connectionName("grouper").sql(sql).executeSql();
+    out.println("SQL (" + grouperLoaderDb.getConnectionName() + "): "+sql);
+    int count = new GcDbAccess().connectionName(grouperLoaderDb.getConnectionName()).sql(sql).executeSql();
   }
   
   /**
@@ -891,17 +878,22 @@ public class GrouperDdlUtils {
     return -1;
 }
 
-  public static synchronized String runScriptFileIfShouldReturnString(String connectionName, File scriptFile, boolean runScript) {
-    
+  public static synchronized String runScriptFileIfShouldReturnString(String connectionName, File scriptFile, boolean runScript, boolean printOut) {
+
     if (StringUtils.length(StringUtils.trim(GrouperUtil.readFileIntoString(scriptFile))) == 0) {
       return "";
     }
     
-    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile(connectionName);
-
     String logMessage = (runScript ? "Ran" : "Run") + " this DDL:\n" + scriptFile.getAbsolutePath();
 
     if (!runScript) {
+      
+      if (printOut && !StringUtils.isBlank(logMessage)) {
+        //if call from command line, print to screen
+        LOG.error(logMessage);
+        System.out.println(logMessage);
+      }
+
       return logMessage;
     }
     logMessage = "";
@@ -937,9 +929,11 @@ public class GrouperDdlUtils {
 //    project.addBuildListener(defaultLogger);
     
     try {
+      GrouperLoaderDb grouperLoaderDb = GrouperLoaderConfig.retrieveDbProfile(connectionName);
+      
       InputStream inputStream = new FileInputStream(scriptFile);
       InputStreamReader reader = new InputStreamReader(inputStream);
-      runStatements(reader, out);
+      runStatements(grouperLoaderDb, reader, newOutErr);
 //      sqlExec.setProject(project);
 // 
 //      sqlExec.execute();
@@ -964,25 +958,16 @@ public class GrouperDdlUtils {
       logMessage += antOutput + "\n";
     }
     
+    if (printOut && !StringUtils.isBlank(logMessage)) {
+      //if call from command line, print to screen
+      LOG.error(logMessage);
+      System.out.println(logMessage);
+    }
+
     return logMessage;
 
   }
   
-  public static void runScriptIfShouldAndPrintOutput(String script, boolean runScript) {
-
-    String logMessage = runScriptIfShouldReturnString(script, runScript, false);
-    
-    if (StringUtils.isBlank(logMessage)) {
-      return;
-    }
-    //if call from command line, print to screen
-    if (LOG.isErrorEnabled()) {
-      LOG.error(logMessage);
-    } else {
-      System.out.println(logMessage);
-    }
-  }
-
   /**
    * drop all foreign keys (database dependent), and generate the script
    * @param dbMetadataBean 

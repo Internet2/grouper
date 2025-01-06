@@ -228,6 +228,7 @@ public class GrouperLoaderConfig extends ConfigPropertiesCascadeBase  {
     //might be in external file
     pass = Morph.decryptIfFile(pass);
     GrouperLoaderDb grouperLoaderDb = new GrouperLoaderDb(user, pass, url, driver);
+    grouperLoaderDb.setConnectionName(name);
     return grouperLoaderDb;
   }
 

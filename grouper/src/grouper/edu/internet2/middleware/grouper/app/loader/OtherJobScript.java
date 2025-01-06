@@ -134,11 +134,11 @@ public class OtherJobScript extends OtherJobBase {
           // we need a file or a script
           if (!StringUtils.isBlank(fileName)) {
             
-            localOutput = GrouperDdlUtils.runScriptFileIfShouldReturnString(connectionName, file, true);
+            localOutput = GrouperDdlUtils.runScriptFileIfShouldReturnString(connectionName, file, true, false);
             
           } else if (!StringUtils.isBlank(scriptSource)) {
     
-            localOutput = GrouperDdlUtils.runScriptIfShouldReturnString(connectionName, scriptSource, true, true);
+            localOutput = GrouperDdlUtils.runScriptIfShouldReturnString(connectionName, scriptSource, true, true, false);
     
           }
           if (theLog.length() > 0) {

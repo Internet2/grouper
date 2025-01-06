@@ -866,7 +866,7 @@ public class GrouperDdlEngine {
         return true;
       }
       
-      GrouperDdlUtils.runScriptIfShouldAndPrintOutput(script.toString(), runScript);
+      GrouperDdlUtils.runScriptIfShouldReturnString("grouper", script.toString(), runScript, false, true);
       installedGrouperFromScratchWithRunScript = installedGrouperFromScratchWithRunScript && runScript;
       return runScript;
     } finally {
@@ -1132,8 +1132,7 @@ public class GrouperDdlEngine {
     }
     logMessage = "";
     if (writeAndRunScript) {
-      GrouperDdlUtils.sqlRun(scriptFile, grouperDb.getDriver(), grouperDb.getUrl(), 
-          grouperDb.getUser(), grouperDb.getPass(), fromUnitTest, callFromCommandLine);
+      GrouperDdlUtils.sqlRun(scriptFile, grouperDb, fromUnitTest, callFromCommandLine);
       //lets clear the type cache
       AuditTypeFinder.clearCache();
       ChangeLogTypeFinder.clearCache();

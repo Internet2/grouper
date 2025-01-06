@@ -181,7 +181,7 @@ public class GrouperDdlScript {
       script.append(line).append("\n");
     }
     
-    GrouperDdlUtils.runScriptIfShouldReturnString(this.databaseConnection, script.toString(), true, false);
+    GrouperDdlUtils.runScriptIfShouldReturnString(this.databaseConnection, script.toString(), true, false, true);
     return this;
   }
 }

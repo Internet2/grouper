@@ -765,6 +765,38 @@ public class GrouperLoaderDb {
   }
 
   /**
+   * see if the config file seems to be mysql
+   * @return see if mysql
+   */
+  public boolean isMysql() {
+    return GrouperDdlUtils.isMysql(this.url);
+  }
+
+  /**
+   * see if the config file seems to be oracle
+   * @return see if oracle
+   */
+  public boolean isOracle() {
+    return GrouperDdlUtils.isOracle(this.url);
+  }
+
+  /**
+   * see if the config file seems to be postgres
+   * @return see if postgres
+   */
+  public boolean isPostgres() {
+    return GrouperDdlUtils.isPostgres(this.url);
+  }
+
+  /**
+   * see if the config file seems to be sql server
+   * @return see if sql server
+   */
+  public boolean isSQLServer() {
+    return GrouperDdlUtils.isSQLServer(this.url);
+  }
+
+  /**
    * empty constructor
    */
   public GrouperLoaderDb() {
@@ -800,6 +832,18 @@ public class GrouperLoaderDb {
     this.pass = pass1;
     this.url = url1;
     this.driver = driver1;
+  }
+
+  
+  
+  public void setConnectionName(String name) {
+    this.connectionName = name;
+    
+  }
+
+  
+  public String getConnectionName() {
+    return connectionName;
   }
 
   
