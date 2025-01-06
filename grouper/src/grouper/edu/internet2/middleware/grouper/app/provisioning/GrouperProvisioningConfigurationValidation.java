@@ -15,7 +15,7 @@ import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
-import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTaskV8;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
@@ -1293,7 +1293,7 @@ public class GrouperProvisioningConfigurationValidation {
     // TO provisioner.genericProvisioner.entityResolver.entityAttributesNotInSubjectSource
     
     // GRP-3939: Refactor entity attribute resolver config
-    for (String suffixToRefactor : UpgradeTasks.v8_entityResolverSuffixesToRefactor) {
+    for (String suffixToRefactor : UpgradeTaskV8.v8_entityResolverSuffixesToRefactor) {
       
       String resolverValue = suffixToConfigValue.get(suffixToRefactor);
       if (StringUtils.isBlank(resolverValue)) {
