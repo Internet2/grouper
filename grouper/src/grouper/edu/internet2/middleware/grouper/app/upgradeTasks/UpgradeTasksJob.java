@@ -169,12 +169,13 @@ public class UpgradeTasksJob extends OtherJobBase {
           UpgradeTasks task = GrouperUtil.enumValueOfIgnoreCase(UpgradeTasks.class, enumName, false, false);
           if (task != null ) {         
             
-            boolean upgradeTaskIsDdl = task.upgradeTaskIsDdl();
-            boolean doesUpgradeTaskHaveDdlWorkToDo = task.doesUpgradeTaskHaveDdlWorkToDo();
+            UpgradeTasksInterface upgradeTasksInterface = task.upgradeTask();
+            boolean upgradeTaskIsDdl = upgradeTasksInterface.upgradeTaskIsDdl();
+            boolean doesUpgradeTaskHaveDdlWorkToDo = upgradeTasksInterface.doesUpgradeTaskHaveDdlWorkToDo();
             boolean doTask = true;
             
             if (GrouperDdlEngine.installedGrouperFromScratchWithRunScript) {
-              if (!task.runOnNewInstall()) {
+              if (!upgradeTasksInterface.runOnNewInstall()) {
                 doTask = false;
                 
                 group.getAttributeValueDelegate().addValue(upgradeTasksVersionName, "" + version);
@@ -186,7 +187,7 @@ public class UpgradeTasksJob extends OtherJobBase {
                 group.getAttributeValueDelegate().addValue(upgradeTasksVersionName, "" + version);
                 otherJobInput.getHib3GrouperLoaderLog().appendJobMessage("Skipping upgrade task due to the ddl has been detected to have been already run "+enumName + ". \n");
               }
-              
+
               if (upgradeTaskIsDdl && doesUpgradeTaskHaveDdlWorkToDo && !canRunDdl()) {
                 otherJobInput.getHib3GrouperLoaderLog().addUnresolvableSubjectCount(1);
                 String message = "There's DDL work to do that has been configured not to be automatic but upgrade task number "+ version + " has not been done manually yet.";
@@ -198,8 +199,9 @@ public class UpgradeTasksJob extends OtherJobBase {
             }
             
             if (doTask) {
-              try {                
-                task.updateVersionFromPrevious(otherJobInput);
+              try {     
+                
+                upgradeTasksInterface.updateVersionFromPrevious(otherJobInput);
                 group.getAttributeValueDelegate().addValue(upgradeTasksVersionName, "" + version);
                 LOG.info("Upgraded to version " + enumName);
                 otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(" Upgraded to version "+enumName + ". \n");

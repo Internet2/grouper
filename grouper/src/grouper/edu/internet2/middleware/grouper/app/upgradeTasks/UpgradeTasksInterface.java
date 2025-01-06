@@ -17,6 +17,7 @@
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 /**
  * @author shilen
@@ -33,6 +34,12 @@ public interface UpgradeTasksInterface {
   }
   
   public default boolean runOnNewInstall() {
+    return false;
+  }
+  
+  public GrouperVersion versionIntroduced();
+
+  public default boolean upgradeTaskIsDdl() {
     return false;
   }
 }

@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.entity.EntityUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.permissions.limits.PermissionLimitUtils;
 import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 
@@ -46,6 +47,10 @@ public class UpgradeTaskV9 implements UpgradeTasksInterface {
         return null;
       }
     });
+  }
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("4.0.0");
   }
 
 }

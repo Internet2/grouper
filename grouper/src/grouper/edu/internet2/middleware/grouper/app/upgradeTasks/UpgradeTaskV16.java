@@ -3,10 +3,21 @@ package edu.internet2.middleware.grouper.app.upgradeTasks;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV16 implements UpgradeTasksInterface {
   
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
+  }
+  
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("5.8.1");
+  }
+
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
     

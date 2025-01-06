@@ -7,6 +7,7 @@ import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
@@ -15,7 +16,10 @@ public class UpgradeTaskV11 implements UpgradeTasksInterface {
   /** logger */
   private static final Log LOG = GrouperUtil.getLog(UpgradeTaskV11.class);
   
-  
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
+  }
   
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
@@ -225,6 +229,11 @@ public class UpgradeTaskV11 implements UpgradeTasksInterface {
         return null;
       }
     });
+  }
+
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("4.11.0");
   }
 
 }

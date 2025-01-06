@@ -9,6 +9,7 @@ import org.apache.commons.lang3.StringUtils;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class UpgradeTaskV7 implements UpgradeTasksInterface {
@@ -43,6 +44,10 @@ public class UpgradeTaskV7 implements UpgradeTasksInterface {
       
     }
     
+  }
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("4.0.0");
   }
 
 }

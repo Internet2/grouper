@@ -1,10 +1,16 @@
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV17 implements UpgradeTasksInterface {
   
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("5.8.2");
+  }
+
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
     
@@ -25,6 +31,12 @@ public class UpgradeTaskV17 implements UpgradeTasksInterface {
     
     return false;
   }
+
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
+  }
+  
 
   @Override
   public void updateVersionFromPrevious(OtherJobInput otherJobInput) {

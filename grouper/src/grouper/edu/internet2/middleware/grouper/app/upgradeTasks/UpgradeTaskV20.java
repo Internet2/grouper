@@ -8,9 +8,15 @@ import org.quartz.TriggerKey;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 public class UpgradeTaskV20 implements UpgradeTasksInterface {
   
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("5.12.0");
+  }
+
   @Override
   public void updateVersionFromPrevious(OtherJobInput otherJobInput) {
     try {

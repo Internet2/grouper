@@ -6,10 +6,21 @@ import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV22 implements UpgradeTasksInterface {
   
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
+  }
+  
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("5.13.0");
+  }
+
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
     return (boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {

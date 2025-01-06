@@ -5,10 +5,26 @@ import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV27 implements UpgradeTasksInterface {
   
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("5.14.0");
+  }
+
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
+  }
+  
+  @Override
+  public boolean runOnNewInstall() {
+    return true;
+  }
+
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
     

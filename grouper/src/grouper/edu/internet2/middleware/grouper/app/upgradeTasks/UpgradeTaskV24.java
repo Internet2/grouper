@@ -7,11 +7,16 @@ import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class UpgradeTaskV24 implements UpgradeTasksInterface {
   
-  
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("5.13.3");
+  }
+
   @Override
   public boolean doesUpgradeTaskHaveDdlWorkToDo() {
     return (boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -172,6 +177,11 @@ public class UpgradeTaskV24 implements UpgradeTasksInterface {
         return null;
       }
     });
+  }
+
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
   }
 
 }

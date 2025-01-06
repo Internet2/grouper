@@ -1,9 +1,13 @@
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
+import java.util.Set;
+
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonDeleteOldRecords;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class UpgradeTaskV8 implements UpgradeTasksInterface {
 
@@ -56,5 +60,54 @@ public class UpgradeTaskV8 implements UpgradeTasksInterface {
     
     HibernateSession.bySqlStatic().executeSql(sql);
   }
+
+  @Override
+  public boolean doesUpgradeTaskHaveDdlWorkToDo() {
+    boolean columnNullable = GrouperDdlUtils.isColumnNullable("grouper_members", "id_index", "subject_id", "GrouperSystem");
+    return columnNullable;
+  }
+
+  @Override
+  public boolean upgradeTaskIsDdl() {
+    return true;
+  }
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("4.0.0");
+  }
+
+
+  public static final Set<String> v8_entityResolverSuffixesToRefactor = GrouperUtil.toSet("entityAttributesNotInSubjectSource",
+      "resolveAttributesWithSQL",
+      "useGlobalSQLResolver",
+      "globalSQLResolver",
+      "sqlConfigId",
+      "tableOrViewName",
+      "columnNames",
+      "subjectSourceIdColumn",
+      "subjectSearchMatchingColumn",
+      "sqlMappingType",
+      "sqlMappingEntityAttribute",
+      "sqlMappingExpression",
+      "lastUpdatedColumn",
+      "lastUpdatedType",
+      "selectAllSQLOnFull",
+      "resolveAttributesWithLDAP",
+      "useGlobalLDAPResolver",
+      "globalLDAPResolver",
+      "ldapConfigId",
+      "baseDN",
+      "subjectSourceId",
+      "searchScope",
+      "filterPart",
+      "attributes",
+      "multiValuedLdapAttributes",
+      "ldapMatchingSearchAttribute",
+      "ldapMappingType",
+      "ldapMappingEntityAttribute",
+      "ldapMatchingExpression",
+      "filterAllLDAPOnFull",
+      "lastUpdatedAttribute",
+      "lastUpdatedFormat" );
 
 }

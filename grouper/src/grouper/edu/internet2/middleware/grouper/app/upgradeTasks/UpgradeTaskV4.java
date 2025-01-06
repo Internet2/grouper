@@ -11,6 +11,7 @@ import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.hooks.examples.AttributeAutoCreateHook;
 import edu.internet2.middleware.grouper.internal.dao.QueryOptions;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 public class UpgradeTaskV4 implements UpgradeTasksInterface {
 
@@ -39,6 +40,10 @@ public class UpgradeTaskV4 implements UpgradeTasksInterface {
         attributeAssign.getAttributeValueDelegate().assignValue(thenNames.getName(), shouldHaveValue);
       }
     }
+  }
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("4.0.0");
   }
 
 }

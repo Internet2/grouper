@@ -8,6 +8,7 @@ import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
 import edu.internet2.middleware.grouper.app.usdu.UsduSettings;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
+import edu.internet2.middleware.grouper.misc.GrouperVersion;
 
 public class UpgradeTaskV2 implements UpgradeTasksInterface {
 
@@ -49,6 +50,11 @@ public class UpgradeTaskV2 implements UpgradeTasksInterface {
       resolvableMembersAttr.delete();
     }
     
+  }
+
+  @Override
+  public GrouperVersion versionIntroduced() {
+    return GrouperVersion.valueOfIgnoreCase("4.0.0");
   }
 
 }
