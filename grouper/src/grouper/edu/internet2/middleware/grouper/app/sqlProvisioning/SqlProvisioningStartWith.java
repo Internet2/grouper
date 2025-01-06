@@ -148,10 +148,10 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
     
     //if has entity table is false, you cannot pick entityPrimaryKey as group membership attribute value
     GrouperConfigurationModuleAttribute hasEntityTableAttribute = this.retrieveAttributes().get("hasEntityTable");
-    if (!GrouperUtil.booleanValue(hasEntityTableAttribute.getValueOrExpressionEvaluation(), false)) {
+    if (!GrouperUtil.booleanValue(hasEntityTableAttribute.getValueOrExpressionEvaluationValue(), false)) {
       GrouperConfigurationModuleAttribute groupMembershipAttributeValueAttribute = this.retrieveAttributes().get("groupMembershipAttributeValue");
       if (groupMembershipAttributeValueAttribute != null) {
-        String value = groupMembershipAttributeValueAttribute.getValueOrExpressionEvaluation();
+        String value = groupMembershipAttributeValueAttribute.getValueOrExpressionEvaluationValue();
         if (StringUtils.equals(value, "entityPrimaryKey")) {
           String errorMessage = GrouperTextContainer.textOrNull("groupMembershipAttributeValueCannotBeEntityPrimaryKey");
           validationErrorsToDisplay.put(groupMembershipAttributeValueAttribute.getHtmlForElementIdHandle(), errorMessage);
@@ -168,7 +168,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       validateTableAndColumns(validationErrorsToDisplay, sqlExternalSystemConnectionName, groupTableName, groupTableIdColumn, groupTableColumnNames);
       
       GrouperConfigurationModuleAttribute hasGroupAttributeTableAttribute = this.retrieveAttributes().get("hasGroupAttributeTable");
-      if (GrouperUtil.booleanValue(hasGroupAttributeTableAttribute.getValueOrExpressionEvaluation(), false)) {
+      if (GrouperUtil.booleanValue(hasGroupAttributeTableAttribute.getValueOrExpressionEvaluationValue(), false)) {
         
         GrouperConfigurationModuleAttribute attributeTableName = this.retrieveAttributes().get("groupAttributesTableName");
         GrouperConfigurationModuleAttribute attributeTableIdColumn = this.retrieveAttributes().get("groupAttributesGroupForeignKeyColumn");
@@ -193,7 +193,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       validateTableAndColumns(validationErrorsToDisplay, sqlExternalSystemConnectionName, entityTableName, entityTableIdColumn, entityTableColumnNames);
       
       GrouperConfigurationModuleAttribute hasEntityAttributeTableAttribute = this.retrieveAttributes().get("hasEntityAttributeTable");
-      if (GrouperUtil.booleanValue(hasEntityAttributeTableAttribute.getValueOrExpressionEvaluation(), false)) {
+      if (GrouperUtil.booleanValue(hasEntityAttributeTableAttribute.getValueOrExpressionEvaluationValue(), false)) {
         
         GrouperConfigurationModuleAttribute attributeTableName = this.retrieveAttributes().get("entityAttributesTableName");
         GrouperConfigurationModuleAttribute attributeTableIdColumn = this.retrieveAttributes().get("entityAttributesEntityForeignKeyColumn");
@@ -233,25 +233,25 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
     
     GcTableSyncTableMetadata tableMetadata = null;
     try {
-      tableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase(sqlExternalSystemConnectionName.getValueOrExpressionEvaluation(),
-          tableName.getValueOrExpressionEvaluation());
+      tableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase(sqlExternalSystemConnectionName.getValueOrExpressionEvaluationValue(),
+          tableName.getValueOrExpressionEvaluationValue());
     } catch (Exception e) {
       String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithGroupTableConfigurationValidationGroupTableNotFound");
-      errorMessage = errorMessage.replace("##tableName##", tableName.getValueOrExpressionEvaluation());
+      errorMessage = errorMessage.replace("##tableName##", tableName.getValueOrExpressionEvaluationValue());
       validationErrorsToDisplay.put(tableName.getHtmlForElementIdHandle(), errorMessage);
       return;
     }
      
     if (tableMetadata == null) {
       String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithGroupTableConfigurationValidationGroupTableNotFound");
-      errorMessage = errorMessage.replace("##tableName##", tableName.getValueOrExpressionEvaluation());
+      errorMessage = errorMessage.replace("##tableName##", tableName.getValueOrExpressionEvaluationValue());
       validationErrorsToDisplay.put(tableName.getHtmlForElementIdHandle(), errorMessage);
       return;
     }
     
-    if (columnNames != null && StringUtils.isNotBlank(columnNames.getValueOrExpressionEvaluation())) {
+    if (columnNames != null && StringUtils.isNotBlank(columnNames.getValueOrExpressionEvaluationValue())) {
       
-      String columnNamesCommaSeparated = columnNames.getValueOrExpressionEvaluation();
+      String columnNamesCommaSeparated = columnNames.getValueOrExpressionEvaluationValue();
       Set<String> colNamesSet = GrouperUtil.splitTrimToSet(columnNamesCommaSeparated.toLowerCase(), ",");
       
       List<GcTableSyncColumnMetadata> columnsMetadata = tableMetadata.getColumnMetadata();
@@ -273,8 +273,8 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       
     }
     
-    if (column != null && StringUtils.isNotBlank(column.getValueOrExpressionEvaluation())) {
-      String groupTableIdColumnValue = GrouperUtil.trim(column.getValueOrExpressionEvaluation()).toLowerCase();
+    if (column != null && StringUtils.isNotBlank(column.getValueOrExpressionEvaluationValue())) {
+      String groupTableIdColumnValue = GrouperUtil.trim(column.getValueOrExpressionEvaluationValue()).toLowerCase();
       boolean groupTableIdColumnFound = false;
       
       List<GcTableSyncColumnMetadata> columnsMetadata = tableMetadata.getColumnMetadata();
@@ -289,7 +289,7 @@ public class SqlProvisioningStartWith extends ProvisionerStartWithBase {
       
       if (!groupTableIdColumnFound) {
         String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithGroupTableConfigurationValidationGroupIdColumnNotFound");
-        errorMessage = errorMessage.replace("##column##", column.getValueOrExpressionEvaluation());
+        errorMessage = errorMessage.replace("##column##", column.getValueOrExpressionEvaluationValue());
         validationErrorsToDisplay.put(column.getHtmlForElementIdHandle(), errorMessage);
       }
       

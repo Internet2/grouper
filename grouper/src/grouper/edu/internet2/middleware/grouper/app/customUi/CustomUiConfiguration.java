@@ -84,7 +84,7 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
     
     GrouperConfigurationModuleAttribute numberOfQueriesAttribute = attributes.get("numberOfQueries");
     
-    String valueOrExpressionEvaluation = numberOfQueriesAttribute.getValueOrExpressionEvaluation();
+    String valueOrExpressionEvaluation = numberOfQueriesAttribute.getValueOrExpressionEvaluationValue();
     
     int numberOfQueries = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
     
@@ -92,7 +92,7 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
       
       GrouperConfigurationModuleAttribute attributeDefIdAttribute = attributes.get("cuQuery."+i+".attributeDefId");
       
-      String attributeDefIdAttributeValue = attributeDefIdAttribute != null ? attributeDefIdAttribute.getValueOrExpressionEvaluation(): null;
+      String attributeDefIdAttributeValue = attributeDefIdAttribute != null ? attributeDefIdAttribute.getValueOrExpressionEvaluationValue(): null;
       
       if (StringUtils.isNotBlank(attributeDefIdAttributeValue)) {
         AttributeDef attributeDef = AttributeDefFinder.findById(attributeDefIdAttributeValue, false);
@@ -113,7 +113,7 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
     
     GrouperConfigurationModuleAttribute numberOfTextConfigsAttribute = attributes.get("numberOfTextConfigs");
     
-    String valueOrExpressionEvaluation = numberOfTextConfigsAttribute.getValueOrExpressionEvaluation();
+    String valueOrExpressionEvaluation = numberOfTextConfigsAttribute.getValueOrExpressionEvaluationValue();
     
     int numberOfTextConfigs = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
     
@@ -123,11 +123,11 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
       
       GrouperConfigurationModuleAttribute textTypeAttribute = attributes.get("cuTextConfig."+i+".textType");
       
-      String textTypeAttributeValue = textTypeAttribute.getValueOrExpressionEvaluation();
+      String textTypeAttributeValue = textTypeAttribute.getValueOrExpressionEvaluationValue();
       
       GrouperConfigurationModuleAttribute indexAttribute = attributes.get("cuTextConfig."+i+".index");
       
-      String indexAttributeValue = indexAttribute.getValueOrExpressionEvaluation();
+      String indexAttributeValue = indexAttribute.getValueOrExpressionEvaluationValue();
       int indexAttributeValueInt = GrouperUtil.intValue(indexAttributeValue, 0);
       
       if (textTypeIndexes.containsKey(textTypeAttributeValue)) {
@@ -156,7 +156,7 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
     Map<String, GrouperConfigurationModuleAttribute> attributes = this.retrieveAttributes();
     
     GrouperConfigurationModuleAttribute groupUUIDOrNameAttribute = attributes.get("groupUUIDOrName");
-    String groupUuidOrName = groupUUIDOrNameAttribute.getValueOrExpressionEvaluation();
+    String groupUuidOrName = groupUUIDOrNameAttribute.getValueOrExpressionEvaluationValue();
     
     Group group = GroupFinder.findByUuid(groupUuidOrName, false);
     if (group == null) {
@@ -189,13 +189,13 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
     
     GrouperConfigurationModuleAttribute numberOfQueriesAttribute = attributes.get("numberOfQueries");
     
-    String valueOrExpressionEvaluation = numberOfQueriesAttribute.getValueOrExpressionEvaluation();
+    String valueOrExpressionEvaluation = numberOfQueriesAttribute.getValueOrExpressionEvaluationValue();
     
     int numberOfQueries = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
     
     for (int i=0; i<numberOfQueries; i++) {
       GrouperConfigurationModuleAttribute variableToAssignAttribute = attributes.get("cuQuery."+i+".variableToAssign");
-      String variableToAssignAttributeValue = variableToAssignAttribute.getValueOrExpressionEvaluation();
+      String variableToAssignAttributeValue = variableToAssignAttribute.getValueOrExpressionEvaluationValue();
       if (StringUtils.isNotBlank(variableToAssignAttributeValue) && !variableToAssignAttributeValue.startsWith("cu_") && !variableToAssignAttributeValue.equals("default")) {
         String error = GrouperTextContainer.textOrNull("customUiConfigSaveErrorVariableToAssignNotValid"); 
         validationErrorsToDisplay.put(variableToAssignAttribute.getHtmlForElementIdHandle(), error);
@@ -203,7 +203,7 @@ public class CustomUiConfiguration extends GrouperConfigurationModuleBase {
       }
       
       GrouperConfigurationModuleAttribute variableToAssignOnErrorAttribute = attributes.get("cuQuery."+i+".variableToAssignOnError");
-      String variableToAssignOnErrorAttributeValue = variableToAssignOnErrorAttribute.getValueOrExpressionEvaluation();
+      String variableToAssignOnErrorAttributeValue = variableToAssignOnErrorAttribute.getValueOrExpressionEvaluationValue();
       if (StringUtils.isNotBlank(variableToAssignOnErrorAttributeValue) && !variableToAssignOnErrorAttributeValue.startsWith("cu_")) {
         String error = GrouperTextContainer.textOrNull("customUiConfigSaveErrorVariableToAssignOnErrorNotValid"); 
         validationErrorsToDisplay.put(variableToAssignOnErrorAttribute.getHtmlForElementIdHandle(), error);

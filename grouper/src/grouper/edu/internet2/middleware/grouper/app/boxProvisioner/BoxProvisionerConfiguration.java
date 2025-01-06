@@ -108,12 +108,12 @@ public final static Set<String> startWithConfigClassNames = new LinkedHashSet<St
     
     if (numberOfGroupAttributes != null) {
       
-      numberOfGroupAttributesLength = GrouperUtil.intValue(numberOfGroupAttributes.getValueOrExpressionEvaluation(), 0);
+      numberOfGroupAttributesLength = GrouperUtil.intValue(numberOfGroupAttributes.getValueOrExpressionEvaluationValue(), 0);
       
       for (int i=0; i<numberOfGroupAttributesLength; i++) {
         
         GrouperConfigurationModuleAttribute attributeName = this.retrieveAttributes().get("targetGroupAttribute."+i+".name");
-        String value = attributeName.getValueOrExpressionEvaluation();
+        String value = attributeName.getValueOrExpressionEvaluationValue();
         
         if (StringUtils.equals("name", value)) {
           groupNameThere = true;
@@ -145,12 +145,12 @@ public final static Set<String> startWithConfigClassNames = new LinkedHashSet<St
     
     if (numberOfEntityAttributes != null) {
       
-      numberOfEntityAttributesLength = GrouperUtil.intValue(numberOfEntityAttributes.getValueOrExpressionEvaluation(), 0);
+      numberOfEntityAttributesLength = GrouperUtil.intValue(numberOfEntityAttributes.getValueOrExpressionEvaluationValue(), 0);
       
       for (int i=0; i<numberOfEntityAttributesLength; i++) {
         
         GrouperConfigurationModuleAttribute attributeName = this.retrieveAttributes().get("targetEntityAttribute."+i+".name");
-        String value = attributeName.getValueOrExpressionEvaluation();
+        String value = attributeName.getValueOrExpressionEvaluationValue();
         
         if (StringUtils.equals("name", value)) {
           entityNameThere = true;
@@ -172,7 +172,7 @@ public final static Set<String> startWithConfigClassNames = new LinkedHashSet<St
     if (!entityNameThere) {
       // entity name is required only if making changes to entities
       GrouperConfigurationModuleAttribute attributeName = this.retrieveAttributes().get("makeChangesToEntities");
-      String value = attributeName.getValueOrExpressionEvaluation();
+      String value = attributeName.getValueOrExpressionEvaluationValue();
       boolean makeChangesToEntities = GrouperUtil.booleanValue(value, false);
       if (makeChangesToEntities) {
         String errorMessage = GrouperTextContainer.textOrNull("grouperBoxProvisionerConfiugrationEntityNameRequired");

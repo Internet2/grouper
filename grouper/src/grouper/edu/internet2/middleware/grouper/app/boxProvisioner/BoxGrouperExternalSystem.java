@@ -283,11 +283,11 @@ public class BoxGrouperExternalSystem extends GrouperExternalSystem {
     
     GrouperConfigurationModuleAttribute authenticationType = this.retrieveAttributes().get("authenticationType");
 
-    if (authenticationType != null && StringUtils.equals(authenticationType.getValueOrExpressionEvaluation(), "JWT")) {
+    if (authenticationType != null && StringUtils.equals(authenticationType.getValueOrExpressionEvaluationValue(), "JWT")) {
       GrouperConfigurationModuleAttribute privateKeyContents = this.retrieveAttributes().get("privateKeyContents_0");
       GrouperConfigurationModuleAttribute privateKeyFile = this.retrieveAttributes().get("privateKeyFileName");
 
-      if (StringUtils.isBlank(privateKeyContents.getValueOrExpressionEvaluation()) && StringUtils.isBlank(privateKeyFile.getValueOrExpressionEvaluation())) {
+      if (StringUtils.isBlank(privateKeyContents.getValueOrExpressionEvaluationValue()) && StringUtils.isBlank(privateKeyFile.getValueOrExpressionEvaluationValue())) {
         validationErrorsToDisplay.put(privateKeyContents.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationBoxFilePathOrPrivateKeyRequired"));
       }
     }

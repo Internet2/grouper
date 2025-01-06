@@ -29,14 +29,14 @@ public class SubjectAttributeNameOptionValues implements OptionValueDriver {
   public List<MultiKey> retrieveKeysAndLabels() {
     
     GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfAttributes");
-    int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation(), 0);
+    int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluationValue(), 0);
     
     List<MultiKey> result = new ArrayList<MultiKey>();
     
     for (int i=0; i<countOfAttributes; i++) {
       GrouperConfigurationModuleAttribute attribute = configSuffixToConfigModuleAttribute.get("attribute."+i+".name");
       if (attribute != null) {
-        String name = attribute.getValueOrExpressionEvaluation();
+        String name = attribute.getValueOrExpressionEvaluationValue();
         if (StringUtils.isNotBlank(name)) {
           result.add(new MultiKey(name, name));
         }

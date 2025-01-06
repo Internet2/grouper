@@ -1,46 +1,30 @@
 package edu.internet2.middleware.grouper.app.okta;
 
-import java.security.KeyFactory;
-import java.security.NoSuchAlgorithmException;
-import java.security.PrivateKey;
-import java.security.interfaces.RSAPrivateKey;
-import java.security.interfaces.RSAPublicKey;
-import java.security.spec.InvalidKeySpecException;
-import java.security.spec.PKCS8EncodedKeySpec;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
-import java.util.UUID;
 import java.util.stream.Collectors;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.RandomStringUtils;
 
-import com.auth0.jwt.JWT;
-import com.auth0.jwt.JWTCreator.Builder;
-import com.auth0.jwt.algorithms.Algorithm;
-import com.auth0.jwt.interfaces.RSAKeyProvider;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.app.duo.GrouperDuoLog;
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
-import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
-import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import edu.internet2.middleware.morphString.Morph;
 
 public class GrouperOktaApiCommands {
   
@@ -659,6 +643,15 @@ public class GrouperOktaApiCommands {
       GrouperOktaLog.oktaLog(debugMap, startTime);
     }
 
+  }
+  
+  public static void main(String[] args) {
+    GrouperSession.startRootSession();
+    
+    List<GrouperOktaUser> oktaUsers = retrieveOktaUsers("oktaExternalSystemWs");
+    
+    System.exit(0);
+    
   }
   
 

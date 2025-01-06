@@ -42,11 +42,11 @@ public class ProvisioningEntityAttributeWithCacheDropdownOptions implements Opti
     GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = configSuffixToConfigModuleAttribute.get("numberOfEntityAttributes");
     if (grouperConfigurationModuleAttribute != null) {
       
-      int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation(), 0);
+      int countOfAttributes = GrouperUtil.intValue(grouperConfigurationModuleAttribute.getValueOrExpressionEvaluationValue(), 0);
       
       for (int i=0; i<countOfAttributes; i++) {
         GrouperConfigurationModuleAttribute nameAttribute = configSuffixToConfigModuleAttribute.get("targetEntityAttribute."+i+".name");
-        String name = nameAttribute == null ? null : nameAttribute.getValueOrExpressionEvaluation();
+        String name = nameAttribute == null ? null : nameAttribute.getValueOrExpressionEvaluationValue();
         if (nameAttribute == null || StringUtils.isBlank(name)) {
           continue;
         }

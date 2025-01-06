@@ -87,7 +87,7 @@ public class GrouperDaemonProvisioningIncrementalSyncConfiguration extends Group
         String className = "changeLog.consumer."+configId+".publisher.class";
         String provisionerConfigId = "changeLog.consumer."+configId+".provisionerConfigId";
         if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), ProvisioningConsumer.class.getName()) && 
-            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisionerConfigIdAttribute.getValueOrExpressionEvaluation())) {
+            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(provisionerConfigId), provisionerConfigIdAttribute.getValueOrExpressionEvaluationValue())) {
           
           String errorMessage = GrouperTextContainer.textOrNull("grouperDaemonProvisioningConfigurationNoDuplicateDaemonsAllowed");
           errorsToDisplay.add(errorMessage);

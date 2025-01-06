@@ -47,7 +47,7 @@ public class GoogleGrouperExternalSystem extends GrouperExternalSystem {
     GrouperConfigurationModuleAttribute serviceAccountPKCS12FilePath = this.retrieveAttributes().get("serviceAccountPKCS12FilePath");
     GrouperConfigurationModuleAttribute serviceAccountPrivateKeyPEM = this.retrieveAttributes().get("serviceAccountPrivateKeyPEM");
 
-    if (StringUtils.isBlank(serviceAccountPKCS12FilePath.getValueOrExpressionEvaluation()) && StringUtils.isBlank(serviceAccountPrivateKeyPEM.getValueOrExpressionEvaluation())) {
+    if (StringUtils.isBlank(serviceAccountPKCS12FilePath.getValueOrExpressionEvaluationValue()) && StringUtils.isBlank(serviceAccountPrivateKeyPEM.getValueOrExpressionEvaluationValue())) {
       validationErrorsToDisplay.put(serviceAccountPKCS12FilePath.getHtmlForElementIdHandle(), GrouperTextContainer.textOrNull("grouperConfigurationValidationGoogleFilePathOrPrivateKeyRequired"));
     }
     

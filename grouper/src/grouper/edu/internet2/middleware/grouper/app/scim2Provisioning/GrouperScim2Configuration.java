@@ -89,7 +89,7 @@ public class GrouperScim2Configuration extends ProvisioningConfiguration {
     
     if (numberOfEntityAttributes != null) {
       
-      numberOfEntityAttributesLength = GrouperUtil.intValue(numberOfEntityAttributes.getValueOrExpressionEvaluation(), 0);
+      numberOfEntityAttributesLength = GrouperUtil.intValue(numberOfEntityAttributes.getValueOrExpressionEvaluationValue(), 0);
       
       Set<String> predefinedAttributes = GrouperUtil.toSet("active", "costCenter", "department", "displayName", "division", "emailType", "emailValue", "emailType2",
           "emailValue2", "employeeNumber", "externalId", "familyName", "formattedName", "givenName", "id", "middleName", "phoneNumber",
@@ -98,9 +98,9 @@ public class GrouperScim2Configuration extends ProvisioningConfiguration {
       for (int i=0; i<numberOfEntityAttributesLength; i++) {
         
         GrouperConfigurationModuleAttribute jsonPointerAttribute = this.retrieveAttributes().get("targetEntityAttribute."+i+".entityAttributeJsonPointer");
-        if (jsonPointerAttribute != null && StringUtils.isNotBlank(jsonPointerAttribute.getValueOrExpressionEvaluation())) {
+        if (jsonPointerAttribute != null && StringUtils.isNotBlank(jsonPointerAttribute.getValueOrExpressionEvaluationValue())) {
           GrouperConfigurationModuleAttribute attributeName = this.retrieveAttributes().get("targetEntityAttribute."+i+".name");
-          String attributeNameString = attributeName.getValueOrExpressionEvaluation();
+          String attributeNameString = attributeName.getValueOrExpressionEvaluationValue();
           if (predefinedAttributes.contains(attributeNameString)) {
             String errorMessage = GrouperTextContainer.textOrNull("scim2InvalidAttributeName");
             errorsToDisplay.add(errorMessage);
@@ -115,16 +115,16 @@ public class GrouperScim2Configuration extends ProvisioningConfiguration {
     
     if (numberOfGroupAttributes != null) {
       
-      numberOfGroupAttributesLength = GrouperUtil.intValue(numberOfGroupAttributes.getValueOrExpressionEvaluation(), 0);
+      numberOfGroupAttributesLength = GrouperUtil.intValue(numberOfGroupAttributes.getValueOrExpressionEvaluationValue(), 0);
       
       Set<String> predefinedAttributes = GrouperUtil.toSet("displayName", "externalId", "id");
       
       for (int i=0; i<numberOfGroupAttributesLength; i++) {
         
         GrouperConfigurationModuleAttribute jsonPointerAttribute = this.retrieveAttributes().get("targetGroupAttribute."+i+".groupAttributeJsonPointer");
-        if (jsonPointerAttribute != null && StringUtils.isNotBlank(jsonPointerAttribute.getValueOrExpressionEvaluation())) {
+        if (jsonPointerAttribute != null && StringUtils.isNotBlank(jsonPointerAttribute.getValueOrExpressionEvaluationValue())) {
           GrouperConfigurationModuleAttribute attributeName = this.retrieveAttributes().get("targetGroupAttribute."+i+".name");
-          String attributeNameString = attributeName.getValueOrExpressionEvaluation();
+          String attributeNameString = attributeName.getValueOrExpressionEvaluationValue();
           if (predefinedAttributes.contains(attributeNameString)) {
             String errorMessage = GrouperTextContainer.textOrNull("scim2InvalidAttributeName");
             errorsToDisplay.add(errorMessage);

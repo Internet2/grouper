@@ -508,9 +508,9 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     
     GrouperConfigurationModuleAttribute endpointAttribute = this.retrieveAttributes().get("endpoint");
 
-    if (endpointAttribute != null && StringUtils.startsWithIgnoreCase(endpointAttribute.getValueOrExpressionEvaluation(), "https://api.github.com/scim/")) {
+    if (endpointAttribute != null && StringUtils.startsWithIgnoreCase(endpointAttribute.getValueOrExpressionEvaluationValue(), "https://api.github.com/scim/")) {
      
-      String endpoint = endpointAttribute.getValueOrExpressionEvaluation();
+      String endpoint = endpointAttribute.getValueOrExpressionEvaluationValue();
       
       // https://api.github.com/scim/v2/organizations/ORG
       endpoint = GrouperUtil.stripLastSlashIfExists(endpoint);

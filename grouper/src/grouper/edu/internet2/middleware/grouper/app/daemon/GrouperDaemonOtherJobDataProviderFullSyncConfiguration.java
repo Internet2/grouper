@@ -89,7 +89,7 @@ public class GrouperDaemonOtherJobDataProviderFullSyncConfiguration extends Grou
         String className = "otherJob."+configId+".class";
         String dataProviderConfigId = "otherJob."+configId+".dataProviderConfigId";
         if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GrouperDataProviderFullSyncJob.class.getName()) && 
-            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(dataProviderConfigId), dataProviderConfigIdAttribute.getValueOrExpressionEvaluation())) {
+            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(dataProviderConfigId), dataProviderConfigIdAttribute.getValueOrExpressionEvaluationValue())) {
           
           String errorMessage = GrouperTextContainer.textOrNull("grouperDaemonDataProviderConfigurationNoDuplicateDaemonsAllowed");
           errorsToDisplay.add(errorMessage);

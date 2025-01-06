@@ -236,7 +236,7 @@ public class UiV2SubjectSource {
 
       }
       
-      SourceManager.getInstance().reloadSource(subjectSourceConfiguration.retrieveAttributes().get("id").getValueOrExpressionEvaluation());
+      SourceManager.getInstance().reloadSource(subjectSourceConfiguration.retrieveAttributes().get("id").getValueOrExpressionEvaluationValue());
       
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectSource.viewSubjectSources')"));
       
@@ -283,7 +283,7 @@ public class UiV2SubjectSource {
       for (SubjectSourceConfiguration subjectSourceConfig: subjectSourceConfigurations) {
         GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = subjectSourceConfig.retrieveAttributes().get("id");
         if (grouperConfigurationModuleAttribute != null) {
-          String id = grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation();
+          String id = grouperConfigurationModuleAttribute.getValueOrExpressionEvaluationValue();
           if (id != null && id.equals(subjectSourceId)) {
             subjectSourceConfiguration = subjectSourceConfig;
             break;
@@ -390,7 +390,7 @@ public class UiV2SubjectSource {
 
       }
       
-      SourceManager.getInstance().reloadSource(subjectSourceConfiguration.retrieveAttributes().get("id").getValueOrExpressionEvaluation());
+      SourceManager.getInstance().reloadSource(subjectSourceConfiguration.retrieveAttributes().get("id").getValueOrExpressionEvaluationValue());
       guiResponseJs.addAction(GuiScreenAction.newScript("guiV2link('operation=UiV2SubjectSource.viewSubjectSources')"));
       
       guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.success, 
@@ -443,7 +443,7 @@ public class UiV2SubjectSource {
       for (SubjectSourceConfiguration subjectSourceConfig: subjectSourceConfigurations) {
         GrouperConfigurationModuleAttribute grouperConfigurationModuleAttribute = subjectSourceConfig.retrieveAttributes().get("id");
         if (grouperConfigurationModuleAttribute != null) {
-          String id = grouperConfigurationModuleAttribute.getValueOrExpressionEvaluation();
+          String id = grouperConfigurationModuleAttribute.getValueOrExpressionEvaluationValue();
           if (id != null && id.equals(subjectSourceId)) {
             subjectSourceConfiguration = subjectSourceConfig;
             break;

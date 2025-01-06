@@ -929,6 +929,7 @@ public class GrouperGoogleApiCommands {
         }
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix, false);
+        numberOfCalls++;
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("users");
         

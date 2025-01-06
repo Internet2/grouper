@@ -348,21 +348,21 @@ public class TeamDynamixProvisioningStartWith extends ProvisionerStartWithBase {
 //    boolean allBlank = true;
 //    
 //    if (onPremAttribute != null) {
-//      String value = onPremAttribute.getValueOrExpressionEvaluation();
+//      String value = onPremAttribute.getValueOrExpressionEvaluationValue();
 //      if (StringUtils.isNotBlank(value)) {
 //        allBlank = false;
 //      }
 //    }
 //    
 //    if (allBlank && principalNameAttribute != null) {
-//      String value = principalNameAttribute.getValueOrExpressionEvaluation();
+//      String value = principalNameAttribute.getValueOrExpressionEvaluationValue();
 //      if (StringUtils.isNotBlank(value)) {
 //        allBlank = false;
 //      }
 //    }
 //    
 //    if (allBlank && mailNickNameAttribute != null) {
-//      String value = mailNickNameAttribute.getValueOrExpressionEvaluation();
+//      String value = mailNickNameAttribute.getValueOrExpressionEvaluationValue();
 //      if (StringUtils.isNotBlank(value)) {
 //        allBlank = false;
 //      }
@@ -385,21 +385,21 @@ public class TeamDynamixProvisioningStartWith extends ProvisionerStartWithBase {
 //    }
 //    
 //    GrouperConfigurationModuleAttribute entitySearchMatchingAttribute = this.retrieveAttributes().get("entitySearchMatchingAttribute");
-//    String searchMatchingAttributeValue = entitySearchMatchingAttribute.getValueOrExpressionEvaluation();
+//    String searchMatchingAttributeValue = entitySearchMatchingAttribute.getValueOrExpressionEvaluationValue();
 //    if (StringUtils.equals(searchMatchingAttributeValue, "mailNickname") && 
-//        (mailNickNameAttribute == null || StringUtils.isBlank(mailNickNameAttribute.getValueOrExpressionEvaluation()))) {
+//        (mailNickNameAttribute == null || StringUtils.isBlank(mailNickNameAttribute.getValueOrExpressionEvaluationValue()))) {
 //      String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithAzureConfigurationValidationEntitySearchMatchingAttributeNotValid");
 //      validationErrorsToDisplay.put(entitySearchMatchingAttribute.getHtmlForElementIdHandle(), errorMessage);
 //    }
 //    
 //    if (StringUtils.equals(searchMatchingAttributeValue, "onPremisesImmutableId") && 
-//        (onPremAttribute == null || StringUtils.isBlank(onPremAttribute.getValueOrExpressionEvaluation()))) {
+//        (onPremAttribute == null || StringUtils.isBlank(onPremAttribute.getValueOrExpressionEvaluationValue()))) {
 //      String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithAzureConfigurationValidationEntitySearchMatchingAttributeNotValid");
 //      validationErrorsToDisplay.put(entitySearchMatchingAttribute.getHtmlForElementIdHandle(), errorMessage);
 //    }
 //    
 //    if (StringUtils.equals(searchMatchingAttributeValue, "userPrincipalName") && 
-//        (principalNameAttribute == null || StringUtils.isBlank(principalNameAttribute.getValueOrExpressionEvaluation()))) {
+//        (principalNameAttribute == null || StringUtils.isBlank(principalNameAttribute.getValueOrExpressionEvaluationValue()))) {
 //      String errorMessage = GrouperTextContainer.textOrNull("grouperStartWithAzureConfigurationValidationEntitySearchMatchingAttributeNotValid");
 //      validationErrorsToDisplay.put(entitySearchMatchingAttribute.getHtmlForElementIdHandle(), errorMessage);
 //    }

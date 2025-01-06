@@ -2,10 +2,14 @@ package edu.internet2.middleware.grouper.app.externalSystem;
 
 //import edu.internet2.middleware.grouper.azure.AzureGrouperExternalSystem;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
-import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemMetadata;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
+import junit.textui.TestRunner;
 
 public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
+  
+  public static void main(String[] args) {
+    TestRunner.run(new GrouperConfigurationModuleAttributeTest("testGetValueOrExpressionEvaluation"));
+  }
   
   /**
    * @param name
@@ -19,17 +23,15 @@ public class GrouperConfigurationModuleAttributeTest extends GrouperTest {
     // expression script is returned when expression language is true
     GrouperConfigurationModuleAttribute attribute = new GrouperConfigurationModuleAttribute();
     attribute.setExpressionLanguage(true);
-    attribute.setValue("abc");
     attribute.setExpressionLanguageScript("script");
     String value = attribute.getValueOrExpressionEvaluation();
     assertEquals("script", value);
     
     // value is returned when expression language is not set or is false
     attribute = new GrouperConfigurationModuleAttribute();
-    attribute.setValue("abc");
-    attribute.setExpressionLanguageScript("script");
-    value = attribute.getValueOrExpressionEvaluation();
-    assertEquals("abc", value);
+    attribute.setExpressionLanguageScript("${'script'}");
+    value = attribute.getValueOrExpressionEvaluationValue();
+    assertEquals("script", value);
     
   }
   

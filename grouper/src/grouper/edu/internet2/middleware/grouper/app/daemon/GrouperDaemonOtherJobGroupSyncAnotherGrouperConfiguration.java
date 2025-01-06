@@ -89,7 +89,7 @@ public class GrouperDaemonOtherJobGroupSyncAnotherGrouperConfiguration extends G
         String className = "otherJob."+configId+".class";
         String groupConfigName = "otherJob."+configId+".groupConfigName";
         if (StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(className), GroupSyncDaemon.class.getName()) && 
-            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(groupConfigName), groupConfigNameAttribute.getValueOrExpressionEvaluation())) {
+            StringUtils.equals(GrouperLoaderConfig.retrieveConfig().propertyValueString(groupConfigName), groupConfigNameAttribute.getValueOrExpressionEvaluationValue())) {
           
           String errorMessage = GrouperTextContainer.textOrNull("grouperDaemonGroupSyncAnotherGrouperConfigurationNoDuplicateDaemonsAllowed");
           errorsToDisplay.add(errorMessage);
