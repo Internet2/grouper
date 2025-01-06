@@ -33,8 +33,8 @@ public class UpgradeTaskV29 implements UpgradeTasksInterface {
             otherJobInput.getHib3GrouperLoaderLog().appendJobMessage(", added index grouper_sync_mship_mem_idx");
           }
         }
-        
-        return null;
+        throw new RuntimeException("Error!");
+        //return null;
       }
     });
   }

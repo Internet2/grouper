@@ -926,8 +926,16 @@ public class GrouperDdlEngine {
     
       // see if there are upgrade tasks to run
       String jobMessageOptional = UpgradeTasksJob.runDaemonStandalone();
-      if (StringUtils.isNotBlank(jobMessageOptional)) {
+      
+      boolean upgradeTasksFailOnStartupIfError = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("upgradeTasksFailOnStartupIfError", true);
+      
+      if (upgradeTasksFailOnStartupIfError && StringUtils.isNotBlank(jobMessageOptional)) {
         throw new RuntimeException(jobMessageOptional);
+      }
+      if (StringUtils.isNotBlank(jobMessageOptional)) {
+        String errorMessage = "FATAL ERROR IN UPGRADE TASKS but configured not to fail startup: " + jobMessageOptional;
+        LOG.error(errorMessage);
+        System.out.println(errorMessage);
       }
     } finally {
       GrouperDdlUtils.insideBootstrap = false;
