@@ -22,7 +22,7 @@ package edu.internet2.middleware.grouperClient.ws;
 import java.io.File;
 import java.io.IOException;
 import java.io.UnsupportedEncodingException;
-import java.security.cert.X509Certificate;
+import java.nio.charset.UnsupportedCharsetException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -31,12 +31,22 @@ import java.util.List;
 import java.util.Map;
 import java.util.Properties;
 
-import javax.net.ssl.HostnameVerifier;
-import javax.net.ssl.HttpsURLConnection;
-import javax.net.ssl.SSLContext;
-import javax.net.ssl.SSLSession;
-import javax.net.ssl.TrustManager;
-import javax.net.ssl.X509TrustManager;
+import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.http.Consts;
+import org.apache.http.Header;
+import org.apache.http.HttpException;
+import org.apache.http.auth.AuthScope;
+import org.apache.http.auth.Credentials;
+import org.apache.http.auth.UsernamePasswordCredentials;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpPost;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.entity.ContentType;
+import org.apache.http.entity.StringEntity;
+import org.apache.http.impl.client.CloseableHttpClient;
 
 import edu.internet2.middleware.grouperClient.GrouperClientState;
 import edu.internet2.middleware.grouperClient.GrouperClientWsException;
@@ -46,30 +56,12 @@ import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig.FailoverStrategy;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogic;
 import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
-import edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.grouperClient.ws.beans.ResultMetadataHolder;
 import edu.internet2.middleware.grouperClient.ws.beans.WsRestResultProblem;
 import edu.internet2.middleware.grouperClient.ws.beans.WsResultMeta;
-import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.Header;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpException;
-import org.apache.commons.httpclient.HttpStatus;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.PostMethod;
-import org.apache.commons.httpclient.methods.StringRequestEntity;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
-import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.logging.Log;
 import edu.internet2.middleware.morphString.Crypto;
 
 
@@ -77,11 +69,6 @@ import edu.internet2.middleware.morphString.Crypto;
  * this is the client that all requests go through.  if you add an instance field, make sure to add to copyFrom()
  */
 public class GrouperClientWs {
-  
-  /**
-   * 
-   */
-  private PostMethod method;
   
   /** */
   private String response;
@@ -121,7 +108,6 @@ public class GrouperClientWs {
    * @param grouperClientWs
    */
   public void copyFrom(GrouperClientWs grouperClientWs) {
-    this.method = grouperClientWs.method;
     this.response = grouperClientWs.response;
     //dont copy result
     this.resultCode = grouperClientWs.resultCode;
@@ -600,9 +586,20 @@ public class GrouperClientWs {
   }
 
   /**
+   * Response headers.
+   */
+  private Map<String, String> responseHeaders = new LinkedHashMap<String, String>();
+  
+  /**
+   * Response headers lower case.
+   */
+  private Map<String, String> responseHeadersLower = new LinkedHashMap<String, String>();
+
+
+  /**
    * @param url to hit, could be multiple
    * @param urlSuffix e.g. groups/aStem:aGroup/members
-   * @param toSend is the bean which will transform into XML, or just a string of XML to send...
+   * @param objectToMarshall is the bean which will transform into XML, or just a string of XML to send...
    * @param labelForLog label if the request is logged to file
    * @param clientVersion
    * @param contentType
@@ -612,7 +609,7 @@ public class GrouperClientWs {
    * @throws HttpException
    * @throws IOException
    */
-  private static GrouperClientWs executeServiceHelper(String url, String urlSuffix, Object toSend, String labelForLog, 
+  private static GrouperClientWs executeServiceHelper(String url, String urlSuffix, Object objectToMarshall, String labelForLog, 
       String clientVersion, String contentType, boolean exceptionOnNonSuccess, GrouperClientWs originalGrouperClientWs)  {
     
     GrouperClientWs grouperClientWs = new GrouperClientWs();
@@ -647,91 +644,345 @@ public class GrouperClientWs {
       
     }
     int[] responseCode = new int[1];
-    
-    //make sure right content type is in request (e.g. application/xhtml+xml
-    grouperClientWs.method = grouperClientWs.postMethod(url, urlSuffix, 
-        toSend, requestFile, responseCode, clientVersion, contentType);
 
-    //make sure a request came back
-    Header successHeader = grouperClientWs.method.getResponseHeader("X-Grouper-success");
-    String successString = successHeader == null ? null : successHeader.getValue();
-    if (GrouperClientUtils.isBlank(successString)) {
-      if (LOG.isDebugEnabled()) {
-        String theResponse = null;
-        try {
-          theResponse = GrouperClientUtils.responseBodyAsString(grouperClientWs.method);
-        } catch (Exception e) {
-          //ignore
-        }
-        LOG.debug("Response: " + theResponse);
-      }
-      throw new RuntimeException("Web service did not even respond! " + url);
-    }
-    grouperClientWs.success = "T".equals(successString);
-    grouperClientWs.resultCode = grouperClientWs.method.getResponseHeader("X-Grouper-resultCode").getValue();
-    
-    grouperClientWs.response = GrouperClientUtils.responseBodyAsString(grouperClientWs.method);
+    // Get an http client.
+    CloseableHttpClient closeableHttpClient = null;
+    HttpRequestBase httpRequestBase = null;
+    CloseableHttpResponse closeableHttpResponse = null;
 
-    mostRecentResponse = grouperClientWs.response;
-
-    if (responseFile != null || GrouperClientLog.debugToConsoleByFlag()) {
-      if (responseFile != null) {
-        LOG.debug("WebService: logging response to: " + GrouperClientUtils.fileCanonicalPath(responseFile));
-      }
+    try {
       
-      String theResponse = grouperClientWs.response;
-      Exception indentException = null;
-
-      boolean isIndent = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired("grouperClient.logging.webService.indent");
-      if (isIndent) {
-        try {
-          theResponse = GrouperClientUtils.indent(theResponse, true);
-        } catch (Exception e) {
-          indentException = e;
-        }
+      //see if invalid SSL
+      String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.https.customSocketFactory");
+      
+      //perhaps give a custom factory
+      if (StringUtils.equals(httpsSocketFactoryName, "edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory")) {
+        closeableHttpClient = GrouperClientUtils.httpTrustAllClient(true);
+      } else {
+        closeableHttpClient = GrouperClientUtils.httpClient(true);
       }
-      
-      StringBuilder headers = new StringBuilder();
 
-      headers.append("HTTP/1.1 ").append(responseCode[0]).append(" ").append(HttpStatus.getStatusText(responseCode[0])).append("\n");
-      
-      for (Header header : grouperClientWs.method.getResponseHeaders()) {
-        String name = header.getName();
-        String value = header.getValue();
+      int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueInt(
+          "grouperClient.discovery.httpSocketTimeoutMillis", 90000);
+
+      int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueInt(
+          "grouperClient.discovery.httpConnectionManagerTimeoutMillis", 90000);
+
+      RequestConfig.Builder config = RequestConfig.custom()
+          .setConnectionRequestTimeout(connectionManagerMillis)
+          .setConnectTimeout(connectionManagerMillis)
+          .setSocketTimeout(soTimeoutMillis);
         
-        //dont allow cookies to go to logs
-        if (GrouperClientUtils.equals(name, "Set-Cookie")) {
-          value = value.replaceAll("JSESSIONID=(.*)?;", "JSESSIONID=xxxxxxxxxxxx;");
+      httpRequestBase.setConfig(config.build());
+
+      String theContentType = GrouperClientUtils.defaultIfBlank(contentType, "application/json");
+      
+      url = GrouperClientUtils.stripEnd(url, "/");
+      
+      // grouperClient.webService.client.version = v2_5_000
+      String webServiceVersion = GrouperClientUtils.grouperClientVersion();
+          
+      if (!GrouperClientUtils.isBlank(clientVersion)) {
+        webServiceVersion = clientVersion;
+      }
+      
+      webServiceVersion = GrouperClientUtils.stripStart(webServiceVersion, "/");
+      webServiceVersion = GrouperClientUtils.stripEnd(webServiceVersion, "/");
+
+      url = url + "/" + webServiceVersion + "/" + urlSuffix;
+
+      {
+        String debugMessage = "WebService: connecting to URL: '" + url + "'";
+        LOG.debug(debugMessage);
+        
+        if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println(debugMessage);
         }
-        headers.append(name).append(": ").append(value).append("\n");
-      }
-      headers.append("\n");
-      String theResponseTotal = headers + theResponse;
-      if (responseFile != null) {
-        GrouperClientUtils.saveStringIntoFile(responseFile, theResponseTotal);
-      }
-      if (GrouperClientLog.debugToConsoleByFlag()) {
-        System.err.println("\n################ RESPONSE START " + (isIndent ? "(indented) " : "") + "###############\n");
-        System.err.println(theResponseTotal);
-        System.err.println("\n################ RESPONSE END ###############\n\n");
-      }
-      if (indentException != null) {
-        throw new RuntimeException("Problems indenting json (is it valid?), turn off the indenting in the " +
-            "grouper.client.properties: grouperClient.logging.webService.indent", indentException);
-      }
-    }
 
-    Object resultObject = toSend instanceof String ? grouperClientWs.response : GrouperClientUtils.jsonConvertFrom(WsRestClassLookup.getAliasClassMap(), grouperClientWs.response);
+      }
+      
+      //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
+      //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
+      httpRequestBase = new HttpPost(url);
+
+      if (StringUtils.isBlank(grouperClientWs.wsEndpoint)) {
+
+        String userLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.user.label");
+        String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + userLabel);
     
-    //see if problem
-    if (resultObject instanceof WsRestResultProblem) {
-      throw new GrouperClientWsException(resultObject, ((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
-    }
+        {
+          String debugMessage = "WebService: connecting as user: '" + user + "'";
+          LOG.debug(debugMessage);
+          if (GrouperClientLog.debugToConsoleByFlag()) {
+            System.err.println(debugMessage);
+          }
+        }
+        
+        boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
+            "encrypt.disableExternalFileLookup", false);
+        
+        //lets lookup if file
+        String theWsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.password");
+        String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(theWsPass, disableExternalFileLookup);
+    
+        String passPrefix = null;
+    
+        if (!GrouperClientUtils.equals(theWsPass, wsPassFromFile)) {
+    
+          passPrefix = "WebService pass: reading encrypted value from file: " + theWsPass;
+    
+          String encryptKey = GrouperClientUtils.encryptKey();
+          theWsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
+          
+        } else {
+          passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
+        }
+        
+        if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
+          LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", theWsPass.length()));
+        }
+    
+  
+        String authenticationString = GrouperClientUtils.httpBasicAuthenticationString(user, theWsPass); 
+        httpRequestBase.addHeader("Authorization", authenticationString);
+      } else {
+        if (StringUtils.isBlank(grouperClientWs.wsUser)) {
+          throw new RuntimeException("wsUser is required!");
+        }
+        if (StringUtils.isBlank(grouperClientWs.wsPass)) {
+          throw new RuntimeException("wsPass is required!");
+        }
+        String authenticationString = GrouperClientUtils.httpBasicAuthenticationString(grouperClientWs.wsUser, grouperClientWs.wsPass); 
+        httpRequestBase.addHeader("Authorization", authenticationString);
+        
+      }
 
-    if (exceptionOnNonSuccess && !grouperClientWs.success) {
-      throw new GrouperClientWsException(resultObject, "Result code: " + grouperClientWs.resultCode + ", on url: " + url );
+      //no keep alive so response is easier to indent for tests
+      httpRequestBase.setHeader("Connection", "close");
+  
+      String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(objectToMarshall);
+      
+      if (!GrouperClientUtils.isBlank(requestDocument)) {
+        try {
+          ((HttpPost)httpRequestBase).setEntity(new StringEntity(requestDocument, ContentType.create(theContentType, Consts.UTF_8)));
+
+        } catch (UnsupportedCharsetException uee) {
+          throw new RuntimeException(uee);
+        }
+      }
+
+      Map<String, String> requestHeaders = new LinkedHashMap<String, String>();
+
+      GrouperClientState grouperClientState = GrouperClientState.retrieveGrouperClientState(false);
+      
+      if (grouperClientState != null) {
+        if (!StringUtils.isBlank(grouperClientState.getXcorrelationId())) {
+          httpRequestBase.addHeader("X-Correlation-Id", grouperClientState.getXcorrelationId());
+        }
+        if (!StringUtils.isBlank(grouperClientState.getXrequestId())) {
+          httpRequestBase.addHeader("X-Request-Id", grouperClientState.getXrequestId());
+        }
+        
+        if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSourceId())) {
+          
+          if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId()) 
+              && !StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
+            throw new RuntimeException("You can only have one of grouperActAsSubjectId or grouperActAsSubjectIdentifier set!");
+          }
+
+          if (StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId()) 
+              && StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
+            throw new RuntimeException("You must have one of grouperActAsSubjectId or grouperActAsSubjectIdentifier set if grouperActAsSourceId is set!");
+          }
+          
+          requestHeaders.put("X-Grouper-actAsSourceId", grouperClientState.getGrouperActAsSourceId());
+
+          if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId())) {
+            requestHeaders.put("X-Grouper-actAsSubjectId", grouperClientState.getGrouperActAsSubjectId());
+          } else if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
+            requestHeaders.put("X-Grouper-actAsSubjectIdentifier", grouperClientState.getGrouperActAsSubjectIdentifier());
+          }
+
+          
+        } else {
+          if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId()) 
+              || !StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
+            throw new RuntimeException("If grouperActAsSubjectId or grouperActAsSubjectIdentifier is set, then you must have a grouperActAsSourceId!");
+          }
+        }
+      }
+
+      for (String requestHeaderKey : requestHeaders.keySet()) {
+        httpRequestBase.addHeader(requestHeaderKey, new String(new Base64().encode(requestHeaders.get(requestHeaderKey).getBytes("UTF-8"))));
+      }
+
+      if (requestFile != null || GrouperClientLog.debugToConsoleByFlag()) {
+        if (requestFile != null) {
+          LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(requestFile));
+        }
+        String theRequestDocument = requestDocument;
+        Exception indentException = null;
+        boolean isIndent = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired("grouperClient.logging.webService.indent");
+        if (isIndent) {
+          try {
+            theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
+          } catch (Exception e) {
+            indentException = e;
+          }
+        }
+  
+        StringBuilder headers = new StringBuilder();
+  //      POST /grouper-ws/servicesRest/v1_4_000/subjects HTTP/1.1
+  //      Connection: close
+  //      Authorization: Basic bWNoeXplcjpEaxxxxxxxxxx==
+  //      User-Agent: Jakarta Commons-HttpClient/3.1
+  //      Host: localhost:8090
+  //      Content-Length: 226
+  //      Content-Type: text/xml; charset=UTF-8
+        headers.append("POST ").append(httpRequestBase.getURI().getRawPath()).append(" HTTP/1.1\n");
+        headers.append("Connection: close\n");
+        headers.append("Authorization: Basic xxxxxxxxxxxxxxxx\n");
+        headers.append("User-Agent: Jakarta Commons-HttpClient/3.1\n");
+        headers.append("Host: ").append(httpRequestBase.getURI().getHost()).append(":")
+          .append(httpRequestBase.getURI().getPort()).append("\n");
+        headers.append("Content-Length: ").append(
+            requestDocument.length()).append("\n");
+        headers.append("Content-Type: ").append(
+            theContentType).append("\n");
+        if (grouperClientState != null) {
+          if (!StringUtils.isBlank(grouperClientState.getXcorrelationId())) {
+            headers.append("X-Correlation-Id: ").append(grouperClientState.getXcorrelationId()).append("\n");
+          }
+          if (!StringUtils.isBlank(grouperClientState.getXrequestId())) {
+            headers.append("X-Request-Id: ").append(grouperClientState.getXrequestId()).append("\n");
+          }
+        }
+        for (String requestHeaderKey : requestHeaders.keySet()) {
+          headers.append(requestHeaderKey).append(": ").append(new String(new Base64().encode(requestHeaders.get(requestHeaderKey).getBytes("UTF-8")))).append("\n");
+        }
+
+        headers.append("\n");
+        
+        String theRequest = headers + theRequestDocument;
+        if (requestFile != null) {
+          GrouperClientUtils.saveStringIntoFile(requestFile, theRequest);
+        }
+        if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println("\n################ REQUEST START " + (isIndent ? "(indented) " : "") + "###############\n");
+          System.err.println(theRequest);
+          System.err.println("\n################ REQUEST END ###############\n\n");
+        }
+        if (indentException != null) {
+          throw new RuntimeException("Problems indenting json (is it valid?), turn off the indenting in the " +
+              "grouper.client.properties: grouperClient.logging.webService.indent", indentException);
+        }
+      }
+      
+      mostRecentRequest = requestDocument;
+      
+      closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
+      int responseCodeInt = closeableHttpResponse.getStatusLine().getStatusCode();
+
+      if (responseCode != null && responseCode.length > 0) {
+        responseCode[0] = responseCodeInt;
+      }
+      
+      grouperClientWs.responseHeadersLower.clear();
+      grouperClientWs.responseHeaders.clear();
+      
+      for (Header header : GrouperClientUtils.nonNull(closeableHttpResponse.getAllHeaders(), Header.class)) {
+        grouperClientWs.responseHeadersLower.put(header.getName().toLowerCase(), header.getValue());
+        grouperClientWs.responseHeaders.put(header.getName(), header.getValue());
+      }
+
+      //make sure a request came back
+      String successString = grouperClientWs.responseHeaders.get("X-Grouper-success");
+      if (GrouperClientUtils.isBlank(successString)) {
+        if (LOG.isDebugEnabled()) {
+          grouperClientWs.response = null;
+          try {
+            grouperClientWs.response = GrouperClientUtils.responseBodyAsString(closeableHttpResponse);
+          } catch (Exception e) {
+            //ignore
+          }
+          LOG.debug("Response: " + grouperClientWs.response);
+        }
+        throw new RuntimeException("Web service did not even respond! " + url);
+      }
+      grouperClientWs.success = "T".equals(successString);
+      grouperClientWs.resultCode = grouperClientWs.responseHeaders.get("X-Grouper-resultCode");
+      
+      mostRecentResponse = grouperClientWs.response;
+
+      if (responseFile != null || GrouperClientLog.debugToConsoleByFlag()) {
+        if (responseFile != null) {
+          LOG.debug("WebService: logging response to: " + GrouperClientUtils.fileCanonicalPath(responseFile));
+        }
+        
+        String theResponse = grouperClientWs.response;
+        Exception indentException = null;
+
+        boolean isIndent = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired("grouperClient.logging.webService.indent");
+        if (isIndent) {
+          try {
+            theResponse = GrouperClientUtils.indent(theResponse, true);
+          } catch (Exception e) {
+            indentException = e;
+          }
+        }
+        
+        StringBuilder headers = new StringBuilder();
+
+        headers.append("HTTP/1.1 ").append(responseCode[0]).append("\n");
+        
+        for (String name : grouperClientWs.responseHeaders.keySet()) {
+          String value = grouperClientWs.responseHeaders.get(name);
+          
+          //dont allow cookies to go to logs
+          if (GrouperClientUtils.equals(name, "Set-Cookie")) {
+            value = value.replaceAll("JSESSIONID=(.*)?;", "JSESSIONID=xxxxxxxxxxxx;");
+          }
+          headers.append(name).append(": ").append(value).append("\n");
+        }
+        headers.append("\n");
+        String theResponseTotal = headers + theResponse;
+        if (responseFile != null) {
+          GrouperClientUtils.saveStringIntoFile(responseFile, theResponseTotal);
+        }
+        if (GrouperClientLog.debugToConsoleByFlag()) {
+          System.err.println("\n################ RESPONSE START " + (isIndent ? "(indented) " : "") + "###############\n");
+          System.err.println(theResponseTotal);
+          System.err.println("\n################ RESPONSE END ###############\n\n");
+        }
+        if (indentException != null) {
+          throw new RuntimeException("Problems indenting json (is it valid?), turn off the indenting in the " +
+              "grouper.client.properties: grouperClient.logging.webService.indent", indentException);
+        }
+      }
+
+      Object resultObject = objectToMarshall instanceof String ? grouperClientWs.response : GrouperClientUtils.jsonConvertFrom(WsRestClassLookup.getAliasClassMap(), grouperClientWs.response);
+      
+      //see if problem
+      if (resultObject instanceof WsRestResultProblem) {
+        throw new GrouperClientWsException(resultObject, ((WsRestResultProblem)resultObject).getResultMetadata().getResultMessage());
+      }
+
+      if (exceptionOnNonSuccess && !grouperClientWs.success) {
+        throw new GrouperClientWsException(resultObject, "Result code: " + grouperClientWs.resultCode + ", on url: " + url );
+      }
+      grouperClientWs.result = resultObject;
+
+    } catch (Exception e) {
+      
+      if (e instanceof RuntimeException) {
+        throw (RuntimeException)e;
+      }
+      
+      throw new RuntimeException("Problem in url: " + url, e);
+    } finally {
+      GrouperClientUtils.httpCloseQuietly(closeableHttpClient, httpRequestBase, closeableHttpResponse, false);
     }
-    grouperClientWs.result = resultObject;
+    
     return grouperClientWs;
   }
 
@@ -765,336 +1016,7 @@ public class GrouperClientWs {
     }
 
   }
-  
-  
-  /**
-   * http client
-   * @return the http client
-   */
-  @SuppressWarnings({ "deprecation", "unchecked" })
-  private HttpClient httpClient() {
     
-    //see if invalid SSL
-    String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.https.customSocketFactory");
-    
-    //is there overhead here?  should only do this once?
-    //perhaps give a custom factory
-    if (!GrouperClientUtils.isBlank(httpsSocketFactoryName)) {
-      Class<? extends SecureProtocolSocketFactory> httpsSocketFactoryClass = GrouperClientUtils.forName(httpsSocketFactoryName);
-      SecureProtocolSocketFactory httpsSocketFactoryInstance = GrouperClientUtils.newInstance(httpsSocketFactoryClass);
-      Protocol easyhttps = new Protocol("https", httpsSocketFactoryInstance, 443);
-      Protocol.registerProtocol("https", easyhttps);
-      
-      if (httpsSocketFactoryInstance instanceof EasySslSocketFactory) {
-
-        // Create a trust manager that does not validate certificate chains
-        TrustManager[] trustAllCerts = new TrustManager[] { new X509TrustManager() {
-
-          public java.security.cert.X509Certificate[] getAcceptedIssuers() {
-            return null;
-          }
-
-          public void checkClientTrusted(X509Certificate[] certs, String authType) {
-          }
-
-          public void checkServerTrusted(X509Certificate[] certs, String authType) {
-          }
-        }
-        };
-
-        try {
-          // Install the all-trusting trust manager
-          SSLContext sc = SSLContext.getInstance("SSL");
-          sc.init(null, trustAllCerts, new java.security.SecureRandom());
-          HttpsURLConnection.setDefaultSSLSocketFactory(sc.getSocketFactory());
-  
-          // Create all-trusting host name verifier
-          HostnameVerifier allHostsValid = new HostnameVerifier() {
-  
-            public boolean verify(String hostname, SSLSession session) {
-              return true;
-            }
-          };
-  
-          // Install the all-trusting host verifier
-          HttpsURLConnection.setDefaultHostnameVerifier(allHostsValid);
-        } catch (Exception e) {
-          throw new RuntimeException("error", e);
-        }
-      }
-    }
-    
-    HttpClient httpClient = new HttpClient();
-
-    DefaultHttpParams.getDefaultParams().setParameter(
-        HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
-
-    httpClient.getParams().setAuthenticationPreemptive(true);
-    
-    int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
-        "grouperClient.webService.httpSocketTimeoutMillis");
-    
-    httpClient.getParams().setSoTimeout(soTimeoutMillis);
-    httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
-    
-    int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueIntRequired(
-        "grouperClient.webService.httpConnectionManagerTimeoutMillis");
-    
-    httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
-
-    if (StringUtils.isBlank(this.wsEndpoint)) {
-      String userLabel = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.user.label");
-      String user = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService." + userLabel);
-  
-      {
-        String debugMessage = "WebService: connecting as user: '" + user + "'";
-        LOG.debug(debugMessage);
-        if (GrouperClientLog.debugToConsoleByFlag()) {
-          System.err.println(debugMessage);
-        }
-      }
-      
-      boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBoolean(
-          "encrypt.disableExternalFileLookup", false);
-      
-      //lets lookup if file
-      String theWsPass = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.password");
-      String wsPassFromFile = GrouperClientUtils.readFromFileIfFile(theWsPass, disableExternalFileLookup);
-  
-      String passPrefix = null;
-  
-      if (!GrouperClientUtils.equals(theWsPass, wsPassFromFile)) {
-  
-        passPrefix = "WebService pass: reading encrypted value from file: " + theWsPass;
-  
-        String encryptKey = GrouperClientUtils.encryptKey();
-        theWsPass = new Crypto(encryptKey).decrypt(wsPassFromFile);
-        
-      } else {
-        passPrefix = "WebService pass: reading scalar value from grouper.client.properties";
-      }
-      
-      if (GrouperClientConfig.retrieveConfig().propertyValueBoolean("grouperClient.logging.logMaskedPassword", false)) {
-        LOG.debug(passPrefix + ": " + GrouperClientUtils.repeat("*", theWsPass.length()));
-      }
-  
-      Credentials defaultcreds = new UsernamePasswordCredentials(user, theWsPass);
-  
-      //set auth scope to null and negative so it applies to all hosts and ports
-      httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
-    } else {
-      
-      if (StringUtils.isBlank(this.wsUser)) {
-        throw new RuntimeException("wsUser is required!");
-      }
-      if (StringUtils.isBlank(this.wsPass)) {
-        throw new RuntimeException("wsPass is required!");
-      }
-      
-      Credentials defaultcreds = new UsernamePasswordCredentials(this.wsUser, this.wsPass);
-      
-      //set auth scope to null and negative so it applies to all hosts and ports
-      httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
-      
-    }
-    return httpClient;
-  }
-
-  /**
-   * @param url is the url to use
-   * @param suffix e.g. groups/aStem:aGroup/members
-   * @param clientVersion
-   * @return the method
-   */
-  private PostMethod postMethod(String url, String suffix, String clientVersion) {
-    
-    url = GrouperClientUtils.stripEnd(url, "/");
-    
-    // grouperClient.webService.client.version = v2_5_000
-    String webServiceVersion = GrouperClientUtils.grouperClientVersion();
-        
-    if (!GrouperClientUtils.isBlank(clientVersion)) {
-      webServiceVersion = clientVersion;
-    }
-    
-    webServiceVersion = GrouperClientUtils.stripStart(webServiceVersion, "/");
-    webServiceVersion = GrouperClientUtils.stripEnd(webServiceVersion, "/");
-
-    url = url + "/" + webServiceVersion + "/" + suffix;
-
-    {
-      String debugMessage = "WebService: connecting to URL: '" + url + "'";
-      LOG.debug(debugMessage);
-      
-      if (GrouperClientLog.debugToConsoleByFlag()) {
-        System.err.println(debugMessage);
-      }
-
-    }
-    
-    //URL e.g. http://localhost:8093/grouper-ws/servicesRest/v1_3_000/...
-    //NOTE: aStem:aGroup urlencoded substitutes %3A for a colon
-    PostMethod postMethod = new PostMethod(url);
-
-    //no keep alive so response is easier to indent for tests
-    postMethod.setRequestHeader("Connection", "close");
-    
-    return postMethod;
-  }
-
-  /**
-   * @param url to use
-   * @param theXstream
-   * @param urlSuffix to put on end of base url, e.g. groups/aStem:aGroup/members
-   * @param objectToMarshall is the bean to convert to XML, or it could be a string of xml
-   * @param logFile if not null, log the contents of the request there
-   * @param responseCode array of size one to get the response code back
-   * @param clientVersion 
-   * @return the post method
-   * @throws UnsupportedEncodingException 
-   * @throws HttpException 
-   * @throws IOException 
-   */
-  private PostMethod postMethod(String url, 
-      String urlSuffix, Object objectToMarshall, File logFile, int[] responseCode, String clientVersion, String contentType)  {
-    
-    try {
-      String theContentType = GrouperClientUtils.defaultIfBlank(contentType, "application/json");
-      
-      HttpClient httpClient = httpClient();
-  
-      PostMethod postMethod = postMethod(url, urlSuffix, clientVersion);
-  
-      String requestDocument = objectToMarshall instanceof String ? (String)objectToMarshall : marshalObject(objectToMarshall);
-      
-      postMethod.setRequestEntity(new StringRequestEntity(requestDocument, theContentType, "UTF-8"));
-      
-      Map<String, String> requestHeaders = new LinkedHashMap<String, String>();
-
-      GrouperClientState grouperClientState = GrouperClientState.retrieveGrouperClientState(false);
-      
-      if (grouperClientState != null) {
-        if (!StringUtils.isBlank(grouperClientState.getXcorrelationId())) {
-          postMethod.addRequestHeader("X-Correlation-Id", grouperClientState.getXcorrelationId());
-        }
-        if (!StringUtils.isBlank(grouperClientState.getXrequestId())) {
-          postMethod.addRequestHeader("X-Request-Id", grouperClientState.getXrequestId());
-        }
-        
-        if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSourceId())) {
-          
-          if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId()) 
-              && !StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
-            throw new RuntimeException("You can only have one of grouperActAsSubjectId or grouperActAsSubjectIdentifier set!");
-          }
-
-          if (StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId()) 
-              && StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
-            throw new RuntimeException("You must have one of grouperActAsSubjectId or grouperActAsSubjectIdentifier set if grouperActAsSourceId is set!");
-          }
-          
-          requestHeaders.put("X-Grouper-actAsSourceId", grouperClientState.getGrouperActAsSourceId());
-
-          if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId())) {
-            requestHeaders.put("X-Grouper-actAsSubjectId", grouperClientState.getGrouperActAsSubjectId());
-          } else if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
-            requestHeaders.put("X-Grouper-actAsSubjectIdentifier", grouperClientState.getGrouperActAsSubjectIdentifier());
-          }
-
-          
-        } else {
-          if (!StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectId()) 
-              || !StringUtils.isBlank(grouperClientState.getGrouperActAsSubjectIdentifier())) {
-            throw new RuntimeException("If grouperActAsSubjectId or grouperActAsSubjectIdentifier is set, then you must have a grouperActAsSourceId!");
-          }
-        }
-      }
-
-      for (String requestHeaderKey : requestHeaders.keySet()) {
-        postMethod.addRequestHeader(requestHeaderKey, new String(new Base64().encode(requestHeaders.get(requestHeaderKey).getBytes("UTF-8"))));
-      }
-
-      if (logFile != null || GrouperClientLog.debugToConsoleByFlag()) {
-        if (logFile != null) {
-          LOG.debug("WebService: logging request to: " + GrouperClientUtils.fileCanonicalPath(logFile));
-        }
-        String theRequestDocument = requestDocument;
-        Exception indentException = null;
-        boolean isIndent = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired("grouperClient.logging.webService.indent");
-        if (isIndent) {
-          try {
-            theRequestDocument = GrouperClientUtils.indent(theRequestDocument, true);
-          } catch (Exception e) {
-            indentException = e;
-          }
-        }
-  
-        StringBuilder headers = new StringBuilder();
-  //      POST /grouper-ws/servicesRest/v1_4_000/subjects HTTP/1.1
-  //      Connection: close
-  //      Authorization: Basic bWNoeXplcjpEaxxxxxxxxxx==
-  //      User-Agent: Jakarta Commons-HttpClient/3.1
-  //      Host: localhost:8090
-  //      Content-Length: 226
-  //      Content-Type: text/xml; charset=UTF-8
-        headers.append("POST ").append(postMethod.getURI().getPathQuery()).append(" HTTP/1.1\n");
-        headers.append("Connection: close\n");
-        headers.append("Authorization: Basic xxxxxxxxxxxxxxxx\n");
-        headers.append("User-Agent: Jakarta Commons-HttpClient/3.1\n");
-        headers.append("Host: ").append(postMethod.getURI().getHost()).append(":")
-          .append(postMethod.getURI().getPort()).append("\n");
-        headers.append("Content-Length: ").append(
-            postMethod.getRequestEntity().getContentLength()).append("\n");
-        headers.append("Content-Type: ").append(
-            postMethod.getRequestEntity().getContentType()).append("\n");
-        if (grouperClientState != null) {
-          if (!StringUtils.isBlank(grouperClientState.getXcorrelationId())) {
-            headers.append("X-Correlation-Id: ").append(grouperClientState.getXcorrelationId()).append("\n");
-          }
-          if (!StringUtils.isBlank(grouperClientState.getXrequestId())) {
-            headers.append("X-Request-Id: ").append(grouperClientState.getXrequestId()).append("\n");
-          }
-        }
-        for (String requestHeaderKey : requestHeaders.keySet()) {
-          headers.append(requestHeaderKey).append(": ").append(new String(new Base64().encode(requestHeaders.get(requestHeaderKey).getBytes("UTF-8")))).append("\n");
-        }
-
-        headers.append("\n");
-        
-        String theRequest = headers + theRequestDocument;
-        if (logFile != null) {
-          GrouperClientUtils.saveStringIntoFile(logFile, theRequest);
-        }
-        if (GrouperClientLog.debugToConsoleByFlag()) {
-          System.err.println("\n################ REQUEST START " + (isIndent ? "(indented) " : "") + "###############\n");
-          System.err.println(theRequest);
-          System.err.println("\n################ REQUEST END ###############\n\n");
-        }
-        if (indentException != null) {
-          throw new RuntimeException("Problems indenting json (is it valid?), turn off the indenting in the " +
-          		"grouper.client.properties: grouperClient.logging.webService.indent", indentException);
-        }
-      }
-      
-      mostRecentRequest = requestDocument;
-      
-      int responseCodeInt = httpClient.executeMethod(postMethod);
-  
-      if (responseCode != null && responseCode.length > 0) {
-        responseCode[0] = responseCodeInt;
-      }
-      
-      return postMethod;
-    } catch (Exception e) {
-      
-      if (e instanceof RuntimeException) {
-        throw (RuntimeException)e;
-      }
-      
-      throw new RuntimeException("Problem in url: " + url, e);
-    }
-  }
-  
   /**
    * endpoint to grouper WS, e.g. https://server.school.edu/grouper-ws/servicesRest
    * @param theWsEndpoint

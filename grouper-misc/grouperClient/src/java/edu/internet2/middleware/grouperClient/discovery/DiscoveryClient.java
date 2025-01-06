@@ -36,6 +36,14 @@ import java.util.TreeMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang3.StringUtils;
+import org.apache.commons.logging.Log;
+import org.apache.http.client.config.RequestConfig;
+import org.apache.http.client.methods.CloseableHttpResponse;
+import org.apache.http.client.methods.HttpGet;
+import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.impl.client.CloseableHttpClient;
+
 import edu.internet2.middleware.grouperClient.GrouperClient;
 import edu.internet2.middleware.grouperClient.failover.FailoverClient;
 import edu.internet2.middleware.grouperClient.failover.FailoverConfig;
@@ -47,17 +55,6 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.DefaultHttpMethodRetryHandler;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.params.DefaultHttpParams;
-import org.apache.commons.httpclient.params.HttpMethodParams;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
-import org.apache.commons.logging.Log;
 import edu.internet2.middleware.morphString.Crypto;
 
 
@@ -628,33 +625,32 @@ public class DiscoveryClient {
           logMap.put("fullUrl", fullUrl);
         }
 
+        // Get an http client.
+        CloseableHttpClient closeableHttpClient;
+        HttpRequestBase httpRequestBase = new HttpGet(url);
+        
         //see if invalid SSL
         String httpsSocketFactoryName = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.https.customSocketFactory");
         
-        //is there overhead here?  should only do this once?
         //perhaps give a custom factory
-        if (!GrouperClientUtils.isBlank(httpsSocketFactoryName)) {
-          Class<? extends SecureProtocolSocketFactory> httpsSocketFactoryClass = GrouperClientUtils.forName(httpsSocketFactoryName);
-          SecureProtocolSocketFactory httpsSocketFactoryInstance = GrouperClientUtils.newInstance(httpsSocketFactoryClass);
-          Protocol easyhttps = new Protocol("https", httpsSocketFactoryInstance, 443);
-          Protocol.registerProtocol("https", easyhttps);
+        if (StringUtils.equals(httpsSocketFactoryName, "edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory")) {
+          closeableHttpClient = GrouperClientUtils.httpTrustAllClient(true);
+        } else {
+          closeableHttpClient = GrouperClientUtils.httpClient(true);
         }
-
-        HttpClient httpClient = new HttpClient();
-
-        DefaultHttpParams.getDefaultParams().setParameter(
-            HttpMethodParams.RETRY_HANDLER, new DefaultHttpMethodRetryHandler(0, false));
 
         int soTimeoutMillis = GrouperClientConfig.retrieveConfig().propertyValueInt(
             "grouperClient.discovery.httpSocketTimeoutMillis", 90000);
 
-        httpClient.getParams().setSoTimeout(soTimeoutMillis);
-        httpClient.getParams().setParameter(HttpMethodParams.HEAD_BODY_CHECK_TIMEOUT, soTimeoutMillis);
-
         int connectionManagerMillis = GrouperClientConfig.retrieveConfig().propertyValueInt(
             "grouperClient.discovery.httpConnectionManagerTimeoutMillis", 90000);
 
-        httpClient.getParams().setConnectionManagerTimeout(connectionManagerMillis);
+        RequestConfig.Builder config = RequestConfig.custom()
+            .setConnectionRequestTimeout(connectionManagerMillis)
+            .setConnectTimeout(connectionManagerMillis)
+            .setSocketTimeout(soTimeoutMillis);
+          
+        httpRequestBase.setConfig(config.build());
 
         String user = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.discover.user");
         
@@ -663,9 +659,7 @@ public class DiscoveryClient {
         }
         
         if (!GrouperClientUtils.isBlank(user)) {
-        
-          httpClient.getParams().setAuthenticationPreemptive(true);
-  
+          
           boolean disableExternalFileLookup = GrouperClientConfig.retrieveConfig().propertyValueBooleanRequired(
               "encrypt.disableExternalFileLookup");
           
@@ -692,21 +686,17 @@ public class DiscoveryClient {
             }
           }
   
-          Credentials defaultcreds = new UsernamePasswordCredentials(user, pass);
-  
-          //set auth scope to null and negative so it applies to all hosts and ports
-          httpClient.getState().setCredentials(new AuthScope(null, -1), defaultcreds);
+          String authenticationString = GrouperClientUtils.httpBasicAuthenticationString(user, pass); 
+          httpRequestBase.addHeader("Authorization", authenticationString);
         }
 
-        GetMethod getMethod = new GetMethod(fullUrl);
-
-        getMethod.setRequestHeader("Connection", "close");
-        
         File file = discoveryLocalFileUnique(localFileName, true);
+        CloseableHttpResponse closeableHttpResponse = null;
         
         try {
 
-          int responseCodeInt = httpClient.executeMethod(getMethod);
+          closeableHttpResponse = closeableHttpClient.execute(httpRequestBase);
+          int responseCodeInt = closeableHttpResponse.getStatusLine().getStatusCode();
 
           if (responseCodeInt != 200) {
             throw new RuntimeException("Expected 200, but received response code: " + responseCodeInt);
@@ -717,7 +707,7 @@ public class DiscoveryClient {
             OutputStream outputStream = null;
             try {
 
-              inputStream = getMethod.getResponseBodyAsStream();
+              inputStream = closeableHttpResponse.getEntity().getContent();
               GrouperClientUtils.deleteFile(file);
 
               outputStream = new FileOutputStream(file);
@@ -743,6 +733,8 @@ public class DiscoveryClient {
 
           throw new RuntimeException("Problem with url: " + fullUrl + ", and local file: " + file.getAbsolutePath(), exception);
           
+        } finally {
+          GrouperClientUtils.httpCloseQuietly(closeableHttpClient, httpRequestBase, closeableHttpResponse, true);
         }
         
         return file;
