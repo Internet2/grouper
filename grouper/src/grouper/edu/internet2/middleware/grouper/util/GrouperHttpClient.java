@@ -25,7 +25,6 @@ import javax.net.ssl.SSLContext;
 import javax.net.ssl.SSLSession;
 
 import org.apache.commons.codec.binary.Base64;
-import org.apache.commons.httpclient.HttpMethod;
 import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -686,25 +685,6 @@ public class GrouperHttpClient {
   }
   
   
-  /**
-   * Get the body of the response as a string.
-   * @param httpMethod is the method.
-   * @return the string.
-   */
-  public static String responseBodyAsString(HttpMethod httpMethod){
-    String result =  null;
-    InputStream inputStream = null;
-    try{
-      inputStream = httpMethod.getResponseBodyAsStream();
-      result = IOUtils.toString(inputStream);
-    } catch (Exception e){
-      throw new RuntimeException(e);
-    } finally {
-      IOUtils.closeQuietly(inputStream);
-    }
-    return result;
-  }
-
   /**
    * Get the body of the response as a string.
    * @param closeableHttpResponse is the response.
