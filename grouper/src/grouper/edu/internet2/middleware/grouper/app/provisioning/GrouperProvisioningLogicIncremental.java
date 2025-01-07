@@ -1510,14 +1510,15 @@ public class GrouperProvisioningLogicIncremental {
     if (secondsToCheck > 0) {
       this.getGrouperProvisioner().getDebugMap().put("checkErrorsMinutes", GrouperUtil.intValue(secondsToCheck/60));
 
+    } else {
+      return;
     }
     
-    long millisToCheckFrom = gcGrouperSync.getLastFullSyncStart() == null ? -1 : gcGrouperSync.getLastFullSyncStart().getTime();
+    long millisToCheckFromJobLastRun = gcGrouperSync.getLastFullSyncStart() == null ? -1 : gcGrouperSync.getLastFullSyncStart().getTime();
 
-    if (secondsToCheck > 0) {
-      long newMillisToCheckFrom = GrouperUtil.longValue(System.currentTimeMillis() - (secondsToCheck * 1000));
-      millisToCheckFrom = Math.max(millisToCheckFrom, newMillisToCheckFrom);
-    }
+    long newMillisToCheckFromErrors = GrouperUtil.longValue(System.currentTimeMillis() - (secondsToCheck * 1000));
+    
+    long millisToCheckFrom = Math.max(millisToCheckFromJobLastRun, newMillisToCheckFromErrors);
   
     Set<String> groupIdsSet = null;
     {
