@@ -31,6 +31,8 @@ test.log
 src/grouper/SampleGrouperMain.java
 src/grouper/Test*
 src/grouper/Covid*.java
+src/grouper/Some*.java
+src/grouper/*Test.java
 felix-cache
 /confLocal/
 /trace.zip
