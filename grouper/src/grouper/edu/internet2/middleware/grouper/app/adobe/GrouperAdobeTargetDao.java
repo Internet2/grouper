@@ -692,11 +692,17 @@ public class GrouperAdobeTargetDao extends GrouperProvisionerTargetDaoBase {
       
       GrouperAdobeUser createdAdobeUser = GrouperAdobeApiCommands.createAdobeUser(adobeConfiguration.getAdobeExternalSystemConfigId(), grouperAdobeUser, userTypeOnCreate, orgId);
 
-      targetEntity.setId(createdAdobeUser.getId());
-      targetEntity.setProvisioned(true);
+      if (createdAdobeUser != null) {
+        targetEntity.setId(createdAdobeUser.getId());
+        targetEntity.setProvisioned(true);
+  
+        for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
+          provisioningObjectChange.setProvisioned(true);
+        }
+      } else {
+        
+        throw new RuntimeException("Cannot create entity!");
 
-      for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetEntity.getInternal_objectChanges())) {
-        provisioningObjectChange.setProvisioned(true);
       }
 
       return new TargetDaoInsertEntityResponse();
