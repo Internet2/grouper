@@ -802,6 +802,7 @@ public class GcGrouperSyncJob implements GcSqlAssignPrimaryKey, GcDbVersionable 
         this.setJobState(GcGrouperSyncJobState.running);
         this.setHeartbeat(new Timestamp(System.currentTimeMillis()));
         this.grouperSync.getGcGrouperSyncJobDao().internal_jobStore(this);
+        this.grouperSync.refreshLatestDataFromDb();
         return;
       }
   

@@ -200,28 +200,65 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   public GcGrouperSync clone() {
 
     GcGrouperSync gcGrouperSync = new GcGrouperSync();
-  //connectionName  DONT CLONE
+    //connectionName  DONT CLONE
 
-  //dbVersion  DONT CLONE
+    //dbVersion  DONT CLONE
 
-  gcGrouperSync.groupCount = this.groupCount;
-  gcGrouperSync.id = this.id;
-  gcGrouperSync.incrementalIndex = this.incrementalIndex;
-  gcGrouperSync.incrementalTimestamp = this.incrementalTimestamp;
-  gcGrouperSync.lastFullMetadataSyncRun = this.lastFullMetadataSyncRun;
-  gcGrouperSync.lastFullMetadataSyncStart = this.lastFullMetadataSyncStart;
-  gcGrouperSync.lastFullSyncRun = this.lastFullSyncRun;
-  gcGrouperSync.lastFullSyncStart = this.lastFullSyncStart;
-  gcGrouperSync.lastIncrementalSyncRun = this.lastIncrementalSyncRun;
-  //lastUpdated  DONT CLONE
-
-  gcGrouperSync.provisionerName = this.provisionerName;
-  gcGrouperSync.recordsCount = this.recordsCount;
-  gcGrouperSync.syncEngine = this.syncEngine;
-  gcGrouperSync.userCount = this.userCount;
+    gcGrouperSync.groupCount = this.groupCount;
+    gcGrouperSync.id = this.id;
+    gcGrouperSync.incrementalIndex = this.incrementalIndex;
+    gcGrouperSync.incrementalTimestamp = this.incrementalTimestamp;
+    gcGrouperSync.lastFullMetadataSyncRun = this.lastFullMetadataSyncRun;
+    gcGrouperSync.lastFullMetadataSyncStart = this.lastFullMetadataSyncStart;
+    gcGrouperSync.lastFullSyncRun = this.lastFullSyncRun;
+    gcGrouperSync.lastFullSyncStart = this.lastFullSyncStart;
+    gcGrouperSync.lastIncrementalSyncRun = this.lastIncrementalSyncRun;
+    //lastUpdated  DONT CLONE
+  
+    gcGrouperSync.provisionerName = this.provisionerName;
+    gcGrouperSync.recordsCount = this.recordsCount;
+    gcGrouperSync.syncEngine = this.syncEngine;
+    gcGrouperSync.userCount = this.userCount;
 
     return gcGrouperSync;
   }
+
+  /**
+   * get latest gcGrouperSyncInfo from db after waiting for other jobs which might have updated it in the meantime
+   */
+  public void refreshLatestDataFromDb() {
+
+    GcGrouperSync dbGrouperSync = GcGrouperSyncDao.retrieveByProvisionerName(this.provisionerName);
+    
+    if (dbGrouperSync != null) {
+      //connectionName  DONT CLONE
+
+      if (dbGrouperSync.dbVersion != null) {
+        this.dbVersion = dbGrouperSync.dbVersion;
+      }
+
+      this.groupCount = dbGrouperSync.groupCount;
+      
+      // this.id = this.id; DONT CLONE
+      
+      this.incrementalIndex = dbGrouperSync.incrementalIndex;
+      this.incrementalTimestamp = dbGrouperSync.incrementalTimestamp;
+      this.lastFullMetadataSyncRun = dbGrouperSync.lastFullMetadataSyncRun;
+      this.lastFullMetadataSyncStart = dbGrouperSync.lastFullMetadataSyncStart;
+      this.lastFullSyncRun = dbGrouperSync.lastFullSyncRun;
+      this.lastFullSyncStart = dbGrouperSync.lastFullSyncStart;
+      this.lastIncrementalSyncRun = dbGrouperSync.lastIncrementalSyncRun;
+      this.lastUpdated = dbGrouperSync.lastUpdated;
+    
+      // this.provisionerName = dbGrouperSync.provisionerName;
+      this.recordsCount = dbGrouperSync.recordsCount;
+      this.syncEngine = dbGrouperSync.syncEngine;
+      this.userCount = dbGrouperSync.userCount;
+  
+    }
+    
+  }
+
 
   /**
    *
