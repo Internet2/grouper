@@ -28,6 +28,7 @@ import java.util.Map;
 import java.util.Random;
 import java.util.Set;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 import org.hibernate.type.LongType;
 import org.hibernate.type.StringType;
@@ -216,9 +217,26 @@ public class GrouperDaemonSchedulerCheck extends OtherJobBase {
     // last checkin in last 50 seconds
     long lastCheckinTime = System.currentTimeMillis() - 50000;
     
-    List<Object[]> jobIdsNamesStartedTimes = new GcDbAccess().sql("select id, job_name, gll.started_time from grouper_loader_log gll where status in ('STARTED', 'RUNNING') and last_updated < ?")
+    List<Object[]> jobIdsNamesStartedTimes = new GcDbAccess().sql("select id, job_name, gll.started_time, gll.parent_job_name from grouper_loader_log gll where status in ('STARTED', 'RUNNING') and last_updated < ?")
         .addBindVar(new Timestamp(System.currentTimeMillis() - (60*1000L))).selectList(Object[].class);
 
+    Iterator<Object[]> jobIdsNamesStartedTimesIterator = GrouperUtil.nonNull(jobIdsNamesStartedTimes).iterator();
+
+    // if there is a parent then do not process this job
+    while(jobIdsNamesStartedTimesIterator.hasNext()) {
+      Object[] jobIdNameStartedTimeParentJobName = jobIdsNamesStartedTimesIterator.next();
+      String parentJobName = (String)jobIdNameStartedTimeParentJobName[3];
+      if (!StringUtils.isBlank(parentJobName)) {
+        // if it is super old then end it
+        Timestamp startedTime = (Timestamp)jobIdNameStartedTimeParentJobName[2];
+        
+        // if this hasnt been updated in 2 hours, then end it, otherwise, ignore
+        if (startedTime.getTime() > System.currentTimeMillis() - 1000L * 60 * 60 * 2) {
+          jobIdsNamesStartedTimesIterator.remove();
+        }
+      }
+    }
+    
     if (GrouperUtil.length(jobIdsNamesStartedTimes) == 0) {
       return;
     }

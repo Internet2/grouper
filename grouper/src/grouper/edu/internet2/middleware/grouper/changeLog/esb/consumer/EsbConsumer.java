@@ -350,23 +350,6 @@ public class EsbConsumer extends ChangeLogConsumerBase {
     return result;
   }
 
-  public Runnable provisioningHeartbeatLogic() {
-    return new Runnable() {
-
-      @Override
-      public void run() {
-        EsbConsumer.this.changeLogProcessorMetadata.getHib3GrouperLoaderLog().store();
-        
-        // periodically log
-        if (LOG.isDebugEnabled()) {
-          String debugMapToString = GrouperUtil.mapToString(debugMapOverall);
-          LOG.debug(debugMapToString);
-        }
-      }
-      
-    };
-  }
-
   /**
    * if we are debugging this consumer
    */
