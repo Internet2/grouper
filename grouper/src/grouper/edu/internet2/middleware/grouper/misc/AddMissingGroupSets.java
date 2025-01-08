@@ -49,8 +49,10 @@ import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.util.GrouperCallable;
@@ -730,7 +732,18 @@ public class AddMissingGroupSets {
     if (this.captureOutput) {
       this.output.append(string).append("\n");
     } else {
-      System.out.println(string);
+      
+      GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+      
+      GrouperEngineBuiltin grouperEngineBuiltin = grouperContext == null ? null : grouperContext.getGrouperEngine();
+      
+      boolean printed = grouperEngineBuiltin == GrouperEngineBuiltin.GSH;
+      if (printed) {
+        System.out.println(string);
+      } else {
+        LOG.info(string);
+      }
+            
     }
   }
   
