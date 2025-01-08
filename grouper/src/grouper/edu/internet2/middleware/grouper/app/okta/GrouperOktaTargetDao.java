@@ -268,21 +268,20 @@ public class GrouperOktaTargetDao extends GrouperProvisionerTargetDaoBase {
       GrouperOktaUser grouperOktaUser = null;
 
       String attributeValue = GrouperUtil.stringValue(targetDaoRetrieveEntityRequest.getSearchAttributeValue());
+      
       if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperOktaUser = GrouperOktaApiCommands.retrieveOktaUser(oktaConfiguration.getOktaExternalSystemConfigId(), 
             "id", attributeValue);
-      }
-      
-      if (StringUtils.equals("login", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
+      } else if (StringUtils.equals("login", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperOktaUser = GrouperOktaApiCommands.retrieveOktaUser(oktaConfiguration.getOktaExternalSystemConfigId(), 
             "profile.login", attributeValue);
-      }
-
-      if (StringUtils.isNotBlank(grouperTargetEntity.getId())) {
+      } else if (StringUtils.startsWith(targetDaoRetrieveEntityRequest.getSearchAttribute(), "profile.")) {
+        grouperOktaUser = GrouperOktaApiCommands.retrieveOktaUser(oktaConfiguration.getOktaExternalSystemConfigId(), 
+            targetDaoRetrieveEntityRequest.getSearchAttribute(), attributeValue);
+      } else if (StringUtils.isNotBlank(grouperTargetEntity.getId())) {
         grouperOktaUser = GrouperOktaApiCommands.retrieveOktaUser(
             oktaConfiguration.getOktaExternalSystemConfigId(), "id", grouperTargetEntity.getId());
       }
-
 
       ProvisioningEntity targetEntity = grouperOktaUser == null ? null: grouperOktaUser.toProvisioningEntity();
 

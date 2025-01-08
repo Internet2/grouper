@@ -282,13 +282,10 @@ public class GrouperGoogleTargetDao extends GrouperProvisionerTargetDaoBase {
       if (StringUtils.equals("id", targetDaoRetrieveEntityRequest.getSearchAttribute()) || StringUtils.equals("email", targetDaoRetrieveEntityRequest.getSearchAttribute())) {
         grouperGoogleUser = GrouperGoogleApiCommands.retrieveGoogleUser(googleConfiguration.getGoogleExternalSystemConfigId(), 
             attributeValue);
-      }
-
-      if (StringUtils.isNotBlank(grouperTargetEntity.getId())) {
+      } else if (StringUtils.isNotBlank(grouperTargetEntity.getId())) {
         grouperGoogleUser = GrouperGoogleApiCommands.retrieveGoogleUser(
             googleConfiguration.getGoogleExternalSystemConfigId(), grouperTargetEntity.getId());
       }
-
 
       ProvisioningEntity targetEntity = grouperGoogleUser == null ? null: grouperGoogleUser.toProvisioningEntity();
 

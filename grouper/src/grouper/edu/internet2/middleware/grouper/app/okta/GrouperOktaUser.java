@@ -1,11 +1,18 @@
 package edu.internet2.middleware.grouper.app.okta;
 
 import java.sql.Types;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Set;
+
+import org.apache.commons.lang3.StringUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfiguration;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -26,6 +33,8 @@ public class GrouperOktaUser {
   private String email;
  
   private String login;
+  
+  private Map<String, String> customAttributes = new HashMap<>();
    
 
   public String getFirstName() {
@@ -66,6 +75,20 @@ public class GrouperOktaUser {
   public void setLogin(String login) {
     this.login = login;
   }
+  
+  
+
+
+  public Map<String, String> getCustomAttributes() {
+    return customAttributes;
+  }
+
+
+  
+  public void setCustomAttributes(Map<String, String> customAttributes) {
+    this.customAttributes = customAttributes;
+  }
+
 
 /**
   * @param targetEntity
@@ -92,6 +115,25 @@ public class GrouperOktaUser {
      grouperOktaUser.setLogin(targetEntity.retrieveAttributeValueString("login"));
    }
    
+   // populate custom attributes when fieldNamesToSet.contains a field that begins with profile.
+   // or when fieldNamesToSet is null
+   // look at all the attribute names that user configured;
+   
+   if (fieldNamesToSet == null) {     
+     Map<String, GrouperProvisioningConfigurationAttribute> targetEntityAttributeNameToConfig = targetEntity.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetEntityAttributeNameToConfig();
+     for (String name: targetEntityAttributeNameToConfig.keySet()) {
+       if (StringUtils.startsWith(name, "profile.")) {         
+         grouperOktaUser.getCustomAttributes().put(name, targetEntity.retrieveAttributeValueString(name));
+       }
+     }
+   } else {
+     for (String name: fieldNamesToSet) {
+       if (StringUtils.startsWith(name, "profile.")) {         
+         grouperOktaUser.getCustomAttributes().put(name, targetEntity.retrieveAttributeValueString(name));
+       }
+     }
+   }
+   
    return grouperOktaUser;
 
  }
@@ -106,6 +148,15 @@ public class GrouperOktaUser {
    targetEntity.assignAttributeValue("login", this.login);
    targetEntity.setId(this.id);
    targetEntity.setEmail(this.email);
+   
+   if (this.customAttributes != null && this.customAttributes.size() > 0) {
+     
+     for (String name: customAttributes.keySet()) {
+       targetEntity.assignAttributeValue(name, customAttributes.get(name));
+     }
+     
+   }
+   
    return targetEntity;
  }
 
@@ -134,6 +185,23 @@ public class GrouperOktaUser {
    grouperOktaUser.login = GrouperUtil.jsonJacksonGetString(profileNode, "login");
    grouperOktaUser.email = GrouperUtil.jsonJacksonGetString(profileNode, "email");
    
+   GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveCurrentGrouperProvisioner();
+   if (grouperProvisioner != null) {
+     GrouperProvisioningConfiguration grouperProvisioningConfiguration = grouperProvisioner.retrieveGrouperProvisioningConfiguration();
+     Map<String,GrouperProvisioningConfigurationAttribute> targetEntityAttributeNameToConfig = grouperProvisioningConfiguration.getTargetEntityAttributeNameToConfig();
+     
+     for (String name: targetEntityAttributeNameToConfig.keySet()) {
+       if (StringUtils.startsWith(name, "profile.")) {
+         String attributeNameInJson = name.substring(name.indexOf(".")+1);
+         String customAttributeValue = GrouperUtil.jsonJacksonGetString(profileNode, attributeNameInJson);
+         grouperOktaUser.customAttributes.put(name, customAttributeValue);
+       }
+     }
+   }
+   
+   // give me all the okta configured provisioning attributes and if there are the matching ones between the json
+   // response and configured attribute, load them into the customAttributes map
+   
    return grouperOktaUser;
  }
  
@@ -142,29 +210,27 @@ public class GrouperOktaUser {
   * @param groupNode
   * @return the group
   */
- public ObjectNode toJson(Set<String> fieldNamesToSet) {
+ public ObjectNode toJson() {
    ObjectNode result = GrouperUtil.jsonJacksonNode();
    
    ObjectNode profileNode = GrouperUtil.jsonJacksonNode();
  
-   if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {  
-     GrouperUtil.jsonJacksonAssignString(result, "id", this.id);
-   }
+   GrouperUtil.jsonJacksonAssignString(result, "id", this.id);
    
-   if (fieldNamesToSet == null || fieldNamesToSet.contains("firstName")) {
-     GrouperUtil.jsonJacksonAssignString(profileNode, "firstName", this.firstName);
-   }
+   GrouperUtil.jsonJacksonAssignString(profileNode, "firstName", this.firstName);
 
-   if (fieldNamesToSet == null || fieldNamesToSet.contains("lastName")) {
-     GrouperUtil.jsonJacksonAssignString(profileNode, "lastName", this.lastName);
-   }
+   GrouperUtil.jsonJacksonAssignString(profileNode, "lastName", this.lastName);
    
-   if (fieldNamesToSet == null || fieldNamesToSet.contains("email")) {      
-     GrouperUtil.jsonJacksonAssignString(profileNode, "email", this.email);
-   }
+   GrouperUtil.jsonJacksonAssignString(profileNode, "email", this.email);
    
-   if (fieldNamesToSet == null || fieldNamesToSet.contains("login")) {      
-     GrouperUtil.jsonJacksonAssignString(profileNode, "login", this.login);
+   GrouperUtil.jsonJacksonAssignString(profileNode, "login", this.login);
+   
+   if (customAttributes != null && customAttributes.size() > 0) {
+     for (String attributeName: customAttributes.keySet()) {
+       // remove "profile." from the attribute name 
+       String fieldNameToSet = attributeName.substring(attributeName.indexOf(".")+1);
+       GrouperUtil.jsonJacksonAssignString(profileNode, fieldNameToSet, customAttributes.get(attributeName));
+     }
    }
    
    result.set("profile", profileNode);

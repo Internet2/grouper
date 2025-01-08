@@ -250,7 +250,7 @@ public class GrouperOktaApiCommands {
 
     try {
       
-      JsonNode jsonToSend = grouperOktaUser.toJson(null);
+      JsonNode jsonToSend = grouperOktaUser.toJson();
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "users",
@@ -413,13 +413,13 @@ public class GrouperOktaApiCommands {
         throw new RuntimeException("Cant update the id field: " + grouperOktaUser + ", " + GrouperUtil.setToString(fieldsToUpdate));
       }
       
-      JsonNode jsonToSend = grouperOktaUser.toJson(null);
+      JsonNode jsonToSend = grouperOktaUser.toJson();
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
 
       JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "users/"+id,
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
 
-      GrouperOktaUser grouperOktaUserResult = GrouperOktaUser.fromJson(jsonNode);
+      GrouperOktaUser grouperOktaUserResult = GrouperOktaUser.fromJson(jsonNode.get("data"));
 
       return grouperOktaUserResult;
     } catch (RuntimeException re) {
@@ -620,8 +620,8 @@ public class GrouperOktaApiCommands {
     long startTime = System.nanoTime();
 
     try {
-
-      String urlSuffix = "users?search="+fieldName+"+eq+%22"+fieldValue+"%22";
+      //TODO review commands classes and make sure we are url encoding field names and values like below
+      String urlSuffix = "users?search="+GrouperUtil.escapeUrlEncode(fieldName)+"+eq+%22"+GrouperUtil.escapeUrlEncode(fieldValue)+"%22";
       JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
       
       if (jsonNode == null || jsonNode.get("data") == null) {

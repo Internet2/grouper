@@ -464,7 +464,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     HibernateSession.byObjectStatic().save(grouperOktaUser);
     
-    JsonNode resultNode = grouperOktaUser.toJson(null);
+    JsonNode resultNode = grouperOktaUser.toJson();
 
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
@@ -507,7 +507,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     grouperOktaUser.setId(userId);
     HibernateSession.byObjectStatic().update(grouperOktaUser);
     
-    JsonNode resultNode = grouperOktaUser.toJson(null);
+    JsonNode resultNode = grouperOktaUser.toJson();
 
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
