@@ -244,7 +244,9 @@ public class UpgradeTasksJob extends OtherJobBase {
     
     for (Integer version = 1; version <= highestEnumVersion; version++) {
       
-      if (!sortedOldDbVersions.contains(version)) {
+      String enumName = "V" + version;
+      UpgradeTasks task = GrouperUtil.enumValueOfIgnoreCase(UpgradeTasks.class, enumName, false, false);
+      if (task != null && !sortedOldDbVersions.contains(version)) {
         return true;
       }
     }
