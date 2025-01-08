@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.google.GrouperGoogleLog;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.util.GrouperHttpClient;
 import edu.internet2.middleware.grouper.util.GrouperHttpThrottlingCallback;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -35,6 +36,17 @@ public class GrouperBoxApiCommands {
 
   public static void main(String[] args) {
 
+    GrouperStartup.startup();
+    
+    //329244249
+    //u_23558779858
+    
+    // Exception in thread "main" java.lang.RuntimeException: Error parsing response: '{"type":"error","status":404,"code":"not_found","help_url":"http:\/\/developers.box.com\/docs\/#errors","message":"Not Found","request_id":"owsm1mhxdgm1fwin"}'
+    // Exception in thread "main" java.lang.RuntimeException: Invalid return code '405', expecting: 200, 404, 429. 'https://api.box.com/2.0/users/jsmith?fields=name,id' {"type":"error","status":405,"code":"method_not_allowed","help_url":"http:\/\/developers.box.com\/docs\/#errors","message":"Method Not Allowed","request_id":"v0xrmnhxdgr6f647"}
+    // Exception in thread "main" java.lang.RuntimeException: Error parsing response: '{"type":"error","status":404,"code":"not_found","help_url":"http:\/\/developers.box.com\/docs\/#errors","message":"Not Found","request_id":"6lxfxhxdgspj0kq"}'
+    GrouperBoxUser grouperBoxUser = retrieveBoxUser("box", "u_23558779858", GrouperUtil.toSet("id", "name"));
+    System.out.println(grouperBoxUser);
+    
 //    BoxMockServiceHandler.dropBoxMockTables();
 //    BoxMockServiceHandler.ensureBoxMockTables();
     
@@ -45,13 +57,13 @@ public class GrouperBoxApiCommands {
 //        "grouper.boxConnector.box1.resourceEndpoint",
 //        "http://localhost/f3/graph.microsoft.com/v1.0/");
 
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-      "grouper.boxConnector.box1.loginEndpoint",
-      "http://localhost:8400/grouper/mockServices/box/auth");
-
-    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
-      "grouper.boxConnector.box1.resourceEndpoint",
-      "http://localhost:8400/grouper/mockServices/box");
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+//      "grouper.boxConnector.box1.loginEndpoint",
+//      "http://localhost:8400/grouper/mockServices/box/auth");
+//
+//    GrouperLoaderConfig.retrieveConfig().propertiesOverrideMap().put(
+//      "grouper.boxConnector.box1.resourceEndpoint",
+//      "http://localhost:8400/grouper/mockServices/box");
 
     //GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveProvisioner("BoxProvA");
     //GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.provision(GrouperProvisioningType.fullProvisionFull);
@@ -123,14 +135,14 @@ public class GrouperBoxApiCommands {
     
     //  deleteBoxMembership("box1", "dcba5d8d7986432db23a0342887e8fba", "b1dda78d8d42461a93f8b471f26b682e");
     
-    GrouperBoxGroup grouperBoxGroup = new GrouperBoxGroup();
-    grouperBoxGroup.setDescription("myDescription3");
+//    GrouperBoxGroup grouperBoxGroup = new GrouperBoxGroup();
+//    grouperBoxGroup.setDescription("myDescription3");
 //    grouperBoxGroup.setDisplayName("myDisplayName3");
 //    grouperBoxGroup.setMailNickname("myMailNick3");
 //    grouperBoxGroup.setGroupTypeUnified(true); 
     
-    Map<GrouperBoxGroup, Set<String>> map = new HashMap<>();
-    map.put(grouperBoxGroup, null);
+//    Map<GrouperBoxGroup, Set<String>> map = new HashMap<>();
+//    map.put(grouperBoxGroup, null);
 //    createBoxGroups("box1", map);
 
     //deleteBoxGroup("box1", "fa356bb8ddb14600be7994cd7b5239a7");
@@ -148,7 +160,7 @@ public class GrouperBoxApiCommands {
       String urlSuffix, int[] returnCode) {
 
     return executeMethod(debugMap, "GET", configId, urlSuffix,
-        GrouperUtil.toSet(200, 404, 429), returnCode, null);
+        GrouperUtil.toSet(200, 404, 405, 429), returnCode, null);
 
   }
 
@@ -266,7 +278,13 @@ public class GrouperBoxApiCommands {
       JsonNode rootNode = GrouperUtil.jsonJacksonNode(json);
       
       String type = GrouperUtil.jsonJacksonGetString(rootNode, "type");
-      if (StringUtils.equals(type, "error")) {
+      Integer status = null;
+      
+      if (rootNode.has("status")) {
+        status = GrouperUtil.jsonJacksonGetInteger(rootNode, "status");
+      }
+      
+      if (StringUtils.equals(type, "error") && (status == null || status.intValue() != returnCode[0])) {
         throw new RuntimeException(
             "Error, http response code: " + code
                 + ", url: '" + debugMap.get("url") + "', " + json);
