@@ -586,6 +586,7 @@ public class GrouperProvisioningLogicIncremental {
   public void incrementalCheckMessages() {
     
     int messageCountForProvisioner = 0;
+    int messagesSkippedDueToBeforeLastFullSync = 0;
     
     if (provisioningMessageQueueHasMessages(this.getGrouperProvisioner().getConfigId())) {
 
@@ -613,6 +614,13 @@ public class GrouperProvisioningLogicIncremental {
   
         ProvisioningMessage provisioningMessage = ProvisioningMessage.fromJson(messageBody);
   
+        // if the message is before when the last full sync started
+        if (gcGrouperSync.getLastFullSyncStart() != null && provisioningMessage.getMillisSince1970() < gcGrouperSync.getLastFullSyncStart().getTime()) {
+          messagesSkippedDueToBeforeLastFullSync++;
+          continue;
+        }
+
+        
         if (provisioningMessage.getFullSync() != null && provisioningMessage.getFullSync()) {
           boolean useThisFullSync = false;
           
@@ -670,7 +678,10 @@ public class GrouperProvisioningLogicIncremental {
 
       this.getGrouperProvisioner().getDebugMap().put("messageCountForProvisioner", messageCountForProvisioner);
     }
-  
+    
+    if (messagesSkippedDueToBeforeLastFullSync > 0) {
+      this.getGrouperProvisioner().getDebugMap().put("messagesSkippedDueToBeforeLastFullSync", messagesSkippedDueToBeforeLastFullSync);
+    }
     
   }
 
