@@ -593,9 +593,11 @@ public class GrouperProvisioningLogicIncremental {
       
       GcGrouperSync gcGrouperSync = this.getGrouperProvisioner().getGcGrouperSync();
       
+      GrouperProvisioningConfiguration grouperProvisioningConfiguration = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      
       GrouperMessageReceiveResult grouperMessageReceiveResult = GrouperMessagingEngine.receive(
           new GrouperMessageReceiveParam().assignGrouperMessageSystemName(GrouperBuiltinMessagingSystem.BUILTIN_NAME)
-            .assignQueueType(GrouperMessageQueueType.queue)
+            .assignQueueType(GrouperMessageQueueType.queue).assignMaxMessagesToReceiveAtOnce(grouperProvisioningConfiguration.getNumberOfMessagesToProcessEachIncremental())
             .assignQueueName("grouperProvisioningControl_" + gcGrouperSync.getProvisionerName()));
   
       // list of messages

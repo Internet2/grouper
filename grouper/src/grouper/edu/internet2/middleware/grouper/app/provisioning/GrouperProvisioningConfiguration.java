@@ -33,6 +33,32 @@ import edu.internet2.middleware.subject.provider.SourceManager;
 public abstract class GrouperProvisioningConfiguration {
   
   /**
+   * Number of messages (not change log) to process on each incremental run (in grouper_message table).  
+   * Note this cannot be larger than grouper.properties grouper.builtin.messaging.maxPageSize
+   */
+  private int numberOfMessagesToProcessEachIncremental = 5000;
+  
+
+  /**
+   * Number of messages (not change log) to process on each incremental run (in grouper_message table).  
+   * Note this cannot be larger than grouper.properties grouper.builtin.messaging.maxPageSize
+   * @return
+   */
+  public int getNumberOfMessagesToProcessEachIncremental() {
+    return numberOfMessagesToProcessEachIncremental;
+  }
+
+  /**
+   * Number of messages (not change log) to process on each incremental run (in grouper_message table).  
+   * Note this cannot be larger than grouper.properties grouper.builtin.messaging.maxPageSize
+   * @param numberOfMessagesToProcessEachIncremental
+   */
+  public void setNumberOfMessagesToProcessEachIncremental(
+      int numberOfMessagesToProcessEachIncremental) {
+    this.numberOfMessagesToProcessEachIncremental = numberOfMessagesToProcessEachIncremental;
+  }
+
+  /**
    * thread pool size
    */
   private int threadPoolSize = 5;
@@ -2450,7 +2476,9 @@ public abstract class GrouperProvisioningConfiguration {
     }
 
     this.sleepBeforeSelectAfterInsertMillis = GrouperUtil.intValue(this.retrieveConfigInt("sleepBeforeSelectAfterInsertMillis", false), 0);
-    
+
+    this.numberOfMessagesToProcessEachIncremental = GrouperUtil.intValue(this.retrieveConfigInt("numberOfMessagesToProcessEachIncremental", false), 5000);
+
     this.numberOfMetadata = GrouperUtil.intValue(this.retrieveConfigInt("numberOfMetadata", false), 0);
     
     for (int i=0;i<this.numberOfMetadata;i++) {

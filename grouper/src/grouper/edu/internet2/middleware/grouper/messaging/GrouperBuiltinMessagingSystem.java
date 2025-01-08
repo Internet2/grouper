@@ -1312,8 +1312,8 @@ public class GrouperBuiltinMessagingSystem implements GrouperMessagingSystem {
 
     Integer pageSize = grouperMessageReceiveParam.getMaxMessagesToReceiveAtOnce();
 
-    int defaultPageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.builtin.messaging.defaultPageSize", 5);
-    int maxPageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.builtin.messaging.maxPageSize", 50);
+    int defaultPageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.builtin.messaging.defaultPageSize", 10);
+    int maxPageSize = GrouperConfig.retrieveConfig().propertyValueInt("grouper.builtin.messaging.maxPageSize", 5000);
     
     if (pageSize == null) {
       pageSize = defaultPageSize;
