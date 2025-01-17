@@ -294,6 +294,34 @@ public class FieldFinder {
     }
     return null;
   } 
+  
+  /**
+   * Get the specified field by internal id
+   * @param internalId
+   * @param exceptionIfNull
+   * @return the field
+   */
+  public static Field findByInternalId(long internalId, boolean exceptionIfNull) {
+
+    Map<String, Field> theFieldCache = fieldCache();
+
+    for (Field field : theFieldCache.values()) {
+      if (field.getInternalId() == internalId) {
+        return field;
+      }
+    }
+    //update cache if not found
+    internal_updateKnownFields();
+    for (Field field : theFieldCache.values()) {
+      if (field.getInternalId() == internalId) {
+        return field;
+      }
+    }
+    if (exceptionIfNull) {
+      throw new RuntimeException("Cant find field with internal id: '" + internalId + "'");
+    }
+    return null;
+  } 
 
   /**
    * Find all fields.

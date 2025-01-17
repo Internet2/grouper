@@ -7,6 +7,8 @@ import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.commons.jexl3.JexlEngine;
 import org.apache.commons.jexl3.JexlExpression;
@@ -72,6 +74,7 @@ import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyType;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyTypeDao;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroup;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheGroupDao;
+import edu.internet2.middleware.grouper.sqlCache.SqlCacheHistoryFullSyncDaemon;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -85,6 +88,7 @@ import edu.internet2.middleware.subject.Subject;
  */
 @DisallowConcurrentExecution
 public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
+  private static final Pattern recentMemberOfTimePeriodPattern = Pattern.compile("^(\\d+)\\s*(days?|hours?)$", Pattern.CASE_INSENSITIVE);
 
   public static void main(String[] args) {
 
@@ -179,11 +183,59 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
   }
   
+  private static void addMembershipHistoryAbacDependencies(SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac, Collection<SqlCacheGroup> sqlCacheGroupsToCheck, Map<MultiKey, SqlCacheDependency> sqlCacheDependencies) {
+    for (SqlCacheGroup sqlCacheGroup : sqlCacheGroupsToCheck) {
+      MultiKey multiKey = new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId());
+      if (!sqlCacheDependencies.containsKey(multiKey)) {
+        // check if other history dependencies
+        List<Long> dependenciesFound = new GcDbAccess().sql("select gscdt.internal_id from grouper_sql_cache_dependency gscd, grouper_sql_cache_depend_type gscdt where gscd.dep_type_internal_id = gscdt.internal_id and gscdt.dependency_category='mshipHistory' and owner_internal_id = ?")
+            .addBindVar(sqlCacheGroup.getInternalId())
+            .selectList(Long.class);
+        
+        // add the dependency - check just in case something else added it in the meantime
+        if (!dependenciesFound.contains(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId())) {
+          SqlCacheDependency sqlCacheDependency = new SqlCacheDependency();
+          sqlCacheDependency.setDependencyTypeInternalId(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId());
+          sqlCacheDependency.setOwnerInternalId(sqlCacheGroup.getInternalId());
+          sqlCacheDependency.setDependentInternalId(sqlCacheGroup.getInternalId());
+          SqlCacheDependencyDao.store(sqlCacheDependency);
+          
+          sqlCacheDependencies.put(multiKey, sqlCacheDependency);
+        }
+        
+        if (dependenciesFound.size() == 0) {
+          // we need to add the history
+          SqlCacheHistoryFullSyncDaemon.syncMembershipHistory(sqlCacheGroup, null);
+        }
+      }
+    }
+  }
+  
   public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript, Subject subject, Subject loggedInSubject) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
     GrouperJexlScriptAnalysis grouperJexlScriptAnalysis = analyzeJexlScript(grouperDataEngine, jexlScript);
+    
+    if (grouperDataEngine.getRecentMemberOfGroupNames().size() > 0) {
+      Set<MultiKey> groupNamesAndFieldNames = new HashSet<>();
+      for (String groupName : grouperDataEngine.getRecentMemberOfGroupNames()) {
+        groupNamesAndFieldNames.add(new MultiKey(groupName, "members"));
+      }
+      
+      Collection<SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(groupNamesAndFieldNames).values();
+      
+      SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");
+      Set<MultiKey> ownerInternalIdsDependentInternalIds = new HashSet<>();
+      for (SqlCacheGroup sqlCacheGroup : sqlCacheGroups) {
+        ownerInternalIdsDependentInternalIds.add(new MultiKey(sqlCacheGroup.getInternalId(), sqlCacheGroup.getInternalId()));
+      }
+      
+      Map<MultiKey, SqlCacheDependency> sqlCacheDependencies = SqlCacheDependencyDao.retrieveByDepTypeInternalIdAndOwnerInternalIdsDependentInternalIds(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId(), ownerInternalIdsDependentInternalIds);
+      
+      // go through and see which ones don't have the mshipHistory_abac dependency
+      addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroups, sqlCacheDependencies);
+    }
     
     for (GrouperJexlScriptPart grouperJexlScriptPart : grouperJexlScriptAnalysis.getGrouperJexlScriptParts()) {
       
@@ -462,6 +514,22 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
       String groupName = astStringLiteral.getLiteral();
       analyzeJexlMemberOf(grouperJexlScriptPart, groupName);
+    } else if (StringUtils.equals("recentMemberOf", astIdentifierAccess.getName())) {
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Expecting method with exactly 2 arguments! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting first argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      if (!(astArguments.jjtGetChild(1) instanceof ASTStringLiteral)) {
+        throw new RuntimeException("Not expecting second argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+      String groupName = ((ASTStringLiteral)astArguments.jjtGetChild(0)).getLiteral();
+      String timePeriodString = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
+      
+      analyzeJexlRecentMemberOf(grouperJexlScriptPart, groupName, timePeriodString);
+      grouperJexlScriptAnalysis.getGrouperDataEngine().getRecentMemberOfGroupNames().add(groupName);
     } else if (StringUtils.equals("hasAttributeAny", astIdentifierAccess.getName())) {
       
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
@@ -777,6 +845,53 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
     grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisMemberOfGroup"))
       .append(" '").append(GrouperUtil.xmlEscape(groupName)).append("'");
+  }
+  
+  private static void analyzeJexlRecentMemberOf(GrouperJexlScriptPart grouperJexlScriptPart,
+      String groupName, String timePeriodString) {
+    
+    Matcher matcher = recentMemberOfTimePeriodPattern.matcher(timePeriodString);
+    if (!matcher.matches()) {
+      throw new RuntimeException("Invalid format for time period (expecting a number followed by hours or days), e.g. 2 days or 1 hour, but found: " + timePeriodString);
+    }
+    
+    int timePeriodNumber = Integer.parseInt(matcher.group(1));
+    String timePeriodHoursOrDaysString = matcher.group(2);
+    int timePeriodHours;
+    
+    if (timePeriodHoursOrDaysString.equalsIgnoreCase("day") || timePeriodHoursOrDaysString.equalsIgnoreCase("days")) {
+      timePeriodHours = timePeriodNumber * 24;
+    } else if (timePeriodHoursOrDaysString.equalsIgnoreCase("hour") || timePeriodHoursOrDaysString.equalsIgnoreCase("hours")) {
+      timePeriodHours = timePeriodNumber;
+    } else {
+      throw new RuntimeException("Unexpected: " + timePeriodString);
+    }
+    
+    if (timePeriodHours > 17520) {
+      throw new RuntimeException("Invalid time period.  Cannot be more than 2 years: " + timePeriodString);
+    }
+    
+    long timePeriodMicros = timePeriodHours * 60L * 60 * 1000 * 1000;
+    
+    grouperJexlScriptPart.getWhereClause().append("(");
+    
+    grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_sql_cache_mship_hst gscmh where gscmh.sql_cache_group_internal_id = ? "
+        + " and gscmh.end_time >= ? "
+        + " and gscmh.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+    grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
+    grouperJexlScriptPart.getArguments().add(new MultiKey("bindVar", (System.currentTimeMillis() * 1000L) - timePeriodMicros));
+    
+    grouperJexlScriptPart.getWhereClause().append("and not exists (select 1 from grouper_sql_cache_mship gscm where gscm.sql_cache_group_internal_id = ? "
+        + " and gscm.member_internal_id = gm.internal_id and gm.subject_source != 'g:gsa') ");
+    grouperJexlScriptPart.getArguments().add(new MultiKey("group", "members", groupName));
+    
+    grouperJexlScriptPart.getWhereClause().append(")");
+    
+    String analysisString = GrouperTextContainer.textOrNull("jexlAnalysisRecentMemberOfGroup")
+        .replace("##groupName##", GrouperUtil.xmlEscape(groupName))
+        .replace("##timePeriodString##", timePeriodString);
+
+    grouperJexlScriptPart.getDisplayDescription().append(analysisString);
   }
 
   /**
@@ -1180,10 +1295,6 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       
       debugMap.put("jexlScriptGroups", GrouperUtil.length(attributeAssigns));
 
-      if (GrouperUtil.length(attributeAssigns) == 0) {
-        return null;
-      }
-      
       List<SqlCacheDependencyType> sqlCacheDependencyTypes = SqlCacheDependencyTypeDao.retrieveByDependencyCategory("abac");
       Map<String, SqlCacheDependencyType> nameToSqlCacheDependencyType = new HashMap<String, SqlCacheDependencyType>();
       for (SqlCacheDependencyType sqlCacheDependencyType : sqlCacheDependencyTypes) {
@@ -1191,6 +1302,14 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       }
       
       SqlCacheDependencyType sqlCacheDependencyTypeAbacAttribute = nameToSqlCacheDependencyType.get("abac_attribute");
+      SqlCacheDependencyType sqlCacheDependencyTypeMshipHistoryAbac = SqlCacheDependencyTypeDao.retrieveByDependencyCategoryAndName("mshipHistory", "mshipHistory_abac");        
+      List<SqlCacheDependency> allMshipHistoryAbacSqlCacheDependencies = SqlCacheDependencyDao.retrieveByDependencyTypeInternalId(sqlCacheDependencyTypeMshipHistoryAbac.getInternalId());
+      Map<MultiKey, SqlCacheDependency> allMshipHistoryAbacSqlCacheDependenciesMap = new HashMap<>();
+      for (SqlCacheDependency sqlCacheDependency : allMshipHistoryAbacSqlCacheDependencies) {
+        allMshipHistoryAbacSqlCacheDependenciesMap.put(new MultiKey(sqlCacheDependency.getOwnerInternalId(), sqlCacheDependency.getDependentInternalId()), sqlCacheDependency);
+      }
+      
+      Set<Long> sqlCacheGroupInternalIdsStillNeedingMshipHistory = new HashSet<Long>();
       
       for (AttributeAssign attributeAssign : attributeAssigns) {
         GrouperDaemonUtils.stopProcessingIfJobPaused();
@@ -1217,6 +1336,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         
         Set<Long> attributeInternalIds = new HashSet<Long>();
         
+        Map<MultiKey, SqlCacheGroup> allSqlCacheGroupsForCurrentJexl = new HashMap<>();
+                
         // TODO put this in the analysis script so all the bind vars are right
         for (MultiKey argument : arguments) {
           String argumentString = (String)argument.getKey(0);
@@ -1228,6 +1349,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             String groupName = (String)argument.getKey(2);
             //TODO make this more efficient
             Map<MultiKey, SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName)));
+            allSqlCacheGroupsForCurrentJexl.putAll(sqlCacheGroups);
             // if group not found, consider it empty
             long sqlCacheGroupInternalId = -1;
             if (GrouperUtil.length(sqlCacheGroups) == 1) {
@@ -1334,11 +1456,35 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           
         }
         
+        // add mship history abac dependency before the query runs
+        if (grouperDataEngine.getRecentMemberOfGroupNames().size() > 0) {
+          Collection<SqlCacheGroup> sqlCacheGroupsToCheck = new HashSet<>();
+          for (MultiKey groupNameFieldName : allSqlCacheGroupsForCurrentJexl.keySet()) {
+            String groupName = (String)groupNameFieldName.getKey(0);
+            String fieldName = (String)groupNameFieldName.getKey(1);
+            
+            if (!"members".equals(fieldName)) {
+              throw new RuntimeException("Unexpected");
+            }
+            
+            if (grouperDataEngine.getRecentMemberOfGroupNames().contains(groupName)) {
+              SqlCacheGroup sqlCacheGroup = allSqlCacheGroupsForCurrentJexl.get(groupNameFieldName);
+              sqlCacheGroupsToCheck.add(sqlCacheGroup);
+              sqlCacheGroupInternalIdsStillNeedingMshipHistory.add(sqlCacheGroup.getInternalId());
+            }
+          }
+                  
+          // go through and see which ones don't have the mshipHistory_abac dependency
+          addMembershipHistoryAbacDependencies(sqlCacheDependencyTypeMshipHistoryAbac, sqlCacheGroupsToCheck, allMshipHistoryAbacSqlCacheDependenciesMap);
+          
+          grouperDataEngine.getRecentMemberOfGroupNames().clear();
+        }
+        
         String sql = "select id from grouper_members gm where " + whereClause;
 
 //        System.out.println(script);
 //        System.out.println(sql);
-        
+
         Set<String> memberIds = new HashSet<String>(gcDbAccess.sql(sql).selectList(String.class));
         
         Set<String> previousMemberIds = new HashSet<String>(new GcDbAccess().sql("select member_id from grouper_memberships gm "
@@ -1358,6 +1504,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           GrouperUtil.mapAddValue(debugMap, "errorsGroupNull", 1);
           continue;
         }
+
         for (String memberId : insertMemberIds) {
           try {
             group.addMember(MemberFinder.findByUuid(GrouperSession.staticGrouperSession(), memberId, true).getSubject(), false);
@@ -1386,9 +1533,20 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         otherJobInput.getHib3GrouperLoaderLog().addInsertCount(insertMemberIds.size());
         GrouperUtil.mapAddValue(debugMap, "deletes", deleteMemberIds.size());
         otherJobInput.getHib3GrouperLoaderLog().addDeleteCount(deleteMemberIds.size());
-
       }
-
+      
+      // delete mship history abac dependency (but don't bother deleting the mship history here)
+      for (MultiKey multiKey : allMshipHistoryAbacSqlCacheDependenciesMap.keySet()) {
+        Long sqlCacheGroupInternalId = (Long)multiKey.getKey(0);
+        if (!sqlCacheGroupInternalIdsStillNeedingMshipHistory.contains(sqlCacheGroupInternalId)) {
+          SqlCacheDependency sqlCacheDependency = allMshipHistoryAbacSqlCacheDependenciesMap.get(multiKey);
+          
+          // only delete if this was created more than 2 hours ago to avoid issues if this was just created while analyzing in the UI without saving yet
+          if ((System.currentTimeMillis() * 1000 - sqlCacheDependency.getCreatedOn()) > 7200000000L) {
+            SqlCacheDependencyDao.delete(sqlCacheDependency);
+          }
+        }
+      }
     } catch (RuntimeException re) {
       runtimeException = re;
       debugMap.put("exception", GrouperUtil.getFullStackTrace(re));

@@ -1,12 +1,17 @@
 package edu.internet2.middleware.grouper.sqlCache;
 
 import java.sql.Connection;
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * dao for sql cache dependencies
@@ -84,6 +89,56 @@ public class SqlCacheDependencyDao {
         .addBindVar(dependentInternalId)
         .select(SqlCacheDependency.class);
     return sqlCacheDependency;
+  }
+  
+  /**
+   * select cache dependencies by dependency type and multi key of owner and dependent internal ids
+   * @param depTypeInternalId
+   * @param ownerInternalIdsDependentInternalIds
+   * @return cache dependencies
+   */
+  public static Map<MultiKey, SqlCacheDependency> retrieveByDepTypeInternalIdAndOwnerInternalIdsDependentInternalIds(Long depTypeInternalId, Collection<MultiKey> ownerInternalIdsDependentInternalIds) {
+    
+    Map<MultiKey, SqlCacheDependency> result = new HashMap<>();
+
+    if (GrouperUtil.length(ownerInternalIdsDependentInternalIds) == 0) {
+      return result;
+    }
+
+    List<MultiKey> ownerInternalIdsDependentInternalIdsList = new ArrayList<>(ownerInternalIdsDependentInternalIds);
+    
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900) / 2;
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(ownerInternalIdsDependentInternalIdsList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<MultiKey> batchOfOwnerInternalIdsDependentInternalIdsList = GrouperClientUtils.batchList(ownerInternalIdsDependentInternalIdsList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select * from grouper_sql_cache_dependency where dep_type_internal_id = ? and (");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      gcDbAccess.addBindVar(depTypeInternalId);
+      
+      for (int i=0;i<batchOfOwnerInternalIdsDependentInternalIdsList.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" ( owner_internal_id = ? and dependent_internal_id = ? ) ");
+        MultiKey ownerInternalIdDependentInternalId = batchOfOwnerInternalIdsDependentInternalIdsList.get(i);
+        gcDbAccess.addBindVar(ownerInternalIdDependentInternalId.getKey(0));
+        gcDbAccess.addBindVar(ownerInternalIdDependentInternalId.getKey(1));
+      }
+      
+      sql.append(")");
+      
+      List<SqlCacheDependency> sqlCacheDependencies = gcDbAccess.sql(sql.toString()).selectList(SqlCacheDependency.class);
+      
+      for (SqlCacheDependency sqlCacheDependency : GrouperClientUtils.nonNull(sqlCacheDependencies)) {
+        result.put(new MultiKey(sqlCacheDependency.getOwnerInternalId(), sqlCacheDependency.getDependentInternalId()), sqlCacheDependency);
+      }
+      
+    }
+    return result;
   }
   
   /**
