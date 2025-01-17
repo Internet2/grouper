@@ -1190,7 +1190,7 @@ public class GrouperProvisioningGrouperDao {
       }
 
       // check if skipping unresolvable subjects
-      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && !targetEntity.getSubjectResolutionResolvable()) {
+      if (this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().isUnresolvableSubjectsRemove() && targetEntity.getSubjectResolutionResolvable() == Boolean.FALSE) {
         continue;
       }
 

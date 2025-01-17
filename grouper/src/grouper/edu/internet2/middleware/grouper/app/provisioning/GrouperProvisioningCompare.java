@@ -443,7 +443,7 @@ public class GrouperProvisioningCompare {
       
       ProvisioningEntity provisioningEntity = grouperProvisioningMembership.getProvisioningEntity();
       
-      if (provisioningEntity == null) {
+      if (provisioningEntity == null || provisioningEntity.getSubjectResolutionResolvable() == null) {
         return false;
       }
       
@@ -473,11 +473,9 @@ public class GrouperProvisioningCompare {
       
       ProvisioningEntity grouperProvisioningEntity = provisioningEntityWrapper.getGrouperProvisioningEntity();
       
-      if (grouperProvisioningEntity == null) {
-        return false;
+      if (grouperProvisioningEntity != null && grouperProvisioningEntity.getSubjectResolutionResolvable() != null) {
+        return !grouperProvisioningEntity.getSubjectResolutionResolvable();
       }
-      
-      return !grouperProvisioningEntity.getSubjectResolutionResolvable();
     }
 
     // group
@@ -500,7 +498,7 @@ public class GrouperProvisioningCompare {
     
     ProvisioningEntity provisioningEntity = provisioningMembership.getProvisioningEntity();
     
-    if (provisioningEntity == null) {
+    if (provisioningEntity == null || provisioningEntity.getSubjectResolutionResolvable() == null) {
       return false;
     }
     
