@@ -633,7 +633,25 @@ public class GuiRuleDefinition implements Serializable, Comparable {
   }
   
   public String convertPrivilegeToHtml(String privilegeName) {
-    return GrouperTextContainer.textOrNull("priv."+privilegeName);
+    
+    if (StringUtils.isBlank(privilegeName)) {
+      return "";
+    }
+    
+    String[] privNames = GrouperUtil.splitTrim(privilegeName, ",");
+    
+    StringBuilder result = new StringBuilder();
+    boolean isFirst = true;
+    for (String privName: privNames) {
+      if (!isFirst) {
+        result.append(", ");
+      }
+      result.append(GrouperTextContainer.textOrNull("priv."+privName));
+      isFirst = false;
+    }
+    
+    return result.toString();
+    
   }
   
   public String getResult() {
