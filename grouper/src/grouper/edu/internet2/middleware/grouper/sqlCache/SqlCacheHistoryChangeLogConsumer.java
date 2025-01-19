@@ -1,8 +1,6 @@
 package edu.internet2.middleware.grouper.sqlCache;
 
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.logging.Log;
@@ -22,7 +20,6 @@ import edu.internet2.middleware.grouper.esb.listener.EsbListenerBase;
 import edu.internet2.middleware.grouper.esb.listener.ProvisioningSyncConsumerResult;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITAttributeDef;
-import edu.internet2.middleware.grouper.pit.PITField;
 import edu.internet2.middleware.grouper.pit.PITGroup;
 import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -145,48 +142,7 @@ public class SqlCacheHistoryChangeLogConsumer extends EsbListenerBase {
       LOG.info("Added dependency for sqlCacheGroupInternalId=" + sqlCacheGroup.getInternalId());
       
       // sync the history
-      PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getId(), false);
-      if (pitField == null) {
-        // unexpected, just ignore
-        return;
-      }
-      
-      String pitOwnerId = null;
-      
-      if (field.isGroupAccessField() || field.getName().equals("members")) {
-        PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceInternalIdActive(groupInternalId, false);
-        if (pitGroup != null) {
-          pitOwnerId = pitGroup.getId();
-        }
-      } else if (field.isStemListField()) {
-        PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdIndexActive(groupInternalId, false);
-        if (pitStem != null) {
-          pitOwnerId = pitStem.getId();
-        }
-      } else if (field.isAttributeDefListField()) {
-        PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdIndexActive(groupInternalId, false);
-        if (pitAttributeDef != null) {
-          pitOwnerId = pitAttributeDef.getId();
-        }
-      }
-      
-      if (pitOwnerId == null) {
-        return;
-      }
-      
-      Map<String, Long> pitIdToMemberInternalId = new HashMap<>();
-        
-      List<Object[]> pitMembersData = new GcDbAccess().sql("select distinct gpm.id, gpm.source_internal_id from grouper_pit_members gpm, grouper_pit_group_set gpgs, grouper_pit_memberships gpms where gpms.owner_id = gpgs.member_id and gpms.field_id = gpgs.member_field_id and gpm.id = gpms.member_id and gpgs.owner_id=? and gpgs.field_id=? and gpm.active='T'")
-          .addBindVar(pitOwnerId)
-          .addBindVar(pitField.getId())
-          .selectList(Object[].class);
-      for (Object[] pitMemberData : pitMembersData) {
-        String pitId = (String)pitMemberData[0];
-        long sourceInternalId = GrouperUtil.longObjectValue(pitMemberData[1], false);
-        pitIdToMemberInternalId.put(pitId, sourceInternalId);
-      }
-      
-      SqlCacheHistoryFullSyncDaemon.syncMembershipHistoryIndividual(sqlCacheGroup.getInternalId(), groupInternalId, pitOwnerId, field, pitField.getId(), pitIdToMemberInternalId, hib3GrouperLoaderLog);
+      SqlCacheHistoryFullSyncDaemon.syncMembershipHistory(sqlCacheGroup, hib3GrouperLoaderLog);
     } else if (!isAssigned && sqlCacheDependency != null) {
       // need to delete the dependency
       new GcDbAccess().sql("delete from grouper_sql_cache_dependency where internal_id = ?").addBindVar(sqlCacheDependency.getInternalId()).executeSql();

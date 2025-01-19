@@ -65,6 +65,27 @@ public class SqlCacheDependency implements GcSqlAssignPrimaryKey, GcDbVersionabl
    * when this row was created in micros
    */
   private Long createdOn;
+  
+  /**
+   * when this row was created
+   * @return
+   */
+  public Long getCreatedOn() {
+    return createdOn;
+  }
+
+  /**
+   * when this row was created
+   * @param createdOn
+   */
+  public void setCreatedOn(Long createdOn) {
+    this.createdOn = createdOn;
+  }
+
+  public SqlCacheDependency getDbVersion() {
+    return this.dbVersion;
+  }
+  
   /**
    * version from db
    */

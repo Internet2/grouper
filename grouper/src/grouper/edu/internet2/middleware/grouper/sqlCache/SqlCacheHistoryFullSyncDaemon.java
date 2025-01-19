@@ -21,7 +21,10 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
+import edu.internet2.middleware.grouper.pit.PITAttributeDef;
 import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITGroup;
+import edu.internet2.middleware.grouper.pit.PITStem;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
@@ -152,6 +155,52 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
       
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
+  }
+  
+  public static void syncMembershipHistory(SqlCacheGroup sqlCacheGroup, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+    Field field = FieldFinder.findByInternalId(sqlCacheGroup.getFieldInternalId(), true);
+    PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getId(), false);
+    if (pitField == null) {
+      // unexpected, just ignore
+      return;
+    }
+    
+    String pitOwnerId = null;
+    
+    if (field.isGroupAccessField() || field.getName().equals("members")) {
+      PITGroup pitGroup = GrouperDAOFactory.getFactory().getPITGroup().findBySourceInternalIdActive(sqlCacheGroup.getGroupInternalId(), false);
+      if (pitGroup != null) {
+        pitOwnerId = pitGroup.getId();
+      }
+    } else if (field.isStemListField()) {
+      PITStem pitStem = GrouperDAOFactory.getFactory().getPITStem().findBySourceIdIndexActive(sqlCacheGroup.getGroupInternalId(), false);
+      if (pitStem != null) {
+        pitOwnerId = pitStem.getId();
+      }
+    } else if (field.isAttributeDefListField()) {
+      PITAttributeDef pitAttributeDef = GrouperDAOFactory.getFactory().getPITAttributeDef().findBySourceIdIndexActive(sqlCacheGroup.getGroupInternalId(), false);
+      if (pitAttributeDef != null) {
+        pitOwnerId = pitAttributeDef.getId();
+      }
+    }
+    
+    if (pitOwnerId == null) {
+      return;
+    }
+    
+    Map<String, Long> pitIdToMemberInternalId = new HashMap<>();
+      
+    List<Object[]> pitMembersData = new GcDbAccess().sql("select distinct gpm.id, gpm.source_internal_id from grouper_pit_members gpm, grouper_pit_group_set gpgs, grouper_pit_memberships gpms where gpms.owner_id = gpgs.member_id and gpms.field_id = gpgs.member_field_id and gpm.id = gpms.member_id and gpgs.owner_id=? and gpgs.field_id=? and gpm.active='T'")
+        .addBindVar(pitOwnerId)
+        .addBindVar(pitField.getId())
+        .selectList(Object[].class);
+    for (Object[] pitMemberData : pitMembersData) {
+      String pitId = (String)pitMemberData[0];
+      long sourceInternalId = GrouperUtil.longObjectValue(pitMemberData[1], false);
+      pitIdToMemberInternalId.put(pitId, sourceInternalId);
+    }
+    
+    SqlCacheHistoryFullSyncDaemon.syncMembershipHistoryIndividual(sqlCacheGroup.getInternalId(), sqlCacheGroup.getGroupInternalId(), pitOwnerId, field, pitField.getId(), pitIdToMemberInternalId, hib3GrouperLoaderLog);
   }
   
   public static void syncMembershipHistoryIndividual(long sqlCacheGroupInternalId, long ownerInternalId, String pitOwnerId, Field field, String pitFieldId, Map<String, Long> pitIdToMemberInternalId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
