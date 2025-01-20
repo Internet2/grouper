@@ -2701,15 +2701,16 @@ public enum RulePattern {
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
         
-        if (ruleDefinition != null && ruleDefinition.getThen() != null && StringUtils.isNotBlank(ruleDefinition.getThen().getThenEnumArg0())) {
-          String arg0 = ruleDefinition.getThen().getThenEnumArg0();
-          if (arg0.contains("::::::")) {
-            String[] subjectSourceAndIdentifier = GrouperUtil.splitTrim(arg0, "::::::");
-            attribute.setValue(subjectSourceAndIdentifier[0]);
-          } else if (arg0.contains("::::")) {
-            String[] subjectSourceAndIdentifier = GrouperUtil.splitTrim(arg0, "::::");
-            attribute.setValue(subjectSourceAndIdentifier[0]);
-          }
+        if (ruleDefinition != null && ruleDefinition.getIfCondition() != null && StringUtils.isNotBlank(ruleDefinition.getIfCondition().getIfConditionEnumArg0())) {
+          String arg0 = ruleDefinition.getIfCondition().getIfConditionEnumArg0();
+          attribute.setValue(arg0);
+//          if (arg0.contains("::::::")) {
+//            String[] subjectSourceAndIdentifier = GrouperUtil.splitTrim(arg0, "::::::");
+//            attribute.setValue(subjectSourceAndIdentifier[0]);
+//          } else if (arg0.contains("::::")) {
+//            String[] subjectSourceAndIdentifier = GrouperUtil.splitTrim(arg0, "::::");
+//            attribute.setValue(subjectSourceAndIdentifier[0]);
+//          }
         }
         
         elements.add(attribute);
@@ -2732,8 +2733,7 @@ public enum RulePattern {
     public boolean isThisThePattern(RuleDefinition ruleDefinition) {
       
       if (ruleDefinition.getCheck() != null && ruleDefinition.getCheck().checkTypeEnum() == RuleCheckType.membershipAdd &&
-          ruleDefinition.getIfCondition() != null && ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.subjectNotInSources &&
-          StringUtils.equals("g:gsa", ruleDefinition.getIfCondition().getIfConditionEnumArg0()) && 
+          ruleDefinition.getIfCondition() != null && ruleDefinition.getIfCondition().ifConditionEnum() == RuleIfConditionEnum.subjectNotInSources && 
           ruleDefinition.getThen() != null && ruleDefinition.getThen().thenEnum() == RuleThenEnum.veto) {
         return true;
       }
