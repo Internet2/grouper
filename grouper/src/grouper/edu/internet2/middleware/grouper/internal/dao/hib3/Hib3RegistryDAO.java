@@ -37,6 +37,7 @@ import edu.internet2.middleware.grouper.app.membershipRequire.GrouperMembershipR
 import edu.internet2.middleware.grouper.dataField.GrouperDataAliasDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataGlobalAssignDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowDao;
@@ -186,6 +187,7 @@ class Hib3RegistryDAO implements RegistryDAO {
             GrouperDataFieldAssignDao.reset();
             GrouperDataRowAssignDao.reset();
             GrouperDataAliasDao.reset();
+            GrouperDataGlobalAssignDao.reset();
             GrouperDataFieldDao.reset();
             GrouperDataRowDao.reset();
             GrouperDataProviderDao.reset();

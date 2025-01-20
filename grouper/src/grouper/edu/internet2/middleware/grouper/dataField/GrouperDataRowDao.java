@@ -1,9 +1,15 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -176,6 +182,100 @@ public class GrouperDataRowDao {
       }
     }
     return internalId;
+  }
+  
+  /**
+   * @param configIds
+   * @return
+   */
+  public static void insertMissingConfigIds(Set<String> configIds) {
+    if (CollectionUtils.isEmpty(configIds)) {
+      return;
+    }
+    
+    selectByTexts(configIds); // this will populate the cache
+    
+    List<GrouperDataRow> rowsToInsert = new ArrayList<>();
+    Set<String> configIdsToInsert = new HashSet<>();
+    
+    for (String configId: configIds) {
+      Long internalId = configIdToInternalIdCache().get(configId);
+      if (internalId == null) {
+        GrouperDataRow grouperDataRow = new GrouperDataRow();
+        grouperDataRow.setConfigId(configId);
+        grouperDataRow.storePrepare();
+        rowsToInsert.add(grouperDataRow);
+        configIdsToInsert.add(configId);
+      }
+    }
+    
+    if (rowsToInsert.size() == 0) {
+      return;
+    }
+    
+    // get ids in one fell swoop
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRow, rowsToInsert.size());
+    int i = 0;
+    for (GrouperDataRow grouperDataRow: rowsToInsert) {
+      grouperDataRow.setTempInternalIdOnDeck(ids.get(i));
+      i++;
+    }
+    
+    int storeBatchToDatabase = new GcDbAccess().retryBatchStoreFailures(true).storeBatchToDatabase(rowsToInsert, 1000);
+    if (storeBatchToDatabase != rowsToInsert.size()) {
+      GrouperUtil.sleep(400); // Maybe there are other transactions that are working on the same objects, let's wait for them to finish.
+      // Maybe they will insert the missing ones and then we can select 
+    }
+    selectByTexts(configIdsToInsert); // this is going to populate the cache
+
+  }
+  
+  public static Set<GrouperDataRow> selectByTexts(Set<String> configIds) {
+    if (configIds == null || configIds.size() == 0) {
+      return new HashSet<>();
+    }
+    
+    Set<GrouperDataRow> result = new HashSet<>();
+    
+    List<GrouperDataRow> grouperDataRows = new GcDbAccess().sql("select * from grouper_data_row ")
+        .selectMultipleColumnName("config_id")
+        .bindVars(new ArrayList<String>(configIds))
+        .selectList(GrouperDataRow.class);
+    
+    result.addAll(grouperDataRows);
+    
+    for (GrouperDataRow grouperDataRow: result) {
+      configIdToInternalIdCache().put(grouperDataRow.getConfigId(), grouperDataRow.getInternalId());
+      internalIdToConfigIdCache().put(grouperDataRow.getInternalId(), grouperDataRow.getConfigId());
+    }
+   
+    return result;
+  }
+  
+  public static void delete(List<GrouperDataRow> grouperDataRows) {
+    if (GrouperUtil.length(grouperDataRows) == 0) {
+      return;
+    }
+    
+    Set<Long> dataRowInternalIds = new HashSet<>();
+    
+    for (GrouperDataRow grouperDataRow: grouperDataRows) {
+      grouperDataRow.storePrepare();
+      dataRowInternalIds.add(grouperDataRow.getInternalId());
+    }
+    
+    List<GrouperDataAlias> aliases = GrouperDataAliasDao.selectByDataRowInternalIds(dataRowInternalIds);
+    GrouperDataAliasDao.delete(aliases);
+    
+    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
+    GrouperDataRowAssignDao.delete(dataRowAssigns);
+    
+    List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
+    
+    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataRows);
+    
+    //TODO remove all things from cache when they are deleted
   }
   
 

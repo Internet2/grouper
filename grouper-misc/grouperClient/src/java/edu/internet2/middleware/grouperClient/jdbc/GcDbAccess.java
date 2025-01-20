@@ -210,6 +210,11 @@ public class GcDbAccess {
    * The sql to execute.s
    */
   private String sql;
+  
+  /**
+   * if you want to select rows in a batch based on one column, this is the column name
+   */
+  private String selectMultipleColumnName;
 
   /**
    * table name if not from annotation
@@ -471,6 +476,16 @@ public class GcDbAccess {
    */
   public GcDbAccess sql(String _sql){
     this.sql = _sql;
+    return this;
+  }
+  
+  /**
+   * Set the selectMultipleColumnName to use.
+   * @param selectMultipleColumnName is the sql column 
+   * @return this.
+   */
+  public GcDbAccess selectMultipleColumnName(String selectMultipleColumnName){
+    this.selectMultipleColumnName = selectMultipleColumnName;
     return this;
   }
 
@@ -774,12 +789,135 @@ public class GcDbAccess {
     return results.get(o);
   }
 
-  public void deleteFromDatabaseMultiple(Collection<? extends Object> objects){
+  public void deleteFromDatabaseMultiple(Collection<? extends Object> objects) {
+    Map<Class<?>, List<Object>> typeToObjects = new HashMap<>();
     
-    for(Object o: GrouperClientUtils.nonNull(objects)) {      
-      deleteFromDatabase(o);
+    for(Object o: GrouperClientUtils.nonNull(objects)) {     
+      List<Object> listOfObjects = typeToObjects.get(o.getClass());
+      if (listOfObjects == null) {
+        listOfObjects = new ArrayList<Object>();
+        typeToObjects.put(o.getClass(), listOfObjects);
+      }
+      listOfObjects.add(o);
     }
+    
+    for (List<Object> listOfObjects: typeToObjects.values()) {
+      deleteFromDatabaseMultipleSameType(listOfObjects);
+    }
+    
   }
+  
+  private void deleteFromDatabaseMultipleSameType(Collection<? extends Object> objects) {
+    
+    if (GrouperClientUtils.nonNull(objects).size() == 0) {
+      return;
+    }
+    
+    ArrayList<? extends Object> objectsToBeDeleted = new ArrayList<>(objects);
+    
+    String primaryKeyColumnName = null;
+    List<String> primaryKeyColumnNames = new ArrayList<String>();
+    String tableName = null;
+    List<List<Object>> primaryKeys = new ArrayList<>();
+    List<List<Object>> compoundPrimaryKeysList = new ArrayList<>();
+    
+    Field primaryKeyField = null;
+    List<Field> compoundPrimaryKeys = null;
+    
+    for (Object objectToBeDeleted: objectsToBeDeleted) {
+      
+      tableName = tableName != null ? tableName : this.tableName(objectToBeDeleted.getClass()); // it should be the same for every object in the list
+      
+      primaryKeyField = primaryKeyField != null ? primaryKeyField : GcPersistableHelper.primaryKeyField(objectToBeDeleted.getClass());
+      compoundPrimaryKeys = compoundPrimaryKeys != null ? compoundPrimaryKeys : GcPersistableHelper.compoundPrimaryKeyFields(objectToBeDeleted.getClass());
+      
+      if (primaryKeyField == null && compoundPrimaryKeys.size() == 0) {
+        throw new RuntimeException("Cannot delete a row with no primary key or compound primary keys - use sql to delete the row instead of the method deleteFromDatabase().");
+      }
+      
+      if (primaryKeyField != null) {
+        primaryKeyColumnName = primaryKeyColumnName != null ? primaryKeyColumnName : GcPersistableHelper.columnName(primaryKeyField); // it should be the same for every object in the list
+        Object primaryKey = null;
+
+        try {
+          primaryKey = primaryKeyField.get(objectToBeDeleted);
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        } 
+
+        List<Object> primaryKeyList = new ArrayList<Object>();
+        primaryKeyList.add(primaryKey);
+        primaryKeys.add(primaryKeyList);
+        
+        
+      } else {
+        
+        if (primaryKeyColumnNames.size() == 0) {
+          for (Field compoundPrimaryKey : compoundPrimaryKeys){
+            primaryKeyColumnNames.add(GcPersistableHelper.columnName(compoundPrimaryKey));
+          }
+        }
+        
+        List<Object> primaryKeyValues = new ArrayList<Object>();
+
+        try {
+          for (Field compoundPrimaryKey : compoundPrimaryKeys){
+            Object primaryKeyValue = compoundPrimaryKey.get(objectToBeDeleted);
+            primaryKeyValues.add(primaryKeyValue);
+          }
+          
+        } catch (Exception e) {
+          throw new RuntimeException(e);
+        } 
+        
+        compoundPrimaryKeysList.add(primaryKeyValues);
+
+      }
+
+    }
+    
+    if (primaryKeys.size() > 0) {
+      
+      String sqlToUse = "delete from " + tableName + " where " + primaryKeyColumnName + " =  ? ";
+
+      this.sql(sqlToUse);
+      this.batchBindVars(primaryKeys);
+      this.executeBatchSql();
+
+      for (Object objectToBeDeleted: objectsToBeDeleted) {
+        if (objectToBeDeleted instanceof GcDbVersionable) {
+          ((GcDbVersionable)objectToBeDeleted).dbVersionDelete();
+        }
+      }
+    } else if (compoundPrimaryKeysList.size() > 0) {
+      
+      StringBuilder sqlToUse = new StringBuilder("delete from " + tableName + " where ");
+      
+      boolean isFirst = true;
+      
+      for (String primaryKeyColumn: primaryKeyColumnNames) {
+        if (!isFirst) {
+          sqlToUse.append(" and ");
+        }
+        sqlToUse.append(primaryKeyColumn).append(" = ? ");
+        isFirst = false;
+      }
+      
+      this.sql(sqlToUse.toString());
+      this.batchBindVars(compoundPrimaryKeysList);
+      this.executeBatchSql();
+
+      for (Object objectToBeDeleted: objectsToBeDeleted) {
+        if (objectToBeDeleted instanceof GcDbVersionable) {
+          ((GcDbVersionable)objectToBeDeleted).dbVersionDelete();
+        }
+      }
+      
+    }
+    
+    
+  }
+  
 
   /**
    * Delete the object from  the database if it has already been stored - the object should have appropriate annotations from the PersistableX annotations.
@@ -1888,7 +2026,7 @@ public class GcDbAccess {
 
     List<T> resultList = selectList(clazz, null);
 
-    if (!calledFromSelect){
+    if (!calledFromSelect) {
       // See if we are caching and store it in cache.
       if (this.cacheMinutes != null){
         this.populateQueryCache(clazz, resultList, true);
@@ -1898,7 +2036,54 @@ public class GcDbAccess {
     return resultList;
   }
 
-
+  /**
+   * pass in a query like select * from table and pass in the selectMultipleColumnName and batchBindVars of all the rows to retrieve
+   * @param <T>
+   * @param clazz
+   * @return
+   */
+  private <T> List<T> selectListByColumnName(Class<T> clazz) {
+    
+    List<T> result = new ArrayList<>();
+    
+    // one bind var in each record to retrieve
+    int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(GrouperClientUtils.length(bindVars), 1000, false);
+    
+    String selectMultipleColumnNameTemp = this.selectMultipleColumnName;
+    this.selectMultipleColumnName = null; // this will reset the selectMultipleColumnName so that selectList call below 
+    // don't call this method again. Otherwise it will go in endless recursive loop where selectListByColumnName calls selectList
+    // and selectList calls selectListByColumnName and so on
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<Object> batchOfBindVariables = GrouperClientUtils.batchList(bindVars, 1000, batchIndex);
+      boolean containsWhere = sql.toLowerCase().contains(" where ");
+      StringBuilder sqlBuilder = new StringBuilder(sql);
+      if (containsWhere) {
+        sqlBuilder.append(" and ( ");
+      } else {
+        sqlBuilder.append(" where ");
+      }
+      
+      GcDbAccess gcDbAccess = this.cloneDbAccess();
+      
+      for (int i=0; i<batchOfBindVariables.size(); i++) {
+        if (i>0) {
+          sqlBuilder.append(" or ");
+        }
+        sqlBuilder.append(selectMultipleColumnNameTemp).append(" = ? ");
+      }
+      
+      if (containsWhere) {
+        sqlBuilder.append(" and ) ");
+      }
+      
+      List<T> listOfRows = gcDbAccess.sql(sqlBuilder.toString()).bindVars(batchOfBindVariables)
+          .selectList(clazz);
+      result.addAll(listOfRows);
+    }
+    return result;
+  }
+  
   /**
    * Select something from the database - either set sql() before calling or primaryKey(...) 
    * @param <T> is the type of object that will be returned.
@@ -1915,6 +2100,10 @@ public class GcDbAccess {
       throw new RuntimeException("Set sql(), primaryKey(), or example() but not more than one! primaryKey() will formulate sql.");
     }
 
+    
+    if (GrouperClientUtils.isNotBlank(this.selectMultipleColumnName)) {
+      return selectListByColumnName(clazz);
+    }
 
     // Get a list of the columns that we are selecting.
     List<String> columnNamesList = new ArrayList<String>();
@@ -2982,7 +3171,7 @@ public class GcDbAccess {
    * @return the cached object if it exists or null.
    */
   private Object selectFromQueryCache(boolean isList, Class<?> clazz){
-    if (this.cacheMinutes == null){
+    if (this.cacheMinutes == null || !GrouperClientUtils.isBlank(this.selectMultipleColumnName)){
       return null;
     }
     MultiKey queryKey = queryCacheKey(isList, clazz);
@@ -3001,7 +3190,7 @@ public class GcDbAccess {
    * @param thingBeingCached is the object(s) being cached.
    */
   private void populateQueryCache(Class<?> clazz, Object thingBeingCached, boolean isList){
-    if (this.cacheMinutes == null){
+    if (this.cacheMinutes == null || !GrouperClientUtils.isBlank(this.selectMultipleColumnName)){
       return;
     }
     MultiKey queryKey = this.queryCacheKey(isList, clazz);

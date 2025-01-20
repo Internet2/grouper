@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -32,6 +33,31 @@ public class GrouperDataFieldAssignDao {
         .addBindVar(dataFieldInternalId)
         .selectList(GrouperDataFieldAssign.class);
 
+  }
+  
+  public static List<GrouperDataFieldAssign> selectByDataFieldInternalIds(Set<Long> dataFieldInternalIds) {
+    
+    if (dataFieldInternalIds == null || dataFieldInternalIds.size() == 0) {
+      return new ArrayList<>();
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_field_assign ")
+        .selectMultipleColumnName("data_field_internal_id")
+        .bindVars(new ArrayList<Long>(dataFieldInternalIds))
+        .selectList(GrouperDataFieldAssign.class);
+  }
+  
+ public static List<GrouperDataFieldAssign> selectByDataProviderInternalIds(Set<Long> dataProviderInternalIds) {
+    
+    if (dataProviderInternalIds == null || dataProviderInternalIds.size() == 0) {
+      return new ArrayList<>();
+      
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_field_assign ")
+        .selectMultipleColumnName("data_provider_internal_id")
+        .bindVars(new ArrayList<Long>(dataProviderInternalIds))
+        .selectList(GrouperDataFieldAssign.class);
   }
 
   /**
@@ -121,6 +147,13 @@ public class GrouperDataFieldAssignDao {
   public static void delete(GrouperDataFieldAssign grouperDataFieldAssign) {
     grouperDataFieldAssign.storePrepare();
     new GcDbAccess().deleteFromDatabase(grouperDataFieldAssign);
+  }
+  
+  public static void delete(Collection<GrouperDataFieldAssign> grouperDataFieldAssigns) {
+    for (GrouperDataFieldAssign grouperDataFieldAssign: grouperDataFieldAssigns) {      
+      grouperDataFieldAssign.storePrepare();
+    }
+    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataFieldAssigns);
   }
 
 

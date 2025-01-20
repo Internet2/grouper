@@ -6,6 +6,7 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Set;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
@@ -20,7 +21,6 @@ import edu.internet2.middleware.grouper.app.ldapProvisioning.ldapSyncDao.LdapSyn
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
-import edu.internet2.middleware.grouper.attr.assign.AttributeAssignResult;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignSave;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefNameFinder;
 import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
@@ -870,7 +870,108 @@ public class GrouperDataProviderTest extends GrouperTest {
       
       assertTrue(action, count > 0);
     }
-
+    
+    
+    Set<String> configIdsToInsert = GrouperUtil.toSet("configId1", "configId2");
+    GrouperDataFieldDao.insertMissingConfigIds(configIdsToInsert);
+    
+    Set<GrouperDataField> insertedGrouperDataFields = GrouperDataFieldDao.selectByTexts(configIdsToInsert);
+    
+    int i = 0;
+    for (GrouperDataField insertedGrouperDataField: insertedGrouperDataFields) {
+      List<List<Object>> batchBindVarsChangeLog = new ArrayList<List<Object>>();
+      batchBindVarsChangeLog.add(GrouperUtil.toList(1000 + i, insertedGrouperDataField.getInternalId(), insertedGrouperDataField.getConfigId() + "_name", 
+          insertedGrouperDataField.getConfigId() + "_lower_name", "F", new Date() ));  
+      new GcDbAccess().sql("insert into grouper_data_alias (internal_id, data_field_internal_id, name, lower_name, alias_type, created_on) "
+          + "values (?, ?, ?, ?, ?, ?)").batchBindVars(batchBindVarsChangeLog).executeBatchSql();
+      i++;
+    }
+    
+    i = 0;
+    
+    Long dataProviderInternalId = new GcDbAccess().sql("select internal_id from grouper_data_provider limit 1").select(long.class);
+    
+    for (GrouperDataField insertedGrouperDataField: insertedGrouperDataFields) {
+      GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
+      grouperDataFieldAssign.setDataFieldInternalId(insertedGrouperDataField.getInternalId());
+      grouperDataFieldAssign.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+      grouperDataFieldAssign.setDataProviderInternalId(dataProviderInternalId);
+      grouperDataFieldAssign.setInternalId(1000 + i);
+      Long memberInternalId = testGroup.getMembers().iterator().next().getInternalId();
+      grouperDataFieldAssign.setMemberInternalId(memberInternalId);
+      GrouperDataFieldAssignDao.store(grouperDataFieldAssign);
+      i++;
+    }
+    
+    for (GrouperDataField insertedGrouperDataField: insertedGrouperDataFields) {
+      GrouperDataGlobalAssign field = new GrouperDataGlobalAssign();
+      field.setDataFieldInternalId(insertedGrouperDataField.getInternalId());
+      field.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+      field.setValueInteger(123L);
+      field.setInternalId(1000 + i);
+      field.setDataProviderInternalId(dataProviderInternalId);
+      GrouperDataGlobalAssignDao.store(field);
+      i++;
+    }
+    
+    configIdsToInsert = GrouperUtil.toSet("rowConfigId1", "rowConfigId2");
+    GrouperDataRowDao.insertMissingConfigIds(configIdsToInsert);
+    
+    Set<GrouperDataRow> rowsInserted = GrouperDataRowDao.selectByTexts(configIdsToInsert);
+    
+    i = 0;
+    for (GrouperDataRow row: rowsInserted) {
+      GrouperDataAlias alias = new GrouperDataAlias();
+      alias.setAliasType("R");
+      alias.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+      alias.setDataRowInternalId(row.getInternalId());
+      alias.setLowerName("lower_name_"+i);
+      alias.setName("Name_"+i);
+      GrouperDataAliasDao.store(alias);
+      i++;
+    }
+    
+    for (GrouperDataRow row: rowsInserted) {
+      GrouperDataRowAssign rowAssign = new GrouperDataRowAssign();
+      rowAssign.setDataProviderInternalId(dataProviderInternalId);
+      rowAssign.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+      rowAssign.setDataRowInternalId(row.getInternalId());
+      Long memberInternalId = testGroup.getMembers().iterator().next().getInternalId();
+      rowAssign.setMemberInternalId(memberInternalId);
+      GrouperDataRowAssignDao.store(rowAssign);
+    }
+    
+    List<GrouperDataRowAssign> dataRowAssigns = 
+        GrouperDataRowAssignDao.selectByDataRowInternalId(rowsInserted.iterator().next().getInternalId());
+    
+    long dataFieldInternalId = insertedGrouperDataFields.iterator().next().getInternalId();
+    
+    GrouperDataRowFieldAssign rowFieldAssign = new GrouperDataRowFieldAssign();
+    rowFieldAssign.setDataFieldInternalId(insertedGrouperDataFields.iterator().next().getInternalId());
+    rowFieldAssign.setCreatedOn(new Timestamp(System.currentTimeMillis()));
+    rowFieldAssign.setDataRowAssignInternalId(dataRowAssigns.get(0).getInternalId());
+    GrouperDataRowFieldAssignDao.store(rowFieldAssign);
+    
+    if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
+      GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    } else {
+      GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+    }
+    
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field where config_id = 'configId1' or config_id = 'configId2' ").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row where config_id = 'rowConfigId1' or config_id = 'rowConfigId2' ").select(int.class).intValue());
+   
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_alias where name in ('configId2_name', 'configId1_name', 'Name_0', 'Name_1') ").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign where internal_id in (1000, 1001) ").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_field_assign where data_field_internal_id = "+dataFieldInternalId).select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_global_assign where data_field_internal_id = "+dataFieldInternalId).select(int.class).intValue());
+    
+    
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
+    
+  
   }
 
   /**

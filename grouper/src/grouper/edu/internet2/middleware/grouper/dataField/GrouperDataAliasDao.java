@@ -1,14 +1,21 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.util.ExpirableCache;
+import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 /**
  * dao for data aliases
@@ -38,6 +45,18 @@ public class GrouperDataAliasDao {
         .selectList(GrouperDataAlias.class);
 
   }
+    
+  public static List<GrouperDataAlias> selectByDataFieldInternalIds(Set<Long> dataFieldInternalIds) {
+    if (dataFieldInternalIds == null || dataFieldInternalIds.size() == 0) {
+      return new ArrayList<>();
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_alias ")
+        .selectMultipleColumnName("data_field_internal_id")
+        .bindVars(new ArrayList<Long>(dataFieldInternalIds))
+        .selectList(GrouperDataAlias.class);
+    
+  }
   
   public static List<GrouperDataAlias> selectByDataRowInternalId(long dataRowInternalId) {
     return new GcDbAccess().sql("select * from grouper_data_alias where data_row_internal_id = ?")
@@ -45,6 +64,18 @@ public class GrouperDataAliasDao {
         .selectList(GrouperDataAlias.class);
   }
 
+  public static List<GrouperDataAlias> selectByDataRowInternalIds(Set<Long> dataRowInternalIds) {
+    if (dataRowInternalIds == null || dataRowInternalIds.size() == 0) {
+      return new ArrayList<>();
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_alias ")
+        .selectMultipleColumnName("data_row_internal_id")
+        .bindVars(new ArrayList<Long>(dataRowInternalIds))
+        .selectList(GrouperDataAlias.class);
+    
+  }
+  
   /**
    * delete all data if table is here
    */
@@ -99,6 +130,28 @@ public class GrouperDataAliasDao {
     GrouperDataAlias grouperDataAlias = new GcDbAccess().sql("select * from grouper_data_alias where lower_name = ?")
         .addBindVar(StringUtils.lowerCase(name)).select(GrouperDataAlias.class);
     return grouperDataAlias;
+  }
+  
+  public static Set<GrouperDataAlias> selectByLowerNames(Set<String> lowerNames) {
+    if (lowerNames == null || lowerNames.size() == 0) {
+      return new HashSet<>();
+    }
+    
+    Set<GrouperDataAlias> result = new HashSet<>();
+    
+    List<GrouperDataAlias> grouperDataFields = new GcDbAccess().sql("select * from grouper_data_alias ")
+        .selectMultipleColumnName("lower_name")
+        .bindVars(new ArrayList<String>(lowerNames))
+        .selectList(GrouperDataAlias.class);
+    
+    result.addAll(grouperDataFields);
+    
+    for (GrouperDataAlias grouperDataAlias: result) {
+      lowerNameToInternalIdCache().put(grouperDataAlias.getLowerName(), grouperDataAlias.getInternalId());
+      internalIdToLowerNameCache().put(grouperDataAlias.getInternalId(), grouperDataAlias.getLowerName());
+    }
+   
+    return result;
   }
   
   /**
@@ -161,6 +214,65 @@ public class GrouperDataAliasDao {
    */
   public static Long findOrAddFieldAlias(Long dataFieldInternalId, String name) {
     return findOrAddHelper(dataFieldInternalId, null, name);
+  }
+  
+
+  /**
+   * @param names
+   * @return
+   */
+  public static void insertMissingAliases(Long dataFieldInternalId, Long dataRowInternalId, Set<String> names) {
+    
+    if (CollectionUtils.isEmpty(names)) {
+      return;
+    }
+    
+    Set<String> lowerNames = new HashSet<>();
+    for (String nameOne: names) {
+      String lowerName = StringUtils.lowerCase(nameOne);
+      lowerNames.add(lowerName);
+    }
+    selectByLowerNames(lowerNames); // this will populate the cache
+    
+    List<GrouperDataAlias> aliasToInsert = new ArrayList<>();
+    Set<String> namesToInsert = new HashSet<>();
+    
+    for (String name: names) {
+      Long internalId = lowerNameToInternalIdCache().get(name);
+      if (internalId == null) {
+        GrouperDataAlias grouperDataAlias = new GrouperDataAlias();
+        grouperDataAlias.setDataFieldInternalId(dataFieldInternalId);
+        grouperDataAlias.setDataRowInternalId(dataRowInternalId);
+        grouperDataAlias.setAliasType(dataFieldInternalId != null ? "F" : "R");
+        grouperDataAlias.setName(name);
+        String lowerName = StringUtils.lowerCase(name);
+        grouperDataAlias.setLowerName(lowerName);
+        grouperDataAlias.storePrepare();
+        aliasToInsert.add(grouperDataAlias);
+        namesToInsert.add(name);
+      }
+    }
+    
+    if (aliasToInsert.size() == 0) {
+      return;
+    }
+    
+    // get ids in one fell swoop
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataAlias, aliasToInsert.size());
+    int i = 0;
+    for (GrouperDataAlias grouperDataAlias: aliasToInsert) {
+      grouperDataAlias.setTempInternalIdOnDeck(ids.get(i));
+      i++;
+    }
+    
+    int storeBatchToDatabase = new GcDbAccess().retryBatchStoreFailures(true).storeBatchToDatabase(aliasToInsert, 1000);
+    if (storeBatchToDatabase != aliasToInsert.size()) {
+      GrouperUtil.sleep(400); // Maybe there are other transactions that are working on the same objects, let's wait for them to finish.
+      // Maybe they will insert the missing ones and then we can select 
+    }
+    
+    selectByLowerNames(lowerNames); // this is going to populate the cache
+
   }
 
   /**

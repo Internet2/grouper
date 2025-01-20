@@ -1,9 +1,15 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -76,6 +82,28 @@ public class GrouperDataProviderDao {
     return grouperDataLoaderConfig;
   }
   
+  public static Set<GrouperDataProvider> selectByTexts(Set<String> configIds) {
+    if (configIds == null || configIds.size() == 0) {
+      return new HashSet<>();
+    }
+    
+    Set<GrouperDataProvider> result = new HashSet<>();
+    
+    List<GrouperDataProvider> grouperDataFields = new GcDbAccess().sql("select * from grouper_data_provider ")
+        .selectMultipleColumnName("config_id")
+        .bindVars(new ArrayList<String>(configIds))
+        .selectList(GrouperDataProvider.class);
+    
+    result.addAll(grouperDataFields);
+    
+    for (GrouperDataProvider grouperDataProvider: result) {
+      configIdToInternalIdCache().put(grouperDataProvider.getConfigId(), grouperDataProvider.getInternalId());
+      internalIdToConfigIdCache().put(grouperDataProvider.getInternalId(), grouperDataProvider.getConfigId());
+    }
+   
+    return result;
+  }
+  
   /**
    * 
    * @param connectionName
@@ -99,6 +127,32 @@ public class GrouperDataProviderDao {
     }
     
     new GcDbAccess().deleteFromDatabase(grouperDataProvider);
+  }
+  
+  public static void delete(List<GrouperDataProvider> grouperDataProviders) {
+    if (GrouperUtil.length(grouperDataProviders) == 0) {
+      return;
+    }
+    
+    Set<Long> dataProviderInternalIds = new HashSet<>();
+    
+    for (GrouperDataProvider grouperDataProvider: grouperDataProviders) {
+      grouperDataProvider.storePrepare();
+      dataProviderInternalIds.add(grouperDataProvider.getInternalId());
+    }
+    
+    List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
+    GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
+    
+    List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
+    GrouperDataFieldAssignDao.delete(dataFieldAssigns);
+    
+    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
+    GrouperDataRowAssignDao.delete(dataRowAssigns);
+    
+    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataProviders);
+    
+    //TODO remove all things from cache when they are deleted
   }
 
   /**
@@ -160,6 +214,52 @@ public class GrouperDataProviderDao {
       }
     }
     return internalId;
+  }
+  
+  /**
+   * @param configIds
+   * @return
+   */
+  public static void insertMissingConfigIds(Set<String> configIds) {
+    if (CollectionUtils.isEmpty(configIds)) {
+      return;
+    }
+    
+    selectByTexts(configIds); // this will populate the cache
+    
+    List<GrouperDataProvider> fieldsToInsert = new ArrayList<>();
+    Set<String> configIdsToInsert = new HashSet<>();
+    
+    for (String configId: configIds) {
+      Long internalId = configIdToInternalIdCache().get(configId);
+      if (internalId == null) {
+        GrouperDataProvider grouperDataProvider = new GrouperDataProvider();
+        grouperDataProvider.setConfigId(configId);
+        grouperDataProvider.storePrepare();
+        fieldsToInsert.add(grouperDataProvider);
+        configIdsToInsert.add(configId);
+      }
+    }
+    
+    if (fieldsToInsert.size() == 0) {
+      return;
+    }
+    
+    //get ids in one fell swoop
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataLoaderConfig, fieldsToInsert.size());
+    int i = 0;
+    for (GrouperDataProvider grouperDataProvider: fieldsToInsert) {
+      grouperDataProvider.setTempInternalIdOnDeck(ids.get(i));
+      i++;
+    }
+    
+    int storeBatchToDatabase = new GcDbAccess().retryBatchStoreFailures(true).storeBatchToDatabase(fieldsToInsert, 1000);
+    if (storeBatchToDatabase != fieldsToInsert.size()) {
+      GrouperUtil.sleep(400); // Maybe there are other transactions that are working on the same objects, let's wait for them to finish.
+      // Maybe they will insert the missing ones and then we can select 
+    }
+    selectByTexts(configIdsToInsert); // this is going to populate the cache
+
   }
   
   public static List<GrouperDataProvider> selectAll() {

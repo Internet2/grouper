@@ -1,10 +1,15 @@
 package edu.internet2.middleware.grouper.dataField;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
+import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -63,6 +68,7 @@ public class GrouperDataFieldDao {
         GrouperUtil.sleep(100 * (i+1));
         GrouperDataField grouperDataFieldNew = selectByText(grouperDataField.getConfigId());
         if (grouperDataFieldNew != null) {
+          grouperDataField.setInternalId(grouperDataFieldNew.getInternalId());
           return false;
         }
         if (i==4) {
@@ -80,35 +86,83 @@ public class GrouperDataFieldDao {
     }
     GrouperDataField grouperDataField = new GcDbAccess().sql("select * from grouper_data_field where config_id = ?")
         .addBindVar(configId).select(GrouperDataField.class);
+    
+    if (grouperDataField != null) {
+      configIdToInternalIdCache().put(configId, grouperDataField.getInternalId());
+      internalIdToConfigIdCache().put(grouperDataField.getInternalId(), configId);
+    }
     return grouperDataField;
+  }
+  
+  public static Set<GrouperDataField> selectByTexts(Set<String> configIds) {
+    if (configIds == null || configIds.size() == 0) {
+      return new HashSet<>();
+    }
+    
+    Set<GrouperDataField> result = new HashSet<>();
+    
+    List<GrouperDataField> grouperDataFields = new GcDbAccess().sql("select * from grouper_data_field ")
+        .selectMultipleColumnName("config_id")
+        .bindVars(new ArrayList<String>(configIds))
+        .selectList(GrouperDataField.class);
+    
+    result.addAll(grouperDataFields);
+    
+    for (GrouperDataField grouperDataField: result) {
+      configIdToInternalIdCache().put(grouperDataField.getConfigId(), grouperDataField.getInternalId());
+      internalIdToConfigIdCache().put(grouperDataField.getInternalId(), grouperDataField.getConfigId());
+    }
+   
+    return result;
+  }
+  
+  public static void delete(List<GrouperDataField> grouperDataFields) {
+    if (GrouperUtil.length(grouperDataFields) == 0) {
+      return;
+    }
+    
+    Set<Long> dataFieldInternalIds = new HashSet<>();
+    
+    for (GrouperDataField grouperDataField: grouperDataFields) {
+      grouperDataField.storePrepare();
+      dataFieldInternalIds.add(grouperDataField.getInternalId());
+    }
+    
+    List<GrouperDataAlias> aliases = GrouperDataAliasDao.selectByDataFieldInternalIds(dataFieldInternalIds);
+    GrouperDataAliasDao.delete(aliases);
+    
+    List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
+    GrouperDataFieldAssignDao.delete(dataFieldAssigns);
+    
+    List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
+    
+    List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
+    GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
+    
+    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataFields);
+    
+    //TODO remove all things from cache when they are deleted
   }
   
   /**
    * 
-   * @param connectionName
+   * @param grouperDataField
    */
   public static void delete(GrouperDataField grouperDataField) {
     grouperDataField.storePrepare();
     
     List<GrouperDataAlias> aliases = GrouperDataAliasDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
-    for (GrouperDataAlias grouperDataAlias: aliases) {      
-      GrouperDataAliasDao.delete(grouperDataAlias);
-    }
-    
+    GrouperDataAliasDao.delete(aliases);
+
     List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
-    for (GrouperDataFieldAssign grouperDataFieldAssign: dataFieldAssigns) {
-      GrouperDataFieldAssignDao.delete(grouperDataFieldAssign);
-    }
+    GrouperDataFieldAssignDao.delete(dataFieldAssigns);
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
-    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: dataRowFieldAssigns) {
-      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign);
-    }
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
     
     List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
-    for (GrouperDataGlobalAssign grouperDataRGlobalAssign: dataGlobalAssings) {
-      GrouperDataGlobalAssignDao.delete(grouperDataRGlobalAssign);
-    }
+    GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
     
     new GcDbAccess().deleteFromDatabase(grouperDataField);
   }
@@ -172,6 +226,52 @@ public class GrouperDataFieldDao {
       }
     }
     return internalId;
+  }
+  
+  /**
+   * @param configIds
+   * @return
+   */
+  public static void insertMissingConfigIds(Set<String> configIds) {
+    if (CollectionUtils.isEmpty(configIds)) {
+      return;
+    }
+    
+    selectByTexts(configIds); // this will populate the cache
+    
+    List<GrouperDataField> fieldsToInsert = new ArrayList<>();
+    Set<String> configIdsToInsert = new HashSet<>();
+    
+    for (String configId: configIds) {
+      Long internalId = configIdToInternalIdCache().get(configId);
+      if (internalId == null) {
+        GrouperDataField grouperDataField = new GrouperDataField();
+        grouperDataField.setConfigId(configId);
+        grouperDataField.storePrepare();
+        fieldsToInsert.add(grouperDataField);
+        configIdsToInsert.add(configId);
+      }
+    }
+    
+    if (fieldsToInsert.size() == 0) {
+      return;
+    }
+    
+    // get ids in one fell swoop
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataField, fieldsToInsert.size());
+    int i = 0;
+    for (GrouperDataField grouperDataField: fieldsToInsert) {
+      grouperDataField.setTempInternalIdOnDeck(ids.get(i));
+      i++;
+    }
+    
+    int storeBatchToDatabase = new GcDbAccess().retryBatchStoreFailures(true).storeBatchToDatabase(fieldsToInsert, 1000);
+    if (storeBatchToDatabase != fieldsToInsert.size()) {
+      GrouperUtil.sleep(400); // Maybe there are other transactions that are working on the same objects, let's wait for them to finish.
+      // Maybe they will insert the missing ones and then we can select 
+    }
+    selectByTexts(configIdsToInsert); // this is going to populate the cache
+
   }
 
   public static List<GrouperDataField> selectAll() {

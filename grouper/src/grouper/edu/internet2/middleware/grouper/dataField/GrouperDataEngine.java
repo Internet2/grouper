@@ -279,18 +279,19 @@ public class GrouperDataEngine {
     // additions
     Set<String> configIdsToInsert = new HashSet<String>(configIdsInConfig);
     configIdsToInsert.removeAll(configIdToGrouperDataFieldInDb.keySet());
-    for (String configIdToInsert : configIdsToInsert) {
-      GrouperDataFieldDao.findOrAdd(configIdToInsert);
-    }
+    GrouperDataFieldDao.insertMissingConfigIds(configIdsToInsert);
     
     // deletions
     Set<String> configIdsToDelete = new HashSet<String>(configIdToGrouperDataFieldInDb.keySet());
     configIdsToDelete.removeAll(configIdsInConfig);
+    
+    List<GrouperDataField> dataFieldsToDelete = new ArrayList<>();
+    
     for (String configIdToDelete : configIdsToDelete) {
       GrouperDataField grouperDataField = configIdToGrouperDataFieldInDb.get(configIdToDelete);
-      GrouperDataFieldDao.delete(grouperDataField);
+      dataFieldsToDelete.add(grouperDataField);
     }
-    
+    GrouperDataFieldDao.delete(dataFieldsToDelete);
   }
   
   /**
@@ -320,18 +321,18 @@ public class GrouperDataEngine {
     // additions
     Set<String> configIdsToInsert = new HashSet<String>(configIdsInConfig);
     configIdsToInsert.removeAll(configIdToGrouperDataRowInDb.keySet());
-    for (String configIdToInsert : configIdsToInsert) {
-      GrouperDataRowDao.findOrAdd(configIdToInsert);
-    }
+    GrouperDataRowDao.insertMissingConfigIds(configIdsToInsert);
     
     // deletions
     Set<String> configIdsToDelete = new HashSet<String>(configIdToGrouperDataRowInDb.keySet());
     configIdsToDelete.removeAll(configIdsInConfig);
+    
+    List<GrouperDataRow> dataRowsToDelete = new ArrayList<>();
     for (String configIdToDelete : configIdsToDelete) {
       GrouperDataRow grouperDataRow = configIdToGrouperDataRowInDb.get(configIdToDelete);
-      GrouperDataRowDao.delete(grouperDataRow);
+      dataRowsToDelete.add(grouperDataRow);
     }
-
+    GrouperDataRowDao.delete(dataRowsToDelete);
   }
   
   /**
@@ -463,19 +464,22 @@ public class GrouperDataEngine {
 
     // do deletes before inserts since a row delete might need to happen before a field add
     
+    List<GrouperDataAlias> grouperDataAliasesToDelete = new ArrayList<>();
+    
     // delete field aliases that shouldnt be there
     for (String configId : configIdToGrouperDataFieldAliasesInDb.keySet()) {
       
       Set<String> aliasesInDbToDelete = new HashSet<String>(configIdToGrouperDataFieldAliasesInDb.get(configId));
 
       aliasesInDbToDelete.removeAll(GrouperUtil.nonNull(dataFieldConfigIdToAliases.get(configId)));
-      
+
       for (String aliasInDbToDelete : aliasesInDbToDelete) {
         GrouperDataAlias grouperDataAlias = aliasNameToGrouperDataAliasInDb.get(aliasInDbToDelete);
-        GrouperDataAliasDao.delete(grouperDataAlias);
+        grouperDataAliasesToDelete.add(grouperDataAlias);
       }
+      
     }
-
+    
     // delete row aliases that shouldnt be there
     for (String configId : configIdToGrouperDataRowAliasesInDb.keySet()) {
       
@@ -485,9 +489,11 @@ public class GrouperDataEngine {
       
       for (String aliasInDbToDelete : aliasesInDbToDelete) {
         GrouperDataAlias grouperDataAlias = aliasNameToGrouperDataAliasInDb.get(aliasInDbToDelete);
-        GrouperDataAliasDao.delete(grouperDataAlias);
+        grouperDataAliasesToDelete.add(grouperDataAlias);
       }
     }
+    
+    GrouperDataAliasDao.delete(grouperDataAliasesToDelete);
 
     // add field aliases that should be there
     for (String configId : dataFieldConfigIdToAliases.keySet()) {
@@ -497,10 +503,7 @@ public class GrouperDataEngine {
       aliasesToAdd.removeAll(GrouperUtil.nonNull(configIdToGrouperDataFieldAliasesInDb.get(configId)));
       
       GrouperDataField grouperDataField = configIdToGrouperDataFieldInDb.get(configId);
-      
-      for (String aliasToAdd : aliasesToAdd) {
-        GrouperDataAliasDao.findOrAddFieldAlias(grouperDataField.getInternalId(), aliasToAdd);
-      }
+      GrouperDataAliasDao.insertMissingAliases(grouperDataField.getInternalId(), null, aliasesToAdd);
     }
     
     // add row aliases that should be there
@@ -512,9 +515,7 @@ public class GrouperDataEngine {
       
       GrouperDataRow grouperDataRow = configIdToGrouperDataRowInDb.get(configId);
       
-      for (String aliasToAdd : aliasesToAdd) {
-        GrouperDataAliasDao.findOrAddRowAlias(grouperDataRow.getInternalId(), aliasToAdd);
-      }
+      GrouperDataAliasDao.insertMissingAliases(null, grouperDataRow.getInternalId(), aliasesToAdd);
     }
     
   }
@@ -545,17 +546,19 @@ public class GrouperDataEngine {
     // additions
     Set<String> configIdsToInsert = new HashSet<String>(configIdsInConfig);
     configIdsToInsert.removeAll(configIdToGrouperDataProviderInDb.keySet());
-    for (String configIdToInsert : configIdsToInsert) {
-      GrouperDataProviderDao.findOrAdd(configIdToInsert);
-    }
+    GrouperDataProviderDao.insertMissingConfigIds(configIdsToInsert);
     
     // deletions
     Set<String> configIdsToDelete = new HashSet<String>(configIdToGrouperDataProviderInDb.keySet());
     configIdsToDelete.removeAll(configIdsInConfig);
+    
+    List<GrouperDataProvider> grouperDataProvidersToDelete = new ArrayList<>();
+    
     for (String configIdToDelete : configIdsToDelete) {
       GrouperDataProvider grouperDataProvider = configIdToGrouperDataProviderInDb.get(configIdToDelete);
-      GrouperDataProviderDao.delete(grouperDataProvider);
+      grouperDataProvidersToDelete.add(grouperDataProvider);
     }
+    GrouperDataProviderDao.delete(grouperDataProvidersToDelete);
     
   }
 

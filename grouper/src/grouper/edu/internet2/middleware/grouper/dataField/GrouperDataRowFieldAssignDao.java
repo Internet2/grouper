@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
@@ -77,11 +78,35 @@ public class GrouperDataRowFieldAssignDao {
 
   }
   
+  public static List<GrouperDataRowFieldAssign> selectByDataFieldInternalIds(Set<Long> dataFieldInternalIds) {
+    
+    if (dataFieldInternalIds == null || dataFieldInternalIds.size() == 0) {
+      return new ArrayList<>();
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_row_field_assign ")
+        .selectMultipleColumnName("data_field_internal_id")
+        .bindVars(new ArrayList<Long>(dataFieldInternalIds))
+        .selectList(GrouperDataRowFieldAssign.class);
+  }
+  
   public static List<GrouperDataRowFieldAssign> selectByDataRowInternalId(long dataRowInternalId) {
     return new GcDbAccess().sql("select gdrfa.* from grouper_data_row_field_assign gdrfa join grouper_data_row_assign gdra on gdrfa.data_row_assign_internal_id = gdra.internal_id where gdra.data_row_internal_id = ?")
         .addBindVar(dataRowInternalId)
         .selectList(GrouperDataRowFieldAssign.class);
 
+  }
+  
+  public static List<GrouperDataRowFieldAssign> selectByDataRowInternalIds(Set<Long> dataRowInternalIds) {
+    if (dataRowInternalIds == null || dataRowInternalIds.size() == 0) {
+      return new ArrayList<>();
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_row_field_assign gdrfa join grouper_data_row_assign gdra on gdrfa.data_row_assign_internal_id = gdra.internal_id ")
+        .selectMultipleColumnName("gdra.data_row_internal_id")
+        .bindVars(new ArrayList<Long>(dataRowInternalIds))
+        .selectList(GrouperDataRowFieldAssign.class);
+    
   }
   
   /**
@@ -125,11 +150,18 @@ public class GrouperDataRowFieldAssignDao {
   
   /**
    * 
-   * @param connectionName
+   * @param grouperDataRowFieldAssign
    */
   public static void delete(GrouperDataRowFieldAssign grouperDataRowFieldAssign) {
     grouperDataRowFieldAssign.storePrepare();
     new GcDbAccess().deleteFromDatabase(grouperDataRowFieldAssign);
+  }
+  
+  public static void delete(Collection<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns) {
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: grouperDataRowFieldAssigns) {      
+      grouperDataRowFieldAssign.storePrepare();
+    }
+    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataRowFieldAssigns);
   }
 
 
