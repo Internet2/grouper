@@ -2253,7 +2253,7 @@ public class UiV2Attestation {
       try {
         grouperSession = GrouperSession.start(loggedInSubject);
 
-        Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+        Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true, true).getStem();
         
         if (stem == null) {
           return;
@@ -2310,7 +2310,7 @@ public class UiV2Attestation {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true, true).getStem();
       
       if (stem == null) {
         return;

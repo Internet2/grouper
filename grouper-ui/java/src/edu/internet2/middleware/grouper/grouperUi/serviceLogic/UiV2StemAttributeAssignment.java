@@ -54,7 +54,7 @@ public class UiV2StemAttributeAssignment {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      final Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true, true).getStem();
       
       if (stem == null) {
         return;
@@ -121,7 +121,7 @@ public class UiV2StemAttributeAssignment {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, true).getStem();
+      final Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false, true).getStem();
       
       if (stem == null) {
         return;
@@ -152,7 +152,7 @@ public class UiV2StemAttributeAssignment {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      final Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      final Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true, true).getStem();
       
       final String attributeDefNameId = request.getParameter("attributeDefNameComboName");
       
@@ -284,7 +284,7 @@ public class UiV2StemAttributeAssignment {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
       
-      Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      Stem stem = UiV2Stem.retrieveStemHelper(request, false, false, true, true).getStem();
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
 
@@ -397,7 +397,7 @@ public class UiV2StemAttributeAssignment {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      Stem stem = UiV2Stem.retrieveStemHelper(httpServletRequest, false, false, true).getStem();
+      Stem stem = UiV2Stem.retrieveStemHelper(httpServletRequest, false, false, true, true).getStem();
 
       String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
       
@@ -600,7 +600,7 @@ public class UiV2StemAttributeAssignment {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      Stem stem = UiV2Stem.retrieveStemHelper(httpServletRequest, false, false, true).getStem();
+      Stem stem = UiV2Stem.retrieveStemHelper(httpServletRequest, false, false, true, true).getStem();
 
       String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
       
@@ -889,7 +889,7 @@ public class UiV2StemAttributeAssignment {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      Stem stem = UiV2Stem.retrieveStemHelper(httpServletRequest, false, false, true).getStem();
+      Stem stem = UiV2Stem.retrieveStemHelper(httpServletRequest, false, false, true, true).getStem();
 
       String attributeAssignId = httpServletRequest.getParameter("attributeAssignId");
       

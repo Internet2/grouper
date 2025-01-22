@@ -1012,7 +1012,7 @@ public class UiV2AttributeDef {
         
       }
       
-      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      UiV2Stem.retrieveStemHelper(request, false, false, true, false).getStem();
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       

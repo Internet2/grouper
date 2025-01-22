@@ -125,7 +125,8 @@ public class GroupStemTemplateContainer {
   private List<ServiceAction> serviceActions = new ArrayList<ServiceAction>();
   
   /**
-   * implementation class for selected template type
+   * this is for legacy templates
+   * implementation class for selected template type for legacy templates
    */
   private GrouperTemplateLogicBase templateLogic;
   
@@ -212,14 +213,16 @@ public class GroupStemTemplateContainer {
 
 
   /**
-   * @return implementation class for selected template type
+   * this is for legacy templates
+   * @return implementation class for selected template type for legacy templates
    */
   public GrouperTemplateLogicBase getTemplateLogic() {
     return templateLogic;
   }
 
   /**
-   * @param templateLogic: implementation class for selected template type
+   * this is for legacy templates
+   * @param templateLogic: implementation class for selected template type for legacy templates
    */
   public void setTemplateLogic(GrouperTemplateLogicBase templateLogic) {
     this.templateLogic = templateLogic;
@@ -583,6 +586,20 @@ public class GroupStemTemplateContainer {
 
   
   public GuiGshTemplateConfig getGuiGshTemplateConfig() {
+    if (this.guiGshTemplateConfig == null) {
+      
+      GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(StringUtils.defaultIfBlank(this.templateKey, this.templateType));
+      final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+      gshTemplateConfig.setCurrentUser(loggedInSubject);
+
+      gshTemplateConfig.populateConfiguration();
+      
+      this.guiGshTemplateConfig = new GuiGshTemplateConfig();
+      this.guiGshTemplateConfig.setGshTemplateConfig(gshTemplateConfig);
+      this.setGuiGshTemplateConfig(this.guiGshTemplateConfig);
+
+    }
     return guiGshTemplateConfig;
   }
 
@@ -591,5 +608,4 @@ public class GroupStemTemplateContainer {
     this.guiGshTemplateConfig = guiGshTemplateConfig;
   }
 
-  
 }

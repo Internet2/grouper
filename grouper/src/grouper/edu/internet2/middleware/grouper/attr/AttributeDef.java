@@ -28,6 +28,8 @@ import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.builder.ToStringBuilder;
 import org.apache.commons.logging.Log;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GrouperAPI;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -372,6 +374,7 @@ public class AttributeDef extends GrouperAPI implements GrouperObject, GrouperHa
    * 
    * @return the delegate
    */
+  @JsonIgnore
   public AttributeAssignAttributeDefDelegate getAttributeDelegate() {
     if (this.attributeAssignAttributeDefDelegate == null) {
       this.attributeAssignAttributeDefDelegate = new AttributeAssignAttributeDefDelegate(this);

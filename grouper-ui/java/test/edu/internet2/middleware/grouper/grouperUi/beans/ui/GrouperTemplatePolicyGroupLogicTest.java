@@ -50,7 +50,7 @@ public class GrouperTemplatePolicyGroupLogicTest extends TestCase {
     GrouperRequestContainer.assignUseStaticRequestContainer(true);
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     GroupStemTemplateContainer stemTemplateContainer = grouperRequestContainer.getGroupStemTemplateContainer();
-    GrouperTemplateLogicBase templateLogic = UiV2Template.getTemplateLogic(templateType, stemTemplateContainer);
+    GrouperTemplateLogicBase templateLogic = UiV2Template.getTemplateLogic(templateType);
     templateLogic.setStemId(stem.getUuid());
     stemTemplateContainer.setCreateNoSubfolder(!createSubFolder);
     stemTemplateContainer.setTemplateKey(templateKey);

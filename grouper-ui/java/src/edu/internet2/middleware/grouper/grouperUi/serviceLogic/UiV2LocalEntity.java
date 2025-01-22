@@ -105,7 +105,7 @@ public class UiV2LocalEntity {
         
       }
       
-      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      UiV2Stem.retrieveStemHelper(request, false, false, true, false).getStem();
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       

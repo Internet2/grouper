@@ -354,7 +354,7 @@ public class GshTemplateConfig {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-
+        GrouperUtil.assertion(!StringUtils.isBlank(configId), "Config id is null");
         String configPrefix = "grouperGshTemplate."+configId+".";
         
         GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
@@ -605,6 +605,43 @@ public class GshTemplateConfig {
    */
   public boolean isGshLightweight() {
     return gshLightweight;
+  }
+  
+  public boolean canFolderRunTemplateForUserNoStemView(Stem folder, Subject subject) {
+    
+    if (!isShowOnFolders()) {
+      return false;
+    }
+    
+    Set<Stem> foldersToShow = getFoldersToShow();
+    if (GrouperUtil.nonNull(foldersToShow).size() == 0) {
+      LOG.error("foldersToShow is not configured correctly for template with config id: "+getConfigId());
+      return false;
+    }
+    
+    Set<String> foldersToShowUuids = new HashSet<String>();
+
+    for (Stem folderToShow: foldersToShow) {
+      foldersToShowUuids.add(folderToShow.getUuid());
+    }
+    
+    GshTemplateFolderShowOnDescendants gshTemplateFolderShowOnDescendants = getGshTemplateFolderShowOnDescendants();
+
+    if (GshTemplateFolderShowOnDescendants.oneChildLevel == gshTemplateFolderShowOnDescendants
+        || GshTemplateFolderShowOnDescendants.descendants == gshTemplateFolderShowOnDescendants) {
+      return false;
+    }
+    
+    if (!foldersToShowUuids.contains(folder.getUuid())) {
+      return false;
+    }
+    
+    Group group = this.getGroupThatCanRun();
+    
+    if (group == null) {
+      return false;
+    }
+    return group.hasMemberAsGrouperSystem(subject);
   }
   
   /**

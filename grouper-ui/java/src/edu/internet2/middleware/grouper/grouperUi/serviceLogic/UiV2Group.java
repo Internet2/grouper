@@ -797,7 +797,7 @@ public class UiV2Group {
         Group group = UiV2Group.retrieveGroupHelper(localRequest, AccessPrivilege.UPDATE, false).getGroup();
         String stemName = null;
         if (group == null) {
-          Stem stem = UiV2Stem.retrieveStemHelper(localRequest, true, false, false).getStem();
+          Stem stem = UiV2Stem.retrieveStemHelper(localRequest, true, false, false, false).getStem();
           stemName = stem == null ? null : stem.getName();
         } else {
           stemName = group.getParentStemName();
@@ -902,7 +902,7 @@ public class UiV2Group {
       if (group != null) {
         stemName = group.getParentStemName();
       } else {
-        Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false).getStem();
+        Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false, false).getStem();
         if (stem != null) {
           stemName = stem.getName();
         } else {
@@ -2237,7 +2237,7 @@ public class UiV2Group {
         
       }
       
-      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      UiV2Stem.retrieveStemHelper(request, false, false, true, false).getStem();
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       

@@ -171,13 +171,10 @@ public class UiV2Template {
    
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     
-    GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateConfigId);
-    gshTemplateConfig.setCurrentUser(loggedInSubject);
+    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
 
-    gshTemplateConfig.populateConfiguration();
-    
-    GuiGshTemplateConfig guiGshTemplateConfig = new GuiGshTemplateConfig();
-    guiGshTemplateConfig.setGshTemplateConfig(gshTemplateConfig);
+    GuiGshTemplateConfig guiGshTemplateConfig = templateContainer.getGuiGshTemplateConfig();
+    GshTemplateConfig gshTemplateConfig = guiGshTemplateConfig.getGshTemplateConfig();
     
     Map<String, GshTemplateInputConfigAndValue> guiTemplateInputConfigsMap = new LinkedHashMap<String, GshTemplateInputConfigAndValue>();
     Map<String, Object> variableMap = new HashMap<String, Object>();
@@ -240,8 +237,6 @@ public class UiV2Template {
     }
     
     guiGshTemplateConfig.setGshTemplateInputConfigAndValues(guiTemplateInputConfigsMap);
-    GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
-    templateContainer.setGuiGshTemplateConfig(guiGshTemplateConfig);
     
     return guiTemplateInputConfigsMap;
     
@@ -257,7 +252,7 @@ public class UiV2Template {
     Group group = null;
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      stem = UiV2Stem.retrieveStemHelper(request, false, false, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true, true).getStem();
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
       if (stem == null && group == null) {
@@ -387,7 +382,7 @@ public class UiV2Template {
     Group group = null;
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, false, true, false).getStem();
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
       if (stem == null && group == null) {
@@ -787,7 +782,7 @@ public class UiV2Template {
     
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
-      stem = UiV2Stem.retrieveStemHelper(request, false, true, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, true, false, true).getStem();
       
       if (stem == null) {
         return;
@@ -1008,8 +1003,7 @@ public class UiV2Template {
     
     try {
       
-      GrouperTemplateLogicBase templateLogic = getTemplateLogic(templateType, 
-          GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer());
+      GrouperTemplateLogicBase templateLogic = getTemplateLogic(templateType);
 
       return templateLogic;
     } catch(Exception e) {
@@ -1019,12 +1013,14 @@ public class UiV2Template {
   }
 
   /**
+   * this is for the legacy templates
    * @param templateType 
    * @param stemTemplateContainer 
    * @return the instance
    */
-  public static GrouperTemplateLogicBase getTemplateLogic(String templateType, GroupStemTemplateContainer stemTemplateContainer) {
-    
+  public static GrouperTemplateLogicBase getTemplateLogic(String templateType) {
+
+    GroupStemTemplateContainer stemTemplateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
     String implementationClass = GrouperUiConfig.retrieveConfig().propertyValueStringRequired("grouper.template."+templateType+".logicClass");
     
     Class<GrouperTemplateLogicBase> templateLogicSubClass = GrouperClientUtils.forName(implementationClass);
@@ -1225,7 +1221,37 @@ public class UiV2Template {
     boolean startedSession = grouperSession == null;
     try {
       grouperSession = startedSession ? GrouperSession.start(loggedInSubject) : grouperSession;
-      stem = UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+
+      GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
+
+      String templateType = request.getParameter("templateType");
+      
+      GrouperTemplateLogicBase templateLogic = null;
+          
+      if (StringUtils.isNotBlank(templateType)) {
+        
+        templateContainer.setTemplateType(templateType);
+                
+        templateLogic = getTemplateLogic(request);
+        if (templateLogic != null) {
+          templateContainer.setTemplateLogic(templateLogic);
+        } else {
+        
+          GuiGshTemplateConfig guiGshTemplateConfig = templateContainer.getGuiGshTemplateConfig();
+          GshTemplateConfig gshTemplateConfig = guiGshTemplateConfig.getGshTemplateConfig();
+          
+          Stem tempStem = UiV2Stem.retrieveStemHelper(request, false, false, false, false).getStem();
+          
+          if (gshTemplateConfig.canFolderRunTemplateForUserNoStemView(tempStem, loggedInSubject)) {
+            stem = tempStem;
+          }
+          
+        }        
+      }
+
+      if (stem == null) {
+        stem = UiV2Stem.retrieveStemHelper(request, false, false, true, false).getStem();
+      }
       group = UiV2Group.retrieveGroupHelper(request, AccessPrivilege.VIEW, false).getGroup();
       
       if (stem == null && group == null) {
@@ -1234,7 +1260,6 @@ public class UiV2Template {
       
       setTemplateOptions();
       
-      GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
       templateContainer.setSimplifiedRequest(simplifiedRequest);
       if (stem != null) {
         templateContainer.setShowOnFolder(true);
@@ -1243,14 +1268,8 @@ public class UiV2Template {
         templateContainer.setShowOnGroup(true);
       }
       
-      String templateType = request.getParameter("templateType");
-      
       if (StringUtils.isNotBlank(templateType)) {
-        
-        templateContainer.setTemplateType(templateType);
                 
-        GrouperTemplateLogicBase templateLogic = getTemplateLogic(request);
-        
         if (templateLogic == null) {
           // must be gsh custom template
           Map<String, GshTemplateInputConfigAndValue> customTemplateInputs = populateCustomTemplateInputs(request, templateType);

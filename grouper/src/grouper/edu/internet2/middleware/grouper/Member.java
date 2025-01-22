@@ -167,6 +167,7 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
    * 
    * @return the delegate
    */
+  @JsonIgnore
   public AttributeAssignMemberDelegate getAttributeDelegate() {
     if (this.attributeAssignMemberDelegate == null) {
       this.attributeAssignMemberDelegate = new AttributeAssignMemberDelegate(this);

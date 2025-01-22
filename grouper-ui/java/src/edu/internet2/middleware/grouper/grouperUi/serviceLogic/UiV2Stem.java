@@ -1079,7 +1079,7 @@ public class UiV2Stem {
    * @return the stem finder result
    */
   public static RetrieveStemHelperResult retrieveStemHelper(HttpServletRequest request, boolean requireStemPrivilege) {
-    return retrieveStemHelper(request, requireStemPrivilege, false, true);
+    return retrieveStemHelper(request, requireStemPrivilege, false, true, true);
   }
 
   /**
@@ -1091,15 +1091,13 @@ public class UiV2Stem {
    * @return the stem finder result
    */
   public static RetrieveStemHelperResult retrieveStemHelper(HttpServletRequest request, boolean requireStemPrivilege, 
-      boolean requireCreateGroupPrivilege, boolean requireStem) {
+      boolean requireCreateGroupPrivilege, boolean requireViewPrivilege, boolean requireStem) {
 
     //initialize the bean
     GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
     
     RetrieveStemHelperResult result = new RetrieveStemHelperResult();
 
-    GrouperSession grouperSession = GrouperSession.staticGrouperSession();
-    
     Stem stem = null;
 
     GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
@@ -1108,32 +1106,31 @@ public class UiV2Stem {
     String stemIndex = request.getParameter("stemIndex");
     String stemName = request.getParameter("stemName");
     
-    boolean addedError = false;
-    try {
-      if (!StringUtils.isBlank(stemId)) {
-        if (StringUtils.equals("root", stemId)) {
-          stem = StemFinder.findRootStem(grouperSession);
-        } else {
-          stem = StemFinder.findByUuid(grouperSession, stemId, false);
+    stem = (Stem)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+      
+      @Override
+      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+        try {
+          if (!StringUtils.isBlank(stemId)) {
+            if (StringUtils.equals("root", stemId)) {
+              return StemFinder.findRootStem(grouperSession);
+            }
+            return StemFinder.findByUuid(grouperSession, stemId, false);
+          } else if (!StringUtils.isBlank(stemName)) {
+            return StemFinder.findByName(grouperSession, stemName, false);
+          } else if (!StringUtils.isBlank(stemIndex)) {
+            long idIndex = GrouperUtil.longValue(stemIndex);
+            return StemFinder.findByIdIndex(idIndex, false, null);
+          } else {
+            return null;
+          }
+        } finally {
+          PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "findStem");
         }
-      } else if (!StringUtils.isBlank(stemName)) {
-        stem = StemFinder.findByName(grouperSession, stemName, false);
-      } else if (!StringUtils.isBlank(stemIndex)) {
-        long idIndex = GrouperUtil.longValue(stemIndex);
-        stem = StemFinder.findByIdIndex(idIndex, false, null);
-      } else {
-        
-        if (!requireStem) {
-          return result;
-        }
-        
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("stemCantFindStemId")));
-        addedError = true;
       }
-    } finally {
-      PerformanceLogger.performanceTimingGate(UiV2Stem.PERFORMANCE_LOG_LABEL_STEM_UI_VIEW, "findStem");
-    }
+    });
+    
+    boolean addedError = false;
     
     try {
       if (stem != null) {
@@ -1145,15 +1142,15 @@ public class UiV2Stem {
               TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToAdminStem")));
           addedError = true;
   
-        } else if (requireCreateGroupPrivilege && !grouperRequestContainer.getStemContainer().isCanCreateGroups()) {
+        } else if ((requireCreateGroupPrivilege && !requireStemPrivilege) && !grouperRequestContainer.getStemContainer().isCanCreateGroups()) {
   
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
               TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToCreateGroupsStem")));
           addedError = true;
   
-        } else if (!grouperRequestContainer.getStemContainer().isCanViewPrivileges()) {
+        } else if ((requireViewPrivilege && !requireStemPrivilege && !requireCreateGroupPrivilege) && !grouperRequestContainer.getStemContainer().isCanViewPrivileges()) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-              TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
+              TextContainer.retrieveFromRequest().getText().get("stemNotAllowedToViewStem")));
           addedError = true;
         } else {
           result.setStem(stem);
@@ -1166,8 +1163,9 @@ public class UiV2Stem {
         if (!requireStem) {
           return result;
         }
-  
-        if (!addedError && (!StringUtils.isBlank(stemId) || !StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemIndex))) {
+
+        // && (!StringUtils.isBlank(stemId) || !StringUtils.isBlank(stemName) || !StringUtils.isBlank(stemIndex))
+        if (!addedError) {
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
               TextContainer.retrieveFromRequest().getText().get("stemCantFindStem")));
           addedError = true;
@@ -2643,7 +2641,7 @@ public class UiV2Stem {
         
       }
       
-      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      UiV2Stem.retrieveStemHelper(request, false, false, true, false).getStem();
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
@@ -3384,7 +3382,7 @@ public class UiV2Stem {
   
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      stem = retrieveStemHelper(request, true, false, true).getStem();
+      stem = retrieveStemHelper(request, true, false, false, true).getStem();
       
       if (stem == null) {
         return;
@@ -3445,7 +3443,7 @@ public class UiV2Stem {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      final Stem stem = retrieveStemHelper(request, true, false, true).getStem();
+      final Stem stem = retrieveStemHelper(request, true, false, false, true).getStem();
   
       if (stem == null) {
         return;
@@ -3794,7 +3792,7 @@ public class UiV2Stem {
     try {
       grouperSession = GrouperSession.start(loggedInSubject);
   
-      final Stem stem = retrieveStemHelper(request, true, false, true).getStem();
+      final Stem stem = retrieveStemHelper(request, true, false, false, true).getStem();
   
       if (stem == null) {
         return;
@@ -3957,7 +3955,7 @@ public class UiV2Stem {
   
       grouperSession = GrouperSession.start(loggedInSubject);
             
-      stem = UiV2Stem.retrieveStemHelper(request, false, true, true).getStem();
+      stem = UiV2Stem.retrieveStemHelper(request, false, true, false, true).getStem();
       
       if (stem == null) {
         return;

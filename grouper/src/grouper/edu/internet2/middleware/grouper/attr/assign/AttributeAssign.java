@@ -1055,6 +1055,7 @@ public class AttributeAssign extends GrouperAPI implements GrouperHasContext, Hi
    * 
    * @return the delegate
    */
+  @JsonIgnore
   public AttributeAssignAttrAssignDelegate getAttributeDelegate() {
     if (this.attributeAssignAttrAssignDelegate == null) {
       this.attributeAssignAttrAssignDelegate = new AttributeAssignAttrAssignDelegate(this);

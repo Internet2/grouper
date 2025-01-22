@@ -1996,7 +1996,7 @@ public class UiV2GrouperLoader {
       if (group != null) {
         stemName = group.getParentStemName();
       } else {
-        Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false).getStem();
+        Stem stem = UiV2Stem.retrieveStemHelper(request, true, false, false, false).getStem();
         if (stem != null) {
           stemName = stem.getName();
         } else {

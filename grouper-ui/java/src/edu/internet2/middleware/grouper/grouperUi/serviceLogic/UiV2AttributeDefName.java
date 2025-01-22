@@ -389,7 +389,7 @@ public class UiV2AttributeDefName {
       
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
-      UiV2Stem.retrieveStemHelper(request, false, false, false).getStem();
+      UiV2Stem.retrieveStemHelper(request, false, false, true, false).getStem();
       
       if (objectStemId != null) {
         QueryOptions queryOptions = QueryOptions.create(null, null, 1, 2);
