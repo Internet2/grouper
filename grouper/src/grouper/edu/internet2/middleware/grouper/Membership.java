@@ -452,7 +452,8 @@ public class Membership extends GrouperAPI implements
   /**
    * 
    * @return the delegate
-   */
+   */ 
+  @JsonIgnore
   public AttributeAssignMembershipDelegate getAttributeDelegate() {
     if (this.attributeAssignMembershipDelegate == null) {
       this.attributeAssignMembershipDelegate = new AttributeAssignMembershipDelegate(this);

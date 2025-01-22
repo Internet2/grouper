@@ -763,6 +763,7 @@ public class Group extends GrouperAPI implements Role, GrouperHasContext, Owner,
    * 
    * @return the delegate
    */
+  @JsonIgnore
   public AttributeAssignGroupDelegate getAttributeDelegate() {
     if (this.attributeAssignGroupDelegate == null) {
       this.attributeAssignGroupDelegate = new AttributeAssignGroupDelegate(this);

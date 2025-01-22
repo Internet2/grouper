@@ -93,6 +93,7 @@ public class GroupMember implements AttributeAssignable {
    * delegate for effective memberships
    * @return the delegate
    */
+  @JsonIgnore
   public AttributeAssignEffMshipDelegate getAttributeDelegate() {
     return new AttributeAssignEffMshipDelegate(this.group, this.member);
   }
