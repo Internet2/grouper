@@ -45,6 +45,7 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   
   private Map<String, String> groupAttributeJsonPointer = new HashMap<>();
   
+  private boolean selectAllMemberships = true;
   
   public Map<String, String> getGroupAttributeJsonValueType() {
     return groupAttributeJsonValueType;
@@ -111,7 +112,15 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.includeActiveOnEntityCreate = includeActiveOnEntityCreate;
   }
   
+  public boolean isSelectAllMemberships() {
+    return selectAllMemberships;
+  }
+
   
+  public void setSelectAllMemberships(boolean selectAllMemberships) {
+    this.selectAllMemberships = selectAllMemberships;
+  }
+
   public String getScimContentType() {
     return scimContentType;
   }
@@ -151,6 +160,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.scimNamePatchStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimNamePatchStrategy", false), "nonqualified");
     this.scimEmailPatchStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimEmailPatchStrategy", false), "pathEmails");
     this.scimContentType = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimContentType", false), "application/json");
+    
+    this.selectAllMemberships = GrouperUtil.booleanValue(this.retrieveConfigBoolean("selectAllMemberships", false), true);
     
     this.disableEntitiesInsteadOfDelete = GrouperUtil.booleanValue(this.retrieveConfigBoolean("disableEntitiesInsteadOfDelete", false), false);
 

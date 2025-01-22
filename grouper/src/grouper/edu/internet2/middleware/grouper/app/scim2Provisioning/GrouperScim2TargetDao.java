@@ -807,9 +807,21 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       grouperProvisionerDaoCapabilities.setCanDeleteGroup(true);
       grouperProvisionerDaoCapabilities.setCanInsertGroup(true);
       grouperProvisionerDaoCapabilities.setCanReplaceGroupMemberships(true);
-      if (grouperScim2ProvisionerConfiguration.isSelectAllGroups()
-          || grouperScim2ProvisionerConfiguration.isSelectAllEntities()) {   
-        grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
+      
+      // TODO fix this when fixing retrieveAllMemberships()
+      // 4430
+      //  # Select all memberships at once
+      //  # {valueType: "boolean", order: 5607, subSection: "membership", showEl: "${operateOnGrouperMemberships && (!customizeMembershipCrud || selectMemberships) && (selectAllEntities || selectAllGroups)}", defaultValue: "true"}
+      //  # provisioner.myScimProvisioner.selectAllMemberships =
+
+      if (false && (grouperScim2ProvisionerConfiguration.isSelectAllGroups() 
+          && grouperScim2ProvisionerConfiguration.isScimRetrieveMembershipsByGroup())
+          || (grouperScim2ProvisionerConfiguration.isSelectAllEntities() 
+              && grouperScim2ProvisionerConfiguration.isScimRetrieveMembershipsByUser())) {   
+        if (!grouperScim2ProvisionerConfiguration.isGithubOrgConfiguration() 
+            && grouperScim2ProvisionerConfiguration.isSelectAllMemberships()) {
+          grouperProvisionerDaoCapabilities.setCanRetrieveAllMemberships(true);
+        }
       }
       grouperProvisionerDaoCapabilities.setCanRetrieveAllGroups(true);
       grouperProvisionerDaoCapabilities.setCanRetrieveAllEntities(true);
@@ -821,6 +833,40 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
 
   
   
+  /**
+   * TODO fix this
+   */
+  @Override
+  public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(
+      TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
+    
+    List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
+    
+    Set<MultiKey> groupIdUserIds = new HashSet<MultiKey>();
+    
+    for (String groupId : this.grouperScim2MembershipCache.getGroupIdToMembershipUserIds().keySet()) {
+      for (String userId : this.grouperScim2MembershipCache.getGroupIdToMembershipUserIds().get(groupId)) {
+        groupIdUserIds.add(new MultiKey(groupId, userId));
+      }
+    }
+    for (String userId : this.grouperScim2MembershipCache.getUserIdToMembershipGroupIds().keySet()) {
+      for (String groupId : this.grouperScim2MembershipCache.getUserIdToMembershipGroupIds().get(userId)) {
+        groupIdUserIds.add(new MultiKey(groupId, userId));
+      }
+    }
+    for (MultiKey groupIdUserId : groupIdUserIds) {
+      ProvisioningMembership provisioningMembership = new ProvisioningMembership();
+      provisioningMembership.setProvisioningGroupId((String)groupIdUserId.getKey(0));
+      provisioningMembership.setProvisioningEntityId((String)groupIdUserId.getKey(1));
+      result.add(provisioningMembership);
+    }
+    
+    
+    return new TargetDaoRetrieveAllMembershipsResponse(result);
+
+    
+  }
+
   @Override
   public TargetDaoRetrieveMembershipsByGroupResponse retrieveMembershipsByGroup(
       TargetDaoRetrieveMembershipsByGroupRequest targetDaoRetrieveMembershipsByGroupRequest) {
