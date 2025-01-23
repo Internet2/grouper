@@ -540,7 +540,11 @@ public class GrouperScim2ApiCommands {
         } else if ("employeeNumber".equals(fieldToUpdate)) {
           fieldToUpdate = "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.employeeNumber";
         } else if ("formattedName".equals(fieldToUpdate)) {
-          fieldToUpdate = "formatted";
+          if (scimSettings != null && StringUtils.equals(scimSettings.getScimNamePatchStrategy(), "qualified")) {            
+            fieldToUpdate = "name.formatted";
+          } else {
+            fieldToUpdate = "formatted";
+          }
         } else if ("familyName".equals(fieldToUpdate)) {
           
           if (scimSettings != null && StringUtils.equals(scimSettings.getScimNamePatchStrategy(), "qualified")) {            
