@@ -92,7 +92,7 @@ public class RuleApiTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new RuleApiTest("testInheritFolderPrivilegesRemove"));
+    TestRunner.run(new RuleApiTest("testDefaultDisabledDate"));
 //    TestRunner.run(new RuleApiTest("testNoNeedForWheelOrRootPrivileges"));
 //    TestRunner.run(new RuleApiTest("testInheritAttributeDefPrivilegesRemove"));
 //    TestRunner.run(new RuleApiTest("testRuleMaxGroupMembersOtherGroup"));
@@ -1320,6 +1320,39 @@ public class RuleApiTest extends GrouperTest {
     
     assertTrue("More than 4 days: " + new Date(disabledTime), disabledTime > System.currentTimeMillis() + (4 * 24 * 60 * 60 * 1000));
     assertTrue("Less than 6 days: " + new Date(disabledTime), disabledTime < System.currentTimeMillis() + (6 * 24 * 60 * 60 * 1000));
+  
+  }
+  
+  /**
+   * 
+   */
+  public void testDefaultDisabledDate() {
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    Group groupA = new GroupSave(grouperSession).assignSaveMode(SaveMode.INSERT_OR_UPDATE)
+      .assignName("stem:a").assignCreateParentStemsIfNotExist(true).save();
+    
+    Subject subject0 = SubjectFinder.findById("test.subject.0", true);
+
+    RuleApi.groupDefaultDisabledDate(SubjectFinder.findRootSubject(), groupA, 90);
+
+    //count rule firings
+    long initialFirings = RuleEngine.ruleFirings;
+    
+    groupA.addMember(subject0);
+
+    assertEquals(initialFirings + 1, RuleEngine.ruleFirings);
+
+    Member member0 = MemberFinder.findBySubject(grouperSession, subject0, true);
+    
+    Membership membership = groupA.getImmediateMembership(Group.getDefaultList(), member0, true, true);
+    
+    assertNotNull(membership.getDisabledTime());
+    long disabledTime = membership.getDisabledTime().getTime();
+    
+    System.out.println((disabledTime - System.currentTimeMillis()) / (24*60*60L*1000));
+    
+    assertTrue("More than 88 days: " + new Date(disabledTime) + " (" + disabledTime + ")", disabledTime > System.currentTimeMillis() + (88L * 24 * 60 * 60 * 1000));
+    assertTrue("Less than 90 days: " + new Date(disabledTime) + " (" + disabledTime + ")", disabledTime < System.currentTimeMillis() + (90L * 24 * 60 * 60 * 1000));
   
   }
   
