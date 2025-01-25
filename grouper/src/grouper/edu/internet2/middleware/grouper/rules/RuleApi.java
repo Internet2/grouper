@@ -1092,6 +1092,54 @@ public class RuleApi {
   }
 
   /**
+   * put a rule on the rule group which says that by default memberships get a disabled date X days in the future
+   * @param actAs
+   * @param ruleGroup
+   * @param mustBeInGroup
+   * @param daysInFutureForDisabledDate
+   * @return the assignment in case there are edits
+   */
+  public static AttributeAssign groupDefaultDisabledDate(Subject actAs, Group ruleGroup, 
+      int daysInFutureForDisabledDate) {
+
+    AttributeAssign attributeAssign = ruleGroup
+      .getAttributeDelegate().addAttribute(RuleUtils.ruleAttributeDefName()).getAttributeAssign();
+
+    AttributeValueDelegate attributeValueDelegate = attributeAssign.getAttributeValueDelegate();
+
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectSourceIdName(), actAs.getSourceId());
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleActAsSubjectIdName(), actAs.getId());
+    
+    //if the user falls out of mustBeInGroup, then set a disabled date in this group
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleCheckTypeName(),
+        RuleCheckType.membershipAdd.name()); // changed to effective
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumName(), RuleThenEnum.assignMembershipDisabledDaysForOwnerGroupId.name());
+    
+    //number of days in future that disabled date should be set
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg0Name(), Integer.toString(daysInFutureForDisabledDate));
+    
+    //if the membership in owner group doesnt exist, should it be added?  T|F
+    attributeValueDelegate.assignValue(
+        RuleUtils.ruleThenEnumArg1Name(), "F");
+
+    //should be valid
+    String isValidString = attributeValueDelegate.retrieveValueString(
+        RuleUtils.ruleValidName());
+
+    if (!StringUtils.equals("T", isValidString)) {
+      throw new RuntimeException(isValidString);
+    }
+    
+    return attributeAssign;
+
+  }
+
+  /**
    * 
    * @return the string
    */
