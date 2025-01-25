@@ -23,6 +23,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   
   private String scimContentType;
   
+  private boolean scimIgnorePagingMetadata = false;
+  
   private boolean scimRetrieveMembershipsByUser = true;
   
   private boolean scimRetrieveMembershipsByGroup = true;
@@ -93,6 +95,16 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.scimNamePatchStrategy = scimNamePatchStrategy;
   }
   
+  
+  public boolean isScimIgnorePagingMetadata() {
+    return scimIgnorePagingMetadata;
+  }
+
+  
+  public void setScimIgnorePagingMetadata(boolean scimIgnoreTotalResults) {
+    this.scimIgnorePagingMetadata = scimIgnoreTotalResults;
+  }
+
   public boolean isDisableEntitiesInsteadOfDelete() {
     return disableEntitiesInsteadOfDelete;
   }
@@ -171,6 +183,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.scimRetrieveMembershipsByUser = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimRetrieveMembershipsByUser", false), true);
     
     this.scimRetrieveMembershipsByGroup = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimRetrieveMembershipsByGroup", false), true);
+
+    this.scimIgnorePagingMetadata = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimIgnorePagingMetadata", false), false);
     
     for (String attributeName : this.getTargetEntityAttributeNameToConfig().keySet()) {
       GrouperProvisioningConfigurationAttribute configurationAttribute = this.getTargetEntityAttributeNameToConfig().get(attributeName);
@@ -205,8 +219,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     return bearerTokenExternalSystemConfigId;
   }
 
-  public void setBearerTokenExternalSystemConfigId(String azureExternalSystemConfigId) {
-    this.bearerTokenExternalSystemConfigId = azureExternalSystemConfigId;
+  public void setBearerTokenExternalSystemConfigId(String scimExternalSystemConfigId) {
+    this.bearerTokenExternalSystemConfigId = scimExternalSystemConfigId;
   }
 
   
