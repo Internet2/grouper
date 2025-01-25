@@ -7,6 +7,16 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class ScimSettings {
   
+  public void loadFromScimProvisionerConfiguration(GrouperScim2ProvisionerConfiguration scimConfiguration) {
+    String scimNamePatchStrategy = scimConfiguration.getScimNamePatchStrategy();
+    
+    this.setScimNamePatchStrategy(scimNamePatchStrategy);
+    this.setScimEmailPatchStrategy(scimConfiguration.getScimEmailPatchStrategy());
+    this.setAcceptHeader(scimConfiguration.getAcceptHeader());
+    this.setScimContentType(scimConfiguration.getScimContentType());
+    this.setScimIgnorePagingMetadata(scimConfiguration.isScimIgnorePagingMetadata());
+  }
+  
   private String orgName;
   
   private String scimNamePatchStrategy = "nonqualified";
@@ -17,6 +27,17 @@ public class ScimSettings {
 
   private String scimContentType = "application/json";
   
+  private boolean scimIgnorePagingMetadata = false;
+  
+  public boolean isScimIgnorePagingMetadata() {
+    return scimIgnorePagingMetadata;
+  }
+  
+  public void setScimIgnorePagingMetadata(boolean scimIgnoreTotalResults) {
+    this.scimIgnorePagingMetadata = scimIgnoreTotalResults;
+  }
+
+
   public String getOrgName() {
     return orgName;
   }

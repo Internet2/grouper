@@ -1,7 +1,7 @@
 package edu.internet2.middleware.grouper.app.scim2Provisioning;
 
 import java.util.ArrayList;
-import java.util.Collections;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -16,7 +16,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.azure.GrouperAzureLog;
 import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternalSystem;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningObjectChangeAction;
@@ -857,7 +856,7 @@ public class GrouperScim2ApiCommands {
 
     try {
       grouperHttpClient.executeRequest();
-      
+
       code = grouperHttpClient.getResponseCode();
       returnCode[0] = code;
       json = grouperHttpClient.getResponseBody();
@@ -1090,14 +1089,14 @@ public class GrouperScim2ApiCommands {
             GrouperUtil.toSet(200), new int[] { -1 }, null, scimSettings);
 
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
-        if (totalResults == 0) {
+        if (totalResults == 0 && !scimSettings.isScimIgnorePagingMetadata()) {
           return results;
         }
 
         // do not do this until after seeing if total results is 0
         int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
         int returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-        if (previousStartIndex == returnedStartIndex) {
+        if (previousStartIndex == returnedStartIndex && !scimSettings.isScimIgnorePagingMetadata() ) {
           // the server returned the previous page so we're done. It happens in AWS.
           return results;
         }
@@ -1378,15 +1377,78 @@ public class GrouperScim2ApiCommands {
   
   /**
    * create membership
+   * @param configId
+   * @param groupId
+   * @param userIds
+   * @param scimSettings
+   * @return the ids and exceptions
+   */
+  public static Map<String, Exception> createScimMemberships(String configId, String groupId, Set<String> userIds, ScimSettings scimSettings) {
+
+    Map<String, Exception> userIdsInserted = new HashMap<String, Exception>();
+    
+    if (GrouperUtil.length(userIds) == 0) {
+      return userIdsInserted;
+    }
+    
+    List<String> userIdsList = new ArrayList<String>(userIds);
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, 100, false);
+    Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
+
+    debugMap.put("numberOfBatches", numberOfBatches);
+    debugMap.put("method", "createScimMemberships");
+    long startTime = System.nanoTime();
+
+    try {
+      for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
+        
+        List<String> currentBatchUserIds = GrouperUtil.batchList(userIdsList, 100, batchIndex);
+  
+        try {
+  
+          createScimMembershipsHelper(configId, groupId, currentBatchUserIds, scimSettings);
+                  
+        } catch (RuntimeException localException) {
+          
+          GrouperUtil.sleep(2000);
+          
+          for (String userId : currentBatchUserIds) {
+            
+            Set<String> oneUserId = GrouperUtil.toSet(userId);
+  
+            try {
+              createScimMembershipsHelper(configId, groupId, oneUserId, scimSettings);
+  
+            } catch (RuntimeException localException2) {
+              debugMap.put("exception", GrouperClientUtils.getFullStackTrace(localException2));
+              userIdsInserted.put(userId, localException2);
+            }
+  
+          }
+          
+        }
+        
+      }
+
+      return userIdsInserted;
+    } finally {
+      GrouperScim2Log.scimLog(debugMap, startTime);
+    }
+
+  }
+
+  /**
+   * create membership
    * @param groupId
    * @param userIds
    * @return the result
    */
-  public static void createScimMemberships(String configId, String groupId, Set<String> userIds, ScimSettings scimSettings) {
+  private static void createScimMembershipsHelper(String configId, String groupId, Collection<String> userIds, ScimSettings scimSettings) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
-    debugMap.put("method", "createScimMemberships");
+    debugMap.put("method", "createScimMembershipsHelper");
 
     long startTime = System.nanoTime();
 
@@ -1446,7 +1508,7 @@ public class GrouperScim2ApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
+      GrouperScim2Log.scimLog(debugMap, startTime);
     }
 
   }
@@ -1496,7 +1558,7 @@ public class GrouperScim2ApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
+      GrouperScim2Log.scimLog(debugMap, startTime);
     }
     
   }
@@ -1564,7 +1626,7 @@ public class GrouperScim2ApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
+      GrouperScim2Log.scimLog(debugMap, startTime);
     }
   
   }
@@ -1651,7 +1713,7 @@ public class GrouperScim2ApiCommands {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;
     } finally {
-      GrouperAzureLog.azureLog(debugMap, startTime);
+      GrouperScim2Log.scimLog(debugMap, startTime);
     }
   
   }
@@ -1707,7 +1769,7 @@ public class GrouperScim2ApiCommands {
         }
         int totalResults = GrouperUtil.jsonJacksonGetInteger(jsonNode, "totalResults");
         
-        if (totalResults == 0) {
+        if (totalResults == 0 && !scimSettings.isScimIgnorePagingMetadata()) {
           return results;
         }
 
@@ -1715,7 +1777,7 @@ public class GrouperScim2ApiCommands {
 
         int itemsPerPage = GrouperUtil.jsonJacksonGetInteger(jsonNode, "itemsPerPage");
         int returnedStartIndex = GrouperUtil.jsonJacksonGetInteger(jsonNode, "startIndex");
-        if (previousStartIndex == returnedStartIndex) {
+        if (previousStartIndex == returnedStartIndex && !scimSettings.isScimIgnorePagingMetadata()) {
           // the server returned the previous page so we're done. It happens in AWS.
           return results;
         }
