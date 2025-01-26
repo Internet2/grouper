@@ -3200,8 +3200,8 @@ public class GrouperDdlUtils {
   }
   
   private static boolean doesFunctionExistMySql(String functionName) {
-    if (!GrouperDdlUtils.isPostgres()) {
-      throw new RuntimeException("Database not postgres!");
+    if (!GrouperDdlUtils.isMysql()) {
+      throw new RuntimeException("Database not mysql!");
     }
     
     GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
