@@ -3066,7 +3066,83 @@ public class GrouperDdlUtils {
     }
   }
   
-  public static boolean doesFunctionExistOracle(String functionName) {
+  public static boolean doesFunctionExist(String functionName) {
+    if (isPostgres()) {
+      return doesFunctionExistPostgres(functionName);
+    } else if (isOracle()) {
+      return doesFunctionExistOracle(functionName);
+    } else if (isMysql()) {
+      return doesFunctionExistMySql(functionName);
+    } else {
+      throw new RuntimeException("Unknown database");
+    }
+  }
+  
+  private static boolean doesFunctionExistPostgres(String functionName) {
+    if (!GrouperDdlUtils.isPostgres()) {
+      throw new RuntimeException("Database not postgres!");
+    }
+    
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = grouperDb.connection();
+      preparedStatement = connection.prepareStatement("SELECT count(*) as count FROM information_schema.routines WHERE "
+          + "routine_type = 'FUNCTION' AND routine_schema = current_schema and routine_name = ?");
+      preparedStatement.setString(1, functionName);
+      resultSet = preparedStatement.executeQuery();
+      resultSet.next();
+      int count = resultSet.getInt(1);
+      
+      if (count == 0) {
+        return false;
+      }
+      
+      return true;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperUtil.closeQuietly(resultSet);
+      GrouperUtil.closeQuietly(preparedStatement);
+      GrouperUtil.closeQuietly(connection);
+    }
+  }
+  
+  private static boolean doesFunctionExistMySql(String functionName) {
+    if (!GrouperDdlUtils.isMysql()) {
+      throw new RuntimeException("Database not mysql!");
+    }
+    
+    GrouperLoaderDb grouperDb = GrouperLoaderConfig.retrieveDbProfile("grouper");
+    Connection connection = null;
+    PreparedStatement preparedStatement = null;
+    ResultSet resultSet = null;
+    try {
+      connection = grouperDb.connection();
+      preparedStatement = connection.prepareStatement("SELECT count(*) as count FROM information_schema.routines WHERE "
+          + "routine_type = 'FUNCTION' AND ROUTINE_SCHEMA = database() and routine_name = ?");
+      preparedStatement.setString(1, functionName);
+      resultSet = preparedStatement.executeQuery();
+      resultSet.next();
+      int count = resultSet.getInt(1);
+      
+      if (count == 0) {
+        return false;
+      }
+      
+      return true;
+    } catch (SQLException e) {
+      throw new RuntimeException(e);
+    } finally {
+      GrouperUtil.closeQuietly(resultSet);
+      GrouperUtil.closeQuietly(preparedStatement);
+      GrouperUtil.closeQuietly(connection);
+    }
+  }
+  
+  private static boolean doesFunctionExistOracle(String functionName) {
     if (!GrouperDdlUtils.isOracle()) {
       throw new RuntimeException("Database not oracle!");
     }
