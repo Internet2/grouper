@@ -195,7 +195,10 @@ public class GrouperDaemonDeleteOldRecords {
       }
       
       try {
-        verifyTableIdIndexes(jobMessage, hib3GrouploaderLog);
+        boolean everythingOk = verifyTableIdIndexes(jobMessage, hib3GrouploaderLog);
+        if (!everythingOk) {
+          error = true;
+        }
       } catch (Exception e) {
         LOG.error("Error in verifyTableIdIndexes", e);
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "errorInVerifyTableIdIndexes", ExceptionUtils.getFullStackTrace(e));
@@ -231,7 +234,7 @@ public class GrouperDaemonDeleteOldRecords {
       }
       
   
-      if (error) {
+      if (error || StringUtils.equals(GrouperLoaderStatus.ERROR.name(), hib3GrouploaderLog.getStatus())) {
         hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
         GrouperLoaderLogger.addLogEntry(LOG_LABEL, "status", "error");
       } else {
@@ -1060,9 +1063,12 @@ public class GrouperDaemonDeleteOldRecords {
 
   /**
    * verify that table id indexes
+   * @return true if of, and false if there was an error
    */
-  public static void verifyTableIdIndexes(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
+  public static boolean verifyTableIdIndexes(StringBuilder jobMessage, Hib3GrouperLoaderLog hib3GrouploaderLog) {
 
+    boolean everythingOk = true;
+    
     //lets see if there are any nulls
     for (TableIndexType tableIndexType : TableIndexType.values()) {
       
@@ -1071,7 +1077,22 @@ public class GrouperDaemonDeleteOldRecords {
       }
 
       // maybe this table doesnt have an id col
-      GcTableSyncTableMetadata gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase("grouper", tableIndexType.tableName());
+      GcTableSyncTableMetadata gcTableSyncTableMetadata = null;
+      
+      try {
+        gcTableSyncTableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase("grouper", tableIndexType.tableName());
+      } catch (RuntimeException e) {
+        String errorMessage = "Error finding table metadata for table '" + tableIndexType.tableName() + "'.  Note; this is expected if you are in the middle of an upgrade";
+        LOG.error(errorMessage, e);
+        if (jobMessage != null) {
+          jobMessage.append("\n\n" + errorMessage + "\n" + GrouperUtil.getFullStackTrace(e) + "\n\n");
+        }
+        if (hib3GrouploaderLog != null) {
+          hib3GrouploaderLog.setStatus(GrouperLoaderStatus.ERROR.name());
+        }
+        everythingOk = false;
+        continue;
+      }
       if (gcTableSyncTableMetadata != null) {
         GcTableSyncColumnMetadata gcTableSyncColumnMetadata = gcTableSyncTableMetadata.lookupColumn("id", false);
         if (gcTableSyncColumnMetadata == null) {
@@ -1111,5 +1132,6 @@ public class GrouperDaemonDeleteOldRecords {
         LOG.warn("Finished " + GrouperUtil.length(ids) + " " + tableIndexType + " " + tableIndexType.getIncrementingColumn() + " records...");
       }
     }
+    return everythingOk;
   }
 }
