@@ -263,7 +263,7 @@ public class GrouperProvisioningGrouperDao {
           "    gm.subject_resolution_resolvable " +
           "from " + 
           "    grouper_members gm " +
-          "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
+          "    left join grouper_sync_member gsm on gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
           "where " +
           "    gm.subject_resolution_deleted='F' " +
           "    and exists ( select 1 from grouper_memberships ms join grouper_group_set gs on ms.owner_id = gs.member_id " +
@@ -271,6 +271,10 @@ public class GrouperProvisioningGrouperDao {
           "    and ms.enabled='T' " +
           "    and gs.field_id = ? " +
           "    and gs.owner_group_id = ? ");
+      
+      paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
+      typesInitial.add(StringType.INSTANCE);
+
     } else {
       
       sqlInitial = new StringBuilder("select " + 
@@ -288,7 +292,7 @@ public class GrouperProvisioningGrouperDao {
           "    gm.subject_resolution_resolvable " +
           "from " + 
           "    grouper_members gm " +
-          "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
+          "    left join grouper_sync_member gsm on  gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
           "where " +
           "    gm.subject_resolution_deleted='F' " + 
           "    and exists ( select 1 from grouper_memberships ms join grouper_group_set gs on ms.owner_id = gs.member_id " +
@@ -298,6 +302,8 @@ public class GrouperProvisioningGrouperDao {
           "    and gsg.provisionable = 'T' " +
           "    and ms.enabled='T' ");
       
+      paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
+      typesInitial.add(StringType.INSTANCE);
       paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
       typesInitial.add(StringType.INSTANCE);
     }
@@ -442,10 +448,9 @@ public class GrouperProvisioningGrouperDao {
         "    gm.subject_resolution_resolvable " +
         "from " + 
         "    grouper_members gm  " +      
-        "    left join grouper_sync_member gsm on  gsm.member_id = gm.id " + 
+        "    left join grouper_sync_member gsm on  gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
         "where " +
-        "    gsm.grouper_sync_id = ? " + 
-        "    and gm.subject_resolution_deleted='F' ");
+        "    gm.subject_resolution_deleted='F' ");
     paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
     typesInitial.add(StringType.INSTANCE);
     

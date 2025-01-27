@@ -732,6 +732,7 @@ public class GcGrouperSyncMember implements GcSqlAssignPrimaryKey, GcDbVersionab
    * 
    */
   public GcGrouperSyncMember() {
+    this.id = null;
   }
   
   /**
