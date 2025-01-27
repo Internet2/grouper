@@ -59,7 +59,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public static void main(String[] args) {
     // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdap20items"));    
+    TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionerRestrictGroup"));    
   }
   
   public SimpleLdapProvisionerTest() {
@@ -2597,6 +2597,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     
     long started = System.currentTimeMillis();
 
+    // one group is a member of the other, testing indirect memberships
     Group populationValidUsers = new GroupSave(this.grouperSession).assignName("population:validUsers").assignCreateParentStemsIfNotExist(true).save();
     Group populationValidUsers2 = new GroupSave(this.grouperSession).assignName("population:validUsers2").assignCreateParentStemsIfNotExist(true).save();
     populationValidUsers.addMember(populationValidUsers2.toSubject());
@@ -2609,9 +2610,6 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("provisioningInUi.enable", "true");
 
-    populationValidUsers2.addMember(SubjectTestHelper.SUBJ0);
-    populationValidUsers2.addMember(SubjectTestHelper.SUBJ1);
-        
     Stem stem = new StemSave(this.grouperSession).assignName("test").save();
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     
@@ -2651,9 +2649,31 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
     assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("gidNumber").getStringValues().iterator().next());
     assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
-    assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
     assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+    assertTrue(ldapEntry.getAttribute("description") == null 
+        || ldapEntry.getAttribute("description").getStringValues() == null 
+        || ldapEntry.getAttribute("description").getStringValues().size() == 0);
+
+    populationValidUsers2.addMember(SubjectTestHelper.SUBJ0);
+    populationValidUsers2.addMember(SubjectTestHelper.SUBJ1);
+        
+    grouperProvisioningOutput = fullProvision();
+    grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+    assertEquals(0, grouperProvisioningOutput.getRecordsWithErrors());
+
+    ldapEntries = LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null);
+    assertEquals(1, ldapEntries.size());
+    
+    ldapEntry = ldapEntries.get(0);
+    
+    assertEquals("cn=test:testGroup,ou=Groups,dc=example,dc=edu", ldapEntry.getDn());
+    assertEquals("test:testGroup", ldapEntry.getAttribute("cn").getStringValues().iterator().next());
+    assertEquals(testGroup.getIdIndex().toString(), ldapEntry.getAttribute("gidNumber").getStringValues().iterator().next());
+    assertEquals(2, ldapEntry.getAttribute("objectClass").getStringValues().size());
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("top"));
+    assertTrue(ldapEntry.getAttribute("objectClass").getStringValues().contains("posixGroup"));
+    assertEquals(2, ldapEntry.getAttribute("description").getStringValues().size());
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test.subject.0"));
     assertTrue(ldapEntry.getAttribute("description").getStringValues().contains("test.subject.1"));
     
@@ -2769,7 +2789,7 @@ public class SimpleLdapProvisionerTest extends GrouperProvisioningBaseTest {
     assertNull(gcGrouperSyncMembership.getErrorTimestamp());
 
     
-    // try delete, not configured to
+    // try delete
     attributeValue.setDoProvision(null);
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
     grouperProvisioningOutput = fullProvision();

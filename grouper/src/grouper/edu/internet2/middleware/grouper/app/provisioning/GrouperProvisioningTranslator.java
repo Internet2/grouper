@@ -354,8 +354,7 @@ public class GrouperProvisioningTranslator {
               gsm.member_from_id2, gsm.member_from_id3, gsm.member_to_id2, gsm.member_to_id3
               from grouper_members gm
               join grouper_memberships_lw_v gmlv on gmlv.member_id = gm.id
-              left join grouper_sync_member gsm on gsm.member_id = gmlv.member_id
-              where gsm.grouper_sync_id = ?
+              left join grouper_sync_member gsm on gsm.member_id = gmlv.member_id and gsm.grouper_sync_id = ?
               """);
 
       gcDbAccess.addBindVar(this.grouperProvisioner.getGcGrouperSync().getId());

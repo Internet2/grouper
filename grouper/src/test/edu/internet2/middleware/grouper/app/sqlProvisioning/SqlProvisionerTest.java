@@ -149,7 +149,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
     //TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
-    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
   
