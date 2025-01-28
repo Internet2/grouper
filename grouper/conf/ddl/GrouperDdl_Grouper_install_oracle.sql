@@ -2812,8 +2812,8 @@ alter table grouper_sync_dep_group_group
     add CONSTRAINT grouper_sync_dep_grp_grp_fk_1 FOREIGN KEY (provisionable_group_id) REFERENCES grouper_groups(id);
   
 alter table grouper_sync_dep_group_group
-    add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id);    
-    
+    add CONSTRAINT grouper_sync_dep_grp_grp_fk_3 FOREIGN KEY (grouper_sync_id) REFERENCES grouper_sync(id);
+
 COMMENT ON COLUMN grouper_members.subject_identifier0 IS 'subject identifier of the subject';
 
 COMMENT ON COLUMN grouper_members.subject_identifier1 IS 'subject identifier of the subject';
