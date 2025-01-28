@@ -2911,6 +2911,10 @@ public enum GrouperDdl implements DdlVersionable {
         
         GrouperDdl5_14_0.addGrouperSqlCacheDependTypeComments(database, ddlVersionBean);
         GrouperDdl5_14_0.addGrouperSqlCacheDependencyComments(database, ddlVersionBean);
+        
+        GrouperDdl5_14_0.addGrouperDataFieldAssignHstTableAndIndexes(database, ddlVersionBean);
+        GrouperDdl5_14_0.addGrouperDataRowAssignHstTableAndIndexes(database, ddlVersionBean);
+        GrouperDdl5_14_0.addGrouperDataRowFieldAsnHstTableAndIndexes(database, ddlVersionBean);
     }
   }
   //DON'T ADD ANY MORE Vs

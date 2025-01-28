@@ -568,4 +568,96 @@ public class GrouperDdl5_14_0 {
         COLUMN_GROUPER_SQL_CACHE_DEPENDENCY_CREATED_ON, 
         "when this row was created");
   }
+  
+  static void addGrouperDataFieldAssignHstTableAndIndexes(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!GrouperDdl5_12_0.buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_14_0_addGrouperDataFieldAssignHstTableAndIndexes", true)) {
+      return;
+    }
+    
+    final String tableName = "grouper_data_field_assign_hst";
+  
+    Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "internal_id", Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "member_internal_id", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_field_internal_id", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "start_time", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "end_time", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "value_integer", Types.BIGINT, "20", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "value_dictionary_internal_id", Types.BIGINT, "20", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_field_assign_hst1_idx", false, "data_field_internal_id", "value_dictionary_internal_id", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_field_assign_hst2_idx", false, "data_field_internal_id", "value_integer", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_field_assign_hst3_idx", false, "member_internal_id", "data_field_internal_id", "value_dictionary_internal_id", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_field_assign_hst4_idx", false, "member_internal_id", "data_field_internal_id", "value_integer", "end_time");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_field_assign_hst_fk_1", "grouper_members", GrouperUtil.toList("member_internal_id"), GrouperUtil.toList("internal_id"));
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_field_assign_hst_fk_2", "grouper_data_field", GrouperUtil.toList("data_field_internal_id"), GrouperUtil.toList("internal_id"));
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_field_assign_hst_fk_3", "grouper_dictionary", GrouperUtil.toList("value_dictionary_internal_id"), GrouperUtil.toList("internal_id"));
+  }
+  
+  static void addGrouperDataRowAssignHstTableAndIndexes(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!GrouperDdl5_12_0.buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_14_0_addGrouperDataRowAssignHstTableAndIndexes", true)) {
+      return;
+    }
+    
+    final String tableName = "grouper_data_row_assign_hst";
+  
+    Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "internal_id", Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "member_internal_id", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_row_internal_id", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_row_assign_internal_id", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "start_time", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "end_time", Types.BIGINT, "20", false, true);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_assign_hst1_idx", false, "data_row_internal_id", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_assign_hst2_idx", false, "data_row_assign_internal_id", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_assign_hst3_idx", false, "member_internal_id", "data_row_internal_id", "end_time");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_assign_hst_fk_1", "grouper_members", GrouperUtil.toList("member_internal_id"), GrouperUtil.toList("internal_id"));
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_assign_hst_fk_2", "grouper_data_row", GrouperUtil.toList("data_row_internal_id"), GrouperUtil.toList("internal_id"));
+  }
+  
+  static void addGrouperDataRowFieldAsnHstTableAndIndexes(Database database, DdlVersionBean ddlVersionBean) {
+    
+    if (!GrouperDdl5_12_0.buildingToThisVersionAtLeast(ddlVersionBean)) {
+      return;
+    }
+  
+    if (ddlVersionBean.didWeDoThis("v5_14_0_addGrouperDataRowFieldAsnHstTableAndIndexes", true)) {
+      return;
+    }
+    
+    final String tableName = "grouper_data_row_field_asn_hst";
+  
+    Table table = GrouperDdlUtils.ddlutilsFindOrCreateTable(database, tableName);
+  
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "internal_id", Types.BIGINT, "20", true, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_row_assign_internal_id", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_field_internal_id", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "start_time", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "end_time", Types.BIGINT, "20", false, true);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "value_integer", Types.BIGINT, "20", false, false);
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "value_dictionary_internal_id", Types.BIGINT, "20", false, false);
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst1_idx", false, "data_row_assign_internal_id", "data_field_internal_id", "value_dictionary_internal_id", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst2_idx", false, "data_row_assign_internal_id", "data_field_internal_id", "value_integer", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst3_idx", false, "data_field_internal_id", "value_dictionary_internal_id", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst4_idx", false, "data_field_internal_id", "value_integer", "end_time");
+    
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_field_asn_hst_fk_1", "grouper_data_field", GrouperUtil.toList("data_field_internal_id"), GrouperUtil.toList("internal_id"));
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_field_asn_hst_fk_2", "grouper_dictionary", GrouperUtil.toList("value_dictionary_internal_id"), GrouperUtil.toList("internal_id"));
+  }
 }
