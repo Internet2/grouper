@@ -1110,9 +1110,13 @@ public class GrouperScim2ApiCommands {
               + ", itemsPerPage: " + itemsPerPage + ", startIndex: " + startIndex + ", resultsRetrieved: " + results.size());
         }
 
+        if (!jsonNode.has("Resources")) {
+          return results;
+        }
+        
         ArrayNode resourcesNode = (ArrayNode)jsonNode.get("Resources");
 
-        if (resourcesNode.size() == 0) {
+        if (resourcesNode == null || resourcesNode.size() == 0) {
           return results;
         }
    
