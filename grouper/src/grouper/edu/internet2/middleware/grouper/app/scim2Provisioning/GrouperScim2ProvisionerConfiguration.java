@@ -23,6 +23,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   
   private String scimContentType;
   
+  private int scimMembershipBatchSize = 100;
+  
   private boolean scimIgnorePagingMetadata = false;
   
   private boolean scimRetrieveMembershipsByUser = true;
@@ -49,6 +51,16 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   
   private boolean selectAllMemberships = true;
   
+  
+  public int getScimMembershipBatchSize() {
+    return scimMembershipBatchSize;
+  }
+
+  
+  public void setScimMembershipBatchSize(int scimMembershipBatchSize) {
+    this.scimMembershipBatchSize = scimMembershipBatchSize;
+  }
+
   public Map<String, String> getGroupAttributeJsonValueType() {
     return groupAttributeJsonValueType;
   }
@@ -185,6 +197,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.scimRetrieveMembershipsByGroup = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimRetrieveMembershipsByGroup", false), true);
 
     this.scimIgnorePagingMetadata = GrouperUtil.booleanValue(this.retrieveConfigBoolean("scimIgnorePagingMetadata", false), false);
+    
+    this.scimMembershipBatchSize = GrouperUtil.intValue(this.retrieveConfigInt("scimMembershipBatchSize", false), 100);
     
     for (String attributeName : this.getTargetEntityAttributeNameToConfig().keySet()) {
       GrouperProvisioningConfigurationAttribute configurationAttribute = this.getTargetEntityAttributeNameToConfig().get(attributeName);
