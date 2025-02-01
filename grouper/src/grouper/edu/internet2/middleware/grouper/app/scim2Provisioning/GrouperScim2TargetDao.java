@@ -671,8 +671,26 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
             scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
             scimSettings.setOrgName(orgNameThreadLocal.get());
             
-            GrouperScim2ApiCommands.deleteScimMemberships(scimConfiguration.getBearerTokenExternalSystemConfigId(),
+            Map<String, Exception> userIdToException = GrouperScim2ApiCommands.deleteScimMemberships(scimConfiguration.getBearerTokenExternalSystemConfigId(),
                 groupId, new HashSet<String>(userIds), scimSettings);
+            
+            for (String userId : userIds) {
+              
+              Exception exception = userIdToException.get(userId);
+
+              ProvisioningMembership targetMembership = groupIdUserIdToProvisioningMembership.get(new MultiKey(groupId, userId));
+
+              boolean success = exception == null;
+              targetMembership.setProvisioned(success);
+              targetMembership.setException(exception);
+              for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
+                provisioningObjectChange.setProvisioned(success);
+                
+              }
+
+            }
+
+            
           } catch (RuntimeException e) {
             runtimeException = e;
           }

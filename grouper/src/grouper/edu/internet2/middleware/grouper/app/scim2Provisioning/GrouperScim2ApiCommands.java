@@ -1401,7 +1401,13 @@ public class GrouperScim2ApiCommands {
     
     List<String> userIdsList = new ArrayList<String>(userIds);
     
-    int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, 100, false);
+    int batchSize = 100;
+    
+    if (scimSettings != null) {
+      batchSize = scimSettings.getScimMembershipBatchSize();
+    }
+    
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, batchSize, false);
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
     debugMap.put("numberOfBatches", numberOfBatches);
@@ -1411,7 +1417,7 @@ public class GrouperScim2ApiCommands {
     try {
       for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
         
-        List<String> currentBatchUserIds = GrouperUtil.batchList(userIdsList, 100, batchIndex);
+        List<String> currentBatchUserIds = GrouperUtil.batchList(userIdsList, batchSize, batchIndex);
   
         try {
   
@@ -1537,11 +1543,17 @@ public class GrouperScim2ApiCommands {
    * delete membership
    * @param groupId
    * @param userIds
-   * @return the result
+   * @return the user ids and if there is an exception
    */
-  public static void deleteScimMemberships(String configId, String groupId, Set<String> userIds, ScimSettings scimSettings) {
+  public static Map<String, Exception> deleteScimMemberships(String configId, String groupId, Set<String> userIds, ScimSettings scimSettings) {
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
+    Map<String, Exception> userIdsDeleted = new HashMap<String, Exception>();
+    
+    if (GrouperUtil.length(userIds) == 0) {
+      return userIdsDeleted;
+    }
+
     debugMap.put("method", "deleteScimMemberships");
   
     long startTime = System.nanoTime();
@@ -1550,18 +1562,46 @@ public class GrouperScim2ApiCommands {
   
       List<String> userIdsList = new ArrayList<String>(userIds);
       
-      int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, 100);
+      int batchSize = 100;
+      
+      if (scimSettings != null) {
+        batchSize = scimSettings.getScimMembershipBatchSize();
+      }
+      int numberOfBatches = GrouperUtil.batchNumberOfBatches(userIdsList, batchSize, false);
 
       debugMap.put("numberOfBatches", numberOfBatches);
 
       for (int batchIndex=0;batchIndex<numberOfBatches;batchIndex++) {
         
-        List<String> currentBatch = GrouperUtil.batchList(userIdsList, 100, batchIndex);
+        List<String> currentBatch = GrouperUtil.batchList(userIdsList, batchSize, batchIndex);
         
-        deleteScimMembershipsHelper(configId, groupId, currentBatch, scimSettings);
+        try {
+          
+          deleteScimMembershipsHelper(configId, groupId, currentBatch, scimSettings);
+                  
+        } catch (RuntimeException localException) {
+          
+          GrouperUtil.sleep(2000);
+          
+          for (String userId : currentBatch) {
+            
+            List<String> oneUserId = GrouperUtil.toList(userId);
+  
+            try {
+              deleteScimMembershipsHelper(configId, groupId, oneUserId, scimSettings);
+  
+            } catch (RuntimeException localException2) {
+              debugMap.put("exception", GrouperClientUtils.getFullStackTrace(localException2));
+              userIdsDeleted.put(userId, localException2);
+            }
+  
+          }
+          
+        }
+
         
       }
-      
+      return userIdsDeleted;
     } catch (RuntimeException re) {
       debugMap.put("exception", GrouperClientUtils.getFullStackTrace(re));
       throw re;

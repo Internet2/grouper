@@ -15,7 +15,10 @@ public class ScimSettings {
     this.setAcceptHeader(scimConfiguration.getAcceptHeader());
     this.setScimContentType(scimConfiguration.getScimContentType());
     this.setScimIgnorePagingMetadata(scimConfiguration.isScimIgnorePagingMetadata());
+    this.setScimMembershipBatchSize(scimConfiguration.getScimMembershipBatchSize());
   }
+  
+  private int scimMembershipBatchSize = 100;
   
   private String orgName;
   
@@ -29,6 +32,16 @@ public class ScimSettings {
   
   private boolean scimIgnorePagingMetadata = false;
   
+  
+  public int getScimMembershipBatchSize() {
+    return scimMembershipBatchSize;
+  }
+
+  
+  public void setScimMembershipBatchSize(int scimMembershipBatchSize) {
+    this.scimMembershipBatchSize = scimMembershipBatchSize;
+  }
+
   public boolean isScimIgnorePagingMetadata() {
     return scimIgnorePagingMetadata;
   }
