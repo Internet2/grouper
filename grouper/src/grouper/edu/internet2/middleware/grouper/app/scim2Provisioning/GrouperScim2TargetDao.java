@@ -664,47 +664,29 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
   
           List<String> userIds = groupIdToUserIds.get(groupId);
           
-          RuntimeException runtimeException = null;
-          try {
-            
-            ScimSettings scimSettings = new ScimSettings();
-            scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
-            scimSettings.setOrgName(orgNameThreadLocal.get());
-            
-            Map<String, Exception> userIdToException = GrouperScim2ApiCommands.deleteScimMemberships(scimConfiguration.getBearerTokenExternalSystemConfigId(),
-                groupId, new HashSet<String>(userIds), scimSettings);
-            
-            for (String userId : userIds) {
-              
-              Exception exception = userIdToException.get(userId);
-
-              ProvisioningMembership targetMembership = groupIdUserIdToProvisioningMembership.get(new MultiKey(groupId, userId));
-
-              boolean success = exception == null;
-              targetMembership.setProvisioned(success);
-              targetMembership.setException(exception);
-              for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
-                provisioningObjectChange.setProvisioned(success);
-                
-              }
-
-            }
-
-            
-          } catch (RuntimeException e) {
-            runtimeException = e;
-          }
-          boolean success = runtimeException == null;
+          ScimSettings scimSettings = new ScimSettings();
+          scimSettings.loadFromScimProvisionerConfiguration(scimConfiguration);
+          scimSettings.setOrgName(orgNameThreadLocal.get());
+          
+          Map<String, Exception> userIdToException = GrouperScim2ApiCommands.deleteScimMemberships(scimConfiguration.getBearerTokenExternalSystemConfigId(),
+              groupId, new HashSet<String>(userIds), scimSettings);
+          
           for (String userId : userIds) {
-            ProvisioningMembership targetMembership = groupIdUserIdToProvisioningMembership.get(new MultiKey(groupId, userId));
             
+            Exception exception = userIdToException.get(userId);
+
+            ProvisioningMembership targetMembership = groupIdUserIdToProvisioningMembership.get(new MultiKey(groupId, userId));
+
+            boolean success = exception == null;
             targetMembership.setProvisioned(success);
-            targetMembership.setException(runtimeException);
+            targetMembership.setException(exception);
             for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetMembership.getInternal_objectChanges())) {
               provisioningObjectChange.setProvisioned(success);
               
             }
+
           }
+
         }
       }      
       return new TargetDaoDeleteMembershipsResponse();
@@ -809,11 +791,43 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
   @Override
   public TargetDaoRetrieveAllMembershipsResponse retrieveAllMemberships(
       TargetDaoRetrieveAllMembershipsRequest targetDaoRetrieveAllMembershipsRequest) {
-    
+
     List<ProvisioningMembership> result = new ArrayList<ProvisioningMembership>();
-    
+
     Set<MultiKey> groupIdUserIds = new HashSet<MultiKey>();
-    
+
+
+    GrouperScim2ProvisionerConfiguration scimConfiguration = (GrouperScim2ProvisionerConfiguration) this
+        .getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+
+    String membershipStrategy = scimConfiguration.getMembershipStrategy();
+
+    if (StringUtils.equals(membershipStrategy, "fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups")) {
+      Set<String> groupIdsRetrievedMemberships = grouperScim2MembershipCache.getGroupIdsRetrievedMemberships();
+
+      for (String groupId: GrouperUtil.nonNull(groupIdsRetrievedMemberships)) {
+        ProvisioningGroup provisioningGroup = new ProvisioningGroup();
+        provisioningGroup.setId(groupId);
+        TargetDaoRetrieveGroupRequest targetDaoRetrieveGroupRequest = new TargetDaoRetrieveGroupRequest(provisioningGroup, true);
+        targetDaoRetrieveGroupRequest.setSearchAttribute("id");
+        targetDaoRetrieveGroupRequest.setSearchAttributeValue(groupId);
+        retrieveGroup(targetDaoRetrieveGroupRequest); // this will populate the cache
+      }
+
+    } else if (StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingIndividualUsers")) {
+      Set<String> userIdsRetrievedMemberships = grouperScim2MembershipCache.getUserIdsRetrievedMemberships();
+
+      for (String userId: GrouperUtil.nonNull(userIdsRetrievedMemberships)) {
+        ProvisioningEntity provisioningEntity = new ProvisioningEntity();
+        provisioningEntity.setId(userId);
+        TargetDaoRetrieveEntityRequest targetDaoRetrieveEntityRequest = new TargetDaoRetrieveEntityRequest(provisioningEntity, true);
+        targetDaoRetrieveEntityRequest.setSearchAttribute("id");
+        targetDaoRetrieveEntityRequest.setSearchAttributeValue(userId);
+        retrieveEntity(targetDaoRetrieveEntityRequest); // this will populate the cache
+      }
+
+    }
+
     for (String groupId : this.grouperScim2MembershipCache.getGroupIdToMembershipUserIds().keySet()) {
       for (String userId : this.grouperScim2MembershipCache.getGroupIdToMembershipUserIds().get(groupId)) {
         groupIdUserIds.add(new MultiKey(groupId, userId));
@@ -830,11 +844,8 @@ public class GrouperScim2TargetDao extends GrouperProvisionerTargetDaoBase {
       provisioningMembership.setProvisioningEntityId((String)groupIdUserId.getKey(1));
       result.add(provisioningMembership);
     }
-    
-    
-    return new TargetDaoRetrieveAllMembershipsResponse(result);
 
-    
+    return new TargetDaoRetrieveAllMembershipsResponse(result);
   }
 
   @Override

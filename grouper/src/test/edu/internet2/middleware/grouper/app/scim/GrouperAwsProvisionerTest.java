@@ -59,7 +59,7 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     AwsScim2MockServiceHandler.ensureScimMockTables();
     //TestRunner.run(new GrouperAwsProvisionerTest("testAWSIncrementalSyncProvisionWithActiveAttributeOnUser"));
-    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncProvisionGroupUseJsonPointer"));
+    TestRunner.run(new GrouperAwsProvisionerTest("testAWSFullSyncProvisionGroupWithMembershipStrategy"));
 
   }
   
@@ -679,6 +679,152 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
 //      if (commandLineExec != null) {
 //        GrouperUtil.threadJoin(commandLineExec.getThread());
 //      }
+    }
+    
+  }
+  
+  public void testAWSFullSyncProvisionGroupWithMembershipStrategy() {
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("membershipsInUserObjectsWhenRetrievingAllUsers", true);
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("fullGroupMembershipsInGroupObjectsWhenRetrievingAllGroups", true);
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups", true);
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("membershipsInUserObjectsWhenRetrievingIndividualUsers", true);
+    
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("membershipsInUserObjectsWhenRetrievingAllUsers", false);
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("fullGroupMembershipsInGroupObjectsWhenRetrievingAllGroups", false);
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups", false);
+    testGenericFullSyncProvisionGroupWithMembershipStrategy("membershipsInUserObjectsWhenRetrievingIndividualUsers", false);
+  }
+  
+ public void testGenericFullSyncProvisionGroupWithMembershipStrategy(String membershipStrategy, boolean isFull) {
+    
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    ScimProvisionerTestUtils.setupAwsExternalSystem();
+
+    String awsConfigId = "awsConfigId";
+    
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+      .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
+      .assignProvisioningStrategy("generic")
+      .assignBearerTokenExternalSystemConfigId(awsConfigId)
+      .addExtraConfig("membershipStrategy", membershipStrategy));
+    
+    new GrouperDbConfig().configFileName("grouper.properties")
+    .propertyName("grouperTest.scim2.mock.membershipStrategy.mode")
+    .value(membershipStrategy).store();
+    
+    if (!isFull) {
+      fullProvision();
+      GrouperUtil.sleep(2000);
+  
+      incrementalProvision();
+    }
+    
+    GrouperStartup.startup();
+    
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+    
+    try {
+      // this will create tables
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers(awsConfigId, null);
+  
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
+
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+      
+      Stem stem = new StemSave(grouperSession).assignName("test").save();
+      Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
+      
+      // mark some folders to provision
+      Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+      Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
+      
+      testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+      testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+      
+      testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+      testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
+      
+      final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+      attributeValue.setDirectAssignment(true);
+      attributeValue.setDoProvision("awsProvisioner");
+      attributeValue.setTargetName("awsProvisioner");
+      attributeValue.setStemScopeString("sub");
+  
+      GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+  
+      //lets sync these over      
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_scim_group").select(int.class));
+  
+      
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      
+      long started = System.currentTimeMillis();
+      
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+      
+      GrouperUtil.sleep(2000);
+      
+      GrouperProvisioner grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      GrouperProvisioningOutput grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput(); 
+      
+      
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      GrouperScim2Group grouperScimGroup = HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).get(0);
+
+      assertEquals("testGroup", grouperScimGroup.getDisplayName());
+       
+      //now remove one of the subjects from the testGroup
+      testGroup.deleteMember(SubjectTestHelper.SUBJ1);
+      
+      // now run the full sync again and the member should be deleted from mock_scim_membership also
+      started = System.currentTimeMillis();
+      
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+      
+      GrouperUtil.sleep(2000);
+      
+      grouperProvisioner = GrouperProvisioner.retrieveInternalLastProvisioner();
+      grouperProvisioningOutput = grouperProvisioner.retrieveGrouperProvisioningOutput(); 
+      
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(1, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+      //now delete the group and sync again
+      testGroup.delete();
+      
+      started = System.currentTimeMillis();
+      
+      if (isFull) {
+        fullProvision();
+      } else {
+        incrementalProvision();
+      }
+      GrouperUtil.sleep(2000);
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+    } finally {
     }
     
   }

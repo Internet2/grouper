@@ -138,7 +138,7 @@ public class GrouperScim2Group {
     value = matcher.group(3); 
 
     if (!"members".equalsIgnoreCase(field)) {
-      throw new RuntimeException("Expecting emails but received '" + field + "'");
+      throw new RuntimeException("Expecting members but received '" + field + "'");
     }
 
     if ("value".equals(membersField)) {

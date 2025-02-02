@@ -11,7 +11,6 @@ import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.text.StringEscapeUtils;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
@@ -21,11 +20,12 @@ import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternal
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperMockDdl;
-import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.j2ee.MockServiceHandler;
@@ -33,7 +33,6 @@ import edu.internet2.middleware.grouper.j2ee.MockServiceRequest;
 import edu.internet2.middleware.grouper.j2ee.MockServiceResponse;
 import edu.internet2.middleware.grouper.j2ee.MockServiceServlet;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.config.ConfigPropertiesCascadeBase;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 public class AwsScim2MockServiceHandler extends MockServiceHandler {
@@ -424,7 +423,12 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     ArrayNode resourcesNode = GrouperUtil.jsonJacksonArrayNode();
     
     for (GrouperScim2User grouperScimUser : grouperScimUsers) {
-      resourcesNode.add(grouperScimUser.toJson(null));
+      ObjectNode userNode = grouperScimUser.toJson(null);
+      resourcesNode.add(userNode);
+      String membershipStrategy = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.membershipStrategy.mode");
+      if (StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingAllUsers")) {
+        attachGroupsToUser(userNode, grouperScimUser.getId());
+      }
     }
     
     resultNode.set("Resources", resourcesNode);
@@ -452,6 +456,11 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
       return;
     }
     ObjectNode objectNode = grouperScimUser.toJson(null);
+    String membershipStrategy = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.membershipStrategy.mode");
+    if (StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingIndividualUsers")) {      
+      attachGroupsToUser(objectNode, grouperScimUser.getId());
+    }
+    
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
@@ -811,11 +820,52 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
     }
     
     ObjectNode objectNode = grouperScimGroup.toJson(null);
+    String membershipStrategy = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.membershipStrategy.mode");
+    if (StringUtils.equals(membershipStrategy, "fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups")) {      
+      attachMembersToGroup(objectNode, grouperScimGroup.getId());
+    }
+    
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));
   
   }
+  
+  private void attachMembersToGroup(ObjectNode groupNode, String groupId) {
+      
+    // select memberships
+    List<GrouperScim2Membership> grouperScimMemberships =  HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership where groupId = :theGroupId")
+        .setString("theGroupId", groupId).list(GrouperScim2Membership.class);
+    
+    ArrayNode membersArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    for (GrouperScim2Membership grouperScim2Membership: grouperScimMemberships) {
+      ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
+      jsonJacksonNode.put("value", grouperScim2Membership.getUserId());
+      membersArrayNode.add(jsonJacksonNode);
+    }
+    
+    groupNode.set("members", membersArrayNode);
+      
+    
+  }
+  
+  private void attachGroupsToUser(ObjectNode userNode, String userId) {
+      
+    List<GrouperScim2Membership> grouperScimMemberships =  HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership where userId = :theUserId")
+        .setString("theUserId", userId).list(GrouperScim2Membership.class);
+    
+    ArrayNode membersArrayNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    for (GrouperScim2Membership grouperScim2Membership: grouperScimMemberships) {
+      ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
+      jsonJacksonNode.put("value", grouperScim2Membership.getGroupId());
+      membersArrayNode.add(jsonJacksonNode);
+    }
+    
+    userNode.set("groups", membersArrayNode);
+      
+  } 
 
   public void getGroups(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
   
@@ -879,8 +929,13 @@ public class AwsScim2MockServiceHandler extends MockServiceHandler {
         customAttributeJsonPointers.put("custom_description", "/urn:ietf:params:scim:schemas:extension:servicenow:2.0:Group/description");
         grouperScimGroup.setCustomAttributeNameToJsonPointer(customAttributeJsonPointers);
       }
+      ObjectNode groupNode = grouperScimGroup.toJson(null);
+      resourcesNode.add(groupNode);
       
-      resourcesNode.add(grouperScimGroup.toJson(null));
+      String membershipStrategy = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.mock.membershipStrategy.mode");
+      if (StringUtils.equals(membershipStrategy, "fullGroupMembershipsInGroupObjectsWhenRetrievingAllGroups")) {
+        attachMembersToGroup(groupNode, grouperScimGroup.getId());
+      }
     }
     
     resultNode.set("Resources", resourcesNode);
