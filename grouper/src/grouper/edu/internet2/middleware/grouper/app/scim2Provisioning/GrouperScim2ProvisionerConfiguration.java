@@ -195,7 +195,7 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
 
     
     this.scimNamePatchStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimNamePatchStrategy", false), "nonqualified");
-    this.membershipStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("membershipStrategy", false), "membershipsInUserObjectsWhenRetrievingAllUsers");
+    this.membershipStrategy = this.retrieveConfigString("membershipStrategy", false);
     this.scimEmailPatchStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimEmailPatchStrategy", false), "pathEmails");
     this.scimContentType = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimContentType", false), "application/json");
     
