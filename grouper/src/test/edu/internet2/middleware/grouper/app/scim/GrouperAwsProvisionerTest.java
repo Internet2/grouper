@@ -7,6 +7,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Random;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -705,11 +707,17 @@ public class GrouperAwsProvisionerTest extends GrouperProvisioningBaseTest {
 
     String awsConfigId = "awsConfigId";
     
-    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+    ScimProvisionerTestConfigInput scimConfigInput = new ScimProvisionerTestConfigInput()
       .assignChangelogConsumerConfigId("awsScimProvTestCLC").assignConfigId("awsProvisioner")
       .assignProvisioningStrategy("generic")
-      .assignBearerTokenExternalSystemConfigId(awsConfigId)
-      .addExtraConfig("membershipStrategy", membershipStrategy));
+      .assignBearerTokenExternalSystemConfigId(awsConfigId);
+    
+    if (StringUtils.equalsAny(membershipStrategy, 
+        "fullGroupMembershipsInGroupObjectsWhenRetrievingIndividualGroups", "membershipsInUserObjectsWhenRetrievingIndividualUsers")) {
+          scimConfigInput.addExtraConfig("membershipStrategy", membershipStrategy);
+     }
+    
+    ScimProvisionerTestUtils.configureScimProvisioner(scimConfigInput);
     
     new GrouperDbConfig().configFileName("grouper.properties")
     .propertyName("grouperTest.scim2.mock.membershipStrategy.mode")
