@@ -379,8 +379,8 @@ public class GroupStemTemplateContainer {
     
     for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
       
-      String templateTypeString = gshTemplateConfiguration.retrieveAttributeValueFromConfig("templateType", true);
-      if (!StringUtils.equals(templateTypeString, "abac")) {
+      String templateTypeString = gshTemplateConfiguration.retrieveAttributeValueFromConfig("templateType", false);
+      if (StringUtils.isBlank(templateTypeString) || !StringUtils.equals(templateTypeString, "abac")) {
         continue;
       }
       
