@@ -25,6 +25,8 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   
   private int scimMembershipBatchSize = 100;
   
+  private String membershipStrategy;
+  
   private boolean scimIgnorePagingMetadata = false;
   
   private boolean scimRetrieveMembershipsByUser = true;
@@ -173,6 +175,16 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
   public void setScimRetrieveMembershipsByGroup(boolean scimRetrieveMembershipsByGroup) {
     this.scimRetrieveMembershipsByGroup = scimRetrieveMembershipsByGroup;
   }
+  
+  
+  public String getMembershipStrategy() {
+    return membershipStrategy;
+  }
+
+  
+  public void setMembershipStrategy(String membershipStrategy) {
+    this.membershipStrategy = membershipStrategy;
+  }
 
   @Override
   public void configureSpecificSettings() {
@@ -182,6 +194,7 @@ public class GrouperScim2ProvisionerConfiguration extends GrouperProvisioningCon
     this.acceptHeader = this.retrieveConfigString("acceptHeader", false);
     
     this.scimNamePatchStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimNamePatchStrategy", false), "nonqualified");
+    this.membershipStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("membershipStrategy", false), "membershipsInUserObjectsWhenRetrievingAllUsers");
     this.scimEmailPatchStrategy = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimEmailPatchStrategy", false), "pathEmails");
     this.scimContentType = GrouperUtil.defaultIfBlank(this.retrieveConfigString("scimContentType", false), "application/json");
     

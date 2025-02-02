@@ -19,6 +19,7 @@ import edu.internet2.middleware.grouper.app.externalSystem.WsBearerTokenExternal
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningType;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
@@ -534,6 +535,38 @@ public class GithubScim2MockServiceHandler extends MockServiceHandler {
       grouperScimUser.setCustomAttributeNameToJsonPointer(customAttributeJsonPointers);
     }
     ObjectNode objectNode = grouperScimUser.toJson(null);
+    
+    String membershipStrategy = GrouperConfig.retrieveConfig().propertyValueString("grouperTest.scim2.membershipStrategy.mode");
+    if (StringUtils.equals(membershipStrategy, "membershipsInUserObjectsWhenRetrievingIndividualUsers")) {
+      
+      /**
+       *   if (userNode.has("groups")) {
+            ArrayNode groupsNode = GrouperUtil.jsonJacksonGetArrayNode(userNode, "groups");
+            if (groupsNode != null) {
+              for (int membersIndex=0; membersIndex<groupsNode.size(); membersIndex++) {
+                JsonNode singleMemberNode = groupsNode.get(membersIndex);
+                String groupId = GrouperUtil.jsonJacksonGetString(singleMemberNode, "value");
+                grouperScim2MembershipCache.addMembership(groupId, userId);
+              }
+            }
+          }
+       */
+      
+      List<GrouperScim2Membership> grouperScimMemberships =  HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership where userId = :theUserId")
+          .setString("theUserId", grouperScimUser.getId()).list(GrouperScim2Membership.class);
+      
+      ArrayNode groupsArrayNode = GrouperUtil.jsonJacksonArrayNode();
+      
+      for (GrouperScim2Membership grouperScim2Membership: grouperScimMemberships) {
+        ObjectNode jsonJacksonNode = GrouperUtil.jsonJacksonNode();
+        jsonJacksonNode.put("value", grouperScim2Membership.getGroupId());
+        groupsArrayNode.add(jsonJacksonNode);
+      }
+      
+      objectNode.set("groups", groupsArrayNode);
+      
+    }
+    
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode));

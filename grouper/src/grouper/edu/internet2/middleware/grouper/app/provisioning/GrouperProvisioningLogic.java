@@ -829,14 +829,16 @@ public class GrouperProvisioningLogic {
     
     GrouperProvisioningLoader grouperProvisioningLoader = this.grouperProvisioner.retrieveGrouperProvisioningLoader();
     String tableName = grouperProvisioningLoader.getLoaderEntityTableName();
-    GrouperUtil.assertion(StringUtils.isNotBlank(tableName), "grouperLoaderEntityTableName is blank.");
+    if (StringUtils.isBlank(tableName)) {
+      return;
+    }
     
     loadUsersToTableGcTableSyncTableBeanSql.configureMetadata("grouper", tableName);
     loadUsersToTableGcTableSync.setDataBeanTo(loadUsersToTableGcTableSyncTableBeanSql);
     
-    Set<String> databaseColumnNames = new LinkedHashSet(grouperProvisioningLoader.getLoaderEntityColumnNames());
+    Set<String> databaseColumnNames = new LinkedHashSet<>(grouperProvisioningLoader.getLoaderEntityColumnNames());
 
-    Set<String> loadUsersToTableUniqueKeyColumnNames = new LinkedHashSet(grouperProvisioningLoader.getLoaderEntityKeyColumnNames());
+    Set<String> loadUsersToTableUniqueKeyColumnNames = new LinkedHashSet<>(grouperProvisioningLoader.getLoaderEntityKeyColumnNames());
 
     GcTableSyncTableMetadata gcTableSyncTableMetadata = loadUsersToTableGcTableSyncTableBeanSql.getTableMetadata();
 
@@ -938,7 +940,9 @@ public class GrouperProvisioningLogic {
     
     GrouperProvisioningLoader grouperProvisioningLoader = this.grouperProvisioner.retrieveGrouperProvisioningLoader();
     String tableName = grouperProvisioningLoader.getLoaderGroupTableName();
-    GrouperUtil.assertion(StringUtils.isNotBlank(tableName), "grouperLoaderGroupTableName is blank.");
+    if (StringUtils.isBlank(tableName)) {
+      return;
+    }
     
     loadGroupsToTableGcTableSyncTableBeanSql.configureMetadata("grouper", tableName);
     loadGroupsToTableGcTableSync.setDataBeanTo(loadGroupsToTableGcTableSyncTableBeanSql);
@@ -1047,7 +1051,9 @@ public class GrouperProvisioningLogic {
     
     GrouperProvisioningLoader grouperProvisioningLoader = this.grouperProvisioner.retrieveGrouperProvisioningLoader();
     String tableName = grouperProvisioningLoader.getLoaderMembershipTableName();
-    GrouperUtil.assertion(StringUtils.isNotBlank(tableName), "grouperLoaderMembershipTableName is blank.");
+    if (StringUtils.isBlank(tableName)) {
+      return;
+    }
     
     loadMembershipsToTableGcTableSyncTableBeanSql.configureMetadata("grouper", tableName);
     loadMembershipsToTableGcTableSync.setDataBeanTo(loadMembershipsToTableGcTableSyncTableBeanSql);
