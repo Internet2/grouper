@@ -39,6 +39,7 @@ import java.io.Serializable;
 import java.security.Principal;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -389,27 +390,29 @@ public class GrouperUiFilter implements Filter {
           if (StringUtils.isBlank(sourceIds)) {
             String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi();
             if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
-              GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(externalSystemConfigIdForUi);
-              String sourceId = grouperOidcConfig.getSubjectSourceId();
-              String subjectIdType = grouperOidcConfig.getSubjectIdType();
-              if (!StringUtils.isBlank(sourceId)) {
-                
-                if (StringUtils.equals("subjectId", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdAndSource(userIdLoggedIn, sourceId, false);
-                } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdentifierAndSource(userIdLoggedIn, sourceId, false);
-                } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
-                }                
-              } else {
-                if (StringUtils.equals("subjectId", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn, false);
-                } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn, false);
-                } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, false);
-                }                
-                
+              if (!ignoreAuthn(null)) {
+                GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(externalSystemConfigIdForUi);
+                String sourceId = grouperOidcConfig.getSubjectSourceId();
+                String subjectIdType = grouperOidcConfig.getSubjectIdType();
+                if (!StringUtils.isBlank(sourceId)) {
+                  
+                  if (StringUtils.equals("subjectId", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdAndSource(userIdLoggedIn, sourceId, false);
+                  } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                  } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                  }                
+                } else {
+                  if (StringUtils.equals("subjectId", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn, false);
+                  } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn, false);
+                  } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, false);
+                  }                
+                  
+                }
               }
             }
           }
@@ -1132,7 +1135,8 @@ public class GrouperUiFilter implements Filter {
       
       if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")
           && !uri.endsWith("/UiV2Main.index")
-          && !uri.endsWith("/UiV2Public.index")) {
+          && !uri.endsWith("/UiV2Public.index")
+          && !uri.endsWith("/UiV2Main.indexCustomUi")) {
         
         RequestContainer.retrieveFromRequest().setAjaxRequest(true);
       }
@@ -1240,6 +1244,42 @@ public class GrouperUiFilter implements Filter {
     GrouperThreadLocalState.removeCurrentThreadLocals();
   }
   
+  private static ExpirableCache<Boolean, Set<String>> uriContextsToIgnore = new ExpirableCache<Boolean, Set<String>>(3);
+  
+  public static boolean ignoreAuthn(HttpServletRequest httpServletRequest) {
+    if (httpServletRequest == null) {
+      httpServletRequest = retrieveHttpServletRequest();
+    }
+    
+    if (httpServletRequest == null || true) {
+      return false;
+    }
+    Set<String> uriContexts = uriContextsToIgnore.get(Boolean.TRUE);
+    
+    if (uriContexts == null) {
+      synchronized (GrouperUiFilter.class) {
+        uriContexts = uriContextsToIgnore.get(Boolean.TRUE);
+        if (uriContexts == null) {
+          uriContexts = new HashSet<>();
+          GrouperUiConfig config = GrouperUiConfig.retrieveConfig();
+          for (int i=0;i<100;i++) {
+            // grouper.ui.paths.ignoreAuthn.0 = /grouper/grouperUi/app/UiV2Main.indexCustomUi?operation=UiV2CustomUi.customUiGroup&groupId=c324a6bd584f41d29adb92aca973a68e
+            String ignoreAuthn = config.propertyValueString("grouper.ui.paths.ignoreAuthn." + i);
+            if (StringUtils.isBlank(ignoreAuthn)) {
+              break;
+            }
+            uriContexts.add(ignoreAuthn);
+          }
+          uriContextsToIgnore.put(Boolean.TRUE, uriContexts);
+        }
+      }
+    }
+    
+    String uriContext = StringUtils.isBlank(httpServletRequest.getQueryString()) ?
+        httpServletRequest.getRequestURI() : (httpServletRequest.getRequestURI() + "?" + httpServletRequest.getQueryString());
+    return uriContext.contains(uriContext);
+  }
+  
   /**
    * 
    * @see javax.servlet.Filter#doFilter(javax.servlet.ServletRequest, javax.servlet.ServletResponse, javax.servlet.FilterChain)
@@ -1271,18 +1311,22 @@ public class GrouperUiFilter implements Filter {
       boolean runGrouperUiWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.basicAuthn", false);
       
       if (runGrouperUiWithBasicAuth) {
-        String authorizationHeader = httpServletRequest.getHeader("Authorization");
         
-        boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI, servletRequest.getRemoteAddr());
-        if (isValid) {
-          String userName = Authentication.retrieveUsername(authorizationHeader);
-          session.setAttribute("REMOTE_USER", userName);
-        } else {
-          httpServletResponse.setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
-          httpServletResponse.sendError(401, "Unauthorized");
-          return;
+        if (!ignoreAuthn(httpServletRequest)) {
+        
+          String authorizationHeader = httpServletRequest.getHeader("Authorization");
+          
+          boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI, servletRequest.getRemoteAddr());
+          if (isValid) {
+            String userName = Authentication.retrieveUsername(authorizationHeader);
+            session.setAttribute("REMOTE_USER", userName);
+          } else {
+            httpServletResponse.setHeader("WWW-Authenticate", "Basic realm=\"" + "Protected" + "\"");
+            httpServletResponse.sendError(401, "Unauthorized");
+            return;
+          }
+          httpServletRequest.setAttribute("REMOTE_USER", session.getAttribute("REMOTE_USER"));
         }
-        httpServletRequest.setAttribute("REMOTE_USER", session.getAttribute("REMOTE_USER"));
       }
 
       httpServletRequest = initRequest(httpServletRequest, response);
