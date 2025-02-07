@@ -326,6 +326,20 @@ public class GroupStemTemplateContainer {
   /**
    * cache this
    */
+  private Map<String, String> customAbacTemplates = null;
+  
+  /**
+   * get custom abac templates to show in pattern dropdown
+   * @return
+   */
+  public Map<String, String> getCustomAbacTemplates() {
+    this.abacTemplatesToShowHelper();
+    return this.customAbacTemplates;
+  }
+
+  /**
+   * cache this
+   */
   private Map<String, String> templatesToShowInMoreActions = null;
   
   /**
@@ -344,7 +358,6 @@ public class GroupStemTemplateContainer {
   }
 
   private static final Log LOG = GrouperUtil.getLog(GroupStemTemplateContainer.class);
-
 
   private void abacTemplatesToShowHelper() {
     
