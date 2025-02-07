@@ -110,14 +110,14 @@ public class GrouperDataRowDao {
       GrouperDataAliasDao.delete(grouperDataAlias);
     }
     
-    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
-    for (GrouperDataRowAssign grouperDataRowAssign: dataRowAssigns) {
-      GrouperDataRowAssignDao.delete(grouperDataRowAssign, false);
-    }
-    
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
     for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: dataRowFieldAssigns) {
       GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign, false);
+    }
+    
+    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
+    for (GrouperDataRowAssign grouperDataRowAssign: dataRowAssigns) {
+      GrouperDataRowAssignDao.delete(grouperDataRowAssign, false);
     }
     
     List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
@@ -273,11 +273,11 @@ public class GrouperDataRowDao {
     List<GrouperDataAlias> aliases = GrouperDataAliasDao.selectByDataRowInternalIds(dataRowInternalIds);
     GrouperDataAliasDao.delete(aliases);
     
-    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
-    GrouperDataRowAssignDao.delete(dataRowAssigns, false);
-    
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
     GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns, false);
+    
+    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
+    GrouperDataRowAssignDao.delete(dataRowAssigns, false);
     
     List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataRowInternalIds(dataRowInternalIds);
     GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);
