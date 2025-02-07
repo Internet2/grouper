@@ -112,13 +112,19 @@ public class GrouperDataRowDao {
     
     List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
     for (GrouperDataRowAssign grouperDataRowAssign: dataRowAssigns) {
-      GrouperDataRowAssignDao.delete(grouperDataRowAssign);
+      GrouperDataRowAssignDao.delete(grouperDataRowAssign, false);
     }
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
     for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: dataRowFieldAssigns) {
-      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign);
+      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign, false);
     }
+    
+    List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
+    GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);
+    
+    List<GrouperDataRowAssignHst> dataRowAssignHsts = GrouperDataRowAssignHstDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
+    GrouperDataRowAssignHstDao.delete(dataRowAssignHsts);
     
     new GcDbAccess().deleteFromDatabase(grouperDataRow);
   }
@@ -268,10 +274,16 @@ public class GrouperDataRowDao {
     GrouperDataAliasDao.delete(aliases);
     
     List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
-    GrouperDataRowAssignDao.delete(dataRowAssigns);
+    GrouperDataRowAssignDao.delete(dataRowAssigns, false);
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
-    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns, false);
+    
+    List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataRowInternalIds(dataRowInternalIds);
+    GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);
+    
+    List<GrouperDataRowAssignHst> dataRowAssignHsts = GrouperDataRowAssignHstDao.selectByDataRowInternalIds(dataRowInternalIds);
+    GrouperDataRowAssignHstDao.delete(dataRowAssignHsts);
     
     new GcDbAccess().deleteFromDatabaseMultiple(grouperDataRows);
     

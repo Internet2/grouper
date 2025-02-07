@@ -53,7 +53,7 @@ public class GrouperDataProviderTest extends GrouperTest {
   }
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperDataProviderTest("testSqlProviderFull"));
+    TestRunner.run(new GrouperDataProviderTest("testSqlProviderIncremental"));
   }
 
   public void setUp() {

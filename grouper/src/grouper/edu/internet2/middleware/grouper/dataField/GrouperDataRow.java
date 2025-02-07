@@ -227,4 +227,7 @@ public class GrouperDataRow implements GcSqlAssignPrimaryKey, GcDbVersionable, O
     new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GrouperDataRow.class)).executeSql();
   }
 
+  public GrouperDataRow getDbVersion() {
+    return this.dbVersion;
+  }
 }

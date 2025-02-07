@@ -200,4 +200,7 @@ public class GrouperDataRowAssign implements GcSqlAssignPrimaryKey, GcDbVersiona
     return GrouperClientUtils.toStringReflection(this, null);
   }
 
+  public GrouperDataRowAssign getDbVersion() {
+    return this.dbVersion;
+  }
 }

@@ -205,6 +205,25 @@ public enum TableIndexType {
     }
   },
   
+  /** index assigned to a data field assign history */
+  dataFieldAssignHst {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_field_assign_hst";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
   /** index assigned to a data global assign */
   dataGlobalAssign {
 
@@ -243,12 +262,50 @@ public enum TableIndexType {
     }
   },
   
+  /** index assigned to a data row field assign history */
+  dataRowFieldAssignHst {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_row_field_asn_hst";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+  
   /** index assigned to a data row assign */
   dataRowAssign {
 
     @Override
     public String tableName() {
       return "grouper_data_row_assign";
+    }
+
+    @Override
+    public String getIncrementingColumn() {
+      return "internal_id";
+    }
+    
+    @Override
+    public boolean isHasIdColumn() {
+      return false;
+    }
+  },
+
+  /** index assigned to a data row assign history */
+  dataRowAssignHst {
+
+    @Override
+    public String tableName() {
+      return "grouper_data_row_assign_hst";
     }
 
     @Override

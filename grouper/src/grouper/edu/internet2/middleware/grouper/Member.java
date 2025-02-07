@@ -74,6 +74,12 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHstDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHstDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHstDao;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -994,6 +1000,19 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   if (report == null) {
                     GrouperDAOFactory.getFactory().getGroupSet().update(groupSets);
                   }
+                }
+              }
+              
+              {
+                if (report == null) {
+                  List<GrouperDataFieldAssignHst> dataFieldAssignHsts = GrouperDataFieldAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
+                  GrouperDataFieldAssignHstDao.delete(dataFieldAssignHsts);
+                  
+                  List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
+                  GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);
+                  
+                  List<GrouperDataRowAssignHst> dataRowAssignHsts = GrouperDataRowAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
+                  GrouperDataRowAssignHstDao.delete(dataRowAssignHsts);
                 }
               }
               

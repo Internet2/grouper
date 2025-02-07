@@ -36,12 +36,15 @@ import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.app.membershipRequire.GrouperMembershipRequireChangeDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataAliasDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHstDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataGlobalAssignDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataProviderDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHstDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHstDao;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.hibernate.AuditControl;
 import edu.internet2.middleware.grouper.hibernate.GrouperTransactionType;
@@ -182,6 +185,10 @@ class Hib3RegistryDAO implements RegistryDAO {
             new GcDbAccess().sql("delete from grouper_last_login").executeSql();
             
             new edu.internet2.middleware.grouper.misc.AddMissingGroupSets().showResults(false).addAllMissingGroupSets();
+            
+            GrouperDataRowFieldAssignHstDao.reset();
+            GrouperDataFieldAssignHstDao.reset();
+            GrouperDataRowAssignHstDao.reset();
             
             GrouperDataRowFieldAssignDao.reset();
             GrouperDataFieldAssignDao.reset();
