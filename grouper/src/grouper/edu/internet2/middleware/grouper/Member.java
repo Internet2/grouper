@@ -696,6 +696,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             } else {
               changeSubjectExist++;
               newMemberUuid = newMember.getUuid();
+              long newInternalId = newMember.getInternalId();
+              
               {
                 //grouper_composites.creator_id
                 Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findByCreator(Member.this);
@@ -1004,15 +1006,27 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
               }
               
               {
+                List<GrouperDataFieldAssignHst> dataFieldAssignHsts = GrouperDataFieldAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
+                for (GrouperDataFieldAssignHst dataFieldAssignHst : dataFieldAssignHsts) {
+                  if (report == null) {
+                    dataFieldAssignHst.setMemberInternalId(newInternalId);
+                  } else {
+                    report.append("CHANGE grouperDataFieldAssignHst: " + dataFieldAssignHst.getInternalId() + ", memberInternalId FROM: " + dataFieldAssignHst.getMemberInternalId() + ", TO: " + newInternalId + "\n");
+                  }
+                }
+                  
+                List<GrouperDataRowAssignHst> dataRowAssignHsts = GrouperDataRowAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
+                for (GrouperDataRowAssignHst dataRowAssignHst : dataRowAssignHsts) {
+                  if (report == null) {
+                    dataRowAssignHst.setMemberInternalId(newInternalId);
+                  } else {
+                    report.append("CHANGE grouperDataRowAssignHst: " + dataRowAssignHst.getInternalId() + ", memberInternalId FROM: " + dataRowAssignHst.getMemberInternalId() + ", TO: " + newInternalId + "\n");
+                  }
+                }
+     
                 if (report == null) {
-                  List<GrouperDataFieldAssignHst> dataFieldAssignHsts = GrouperDataFieldAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
-                  GrouperDataFieldAssignHstDao.delete(dataFieldAssignHsts);
-                  
-                  List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
-                  GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);
-                  
-                  List<GrouperDataRowAssignHst> dataRowAssignHsts = GrouperDataRowAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
-                  GrouperDataRowAssignHstDao.delete(dataRowAssignHsts);
+                  GrouperDataFieldAssignHstDao.store(dataFieldAssignHsts);
+                  GrouperDataRowAssignHstDao.store(dataRowAssignHsts);
                 }
               }
               
