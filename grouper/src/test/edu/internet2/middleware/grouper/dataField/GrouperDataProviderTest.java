@@ -7,10 +7,11 @@ import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Set;
-
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
+import edu.internet2.middleware.grouper.Member;
+import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperLoaderJexlScriptFullSync;
 import edu.internet2.middleware.grouper.app.dataProvider.GrouperDataProviderChangeLogQuery;
@@ -28,6 +29,7 @@ import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ddl.GrouperTestDdl;
+import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -455,13 +457,15 @@ public class GrouperDataProviderTest extends GrouperTest {
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectIdType").value("subjectId").store();
     new GrouperDbConfig().configFileName("grouper.properties").propertyName("grouperDataProviderChangeLogQuery.cl1.providerChangeLogQuerySubjectSourceId").value("jdbc").store();
     
+    long startTimeMicros = System.currentTimeMillis() * 1000L;
+    
     // load data
     if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
       GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
     } else {
       GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
     }
-
+    
     assertEquals(7, new GcDbAccess().sql("select count(1) from grouper_data_field").select(int.class).intValue());
 
     assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row").select(int.class).intValue());
@@ -492,6 +496,8 @@ public class GrouperDataProviderTest extends GrouperTest {
       GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");  
     }
     
+    long afterFirstSyncMicros = System.currentTimeMillis() * 1000L;
+    
     // check synced data
     
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
@@ -518,6 +524,12 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
 
+    // no history data
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_hst").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_hst").select(int.class).intValue());
+    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asn_hst").select(int.class).intValue());
+    
+    
     // change sync data (insert, update, delete)
     
     // check synced data
@@ -538,7 +550,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     Subject testSubject1 = SubjectFinder.findById("test.subject.1", true);
     Subject testSubject2 = SubjectFinder.findById("test.subject.2", true);
     Subject testSubject3 = SubjectFinder.findById("test.subject.3", true);
-    
+        
     testGroup2.addMember(testSubject1);
 
     GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "CHANGE_LOG_changeLogTempToChangeLog");
@@ -577,6 +589,14 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertTrue(testGroup4.hasMember(testSubject3));
     assertTrue(testGroup4.hasMember(testSubject0));
 
+    Member testMember0 = MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), testSubject0, false);
+    GrouperDataField jobNumberDataField = GrouperDataFieldDao.selectByText("jobNumber");
+    GrouperDataField twoStepDataField = GrouperDataFieldDao.selectByText("twoStep");
+    GrouperDataField affiliationCodeDataField = GrouperDataFieldDao.selectByText("affiliationCode");
+    GrouperDataField affiliationActiveDataField = GrouperDataFieldDao.selectByText("affiliationActive");
+    GrouperDataField affiliationOrgDataField = GrouperDataFieldDao.selectByText("affiliationOrg");
+    GrouperDataRow affiliationDataRow = GrouperDataRowDao.selectByConfigId("affiliation");
+    long testMember0AffiliationDataRowAssignId = new GcDbAccess().sql("select gdra.internal_id from grouper_data_row_assign gdra, grouper_data_row_field_assign gdrfa, grouper_dictionary gd where gdra.internal_id=gdrfa.data_row_assign_internal_id and gd.internal_id=gdrfa.value_dictionary_internal_id and gdra.member_internal_id=? and gdrfa.data_field_internal_id=? and gd.the_text='staff'").addBindVar(testMember0.getInternalId()).addBindVar(affiliationCodeDataField.getInternalId()).select(long.class);
 
     // make some updates in db - update single valued attribute, update multi-valued attribute, and update affiliation in row data
     new GcDbAccess().sql("update testgrouper_field_attr set two_step_enrolled='T' where subject_id='test.subject.0'").executeBatchSql();
@@ -596,6 +616,8 @@ public class GrouperDataProviderTest extends GrouperTest {
     } else {
       GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
     }
+    
+    long afterSecondSyncMicros = System.currentTimeMillis() * 1000L;
 
     assertEquals(5, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'twoStep'").select(int.class).intValue());
@@ -621,6 +643,53 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
 
+    // check history tables
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_hst").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_hst").select(int.class).intValue());
+    assertEquals(3, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asn_hst").select(int.class).intValue());
+    
+    GrouperDataFieldAssignHst grouperDataFieldAssignHst1 = GrouperDataFieldAssignHstDao.selectByDataFieldInternalId(jobNumberDataField.getInternalId()).iterator().next();
+    GrouperDataFieldAssignHst grouperDataFieldAssignHst2 = GrouperDataFieldAssignHstDao.selectByDataFieldInternalId(twoStepDataField.getInternalId()).iterator().next();
+    
+    assertEquals(testMember0.getInternalId().longValue(), grouperDataFieldAssignHst1.getMemberInternalId());
+    assertEquals(234L, grouperDataFieldAssignHst1.getValueInteger().longValue());
+    assertNull(grouperDataFieldAssignHst1.getValueDictionaryInternalId());
+    assertTrue(grouperDataFieldAssignHst1.getStartTime() > startTimeMicros && grouperDataFieldAssignHst1.getStartTime() < afterFirstSyncMicros);
+    assertTrue(grouperDataFieldAssignHst1.getEndTime() > afterFirstSyncMicros && grouperDataFieldAssignHst1.getStartTime() < afterSecondSyncMicros);
+    
+    assertEquals(testMember0.getInternalId().longValue(), grouperDataFieldAssignHst2.getMemberInternalId());
+    assertEquals(0L, grouperDataFieldAssignHst2.getValueInteger().longValue());
+    assertNull(grouperDataFieldAssignHst2.getValueDictionaryInternalId());
+    assertTrue(grouperDataFieldAssignHst2.getStartTime() > startTimeMicros && grouperDataFieldAssignHst2.getStartTime() < afterFirstSyncMicros);
+    assertTrue(grouperDataFieldAssignHst2.getEndTime() > afterFirstSyncMicros && grouperDataFieldAssignHst2.getStartTime() < afterSecondSyncMicros);
+
+    GrouperDataRowAssignHst grouperDataRowAssignHst = GrouperDataRowAssignHstDao.selectByMemberInternalId(testMember0.getInternalId()).iterator().next();
+    assertEquals(affiliationDataRow.getInternalId(), grouperDataRowAssignHst.getDataRowInternalId());
+    assertEquals(testMember0AffiliationDataRowAssignId, grouperDataRowAssignHst.getDataRowAssignInternalId());
+    assertTrue(grouperDataRowAssignHst.getStartTime() > startTimeMicros && grouperDataRowAssignHst.getStartTime() < afterFirstSyncMicros);
+    assertTrue(grouperDataRowAssignHst.getEndTime() > afterFirstSyncMicros && grouperDataRowAssignHst.getStartTime() < afterSecondSyncMicros);
+    
+    GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst1 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationCodeDataField.getInternalId()).iterator().next();
+    GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst2 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationOrgDataField.getInternalId()).iterator().next();
+    GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst3 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationActiveDataField.getInternalId()).iterator().next();
+
+    assertEquals(testMember0AffiliationDataRowAssignId, grouperDataRowFieldAssignHst1.getDataRowAssignInternalId());
+    assertEquals(GrouperDictionaryDao.selectByText("staff").getInternalId(), grouperDataRowFieldAssignHst1.getValueDictionaryInternalId().longValue());
+    assertNull(grouperDataRowFieldAssignHst1.getValueInteger());
+    assertTrue(grouperDataRowFieldAssignHst1.getStartTime() > startTimeMicros && grouperDataRowFieldAssignHst1.getStartTime() < afterFirstSyncMicros);
+    assertTrue(grouperDataRowFieldAssignHst1.getEndTime() > afterFirstSyncMicros && grouperDataRowFieldAssignHst1.getStartTime() < afterSecondSyncMicros);
+   
+    assertEquals(testMember0AffiliationDataRowAssignId, grouperDataRowFieldAssignHst2.getDataRowAssignInternalId());
+    assertEquals(GrouperDictionaryDao.selectByText("engl").getInternalId(), grouperDataRowFieldAssignHst2.getValueDictionaryInternalId().longValue());
+    assertNull(grouperDataRowFieldAssignHst2.getValueInteger());
+    assertTrue(grouperDataRowFieldAssignHst2.getStartTime() > startTimeMicros && grouperDataRowFieldAssignHst2.getStartTime() < afterFirstSyncMicros);
+    assertTrue(grouperDataRowFieldAssignHst2.getEndTime() > afterFirstSyncMicros && grouperDataRowFieldAssignHst2.getStartTime() < afterSecondSyncMicros);
+   
+    assertEquals(testMember0AffiliationDataRowAssignId, grouperDataRowFieldAssignHst3.getDataRowAssignInternalId());
+    assertNull(grouperDataRowFieldAssignHst3.getValueDictionaryInternalId());
+    assertEquals(1, grouperDataRowFieldAssignHst3.getValueInteger().longValue());
+    assertTrue(grouperDataRowFieldAssignHst3.getStartTime() > startTimeMicros && grouperDataRowFieldAssignHst3.getStartTime() < afterFirstSyncMicros);
+    assertTrue(grouperDataRowFieldAssignHst3.getEndTime() > afterFirstSyncMicros && grouperDataRowFieldAssignHst3.getStartTime() < afterSecondSyncMicros);
     
     // make some updates in db - update another field in row data
     new GcDbAccess().sql("update testgrouper_field_row_affil set org='english' where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
@@ -663,6 +732,11 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
 
+    // check history tables
+    assertEquals(2, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_hst").select(int.class).intValue());
+    assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_row_assign_hst").select(int.class).intValue());
+    assertEquals(4, new GcDbAccess().sql("select count(1) from grouper_data_row_field_asn_hst").select(int.class).intValue());
+    
     // make some updates in db - null a field
     new GcDbAccess().sql("update testgrouper_field_row_affil set org=null where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
@@ -785,7 +859,7 @@ public class GrouperDataProviderTest extends GrouperTest {
 
     assertEquals("math", new GcDbAccess().sql("select value_text from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationOrg' and data_row_assign_internal_id = " + rowAssignId).select(String.class));
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_row_field_asgn_v where subject_id = 'test.subject.0' and data_field_config_id = 'affiliationActive' and data_row_assign_internal_id = " + rowAssignId).select(int.class).intValue());
-    
+
     // delete a row
     new GcDbAccess().sql("delete from testgrouper_field_row_affil where subject_id='test.subject.0' and affiliation_code='faculty'").executeBatchSql();
     
@@ -954,24 +1028,26 @@ public class GrouperDataProviderTest extends GrouperTest {
     
     if (syncType == GrouperDataProviderSyncType.fullSyncFull) {
       GrouperDataProviderFullSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
+      
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field where config_id = 'configId1' or config_id = 'configId2' ").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row where config_id = 'rowConfigId1' or config_id = 'rowConfigId2' ").select(int.class).intValue());
+     
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_alias where name in ('configId2_name', 'configId1_name', 'Name_0', 'Name_1') ").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign where internal_id in (1000, 1001) ").select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_field_assign where data_field_internal_id = "+dataFieldInternalId).select(int.class).intValue());
+      assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_global_assign where data_field_internal_id = "+dataFieldInternalId).select(int.class).intValue());
     } else {
       GrouperDataProviderIncrementalSyncJob.runDaemonStandalone("OTHER_JOB_dataProvider1");
     }
-    
-    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field where config_id = 'configId1' or config_id = 'configId2' ").select(int.class).intValue());
-    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row where config_id = 'rowConfigId1' or config_id = 'rowConfigId2' ").select(int.class).intValue());
-   
-    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_alias where name in ('configId2_name', 'configId1_name', 'Name_0', 'Name_1') ").select(int.class).intValue());
-    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_field_assign where internal_id in (1000, 1001) ").select(int.class).intValue());
-    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_row_field_assign where data_field_internal_id = "+dataFieldInternalId).select(int.class).intValue());
-    assertEquals(0, new GcDbAccess().sql("select count(1) from grouper_data_global_assign where data_field_internal_id = "+dataFieldInternalId).select(int.class).intValue());
-    
     
     assertEquals(1, new GcDbAccess().sql("select count(1) from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'jobNumber' and value_integer = 123").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'isActive'").select(int.class).intValue());
     assertEquals(1, new GcDbAccess().sql("select value_integer from grouper_data_field_assign_v where subject_id = 'test.subject.0' and data_field_config_id = 'employee'").select(int.class).intValue());
     
   
+    // we shouldn't have foreign key errors deleting the fields/rows
+    GrouperDataFieldDao.delete(jobNumberDataField);
+    GrouperDataRowDao.delete(affiliationDataRow);
   }
 
   /**
