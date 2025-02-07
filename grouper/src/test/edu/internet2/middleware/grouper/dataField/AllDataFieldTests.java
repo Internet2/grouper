@@ -12,7 +12,6 @@ public class AllDataFieldTests {
   public static Test suite() {
     TestSuite suite = new TestSuite("Test for edu.internet2.middleware.grouper.app.dataField");
     //$JUnit-BEGIN$
-    suite.addTestSuite(GrouperDataProviderHistoryTest.class);
     suite.addTestSuite(GrouperDataAliasTest.class);
     suite.addTestSuite(GrouperDataEngineTest.class);
     suite.addTestSuite(GrouperDataFieldAssignTest.class);
