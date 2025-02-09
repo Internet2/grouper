@@ -174,14 +174,14 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       final String url = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".tokenUrl");
       
       final String grantType = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".grantType");
-      final String scope = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".scopes");
+      final String scope = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".scopes");
       final String clientId = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientId");
       
       String clientCredentialType = GrouperLoaderConfig.retrieveConfig().propertyValueString("grouper.wsBearerToken." + configId + ".clientCredentialType", "secret");
 
       if (StringUtils.equals(clientCredentialType, "secret")) {
         final String clientSecret = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".clientSecret");
-        grouperHttpClient.addUrlParameter("client_secret", clientSecret);
+        grouperHttpClient.addBodyParameter("client_secret", clientSecret);
       } else if (StringUtils.equals(clientCredentialType, "publicPrivateKey")) {
         String privateKeyString = GrouperLoaderConfig.retrieveConfig().propertyValueStringRequired("grouper.wsBearerToken." + configId + ".privateKey");
         String publicKeyId = GrouperClientConfig.retrieveConfig().propertyValueString("grouperClient.wsBearerToken." + configId + ".publicKeyId");
@@ -233,9 +233,28 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
       
       grouperHttpClient.assignGrouperHttpMethod(GrouperHttpMethod.post);
       grouperHttpClient.assignUrl(url);
-      grouperHttpClient.addUrlParameter("grant_type", grantType);
-      grouperHttpClient.addUrlParameter("client_id", clientId);
-      grouperHttpClient.addUrlParameter("scope", scope);
+      
+      // use the url parameters if configured 
+      if (GrouperLoaderConfig.retrieveConfig().propertyValueBoolean(
+          "grouper.wsBearerToken." + configId + ".sendParametersInBody", true)) {
+        
+        grouperHttpClient.addBodyParameter("grant_type", grantType);
+        grouperHttpClient.addBodyParameter("client_id", clientId);
+
+        // send only if scope is not empty
+        if (StringUtils.isNotBlank(scope)) {
+          grouperHttpClient.addBodyParameter("scope", scope);
+        }
+        
+      } else {
+        grouperHttpClient.addUrlParameter("grant_type", grantType);
+        grouperHttpClient.addUrlParameter("client_id", clientId);
+        
+        // send only if scope is not empty
+        if (StringUtils.isNotBlank(scope)) {
+          grouperHttpClient.addUrlParameter("scope", scope);
+        }
+      }
       
       grouperHttpClient.assignDoNotLogResponseBody(true);
       grouperHttpClient.assignDoNotLogRequestBody(true);
