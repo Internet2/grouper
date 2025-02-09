@@ -66,8 +66,19 @@ public class GshTemplateDecorateForUiInput {
   private String eventConfigId;
   private String ownerStemName;
   private String ownerGroupName;
+  private String remoteAddr;
   
   
+  
+  public String getRemoteAddr() {
+    return remoteAddr;
+  }
+
+  
+  public void setRemoteAddr(String remoteAddr) {
+    this.remoteAddr = remoteAddr;
+  }
+
   public String getOwnerStemName() {
     return ownerStemName;
   }

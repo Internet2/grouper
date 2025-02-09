@@ -39,6 +39,13 @@ import edu.internet2.middleware.grouper.GroupTypeFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.abac.GrouperAbac;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateConfig;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecOutput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
+import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderDisplayNameSyncType;
@@ -65,8 +72,10 @@ import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiHib3GrouperLoader
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiResponseJs;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.json.GuiScreenAction.GuiMessageType;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupStemTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperLoaderContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GshTemplateContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiLoaderManagedGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
@@ -80,7 +89,6 @@ import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.misc.GrouperFailsafe;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
-import edu.internet2.middleware.grouper.privs.AttributeDefPrivilege;
 import edu.internet2.middleware.grouper.ui.GrouperUiFilter;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiConfig;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
@@ -1053,6 +1061,92 @@ public class UiV2GrouperLoader {
         }
 
       } else if (StringUtils.equals("JEXL_SCRIPT", grouperLoaderContainer.getEditLoaderType())) {
+
+        
+        final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+
+        GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+//        if (!PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+//          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+//              TextContainer.retrieveFromRequest().getText().get("grouperLoaderEditJexlScriptRequireWheel")));
+//          return true;
+//        }
+
+        if (!hasError) {
+          String constructScript = request.getParameter("constructScript");
+          if (StringUtils.equals(constructScript, "pattern")) {
+            String templateType = request.getParameter("templateType");
+            if (StringUtils.isNotBlank(templateType)) {
+             
+              
+              GroupStemTemplateContainer templateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupStemTemplateContainer();
+              GshTemplateContainer gshTemplateContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGshTemplateContainer();
+              
+              templateContainer.setTemplateType(templateType);
+              
+              GshTemplateExec exec = new GshTemplateExec();
+              
+              HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+              String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+
+              exec.assignConfigId(templateType);
+              exec.assignCurrentUser(loggedInSubject);
+              exec.assignRemoteAddr(remoteAddr);
+              exec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
+              exec.assignOwnerGroupName(group.getName());
+              
+              GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
+              gshTemplateConfig.populateConfiguration();
+              
+              Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = UiV2Template.populateCustomTemplateInputs(request, templateType);
+              
+              for (String inputName: gshTemplateInputs.keySet()) {
+                
+                String value = request.getParameter("config_"+inputName);
+                
+                GshTemplateInput input = new GshTemplateInput();
+                input.assignName(inputName);
+                input.assignValueString(value);
+                exec.addGshTemplateInput(input);
+              }
+              
+              GshTemplateExecOutput gshTemplateExecOutput = exec.execute();
+
+              if (gshTemplateExecOutput.getException() != null) {
+                LOG.error("error running template: " + exec.getConfigId(), gshTemplateExecOutput.getException());
+                guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, gshTemplateExecOutput.getExceptionStack()));
+                hasError = true;
+              }
+              
+              if (GrouperUtil.nonNull(gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()).size() > 0) {
+                LOG.error("validation failed running template: " + exec.getConfigId() + "failed validations" + GrouperUtil.collectionToString(gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()));
+                
+                for (GshValidationLine gshValidationLine: gshTemplateExecOutput.getGshTemplateOutput().getValidationLines()) {                  
+                  guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, gshValidationLine.getText()));
+                }
+                hasError = true;
+              }
+              
+              if (!hasError) {
+                String abacScript = gshTemplateExecOutput.getGshTemplateOutput().getAbacScript();
+                Boolean includeInternalSubjectSources = gshTemplateExecOutput.getGshTemplateOutput().getAbacIncludeInternalSubjectSources();
+                if (includeInternalSubjectSources == null) {
+                  includeInternalSubjectSources = false;
+                }
+                grouperLoaderContainer.setEditLoaderJexlScriptJexlScript(abacScript);
+                grouperLoaderContainer.setEditLoaderJexlScriptIncludeInternalSources(includeInternalSubjectSources);
+                grouperLoaderContainer.setEditLoaderConstructScript("inputScript");
+                guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+                    "/WEB-INF/grouperUi2/group/grouperLoaderEditGroupTab.jsp"));
+                return null;
+              }
+              
+            }
+            
+          }
+        }
+        
         if (!hasError && StringUtils.isBlank(grouperLoaderContainer.getEditLoaderJexlScriptJexlScript())) {
           
           guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 

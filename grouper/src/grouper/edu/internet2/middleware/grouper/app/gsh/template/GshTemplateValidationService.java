@@ -35,6 +35,7 @@ public class GshTemplateValidationService {
       
       GshTemplateDecorateForUiInput gshTemplateDecorateForUiInput = new GshTemplateDecorateForUiInput();
       gshTemplateDecorateForUiInput.setCurrentSubject(gshTemplateExec.getCurrentUser());
+      gshTemplateDecorateForUiInput.setRemoteAddr(gshTemplateExec.getRemoteAddr());
       gshTemplateDecorateForUiInput.setActAsSubject(gshTemplateExec.getActAsSubject());
       gshTemplateDecorateForUiInput.setTemplateConfigId(gshTemplateExec.getConfigId());
       gshTemplateDecorateForUiInput.setOwnerStemName(gshTemplateExec.getOwnerStemName());
