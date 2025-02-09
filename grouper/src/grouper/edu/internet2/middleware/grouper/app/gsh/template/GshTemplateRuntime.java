@@ -15,8 +15,19 @@ public class GshTemplateRuntime {
    */
   private Map<String, Object> wsInput = new HashMap<String, Object>();
   
+  private String remoteAddr;
+
   
   
+  public String getRemoteAddr() {
+    return remoteAddr;
+  }
+
+  
+  public void setRemoteAddr(String remoteAddr) {
+    this.remoteAddr = remoteAddr;
+  }
+
   /**
    * arbitrary wsInput
    * @return

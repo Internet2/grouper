@@ -32,6 +32,8 @@ import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -11033,6 +11035,10 @@ public class GrouperServiceLogic {
       exec.assignConfigId(configId);
       exec.assignCurrentUser(session.getSubject());
       
+      HttpServletRequest httpServletRequest = GrouperServiceJ2ee.retrieveHttpServletRequest();
+      String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+
+      exec.assignRemoteAddr(remoteAddr);
       exec.assignGshTemplateOwnerType(ownerType);
       if (ownerGroupLookup != null) {
         final Group group = ownerGroupLookup.retrieveGroupIfNeeded(SESSION, "ownerGroupLookup");

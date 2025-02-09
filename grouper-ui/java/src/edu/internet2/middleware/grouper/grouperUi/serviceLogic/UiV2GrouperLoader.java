@@ -1095,8 +1095,12 @@ public class UiV2GrouperLoader {
               
               GshTemplateExec exec = new GshTemplateExec();
               
+              HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+              String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+
               exec.assignConfigId(templateType);
               exec.assignCurrentUser(loggedInSubject);
+              exec.assignRemoteAddr(remoteAddr);
               exec.assignGshTemplateOwnerType(GshTemplateOwnerType.group);
               exec.assignOwnerGroupName(group.getName());
               

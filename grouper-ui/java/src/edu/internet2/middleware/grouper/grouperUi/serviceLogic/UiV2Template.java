@@ -280,6 +280,10 @@ public class UiV2Template {
       exec.assignConfigId(templateType);
       exec.assignCurrentUser(loggedInSubject);
       
+      HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+      String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+      exec.assignRemoteAddr(remoteAddr);
+      
       if (stem != null) {
         exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
         if (stem.isRootStem()) {
@@ -409,6 +413,11 @@ public class UiV2Template {
       
       exec.assignConfigId(templateType);
       exec.assignCurrentUser(loggedInSubject);
+      
+      HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+      String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+
+      exec.assignRemoteAddr(remoteAddr);
       
       if (stem != null) {
         exec.assignGshTemplateOwnerType(GshTemplateOwnerType.stem);
