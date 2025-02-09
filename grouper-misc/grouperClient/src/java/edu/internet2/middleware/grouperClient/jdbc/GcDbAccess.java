@@ -2416,7 +2416,7 @@ public class GcDbAccess {
      */
     public static void closeIfStarted(ConnectionBean connectionBean) {
       
-      if (connectionBean.isConnectionProvided()) {
+      if (connectionBean != null && connectionBean.isConnectionProvided()) {
         return;
       }
       ConnectionBean.transactionEnd(connectionBean, GcTransactionEnd.rollback, true, false, true);
