@@ -8,7 +8,12 @@ public class GrouperSqlDataProviderQueryConfig extends GrouperDataProviderQueryC
   public GrouperSqlDataProviderQueryConfig() {
 
   }
-
+  
+  @Override
+  public boolean isStoreNulls() {
+    return false;
+  }
+  
   /**
    * SQL config id
    * {valueType: "string", required: true, formElement: "dropdown", optionValuesFromClass: "edu.internet2.middleware.grouper.app.loader.db.DatabaseGrouperExternalSystem", regex: "^grouperDataProviderQuery\\.[^.]+\\.providerQuerySqlConfigId$"}

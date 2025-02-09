@@ -19,6 +19,7 @@ public abstract class GrouperDataProviderQueryConfig {
     return configId;
   }
 
+  public abstract boolean isStoreNulls();
   
   public void setConfigId(String configId) {
     this.configId = configId;

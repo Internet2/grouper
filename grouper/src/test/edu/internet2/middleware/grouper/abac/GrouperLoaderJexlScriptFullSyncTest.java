@@ -47,7 +47,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testRecentMemberOf"));
+    TestRunner.run(new GrouperLoaderJexlScriptFullSyncTest("testRowAttributeAssignmentString"));
   }
   
   /**
@@ -344,7 +344,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     AttributeAssign attributeAssign = new AttributeAssignSave(grouperSession).assignOwnerGroup(testGroup)
         .assignAttributeDefName(attributeDefNameMarker).save();
     
-    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasAttributeLike(org, '%\\_2%')");
+    attributeAssign.getAttributeValueDelegate().assignValueString(attributeDefNameScript.getName(), "entity.hasAttributeLike(org, '%2%')");
     
     //  test.subject.0
     //  test.subject.2
@@ -428,6 +428,20 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     
     assertTrue(members.contains(member0));
     assertTrue(members.contains(member2));
+    
+    int exists = new GcDbAccess().sql("""
+        select count(1)
+        from grouper_data_row_field_asgn_v gdrfav1,
+        grouper_data_row_field_asgn_v gdrfav2
+        where gdrfav1.data_row_assign_internal_id = gdrfav2.data_row_assign_internal_id 
+        and gdrfav1.data_field_config_id = 'affiliationCode'
+        and gdrfav1.value_text = 'emer'
+        and gdrfav2.data_field_config_id = 'affiliationOrg'
+        and gdrfav2.value_text is null
+        """).select(Integer.class);
+
+    assertEquals(0, exists);
+    
     
   }
   
@@ -597,7 +611,7 @@ public class GrouperLoaderJexlScriptFullSyncTest extends GrouperTest {
     batchBindVars.add(GrouperUtil.toList("test.subject.1", "contr", "T", "phys"));
     batchBindVars.add(GrouperUtil.toList("test.subject.2", "staff", "F", "span"));
     batchBindVars.add(GrouperUtil.toList("test.subject.3", "fac", "T", "engl"));
-    batchBindVars.add(GrouperUtil.toList("test.subject.3", "emer", "T", "math"));
+    batchBindVars.add(GrouperUtil.toList("test.subject.3", "emer", "T", null));
 
     new GcDbAccess().sql("insert into testgrouper_field_row_affil (subject_id, affiliation_code, active, org) values (?, ?, ?, ?)")
       .batchBindVars(batchBindVars).executeBatchSql();

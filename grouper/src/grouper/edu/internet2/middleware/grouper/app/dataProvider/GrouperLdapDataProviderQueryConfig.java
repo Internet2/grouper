@@ -9,6 +9,11 @@ public class GrouperLdapDataProviderQueryConfig extends GrouperDataProviderQuery
 
   }
 
+  @Override
+  public boolean isStoreNulls() {
+    return true;
+  }
+  
   private String providerQueryLdapBaseDn;
   private String providerQueryLdapSearchScope;
   private String providerQueryLdapFilter;
