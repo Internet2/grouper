@@ -126,6 +126,21 @@ public class GshTemplateExec {
     return this.progressBean;
   }
 
+  private String remoteAddr;
+  
+  
+  
+  
+  public String getRemoteAddr() {
+    return remoteAddr;
+  }
+
+  
+  public GshTemplateExec assignRemoteAddr(String remoteAddr) {
+    this.remoteAddr = remoteAddr;
+    return this;
+  }
+
   public static void main(String[] args) {
     GrouperStartup.startup();
     GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
@@ -360,6 +375,7 @@ public class GshTemplateExec {
         currentMember[0] = MemberFinder.findBySubject(grouperSession, theCurrentUser[0], true);
         
         gshTemplateRuntime.setCurrentSubject(theCurrentUser[0]);
+        gshTemplateRuntime.setRemoteAddr(THIS.getRemoteAddr());
         templateConfig.setCurrentUser(theCurrentUser[0]);
         if (!new GshTemplateValidationService().validate(templateConfig, THIS, gshTemplateExecOutput.getGshTemplateOutput())) {
           return null;

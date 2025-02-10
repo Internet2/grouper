@@ -218,7 +218,7 @@ public class TestMemberChangeSubject extends GrouperTest {
 
       final Group sysadmingroup = Group.saveGroup(rootGrouperSession, null, 
           null, "etc:sysadmingroup", "sysadmingroup", "sysadmingroup", 
-          SaveMode.INSERT, true);
+          SaveMode.INSERT_OR_UPDATE, true);
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.use", "true");
       GrouperConfig.retrieveConfig().propertiesOverrideMap().put("groups.wheel.group", "etc:sysadmingroup");
       

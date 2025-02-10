@@ -132,13 +132,19 @@ public class GrouperDataFieldDao {
     GrouperDataAliasDao.delete(aliases);
     
     List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
-    GrouperDataFieldAssignDao.delete(dataFieldAssigns);
+    GrouperDataFieldAssignDao.delete(dataFieldAssigns, false);
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
-    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns, false);
     
     List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
     GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
+    
+    List<GrouperDataFieldAssignHst> dataFieldAssignHsts = GrouperDataFieldAssignHstDao.selectByDataFieldInternalIds(dataFieldInternalIds);
+    GrouperDataFieldAssignHstDao.delete(dataFieldAssignHsts);
+    
+    List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalIds(dataFieldInternalIds);
+    GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);
     
     new GcDbAccess().deleteFromDatabaseMultiple(grouperDataFields);
     
@@ -156,13 +162,19 @@ public class GrouperDataFieldDao {
     GrouperDataAliasDao.delete(aliases);
 
     List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
-    GrouperDataFieldAssignDao.delete(dataFieldAssigns);
+    GrouperDataFieldAssignDao.delete(dataFieldAssigns, false);
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
-    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns, false);
     
     List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
     GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
+    
+    List<GrouperDataFieldAssignHst> dataFieldAssignHsts = GrouperDataFieldAssignHstDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
+    GrouperDataFieldAssignHstDao.delete(dataFieldAssignHsts);
+    
+    List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
+    GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);
     
     new GcDbAccess().deleteFromDatabase(grouperDataField);
   }

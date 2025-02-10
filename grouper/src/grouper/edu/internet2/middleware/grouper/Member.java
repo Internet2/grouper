@@ -74,6 +74,12 @@ import edu.internet2.middleware.grouper.changeLog.ChangeLogLabels;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogType;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeBuiltin;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTypeFinder;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHstDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHstDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHstDao;
 import edu.internet2.middleware.grouper.exception.GroupNotFoundException;
 import edu.internet2.middleware.grouper.exception.GrouperException;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
@@ -690,6 +696,8 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
             } else {
               changeSubjectExist++;
               newMemberUuid = newMember.getUuid();
+              long newInternalId = newMember.getInternalId();
+              
               {
                 //grouper_composites.creator_id
                 Set<Composite> composites = GrouperDAOFactory.getFactory().getComposite().findByCreator(Member.this);
@@ -994,6 +1002,31 @@ public class Member extends GrouperAPI implements GrouperHasContext, Hib3Grouper
                   if (report == null) {
                     GrouperDAOFactory.getFactory().getGroupSet().update(groupSets);
                   }
+                }
+              }
+              
+              {
+                List<GrouperDataFieldAssignHst> dataFieldAssignHsts = GrouperDataFieldAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
+                for (GrouperDataFieldAssignHst dataFieldAssignHst : dataFieldAssignHsts) {
+                  if (report == null) {
+                    dataFieldAssignHst.setMemberInternalId(newInternalId);
+                  } else {
+                    report.append("CHANGE grouperDataFieldAssignHst: " + dataFieldAssignHst.getInternalId() + ", memberInternalId FROM: " + dataFieldAssignHst.getMemberInternalId() + ", TO: " + newInternalId + "\n");
+                  }
+                }
+                  
+                List<GrouperDataRowAssignHst> dataRowAssignHsts = GrouperDataRowAssignHstDao.selectByMemberInternalId(Member.this.getInternalId());
+                for (GrouperDataRowAssignHst dataRowAssignHst : dataRowAssignHsts) {
+                  if (report == null) {
+                    dataRowAssignHst.setMemberInternalId(newInternalId);
+                  } else {
+                    report.append("CHANGE grouperDataRowAssignHst: " + dataRowAssignHst.getInternalId() + ", memberInternalId FROM: " + dataRowAssignHst.getMemberInternalId() + ", TO: " + newInternalId + "\n");
+                  }
+                }
+     
+                if (report == null) {
+                  GrouperDataFieldAssignHstDao.store(dataFieldAssignHsts);
+                  GrouperDataRowAssignHstDao.store(dataRowAssignHsts);
                 }
               }
               

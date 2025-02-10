@@ -12,6 +12,8 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -365,6 +367,8 @@ public class GroupStemTemplateContainer {
     
     final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
     GroupContainer groupContainer = GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer();
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
     
     Group group = null;
     if (groupContainer != null && groupContainer.getGuiGroup() != null && groupContainer.getGuiGroup().getGroup() != null) {
@@ -379,8 +383,8 @@ public class GroupStemTemplateContainer {
     
     for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
       
-      String templateTypeString = gshTemplateConfiguration.retrieveAttributeValueFromConfig("templateType", true);
-      if (!StringUtils.equals(templateTypeString, "abac")) {
+      String templateTypeString = gshTemplateConfiguration.retrieveAttributeValueFromConfig("templateType", false);
+      if (StringUtils.isBlank(templateTypeString) || !StringUtils.equals(templateTypeString, "abac")) {
         continue;
       }
       
@@ -396,6 +400,7 @@ public class GroupStemTemplateContainer {
           
           GshTemplateExec gshTemplateExec = new GshTemplateExec()
               .assignConfigId(gshTemplateConfiguration.getConfigId())
+              .assignRemoteAddr(remoteAddr)
               .assignCurrentUser(loggedInSubject)
               .assignGshTemplateOwnerType(GshTemplateOwnerType.group)
               .assignOwnerGroupName(group.getName());
@@ -469,6 +474,9 @@ public class GroupStemTemplateContainer {
       group  = groupContainer.getGuiGroup().getGroup();
     }
     
+    HttpServletRequest httpServletRequest = GrouperUiFilter.retrieveHttpServletRequest();
+    String remoteAddr = httpServletRequest == null ? null : httpServletRequest.getRemoteAddr();
+
     List<GshTemplateConfiguration> gshTemplateConfigs = GshTemplateConfiguration.retrieveAllGshTemplateConfigs();
     
     for (GshTemplateConfiguration gshTemplateConfiguration: gshTemplateConfigs) {
@@ -491,6 +499,7 @@ public class GroupStemTemplateContainer {
             gshTemplateExec = new GshTemplateExec()
                 .assignConfigId(gshTemplateConfiguration.getConfigId())
                 .assignCurrentUser(loggedInSubject)
+                .assignRemoteAddr(remoteAddr)
                 .assignGshTemplateOwnerType(GshTemplateOwnerType.stem)
                 .assignOwnerStemName(stem.getName());
           } else if (group != null) {
@@ -502,6 +511,7 @@ public class GroupStemTemplateContainer {
             gshTemplateExec = new GshTemplateExec()
                 .assignConfigId(gshTemplateConfiguration.getConfigId())
                 .assignCurrentUser(loggedInSubject)
+                .assignRemoteAddr(remoteAddr)
                 .assignGshTemplateOwnerType(GshTemplateOwnerType.group)
                 .assignOwnerGroupName(group.getName());
           }

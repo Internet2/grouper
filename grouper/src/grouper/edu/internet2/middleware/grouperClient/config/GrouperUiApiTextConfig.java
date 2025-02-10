@@ -206,7 +206,15 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
         
         if (grouperUiTextConfig == null) {
           
-          Locale locale = httpServletRequest == null ? null : httpServletRequest.getLocale();
+          Locale locale = null;
+          
+          if (httpServletRequest != null) {
+            try {
+              locale = httpServletRequest.getLocale();
+            } catch (Exception e) {
+              //ignore
+            }
+          }
           
           grouperUiTextConfig = retrieveText(locale);
           

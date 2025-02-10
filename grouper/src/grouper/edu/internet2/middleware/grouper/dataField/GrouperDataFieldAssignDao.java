@@ -8,6 +8,7 @@ import java.util.Set;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
+import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import edu.internet2.middleware.subject.Subject;
 
@@ -141,20 +142,73 @@ public class GrouperDataFieldAssignDao {
     return grouperDataFieldAssigns;
   }
   
-  /**
-   * 
-   * @param connectionName
-   */
   public static void delete(GrouperDataFieldAssign grouperDataFieldAssign) {
+    delete(grouperDataFieldAssign, true);
+  }
+  
+  public static void delete(GrouperDataFieldAssign grouperDataFieldAssign, boolean addHistory) {
     grouperDataFieldAssign.storePrepare();
-    new GcDbAccess().deleteFromDatabase(grouperDataFieldAssign);
+
+    new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
+      
+      @Override
+      public Boolean callback(GcDbAccess dbAccessForStorage) {
+  
+        dbAccessForStorage.deleteFromDatabase(grouperDataFieldAssign);
+        
+        if (addHistory) {
+          // hack?
+          dbAccessForStorage.sql(null);
+          dbAccessForStorage.bindVars();
+          
+          GrouperDataFieldAssignHst grouperDataFieldAssignHst = getHstInstanceFromObjectBeingDelete(grouperDataFieldAssign);
+          GrouperDataFieldAssignHstDao.store(grouperDataFieldAssignHst);
+        }
+        
+        return null;
+      }
+    });
   }
   
   public static void delete(Collection<GrouperDataFieldAssign> grouperDataFieldAssigns) {
+    delete(grouperDataFieldAssigns, true);
+  }
+  
+  public static void delete(Collection<GrouperDataFieldAssign> grouperDataFieldAssigns, boolean addHistory) {
     for (GrouperDataFieldAssign grouperDataFieldAssign: grouperDataFieldAssigns) {      
       grouperDataFieldAssign.storePrepare();
     }
-    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataFieldAssigns);
+        
+    new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
+      
+      @Override
+      public Boolean callback(GcDbAccess dbAccessForStorage) {
+        dbAccessForStorage.deleteFromDatabaseMultiple(grouperDataFieldAssigns);
+
+        if (addHistory) {
+          List<GrouperDataFieldAssignHst> grouperDataFieldAssignHsts = new ArrayList<>();
+          for (GrouperDataFieldAssign grouperDataFieldAssign: grouperDataFieldAssigns) {                
+            GrouperDataFieldAssignHst grouperDataFieldAssignHst = getHstInstanceFromObjectBeingDelete(grouperDataFieldAssign);
+            grouperDataFieldAssignHsts.add(grouperDataFieldAssignHst);
+          }
+          GrouperDataFieldAssignHstDao.store(grouperDataFieldAssignHsts);
+        }
+        
+        return null;
+      }
+    });
+  }
+  
+  private static GrouperDataFieldAssignHst getHstInstanceFromObjectBeingDelete(GrouperDataFieldAssign grouperDataFieldAssign) {
+    GrouperDataFieldAssignHst grouperDataFieldAssignHst = new GrouperDataFieldAssignHst();
+    grouperDataFieldAssignHst.setDataFieldInternalId(grouperDataFieldAssign.getDataFieldInternalId());
+    grouperDataFieldAssignHst.setMemberInternalId(grouperDataFieldAssign.getMemberInternalId());
+    grouperDataFieldAssignHst.setValueInteger(grouperDataFieldAssign.getValueInteger());
+    grouperDataFieldAssignHst.setValueDictionaryInternalId(grouperDataFieldAssign.getValueDictionaryInternalId());
+    grouperDataFieldAssignHst.setStartTime(grouperDataFieldAssign.getCreatedOn().getTime() * 1000L);
+    grouperDataFieldAssignHst.setEndTime(System.currentTimeMillis() * 1000L);
+    
+    return grouperDataFieldAssignHst;
   }
   
   public static List<GrouperDataFieldAssignView> retrieveDataFieldAssignments(Subject subject) {
@@ -171,6 +225,5 @@ public class GrouperDataFieldAssignDao {
     
     return result;
   }
-
 
 }

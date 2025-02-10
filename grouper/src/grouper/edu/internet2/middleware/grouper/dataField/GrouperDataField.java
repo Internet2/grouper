@@ -228,4 +228,7 @@ public class GrouperDataField implements GcSqlAssignPrimaryKey, GcDbVersionable,
     new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GrouperDataField.class)).executeSql();
   }
 
+  public GrouperDataField getDbVersion() {
+    return this.dbVersion;
+  }
 }

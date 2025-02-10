@@ -647,6 +647,14 @@ public class GrouperDataProviderLogic {
               
               if (value instanceof Set) {
                 if (((Set)value).size() > 0) {
+                  
+                  if (!grouperDataProviderQueryConfig.isStoreNulls()) {
+                    ((Set)value).remove(null);
+                    if (((Set) value).size() == 0) {
+                      continue;
+                    }
+                  }
+                  
                   List<Object> data = grouperDataMemberWrapper.getDataProviderDataByDataFieldIternalId().get(grouperDataFieldWrapper.getGrouperDataField().getInternalId());
                   if (data == null) {
                     data = new ArrayList<>();
@@ -656,12 +664,16 @@ public class GrouperDataProviderLogic {
                   for (Object currentValue : (Set)value) {
                     currentValue = grouperDataFieldConfig.getFieldDataType().convertValue(currentValue);
                     
-                    if (currentValue != null && currentValue != Void.TYPE) {
-                      data.add(currentValue);
-                    }
+                    data.add(currentValue);
                   }
                 }
               } else {
+                
+                if (!grouperDataProviderQueryConfig.isStoreNulls()) {
+                  if (value == null) {
+                    continue;
+                  }
+                }
                 value = grouperDataFieldConfig.getFieldDataType().convertValue(value);
                 
                 // if this is a direct assignment
@@ -900,6 +912,7 @@ public class GrouperDataProviderLogic {
 
               List<Object> values = dataFieldInternalIdToValues.get(dataFieldInternalId);
               for (Object value : values) {
+                // TODO This is Void.TYPE, not null
                 GrouperDataRowFieldAssign grouperDataRowFieldAssign = new GrouperDataRowFieldAssign();
                 grouperDataRowFieldAssign.setDataFieldInternalId(dataFieldInternalId);
                 grouperDataRowFieldAssign.setDataRowAssignInternalId(grouperDataRowAssign.getInternalId());

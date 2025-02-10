@@ -1,7 +1,5 @@
 package edu.internet2.middleware.grouper.dataField;
 
-import java.sql.Timestamp;
-
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbVersionable;
@@ -13,31 +11,29 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.lang3.builder.EqualsBuilder;
 
 /**
- * loader config for grouper data field assign
+ *
  */
-@GcPersistableClass(tableName="grouper_data_field_assign", defaultFieldPersist=GcPersist.doPersist)
-public class GrouperDataFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersionable {
+@GcPersistableClass(tableName="grouper_data_row_assign_hst", defaultFieldPersist=GcPersist.doPersist)
+public class GrouperDataRowAssignHst implements GcSqlAssignPrimaryKey, GcDbVersionable {
 
-  private long dataFieldInternalId = -1;
+  private long dataRowInternalId = -1;
+  
+  private long dataRowAssignInternalId = 1;
 
   private long memberInternalId = -1;
 
   @GcPersistableField(primaryKey=true, primaryKeyManuallyAssigned=true)
   private long internalId = -1;
   
-  private Long valueInteger;
-
-  private Long valueDictionaryInternalId;
-
-  private Timestamp createdOn = null;
+  private Long startTime;
   
-  private long dataProviderInternalId;
+  private Long endTime;
 
   /**
    * version from db
    */
   @GcPersistableField(persist = GcPersist.dontPersist)
-  private GrouperDataFieldAssign dbVersion;
+  private GrouperDataRowAssignHst dbVersion;
 
 
 
@@ -50,26 +46,14 @@ public class GrouperDataFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersio
     this.internalId = internalId;
   }
   
-  public Timestamp getCreatedOn() {
-    return createdOn;
-  }
-
-  
-  public void setCreatedOn(Timestamp createdOn) {
-    this.createdOn = createdOn;
-  }
-  
-  
-  
-  
-  public long getDataFieldInternalId() {
-    return dataFieldInternalId;
+  public long getDataRowInternalId() {
+    return dataRowInternalId;
   }
 
 
   
-  public void setDataFieldInternalId(long dataFieldInternalId) {
-    this.dataFieldInternalId = dataFieldInternalId;
+  public void setDataRowInternalId(long dataRowInternalId) {
+    this.dataRowInternalId = dataRowInternalId;
   }
 
 
@@ -84,40 +68,41 @@ public class GrouperDataFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersio
     this.memberInternalId = memberInternalId;
   }
 
+  
 
   
-  public Long getValueInteger() {
-    return valueInteger;
+  public long getDataRowAssignInternalId() {
+    return dataRowAssignInternalId;
   }
 
 
   
-  public void setValueInteger(Long valueInteger) {
-    this.valueInteger = valueInteger;
+  public void setDataRowAssignInternalId(long dataRowAssignInternalId) {
+    this.dataRowAssignInternalId = dataRowAssignInternalId;
   }
 
 
   
-  public Long getValueDictionaryInternalId() {
-    return valueDictionaryInternalId;
+  public Long getStartTime() {
+    return startTime;
   }
 
 
   
-  public void setValueDictionaryInternalId(Long valueDictionaryInternalId) {
-    this.valueDictionaryInternalId = valueDictionaryInternalId;
+  public void setStartTime(Long startTime) {
+    this.startTime = startTime;
   }
 
 
   
-  public long getDataProviderInternalId() {
-    return dataProviderInternalId;
+  public Long getEndTime() {
+    return endTime;
   }
 
 
   
-  public void setDataProviderInternalId(long dataProviderInternalId) {
-    this.dataProviderInternalId = dataProviderInternalId;
+  public void setEndTime(Long endTime) {
+    this.endTime = endTime;
   }
 
 
@@ -129,7 +114,7 @@ public class GrouperDataFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersio
     if (this.internalId != -1) {
       return false;
     }
-    this.internalId = TableIndex.reserveId(TableIndexType.dataFieldAssign);
+    this.internalId = TableIndex.reserveId(TableIndexType.dataRowAssignHst);
     return true;
   }
 
@@ -140,21 +125,20 @@ public class GrouperDataFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersio
    * deep clone the fields in this object
    */
   @Override
-  public GrouperDataFieldAssign clone() {
+  public GrouperDataRowAssignHst clone() {
   
-    GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
+    GrouperDataRowAssignHst grouperDataRowAssign = new GrouperDataRowAssignHst();
   
     //dbVersion  DONT CLONE
   
-    grouperDataFieldAssign.createdOn = this.createdOn;
-    grouperDataFieldAssign.dataProviderInternalId = this.dataProviderInternalId;
-    grouperDataFieldAssign.dataFieldInternalId = this.dataFieldInternalId;
-    grouperDataFieldAssign.internalId = this.internalId;
-    grouperDataFieldAssign.valueInteger = this.valueInteger;
-    grouperDataFieldAssign.memberInternalId = this.memberInternalId;
-    grouperDataFieldAssign.valueDictionaryInternalId = this.valueDictionaryInternalId;
+    grouperDataRowAssign.startTime = this.startTime;
+    grouperDataRowAssign.endTime = this.endTime;
+    grouperDataRowAssign.dataRowInternalId = this.dataRowInternalId;
+    grouperDataRowAssign.internalId = this.internalId;
+    grouperDataRowAssign.memberInternalId = this.memberInternalId;
+    grouperDataRowAssign.dataRowAssignInternalId = this.dataRowAssignInternalId;
   
-    return grouperDataFieldAssign;
+    return grouperDataRowAssign;
   }
 
 
@@ -197,30 +181,27 @@ public class GrouperDataFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersio
     if (obj == null) {
       return false;
     }
-    if (!(obj instanceof GrouperDataFieldAssign)) {
+    if (!(obj instanceof GrouperDataRowAssignHst)) {
       return false;
     }
-    GrouperDataFieldAssign other = (GrouperDataFieldAssign) obj;
+    GrouperDataRowAssignHst other = (GrouperDataRowAssignHst) obj;
   
     return new EqualsBuilder()
   
       //dbVersion  DONT EQUALS
-      .append(this.createdOn, other.createdOn)
-      .append(this.dataProviderInternalId, other.dataProviderInternalId)
-      .append(this.dataFieldInternalId, other.dataFieldInternalId)
+      .append(this.startTime, other.startTime)
+      .append(this.endTime, other.endTime)
+      .append(this.dataRowInternalId, other.dataRowInternalId)
+      .append(this.dataRowAssignInternalId, other.dataRowAssignInternalId)
       .append(this.internalId, other.internalId)
       .append(this.memberInternalId, other.memberInternalId)
-      .append(this.valueDictionaryInternalId, other.valueDictionaryInternalId)
-      .append(this.valueInteger, other.valueInteger)
         .isEquals();
   
   }
 
 
   public void storePrepare() {
-    if (this.createdOn == null) {
-      this.createdOn = new Timestamp(System.currentTimeMillis());
-    }
+
   }
 
 
@@ -232,7 +213,7 @@ public class GrouperDataFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersio
     return GrouperClientUtils.toStringReflection(this, null);
   }
 
-  public GrouperDataFieldAssign getDbVersion() {
+  public GrouperDataRowAssignHst getDbVersion() {
     return this.dbVersion;
   }
 }
