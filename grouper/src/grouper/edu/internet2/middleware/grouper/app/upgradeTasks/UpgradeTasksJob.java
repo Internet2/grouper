@@ -36,10 +36,12 @@ import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperLoaderLog;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
+import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.ddl.DdlVersionable;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlEngine;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
+import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.misc.GrouperCheckConfig;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
@@ -109,8 +111,14 @@ public class UpgradeTasksJob extends OtherJobBase {
           }
           hib3GrouperLoaderLog.setEndedTime(new Timestamp(System.currentTimeMillis()));
           hib3GrouperLoaderLog.store();
-          LOG.warn("Success: upgrade task output: "+hib3GrouperLoaderLog.getJobMessage());
-          System.out.println("Success: upgrade task output: "+hib3GrouperLoaderLog.getJobMessage());
+          GrouperContext grouperContext = GrouperContext.retrieveDefaultContext();
+          if (grouperContext == null || grouperContext.getGrouperEngine() == null
+              || grouperContext.getGrouperEngine() != GrouperEngineBuiltin.JUNIT) {
+            LOG.warn("Success: upgrade task output: "+hib3GrouperLoaderLog.getJobMessage());
+            System.out.println("Success: upgrade task output: " + hib3GrouperLoaderLog.getJobMessage());
+          } else {
+            LOG.info("Success: upgrade task output: "+hib3GrouperLoaderLog.getJobMessage());
+          }
         } catch (Exception e) {
           LOG.error("Error on upgrade tasks: "+hib3GrouperLoaderLog.getJobMessage(), e);
           System.out.println("Error on upgrade tasks: "+hib3GrouperLoaderLog.getJobMessage());
