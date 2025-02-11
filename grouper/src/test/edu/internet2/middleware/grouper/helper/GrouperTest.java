@@ -119,6 +119,8 @@ public class GrouperTest extends GrouperTestBase {
   public GrouperTest(String name) {
     super(name);
     testing = true;
+    //set this and leave it...
+    GrouperContext.createNewDefaultContext(GrouperEngineBuiltin.JUNIT, false, true);
 
     //let the database release...
     GrouperStartup.startup();
