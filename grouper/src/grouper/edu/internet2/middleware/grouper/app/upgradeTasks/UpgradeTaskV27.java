@@ -152,7 +152,7 @@ public class UpgradeTaskV27 implements UpgradeTasksInterface {
                         timestamp_value := input / 1000;
                     END IF;
                     RETURN (timestamp '1970-01-01 00:00:00.000 UTC' + numtodsinterval(timestamp_value,'SECOND')) AT TIME ZONE SESSIONTIMEZONE;
-                END FUNCTION grouper_to_timestamp;     
+                END; -- function    
                 """).executeSql();
             if (otherJobInput != null) {
               otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
@@ -172,7 +172,7 @@ public class UpgradeTaskV27 implements UpgradeTasksInterface {
                         timestamp_value := input / 1000;
                     END IF;
                     RETURN (timestamp '1970-01-01 00:00:00.000 UTC' + numtodsinterval(timestamp_value,'SECOND')) AT TIME ZONE 'UTC';
-                END FUNCTION grouper_to_timestamp_utc;
+                END; -- function
                 """).executeSql();
             if (otherJobInput != null) {
               otherJobInput.getHib3GrouperLoaderLog().addInsertCount(1);
