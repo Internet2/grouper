@@ -18,6 +18,28 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 @GcPersistableClass(tableName="grouper_data_row_assign", defaultFieldPersist=GcPersist.doPersist)
 public class GrouperDataRowAssign implements GcSqlAssignPrimaryKey, GcDbVersionable {
 
+  /**
+   * store the internal id to use when the db access stores the object
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private Long tempInternalIdOnDeck = null;
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @return
+   */
+  public Long getTempInternalIdOnDeck() {
+    return tempInternalIdOnDeck;
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @param tempInternalIdOnDeck
+   */
+  public void setTempInternalIdOnDeck(Long tempInternalIdOnDeck) {
+    this.tempInternalIdOnDeck = tempInternalIdOnDeck;
+  }
+
   private long dataRowInternalId = -1;
 
   private long memberInternalId = -1;
@@ -101,7 +123,12 @@ public class GrouperDataRowAssign implements GcSqlAssignPrimaryKey, GcDbVersiona
     if (this.internalId != -1) {
       return false;
     }
-    this.internalId = TableIndex.reserveId(TableIndexType.dataRowAssign);
+    if (this.tempInternalIdOnDeck != null) {
+      this.internalId = this.tempInternalIdOnDeck;
+    } else {
+
+      this.internalId = TableIndex.reserveId(TableIndexType.dataRowAssign);
+    }
     return true;
   }
 

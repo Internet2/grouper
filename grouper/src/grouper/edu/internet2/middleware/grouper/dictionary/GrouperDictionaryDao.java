@@ -1,7 +1,9 @@
 package edu.internet2.middleware.grouper.dictionary;
 
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -9,6 +11,10 @@ import java.util.Set;
 import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataAlias;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssign;
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -151,6 +157,65 @@ public class GrouperDictionaryDao {
     throw runtimeException;
   }  
 
+  public static Map<String, GrouperDictionary> store(Collection<GrouperDictionary> grouperDictionaries) {
+
+    Map<String, GrouperDictionary> result = new HashMap<String, GrouperDictionary>();
+    if (GrouperUtil.length(grouperDictionaries) == 0) {
+      return result;
+    }
+
+    int internalIdsNeeded = 0;
+    for (GrouperDictionary grouperDictionary : grouperDictionaries) {
+      if (grouperDictionary.getTempInternalIdOnDeck() == null) {
+        internalIdsNeeded++;
+      }
+    }
+    
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dictionary, internalIdsNeeded);
+    int currentIndex = 0;
+    for (GrouperDictionary grouperDictionary : grouperDictionaries) {
+      if (grouperDictionary.getTempInternalIdOnDeck() == null) {
+        grouperDictionary.setTempInternalIdOnDeck(ids.get(currentIndex++));
+      }
+    }
+
+    for (GrouperDictionary grouperDictionary : grouperDictionaries) {
+      grouperDictionary.storePrepare();
+    }
+            
+    RuntimeException runtimeException = null;
+    Map<String, GrouperDictionary> dictionaryMapToInsert = new HashMap<String, GrouperDictionary>();
+    
+    for (GrouperDictionary grouperDictionary : grouperDictionaries) {
+      dictionaryMapToInsert.put(grouperDictionary.getTheText(), grouperDictionary);
+    }
+    
+    // might be other places saving the same dictionary
+    for (int i=0;i<5;i++) {
+      try {
+        List<GrouperDictionary> grouperDictionariesToInsert = new ArrayList<GrouperDictionary>(dictionaryMapToInsert.values());
+        new GcDbAccess().storeBatchToDatabase(grouperDictionariesToInsert, 1000);
+      } catch (RuntimeException re) {
+        runtimeException = re;
+        GrouperUtil.sleep(100 * (i+1));
+        
+        if (i==4) {
+          throw re;
+        }
+      }
+      Map<String, GrouperDictionary> selectByTexts = selectByTexts(dictionaryMapToInsert.keySet());
+      dictionaryMapToInsert.keySet().removeAll(selectByTexts.keySet());
+      result.putAll(selectByTexts);
+      if (GrouperUtil.length(dictionaryMapToInsert) == 0) {
+        return result;
+      }
+    }
+    // this should never happen :)
+    throw runtimeException;
+
+  }
+
+  
   public static GrouperDictionary selectByText(String theText) {
     if (StringUtils.isBlank(theText)) {
       return null;
@@ -159,7 +224,27 @@ public class GrouperDictionaryDao {
         .addBindVar(theText).select(GrouperDictionary.class);
     return grouperDictionary;
   }
-  
+
+  public static Map<String, GrouperDictionary> selectByTexts(Collection<String> theTexts) {
+
+    Map<String, GrouperDictionary> result = new HashMap<String, GrouperDictionary>();
+    
+    if (GrouperUtil.length(theTexts) == 0) {
+      return result;
+    }
+
+    List<GrouperDictionary> selectList = new GcDbAccess().sql("select * from grouper_dictionary ")
+       .selectMultipleColumnName("the_text")
+       .bindVars(new ArrayList<String>(theTexts))
+       .selectList(GrouperDictionary.class);
+
+    for (GrouperDictionary grouperDictionary : GrouperUtil.nonNull(selectList)) {
+      result.put(grouperDictionary.getTheText(), grouperDictionary);
+    }
+    return result;
+     
+  }
+
   /**
    * 
    * @param connectionName
@@ -245,5 +330,58 @@ public class GrouperDictionaryDao {
     return internalId;
   }
   
+  /**
+   * @param strings
+   * @return the string to id mapping
+   */
+  public static Map<String, Long> findOrAdd(Collection<String> strings) {
+    
+    Map<String, Long> result = new HashMap<String, Long>();
+    
+    if (GrouperUtil.length(strings) == 0) {
+      return result;
+    }
+    Set<String> stringsToFind = new HashSet<>();
+    
+    for (String string : strings) {
+      Long internalId = textToInternalIdCache().get(string);
+      if (internalId != null) {
+        result.put(string, internalId);
+      } else {
+        stringsToFind.add(string);
+      }
+    }
+    
+    Map<String, GrouperDictionary> selectByTexts = selectByTexts(stringsToFind);
+    for (GrouperDictionary grouperDictionary : selectByTexts.values()) {
+      Long internalId = grouperDictionary.getInternalId();
+      result.put(grouperDictionary.getTheText(), internalId);
+      if (textToInternalIdCache().size(false) < maxTermsInMemoryCache) {
+        textToInternalIdCache().put(grouperDictionary.getTheText(), internalId);
+        internalIdToTextCache().put(internalId, grouperDictionary.getTheText());
+      }
+      stringsToFind.remove(grouperDictionary.getTheText());
+    }
 
+    List<GrouperDictionary> grouperDictionariesToInsert = new ArrayList<GrouperDictionary>();
+    
+    for (String string : stringsToFind) {
+      GrouperDictionary grouperDictionary = new GrouperDictionary();
+      grouperDictionary.setTheText(string);
+      grouperDictionariesToInsert.add(grouperDictionary);
+      
+    }
+    Map<String, GrouperDictionary> grouperDictionariesInserted = store(grouperDictionariesToInsert);
+    for (GrouperDictionary grouperDictionary : grouperDictionariesInserted.values()) {
+      Long internalId = grouperDictionary.getInternalId();
+      result.put(grouperDictionary.getTheText(), internalId);
+      if (textToInternalIdCache().size(false) < maxTermsInMemoryCache) {
+        textToInternalIdCache().put(grouperDictionary.getTheText(), internalId);
+        internalIdToTextCache().put(internalId, grouperDictionary.getTheText());
+      }
+    }
+
+    return result;
+  }
+    
 }

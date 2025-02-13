@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -132,6 +134,33 @@ public class GrouperDataRowFieldAssignDao {
     return changed;
 
   }  
+
+  public static void store(Collection<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns) {
+    if (GrouperUtil.length(grouperDataRowFieldAssigns) == 0) {
+      return;
+    }
+
+    int internalIdsNeeded = 0;
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssigns) {
+      if (grouperDataRowFieldAssign.getTempInternalIdOnDeck() == null) {
+        internalIdsNeeded++;
+      }
+    }
+    
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRowFieldAssign, internalIdsNeeded);
+    int currentIndex = 0;
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssigns) {
+      if (grouperDataRowFieldAssign.getTempInternalIdOnDeck() == null) {
+        grouperDataRowFieldAssign.setTempInternalIdOnDeck(ids.get(currentIndex++));
+      }
+    }
+
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: grouperDataRowFieldAssigns) {      
+      grouperDataRowFieldAssign.storePrepare();
+    }
+        
+    new GcDbAccess().storeBatchToDatabase(grouperDataRowFieldAssigns, 1000);
+  }
 
   public static List<GrouperDataRowFieldAssign> selectByMarker(Long dataRowAssignInternalId, Long dataFieldInternalId) {
 

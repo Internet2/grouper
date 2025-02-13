@@ -45,6 +45,8 @@ public class GrouperDataProviderIndex {
   
   private Map<Long, String> dictionaryTextByInternalId = new HashMap<>();
 
+  private Map<String, Long> dictionaryTextByString = new HashMap<>();
+
   private Map<Long, GrouperDataMemberWrapper> memberWrapperByInternalId = new HashMap<>();
 
   private Map<Long, GrouperDataRowAssignWrapper> rowAssignWrapperByInternalId = new HashMap<>();
@@ -104,11 +106,16 @@ public class GrouperDataProviderIndex {
     return dictionaryTextByInternalId;
   }
 
-  
-  
   public Map<Long, GrouperDataMemberWrapper> getMemberWrapperByInternalId() {
     return memberWrapperByInternalId;
   }
 
+  public Map<String, Long> getDictionaryTextByString() {
+    return dictionaryTextByString;
+  }
+  
+  public void setDictionaryTextByString(Map<String, Long> dictionaryTextByString) {
+    this.dictionaryTextByString = dictionaryTextByString;
+  }
   
 }

@@ -18,6 +18,46 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 @GcPersistableClass(tableName="grouper_data_row_field_assign", defaultFieldPersist=GcPersist.doPersist)
 public class GrouperDataRowFieldAssign implements GcSqlAssignPrimaryKey, GcDbVersionable {
 
+  /**
+   * cache this to get the id later
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private GrouperDataRowAssign dataRowAssign;
+  
+  
+  
+  
+  public GrouperDataRowAssign getDataRowAssign() {
+    return dataRowAssign;
+  }
+
+  
+  public void setDataRowAssign(GrouperDataRowAssign grouperDataRowAssign) {
+    this.dataRowAssign = grouperDataRowAssign;
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private Long tempInternalIdOnDeck = null;
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @return
+   */
+  public Long getTempInternalIdOnDeck() {
+    return tempInternalIdOnDeck;
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @param tempInternalIdOnDeck
+   */
+  public void setTempInternalIdOnDeck(Long tempInternalIdOnDeck) {
+    this.tempInternalIdOnDeck = tempInternalIdOnDeck;
+  }
+
   private long dataRowAssignInternalId = -1;
 
   private long dataFieldInternalId = -1;
@@ -115,7 +155,12 @@ public class GrouperDataRowFieldAssign implements GcSqlAssignPrimaryKey, GcDbVer
     if (this.internalId != -1) {
       return false;
     }
-    this.internalId = TableIndex.reserveId(TableIndexType.dataRowFieldAssign);
+    if (this.tempInternalIdOnDeck != null) {
+      this.internalId = this.tempInternalIdOnDeck;
+    } else {
+
+      this.internalId = TableIndex.reserveId(TableIndexType.dataRowFieldAssign);
+    }
     return true;
   }
 
@@ -204,6 +249,10 @@ public class GrouperDataRowFieldAssign implements GcSqlAssignPrimaryKey, GcDbVer
   public void storePrepare() {
     if (this.createdOn == null) {
       this.createdOn = new Timestamp(System.currentTimeMillis());
+    }
+    if (this.dataRowAssignInternalId == -1 && this.dataRowAssign != null) {
+      this.dataRowAssignInternalId = this.dataRowAssign.getInternalId();
+      
     }
   }
 

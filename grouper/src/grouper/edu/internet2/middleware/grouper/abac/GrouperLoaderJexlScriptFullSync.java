@@ -315,7 +315,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
           
           Object value = argument.getKey(1);
-          fieldDataType.assignValue(grouperDataFieldAssign, value);
+          fieldDataType.assignValue(grouperDataFieldAssign, value, grouperDataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
           
           if (fieldDataType == GrouperDataFieldType.bool || fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
             
@@ -1389,7 +1389,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
             GrouperDataFieldAssign grouperDataFieldAssign = new GrouperDataFieldAssign();
             
             Object value = argument.getKey(1);
-            fieldDataType.assignValue(grouperDataFieldAssign, value);
+            fieldDataType.assignValue(grouperDataFieldAssign, value, grouperDataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
             
             if (fieldDataType == GrouperDataFieldType.bool || fieldDataType == GrouperDataFieldType.integer || fieldDataType == GrouperDataFieldType.timestamp) {
               if (grouperDataFieldAssign.getValueInteger() != null) {

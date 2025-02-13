@@ -1,6 +1,7 @@
 package edu.internet2.middleware.grouper.dataField;
 
 import java.sql.Timestamp;
+import java.util.Map;
 
 import org.apache.commons.lang3.StringUtils;
 
@@ -24,17 +25,23 @@ public enum GrouperDataFieldType {
 
     @Override
     public void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       String valueString = GrouperUtil.stringValue(value);
-      Long dictionaryId = GrouperDictionaryDao.findOrAdd(valueString);
+      Long dictionaryId = dictionaryTextToInternalId == null ? null : dictionaryTextToInternalId.get(valueString);
+      if (dictionaryId == null) {
+        dictionaryId = GrouperDictionaryDao.findOrAdd(valueString);
+      }
       grouperDataFieldAssign.setValueDictionaryInternalId(dictionaryId);
     }
     
     @Override
     public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       String valueString = GrouperUtil.stringValue(value);
-      Long dictionaryId = GrouperDictionaryDao.findOrAdd(valueString);
+      Long dictionaryId = dictionaryTextToInternalId == null ? null : dictionaryTextToInternalId.get(valueString);
+      if (dictionaryId == null) {
+        dictionaryId = GrouperDictionaryDao.findOrAdd(valueString);
+      }
       grouperDataRowFieldAssign.setValueDictionaryInternalId(dictionaryId);
     }
     
@@ -54,13 +61,13 @@ public enum GrouperDataFieldType {
     }
     @Override
     public void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataFieldAssign.setValueInteger(valueLong);
     }
     @Override
     public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataRowFieldAssign.setValueInteger(valueLong);
     }
@@ -80,13 +87,13 @@ public enum GrouperDataFieldType {
     }
     @Override
     public void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataFieldAssign.setValueInteger(valueLong);
     }
     @Override
     public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataRowFieldAssign.setValueInteger(valueLong);
     }
@@ -109,13 +116,13 @@ public enum GrouperDataFieldType {
     }
     @Override
     public void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       Boolean valueBoolean = GrouperUtil.booleanObjectValue(value);
       grouperDataFieldAssign.setValueInteger(valueBoolean == null ? null : (valueBoolean ? 1L : 0L));
     }
     @Override
     public void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
-        Object value) {
+        Object value, Map<String, Long> dictionaryTextToInternalId) {
       Boolean valueBoolean = GrouperUtil.booleanObjectValue(value);
       grouperDataRowFieldAssign.setValueInteger(valueBoolean == null ? null : (valueBoolean ? 1L : 0L));
     }
@@ -173,30 +180,41 @@ public enum GrouperDataFieldType {
     return fieldType;
   }
   
-  public void assignValue(GrouperDataFieldAssign grouperDataFieldAssign, Object value) {
+  /**
+   * 
+   * @param grouperDataFieldAssign
+   * @param value
+   * @param dictionaryTextToInternalId optional, if not null, then use this to get the dictionary id
+   */
+  public void assignValue(GrouperDataFieldAssign grouperDataFieldAssign, Object value, Map<String, Long> dictionaryTextToInternalId ) {
     grouperDataFieldAssign.setValueDictionaryInternalId(null);
     grouperDataFieldAssign.setValueInteger(null);
     if (value == Void.TYPE) {
       return;
     }
-    assignValueHelper(grouperDataFieldAssign, value);
+    assignValueHelper(grouperDataFieldAssign, value, dictionaryTextToInternalId);
   }
 
-  
-  public void assignValue(GrouperDataRowFieldAssign grouperDataRowFieldAssign, Object value) {
+  /**
+   * 
+   * @param grouperDataRowFieldAssign
+   * @param value
+   * @param dictionaryTextToInternalId
+   */
+  public void assignValue(GrouperDataRowFieldAssign grouperDataRowFieldAssign, Object value, Map<String, Long> dictionaryTextToInternalId) {
     grouperDataRowFieldAssign.setValueDictionaryInternalId(null);
     grouperDataRowFieldAssign.setValueInteger(null);
     if (value == Void.TYPE) {
       return;
     }
-    assignValueHelper(grouperDataRowFieldAssign, value);
+    assignValueHelper(grouperDataRowFieldAssign, value, dictionaryTextToInternalId);
   }
 
   public abstract void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
-      Object value);
+      Object value, Map<String, Long> dictionaryTextToInternalId);
 
   public abstract void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
-      Object value);
+      Object value, Map<String, Long> dictionaryTextToInternalId);
 
 
 }

@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -107,6 +109,33 @@ public class GrouperDataRowAssignDao {
    */
   public static void reset() {
     new GcDbAccess().connectionName("grouper").sql("delete from " + GcPersistableHelper.tableName(GrouperDataRowAssign.class)).executeSql();
+  }
+
+  public static void store(Collection<GrouperDataRowAssign> grouperDataRowAssigns) {
+    if (GrouperUtil.length(grouperDataRowAssigns) == 0) {
+      return;
+    }
+
+    int internalIdsNeeded = 0;
+    for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
+      if (grouperDataRowAssign.getTempInternalIdOnDeck() == null) {
+        internalIdsNeeded++;
+      }
+    }
+    
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRowAssign, internalIdsNeeded);
+    int currentIndex = 0;
+    for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
+      if (grouperDataRowAssign.getTempInternalIdOnDeck() == null) {
+        grouperDataRowAssign.setTempInternalIdOnDeck(ids.get(currentIndex++));
+      }
+    }
+
+    for (GrouperDataRowAssign grouperDataRowAssign: grouperDataRowAssigns) {      
+      grouperDataRowAssign.storePrepare();
+    }
+        
+    new GcDbAccess().storeBatchToDatabase(grouperDataRowAssigns, 1000);
   }
 
   /**
