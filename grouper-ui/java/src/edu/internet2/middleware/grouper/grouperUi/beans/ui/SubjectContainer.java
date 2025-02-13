@@ -15,8 +15,10 @@
  ******************************************************************************/
 package edu.internet2.middleware.grouper.grouperUi.beans.ui;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
+import java.util.List;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -401,6 +403,7 @@ public class SubjectContainer {
   
   /** audit type **/
   private String auditType;
+
   
   /**
    * audit type
@@ -418,5 +421,18 @@ public class SubjectContainer {
   public void setAuditType(String auditType1) {
     this.auditType = auditType1;
   }
+
+  private List<GuiSubjectDataFieldConfig> guiSubjectDataFieldConfigs;
+
+  
+  public List<GuiSubjectDataFieldConfig> getGuiSubjectDataFieldConfigs() {
+    return guiSubjectDataFieldConfigs;
+  }
+
+  
+  public void setGuiSubjectDataFieldConfigs(List<GuiSubjectDataFieldConfig> guiSubjectDataFieldConfigs) {
+    this.guiSubjectDataFieldConfigs = guiSubjectDataFieldConfigs;
+  }
+  
   
 }

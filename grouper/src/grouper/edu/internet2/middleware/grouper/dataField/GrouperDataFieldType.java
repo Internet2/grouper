@@ -1,11 +1,10 @@
 package edu.internet2.middleware.grouper.dataField;
 
 import java.sql.Timestamp;
-import java.util.Map;
+import java.util.Map; 
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.dictionary.GrouperDictionary;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
@@ -25,7 +24,7 @@ public enum GrouperDataFieldType {
 
     @Override
     public void assignValueHelper(GrouperDataFieldAssign grouperDataFieldAssign,
-        Object value, Map<String, Long> dictionaryTextToInternalId) {
+         Object value, Map<String, Long> dictionaryTextToInternalId) {
       String valueString = GrouperUtil.stringValue(value);
       Long dictionaryId = dictionaryTextToInternalId == null ? null : dictionaryTextToInternalId.get(valueString);
       if (dictionaryId == null) {
@@ -43,6 +42,11 @@ public enum GrouperDataFieldType {
         dictionaryId = GrouperDictionaryDao.findOrAdd(valueString);
       }
       grouperDataRowFieldAssign.setValueDictionaryInternalId(dictionaryId);
+    }
+
+    @Override
+    public String convertToUiFriendlyString(Long valueInteger, String valueString) {
+      return GrouperUtil.trimToEmpty(valueString);
     }
     
     
@@ -71,6 +75,14 @@ public enum GrouperDataFieldType {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataRowFieldAssign.setValueInteger(valueLong);
     }
+    
+    @Override
+    public String convertToUiFriendlyString(Long valueInteger, String valueString) {
+      if (valueInteger == null) {
+        return "";
+      }
+      return String.valueOf(valueInteger);
+    }
   },
   
   timestamp  {
@@ -96,6 +108,16 @@ public enum GrouperDataFieldType {
         Object value, Map<String, Long> dictionaryTextToInternalId) {
       Long valueLong = GrouperUtil.longObjectValue(value, true);
       grouperDataRowFieldAssign.setValueInteger(valueLong);
+    }
+    
+    @Override
+    public String convertToUiFriendlyString(Long valueInteger, String valueString) {
+      if (valueInteger == null) {
+        return "";
+      }
+      Timestamp theTimestamp = GrouperUtil.timestampObjectValue(valueInteger, true);
+      //TODO make sure it's same as enable/disable date time on the UI
+      return theTimestamp.toString(); 
     }
     
   },
@@ -125,6 +147,21 @@ public enum GrouperDataFieldType {
         Object value, Map<String, Long> dictionaryTextToInternalId) {
       Boolean valueBoolean = GrouperUtil.booleanObjectValue(value);
       grouperDataRowFieldAssign.setValueInteger(valueBoolean == null ? null : (valueBoolean ? 1L : 0L));
+    }
+    
+    @Override
+    public String convertToUiFriendlyString(Long valueInteger, String valueString) {
+      if (valueInteger == null) {
+        return "";
+      }
+      if (valueInteger == 1L) {
+        //TODO: externalize text it
+        return "True";
+      } else if (valueInteger == 0L) {
+        return "False";
+      }
+      
+      return "Invalid";
     }
 
   };
@@ -215,6 +252,8 @@ public enum GrouperDataFieldType {
 
   public abstract void assignValueHelper(GrouperDataRowFieldAssign grouperDataRowFieldAssign,
       Object value, Map<String, Long> dictionaryTextToInternalId);
+
+  public abstract String convertToUiFriendlyString(Long valueInteger, String valueString);
 
 
 }

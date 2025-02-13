@@ -16,8 +16,10 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.LinkedHashSet;
@@ -51,6 +53,12 @@ import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.finder.AttributeDefFinder;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
 import edu.internet2.middleware.grouper.audit.UserAuditQuery;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignView;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiAttributeDef;
@@ -69,6 +77,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.AttributeDefContainer
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GroupContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GrouperRequestContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiAuditEntry;
+import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiSubjectDataFieldConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.RulesContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.SubjectContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
@@ -91,6 +100,7 @@ import edu.internet2.middleware.grouper.ui.util.GrouperUiUserData;
 import edu.internet2.middleware.grouper.ui.util.GrouperUiUtils;
 import edu.internet2.middleware.grouper.userData.GrouperUserDataApi;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -2513,5 +2523,101 @@ public class UiV2Subject {
     guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectAuditFilterResultsId", 
         "/WEB-INF/grouperUi2/subject/subjectViewAuditsContents.jsp"));
   
+  }
+  
+  /**
+   * view data field assignments subject
+   * @param request
+   * @param response
+   */
+  public void viewDataFieldAssignments(HttpServletRequest request, HttpServletResponse response) {
+    
+    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    GrouperSession grouperSession = null;
+  
+    try {
+  
+      grouperSession = GrouperSession.start(loggedInSubject);
+  
+      Subject subject = retrieveSubjectHelper(request);
+      
+      if (subject == null) {
+        return;
+      }
+      
+      GrouperRequestContainer grouperRequestContainer = GrouperRequestContainer.retrieveFromRequestOrCreate();
+
+      GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+      GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+      grouperDataEngine.loadFieldsAndRows(grouperConfig);
+      
+      MultiKey fieldsAndHasAccess = grouperDataEngine.retrieveGrouperDataFieldsForDataFieldAndDictionary(loggedInSubject, "individuals");
+      
+      Set<String> dataFieldConfigsLoggedInSubjectCanRead = new HashSet<String>(); 
+      for (GrouperDataFieldConfig dataFieldConfig: (List<GrouperDataFieldConfig>)fieldsAndHasAccess.getKey(0)) {
+        
+        String grouperPrivacyRealmConfigId = dataFieldConfig.getGrouperPrivacyRealmConfigId();
+        
+        GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
+        
+        String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+        
+        if (StringUtils.isBlank(highestLevelAccess) || StringUtils.equals("view", highestLevelAccess)) {
+          continue;
+        }
+        
+        dataFieldConfigsLoggedInSubjectCanRead.add(dataFieldConfig.getConfigId());
+        
+      }
+      
+      List<GuiSubjectDataFieldConfig> result = new ArrayList<>();
+      
+      // make a query against grouper_data_field_assign_v for the user who we're looking at
+      List<GrouperDataFieldAssignView> dataFieldAssignments = GrouperDataFieldAssignDao.retrieveDataFieldAssignments(subject);
+      
+      for (GrouperDataFieldAssignView grouperDataFieldAssignView: dataFieldAssignments) {
+        
+        GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(grouperDataFieldAssignView.getConfigId());
+        if (grouperDataFieldConfig == null) {
+          continue;
+        }
+        
+        if (!dataFieldConfigsLoggedInSubjectCanRead.contains(grouperDataFieldConfig.getConfigId())) {
+          continue;
+        }
+        
+        String uiFriendlyValue = grouperDataFieldConfig.getFieldDataType()
+            .convertToUiFriendlyString(grouperDataFieldAssignView.getValueInteger(), grouperDataFieldAssignView.getValueText());
+        
+        Set<String> fieldAliases = grouperDataFieldConfig.getFieldAliases();
+        List<String> sortedFieldAliases = new ArrayList<String>(fieldAliases);
+        Collections.sort(sortedFieldAliases);
+        String aliases = String.join(", ", sortedFieldAliases);
+        
+        result.add(new GuiSubjectDataFieldConfig(uiFriendlyValue, aliases));
+      
+      }
+      
+      Collections.sort(result, new Comparator<GuiSubjectDataFieldConfig>() {
+          @Override
+          public int compare(GuiSubjectDataFieldConfig o1, GuiSubjectDataFieldConfig o2) {
+              return o1.getAliases().compareTo(o2.getAliases());
+          }
+      });
+
+      
+      grouperRequestContainer.getSubjectContainer().setGuiSubjectDataFieldConfigs(result);
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 
+          "/WEB-INF/grouperUi2/subject/subjectViewDataFieldConfigs.jsp"));
+      
+      guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#subjectDataConfigResultsId", 
+          "/WEB-INF/grouperUi2/subject/subjectViewDataFieldConfigContents.jsp"));
+
+    } finally {
+      GrouperSession.stopQuietly(grouperSession);
+    }
   }
 }

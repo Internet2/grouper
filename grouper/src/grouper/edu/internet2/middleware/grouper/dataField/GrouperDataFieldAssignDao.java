@@ -13,6 +13,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * dao for data field assign
@@ -239,4 +240,20 @@ public class GrouperDataFieldAssignDao {
     
     return grouperDataFieldAssignHst;
   }
+  
+  public static List<GrouperDataFieldAssignView> retrieveDataFieldAssignments(Subject subject) {
+    
+    List<GrouperDataFieldAssignView> result = new ArrayList<GrouperDataFieldAssignView>();
+    
+    String sql = "select data_field_config_id, value_integer, value_text from grouper_data_field_assign_v where subject_id = ? and subject_source_id = ?";
+    List<Object[]> objects = new GcDbAccess().sql(sql).addBindVar(subject.getId()).addBindVar(subject.getSourceId())
+        .selectList(Object[].class);
+    
+    for (Object[] object: objects) {
+      result.add(new GrouperDataFieldAssignView(GrouperUtil.stringValue(object[0]), GrouperUtil.longValue(object[1]), GrouperUtil.stringValue(object[2])));
+    }
+    
+    return result;
+  }
+
 }

@@ -88,6 +88,8 @@
      
      <c:if test="${grouperRequestContainer.provisioningContainer.canReadProvisioningForSubject}">      
 	   <li class="divider"></li>
+     <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Subject.viewDataFieldAssignments&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"
+             >${textContainer.text['subjectDataFieldAssignment'] }</a></li>
 	   <li><a href="javascript:void(0)" onclick="return guiV2link('operation=UiV2Provisioning.viewProvisioningOnSubject&subjectId=${grouperRequestContainer.subjectContainer.guiSubject.subject.id}'); return false;"
            >${textContainer.text['subjectViewProvisioningButton'] }</a></li>
      </c:if>
