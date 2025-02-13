@@ -444,6 +444,31 @@ public class MemberFinder {
   }
 
   /**
+   * convert a set of subjects to a map of subjects to members
+   * @param subjects to convert to members
+   * @param createIfNotExists if should create the member records if not exist
+   * @return the map of subject to member
+   */
+  public static Map<Subject, Member> findBySubjectsToMap(
+      Collection<Subject> subjects, boolean createIfNotExists) {
+    
+    Map<Subject, Member> subjectToMember = new HashMap<Subject, Member>();
+    
+    if (GrouperUtil.length(subjects) == 0) {
+      return subjectToMember;
+    }
+    
+    Set<Member> members = findBySubjects(subjects, createIfNotExists);
+    
+    for (Member member : GrouperUtil.nonNull(members)) {
+      subjectToMember.put(member.getSubject(), member);
+    }
+    
+    return subjectToMember;
+    
+  }
+
+  /**
    * might want to make sure the user is root before doing this
    * @param sourceId
    * @param subjectId
