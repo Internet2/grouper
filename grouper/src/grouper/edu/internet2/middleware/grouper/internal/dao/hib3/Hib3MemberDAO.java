@@ -98,7 +98,7 @@ public class Hib3MemberDAO extends Hib3DAO implements MemberDAO {
   /**
    * number of subjects to put in member query
    */
-  public static int MEMBER_SUBJECT_BATCH_SIZE = 80;
+  public static int MEMBER_SUBJECT_BATCH_SIZE = 450;
 
   /**
    * config key for caching
