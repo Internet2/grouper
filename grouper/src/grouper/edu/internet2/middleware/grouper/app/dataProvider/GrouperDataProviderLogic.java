@@ -217,7 +217,7 @@ public class GrouperDataProviderLogic {
     Map<String, Map<String, Integer>> changeLogQueryConfigIdToLowerColumnNameToZeroIndex = new HashMap<String, Map<String, Integer>>();
 
     Map<String, Set<String>> sourceToSubjectIds = new HashMap<String, Set<String>>();
-    Map<String, Set<String>> sourceToSubjectIdentifierss = new HashMap<String, Set<String>>();
+    Map<String, Set<String>> sourceToSubjectIdentifiers = new HashMap<String, Set<String>>();
     Set<String> subjectIds = new HashSet<String>();
     Set<String> subjectIdentifiers = new HashSet<String>();
     
@@ -264,10 +264,10 @@ public class GrouperDataProviderLogic {
             }
             subjectIdsForSource.add(subjectId);
           } else {
-            Set<String> subjectIdentifiersForSource = sourceToSubjectIdentifierss.get(sourceIdAttribute);
+            Set<String> subjectIdentifiersForSource = sourceToSubjectIdentifiers.get(sourceIdAttribute);
             if (subjectIdentifiersForSource == null) {
               subjectIdentifiersForSource = new HashSet<String>();
-              sourceToSubjectIdentifierss.put(sourceIdAttribute, subjectIdentifiersForSource);
+              sourceToSubjectIdentifiers.put(sourceIdAttribute, subjectIdentifiersForSource);
             }
             subjectIdentifiersForSource.add(subjectId);
           }
@@ -275,7 +275,45 @@ public class GrouperDataProviderLogic {
       }
         
     }
+    
+    // resolve the subjects
+    Set<Subject> allSubjects = new LinkedHashSet<Subject>();
+    if (GrouperUtil.length(subjectIds) > 0) {
+      Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(subjectIds, null, true);
+      allSubjects.addAll(subjectsByIds.values());
+    }
+    if (GrouperUtil.length(subjectIdentifiers) > 0) {
+      Map<String, Subject> subjectsByIdentifiers = SubjectFinder.findByIdentifiers(subjectIdentifiers);
+      allSubjects.addAll(subjectsByIdentifiers.values());
+    }
+    for (String sourceId : sourceToSubjectIds.keySet()) {
+      Set<String> theSubjectIds = sourceToSubjectIds.get(sourceId);
+      if (GrouperUtil.length(theSubjectIds) > 0) {
+        Map<String, Subject> subjectsByIds = SubjectFinder.findByIds(theSubjectIds, sourceId, true);
+        allSubjects.addAll(subjectsByIds.values());
+      }
+    }
+    for (String sourceId : sourceToSubjectIdentifiers.keySet()) {
+      Set<String> theSubjectIdentifiers = sourceToSubjectIdentifiers.get(sourceId);
+      if (GrouperUtil.length(theSubjectIdentifiers) > 0) {
+        Map<String, Subject> subjectsByIdentitifers = SubjectFinder.findByIdentifiers(theSubjectIdentifiers, sourceId);
+        allSubjects.addAll(subjectsByIdentitifers.values());
+      }
+    }
+    
+    Set<Member> members = MemberFinder.findBySubjects(allSubjects, true);
+    for (Member member : members) {
+      Long memberInternalId = member.getInternalId();
 
+      GrouperDataMemberWrapper grouperDataMemberWrapper = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().get(memberInternalId);
+      
+      if (grouperDataMemberWrapper == null) {
+        grouperDataMemberWrapper = new GrouperDataMemberWrapper(dataEngine, memberInternalId);
+        dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().put(memberInternalId, grouperDataMemberWrapper);
+      }    
+      
+      grouperDataMemberWrapper.setMember(member);
+    }
     
     Set<Long> memberInternalIds = dataEngine.getGrouperDataProviderIndex().getMemberWrapperByInternalId().keySet();
     
@@ -605,9 +643,9 @@ public class GrouperDataProviderLogic {
       }
     }
     for (String sourceId : sourceToSubjectIdentifiers.keySet()) {
-      Set<String> theSubjectIdentifiers = sourceToSubjectIds.get(sourceId);
+      Set<String> theSubjectIdentifiers = sourceToSubjectIdentifiers.get(sourceId);
       if (GrouperUtil.length(theSubjectIdentifiers) > 0) {
-        Map<String, Subject> subjectsByIdentitifers = SubjectFinder.findByIdentifiers(subjectIdentifiers, sourceId);
+        Map<String, Subject> subjectsByIdentitifers = SubjectFinder.findByIdentifiers(theSubjectIdentifiers, sourceId);
         for (String subjectIdentifier : subjectsByIdentitifers.keySet()) {
           Subject subject = subjectsByIdentitifers.get(subjectIdentifier);
           MultiKey subjectIdAttributeSubjectIdSourceId = new MultiKey("subjectIdentifier", subjectIdentifier, sourceId);
