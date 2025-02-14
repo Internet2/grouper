@@ -3069,6 +3069,11 @@ public class GcDbAccess {
       for (int columnOneIndex=1;columnOneIndex<=this.resultSetMetaData.getColumnCount();columnOneIndex++) {
         String columnLabel = this.resultSetMetaData.getColumnLabel(columnOneIndex);
         columnLabel = columnLabel.toLowerCase();
+        
+        if (this.resultSetMetadataColumnNameLowerToIndex.containsKey(columnLabel) && this.resultSetMetadataColumnNameLowerToIndex.get(columnLabel) != columnOneIndex) {
+          throw new RuntimeException("Indexing " + columnLabel + " more than once!  Check sql.");
+        }
+        
         this.resultSetMetadataColumnNameLowerToIndex.put(columnLabel, columnOneIndex);
       }
     }
