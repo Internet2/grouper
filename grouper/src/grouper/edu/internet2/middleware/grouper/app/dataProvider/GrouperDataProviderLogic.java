@@ -1092,12 +1092,15 @@ public class GrouperDataProviderLogic {
               GrouperDataRowAssign grouperDataRowAssign = grouperDataRowAssignWrapper.getGrouperDataRowAssign();
               Map<Long, List<Object>> providerDataFieldInternalIdsAndValues = providerDataRowKeyToDataFieldInternalIdsAndValues.get(grouperDataRowKey);
 
-              for (Long dataFieldInternalId : GrouperUtil.nonNull(providerDataFieldInternalIdsAndValues.keySet())) {
-
+              Set<Long> dataFieldInternalIds = new LinkedHashSet<>(GrouperUtil.nonNull(providerDataFieldInternalIdsAndValues.keySet()));
+              dataFieldInternalIds.addAll(grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().keySet());
+              
+              for (Long dataFieldInternalId : dataFieldInternalIds) {
+                
                 GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(dataFieldInternalId).getGrouperDataField();
                 GrouperDataFieldConfig grouperDataFieldConfig = dataEngine.getFieldConfigByConfigId().get(grouperDataField.getConfigId());
 
-                List<Object> providerValues = providerDataFieldInternalIdsAndValues.get(dataFieldInternalId);
+                List<Object> providerValues = GrouperUtil.nonNull(providerDataFieldInternalIdsAndValues.get(dataFieldInternalId));
                 List<Object> grouperValuesConverted = new ArrayList<Object>();
                 List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers = GrouperUtil.nonNull(grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().get(dataFieldInternalId));
                 for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {
