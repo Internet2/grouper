@@ -21,9 +21,12 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.Comparator;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 import java.util.TreeSet;
 import java.util.regex.Matcher;
@@ -58,6 +61,9 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignView;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignView;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperPrivacyRealmConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.group.TypeOfGroup;
@@ -2568,10 +2574,15 @@ public class UiV2Subject {
         }
         
         dataFieldConfigsLoggedInSubjectCanRead.add(dataFieldConfig.getConfigId());
-        
       }
       
-      List<GuiSubjectDataFieldConfig> result = new ArrayList<>();
+      List<GrouperDataRowConfig> grouperDataRowsForDataFieldAndDictionary = grouperDataEngine.retrieveGrouperDataRowsForDataFieldAndDictionary(loggedInSubject);
+      
+      for (GrouperDataRowConfig grouperDataRowConfig: grouperDataRowsForDataFieldAndDictionary) {
+        grouperDataRowConfig.getPrivacyRealmName();
+      }
+      
+      List<GuiSubjectDataFieldConfig> guiSubjectDataFieldConfigs = new ArrayList<>();
       
       // make a query against grouper_data_field_assign_v for the user who we're looking at
       List<GrouperDataFieldAssignView> dataFieldAssignments = GrouperDataFieldAssignDao.retrieveDataFieldAssignments(subject);
@@ -2595,19 +2606,63 @@ public class UiV2Subject {
         Collections.sort(sortedFieldAliases);
         String aliases = String.join(", ", sortedFieldAliases);
         
-        result.add(new GuiSubjectDataFieldConfig(uiFriendlyValue, aliases));
+        guiSubjectDataFieldConfigs.add(new GuiSubjectDataFieldConfig(uiFriendlyValue, aliases));
       
       }
       
-      Collections.sort(result, new Comparator<GuiSubjectDataFieldConfig>() {
+      Collections.sort(guiSubjectDataFieldConfigs, new Comparator<GuiSubjectDataFieldConfig>() {
           @Override
           public int compare(GuiSubjectDataFieldConfig o1, GuiSubjectDataFieldConfig o2) {
               return o1.getAliases().compareTo(o2.getAliases());
           }
       });
-
       
-      grouperRequestContainer.getSubjectContainer().setGuiSubjectDataFieldConfigs(result);
+      List<GrouperDataRowAssignView> dataRowAssignments = GrouperDataRowAssignDao.retrieveDataRowAssignments(subject);
+      
+      Map<String, Map<String, List<String>>> dataRowConfigIdToFieldConfigIds = new HashMap<>();
+      
+      for (GrouperDataRowAssignView grouperDataRowAssignView: dataRowAssignments) {
+        
+        GrouperDataRowConfig grouperDataRowConfig = grouperDataEngine.getRowConfigByConfigId().get(grouperDataRowAssignView.getDataRowConfigId());
+        if (grouperDataRowConfig == null) {
+          continue;
+        }
+        
+//        if (!dataFieldConfigsLoggedInSubjectCanRead.contains(grouperDataRowAssignView.getDataFieldConfigId())) {
+//          continue;
+//        }
+        
+        GrouperDataFieldConfig grouperDataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(grouperDataRowAssignView.getDataFieldConfigId());
+        if (grouperDataFieldConfig == null) {
+          continue;
+        }
+        
+        String uiFriendlyValue = grouperDataFieldConfig.getFieldDataType()
+            .convertToUiFriendlyString(grouperDataRowAssignView.getValueInteger(), grouperDataRowAssignView.getValueText());
+        
+        if (dataRowConfigIdToFieldConfigIds.containsKey(grouperDataRowAssignView.getDataRowConfigId())) {
+          Map<String, List<String>> dataRowMap = dataRowConfigIdToFieldConfigIds.get(grouperDataRowAssignView.getDataRowConfigId());
+          String dataFieldConfigId = grouperDataRowAssignView.getDataFieldConfigId();
+          if (dataRowMap.containsKey(dataFieldConfigId)) {
+            dataRowMap.get(dataFieldConfigId).add(uiFriendlyValue);
+          } else {
+            dataRowMap.put(dataFieldConfigId, GrouperUtil.toList(uiFriendlyValue));
+          }
+        } else {
+          Map<String, List<String>> dataRowMap = new LinkedHashMap<>();
+          String dataFieldConfigId = grouperDataRowAssignView.getDataFieldConfigId();
+          if (dataRowMap.containsKey(dataFieldConfigId)) {
+            dataRowMap.get(dataFieldConfigId).add(uiFriendlyValue);
+          } else {
+            dataRowMap.put(dataFieldConfigId, GrouperUtil.toList(uiFriendlyValue));
+          }
+          dataRowConfigIdToFieldConfigIds.put(grouperDataRowAssignView.getDataRowConfigId(), dataRowMap);
+        }
+        
+      }
+      
+      grouperRequestContainer.getSubjectContainer().setDataRowConfigIdToFieldConfigIds(dataRowConfigIdToFieldConfigIds);
+      grouperRequestContainer.getSubjectContainer().setGuiSubjectDataFieldConfigs(guiSubjectDataFieldConfigs);
       GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
       
       guiResponseJs.addAction(GuiScreenAction.newInnerHtmlFromJsp("#grouperMainContentDivId", 

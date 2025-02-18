@@ -250,7 +250,7 @@ public class GrouperDataFieldAssignDao {
         .selectList(Object[].class);
     
     for (Object[] object: objects) {
-      result.add(new GrouperDataFieldAssignView(GrouperUtil.stringValue(object[0]), GrouperUtil.longValue(object[1]), GrouperUtil.stringValue(object[2])));
+      result.add(new GrouperDataFieldAssignView(GrouperUtil.stringValue(object[0]), object[1] == null ? null : GrouperUtil.longValue(object[1]), GrouperUtil.stringValue(object[2])));
     }
     
     return result;

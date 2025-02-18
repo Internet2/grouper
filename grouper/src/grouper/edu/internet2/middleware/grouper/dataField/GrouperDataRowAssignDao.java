@@ -12,6 +12,7 @@ import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
 import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
+import edu.internet2.middleware.subject.Subject;
 
 /**
  * dao for data field assign
@@ -236,5 +237,23 @@ public class GrouperDataRowAssignDao {
     grouperDataRowAssignHst.setEndTime(System.currentTimeMillis() * 1000L);
     
     return grouperDataRowAssignHst;
+  }
+  
+  public static List<GrouperDataRowAssignView> retrieveDataRowAssignments(Subject subject) {
+    
+    List<GrouperDataRowAssignView> result = new ArrayList<GrouperDataRowAssignView>();
+    
+    String sql = "select gdrav.data_row_config_id, gdrfav.data_field_config_id , gdrfav.value_text, gdrfav.value_integer "
+        + "from grouper_data_row_assign_v gdrav, grouper_data_row_field_asgn_v gdrfav "
+        + "where gdrav.data_row_assign_internal_id  = gdrfav.data_row_assign_internal_id  and gdrav.subject_id = ? and gdrav.subject_source_id = ?";
+    List<Object[]> objects = new GcDbAccess().sql(sql).addBindVar(subject.getId()).addBindVar(subject.getSourceId())
+        .selectList(Object[].class);
+    
+    for (Object[] object: objects) {
+      result.add(new GrouperDataRowAssignView(GrouperUtil.stringValue(object[0]), GrouperUtil.stringValue(object[1]),
+          GrouperUtil.stringValue(object[2]), object[3] == null ? null: GrouperUtil.longValue(object[3])));
+    }
+    
+    return result;
   }
 }

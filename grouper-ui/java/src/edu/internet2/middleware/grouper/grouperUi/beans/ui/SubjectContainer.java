@@ -19,6 +19,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang.StringUtils;
@@ -432,6 +433,18 @@ public class SubjectContainer {
   
   public void setGuiSubjectDataFieldConfigs(List<GuiSubjectDataFieldConfig> guiSubjectDataFieldConfigs) {
     this.guiSubjectDataFieldConfigs = guiSubjectDataFieldConfigs;
+  }
+  
+  private Map<String, Map<String, List<String>>> dataRowConfigIdToFieldConfigIds;
+
+  
+  public Map<String, Map<String, List<String>>> getDataRowConfigIdToFieldConfigIds() {
+    return dataRowConfigIdToFieldConfigIds;
+  }
+
+  
+  public void setDataRowConfigIdToFieldConfigIds(Map<String, Map<String, List<String>>> dataRowConfigIdToFieldConfigIds) {
+    this.dataRowConfigIdToFieldConfigIds = dataRowConfigIdToFieldConfigIds;
   }
   
   
