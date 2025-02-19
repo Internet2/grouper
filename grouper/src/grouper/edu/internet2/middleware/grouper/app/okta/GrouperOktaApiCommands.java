@@ -476,7 +476,7 @@ public class GrouperOktaApiCommands {
       
       if (StringUtils.isNotBlank(fieldToSearchFor)) {
         
-        String filterValue = fieldToSearchFor + " eq "+ "\"" + fieldValue + "\"";
+        String filterValue = fieldToSearchFor + " eq "+ "\"" + fieldValue + "\" and type eq \"OKTA_GROUP\"";
         String urlEncodedFilter = GrouperUtil.escapeUrlEncode(filterValue);
         urlSuffixConstant = urlSuffixConstant + "?search="+urlEncodedFilter;
       }
