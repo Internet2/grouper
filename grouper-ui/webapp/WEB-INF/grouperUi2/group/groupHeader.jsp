@@ -183,6 +183,10 @@
 		                  </p>
                 
                 </c:if>
+                
+                <c:if test="${grouperRequestContainer.grouperLoaderContainer.loaderGroup and grouperRequestContainer.grouperLoaderContainer.grouperJexlScriptLoader}">
+                   <p>${textContainer.text['grouperLoaderIsGrouperLoaderScriptedGroup'] }</p>
+                </c:if>
                     
                     <div id="groupDetailsId" style="display: none;">
                       <table class="table table-condensed table-striped">
