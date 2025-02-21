@@ -112,7 +112,7 @@ public class GrouperDataRowDao {
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
     for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: dataRowFieldAssigns) {
-      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign, false);
+      GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssign);
     }
     
     List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
@@ -274,10 +274,10 @@ public class GrouperDataRowDao {
     GrouperDataAliasDao.delete(aliases);
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
-    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns, false);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
     
     List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalIds(dataRowInternalIds);
-    GrouperDataRowAssignDao.delete(dataRowAssigns, false);
+    GrouperDataRowAssignDao.delete(dataRowAssigns);
     
     List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataRowInternalIds(dataRowInternalIds);
     GrouperDataRowFieldAssignHstDao.delete(dataRowFieldAssignHsts);

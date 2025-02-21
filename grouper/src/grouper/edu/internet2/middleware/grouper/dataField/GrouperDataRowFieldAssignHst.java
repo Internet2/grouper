@@ -26,10 +26,6 @@ public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDb
   private Long valueInteger;
 
   private Long valueDictionaryInternalId;
-
-  private Long startTime;
-  
-  private Long endTime;
   
   /**
    * version from db
@@ -95,31 +91,6 @@ public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDb
   }
 
 
-  
-  
-  public Long getStartTime() {
-    return startTime;
-  }
-
-
-  
-  public void setStartTime(Long startTime) {
-    this.startTime = startTime;
-  }
-
-
-  
-  public Long getEndTime() {
-    return endTime;
-  }
-
-
-  
-  public void setEndTime(Long endTime) {
-    this.endTime = endTime;
-  }
-
-
   /**
    * 
    */
@@ -145,8 +116,6 @@ public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDb
   
     //dbVersion  DONT CLONE
   
-    grouperDataRowFieldAssign.startTime = this.startTime;
-    grouperDataRowFieldAssign.endTime = this.endTime;
     grouperDataRowFieldAssign.dataRowAssignInternalId = this.dataRowAssignInternalId;
     grouperDataRowFieldAssign.dataFieldInternalId = this.dataFieldInternalId;
     grouperDataRowFieldAssign.internalId = this.internalId;
@@ -204,8 +173,6 @@ public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDb
     return new EqualsBuilder()
   
       //dbVersion  DONT EQUALS
-      .append(this.startTime, other.startTime)
-      .append(this.endTime, other.endTime)
       .append(this.dataRowAssignInternalId, other.dataRowAssignInternalId)
       .append(this.dataFieldInternalId, other.dataFieldInternalId)
       .append(this.internalId, other.internalId)

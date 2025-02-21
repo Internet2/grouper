@@ -50,6 +50,8 @@ public class GrouperDataRowAssign implements GcSqlAssignPrimaryKey, GcDbVersiona
   private Timestamp createdOn = null;
   
   private long dataProviderInternalId;
+  
+  private Long lastUpdated = null;
 
   /**
    * version from db
@@ -78,8 +80,15 @@ public class GrouperDataRowAssign implements GcSqlAssignPrimaryKey, GcDbVersiona
   }
   
   
+  public Long getLastUpdated() {
+    return lastUpdated;
+  }
+
   
-  
+  public void setLastUpdated(Long lastUpdated) {
+    this.lastUpdated = lastUpdated;
+  }
+
   public long getDataRowInternalId() {
     return dataRowInternalId;
   }
@@ -146,6 +155,7 @@ public class GrouperDataRowAssign implements GcSqlAssignPrimaryKey, GcDbVersiona
     //dbVersion  DONT CLONE
   
     grouperDataRowAssign.createdOn = this.createdOn;
+    grouperDataRowAssign.lastUpdated = this.lastUpdated;
     grouperDataRowAssign.dataProviderInternalId = this.dataProviderInternalId;
     grouperDataRowAssign.dataRowInternalId = this.dataRowInternalId;
     grouperDataRowAssign.internalId = this.internalId;
@@ -203,6 +213,7 @@ public class GrouperDataRowAssign implements GcSqlAssignPrimaryKey, GcDbVersiona
   
       //dbVersion  DONT EQUALS
       .append(this.createdOn, other.createdOn)
+      .append(this.lastUpdated, other.lastUpdated)
       .append(this.dataProviderInternalId, other.dataProviderInternalId)
       .append(this.dataRowInternalId, other.dataRowInternalId)
       .append(this.internalId, other.internalId)

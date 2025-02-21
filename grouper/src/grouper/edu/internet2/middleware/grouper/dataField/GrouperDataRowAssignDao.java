@@ -177,66 +177,15 @@ public class GrouperDataRowAssignDao {
 
   public static void delete(GrouperDataRowAssign grouperDataRowAssign, boolean addHistory) {
     grouperDataRowAssign.storePrepare();
-
-    new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
-      
-      @Override
-      public Boolean callback(GcDbAccess dbAccessForStorage) {
-  
-        dbAccessForStorage.deleteFromDatabase(grouperDataRowAssign);
-        
-        if (addHistory) {
-          // hack?
-          dbAccessForStorage.sql(null);
-          dbAccessForStorage.bindVars();
-          
-          GrouperDataRowAssignHst grouperDataRowAssignHst = getHstInstanceFromObjectBeingDelete(grouperDataRowAssign);
-          GrouperDataRowAssignHstDao.store(grouperDataRowAssignHst);
-        }
-        
-        return null;
-      }
-    });
+    new GcDbAccess().deleteFromDatabase(grouperDataRowAssign);
   }
   
   public static void delete(Collection<GrouperDataRowAssign> grouperDataRowAssigns) {
-    delete(grouperDataRowAssigns, true);
-  }
-  
-  public static void delete(Collection<GrouperDataRowAssign> grouperDataRowAssigns, boolean addHistory) {
     for (GrouperDataRowAssign grouperDataRowAssign: grouperDataRowAssigns) {      
       grouperDataRowAssign.storePrepare();
     }
-        
-    new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
-      
-      @Override
-      public Boolean callback(GcDbAccess dbAccessForStorage) {
-        dbAccessForStorage.deleteFromDatabaseMultiple(grouperDataRowAssigns);
-
-        if (addHistory) {
-          List<GrouperDataRowAssignHst> grouperDataRowAssignHsts = new ArrayList<>();
-          for (GrouperDataRowAssign grouperDataRowAssign: grouperDataRowAssigns) {                
-            GrouperDataRowAssignHst grouperDataRowAssignHst = getHstInstanceFromObjectBeingDelete(grouperDataRowAssign);
-            grouperDataRowAssignHsts.add(grouperDataRowAssignHst);
-          }
-          GrouperDataRowAssignHstDao.store(grouperDataRowAssignHsts);
-        }
-        
-        return null;
-      }
-    });
-  }
-
-  private static GrouperDataRowAssignHst getHstInstanceFromObjectBeingDelete(GrouperDataRowAssign grouperDataRowAssign) {
-    GrouperDataRowAssignHst grouperDataRowAssignHst = new GrouperDataRowAssignHst();
-    grouperDataRowAssignHst.setMemberInternalId(grouperDataRowAssign.getMemberInternalId());
-    grouperDataRowAssignHst.setDataRowInternalId(grouperDataRowAssign.getDataRowInternalId());
-    grouperDataRowAssignHst.setDataRowAssignInternalId(grouperDataRowAssign.getInternalId());
-    grouperDataRowAssignHst.setStartTime(grouperDataRowAssign.getCreatedOn().getTime() * 1000L);
-    grouperDataRowAssignHst.setEndTime(System.currentTimeMillis() * 1000L);
     
-    return grouperDataRowAssignHst;
+    new GcDbAccess().deleteFromDatabaseMultiple(grouperDataRowAssigns);
   }
   
   public static List<GrouperDataRowAssignView> retrieveDataRowAssignments(Subject subject) {
