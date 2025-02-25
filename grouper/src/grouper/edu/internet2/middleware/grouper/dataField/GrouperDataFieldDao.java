@@ -135,7 +135,7 @@ public class GrouperDataFieldDao {
     GrouperDataFieldAssignDao.delete(dataFieldAssigns, false);
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
-    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns, false);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
     
     List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataFieldInternalIds(dataFieldInternalIds);
     GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
@@ -165,7 +165,7 @@ public class GrouperDataFieldDao {
     GrouperDataFieldAssignDao.delete(dataFieldAssigns, false);
     
     List<GrouperDataRowFieldAssign> dataRowFieldAssigns = GrouperDataRowFieldAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
-    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns, false);
+    GrouperDataRowFieldAssignDao.delete(dataRowFieldAssigns);
     
     List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataFieldInternalId(grouperDataField.getInternalId());
     GrouperDataGlobalAssignDao.delete(dataGlobalAssings);

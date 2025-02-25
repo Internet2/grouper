@@ -464,6 +464,9 @@ public class GrouperDdl5_0_0 {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "created_on",
         Types.TIMESTAMP, null, false, true);
     
+    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "last_updated",
+        Types.BIGINT, "20", false, false);
+    
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_provider_internal_id",
         Types.BIGINT, "20", false, true);
     

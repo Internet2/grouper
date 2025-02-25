@@ -647,17 +647,16 @@ public class GrouperDdl5_14_0 {
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "internal_id", Types.BIGINT, "20", true, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_row_assign_internal_id", Types.BIGINT, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "data_field_internal_id", Types.BIGINT, "20", false, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "start_time", Types.BIGINT, "20", false, true);
-    GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "end_time", Types.BIGINT, "20", false, true);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "value_integer", Types.BIGINT, "20", false, false);
     GrouperDdlUtils.ddlutilsFindOrCreateColumn(table, "value_dictionary_internal_id", Types.BIGINT, "20", false, false);
     
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst1_idx", false, "data_row_assign_internal_id", "data_field_internal_id", "value_dictionary_internal_id", "end_time");
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst2_idx", false, "data_row_assign_internal_id", "data_field_internal_id", "value_integer", "end_time");
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst3_idx", false, "data_field_internal_id", "value_dictionary_internal_id", "end_time");
-    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst4_idx", false, "data_field_internal_id", "value_integer", "end_time");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst1_idx", false, "data_row_assign_internal_id", "data_field_internal_id", "value_dictionary_internal_id");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst2_idx", false, "data_row_assign_internal_id", "data_field_internal_id", "value_integer");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst3_idx", false, "data_field_internal_id", "value_dictionary_internal_id");
+    GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, table.getName(), "data_row_field_asn_hst4_idx", false, "data_field_internal_id", "value_integer");
     
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_field_asn_hst_fk_1", "grouper_data_field", GrouperUtil.toList("data_field_internal_id"), GrouperUtil.toList("internal_id"));
     GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_field_asn_hst_fk_2", "grouper_dictionary", GrouperUtil.toList("value_dictionary_internal_id"), GrouperUtil.toList("internal_id"));
+    GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, table.getName(), "data_row_field_asn_hst_fk_3", "grouper_data_row_assign_hst", GrouperUtil.toList("data_row_assign_internal_id"), GrouperUtil.toList("internal_id"));
   }
 }

@@ -2192,6 +2192,7 @@ CREATE TABLE  grouper_data_row_assign (
   member_internal_id BIGINT NOT NULL,
   data_row_internal_id BIGINT NOT NULL,
   created_on DATETIME NOT NULL,
+  last_updated BIGINT NULL,
   internal_id BIGINT NOT NULL,
   data_provider_internal_id BIGINT NOT NULL,
   PRIMARY KEY (internal_id)
@@ -2272,18 +2273,17 @@ CREATE TABLE grouper_data_row_field_asn_hst (
   internal_id BIGINT NOT NULL,
   data_row_assign_internal_id BIGINT NOT NULL,
   data_field_internal_id BIGINT NOT NULL,
-  start_time BIGINT NOT NULL,
-  end_time BIGINT NOT NULL,
   value_integer BIGINT NULL,
   value_dictionary_internal_id BIGINT NULL,
   PRIMARY KEY (internal_id)
 );
-CREATE INDEX data_row_field_asn_hst1_idx ON grouper_data_row_field_asn_hst (data_row_assign_internal_id, data_field_internal_id, value_dictionary_internal_id, end_time);
-CREATE INDEX data_row_field_asn_hst2_idx ON grouper_data_row_field_asn_hst (data_row_assign_internal_id, data_field_internal_id, value_integer, end_time);
-CREATE INDEX data_row_field_asn_hst3_idx ON grouper_data_row_field_asn_hst (data_field_internal_id, value_dictionary_internal_id, end_time);
-CREATE INDEX data_row_field_asn_hst4_idx ON grouper_data_row_field_asn_hst (data_field_internal_id, value_integer, end_time);
+CREATE INDEX data_row_field_asn_hst1_idx ON grouper_data_row_field_asn_hst (data_row_assign_internal_id, data_field_internal_id, value_dictionary_internal_id);
+CREATE INDEX data_row_field_asn_hst2_idx ON grouper_data_row_field_asn_hst (data_row_assign_internal_id, data_field_internal_id, value_integer);
+CREATE INDEX data_row_field_asn_hst3_idx ON grouper_data_row_field_asn_hst (data_field_internal_id, value_dictionary_internal_id);
+CREATE INDEX data_row_field_asn_hst4_idx ON grouper_data_row_field_asn_hst (data_field_internal_id, value_integer);
 ALTER TABLE grouper_data_row_field_asn_hst ADD CONSTRAINT data_row_field_asn_hst_fk_1 FOREIGN KEY (data_field_internal_id) REFERENCES grouper_data_field(internal_id);
 ALTER TABLE grouper_data_row_field_asn_hst ADD CONSTRAINT data_row_field_asn_hst_fk_2 FOREIGN KEY (value_dictionary_internal_id) REFERENCES grouper_dictionary(internal_id);
+ALTER TABLE grouper_data_row_field_asn_hst ADD CONSTRAINT data_row_field_asn_hst_fk_3 FOREIGN KEY (data_row_assign_internal_id) REFERENCES grouper_data_row_assign_hst(internal_id);
 
 CREATE TABLE grouper_sql_cache_group
 (
