@@ -15,9 +15,6 @@ import java.util.TreeSet;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.lang3.time.DurationFormatUtils;
 import org.apache.commons.logging.Log;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
-import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import org.hibernate.Query;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -26,12 +23,14 @@ import org.hibernate.internal.SessionImpl;
 import org.hibernate.persister.entity.AbstractEntityPersister;
 import org.hibernate.persister.entity.EntityPersister;
 
-import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.db.GrouperLoaderDb;
 import edu.internet2.middleware.grouper.app.loader.db.Hib3GrouperDdl;
 import edu.internet2.middleware.grouper.cfg.GrouperHibernateConfig;
 import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils.DbMetadataBean;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Database;
+import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.model.Table;
 import edu.internet2.middleware.grouper.hibernate.GrouperContext;
 import edu.internet2.middleware.grouper.hibernate.HibUtils;
 import edu.internet2.middleware.grouper.hibernate.HibernateParam;
@@ -44,7 +43,7 @@ public class GrouperDdlDataMigration {
 
   public static void main(String[] args) {
     
-    String result = new GrouperDdlDataMigration().assignDatabaseFrom("grouper").assignDatabaseTo("mysqlDb").migrateDatabase();
+    String result = new GrouperDdlDataMigration().assignDatabaseFrom("grouper").assignDatabaseTo("postgres").migrateDatabase();
     
     System.out.println(result);
     
@@ -207,7 +206,7 @@ public class GrouperDdlDataMigration {
       boolean tablesExist = false;
       try {
         // lets see what we are working with
-        List<Hib3GrouperDdl> hib3GrouperDdls = hqlList(databaseTo, "from Hib3GrouperDdl", null);
+         List<Hib3GrouperDdl> hib3GrouperDdls = hqlList(databaseTo, "from Hib3GrouperDdl", null);
         tablesExist = true;
         if (GrouperUtil.length(hib3GrouperDdls) > 0) {
           Hib3GrouperDdl hib3GrouperDdl = Hib3GrouperDdl.findInList(hib3GrouperDdls,  "Grouper");
@@ -228,6 +227,15 @@ public class GrouperDdlDataMigration {
       GrouperDdlScript grouperDdlWorkerScript = new GrouperDdlScript().assignDatabaseConnection(this.databaseTo).parseScript("Grouper_createDdlWorker");
   
       GrouperDdlScript[] grouperDdlScripts = new GrouperDdlScript[] {grouperDdlScript, subjectDdlScript, grouperDdlWorkerScript};
+      
+      state = "STEP1.5: creating functions in destination...";
+      debugMap.put("state", state);
+      result.append(state+"\n");
+      grouperDdlScript.runFunctionScript();
+      
+      state = "STEP1.5: complete";
+      result.append(state + "\n");
+      debugMap.put("state", state);
       
       if (!tablesExist) {
         state = "STEP2: creating tables in destination...";

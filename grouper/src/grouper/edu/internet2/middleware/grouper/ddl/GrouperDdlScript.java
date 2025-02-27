@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.ddl;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang.StringUtils;
 
@@ -21,6 +22,8 @@ public class GrouperDdlScript {
   private List<String> createForeignKeyLines = new ArrayList<String>();
 
   private List<String> createViewLines = new ArrayList<String>();
+  
+  private List<String> createFunctionLines = new ArrayList<String>();
 
   private List<String> dmlLines = new ArrayList<String>();
 
@@ -56,6 +59,14 @@ public class GrouperDdlScript {
         grouperDdlScript.createViewLines.add(line);
       }
     },
+    
+    function {
+
+      @Override
+      public void appendLine(GrouperDdlScript grouperDdlScript, String line) {
+        grouperDdlScript.createFunctionLines.add(line);
+      }
+    },
     dml {
 
       @Override
@@ -85,6 +96,9 @@ public class GrouperDdlScript {
       // all comments can go with views at end
       if (scriptLine.startsWith("comment on")) {
         return ScriptType.view;
+      }
+      if (scriptLine.startsWith("create function")) {
+        return ScriptType.function;
       }
       
       if (scriptLine.startsWith("insert") || scriptLine.startsWith("commit")) {
@@ -123,7 +137,8 @@ public class GrouperDdlScript {
     List<String> fileLines = GrouperUtil.splitFileLines(script);
     
     StringBuilder currentLine = null;
-
+    
+    boolean insideFunction = false;
     for (String fileLine : fileLines) {
       
       if (StringUtils.isBlank(fileLine)) {
@@ -135,7 +150,45 @@ public class GrouperDdlScript {
       } else {
         currentLine.append(" ");
       }
+      
+      
+      {
+        String regex = "(?i)^\s*CREATE\s*FUNCTION.*";
+        boolean matches = Pattern.matches(regex, fileLine);
+        if (matches) {
+          currentLine.append(StringUtils.trim(fileLine));
+          insideFunction = true;
+          continue;
+        }
+      }
+      
+      currentLine.append(" ").append(fileLine);
+
+      if (insideFunction) {
+        if (StringUtils.equalsIgnoreCase(scriptOverrideDatabaseName, "postgres")) {
+          String regex = "(?i)\\$\\$\\s*LANGUAGE\\s*plpgsql\\s*IMMUTABLE";
+          boolean matches = Pattern.compile(regex).matcher(fileLine).find();
+          if (matches) {
+            insideFunction = false;
+          }
+        } else if (StringUtils.equalsIgnoreCase(scriptOverrideDatabaseName, "oracle") || StringUtils.equalsIgnoreCase(scriptOverrideDatabaseName, "mysql")) {
+          String regex = "(?i)END\\s*;\\s*--\\s*function.*";
+          boolean matches = Pattern.compile(regex).matcher(fileLine).find();
+          if (matches) {
+            insideFunction = false;
+          }
+        }
+        if (!insideFunction) {          
+          String currentLineString = currentLine.toString();
+          ScriptType scriptType = ScriptType.findType(currentLineString);
+          scriptType.appendLine(this, currentLineString);
+          currentLine = null;
+        }
+        continue;
+      }
+      
       currentLine.append(StringUtils.trim(fileLine));
+      
       if (fileLine.endsWith(";")) {
         String currentLineString = currentLine.toString();
         ScriptType scriptType = ScriptType.findType(currentLineString);
@@ -151,6 +204,10 @@ public class GrouperDdlScript {
   }
   public GrouperDdlScript runIndexScript() {
     this.runScriptHelper(this.createIndexLines);
+    return this;
+  }
+  public GrouperDdlScript runFunctionScript() {
+    this.runScriptHelper(this.createFunctionLines);
     return this;
   }
   public GrouperDdlScript runForeignKeyScript() {
