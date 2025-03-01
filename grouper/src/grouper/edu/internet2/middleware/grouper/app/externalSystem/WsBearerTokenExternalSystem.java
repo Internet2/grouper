@@ -119,11 +119,12 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     }
     
     Object[] accessTokenAndExpiry = WsBearerTokenExternalSystem.generateAccessToken(debugMap, configId);
-    
+
     String accessToken = GrouperUtil.toStringSafe(accessTokenAndExpiry[0]);
-    int expiresInSeconds = (Integer) accessTokenAndExpiry[1] - 5; // subtracting 5 just in case if there are network delays
+    int expiresInSeconds = Math.max(0, (Integer) accessTokenAndExpiry[1] - 5); // subtracting 5 just in case if there are network delays
     int timeToLive = expiresInSeconds/60;
-    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive - 5);
+    configKeyToExpiresOnAndBearerToken.put(configId, Morph.encrypt(accessToken), timeToLive);
+
     return accessToken;
   }
   
