@@ -1018,35 +1018,41 @@ public class CustomUiEngine {
    */
   public void parseCustomUiTextConfigBeans(List<CustomUiTextConfigBean> customUiTextConfigBeans) {
     
+    int i=0;
     for (CustomUiTextConfigBean customUiTextConfigBean : GrouperUtil.nonNull(customUiTextConfigBeans)) {
-      
-      //keeep track of enabled fields that arent default
-      if (customUiTextConfigBean.getEnabled() == null || customUiTextConfigBean.getEnabled()) {
-        
-        CustomUiTextType customUiTextType = CustomUiTextType.valueOfIgnoreCase(customUiTextConfigBean.getCustomUiTextType(), true);
-
-        if (customUiTextConfigBean.getDefaultText() != null && customUiTextConfigBean.getDefaultText()) {
+      try {
+        //keeep track of enabled fields that arent default
+        if (customUiTextConfigBean.getEnabled() == null || customUiTextConfigBean.getEnabled()) {
           
-          if (customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType) != null) {
-            throw new RuntimeException("Cant have multiple defaults for custom ui text: '" + customUiTextType + "', " 
-                + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getIndex() + ", " 
-                + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getText() + ", " 
-                + ", " + customUiTextConfigBean.getIndex()
-                + ", " + customUiTextConfigBean.getText()
-                );
+          CustomUiTextType customUiTextType = CustomUiTextType.valueOfIgnoreCase(customUiTextConfigBean.getCustomUiTextType(), true);
+  
+          if (customUiTextConfigBean.getDefaultText() != null && customUiTextConfigBean.getDefaultText()) {
+            
+            if (customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType) != null) {
+              throw new RuntimeException("Cant have multiple defaults for custom ui text: '" + customUiTextType + "', " 
+                  + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getIndex() + ", " 
+                  + customUiTextTypeToDefaultCustomUiTextConfigBean.get(customUiTextType).getText() + ", " 
+                  + ", " + customUiTextConfigBean.getIndex()
+                  + ", " + customUiTextConfigBean.getText()
+                  );
+            }
+            customUiTextTypeToDefaultCustomUiTextConfigBean.put(customUiTextType, customUiTextConfigBean);
+            
+          } else {
+            
+            Set<CustomUiTextConfigBean> customUiTextConfigBeansSet = this.customUiTextTypeToCustomUiTextConfigBean.get(customUiTextType);
+            if (customUiTextConfigBeansSet == null) {
+              customUiTextConfigBeansSet = new TreeSet<CustomUiTextConfigBean>();
+              this.customUiTextTypeToCustomUiTextConfigBean.put(customUiTextType, customUiTextConfigBeansSet);
+            }
+            customUiTextConfigBeansSet.add(customUiTextConfigBean);
           }
-          customUiTextTypeToDefaultCustomUiTextConfigBean.put(customUiTextType, customUiTextConfigBean);
-          
-        } else {
-          
-          Set<CustomUiTextConfigBean> customUiTextConfigBeansSet = this.customUiTextTypeToCustomUiTextConfigBean.get(customUiTextType);
-          if (customUiTextConfigBeansSet == null) {
-            customUiTextConfigBeansSet = new TreeSet<CustomUiTextConfigBean>();
-            this.customUiTextTypeToCustomUiTextConfigBean.put(customUiTextType, customUiTextConfigBeansSet);
-          }
-          customUiTextConfigBeansSet.add(customUiTextConfigBean);
         }
+      } catch (RuntimeException e) {
+        GrouperUtil.injectInException(e, "Problem with text config bean index: " + i + ", " + customUiTextConfigBean);
+        throw e;
       }
+      i++;
     }
     
   }
