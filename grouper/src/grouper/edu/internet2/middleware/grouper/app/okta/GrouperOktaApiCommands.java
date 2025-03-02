@@ -418,6 +418,9 @@ public class GrouperOktaApiCommands {
 
       JsonNode jsonNode = executeMethod(debugMap, "PUT", configId, "users/"+id,
           GrouperUtil.toSet(200), new int[] { -1 }, jsonStringToSend);
+      if (jsonNode == null) {
+        return null;
+      }
 
       GrouperOktaUser grouperOktaUserResult = GrouperOktaUser.fromJson(jsonNode.get("data"));
 
@@ -495,6 +498,9 @@ public class GrouperOktaApiCommands {
         String urlSuffix = nextPageUrl != null ? nextPageUrl : urlSuffixConstant;
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
         numberOfCalls++;
+        if (jsonNode == null) {
+          break;
+        }
         
         ArrayNode groupsArray = (ArrayNode) jsonNode.get("data");
         
@@ -567,6 +573,9 @@ public class GrouperOktaApiCommands {
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
         numberOfCalls++;
+        if (jsonNode == null) {
+          break;
+        }
         
         ArrayNode usersArray = (ArrayNode) jsonNode.get("data");
         
@@ -694,7 +703,9 @@ public class GrouperOktaApiCommands {
         
         JsonNode jsonNode = executeGetMethod(debugMap, configId, urlSuffix);
         numberOfCalls++;
-        
+        if (jsonNode == null) {
+          break;
+        }
         ArrayNode membersArray = (ArrayNode)jsonNode.get("data");
         
         if (membersArray == null || membersArray.size() == 0) {
