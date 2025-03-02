@@ -233,7 +233,7 @@ public class GrouperScim2ApiCommands {
    * @param grouperScim2User
    * @return the result
    */
-  public static void patchScimUser(String configId,GrouperScim2User grouperScim2User, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate, ScimSettings scimSettings) {
+  public static void patchScimUser(String configId, GrouperScim2User grouperScim2User, Map<String, ProvisioningObjectChangeAction> fieldsToUpdate, ScimSettings scimSettings) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -517,6 +517,12 @@ public class GrouperScim2ApiCommands {
             Object resolvedObject = null;
             if (GrouperScim2User.builtInAttributes.contains(fieldToUpdate)) {
               resolvedObject = GrouperUtil.fieldValue(grouperScim2User, fieldToUpdate);
+              
+              if (resolvedObject == null) {
+                operationNode.put("op", "remove");
+                break;
+              }
+              
               if (resolvedObject != null && resolvedObject instanceof Boolean) {
                 operationNode.put("value", GrouperUtil.booleanValue(resolvedObject));
               } else {
