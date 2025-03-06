@@ -119,16 +119,18 @@ public class GrouperDataRowAssignDao {
 
     int internalIdsNeeded = 0;
     for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
-      if (grouperDataRowAssign.getTempInternalIdOnDeck() == null) {
+      if (grouperDataRowAssign.getTempInternalIdOnDeck() == null && grouperDataRowAssign.getInternalId() == -1) {
         internalIdsNeeded++;
       }
     }
     
-    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRowAssign, internalIdsNeeded);
-    int currentIndex = 0;
-    for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
-      if (grouperDataRowAssign.getTempInternalIdOnDeck() == null) {
-        grouperDataRowAssign.setTempInternalIdOnDeck(ids.get(currentIndex++));
+    if (internalIdsNeeded > 0) {
+      List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRowAssign, internalIdsNeeded);
+      int currentIndex = 0;
+      for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssigns) {
+        if (grouperDataRowAssign.getTempInternalIdOnDeck() == null && grouperDataRowAssign.getInternalId() == -1) {
+          grouperDataRowAssign.setTempInternalIdOnDeck(ids.get(currentIndex++));
+        }
       }
     }
 
