@@ -172,10 +172,6 @@ public class GrouperDataRowAssignDao {
   }
   
   public static void delete(GrouperDataRowAssign grouperDataRowAssign) {
-    delete(grouperDataRowAssign, true);
-  }
-
-  public static void delete(GrouperDataRowAssign grouperDataRowAssign, boolean addHistory) {
     grouperDataRowAssign.storePrepare();
     new GcDbAccess().deleteFromDatabase(grouperDataRowAssign);
   }

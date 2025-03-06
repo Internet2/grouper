@@ -26,6 +26,8 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataEngine;
 import edu.internet2.middleware.grouper.dataField.GrouperDataField;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssign;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignHstDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldAssignWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataFieldStructure;
@@ -41,10 +43,14 @@ import edu.internet2.middleware.grouper.dataField.GrouperDataProviderQueryFieldM
 import edu.internet2.middleware.grouper.dataField.GrouperDataRow;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssign;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignHstDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowAssignWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowConfig;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssign;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignDao;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHst;
+import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignHstDao;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowFieldAssignWrapper;
 import edu.internet2.middleware.grouper.dataField.GrouperDataRowWrapper;
 import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
@@ -163,6 +169,9 @@ public class GrouperDataProviderLogic {
     retrieveSourceData(queryConfigIdToLowerColumnNameToZeroIndex, true);
     
     calculateAndStoreChanges(queryConfigIdToLowerColumnNameToZeroIndex);
+    
+    // TODO should this be a separate daemon or handled somewhere else?  It would do the same thing for every provider full sync.
+    deleteOldHistory();
   }
   
   /**
@@ -1212,7 +1221,77 @@ public class GrouperDataProviderLogic {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     }
+        
+    // see if we're adding to field assign history
+    List<GrouperDataFieldAssignHst> grouperDataFieldAssignHstsToInsert = new ArrayList<>();
+    for (GrouperDataFieldAssign grouperDataFieldAssignToDelete : grouperDataFieldAssignsToDelete) {
+      GrouperDataFieldWrapper grouperDataFieldWrapper = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(grouperDataFieldAssignToDelete.getDataFieldInternalId());
+      
+      if (grouperDataFieldWrapper != null) {
+        if (grouperDataFieldWrapper.getGrouperDataFieldConfig().isFieldDataStorePit()) {
+          GrouperDataFieldAssignHst grouperDataFieldAssignHst = new GrouperDataFieldAssignHst();
+          grouperDataFieldAssignHst.setDataFieldInternalId(grouperDataFieldAssignToDelete.getDataFieldInternalId());
+          grouperDataFieldAssignHst.setMemberInternalId(grouperDataFieldAssignToDelete.getMemberInternalId());
+          grouperDataFieldAssignHst.setValueInteger(grouperDataFieldAssignToDelete.getValueInteger());
+          grouperDataFieldAssignHst.setValueDictionaryInternalId(grouperDataFieldAssignToDelete.getValueDictionaryInternalId());
+          grouperDataFieldAssignHst.setStartTime(grouperDataFieldAssignToDelete.getCreatedOn().getTime() * 1000L);
+          grouperDataFieldAssignHst.setEndTime(System.currentTimeMillis() * 1000L);
+          grouperDataFieldAssignHstsToInsert.add(grouperDataFieldAssignHst);
+        }
+      }
+    }
+    
+    // see if we're adding to row assign history.
+    // row assign history is added if row assign is being deleted or if a field is be added/deleted for an existing row assign
+    Set<Long> rowAssignInternalIdsForHistoryIfConfigured = new LinkedHashSet<>();
+    List<GrouperDataRowAssignHst> grouperDataRowAssignHstsToInsert = new ArrayList<>();
+    List<GrouperDataRowFieldAssignHst> grouperDataRowFieldAssignHstsToInsert = new ArrayList<>();
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssignToDelete : grouperDataRowFieldAssignsToDelete) {
+      rowAssignInternalIdsForHistoryIfConfigured.add(grouperDataRowFieldAssignToDelete.getDataRowAssignInternalId());
+    }
+    for (GrouperDataRowAssign grouperDataRowAssignToDelete : grouperDataRowAssignsToDelete) {
+      rowAssignInternalIdsForHistoryIfConfigured.add(grouperDataRowAssignToDelete.getInternalId());
+    }
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssignToInsert : grouperDataRowFieldAssignsToInsert) {
+      // for new row assigns, the internal id isn't assigned at this point so if it's not -1, then that means it's an existing one
+      if (grouperDataRowFieldAssignToInsert.getDataRowAssign().getInternalId() != -1) {
+        rowAssignInternalIdsForHistoryIfConfigured.add(grouperDataRowFieldAssignToInsert.getDataRowAssign().getInternalId());
+      }
+    }
+    for (long rowAssignInternalId : rowAssignInternalIdsForHistoryIfConfigured) {
+      GrouperDataRowAssignWrapper grouperDataRowAssignWrapper = dataEngine.getGrouperDataProviderIndex().getRowAssignWrapperByInternalId().get(rowAssignInternalId);
+      GrouperDataRowWrapper grouperDataRowWrapper = dataEngine.getGrouperDataProviderIndex().getRowWrapperByInternalId().get(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getDataRowInternalId());
+
+      if (grouperDataRowAssignWrapper != null && grouperDataRowWrapper != null) {
+        if (grouperDataRowWrapper.getGrouperDataRowConfig().isRowDataStorePit()) {
+          GrouperDataRowAssignHst grouperDataRowAssignHst = new GrouperDataRowAssignHst();
+          grouperDataRowAssignHst.setMemberInternalId(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getMemberInternalId());
+          grouperDataRowAssignHst.setDataRowInternalId(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getDataRowInternalId());
+          grouperDataRowAssignHst.setDataRowAssignInternalId(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getInternalId());
+          grouperDataRowAssignHst.setStartTime(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getCreatedOn().getTime() * 1000L);
+          grouperDataRowAssignHst.setEndTime(System.currentTimeMillis() * 1000L);
+          grouperDataRowAssignHstsToInsert.add(grouperDataRowAssignHst);
+    
+          for (List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers : grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().values()) {
+            for (GrouperDataRowFieldAssignWrapper grouperDataRowFieldAssignWrapper : grouperDataRowFieldAssignWrappers) {          
+              GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst = new GrouperDataRowFieldAssignHst();
+              grouperDataRowFieldAssignHst.setDataRowAssignHst(grouperDataRowAssignHst);
+              grouperDataRowFieldAssignHst.setDataFieldInternalId(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getDataFieldInternalId());
+              grouperDataRowFieldAssignHst.setValueInteger(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getValueInteger());
+              grouperDataRowFieldAssignHst.setValueDictionaryInternalId(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getValueDictionaryInternalId());
+              grouperDataRowFieldAssignHstsToInsert.add(grouperDataRowFieldAssignHst);
+            }
+          }
+        }
+      }
+    }
+    
+    
     //TODO use transactions and maybe do the batching here
+    GrouperDataFieldAssignHstDao.store(grouperDataFieldAssignHstsToInsert);
+    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataFieldAssignHstsToInsert.size());
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
     GrouperDataFieldAssignDao.delete(grouperDataFieldAssignsToDelete);
     GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataFieldAssignsToDelete, true);
     grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(changeLogEntriesDataFieldAssignsToDelete.size());
@@ -1222,6 +1301,14 @@ public class GrouperDataProviderLogic {
     GrouperDataFieldAssignDao.store(grouperDataFieldAssignsToInsert);
     GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataFieldAssignsToInsert, true);
     grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(changeLogEntriesDataFieldAssignsToInsert.size());
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
+    GrouperDataRowAssignHstDao.store(grouperDataRowAssignHstsToInsert);
+    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataRowAssignHstsToInsert.size());
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+    
+    GrouperDataRowFieldAssignHstDao.store(grouperDataRowFieldAssignHstsToInsert);
+    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataRowFieldAssignHstsToInsert.size());
     GrouperDaemonUtils.stopProcessingIfJobPaused();
     
     GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignsToDelete);
@@ -1245,5 +1332,74 @@ public class GrouperDataProviderLogic {
     GrouperDaemonUtils.stopProcessingIfJobPaused();
 
 
+  }
+  
+  private void deleteOldHistory() {
+    GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
+    Set<Long> grouperDataFieldInternalIdsNoHistoryConfigured = new LinkedHashSet<>();
+    Set<Long> grouperDataRowInternalIdsNoHistoryConfigured = new LinkedHashSet<>();
+    List<GrouperDataFieldAssignHst> grouperDataFieldAssignHstsToDelete = new ArrayList<>();
+    List<GrouperDataRowAssignHst> grouperDataRowAssignHstsToDelete = new ArrayList<>();
+
+    for (GrouperDataFieldConfig grouperDataFieldConfig : dataEngine.getFieldConfigByConfigId().values()) {
+      GrouperDataField grouperDataField = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByConfigId().get(grouperDataFieldConfig.getConfigId()).getGrouperDataField();
+      if (!grouperDataFieldConfig.isFieldDataStorePit()) {
+        // delete any field assigns in history
+        grouperDataFieldInternalIdsNoHistoryConfigured.add(grouperDataField.getInternalId());
+      } else {
+        // delete field assigns in history older than configured days
+        long days = grouperDataFieldConfig.getFieldDataStorePitDays();
+        long endTimeBeforeMicros = System.currentTimeMillis() * 1000L - days * 24 * 60 * 60 * 1000 * 1000;
+        grouperDataFieldAssignHstsToDelete.addAll(GrouperDataFieldAssignHstDao.selectByDataFieldInternalIdAndEndTimeBefore(grouperDataField.getInternalId(), endTimeBeforeMicros));
+      }
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
+    
+    for (GrouperDataRowConfig grouperDataRowConfig : dataEngine.getRowConfigByConfigId().values()) {
+      GrouperDataRow grouperDataRow = dataEngine.getGrouperDataProviderIndex().getRowWrapperByConfigId().get(grouperDataRowConfig.getConfigId()).getGrouperDataRow();
+      if (!grouperDataRowConfig.isRowDataStorePit()) {
+        // delete any row assigns in history
+        grouperDataRowInternalIdsNoHistoryConfigured.add(grouperDataRow.getInternalId());
+      } else {
+        // delete row assigns in history older than configured days
+        long days = grouperDataRowConfig.getRowDataStorePitDays();
+        long endTimeBeforeMicros = System.currentTimeMillis() * 1000L - days * 24 * 60 * 60 * 1000 * 1000;
+        grouperDataRowAssignHstsToDelete.addAll(GrouperDataRowAssignHstDao.selectByDataRowInternalIdAndEndTimeBefore(grouperDataRow.getInternalId(), endTimeBeforeMicros));
+      }
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
+    
+    if (grouperDataFieldInternalIdsNoHistoryConfigured.size() > 0) {
+      grouperDataFieldAssignHstsToDelete.addAll(GrouperDataFieldAssignHstDao.selectByDataFieldInternalIds(grouperDataFieldInternalIdsNoHistoryConfigured));
+    }
+    
+    if (grouperDataRowInternalIdsNoHistoryConfigured.size() > 0) {
+      grouperDataRowAssignHstsToDelete.addAll(GrouperDataRowAssignHstDao.selectByDataRowInternalIds(grouperDataRowInternalIdsNoHistoryConfigured));
+    }
+    
+    if (grouperDataFieldAssignHstsToDelete.size() > 0) {
+      GrouperDataFieldAssignHstDao.delete(grouperDataFieldAssignHstsToDelete);
+      grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataFieldAssignHstsToDelete.size());
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
+    
+    if (grouperDataRowAssignHstsToDelete.size() > 0) {
+      // delete row fields first
+      Set<Long> grouperDataRowAssignHstInternalIds = new LinkedHashSet<>();
+      for (GrouperDataRowAssignHst grouperDataRowAssignHst : grouperDataRowAssignHstsToDelete) {
+        grouperDataRowAssignHstInternalIds.add(grouperDataRowAssignHst.getInternalId());
+      }
+      List<GrouperDataRowFieldAssignHst> grouperDataRowFieldAssignHstsToDelete = GrouperDataRowFieldAssignHstDao.selectByDataRowAssignHstInternalIds(grouperDataRowAssignHstInternalIds);
+      
+      GrouperDataRowFieldAssignHstDao.delete(grouperDataRowFieldAssignHstsToDelete);
+      grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowFieldAssignHstsToDelete.size());
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+      
+      GrouperDataRowAssignHstDao.delete(grouperDataRowAssignHstsToDelete);
+      grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(grouperDataRowAssignHstsToDelete.size());
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
   }
 }

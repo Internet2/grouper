@@ -39,6 +39,12 @@ public class GrouperDataRowConfig {
     
     String rowPrivacyRealmString = GrouperConfig.retrieveConfig().propertyValueStringRequired("grouperDataRow." + configId + ".rowPrivacyRealm");
     this.privacyRealmName = rowPrivacyRealmString;
+    
+    this.rowDataStorePit = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataRow." + configId + ".rowDataStorePit", false);
+    
+    if (this.rowDataStorePit) {
+      this.rowDataStorePitDays = GrouperConfig.retrieveConfig().propertyValueInt("grouperDataRow." + configId + ".rowDataStorePitDays", 730);
+    }
 
     int rowNumberOfDataFields = GrouperConfig.retrieveConfig().propertyValueIntRequired("grouperDataRow." + configId + ".rowNumberOfDataFields");
     for (int i=0;i<rowNumberOfDataFields;i++) {
@@ -164,6 +170,10 @@ public class GrouperDataRowConfig {
    * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.zeroToManyExamplesHtml$", formElement: "textarea"}
    */
   private String zeroToManyExamplesHtml;
+  
+  private boolean rowDataStorePit = false;
+  
+  private int rowDataStorePitDays = -1;
 
   /**
    * privacy realm for people who can see or use this data row
@@ -244,5 +254,24 @@ public class GrouperDataRowConfig {
   public void setZeroToManyExamplesHtml(String zeroToManyExamplesHtml) {
     this.zeroToManyExamplesHtml = zeroToManyExamplesHtml;
   }
+
   
+  public boolean isRowDataStorePit() {
+    return rowDataStorePit;
+  }
+
+  
+  public void setRowDataStorePit(boolean rowDataStorePit) {
+    this.rowDataStorePit = rowDataStorePit;
+  }
+
+  
+  public int getRowDataStorePitDays() {
+    return rowDataStorePitDays;
+  }
+
+  
+  public void setRowDataStorePitDays(int rowDataStorePitDays) {
+    this.rowDataStorePitDays = rowDataStorePitDays;
+  }
 }

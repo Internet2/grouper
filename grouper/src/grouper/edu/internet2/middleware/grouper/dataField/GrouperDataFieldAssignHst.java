@@ -38,6 +38,27 @@ public class GrouperDataFieldAssignHst implements GcSqlAssignPrimaryKey, GcDbVer
   private GrouperDataFieldAssignHst dbVersion;
 
 
+  /**
+   * store the internal id to use when the db access stores the object
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private Long tempInternalIdOnDeck = null;
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @return
+   */
+  public Long getTempInternalIdOnDeck() {
+    return tempInternalIdOnDeck;
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @param tempInternalIdOnDeck
+   */
+  public void setTempInternalIdOnDeck(Long tempInternalIdOnDeck) {
+    this.tempInternalIdOnDeck = tempInternalIdOnDeck;
+  }
 
   public long getInternalId() {
     return internalId;
@@ -128,7 +149,12 @@ public class GrouperDataFieldAssignHst implements GcSqlAssignPrimaryKey, GcDbVer
     if (this.internalId != -1) {
       return false;
     }
-    this.internalId = TableIndex.reserveId(TableIndexType.dataFieldAssignHst);
+    if (this.tempInternalIdOnDeck != null) {
+      this.internalId = this.tempInternalIdOnDeck;
+    } else {
+
+      this.internalId = TableIndex.reserveId(TableIndexType.dataFieldAssignHst);
+    }
     return true;
   }
 

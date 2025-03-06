@@ -116,6 +116,9 @@ public class GrouperDataProviderDao {
       GrouperDataGlobalAssignDao.delete(grouperDataRGlobalAssign);
     }
     
+    // TODO should history be added for the deleted assignments?  Should the assignments even be deleted if the fields/rows aren't being deleted?
+    // For now not doing anything here since this method is buggy anyways as it tries to delete the row assigns without deleting the row field assigns resulting in errors.
+    
     List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId());
     for (GrouperDataFieldAssign fieldAssign: dataFieldAssigns) {
       GrouperDataFieldAssignDao.delete(fieldAssign);
@@ -143,6 +146,9 @@ public class GrouperDataProviderDao {
     
     List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
     GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
+    
+    // TODO should history be added for the deleted assignments?  Should the assignments even be deleted if the fields/rows aren't being deleted?
+    // For now not doing anything here since this method is buggy anyways as it tries to delete the row assigns without deleting the row field assigns resulting in errors.
     
     List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
     GrouperDataFieldAssignDao.delete(dataFieldAssigns);

@@ -50,6 +50,13 @@ public class GrouperDataFieldConfig {
     this.howToGetAccessHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".howToGetAccessHtml");
     this.zeroToManyExamplesHtml = GrouperConfig.retrieveConfig().propertyValueString("grouperDataField." + configId + ".zeroToManyExamplesHtml");
     
+    if (this.fieldDataStructure == GrouperDataFieldStructure.attribute) {
+      this.fieldDataStorePit = GrouperConfig.retrieveConfig().propertyValueBoolean("grouperDataField." + configId + ".fieldDataStorePit", false);
+      
+      if (this.fieldDataStorePit) {
+        this.fieldDataStorePitDays = GrouperConfig.retrieveConfig().propertyValueInt("grouperDataField." + configId + ".fieldDataStorePitDays", 730);
+      }
+    }
   }
   
   private String configId;
@@ -132,6 +139,10 @@ public class GrouperDataFieldConfig {
    * # {valueType: "string", regex: "^dataRowConfigId\\.[^.]+\\.zeroToManyExamplesHtml$", formElement: "textarea"}
    */
   private String zeroToManyExamplesHtml;
+  
+  private boolean fieldDataStorePit = false;
+  
+  private int fieldDataStorePitDays = -1;
 
   /**
    * aliases that this field is referred to as
@@ -253,4 +264,23 @@ public class GrouperDataFieldConfig {
     this.zeroToManyExamplesHtml = zeroToManyExamplesHtml;
   }
 
+  
+  public boolean isFieldDataStorePit() {
+    return fieldDataStorePit;
+  }
+
+  
+  public void setFieldDataStorePit(boolean fieldDataStorePit) {
+    this.fieldDataStorePit = fieldDataStorePit;
+  }
+
+  
+  public int getFieldDataStorePitDays() {
+    return fieldDataStorePitDays;
+  }
+
+  
+  public void setFieldDataStorePitDays(int fieldDataStorePitDays) {
+    this.fieldDataStorePitDays = fieldDataStorePitDays;
+  }
 }
