@@ -4901,11 +4901,13 @@ public class UiV2Group {
       GuiGroup guiGroup = new GuiGroup(group);
       groupContainer.setGuiGroup(guiGroup);
       
-      Set<Membership> enabledMemberships = group.getMemberships(true);
-      if (GrouperUtil.nonNull(enabledMemberships).size() > 0) {
-        guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
-            TextContainer.retrieveFromRequest().getText().get("groupCompositeException")));
-        return;
+      if (composite == null) {
+        Set<Membership> enabledMemberships = group.getMemberships(true);
+        if (GrouperUtil.nonNull(enabledMemberships).size() > 0) {
+          guiResponseJs.addAction(GuiScreenAction.newMessage(GuiMessageType.error, 
+              TextContainer.retrieveFromRequest().getText().get("groupCompositeException")));
+          return;
+        }
       }
       
       int countOfFutureEnabledDeletedMemberships = 0;
