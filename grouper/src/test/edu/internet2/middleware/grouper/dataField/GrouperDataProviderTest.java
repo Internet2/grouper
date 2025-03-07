@@ -662,19 +662,19 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals(234L, grouperDataFieldAssignHst1.getValueInteger().longValue());
     assertNull(grouperDataFieldAssignHst1.getValueDictionaryInternalId());
     assertTrue(grouperDataFieldAssignHst1.getStartTime() > startTimeMicros && grouperDataFieldAssignHst1.getStartTime() < afterFirstSyncMicros);
-    assertTrue(grouperDataFieldAssignHst1.getEndTime() > afterFirstSyncMicros && grouperDataFieldAssignHst1.getStartTime() < afterSecondSyncMicros);
+    assertTrue(grouperDataFieldAssignHst1.getEndTime() > afterFirstSyncMicros && grouperDataFieldAssignHst1.getEndTime() < afterSecondSyncMicros);
     
     assertEquals(testMember0.getInternalId().longValue(), grouperDataFieldAssignHst2.getMemberInternalId());
     assertEquals(0L, grouperDataFieldAssignHst2.getValueInteger().longValue());
     assertNull(grouperDataFieldAssignHst2.getValueDictionaryInternalId());
     assertTrue(grouperDataFieldAssignHst2.getStartTime() > startTimeMicros && grouperDataFieldAssignHst2.getStartTime() < afterFirstSyncMicros);
-    assertTrue(grouperDataFieldAssignHst2.getEndTime() > afterFirstSyncMicros && grouperDataFieldAssignHst2.getStartTime() < afterSecondSyncMicros);
+    assertTrue(grouperDataFieldAssignHst2.getEndTime() > afterFirstSyncMicros && grouperDataFieldAssignHst2.getEndTime() < afterSecondSyncMicros);
 
     GrouperDataRowAssignHst grouperDataRowAssignHst = GrouperDataRowAssignHstDao.selectByMemberInternalId(testMember0.getInternalId()).iterator().next();
     assertEquals(affiliationDataRow.getInternalId(), grouperDataRowAssignHst.getDataRowInternalId());
     assertEquals(testMember0StaffAffiliationDataRowAssignId, grouperDataRowAssignHst.getDataRowAssignInternalId());
     assertTrue(grouperDataRowAssignHst.getStartTime() > startTimeMicros && grouperDataRowAssignHst.getStartTime() < afterFirstSyncMicros);
-    assertTrue(grouperDataRowAssignHst.getEndTime() > afterFirstSyncMicros && grouperDataRowAssignHst.getStartTime() < afterSecondSyncMicros);
+    assertTrue(grouperDataRowAssignHst.getEndTime() > afterFirstSyncMicros && grouperDataRowAssignHst.getEndTime() < afterSecondSyncMicros);
 
     GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst1 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationCodeDataField.getInternalId()).iterator().next();
     GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst2 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationOrgDataField.getInternalId()).iterator().next();
@@ -748,7 +748,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals(affiliationDataRow.getInternalId(), grouperDataRowAssignHst.getDataRowInternalId());
     assertEquals(testMember0FacultyAffiliationDataRowAssignId, grouperDataRowAssignHst.getDataRowAssignInternalId());
     assertTrue(grouperDataRowAssignHst.getStartTime() > afterFirstSyncMicros && grouperDataRowAssignHst.getStartTime() < afterSecondSyncMicros);
-    assertTrue(grouperDataRowAssignHst.getEndTime() > afterSecondSyncMicros && grouperDataRowAssignHst.getStartTime() < afterThirdSyncMicros);
+    assertTrue(grouperDataRowAssignHst.getEndTime() > afterSecondSyncMicros && grouperDataRowAssignHst.getEndTime() < afterThirdSyncMicros);
 
     grouperDataRowFieldAssignHst1 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationCodeDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
     grouperDataRowFieldAssignHst2 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationOrgDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
@@ -820,7 +820,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals(affiliationDataRow.getInternalId(), grouperDataRowAssignHst.getDataRowInternalId());
     assertEquals(testMember0FacultyAffiliationDataRowAssignId, grouperDataRowAssignHst.getDataRowAssignInternalId());
     assertTrue(grouperDataRowAssignHst.getStartTime() > afterSecondSyncMicros && grouperDataRowAssignHst.getStartTime() < afterThirdSyncMicros);
-    assertTrue(grouperDataRowAssignHst.getEndTime() > afterThirdSyncMicros && grouperDataRowAssignHst.getStartTime() < afterForthSyncMicros);
+    assertTrue(grouperDataRowAssignHst.getEndTime() > afterThirdSyncMicros && grouperDataRowAssignHst.getEndTime() < afterForthSyncMicros);
 
     grouperDataRowFieldAssignHst1 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationCodeDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
     grouperDataRowFieldAssignHst2 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationOrgDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
@@ -891,7 +891,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals(affiliationDataRow.getInternalId(), grouperDataRowAssignHst.getDataRowInternalId());
     assertEquals(testMember0FacultyAffiliationDataRowAssignId, grouperDataRowAssignHst.getDataRowAssignInternalId());
     assertTrue(grouperDataRowAssignHst.getStartTime() > afterThirdSyncMicros && grouperDataRowAssignHst.getStartTime() < afterForthSyncMicros);
-    assertTrue(grouperDataRowAssignHst.getEndTime() > afterForthSyncMicros && grouperDataRowAssignHst.getStartTime() < afterFifthSyncMicros);
+    assertTrue(grouperDataRowAssignHst.getEndTime() > afterForthSyncMicros && grouperDataRowAssignHst.getEndTime() < afterFifthSyncMicros);
 
     grouperDataRowFieldAssignHst1 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationCodeDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
     grouperDataRowFieldAssignHst3 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationActiveDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
@@ -957,7 +957,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals(affiliationDataRow.getInternalId(), grouperDataRowAssignHst.getDataRowInternalId());
     assertEquals(testMember0FacultyAffiliationDataRowAssignId, grouperDataRowAssignHst.getDataRowAssignInternalId());
     assertTrue(grouperDataRowAssignHst.getStartTime() > afterForthSyncMicros && grouperDataRowAssignHst.getStartTime() < afterFifthSyncMicros);
-    assertTrue(grouperDataRowAssignHst.getEndTime() > afterFifthSyncMicros && grouperDataRowAssignHst.getStartTime() < afterSixthSyncMicros);
+    assertTrue(grouperDataRowAssignHst.getEndTime() > afterFifthSyncMicros && grouperDataRowAssignHst.getEndTime() < afterSixthSyncMicros);
 
     grouperDataRowFieldAssignHst1 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationCodeDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
     grouperDataRowFieldAssignHst2 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationOrgDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
@@ -1021,7 +1021,7 @@ public class GrouperDataProviderTest extends GrouperTest {
     assertEquals(affiliationDataRow.getInternalId(), grouperDataRowAssignHst.getDataRowInternalId());
     assertEquals(testMember0FacultyAffiliationDataRowAssignId, grouperDataRowAssignHst.getDataRowAssignInternalId());
     assertTrue(grouperDataRowAssignHst.getStartTime() > afterFifthSyncMicros && grouperDataRowAssignHst.getStartTime() < afterSixthSyncMicros);
-    assertTrue(grouperDataRowAssignHst.getEndTime() > afterSixthSyncMicros && grouperDataRowAssignHst.getStartTime() < afterSeventhSyncMicros);
+    assertTrue(grouperDataRowAssignHst.getEndTime() > afterSixthSyncMicros && grouperDataRowAssignHst.getEndTime() < afterSeventhSyncMicros);
 
     grouperDataRowFieldAssignHst1 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationCodeDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
     grouperDataRowFieldAssignHst2 = GrouperDataRowFieldAssignHstDao.selectByDataFieldInternalId(affiliationOrgDataField.getInternalId()).stream().max(Comparator.comparingLong(GrouperDataRowFieldAssignHst::getInternalId)).orElse(null);
