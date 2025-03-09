@@ -471,48 +471,51 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
 
     String testUrlSuffixProperty = configPrefix + "testUrlSuffix";
     String testUrlSuffix = config.propertyValueString(testUrlSuffixProperty);
-    if (!GrouperUtil.isBlank(testUrlSuffix)) {
+    testUrlSuffix = GrouperUtil.defaultString(testUrlSuffix);
       
-      final String testHttpMethod = GrouperUtil.defaultIfBlank(config.propertyValueString(configPrefix + "testHttpMethod"), "GET");
+    final String testHttpMethod = GrouperUtil.defaultIfBlank(config.propertyValueString(configPrefix + "testHttpMethod"), "GET");
 
-      int testHttpResponseCode = GrouperUtil.intValue(config.propertyValueString(configPrefix + "testHttpResponseCode"), 200);
+    int testHttpResponseCode = GrouperUtil.intValue(config.propertyValueString(configPrefix + "testHttpResponseCode"), 200);
 
-      String testUrlResponseBodyRegex = config.propertyValueString(configPrefix + "testUrlResponseBodyRegex");
-      
-      // we need to get another one
-      GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
-      final String url = GrouperUtil.stripLastSlashIfExists(endpoint) + "/" + GrouperUtil.stripFirstSlashIfExists(testUrlSuffix);
-      grouperHttpClient.assignUrl(url);
-      grouperHttpClient.assignGrouperHttpMethod(testHttpMethod);
+    String testUrlResponseBodyRegex = config.propertyValueString(configPrefix + "testUrlResponseBodyRegex");
+    
+    // we need to get another one
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+    String url = endpoint;
+    if (!StringUtils.isBlank(testUrlSuffix)) {
+      url = GrouperUtil.stripLastSlashIfExists(endpoint) + "/" + GrouperUtil.stripFirstSlashIfExists(testUrlSuffix);
+    }
+        
+    grouperHttpClient.assignUrl(url);
+    grouperHttpClient.assignGrouperHttpMethod(testHttpMethod);
 
-      attachAuthenticationToHttpClient(grouperHttpClient, this.getConfigId());
+    attachAuthenticationToHttpClient(grouperHttpClient, this.getConfigId());
 
-      int code = -1;
-      String response = null;
+    int code = -1;
+    String response = null;
 
-      try {
-        grouperHttpClient.executeRequest();
-        code = grouperHttpClient.getResponseCode();
-        response = grouperHttpClient.getResponseBody();
-      } catch (Exception e) {
-        ret.add("Error connecting to '" + url + "' <pre>" + GrouperUtil.getFullStackTrace(e) + "</pre>");
-        return ret;
-      }
+    try {
+      grouperHttpClient.executeRequest();
+      code = grouperHttpClient.getResponseCode();
+      response = grouperHttpClient.getResponseBody();
+    } catch (Exception e) {
+      ret.add("Error connecting to '" + url + "' <pre>" + GrouperUtil.getFullStackTrace(e) + "</pre>");
+      return ret;
+    }
 
-      if (code != testHttpResponseCode) {
-        ret.add("Response code to " + url + " expecting " + testHttpResponseCode + " but received " + code);
-        return ret;
-      }
-      
-      if (!StringUtils.isBlank(testUrlResponseBodyRegex)) {
-        if (response == null) {
-          ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but response was null");
-        } else {
-          Pattern pattern = Pattern.compile(testUrlResponseBodyRegex, Pattern.DOTALL);
-          Matcher matcher = pattern.matcher(response);
-          if (!matcher.matches()) {
-            ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but no match " + GrouperUtil.escapeHtml(response, true));
-          }
+    if (code != testHttpResponseCode) {
+      ret.add("Response code to " + url + " expecting " + testHttpResponseCode + " but received " + code);
+      return ret;
+    }
+    
+    if (!StringUtils.isBlank(testUrlResponseBodyRegex)) {
+      if (response == null) {
+        ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but response was null");
+      } else {
+        Pattern pattern = Pattern.compile(testUrlResponseBodyRegex, Pattern.DOTALL);
+        Matcher matcher = pattern.matcher(response);
+        if (!matcher.matches()) {
+          ret.add("Response body from " + url + " expecting regex " + testUrlResponseBodyRegex + " but no match " + GrouperUtil.escapeHtml(response, true));
         }
       }
     }
