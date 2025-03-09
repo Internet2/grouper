@@ -348,16 +348,9 @@ public class GrouperProvisioningTranslator {
 
       List<MultiKey> groupIdFieldIdBatch = GrouperUtil.batchList(groupIdFieldIdList, batchSizeGroups, i);
       
-      StringBuilder sqlBase = new StringBuilder("""
-              select gmlv.group_name, gmlv.group_id, gmlv.list_name,
-              gm.subject_id, gm.email0, gm.subject_identifier0, gm.subject_identifier1, gm.subject_identifier2, gm.id,
-              gsm.member_from_id2, gsm.member_from_id3, gsm.member_to_id2, gsm.member_to_id3
-              from grouper_members gm
-              join grouper_memberships_lw_v gmlv on gmlv.member_id = gm.id
-              left join grouper_sync_member gsm on gsm.member_id = gmlv.member_id and gsm.grouper_sync_id = ?
-              """);
-
-      gcDbAccess.addBindVar(this.grouperProvisioner.getGcGrouperSync().getId());
+      StringBuilder sqlBase = new StringBuilder("select gmlv.group_name, gmlv.group_id, gmlv.list_name, " 
+          + " gm.subject_id, gm.email0, gm.subject_identifier0, gm.subject_identifier1, gm.subject_identifier2 "
+          + " from grouper_members gm, grouper_memberships_lw_v gmlv where gmlv.member_id = gm.id ");
 
       Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
       
