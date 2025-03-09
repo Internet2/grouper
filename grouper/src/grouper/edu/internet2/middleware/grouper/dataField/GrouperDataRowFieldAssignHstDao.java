@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -27,13 +29,13 @@ public class GrouperDataRowFieldAssignHstDao {
   }
   
   public static List<GrouperDataRowFieldAssignHst> selectByDataRowInternalId(long dataRowInternalId) {
-    return new GcDbAccess().sql("select gdrfah.* from grouper_data_row_field_asn_hst gdrfah join grouper_data_row_assign_hst gdrah on gdrfah.data_row_assign_internal_id = gdrah.data_row_assign_internal_id where gdrah.data_row_internal_id = ?")
+    return new GcDbAccess().sql("select gdrfah.* from grouper_data_row_field_asn_hst gdrfah join grouper_data_row_assign_hst gdrah on gdrfah.data_row_assign_internal_id = gdrah.internal_id where gdrah.data_row_internal_id = ?")
         .addBindVar(dataRowInternalId)
         .selectList(GrouperDataRowFieldAssignHst.class);
   }
   
   public static List<GrouperDataRowFieldAssignHst> selectByMemberInternalId(long memberInternalId) {
-    return new GcDbAccess().sql("select gdrfah.* from grouper_data_row_field_asn_hst gdrfah join grouper_data_row_assign_hst gdrah on gdrfah.data_row_assign_internal_id = gdrah.data_row_assign_internal_id where gdrah.member_internal_id = ?")
+    return new GcDbAccess().sql("select gdrfah.* from grouper_data_row_field_asn_hst gdrfah join grouper_data_row_assign_hst gdrah on gdrfah.data_row_assign_internal_id = gdrah.internal_id where gdrah.member_internal_id = ?")
         .addBindVar(memberInternalId)
         .selectList(GrouperDataRowFieldAssignHst.class);
   }
@@ -49,7 +51,7 @@ public class GrouperDataRowFieldAssignHstDao {
       return new ArrayList<>();
     }
     
-    return new GcDbAccess().sql("select gdrfah.* from grouper_data_row_field_asn_hst gdrfah join grouper_data_row_assign_hst gdrah on gdrfah.data_row_assign_internal_id = gdrah.data_row_assign_internal_id ")
+    return new GcDbAccess().sql("select gdrfah.* from grouper_data_row_field_asn_hst gdrfah join grouper_data_row_assign_hst gdrah on gdrfah.data_row_assign_internal_id = gdrah.internal_id ")
         .selectMultipleColumnName("gdrah.data_row_internal_id")
         .bindVars(new ArrayList<Long>(dataRowInternalIds))
         .selectList(GrouperDataRowFieldAssignHst.class);
@@ -65,6 +67,18 @@ public class GrouperDataRowFieldAssignHstDao {
     return new GcDbAccess().sql("select * from grouper_data_row_field_asn_hst ")
         .selectMultipleColumnName("data_field_internal_id")
         .bindVars(new ArrayList<Long>(dataFieldInternalIds))
+        .selectList(GrouperDataRowFieldAssignHst.class);
+  }
+  
+  public static List<GrouperDataRowFieldAssignHst> selectByDataRowAssignHstInternalIds(Set<Long> dataRowAssignHstInternalIds) {
+    
+    if (dataRowAssignHstInternalIds == null || dataRowAssignHstInternalIds.size() == 0) {
+      return new ArrayList<>();
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_row_field_asn_hst ")
+        .selectMultipleColumnName("data_row_assign_internal_id")
+        .bindVars(new ArrayList<Long>(dataRowAssignHstInternalIds))
         .selectList(GrouperDataRowFieldAssignHst.class);
   }
 
@@ -89,6 +103,21 @@ public class GrouperDataRowFieldAssignHstDao {
   public static int store(Collection<GrouperDataRowFieldAssignHst> grouperDataRowFieldAssignHsts) {
     if (GrouperUtil.length(grouperDataRowFieldAssignHsts) == 0) {
       return 0;
+    }
+    
+    int internalIdsNeeded = 0;
+    for (GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst : grouperDataRowFieldAssignHsts) {
+      if (grouperDataRowFieldAssignHst.getTempInternalIdOnDeck() == null) {
+        internalIdsNeeded++;
+      }
+    }
+    
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRowFieldAssignHst, internalIdsNeeded);
+    int currentIndex = 0;
+    for (GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst : grouperDataRowFieldAssignHsts) {
+      if (grouperDataRowFieldAssignHst.getTempInternalIdOnDeck() == null) {
+        grouperDataRowFieldAssignHst.setTempInternalIdOnDeck(ids.get(currentIndex++));
+      }
     }
     
     for (GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst : grouperDataRowFieldAssignHsts) {

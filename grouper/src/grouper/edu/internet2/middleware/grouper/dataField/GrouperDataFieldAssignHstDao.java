@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -29,6 +31,13 @@ public class GrouperDataFieldAssignHstDao {
   public static List<GrouperDataFieldAssignHst> selectByDataFieldInternalId(long dataFieldInternalId) {
     return new GcDbAccess().sql("select * from grouper_data_field_assign_hst where data_field_internal_id = ?")
         .addBindVar(dataFieldInternalId)
+        .selectList(GrouperDataFieldAssignHst.class);
+  }
+  
+  public static List<GrouperDataFieldAssignHst> selectByDataFieldInternalIdAndEndTimeBefore(long dataFieldInternalId, long endTimeBeforeMicros) {
+    return new GcDbAccess().sql("select * from grouper_data_field_assign_hst where data_field_internal_id = ? and end_time < ?")
+        .addBindVar(dataFieldInternalId)
+        .addBindVar(endTimeBeforeMicros)
         .selectList(GrouperDataFieldAssignHst.class);
   }
 
@@ -70,6 +79,21 @@ public class GrouperDataFieldAssignHstDao {
   public static int store(Collection<GrouperDataFieldAssignHst> grouperDataFieldAssignHsts) {
     if (GrouperUtil.length(grouperDataFieldAssignHsts) == 0) {
       return 0;
+    }
+    
+    int internalIdsNeeded = 0;
+    for (GrouperDataFieldAssignHst grouperDataFieldAssignHst : grouperDataFieldAssignHsts) {
+      if (grouperDataFieldAssignHst.getTempInternalIdOnDeck() == null) {
+        internalIdsNeeded++;
+      }
+    }
+    
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataFieldAssignHst, internalIdsNeeded);
+    int currentIndex = 0;
+    for (GrouperDataFieldAssignHst grouperDataFieldAssignHst : grouperDataFieldAssignHsts) {
+      if (grouperDataFieldAssignHst.getTempInternalIdOnDeck() == null) {
+        grouperDataFieldAssignHst.setTempInternalIdOnDeck(ids.get(currentIndex++));
+      }
     }
     
     for (GrouperDataFieldAssignHst grouperDataFieldAssignHst : grouperDataFieldAssignHsts) {

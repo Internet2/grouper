@@ -117,7 +117,7 @@ public class GrouperDataRowDao {
     
     List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataRowInternalId(grouperDataRow.getInternalId());
     for (GrouperDataRowAssign grouperDataRowAssign: dataRowAssigns) {
-      GrouperDataRowAssignDao.delete(grouperDataRowAssign, false);
+      GrouperDataRowAssignDao.delete(grouperDataRowAssign);
     }
     
     List<GrouperDataRowFieldAssignHst> dataRowFieldAssignHsts = GrouperDataRowFieldAssignHstDao.selectByDataRowInternalId(grouperDataRow.getInternalId());

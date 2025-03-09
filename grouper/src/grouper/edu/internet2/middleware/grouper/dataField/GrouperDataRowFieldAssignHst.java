@@ -16,6 +16,24 @@ import org.apache.commons.lang3.builder.EqualsBuilder;
 @GcPersistableClass(tableName="grouper_data_row_field_asn_hst", defaultFieldPersist=GcPersist.doPersist)
 public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDbVersionable {
 
+  /**
+   * cache this to get the id later
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private GrouperDataRowAssignHst dataRowAssignHst;
+  
+  
+  
+  
+  public GrouperDataRowAssignHst getDataRowAssignHst() {
+    return dataRowAssignHst;
+  }
+
+  
+  public void setDataRowAssignHst(GrouperDataRowAssignHst grouperDataRowAssignHst) {
+    this.dataRowAssignHst = grouperDataRowAssignHst;
+  }
+  
   private long dataRowAssignInternalId = -1;
 
   private long dataFieldInternalId = -1;
@@ -34,6 +52,27 @@ public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDb
   private GrouperDataRowFieldAssignHst dbVersion;
 
 
+  /**
+   * store the internal id to use when the db access stores the object
+   */
+  @GcPersistableField(persist = GcPersist.dontPersist)
+  private Long tempInternalIdOnDeck = null;
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @return
+   */
+  public Long getTempInternalIdOnDeck() {
+    return tempInternalIdOnDeck;
+  }
+
+  /**
+   * store the internal id to use when the db access stores the object
+   * @param tempInternalIdOnDeck
+   */
+  public void setTempInternalIdOnDeck(Long tempInternalIdOnDeck) {
+    this.tempInternalIdOnDeck = tempInternalIdOnDeck;
+  }
 
   public long getInternalId() {
     return internalId;
@@ -99,7 +138,11 @@ public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDb
     if (this.internalId != -1) {
       return false;
     }
-    this.internalId = TableIndex.reserveId(TableIndexType.dataRowFieldAssignHst);
+    if (this.tempInternalIdOnDeck != null) {
+      this.internalId = this.tempInternalIdOnDeck;
+    } else {
+      this.internalId = TableIndex.reserveId(TableIndexType.dataRowFieldAssignHst);
+    }
     return true;
   }
 
@@ -184,7 +227,9 @@ public class GrouperDataRowFieldAssignHst implements GcSqlAssignPrimaryKey, GcDb
 
 
   public void storePrepare() {
-
+    if (this.dataRowAssignInternalId == -1 && this.dataRowAssignHst != null) {
+      this.dataRowAssignInternalId = this.dataRowAssignHst.getInternalId();
+    }
   }
 
 

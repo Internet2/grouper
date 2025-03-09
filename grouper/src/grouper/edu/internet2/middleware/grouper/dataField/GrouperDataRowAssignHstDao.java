@@ -5,6 +5,8 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Set;
 
+import edu.internet2.middleware.grouper.tableIndex.TableIndex;
+import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 import edu.internet2.middleware.grouperClient.jdbc.GcPersistableHelper;
@@ -29,6 +31,13 @@ public class GrouperDataRowAssignHstDao {
   public static List<GrouperDataRowAssignHst> selectByDataRowInternalId(long dataRowInternalId) {
     return new GcDbAccess().sql("select * from grouper_data_row_assign_hst where data_row_internal_id = ?")
         .addBindVar(dataRowInternalId)
+        .selectList(GrouperDataRowAssignHst.class);
+  }
+  
+  public static List<GrouperDataRowAssignHst> selectByDataRowInternalIdAndEndTimeBefore(long dataRowInternalId, long endTimeBeforeMicros) {
+    return new GcDbAccess().sql("select * from grouper_data_row_assign_hst where data_row_internal_id = ? and end_time < ?")
+        .addBindVar(dataRowInternalId)
+        .addBindVar(endTimeBeforeMicros)
         .selectList(GrouperDataRowAssignHst.class);
   }
   
@@ -71,6 +80,21 @@ public class GrouperDataRowAssignHstDao {
   public static int store(Collection<GrouperDataRowAssignHst> grouperDataRowAssignHsts) {
     if (GrouperUtil.length(grouperDataRowAssignHsts) == 0) {
       return 0;
+    }
+    
+    int internalIdsNeeded = 0;
+    for (GrouperDataRowAssignHst grouperDataRowAssignHst : grouperDataRowAssignHsts) {
+      if (grouperDataRowAssignHst.getTempInternalIdOnDeck() == null) {
+        internalIdsNeeded++;
+      }
+    }
+    
+    List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRowAssignHst, internalIdsNeeded);
+    int currentIndex = 0;
+    for (GrouperDataRowAssignHst grouperDataRowAssignHst : grouperDataRowAssignHsts) {
+      if (grouperDataRowAssignHst.getTempInternalIdOnDeck() == null) {
+        grouperDataRowAssignHst.setTempInternalIdOnDeck(ids.get(currentIndex++));
+      }
     }
     
     for (GrouperDataRowAssignHst grouperDataRowAssignHst : grouperDataRowAssignHsts) {
