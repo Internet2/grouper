@@ -1991,6 +1991,17 @@ public class GrouperDdlUtils {
   
   }
   
+  public static String catalogName(Connection connection) {
+    if (isMysql()) {
+      try {        
+        return connection.getCatalog();
+      } catch (Exception e) {
+        throw new RuntimeException(e);
+      }
+    }
+    return null;
+  }
+  
   /**
    * see if an foreign key with the given name exists
    * @param tableName

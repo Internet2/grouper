@@ -44,8 +44,11 @@ import org.apache.commons.beanutils.DynaBean;
 import org.apache.commons.beanutils.PropertyUtils;
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.collections.Predicate;
+import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
 import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.DatabaseOperationException;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.DdlUtilsException;
 import edu.internet2.middleware.grouper.ext.org.apache.ddlutils.Platform;
@@ -1914,6 +1917,10 @@ public abstract class PlatformImplBase extends JdbcSupport implements Platform
      */
     public Database readModelFromDatabase(Connection connection, String name, String catalog, String schema, String[] tableTypes) throws DatabaseOperationException
     {
+        // In MySql if the user can see multiple databases then the catalog needs to be the database name which is the catalog name of the connection
+        if (StringUtils.isBlank(catalog)) {
+          catalog = GrouperDdlUtils.catalogName(connection);
+        }
         try
         {
             JdbcModelReader reader = getModelReader();
