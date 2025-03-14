@@ -927,7 +927,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
 
       if (!canEditLoader) {
         return;
@@ -1177,7 +1177,7 @@ public class UiV2GrouperLoader {
                 + "<br />" + StringUtils.replace(GrouperUtil.xmlEscape(errorMessage), "\n", "<br />")));
             hasError = true;
           }
-          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject);
+          GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderContainer.getEditLoaderJexlScriptJexlScript(), null, loggedInSubject, false);
           if (jexlScriptAnalysis != null && 
               (StringUtils.isNotBlank(jexlScriptAnalysis.getErrorMessage()) || StringUtils.isNotBlank(jexlScriptAnalysis.getWarningMessage()))) {
             throw new RuntimeException("not allowed");
@@ -1888,7 +1888,7 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
 
       if (!canEditLoader) {
         return;
@@ -1942,7 +1942,7 @@ public class UiV2GrouperLoader {
 
       grouperDataEngine.loadFieldsAndRows(grouperConfig);
 
-      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject);
+      GrouperJexlScriptAnalysis jexlScriptAnalysis = GrouperLoaderJexlScriptFullSync.analyzeJexlScriptHtml(grouperDataEngine, grouperLoaderJexlScript, subject, loggedInSubject, true);
       
       GuiSubject guiSubject = subject != null ? new GuiSubject(subject): null;
       
@@ -2109,8 +2109,8 @@ public class UiV2GrouperLoader {
         return;
       }
       
-      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader();
-
+      boolean canEditLoader = grouperLoaderContainer.isCanEditLoader() || grouperLoaderContainer.isCanEditAbacLoader();
+          
       if (!canEditLoader) {
         return;
       }

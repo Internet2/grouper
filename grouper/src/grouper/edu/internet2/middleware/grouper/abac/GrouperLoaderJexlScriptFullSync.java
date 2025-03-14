@@ -68,6 +68,7 @@ import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
+import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependency;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyDao;
 import edu.internet2.middleware.grouper.sqlCache.SqlCacheDependencyType;
@@ -104,7 +105,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       Subject subject = SubjectFinder.findById("test.subject.1", true);
       
       //System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "entity.memberOf('penn:ref:mfaEnrolled')", subject, grouperSession.getSubject()));
-      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled' && 'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject()));
+      System.out.println(analyzeJexlScriptHtml(grouperDataEngine, "'penn:ref:mfaEnrolled' && 'penn:ref:mfaEnrolled2'", subject, grouperSession.getSubject(), false));
 
       
       
@@ -211,7 +212,17 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
     }
   }
   
-  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript, Subject subject, Subject loggedInSubject) {
+  /**
+   * 
+   * @param grouperDataEngine
+   * @param jexlScript
+   * @param subject
+   * @param loggedInSubject
+   * @param readOnly - true if only analyzing; false if about to save the script
+   * @return
+   */
+  public static GrouperJexlScriptAnalysis analyzeJexlScriptHtml(GrouperDataEngine grouperDataEngine, String jexlScript, 
+      Subject subject, Subject loggedInSubject, boolean readOnly) {
     
     Member member = subject != null ? MemberFinder.findBySubject(GrouperSession.staticGrouperSession(), subject, true): null;
     
@@ -258,8 +269,29 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           Map<MultiKey, SqlCacheGroup> sqlCacheGroups = SqlCacheGroupDao.retrieveByGroupNamesFieldNames(GrouperUtil.toList(new MultiKey(groupName, fieldName)));
           // if group not found, consider it empty
           long sqlCacheGroupInternalId = -1;
+          boolean hasRead = false;
           if (GrouperUtil.length(sqlCacheGroups) == 1) {
             sqlCacheGroupInternalId = sqlCacheGroups.values().iterator().next().getInternalId();
+            
+            hasRead = (boolean) GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+              
+              @Override
+              public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+                Group group = GroupFinder.findByName(grouperSession, groupName, false);
+                if (group != null) {
+                  return group.canHavePrivilege(loggedInSubject, AccessPrivilege.READ.getName(), false);
+                }
+                return false;
+              }
+            });
+            if (!hasRead) {
+              String errorMessage = GrouperTextContainer.textOrNull(
+                  "grouperLoaderEditJexlScriptAnalysisUserNotAllowedToReadGroup");
+              grouperJexlScriptAnalysis
+                  .setErrorMessage(errorMessage + " '" + groupName + "'");
+              return grouperJexlScriptAnalysis;
+            }
+            
           } else {
             // note non-existent group
             partsHaveMissingGroup = true;
@@ -280,6 +312,12 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
           GrouperPrivacyRealmConfig grouperPrivacyRealmConfig = grouperDataEngine.getPrivacyRealmConfigByConfigId().get(grouperPrivacyRealmConfigId);
           
           String highestLevelAccess = GrouperDataEngine.calculateHighestLevelAccess(grouperPrivacyRealmConfig, loggedInSubject);
+           
+          if (!readOnly && !StringUtils.equals(highestLevelAccess, "update")) {
+            String warningMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy");
+            grouperJexlScriptAnalysis.setErrorMessage(warningMessage + " '"+attributeAlias + "'");
+            return grouperJexlScriptAnalysis;
+          }
           
           if (StringUtils.equals(highestLevelAccess, "read")) {
             String warningMessage = GrouperTextContainer.textOrNull("grouperLoaderEditJexlScriptAnalysisUserNotAllowedToEditPolicy");

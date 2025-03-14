@@ -2540,6 +2540,7 @@ public class GrouperLoaderContainer {
     if (!GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanView()) {
       return false;
     }
+    
     if (!StringUtils.isBlank(GrouperUiConfig.retrieveConfig().propertyValueString("uiV2.loader.edit.if.in.group"))) {
       String error = GrouperUiFilter.requireUiGroup("uiV2.loader.edit.if.in.group", loggedInSubject, false);
       //null error means allow
@@ -2547,6 +2548,23 @@ public class GrouperLoaderContainer {
     }
     
     return false;
+  }
+  
+  public boolean isCanEditAbacLoader() {
+    
+    Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    if (PrivilegeHelper.isWheelOrRoot(loggedInSubject)) {
+      return true;
+    }
+    
+    // it's either jexl or not set
+    if (!isGrouperSqlLoader() && !isGrouperLdapLoader() && !isGrouperRecentMembershipsLoader() && 
+        GrouperRequestContainer.retrieveFromRequestOrCreate().getGroupContainer().isCanAdmin()) {
+      return true;
+    }
+    
+    return false;
+    
   }
   
   /**
