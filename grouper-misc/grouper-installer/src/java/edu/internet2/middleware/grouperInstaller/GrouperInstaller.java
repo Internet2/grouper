@@ -90,7 +90,7 @@ import org.apache.commons.httpclient.methods.GetMethod;
  */
 public class GrouperInstaller {
 
-  public static final String TOMCAT_VERSION = "9.0.98";
+  public static final String TOMCAT_VERSION = "9.0.102";
 
   /**
    * tomcat version
