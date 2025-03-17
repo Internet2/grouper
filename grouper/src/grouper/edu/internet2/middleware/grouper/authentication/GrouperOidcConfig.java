@@ -1,7 +1,10 @@
 package edu.internet2.middleware.grouper.authentication;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -240,10 +243,45 @@ public class GrouperOidcConfig {
 
   private OIDCProviderMetadata oidcProviderMetadata;
 
+  private List<String> uiPathRegexes = new ArrayList<String>();
+
+  private boolean useForUi;
+
+  /**
+   * -1 means forever
+   */
+  private int authnTimeoutSeconds;
+
+  private boolean allowOtherAuthentications;
+  
+  public boolean isAllowOtherAuthentications() {
+    return allowOtherAuthentications;
+  }
+  
+  public int getAuthnTimeoutSeconds() {
+    return authnTimeoutSeconds;
+  }
+  
+  public boolean isUseForUi() {
+    return useForUi;
+  }
+
 
 //  public OIDCProviderMetadata getOidcProviderMetadata() {
 //    return oidcProviderMetadata;
 //  }
+
+  
+  public List<String> getUiPathRegexes() {
+    return uiPathRegexes;
+  }
+
+
+  
+  public void setUiPathRegexes(List<String> uiPathRegexes) {
+    this.uiPathRegexes = uiPathRegexes;
+  }
+
 
   private void retrieveMetadata() {
     try {
@@ -358,6 +396,37 @@ public class GrouperOidcConfig {
     //  # some claim name that has the subjectId / subjectIdentifier / subjectIdOrIdentifier in it.  e.g. employeeId
     //  grouper.oidc.configId.subjectIdClaimName =
     grouperOidcConfig.subjectIdClaimName = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".subjectIdClaimName", "preferred_username");
+    
+    //  # Use for UI?
+    //  # {valueType: "boolean", defaultValue: "false", order: 16000 }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.useForUi =
+    grouperOidcConfig.useForUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." + externalSystemConfigId + ".useForUi", false);
+
+    //  # Comma separated list of path regexes to match the UI path to use for this external system. Escape commas with &#x2c;
+    //  # If there are no regexes then this is the default OIDC for the UI
+    //  # {valueType: "string", order: 16050, showEl: "${useForUi}" }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.uiPathRegexes =
+    String uiPathRegexesString = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".uiPathRegexes");
+    if (!StringUtils.isBlank(uiPathRegexesString)) {
+      List<String> uiPathRegexesList = GrouperUtil.splitTrimToList(uiPathRegexesString, ",");
+      for (int i=0;i<uiPathRegexesList.size();i++) {
+        String uiPathRegex = uiPathRegexesList.get(i);
+        uiPathRegex = StringUtils.replace(uiPathRegex, "&#x2c;", ",");
+        uiPathRegexesList.set(i, uiPathRegex);
+      }
+      grouperOidcConfig.uiPathRegexes = uiPathRegexesList;
+    }
+
+    //  # When the authentication times out
+    //  # {valueType: "integer", order: 16051, showEl: "${useForUi}" }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.authnTimeoutSeconds =
+    grouperOidcConfig.authnTimeoutSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.oidcExternalSystem." + externalSystemConfigId + ".authnTimeoutSeconds", -1);
+    
+    //  # If other authentications are allowed for this external system (SSO)
+    //  # {valueType: "boolean", defaultValue: "true", order: 16052, showEl: "${useForUi}" }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.allowOtherAuthentications =
+    grouperOidcConfig.allowOtherAuthentications = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." + externalSystemConfigId + ".allowOtherAuthentications", true);
+    
     
     return grouperOidcConfig;
   }

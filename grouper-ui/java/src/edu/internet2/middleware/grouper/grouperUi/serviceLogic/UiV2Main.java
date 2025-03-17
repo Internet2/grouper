@@ -823,7 +823,13 @@ public class UiV2Main extends UiServiceLogicBase {
    */
   public void indexCustomUi(HttpServletRequest request, HttpServletResponse response) {
     
-    final Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    
+    boolean ignoreAuthn = GrouperUiFilter.ignoreAuthn(request);
+    Subject loggedInSubject = null;
+    
+    if (!ignoreAuthn) {
+      loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn();
+    }
     
     //initialize the bean
     GrouperRequestContainer.retrieveFromRequestOrCreate();
@@ -831,12 +837,17 @@ public class UiV2Main extends UiServiceLogicBase {
     GrouperSession grouperSession = null;
 
     try {
-      grouperSession = GrouperSession.start(loggedInSubject);
+      if (!ignoreAuthn) {
+        grouperSession = GrouperSession.start(loggedInSubject);
+      }
 
       //just show a jsp
       showJsp("/WEB-INF/grouperUi2/index/indexCustomUi.jsp");
     } finally {
-      GrouperSession.stopQuietly(grouperSession);
+      if (!ignoreAuthn) {
+
+        GrouperSession.stopQuietly(grouperSession);
+      }
     }
     throw new ControllerDone();
   }

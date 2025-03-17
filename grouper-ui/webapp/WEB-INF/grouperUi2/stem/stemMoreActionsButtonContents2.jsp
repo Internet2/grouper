@@ -41,9 +41,10 @@
                         
                         <grouper:performanceTimingGate label="StemUiMoreActions" key="post_templates" />
                         
+                        <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['stemViewMoreActionsManage']}</li>
+
                         <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges || grouperRequestContainer.stemContainer.canCreateGroups }">
 
-                          <li class="dropdown-item disabled grouper-menu-subheader">${textContainer.text['stemViewMoreActionsManage']}</li>
 
                           <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemCopy&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"
@@ -72,8 +73,13 @@
   
                             <li><a href="#"
                               onclick="return guiV2link('operation=UiV2LocalEntity.newLocalEntity', {optionalFormElementNamesToSend: 'objectStemId'});">${textContainer.text['groupNewCreateNewLocalEntityMenuButton'] }</a></li>
-  
                           </c:if>
+     
+
+                        </c:if>
+                        <li><a href="#" onclick="return guiV2link('operation=UiV2StemImport.stemExport&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;">${textContainer.text['stemExportMenuButton'] }</a></li>
+
+                        <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges || grouperRequestContainer.stemContainer.canCreateGroups }">
 
                           <c:if test="${grouperRequestContainer.stemContainer.canAdminPrivileges }">
                             <li><a href="#" onclick="return guiV2link('operation=UiV2Stem.stemEdit&stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}'); return false;"

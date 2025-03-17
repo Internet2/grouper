@@ -220,6 +220,7 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     Group provisionableGroupExistedUnmarkedProvisionable = new GroupSave(this.grouperSession).assignName("provThenUnprov:provisionableGroupExistedUnmarkedProvisionable").save();
     Group provisionableGroupCreatedByGrouperGroupDeletedInGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupCreatedByGrouperGroupDeletedInGrouper").save();
     Group provisionableGroupExistedGroupDeletedInGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupExistedGroupDeletedInGrouper").save();
+    Group provisionableGroupRenamed = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupRenamed").save();
     
     // mark some folders to provision
     GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
@@ -259,6 +260,8 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     provisionableGroupExistedUnmarkedProvisionable.addMember(aclark);
     
     provisionableGroupCreatedByGrouperGroupDeletedInGrouper.addMember(aclark);
+    
+    provisionableGroupRenamed.addMember(aclark);
  
     for (int i=0;i<2;i++) {
       if (isFull || i ==0) {

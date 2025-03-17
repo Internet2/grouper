@@ -278,7 +278,7 @@ public class GrouperUiRestServlet extends HttpServlet {
     }
     /* todo isn't this already checked by the uiFilter? */
     Subject loggedInSubject = GrouperUiFilter.retrieveSubjectLoggedIn(true, response);
-    if (loggedInSubject == null && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))
+    if (loggedInSubject == null && !GrouperUiFilter.ignoreAuthn(request) && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".index", urlStrings.get(1))
         && !StringUtils.equals(UiV2Public.class.getSimpleName() + ".postIndex", urlStrings.get(1))
         && !StringUtils.defaultString(urlStrings.get(1)).startsWith("ExternalSubjectSelfRegister.")
         && !StringUtils.defaultString(urlStrings.get(1)).startsWith("UiV2ExternalSubjectSelfRegister.")) {

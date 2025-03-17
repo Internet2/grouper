@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.net.Proxy;
 import java.net.URI;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Set;
 import java.util.TreeMap;
@@ -61,39 +62,45 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
 import edu.internet2.middleware.grouper.util.GrouperProxyBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 import net.minidev.json.JSONObject;
 
 public class GrouperOidc {
 
-  private static ExpirableCache<Boolean, String> oidcConfigIdCache = new ExpirableCache<Boolean, String>(5);
-
-  public static String externalSystemConfigIdForUi() {
+  public static String externalSystemConfigIdForUi(String uriContext) {
   
-    String externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
+    String externalSystemConfigIdForUi = null;
+    Pattern pattern = Pattern.compile("^grouper\\.oidcExternalSystem\\.(.*)\\.clientId$");
+    Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
     
-    if(externalSystemConfigIdForUi == null) {
-      synchronized (oidcConfigIdCache) {
-        externalSystemConfigIdForUi = oidcConfigIdCache.get(Boolean.TRUE);
-        if (externalSystemConfigIdForUi == null) {
-          Pattern pattern = Pattern.compile("^grouper\\.oidcExternalSystem\\.(.*)\\.clientId$");
-          Set<String> configIds = GrouperConfig.retrieveConfig().propertyConfigIds(pattern);
-          
-          for (String configId: GrouperUtil.nonNull(configIds)) {
-            if (GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".useForUi", false) && 
-                GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem."+configId+".enabled", true)) {
+    String defaultExternalSystemConfigIdForUi = null;
+    
+    OUTER: for (String configId: GrouperUtil.nonNull(configIds)) {
+      
+      GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(configId);
+      
+      if (grouperOidcConfig.isUseForUi() && grouperOidcConfig.isEnabled()) {
+        
+        List<String> uiPathRegexesList = grouperOidcConfig.getUiPathRegexes();
+        
+        if (GrouperUtil.length(uiPathRegexesList) == 0) {
+          GrouperUtil.assertion(StringUtils.isBlank(defaultExternalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+defaultExternalSystemConfigIdForUi +" ,"+configId);
+          defaultExternalSystemConfigIdForUi = configId;
+        } else {
+          for (String uiPathRegex : uiPathRegexesList) {
+            if (uriContext.matches(uiPathRegex)) {
               GrouperUtil.assertion(StringUtils.isBlank(externalSystemConfigIdForUi), "Multiple OIDC external systems cannot be enabled for UI at the same time: "+externalSystemConfigIdForUi +" ,"+configId);
               externalSystemConfigIdForUi = configId;
+              continue OUTER;
             }
           }
-          oidcConfigIdCache.put(Boolean.TRUE, GrouperUtil.defaultString(externalSystemConfigIdForUi));
+          continue;
         }
-        
       }
-      
     }
-    
+    if (StringUtils.isBlank(externalSystemConfigIdForUi)) {
+      externalSystemConfigIdForUi = defaultExternalSystemConfigIdForUi;
+    }
     return externalSystemConfigIdForUi;
 
   }
