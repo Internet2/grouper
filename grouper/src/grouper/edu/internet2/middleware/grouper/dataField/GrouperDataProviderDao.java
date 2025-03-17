@@ -1,13 +1,16 @@
 package edu.internet2.middleware.grouper.dataField;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.collections.CollectionUtils;
 import org.apache.commons.lang3.StringUtils;
 
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -109,27 +112,9 @@ public class GrouperDataProviderDao {
    * @param connectionName
    */
   public static void delete(GrouperDataProvider grouperDataProvider) {
-    grouperDataProvider.storePrepare();
-    
-    List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByProvider(grouperDataProvider.getInternalId());
-    for (GrouperDataGlobalAssign grouperDataRGlobalAssign: dataGlobalAssings) {
-      GrouperDataGlobalAssignDao.delete(grouperDataRGlobalAssign);
-    }
-    
-    // TODO should history be added for the deleted assignments?  Should the assignments even be deleted if the fields/rows aren't being deleted?
-    // For now not doing anything here since this method is buggy anyways as it tries to delete the row assigns without deleting the row field assigns resulting in errors.
-    
-    List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByProvider(grouperDataProvider.getInternalId());
-    for (GrouperDataFieldAssign fieldAssign: dataFieldAssigns) {
-      GrouperDataFieldAssignDao.delete(fieldAssign);
-    }
-    
-    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByProvider(grouperDataProvider.getInternalId());
-    for (GrouperDataRowAssign rowAssign: dataRowAssigns) {
-      GrouperDataRowAssignDao.delete(rowAssign);
-    }
-    
-    new GcDbAccess().deleteFromDatabase(grouperDataProvider);
+    List<GrouperDataProvider> grouperDataProviders = new ArrayList<>();
+    grouperDataProviders.add(grouperDataProvider); 
+    delete(grouperDataProviders);
   }
   
   public static void delete(List<GrouperDataProvider> grouperDataProviders) {
@@ -137,27 +122,111 @@ public class GrouperDataProviderDao {
       return;
     }
     
-    Set<Long> dataProviderInternalIds = new HashSet<>();
+    GrouperDataEngine grouperDataEngine = new GrouperDataEngine();
+    GrouperConfig grouperConfig = GrouperConfig.retrieveConfig();
+    grouperDataEngine.loadFieldsAndRows(grouperConfig);
     
+    List<GrouperDataField> grouperDataFieldsInDb = GrouperUtil.nonNull(GrouperDataFieldDao.selectAll());
+    Map<Long, GrouperDataField> internalIdToGrouperDataFieldInDb = new HashMap<Long, GrouperDataField>();
+    for (GrouperDataField grouperDataField : grouperDataFieldsInDb) {
+      internalIdToGrouperDataFieldInDb.put(grouperDataField.getInternalId(), grouperDataField);
+    }
+    
+    List<GrouperDataRow> grouperDataRowsInDb = GrouperUtil.nonNull(GrouperDataRowDao.selectAll());
+    Map<Long, GrouperDataRow> internalIdToGrouperDataRowInDb = new HashMap<Long, GrouperDataRow>();
+    for (GrouperDataRow grouperDataRow : grouperDataRowsInDb) {
+      internalIdToGrouperDataRowInDb.put(grouperDataRow.getInternalId(), grouperDataRow);
+    }
+
+    Set<Long> dataProviderInternalIds = new HashSet<>();
+
     for (GrouperDataProvider grouperDataProvider: grouperDataProviders) {
       grouperDataProvider.storePrepare();
       dataProviderInternalIds.add(grouperDataProvider.getInternalId());
     }
-    
-    List<GrouperDataGlobalAssign> dataGlobalAssings = GrouperDataGlobalAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
-    GrouperDataGlobalAssignDao.delete(dataGlobalAssings);
-    
-    // TODO should history be added for the deleted assignments?  Should the assignments even be deleted if the fields/rows aren't being deleted?
-    // For now not doing anything here since this method is buggy anyways as it tries to delete the row assigns without deleting the row field assigns resulting in errors.
-    
-    List<GrouperDataFieldAssign> dataFieldAssigns = GrouperDataFieldAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
-    GrouperDataFieldAssignDao.delete(dataFieldAssigns);
-    
-    List<GrouperDataRowAssign> dataRowAssigns = GrouperDataRowAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
-    GrouperDataRowAssignDao.delete(dataRowAssigns);
+
+    List<GrouperDataGlobalAssign> grouperDataGlobalAssingsToDelete = GrouperDataGlobalAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
+    List<GrouperDataFieldAssign> grouperDataFieldAssignsToDelete = GrouperDataFieldAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
+    List<GrouperDataRowAssign> grouperDataRowAssignsToDelete = GrouperDataRowAssignDao.selectByDataProviderInternalIds(dataProviderInternalIds);
+    Set<Long> dataRowAssignInternalIds = new HashSet<>();
+    for (GrouperDataRowAssign dataRowAssign : grouperDataRowAssignsToDelete) {
+      dataRowAssignInternalIds.add(dataRowAssign.getInternalId());
+    }
+
+    List<GrouperDataRowFieldAssign> grouperDataRowFieldAssignsToDelete = GrouperDataRowFieldAssignDao.selectByDataRowAssignInternalIds(dataRowAssignInternalIds);
+    Map<Long, List<GrouperDataRowFieldAssign>> dataRowAssignInternalIdToDataRowFieldAssigns = new HashMap<>();
+    for (GrouperDataRowFieldAssign dataRowFieldAssign : grouperDataRowFieldAssignsToDelete) {
+      if (dataRowAssignInternalIdToDataRowFieldAssigns.get(dataRowFieldAssign.getDataRowAssignInternalId()) == null) {
+        dataRowAssignInternalIdToDataRowFieldAssigns.put(dataRowFieldAssign.getDataRowAssignInternalId(), new ArrayList<>());
+      }
+
+      dataRowAssignInternalIdToDataRowFieldAssigns.get(dataRowFieldAssign.getDataRowAssignInternalId()).add(dataRowFieldAssign);
+    }
+
+    // add history if configured
+    List<GrouperDataFieldAssignHst> grouperDataFieldAssignHstsToInsert = new ArrayList<>();
+    List<GrouperDataRowAssignHst> grouperDataRowAssignHstsToInsert = new ArrayList<>();
+    List<GrouperDataRowFieldAssignHst> grouperDataRowFieldAssignHstsToInsert = new ArrayList<>();
+
+    for (GrouperDataFieldAssign grouperDataFieldAssignToDelete : grouperDataFieldAssignsToDelete) {
+      GrouperDataField dataField = internalIdToGrouperDataFieldInDb.get(grouperDataFieldAssignToDelete.getDataFieldInternalId());
+      GrouperDataFieldConfig dataFieldConfig = grouperDataEngine.getFieldConfigByConfigId().get(dataField.getConfigId());
+
+      if (dataFieldConfig.isFieldDataStorePit()) {
+        GrouperDataFieldAssignHst grouperDataFieldAssignHst = new GrouperDataFieldAssignHst();
+        grouperDataFieldAssignHst.setDataFieldInternalId(grouperDataFieldAssignToDelete.getDataFieldInternalId());
+        grouperDataFieldAssignHst.setMemberInternalId(grouperDataFieldAssignToDelete.getMemberInternalId());
+        grouperDataFieldAssignHst.setValueInteger(grouperDataFieldAssignToDelete.getValueInteger());
+        grouperDataFieldAssignHst.setValueDictionaryInternalId(grouperDataFieldAssignToDelete.getValueDictionaryInternalId());
+        grouperDataFieldAssignHst.setStartTime(grouperDataFieldAssignToDelete.getCreatedOn().getTime() * 1000L);
+        grouperDataFieldAssignHst.setEndTime(System.currentTimeMillis() * 1000L);
+        grouperDataFieldAssignHstsToInsert.add(grouperDataFieldAssignHst);
+      }
+    }
+
+    for (GrouperDataRowAssign grouperDataRowAssignToDelete : grouperDataRowAssignsToDelete) {
+      GrouperDataRow dataRow = internalIdToGrouperDataRowInDb.get(grouperDataRowAssignToDelete.getDataRowInternalId());
+      GrouperDataRowConfig dataRowConfig = grouperDataEngine.getRowConfigByConfigId().get(dataRow.getConfigId());
+
+      if (dataRowConfig.isRowDataStorePit()) {
+        Long endTime = System.currentTimeMillis() * 1000L;
+        Long startTime = grouperDataRowAssignToDelete.getLastUpdated();
+        if (startTime == null) {
+          startTime = grouperDataRowAssignToDelete.getCreatedOn().getTime() * 1000L;
+        }
+
+        GrouperDataRowAssignHst grouperDataRowAssignHst = new GrouperDataRowAssignHst();
+        grouperDataRowAssignHst.setMemberInternalId(grouperDataRowAssignToDelete.getMemberInternalId());
+        grouperDataRowAssignHst.setDataRowInternalId(grouperDataRowAssignToDelete.getDataRowInternalId());
+        grouperDataRowAssignHst.setDataRowAssignInternalId(grouperDataRowAssignToDelete.getInternalId());
+        grouperDataRowAssignHst.setStartTime(startTime);
+        grouperDataRowAssignHst.setEndTime(endTime);
+        grouperDataRowAssignHstsToInsert.add(grouperDataRowAssignHst);
+
+        for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : GrouperUtil.nonNull(dataRowAssignInternalIdToDataRowFieldAssigns.get(grouperDataRowAssignToDelete.getInternalId()))) {          
+          GrouperDataRowFieldAssignHst grouperDataRowFieldAssignHst = new GrouperDataRowFieldAssignHst();
+          grouperDataRowFieldAssignHst.setDataRowAssignHst(grouperDataRowAssignHst);
+          grouperDataRowFieldAssignHst.setDataFieldInternalId(grouperDataRowFieldAssign.getDataFieldInternalId());
+          grouperDataRowFieldAssignHst.setValueInteger(grouperDataRowFieldAssign.getValueInteger());
+          grouperDataRowFieldAssignHst.setValueDictionaryInternalId(grouperDataRowFieldAssign.getValueDictionaryInternalId());
+          grouperDataRowFieldAssignHstsToInsert.add(grouperDataRowFieldAssignHst);
+        }
+      }
+    }
+
+    GrouperDataGlobalAssignDao.delete(grouperDataGlobalAssingsToDelete);
+
+    GrouperDataFieldAssignHstDao.store(grouperDataFieldAssignHstsToInsert);
+    GrouperDataFieldAssignDao.delete(grouperDataFieldAssignsToDelete);
+
+    GrouperDataRowAssignHstDao.store(grouperDataRowAssignHstsToInsert);
+    GrouperDataRowFieldAssignHstDao.store(grouperDataRowFieldAssignHstsToInsert);
+
+    GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignsToDelete);
+    GrouperDataRowAssignDao.delete(grouperDataRowAssignsToDelete);
     
     new GcDbAccess().deleteFromDatabaseMultiple(grouperDataProviders);
-    
+
     //TODO remove all things from cache when they are deleted
   }
 

@@ -92,6 +92,18 @@ public class GrouperDataRowFieldAssignDao {
         .selectList(GrouperDataRowFieldAssign.class);
   }
   
+  public static List<GrouperDataRowFieldAssign> selectByDataRowAssignInternalIds(Set<Long> dataRowAssignInternalIds) {
+    
+    if (dataRowAssignInternalIds == null || dataRowAssignInternalIds.size() == 0) {
+      return new ArrayList<>();
+    }
+    
+    return new GcDbAccess().sql("select * from grouper_data_row_field_assign ")
+        .selectMultipleColumnName("data_row_assign_internal_id")
+        .bindVars(new ArrayList<Long>(dataRowAssignInternalIds))
+        .selectList(GrouperDataRowFieldAssign.class);
+  }
+  
   public static List<GrouperDataRowFieldAssign> selectByDataRowInternalId(long dataRowInternalId) {
     return new GcDbAccess().sql("select gdrfa.* from grouper_data_row_field_assign gdrfa join grouper_data_row_assign gdra on gdrfa.data_row_assign_internal_id = gdra.internal_id where gdra.data_row_internal_id = ?")
         .addBindVar(dataRowInternalId)
