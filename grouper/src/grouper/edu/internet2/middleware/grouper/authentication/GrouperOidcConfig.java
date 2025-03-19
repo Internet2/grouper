@@ -1,7 +1,12 @@
 package edu.internet2.middleware.grouper.authentication;
 
 import java.net.URI;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
 import com.nimbusds.oauth2.sdk.id.Issuer;
@@ -140,6 +145,29 @@ public class GrouperOidcConfig {
     return redirectUri;
   }
 
+  /**
+   * will match everything after the domain slash including that slash
+   * e.g. for https://grouper.school.edu/grouper/grouperUi/app/UiV2Main.oidc
+   * will match /grouper/grouperUi/app/UiV2Main.oidc
+   */
+  private static final Pattern oidcRedirectPattern = Pattern.compile("^http[^\\/]+\\/\\/[^\\/]+(\\/.*)$");
+  
+  private String redirectUriContext;
+  
+  /**
+   * will match everything after the domain slash including that slash
+   * e.g. for https://grouper.school.edu/grouper/grouperUi/app/UiV2Main.oidc
+   * will match /grouper/grouperUi/app/UiV2Main.oidc
+   * @return redirect uri context
+   */
+  public String getRedirectUriContext() {
+    if (this.redirectUriContext == null) {
+      Matcher matcher = oidcRedirectPattern.matcher(this.getRedirectUri());
+      GrouperUtil.assertion(matcher.matches(), "Invalid redirect uri: '"+this.getRedirectUri() + "', should be similar to: https://grouper.school.edu/grouper/grouperUi/app/UiV2Main.oidc");
+      this.redirectUriContext = matcher.group(1);
+    }
+    return redirectUriContext;
+  }
   
   public void setRedirectUri(String redirectUri) {
     this.redirectUri = redirectUri;
@@ -240,10 +268,47 @@ public class GrouperOidcConfig {
 
   private OIDCProviderMetadata oidcProviderMetadata;
 
+  private List<String> uiPathRegexes = new ArrayList<String>();
+
+  private boolean useForUi;
+
+  /**
+   * -1 means forever
+   */
+  private int authnTimeoutSeconds;
+
+  private String extraAuthorizeParams;
+  
+  
+  public String getExtraAuthorizeParams() {
+    return extraAuthorizeParams;
+  }
+
+
+  public int getAuthnTimeoutSeconds() {
+    return authnTimeoutSeconds;
+  }
+  
+  public boolean isUseForUi() {
+    return useForUi;
+  }
+
 
 //  public OIDCProviderMetadata getOidcProviderMetadata() {
 //    return oidcProviderMetadata;
 //  }
+
+  
+  public List<String> getUiPathRegexes() {
+    return uiPathRegexes;
+  }
+
+
+  
+  public void setUiPathRegexes(List<String> uiPathRegexes) {
+    this.uiPathRegexes = uiPathRegexes;
+  }
+
 
   private void retrieveMetadata() {
     try {
@@ -359,6 +424,36 @@ public class GrouperOidcConfig {
     //  grouper.oidc.configId.subjectIdClaimName =
     grouperOidcConfig.subjectIdClaimName = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".subjectIdClaimName", "preferred_username");
     
+    //  # Use for UI?
+    //  # {valueType: "boolean", defaultValue: "false", order: 16000 }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.useForUi =
+    grouperOidcConfig.useForUi = GrouperConfig.retrieveConfig().propertyValueBoolean("grouper.oidcExternalSystem." + externalSystemConfigId + ".useForUi", false);
+
+    //  # Comma separated list of path regexes to match the UI path to use for this external system. Escape commas with &#x2c;
+    //  # If there are no regexes then this is the default OIDC for the UI
+    //  # {valueType: "string", order: 16050, showEl: "${useForUi}" }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.uiPathRegexes =
+    String uiPathRegexesString = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".uiPathRegexes");
+    if (!StringUtils.isBlank(uiPathRegexesString)) {
+      List<String> uiPathRegexesList = GrouperUtil.splitTrimToList(uiPathRegexesString, ",");
+      for (int i=0;i<uiPathRegexesList.size();i++) {
+        String uiPathRegex = uiPathRegexesList.get(i);
+        uiPathRegex = StringUtils.replace(uiPathRegex, "&#x2c;", ",");
+        uiPathRegexesList.set(i, uiPathRegex);
+      }
+      grouperOidcConfig.uiPathRegexes = uiPathRegexesList;
+    }
+
+    //  # When the authentication times out
+    //  # {valueType: "integer", order: 16051, showEl: "${useForUi}" }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.authnTimeoutSeconds =
+    grouperOidcConfig.authnTimeoutSeconds = GrouperConfig.retrieveConfig().propertyValueInt("grouper.oidcExternalSystem." + externalSystemConfigId + ".authnTimeoutSeconds", -1);
+    
+    //  # Add extra params on the authorize url, e.g. prompt=login or max_age=0
+    //  # {valueType: "string", order: 16054, showEl: "${useForUi}" }
+    //  # grouper.oidcExternalSystem.myOidcConfigId.extraAuthorizeParams =
+    grouperOidcConfig.extraAuthorizeParams = GrouperConfig.retrieveConfig().propertyValueString("grouper.oidcExternalSystem." + externalSystemConfigId + ".extraAuthorizeParams");
+            
     return grouperOidcConfig;
   }
 

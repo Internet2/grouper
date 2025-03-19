@@ -37,8 +37,10 @@ import java.io.IOException;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 import java.security.Principal;
+import java.sql.Timestamp;
 import java.util.Enumeration;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.LinkedHashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
@@ -81,6 +83,8 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
+import edu.internet2.middleware.grouper.authentication.GrouperAuthnResult;
+import edu.internet2.middleware.grouper.authentication.GrouperAuthnResults;
 import edu.internet2.middleware.grouper.authentication.GrouperOidc;
 import edu.internet2.middleware.grouper.authentication.GrouperOidcConfig;
 import edu.internet2.middleware.grouper.authentication.GrouperPassword;
@@ -343,110 +347,138 @@ public class GrouperUiFilter implements Filter {
     //currently assumes user is in getUserPrincipal
     HttpServletRequest request = retrieveHttpServletRequest();
 
+    Map<String, Object> debugMap = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     
-    //this cant change!
-    String previousRemoteUser = (String)request.getSession().getAttribute("authUser");
-    
-    String userIdLoggedIn = remoteUser(request);
-
-    if (!StringUtils.isBlank(previousRemoteUser) && !StringUtils.equals(previousRemoteUser, userIdLoggedIn)) {
-      if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouper.ui.authentication.allowUserIdSwitching", false)) {
-        request.getSession().invalidate();
-        throw new RuntimeException("New user logged in!  was: '" + previousRemoteUser + "', and now is: '" + userIdLoggedIn + "'" );
-      }
-    }
-
-    request.getSession().setAttribute("authUser", userIdLoggedIn);
-    
-    GrouperSession grouperSession = SessionInitialiser.getGrouperSession(request.getSession());
-    if (grouperSession != null && grouperSession.getSubject() != null) {
+    try {
+      //this cant change!
+      String previousRemoteUser = (String)request.getSession().getAttribute("authUser");
       
-      return grouperSession.getSubject();
-    }
-    
-    SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
-    
-    Subject subjectLoggedIn = sessionContainer.getSubjectLoggedIn();
-    
-    if (subjectLoggedIn != null) {
-      return subjectLoggedIn;
-    }
+      String userIdLoggedIn = remoteUser(request);
   
-    if (StringUtils.isBlank(userIdLoggedIn)) {
-      if (allowNoUserLoggedIn) {
-        return null;
-      }
-      throw new NoUserAuthenticatedException("Cant find logged in user");
-    }
-    
-    return (Subject)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
-
-      @Override
-      public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        Subject subjectLoggedIn = null;
-        try {
-          String sourceIds = GrouperUiConfig.retrieveConfig().propertyValueString("grouper.ui.authentication.sourceIds");
-          if (StringUtils.isBlank(sourceIds)) {
-            String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi();
-            if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
-              GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(externalSystemConfigIdForUi);
-              String sourceId = grouperOidcConfig.getSubjectSourceId();
-              String subjectIdType = grouperOidcConfig.getSubjectIdType();
-              if (!StringUtils.isBlank(sourceId)) {
-                
-                if (StringUtils.equals("subjectId", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdAndSource(userIdLoggedIn, sourceId, false);
-                } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdentifierAndSource(userIdLoggedIn, sourceId, false);
-                } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
-                }                
-              } else {
-                if (StringUtils.equals("subjectId", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn, false);
-                } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn, false);
-                } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
-                  subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, false);
-                }                
-                
-              }
-            }
+      if (!StringUtils.isBlank(previousRemoteUser) && !StringUtils.equals(previousRemoteUser, userIdLoggedIn)) {
+        if (!GrouperUiConfig.retrieveConfig().propertyValueBoolean("grouper.ui.authentication.allowUserIdSwitching", false)) {
+          if (LOG.isDebugEnabled()) {
+            debugMap.put("previousRemoteUser", previousRemoteUser);
+            debugMap.put("userIdLoggedIn", userIdLoggedIn);
+            debugMap.put("invalidatingSession", true);
           }
-          if (subjectLoggedIn == null) {
-            if (StringUtils.isBlank(sourceIds)) {
-              subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
-            } else {
-              Subject theSubjectLoggedIn = null;
-              for (String sourceId : GrouperUtil.splitTrim(sourceIds, ",")) {
-                Subject tempSubject = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
-                if (tempSubject != null) {
-                  if (theSubjectLoggedIn == null) {
-                    theSubjectLoggedIn = tempSubject;
-                  } else {
-                    throw new SubjectNotUniqueException("Found multiple matching subjects: '" + userIdLoggedIn + "'");
-                  }
-                }
-              }
-              subjectLoggedIn = theSubjectLoggedIn;
-              if (subjectLoggedIn == null) {
-                throw new SubjectNotFoundException("Cannot find subject by id or identifier: '" + userIdLoggedIn + "'");
-              }
-            }
-          }
-        } catch (RuntimeException re) {
-          if (re instanceof SubjectNotFoundException && allowNoUserLoggedIn) {
-            return null;
-          }
-          //this is probably a system error...  not a user error
-          GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
-          throw re;
+          request.getSession().invalidate();
+          throw new RuntimeException("New user logged in!  was: '" + previousRemoteUser + "', and now is: '" + userIdLoggedIn + "'" );
         }
-            
+      }
+  
+      request.getSession().setAttribute("authUser", userIdLoggedIn);
+      
+      GrouperSession grouperSession = SessionInitialiser.getGrouperSession(request.getSession());
+      if (grouperSession != null && grouperSession.getSubject() != null) {
+        
+        return grouperSession.getSubject();
+      }
+      
+      SessionContainer sessionContainer = SessionContainer.retrieveFromSession();
+      
+      Subject subjectLoggedIn = sessionContainer.getSubjectLoggedIn();
+      
+      if (subjectLoggedIn != null) {
+        if (LOG.isDebugEnabled()) {
+          debugMap.put("subjectLoggedInAlreadyResolved", GrouperUtil.subjectToString(subjectLoggedIn));
+        }
         return subjectLoggedIn;
       }
-    });
     
+      if (StringUtils.isBlank(userIdLoggedIn)) {
+        if (allowNoUserLoggedIn) {
+          return null;
+        }
+        throw new NoUserAuthenticatedException("Cant find logged in user");
+      }
+      
+      return (Subject)GrouperSession.internal_callbackRootGrouperSession(new GrouperSessionHandler() {
+  
+        @Override
+        public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
+          Subject subjectLoggedIn = null;
+          try {
+            String sourceIds = GrouperUiConfig.retrieveConfig().propertyValueString("grouper.ui.authentication.sourceIds");
+            if (StringUtils.isBlank(sourceIds)) {
+              
+              String uriContext = StringUtils.isBlank(request.getQueryString()) ?
+                  request.getRequestURI() : (request.getRequestURI() + "?" + request.getQueryString());
+              
+              String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi(uriContext);
+              if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
+                GrouperOidcConfig grouperOidcConfig = GrouperOidcConfig.retrieveFromConfigOrCache(externalSystemConfigIdForUi);
+                String sourceId = grouperOidcConfig.getSubjectSourceId();
+                String subjectIdType = grouperOidcConfig.getSubjectIdType();
+                if (!StringUtils.isBlank(sourceId)) {
+                  
+                  if (StringUtils.equals("subjectId", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdAndSource(userIdLoggedIn, sourceId, false);
+                  } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                  } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                  }                
+                } else {
+                  if (StringUtils.equals("subjectId", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findById(userIdLoggedIn, false);
+                  } else if (StringUtils.equals("subjectIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdentifier(userIdLoggedIn, false);
+                  } else if (StringUtils.equals("subjectIdOrIdentifier", subjectIdType)) {
+                    subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, false);
+                  }                
+                  
+                }
+              }
+            }
+            if (subjectLoggedIn == null) {
+              if (StringUtils.isBlank(sourceIds)) {
+                subjectLoggedIn = SubjectFinder.findByIdOrIdentifier(userIdLoggedIn, true);
+              } else {
+                Subject theSubjectLoggedIn = null;
+                for (String sourceId : GrouperUtil.splitTrim(sourceIds, ",")) {
+                  Subject tempSubject = SubjectFinder.findByIdOrIdentifierAndSource(userIdLoggedIn, sourceId, false);
+                  if (tempSubject != null) {
+                    if (theSubjectLoggedIn == null) {
+                      theSubjectLoggedIn = tempSubject;
+                    } else {
+                      throw new SubjectNotUniqueException("Found multiple matching subjects: '" + userIdLoggedIn + "'");
+                    }
+                  }
+                }
+                subjectLoggedIn = theSubjectLoggedIn;
+                if (subjectLoggedIn == null) {
+                  throw new SubjectNotFoundException("Cannot find subject by id or identifier: '" + userIdLoggedIn + "'");
+                }
+              }
+            }
+            if (LOG.isDebugEnabled()) {
+              debugMap.put("subjectLoggedIn",
+                  GrouperUtil.subjectToString(subjectLoggedIn));
+            }
+          } catch (RuntimeException re) {
+            if (re instanceof SubjectNotFoundException && allowNoUserLoggedIn) {
+              return null;
+            }
+            //this is probably a system error...  not a user error
+            GrouperUtil.injectInException(re, "Cant find subject from login id: " + userIdLoggedIn);
+            throw re;
+          }
+              
+          return subjectLoggedIn;
+        }
+      });
+    } catch (RuntimeException e) {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("exception", ExceptionUtils.getFullStackTrace(e));
+      }
+      throw e;
+    } finally {
+      if (LOG.isDebugEnabled()) {
+        debugMap.put("userIdLoggedIn", remoteUser(request));
+        LOG.debug(GrouperUtil.mapToString(debugMap));
+      }
+    }
 
   }
 
@@ -668,7 +700,17 @@ public class GrouperUiFilter implements Filter {
     
     Map<String, Object> debugLog = LOG.isDebugEnabled() ? new LinkedHashMap<String, Object>() : null;
     try {
-      String remoteUser = httpServletRequest.getRemoteUser();
+      String remoteUser = (String)httpServletRequest.getAttribute("grouperRemoteUser");
+      
+      if (LOG.isDebugEnabled()) {
+        debugLog.put("httpServletRequest.getAttribute('grouperRemoteUser')", remoteUser);
+      }
+
+      if (!StringUtils.isBlank(remoteUser)) {
+        return remoteUser;
+      }
+
+      remoteUser = httpServletRequest.getRemoteUser();
       
       if (LOG.isDebugEnabled()) {
         debugLog.put("httpServletRequest.getRemoteUser()", remoteUser);
@@ -707,105 +749,182 @@ public class GrouperUiFilter implements Filter {
           debugLog.put("session.getAttribute(authUser)", remoteUser);
         }
       }
-      
-      if (StringUtils.isBlank(remoteUser)) {
+
+      String uriContext = StringUtils.isBlank(httpServletRequest.getQueryString()) ?
+          httpServletRequest.getRequestURI() : (httpServletRequest.getRequestURI() + "?" + httpServletRequest.getQueryString());
+
+      String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi(uriContext);
+
+      if (!StringUtils.isBlank(externalSystemConfigIdForUi)) {
         
-        String externalSystemConfigIdForUi = GrouperOidc.externalSystemConfigIdForUi();
+        if (LOG.isDebugEnabled()) {
+          debugLog.put("externalSystemConfigIdForUi", externalSystemConfigIdForUi);
+        }
+        GrouperOidc grouperOidc = new GrouperOidc();
+        grouperOidc.assignExternalSystemConfigId(externalSystemConfigIdForUi);
+
+        GrouperAuthnResults grouperAuthnResults = (GrouperAuthnResults)httpServletRequest.getSession().getAttribute("grouperAuthnResults");
         
-        if (StringUtils.isNotBlank(externalSystemConfigIdForUi)) {
-          
-          String grouperUiUrl = GrouperConfig.getGrouperUiUrl(false);
-          String requestUrl = httpServletRequest.getRequestURL().toString();
-          
-          GrouperOidc grouperOidc = new GrouperOidc();
-          grouperOidc.assignExternalSystemConfigId(externalSystemConfigIdForUi);
-          
-          String responseType = grouperOidc.retrieveResponseType();
-          
-          String authorizationCodeReturnedFromOidc = httpServletRequest.getParameter(responseType);
-          
-          if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
-            // it means we need to redirect to OIDC
-            String loginUrl = grouperOidc.generateLoginUrl(httpServletRequest);
-            
-            // before redirecting, set session attributes 
-            
-            if (StringUtils.equals(httpServletRequest.getMethod(), "GET")) {
-              String requestUri = GrouperUtil.defaultString(httpServletRequest.getRequestURI());
-              String queryString = GrouperUtil.defaultString(httpServletRequest.getQueryString());
-              if (StringUtils.isBlank(queryString)) {
-                httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri);
-              } else {
-                httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri + "?"+ queryString);
+        if (grouperAuthnResults != null) {
+          GrouperAuthnResult grouperAuthnResult = grouperAuthnResults.getConfigIdToGrouperAuthnResult().get(externalSystemConfigIdForUi);
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("grouperAuthnResults.isAuthenticatedInTime", grouperAuthnResult != null && grouperAuthnResult.isAuthenticatedInTime());
+          }
+          if (grouperAuthnResult != null) {
+            if (grouperAuthnResult.isAuthenticatedInTime()) {
+              remoteUser = grouperAuthnResult.getRemoteUser();
+              if (LOG.isDebugEnabled()) {
+                debugLog.put("grouperAuthnResult.getRemoteUser()", remoteUser);
               }
             } else {
-              httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", grouperUiUrl);
+              if (!StringUtils.isBlank(remoteUser) && LOG.isDebugEnabled()) {
+                debugLog.put("remoteUserClearedNotAuthnInTime", true);
+              }
+              remoteUser = null;
             }
-           
-            try {
-              retrieveHttpServletResponse().sendRedirect(loginUrl);
-              throw new ControllerDone();
-            } catch (IOException e) {
-              throw new RuntimeException("could not redirect to oidc url "+loginUrl);
+          } else {
+            if (!StringUtils.isBlank(remoteUser) && LOG.isDebugEnabled()) {
+              debugLog.put("remoteUserClearedOtherAuthnResult", true);
             }
-            
+            remoteUser = null;
           }
           
-          // it means OIDC redirected back to grouper after successful auth
-          
-          
-          // let's validate the url first
-          String shouldBeUrl = GrouperUtil.stripLastSlashIfExists(grouperUiUrl) + "/grouperUi/app/UiV2Main.oidc";
-          
-          if (!StringUtils.equals(requestUrl, shouldBeUrl)) {
-            
-            if (!requestUrl.startsWith(GrouperUtil.stripLastSlashIfExists(grouperUiUrl))) {
+        }
 
-              throw new RuntimeException("requestUrl "+requestUrl + " is not valid.  Note your grouper.properties grouper.ui.url needs to be set correctly");
+        if (StringUtils.isBlank(remoteUser)) {
+          
+          if (LOG.isDebugEnabled()) {
+            debugLog.put("grouperOidc.remoteUserBlank", true);
+          }
+          
+          if (StringUtils.isNotBlank(externalSystemConfigIdForUi)) {
+            
+            String grouperUiUrl = GrouperConfig.getGrouperUiUrl(false);
+            String grouperUiUrlNoContext = GrouperUtil.stripLastSlashIfExists(grouperUiUrl);
+            if (StringUtils.countMatches(grouperUiUrlNoContext, "/") == 3) {
+              grouperUiUrlNoContext = StringUtils
+                  .substringBeforeLast(grouperUiUrlNoContext, "/");
+            }
+            String requestUrl = httpServletRequest.getRequestURL().toString();
+                        
+            String responseType = grouperOidc.retrieveResponseType();
+            
+            String authorizationCodeReturnedFromOidc = httpServletRequest.getParameter(responseType);
+            
+            if (LOG.isDebugEnabled()) {
+              debugLog.put("hasAuthorizationCodeReturnedFromOidc", StringUtils.isNotBlank(authorizationCodeReturnedFromOidc));
+            }
+            
+            if (StringUtils.isBlank(authorizationCodeReturnedFromOidc)) {
+              // it means we need to redirect to OIDC
+              String loginUrl = grouperOidc.generateLoginUrl(httpServletRequest);
+              
+              // before redirecting, set session attributes 
+              if (StringUtils.equals(httpServletRequest.getMethod(), "GET")) {
+                if (LOG.isDebugEnabled()) {
+                  debugLog.put("redirectingToOidc", true);
+                }
+                String requestUri = GrouperUtil.defaultString(httpServletRequest.getRequestURI());
+                String queryString = GrouperUtil.defaultString(httpServletRequest.getQueryString());
+                if (StringUtils.isBlank(queryString)) {
+                  httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri);
+                } else {
+                  httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", requestUri + "?"+ queryString);
+                }
+              } else {
+                if (LOG.isDebugEnabled()) {
+                  debugLog.put("redirectingToGrouperForOidcSinceNotGet", true);
+                }
+                httpServletRequest.getSession().setAttribute("oidcRedirectToGrouper", grouperUiUrl);
+              }
+             
+              try {
+                retrieveHttpServletResponse().sendRedirect(loginUrl);
+                throw new ControllerDone();
+              } catch (IOException e) {
+                throw new RuntimeException("could not redirect to oidc url "+loginUrl);
+              }
               
             }
-
-            throw new RuntimeException("requestUrl "+requestUrl + " is not valid.");
-
-          }
-          
-          grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
-          
-          if (httpServletRequest.getSession().getAttribute("oidcNonce") != null) {
-            grouperOidc.assignExpectedNonce((Nonce)httpServletRequest.getSession().getAttribute("oidcNonce"));
-            httpServletRequest.getSession().removeAttribute("oidcNonce");
-          }
-          
-          grouperOidc.retrieveAndParseTokens();
-
-          remoteUser = grouperOidc.findSubjectClaim();
-          
-          if (StringUtils.isBlank(remoteUser)) {
-            throw new RuntimeException("Cannot find " + grouperOidc.getGrouperOidcConfig().getSubjectIdType() + " from attribute '" 
-                + grouperOidc.getGrouperOidcConfig().getSubjectIdClaimName() + "' in  oidc claim attribute names: " 
-                + GrouperUtil.toStringForLog(GrouperUtil.nonNull(grouperOidc.getClaimSourceAttributes()).keySet()));
-          }
-          
-          remoteUser = StringUtils.trim(remoteUser);
-          
-          httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
-          httpServletRequest.getSession().setAttribute("authUser", remoteUser);
-          
-          String grouperUrl = (String)httpServletRequest.getSession().getAttribute("oidcRedirectToGrouper");
-          httpServletRequest.getSession().removeAttribute("oidcRedirectToGrouper");
-          try {
-            if (StringUtils.isBlank(grouperUrl)) {
-              grouperUrl = GrouperConfig.getGrouperUiUrl(false);
+            
+            // it means OIDC redirected back to grouper after successful auth
+            // let's validate the url first
+            String shouldBeUrl = grouperUiUrlNoContext + grouperOidc.getGrouperOidcConfig().getRedirectUriContext();
+            
+            if (!StringUtils.equals(requestUrl, shouldBeUrl)) {
+              
+              if (!requestUrl.startsWith(GrouperUtil.stripLastSlashIfExists(grouperUiUrl))) {
+  
+                throw new RuntimeException("requestUrl "+requestUrl + " is not valid.  Note your grouper.properties grouper.ui.url needs to be set correctly (should start with: '" + GrouperUtil.stripLastSlashIfExists(grouperUiUrl) + "')");
+                
+              }
+  
+              throw new RuntimeException("requestUrl "+requestUrl + " is not valid. Note your requestUrl should be: '" + shouldBeUrl + "'");
+  
             }
-            retrieveHttpServletResponse().sendRedirect(grouperUrl);
-          } catch (IOException e) {
-            throw new RuntimeException("could not redirect to grouper url "+grouperUrl);
+            
+            grouperOidc.assignAuthorizationCode(authorizationCodeReturnedFromOidc);
+            
+            if (httpServletRequest.getSession().getAttribute("oidcNonce") != null) {
+              grouperOidc.assignExpectedNonce((Nonce)httpServletRequest.getSession().getAttribute("oidcNonce"));
+              httpServletRequest.getSession().removeAttribute("oidcNonce");
+            }
+            
+            grouperOidc.retrieveAndParseTokens();
+  
+            remoteUser = grouperOidc.findSubjectClaim();
+            
+            if (LOG.isDebugEnabled()) {
+              debugLog.put("remoteUserFromOidcClaim", remoteUser);
+            }
+            
+            if (StringUtils.isBlank(remoteUser)) {
+              throw new RuntimeException("Cannot find " + grouperOidc.getGrouperOidcConfig().getSubjectIdType() + " from attribute '" 
+                  + grouperOidc.getGrouperOidcConfig().getSubjectIdClaimName() + "' in  oidc claim attribute names: " 
+                  + GrouperUtil.toStringForLog(GrouperUtil.nonNull(grouperOidc.getClaimSourceAttributes()).keySet()));
+            }
+            
+            remoteUser = StringUtils.trim(remoteUser);
+            
+            httpServletRequest.getSession().setAttribute("grouperLoginId", remoteUser);
+            httpServletRequest.getSession().setAttribute("authUser", remoteUser);
+            
+            grouperAuthnResults = (GrouperAuthnResults)httpServletRequest.getSession().getAttribute("grouperAuthnResults");
+            if (grouperAuthnResults == null) {
+              grouperAuthnResults = new GrouperAuthnResults();
+              httpServletRequest.getSession().setAttribute("grouperAuthnResults", grouperAuthnResults);
+            }
+  
+            GrouperAuthnResult grouperAuthnResult = new GrouperAuthnResult();
+            grouperAuthnResult.setRemoteUser(remoteUser);
+            grouperAuthnResult.setAuthenticated(true);
+            grouperAuthnResult.setConfigId(externalSystemConfigIdForUi);
+            grouperAuthnResult.setTimestamp(new Timestamp(System.currentTimeMillis()));
+            grouperAuthnResults.getConfigIdToGrouperAuthnResult().put(externalSystemConfigIdForUi, grouperAuthnResult);
+            
+            String grouperUrl = (String)httpServletRequest.getSession().getAttribute("oidcRedirectToGrouper");
+            httpServletRequest.getSession().removeAttribute("oidcRedirectToGrouper");
+            try {
+              if (StringUtils.isBlank(grouperUrl)) {
+                grouperUrl = GrouperConfig.getGrouperUiUrl(false); 
+                if (LOG.isDebugEnabled()) {
+                  debugLog.put("redirectingToMainGrouper", grouperUrl);
+                }
+              } else {
+                if (LOG.isDebugEnabled()) {
+                  debugLog.put("redirectingToGrouperWhereWas", grouperUrl);
+                }
+
+              }
+              retrieveHttpServletResponse().sendRedirect(grouperUrl);
+            } catch (IOException e) {
+              throw new RuntimeException("could not redirect to grouper url "+grouperUrl);
+            }
+            throw new ControllerDone();
+            
           }
-          throw new ControllerDone();
-          
         }
-        }
-        
+      }
         //only for testing
 //      String redirectAuthn = retrieveHttpServletRequest().getParameter("grouperRedirectAuthn");
 //      
@@ -826,9 +945,12 @@ public class GrouperUiFilter implements Filter {
       if (StringUtils.isBlank(remoteUser)) {
 //        String xRequestedWith = httpServletRequest.getHeader("x-requested-with");
         boolean isAjaxRequest = RequestContainer.retrieveFromRequest().isAjaxRequest();
-        
+
         if (isAjaxRequest) {
           try {
+            if (LOG.isDebugEnabled()) {
+              debugLog.put("sending401ToAjaxClient", true);
+            }
             retrieveHttpServletResponse().sendError(401, "Unauthorized");
           } catch (Exception e) {
             throw new RuntimeException("could not send 401 Unauthorized to client ");
@@ -845,6 +967,10 @@ public class GrouperUiFilter implements Filter {
         debugLog.put("remoteUser overall", remoteUser);
       }
 
+      if (!StringUtils.isBlank(remoteUser)) {
+        httpServletRequest.setAttribute("grouperRemoteUser", remoteUser);
+      }
+      
       return remoteUser;
     } finally {
       if (LOG.isDebugEnabled()) {
@@ -1132,7 +1258,8 @@ public class GrouperUiFilter implements Filter {
       
       if (uri.matches("^/[^/]+/grouper(Ui|External)/app/[^/]+$")
           && !uri.endsWith("/UiV2Main.index")
-          && !uri.endsWith("/UiV2Public.index")) {
+          && !uri.endsWith("/UiV2Public.index")
+          && !uri.endsWith("/UiV2Main.indexCustomUi")) {
         
         RequestContainer.retrieveFromRequest().setAjaxRequest(true);
       }
@@ -1271,6 +1398,7 @@ public class GrouperUiFilter implements Filter {
       boolean runGrouperUiWithBasicAuth = GrouperHibernateConfig.retrieveConfig().propertyValueBoolean("grouper.is.ui.basicAuthn", false);
       
       if (runGrouperUiWithBasicAuth) {
+        
         String authorizationHeader = httpServletRequest.getHeader("Authorization");
         
         boolean isValid = new Authentication().authenticate(authorizationHeader, GrouperPassword.Application.UI, servletRequest.getRemoteAddr());
