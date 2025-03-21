@@ -437,15 +437,17 @@ public class ConfigFormElement extends SimpleTagSupport {
       
       if (readOnly) {
         for (MultiKey multiKey: valuesAndLabels) {
-          
-          String key = GrouperUtil.stringValue(multiKey.getKey(0));
-          String optionValue = GrouperUtil.stringValue(multiKey.getKey(1));
-          
-          boolean selected = StringUtils.equals(key, value);
-          if (!selected) {
-            continue;
+
+          if (multiKey.size() <= 2) {
+            String key = GrouperUtil.stringValue(multiKey.getKey(0));
+            String optionValue = GrouperUtil.stringValue(multiKey.getKey(1));
+
+            boolean selected = StringUtils.equals(key, value);
+            if (!selected) {
+              continue;
+            }
+            field.append("<span style='margin-right: 10px;'>" + optionValue + "</span>");
           }
-          field.append("<span style='margin-right: 10px;'>"+optionValue+"</span>"); 
         }
       } else {
         field.append("<select data-gr-input-type='select' style='width:30em; "+ displayClass + "' id='config_"+configId+"_id' name='config_"+configId+"' ");
@@ -454,15 +456,19 @@ public class ConfigFormElement extends SimpleTagSupport {
         field.append(">");
         
         for (MultiKey multiKey: valuesAndLabels) {
-          
-          String key = GrouperUtil.stringValue(multiKey.getKey(0));
-          String optionValue = GrouperUtil.stringValue(multiKey.getKey(1));
-          
-          boolean selected = StringUtils.equals(key, value);
-          
-          field.append("<option value='"+GrouperUtil.escapeHtml(key, true)+"'" + (selected ? " selected='selected'" : "") + ">");
-          field.append(GrouperUtil.escapeHtml(optionValue, true));
-          field.append("</option>");
+
+          if (multiKey.size() > 2) {
+            field.append(GrouperUtil.stringValue(multiKey.getKey(2)));
+          } else {
+            String key = GrouperUtil.stringValue(multiKey.getKey(0));
+            String optionValue = GrouperUtil.stringValue(multiKey.getKey(1));
+
+            boolean selected = StringUtils.equals(key, value);
+
+            field.append("<option value='" + GrouperUtil.escapeHtml(key, true) + "'" + (selected ? " selected='selected'" : "") + ">");
+            field.append(GrouperUtil.escapeHtml(optionValue, true));
+            field.append("</option>");
+          }
         }
         
         field.append("</select>");
