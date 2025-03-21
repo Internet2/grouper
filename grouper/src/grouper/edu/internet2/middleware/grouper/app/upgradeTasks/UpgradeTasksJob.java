@@ -305,7 +305,8 @@ public class UpgradeTasksJob extends OtherJobBase {
         }
       }
     } catch (Exception e) {
-      LOG.info("cannot find completed upgraded tasks", e);
+      LOG.error("cannot find completed upgraded tasks", e);
+      throw new RuntimeException("cannot find completed upgraded tasks", e);
     }
     return result;
   }
