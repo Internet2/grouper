@@ -740,12 +740,20 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
         }
       }
       
-      if (pitMembershipsMemberInternalIds.size() != internalIdToMembershipSize.get(sqlCacheGroupInternalId) ||
-          sqlCacheMembershipsToInsert.size() > 0 ||
+      if (sqlCacheMembershipsToInsert.size() > 0 ||
           bindVarsSqlCacheMshipDeletes.size() > 0 ||
           bindVarsSqlCacheMshipUpdates.size() > 0) {
-        //bindVarsSqlCacheGroupMembershipSizeUpdate.add(GrouperUtil.toListObject(pitMembershipsMemberInternalIds.size(), sqlCacheGroupInternalId));
         sqlCacheGroupIdsForMembershipSizeUpdate.add(sqlCacheGroupInternalId);
+      } else if (pitMembershipsMemberInternalIds.size() != internalIdToMembershipSize.get(sqlCacheGroupInternalId)) {
+        if (internalIdToMembershipSize.get(sqlCacheGroupInternalId) < 0) {
+          sqlCacheGroupIdsForMembershipSizeUpdate.add(sqlCacheGroupInternalId);
+        } else {
+          // re-check since it's likely the counts just changed while this task was running
+          Long newMembershipSize = new GcDbAccess().sql("select membership_size from grouper_sql_cache_group gscg where gscg.internal_id = ?").addBindVar(sqlCacheGroupInternalId).select(Long.class);
+          if (newMembershipSize != null && pitMembershipsMemberInternalIds.size() != newMembershipSize) {
+            sqlCacheGroupIdsForMembershipSizeUpdate.add(sqlCacheGroupInternalId);
+          }
+        }
       }
     }
     
