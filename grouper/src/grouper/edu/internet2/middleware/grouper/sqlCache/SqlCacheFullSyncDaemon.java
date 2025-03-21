@@ -22,6 +22,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.pit.PITField;
+import edu.internet2.middleware.grouper.pit.PITMember;
 import edu.internet2.middleware.grouper.tableIndex.TableIndex;
 import edu.internet2.middleware.grouper.tableIndex.TableIndexType;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -37,7 +38,6 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
   private Map<String, Long> pitIdToFieldInternalId;
   private Map<Long, Field> fieldInternalIdToField;
   
-  private Map<Long, String> memberInternalIdToPITId = new HashMap<>();
   private Map<Long, String> groupInternalIdToPITId = new HashMap<>();
   private Map<Long, String> stemIdIndexToPITId = new HashMap<>();
   private Map<Long, String> attributeDefIdIndexToPITId = new HashMap<>();
@@ -94,7 +94,6 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     for (Object[] pitMemberData : pitMembersData) {
       String pitId = (String)pitMemberData[0];
       long sourceInternalId = GrouperUtil.longObjectValue(pitMemberData[1], false);
-      memberInternalIdToPITId.put(sourceInternalId, pitId);
       pitIdToMemberInternalId.put(pitId, sourceInternalId);
     }
     pitMembersData = null;
@@ -647,6 +646,14 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       
       Long fieldInternalId = pitIdToFieldInternalId.get(pitFieldId);
       Long memberInternalId = pitIdToMemberInternalId.get(pitMemberId);
+      if (memberInternalId == null) {
+        // maybe it's a new member, try finding it
+        PITMember pitMember = GrouperDAOFactory.getFactory().getPITMember().findById(pitMemberId, false);
+        if (pitMember != null) {
+          memberInternalId = pitMember.getSourceInternalId();
+          pitIdToMemberInternalId.put(pitMemberId, memberInternalId);
+        }
+      }
       
       Field field = fieldInternalIdToField.get(fieldInternalId);
       Long ownerInternalId = null;
