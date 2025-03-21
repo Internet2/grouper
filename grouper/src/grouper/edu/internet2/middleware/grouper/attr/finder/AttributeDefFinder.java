@@ -521,7 +521,7 @@ public class AttributeDefFinder {
           sql.append(" or ");
         }
         sql.append(" name = ? ");
-        gcDbAccess.addBindVar(attributeDefNamesToFindList.get(i));
+        gcDbAccess.addBindVar(batchOfAttributeDefNames.get(i));
       }
       
       List<Object[]> nameAndIdIndexes = gcDbAccess.sql(sql.toString()).selectList(Object[].class);

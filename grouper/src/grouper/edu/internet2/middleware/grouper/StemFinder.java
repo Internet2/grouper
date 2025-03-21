@@ -1250,7 +1250,7 @@ public class StemFinder {
           sql.append(" or ");
         }
         sql.append(" name = ? ");
-        gcDbAccess.addBindVar(stemNamesToFindList.get(i));
+        gcDbAccess.addBindVar(batchOfStemNames.get(i));
       }
       
       List<Object[]> nameAndIdIndexes = gcDbAccess.sql(sql.toString()).selectList(Object[].class);

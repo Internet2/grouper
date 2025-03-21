@@ -1634,7 +1634,7 @@ public class GroupFinder {
           sql.append(" or ");
         }
         sql.append(" name = ? ");
-        gcDbAccess.addBindVar(groupNamesToFindList.get(i));
+        gcDbAccess.addBindVar(batchOfGroupNames.get(i));
       }
       
       List<Object[]> nameAndInternalIds = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
