@@ -35,7 +35,7 @@ import junit.textui.TestRunner;
 public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
 
   public static void main(String[] args) {
-    TestRunner.run(new GrouperGithubProvisionerTest("testGithubFullSync"));
+    TestRunner.run(new GrouperGithubProvisionerTest("testGithubActiveAttributeFullSync"));
 
   }
   
@@ -134,6 +134,161 @@ public class GrouperGithubProvisionerTest extends GrouperProvisioningBaseTest {
       
       incrementalProvision();
       
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+    } finally {
+      
+    }
+  }
+  
+  public void testGithubActiveAttributeFullSync() {
+    if (!tomcatRunTests()) {
+      return;
+    }
+
+    GrouperSession grouperSession = GrouperSession.startRootSession();
+    
+    Stem stem = new StemSave(grouperSession).assignName("test").save();
+    Stem stem2 = new StemSave(grouperSession).assignName("test2").save();
+    
+    // mark some folders to provision
+    Group testGroup = new GroupSave(grouperSession).assignName("test:testGroup").save();
+    Group testGroup2 = new GroupSave(grouperSession).assignName("test2:testGroup2").save();
+    
+    Group usersToProvisionGroup = new GroupSave(grouperSession).assignName("test2:usersToProvisionGroup").save();
+    
+    testGroup.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    testGroup2.addMember(SubjectTestHelper.SUBJ0, false);
+    testGroup2.addMember(SubjectTestHelper.SUBJ1, false);
+    
+    usersToProvisionGroup.addMember(testGroup.toSubject());
+    
+    ScimProvisionerTestUtils.setupGithubExternalSystem(true);
+        
+    ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+        .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
+        .assignAcceptHeader("application/vnd.github.v3+json")
+        .assignBearerTokenExternalSystemConfigId("githubExternalSystem")
+        .assignSubjectLinkCache0("${subject.getAttributeValue('email')}")
+//        .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+        .assignGroupOfUsersToProvision(usersToProvisionGroup)
+        .assignScimType("Github")
+        .assignSelectAllEntities(true)
+        .assignGroupAttributeCount(0)
+        .assignUseActiveOnUser(true)
+        .assignEntityAttribute4name("emailValue")
+        .addExtraConfig("entityAttributeValueCache0nullChecksInScript", "true")
+        .addExtraConfig("entityAttributeValueCache0translationContinueCondition", "${subject != null}")
+        .addExtraConfig("deleteEntities", "false")
+        );
+
+    
+    GrouperStartup.startup();
+    
+    if (startTomcat) {
+      CommandLineExec commandLineExec = tomcatStart();
+    }
+    
+    try {
+      // this will create tables
+      List<GrouperScim2User> grouperScimUsers = GrouperScim2ApiCommands.retrieveScimUsers("githubExternalSystem", null);
+  
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_membership").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_group").executeSql();
+      new GcDbAccess().connectionName("grouper").sql("delete from mock_scim_user").executeSql();
+
+    //lets sync these over
+      assertEquals(new Integer(0), new GcDbAccess().connectionName("grouper").sql("select count(1) from mock_scim_group").select(int.class));
+      
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      
+      GrouperProvisioningOutput grouperProvisioningOutput = fullProvision();
+      GrouperUtil.sleep(2000);
+
+      assertTrue(1 <= grouperProvisioningOutput.getInsert());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+      
+      // mark subject1 as active false in target
+      new GcDbAccess().connectionName("grouper").sql("update mock_scim_user set active = 'F' where user_name = 'test.subject.1'").executeSql();
+      
+      grouperProvisioningOutput = fullProvision();
+      
+      GrouperUtil.sleep(2000);
+
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+      // provisioner modified the active status to T
+      assertEquals("T", new GcDbAccess().connectionName("grouper").sql("select active from mock_scim_user where user_name = 'test.subject.1'").select(String.class));
+      
+      //mark subject1 as non provisionable
+      testGroup2.deleteMember(SubjectTestHelper.SUBJ1);
+      
+      grouperProvisioningOutput = fullProvision();
+      
+      GrouperUtil.sleep(2000);
+
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+      // provisioner kept the active status to T even though we marked the subject as non-provisionable
+      assertEquals("T", new GcDbAccess().connectionName("grouper").sql("select active from mock_scim_user where user_name = 'test.subject.1'").select(String.class));
+      
+      //set the provisioner to delete entities
+      ScimProvisionerTestUtils.configureScimProvisioner(new ScimProvisionerTestConfigInput()
+          .assignConfigId("githubProvisioner").assignChangelogConsumerConfigId("githubScimProvTestCLC")
+          .assignAcceptHeader("application/vnd.github.v3+json")
+          .assignBearerTokenExternalSystemConfigId("githubExternalSystem")
+          .assignSubjectLinkCache0("${subject.getAttributeValue('email')}")
+          .assignEntityDeleteType("deleteEntitiesIfNotExistInGrouper")
+          .assignGroupOfUsersToProvision(usersToProvisionGroup)
+          .assignScimType("Github")
+          .assignSelectAllEntities(true)
+          .assignGroupAttributeCount(0)
+          .assignUseActiveOnUser(true)
+          .assignEntityAttribute4name("emailValue")
+          .addExtraConfig("entityAttributeValueCache0nullChecksInScript", "true")
+          .addExtraConfig("entityAttributeValueCache0translationContinueCondition", "${subject != null}")
+          );
+      
+      grouperProvisioningOutput = fullProvision();
+      
+      GrouperUtil.sleep(2000);
+
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+      // provisioner changed the active status to F because we set the provisioner to delete entities now
+      assertEquals("F", new GcDbAccess().connectionName("grouper").sql("select active from mock_scim_user where user_name = 'test.subject.1'").select(String.class));
+      
+      //mark subject1 as provisionable again
+      testGroup2.addMember(SubjectTestHelper.SUBJ1);
+      
+      grouperProvisioningOutput = fullProvision();
+      
+      GrouperUtil.sleep(2000);
+
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
+      assertEquals(2, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
+      assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());
+      
+      // provisioner changed the active status to T because we made the subject 1 as provisionable again
+      assertEquals("T", new GcDbAccess().connectionName("grouper").sql("select active from mock_scim_user where user_name = 'test.subject.1'").select(String.class));
+      
+      // now delete the group and sync again
+      testGroup.delete();
+      grouperProvisioningOutput = fullProvision();
+
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Group").list(GrouperScim2Group.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2User").list(GrouperScim2User.class).size());
       assertEquals(0, HibernateSession.byHqlStatic().createQuery("from GrouperScim2Membership").list(GrouperScim2Membership.class).size());

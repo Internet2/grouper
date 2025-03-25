@@ -274,12 +274,11 @@ public class ScimProvisionerTestUtils {
     }
     
     if (provisioningTestConfigInput.isUseActiveOnUser()) {
-      totalEntityAttributesSoFar++;
       int attributeIndex = totalEntityAttributesSoFar;
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".name", "active");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".translateExpressionType", "translationScript");
       configureProvisionerSuffix(provisioningTestConfigInput, "targetEntityAttribute."+attributeIndex+".translateExpression", "${provisioningEntityWrapper.isInGroup('test2:testGroup2')}");
-      
+      totalEntityAttributesSoFar++;
     }
     
     configureProvisionerSuffix(provisioningTestConfigInput, "numberOfEntityAttributes", "" + totalEntityAttributesSoFar);
