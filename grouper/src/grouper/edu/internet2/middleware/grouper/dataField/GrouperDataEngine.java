@@ -640,17 +640,6 @@ public class GrouperDataEngine {
     return queryConfigIdToTableMetadata;
   }
   
-  
-  private Set<String> recentMemberOfGroupNames = new HashSet<>();
-  
-  public Set<String> getRecentMemberOfGroupNames() {
-    return recentMemberOfGroupNames;
-  }
-  
-  public void setRecentMemberOfGroupNames(Set<String> recentMemberOfGroupNames) {
-    this.recentMemberOfGroupNames = recentMemberOfGroupNames;
-  }
-  
   public static String calculateHighestLevelAccess(GrouperPrivacyRealmConfig grouperPrivacyRealmConfig, Subject subject) {
     
     MultiKey multiKey = new MultiKey(grouperPrivacyRealmConfig.getConfigId(), subject.getId(), subject.getSourceId());
