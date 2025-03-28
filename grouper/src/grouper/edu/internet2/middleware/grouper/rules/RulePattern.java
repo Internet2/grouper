@@ -2094,8 +2094,8 @@ public enum RulePattern {
         ConfigItemMetadata configItemMetadata = new ConfigItemMetadata();
         configItemMetadata.setRequired(true);
         attribute.setConfigItemMetadata(configItemMetadata);
-        if (ruleDefinition != null && ruleDefinition.getIfCondition() != null) {
-          attribute.setValue(ruleDefinition.getIfCondition().getIfOwnerName());
+        if (ruleDefinition != null && ruleDefinition.getCheck() != null) {
+          attribute.setValue(ruleDefinition.getCheck().getCheckOwnerName());
         }
         elements.add(attribute);
       }
