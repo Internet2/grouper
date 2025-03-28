@@ -142,7 +142,7 @@ public class SqlCacheHistoryChangeLogConsumer extends EsbListenerBase {
       LOG.info("Added dependency for sqlCacheGroupInternalId=" + sqlCacheGroup.getInternalId());
       
       // sync the history
-      SqlCacheHistoryFullSyncDaemon.syncMembershipHistory(sqlCacheGroup, hib3GrouperLoaderLog);
+      SqlCacheHistoryFullSyncDaemon.syncMembershipHistory(sqlCacheGroup, hib3GrouperLoaderLog, null);
     } else if (!isAssigned && sqlCacheDependency != null) {
       // need to delete the dependency
       new GcDbAccess().sql("delete from grouper_sql_cache_dependency where internal_id = ?").addBindVar(sqlCacheDependency.getInternalId()).executeSql();

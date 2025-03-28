@@ -48,82 +48,91 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
   private Map<String, Long> pitIdToAttributeDefIdIndex = new HashMap<>();
   
   private OtherJobInput theOtherJobInput = null;
+  private Map<String, Object> debugMap = null;
 
   @Override
   public OtherJobOutput run(final OtherJobInput theOtherJobInput) {
     
     this.theOtherJobInput = theOtherJobInput;
-    
-    // cache some data
-    Set<Field> fields = FieldFinder.findAll();
-    Set<PITField> pitFields = GrouperDAOFactory.getFactory().getPITField().findBySourceIdsActive(fields.stream().map(Field::getId).toList());
-    fieldInternalIdToPITId = pitFields.stream()
-        .collect(Collectors.toMap(
-            PITField::getSourceInternalId,
-            PITField::getId
-        ));
-    fieldInternalIdToField = fields.stream()
-        .collect(Collectors.toMap(
-            Field::getInternalId,
-            field -> field
-        ));
-    
-    List<Object[]> pitMembersData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_members where active='T'").selectList(Object[].class);
-    for (Object[] pitMemberData : pitMembersData) {
-      String pitId = (String)pitMemberData[0];
-      long sourceInternalId = GrouperUtil.longObjectValue(pitMemberData[1], false);
-      memberInternalIdToPITId.put(sourceInternalId, pitId);
-      pitIdToMemberInternalId.put(pitId, sourceInternalId);
-    }
-    pitMembersData = null;
-    LOG.info("Done retrieving data from grouper_pit_members");
-    
-    List<Object[]> pitGroupsData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_groups where active='T'").selectList(Object[].class);
-    for (Object[] pitGroupData : pitGroupsData) {
-      String pitId = (String)pitGroupData[0];
-      long sourceInternalId = GrouperUtil.longObjectValue(pitGroupData[1], false);
-      groupInternalIdToPITId.put(sourceInternalId, pitId);
-      pitIdToGroupInternalId.put(pitId, sourceInternalId);
-    }
-    pitGroupsData = null;
-    LOG.info("Done retrieving data from grouper_pit_groups");
-    
-    List<Object[]> pitStemsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_stems where active='T'").selectList(Object[].class);
-    for (Object[] pitStemData : pitStemsData) {
-      String pitId = (String)pitStemData[0];
-      long sourceIdIndex = GrouperUtil.longObjectValue(pitStemData[1], false);
-      stemIdIndexToPITId.put(sourceIdIndex, pitId);
-      pitIdToStemIdIndex.put(pitId, sourceIdIndex);
-    }
-    pitStemsData = null;
-    LOG.info("Done retrieving data from grouper_pit_stems");
-    
-    List<Object[]> pitAttributeDefsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_attribute_def where active='T'").selectList(Object[].class);
-    for (Object[] pitAttributeDefData : pitAttributeDefsData) {
-      String pitId = (String)pitAttributeDefData[0];
-      long sourceIdIndex = GrouperUtil.longObjectValue(pitAttributeDefData[1], false);
-      attributeDefIdIndexToPITId.put(sourceIdIndex, pitId);
-      pitIdToAttributeDefIdIndex.put(pitId, sourceIdIndex);
-    }
-    pitAttributeDefsData = null;
-    LOG.info("Done retrieving data from grouper_pit_attribute_def");
-    
-    syncCacheDependency();
-    
-    deleteInvalidRows();
-    
-    syncMembershipHistory();
+    this.debugMap = new LinkedHashMap<String, Object>();
+
+    try {
+      // cache some data
+      Set<Field> fields = FieldFinder.findAll();
+      Set<PITField> pitFields = GrouperDAOFactory.getFactory().getPITField().findBySourceIdsActive(fields.stream().map(Field::getId).toList());
+      fieldInternalIdToPITId = pitFields.stream()
+          .collect(Collectors.toMap(
+              PITField::getSourceInternalId,
+              PITField::getId
+          ));
+      fieldInternalIdToField = fields.stream()
+          .collect(Collectors.toMap(
+              Field::getInternalId,
+              field -> field
+          ));
       
-    if (theOtherJobInput != null) {
-      theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage("Job completed successfully");
-      theOtherJobInput.getHib3GrouperLoaderLog().store();
+      List<Object[]> pitMembersData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_members where active='T'").selectList(Object[].class);
+      for (Object[] pitMemberData : pitMembersData) {
+        String pitId = (String)pitMemberData[0];
+        long sourceInternalId = GrouperUtil.longObjectValue(pitMemberData[1], false);
+        memberInternalIdToPITId.put(sourceInternalId, pitId);
+        pitIdToMemberInternalId.put(pitId, sourceInternalId);
+      }
+      pitMembersData = null;
+      LOG.info("Done retrieving data from grouper_pit_members");
+      
+      List<Object[]> pitGroupsData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_groups where active='T'").selectList(Object[].class);
+      for (Object[] pitGroupData : pitGroupsData) {
+        String pitId = (String)pitGroupData[0];
+        long sourceInternalId = GrouperUtil.longObjectValue(pitGroupData[1], false);
+        groupInternalIdToPITId.put(sourceInternalId, pitId);
+        pitIdToGroupInternalId.put(pitId, sourceInternalId);
+      }
+      pitGroupsData = null;
+      LOG.info("Done retrieving data from grouper_pit_groups");
+      
+      List<Object[]> pitStemsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_stems where active='T'").selectList(Object[].class);
+      for (Object[] pitStemData : pitStemsData) {
+        String pitId = (String)pitStemData[0];
+        long sourceIdIndex = GrouperUtil.longObjectValue(pitStemData[1], false);
+        stemIdIndexToPITId.put(sourceIdIndex, pitId);
+        pitIdToStemIdIndex.put(pitId, sourceIdIndex);
+      }
+      pitStemsData = null;
+      LOG.info("Done retrieving data from grouper_pit_stems");
+      
+      List<Object[]> pitAttributeDefsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_attribute_def where active='T'").selectList(Object[].class);
+      for (Object[] pitAttributeDefData : pitAttributeDefsData) {
+        String pitId = (String)pitAttributeDefData[0];
+        long sourceIdIndex = GrouperUtil.longObjectValue(pitAttributeDefData[1], false);
+        attributeDefIdIndexToPITId.put(sourceIdIndex, pitId);
+        pitIdToAttributeDefIdIndex.put(pitId, sourceIdIndex);
+      }
+      pitAttributeDefsData = null;
+      LOG.info("Done retrieving data from grouper_pit_attribute_def");
+      
+      syncCacheDependency();
+      
+      deleteInvalidRows();
+      
+      syncMembershipHistory();
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+      throw re;
+    } finally {
+      if (theOtherJobInput != null) {
+        theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
+        theOtherJobInput.getHib3GrouperLoaderLog().store();
+      }
     }
     
     return null;
   }
   
   private void syncMembershipHistory() {
-    List<Object[]> sqlCacheGroupsData = new GcDbAccess().sql("select gscg.internal_id, gscg.group_internal_id, gscg.field_internal_id from grouper_sql_cache_group gscg, grouper_sql_cache_dependency gscd, grouper_sql_cache_depend_type gscdt where gscg.internal_id=gscd.owner_internal_id and gscd.dep_type_internal_id=gscdt.internal_id and gscdt.dependency_category='mshipHistory'").selectList(Object[].class);
+    List<Object[]> sqlCacheGroupsData = new GcDbAccess().sql("select distinct gscg.internal_id, gscg.group_internal_id, gscg.field_internal_id from grouper_sql_cache_group gscg, grouper_sql_cache_dependency gscd, grouper_sql_cache_depend_type gscdt where gscg.internal_id=gscd.owner_internal_id and gscd.dep_type_internal_id=gscdt.internal_id and gscdt.dependency_category='mshipHistory'").selectList(Object[].class);
+    incrementCountInDebugMap(debugMap, "sqlCacheGroupsWithMembershipHistoryCount", sqlCacheGroupsData.size());
+
     for (Object[] sqlCacheGroupData : sqlCacheGroupsData) {
       long sqlCacheGroupInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[0], false);
       long ownerInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[1], false);
@@ -151,13 +160,13 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
         hib3GrouperLoaderLog = theOtherJobInput.getHib3GrouperLoaderLog();
       }
       
-      syncMembershipHistoryIndividual(sqlCacheGroupInternalId, ownerInternalId, pitOwnerId, field, pitFieldId, pitIdToMemberInternalId, hib3GrouperLoaderLog);
+      syncMembershipHistoryIndividual(sqlCacheGroupInternalId, ownerInternalId, pitOwnerId, field, pitFieldId, pitIdToMemberInternalId, hib3GrouperLoaderLog, debugMap);
       
       GrouperDaemonUtils.stopProcessingIfJobPaused();
     }
   }
   
-  public static void syncMembershipHistory(SqlCacheGroup sqlCacheGroup, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  public static void syncMembershipHistory(SqlCacheGroup sqlCacheGroup, Hib3GrouperLoaderLog hib3GrouperLoaderLog, Map<String, Object> currentDebugMap) {
     Field field = FieldFinder.findByInternalId(sqlCacheGroup.getFieldInternalId(), true);
     PITField pitField = GrouperDAOFactory.getFactory().getPITField().findBySourceIdActive(field.getId(), false);
     if (pitField == null) {
@@ -200,10 +209,10 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
       pitIdToMemberInternalId.put(pitId, sourceInternalId);
     }
     
-    SqlCacheHistoryFullSyncDaemon.syncMembershipHistoryIndividual(sqlCacheGroup.getInternalId(), sqlCacheGroup.getGroupInternalId(), pitOwnerId, field, pitField.getId(), pitIdToMemberInternalId, hib3GrouperLoaderLog);
+    SqlCacheHistoryFullSyncDaemon.syncMembershipHistoryIndividual(sqlCacheGroup.getInternalId(), sqlCacheGroup.getGroupInternalId(), pitOwnerId, field, pitField.getId(), pitIdToMemberInternalId, hib3GrouperLoaderLog, currentDebugMap);
   }
   
-  public static void syncMembershipHistoryIndividual(long sqlCacheGroupInternalId, long ownerInternalId, String pitOwnerId, Field field, String pitFieldId, Map<String, Long> pitIdToMemberInternalId, Hib3GrouperLoaderLog hib3GrouperLoaderLog) {
+  public static void syncMembershipHistoryIndividual(long sqlCacheGroupInternalId, long ownerInternalId, String pitOwnerId, Field field, String pitFieldId, Map<String, Long> pitIdToMemberInternalId, Hib3GrouperLoaderLog hib3GrouperLoaderLog, Map<String, Object> currentDebugMap) {
     // we exclude retrieving pit rows that ended more than 2 years ago, but that might mean that start times saved in the cache history table might not take into account these old memberships when there's overlap.  Assuming for now that it doesn't matter since it's out of range for what we care about, but if we do, then they would need to be pulled in and filtered out later.
     long twoYearsAgoMicros = (System.currentTimeMillis() - 2*365*24*60*60*1000L) * 1000L;
     
@@ -330,7 +339,13 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
     // now compare
     List<SqlCacheMembershipHst> sqlCacheMembershipHstsToInsert = new ArrayList<>();
     List<List<Object>> bindVarsSqlCacheMshipHstDeletes = new ArrayList<>();
-
+    
+    // memberships processed
+    if (hib3GrouperLoaderLog != null) {
+      hib3GrouperLoaderLog.addTotalCount(pitMembershipMultiKeys.size());
+    }
+    incrementCountInDebugMap(currentDebugMap, "sqlCacheMshipHstsTotalProcessedCount", pitMembershipMultiKeys.size());
+    
     for (MultiKey pitMembershipMultiKey : pitMembershipMultiKeys) {
       if (!cacheMembershipMultiKeys.contains(pitMembershipMultiKey)) {
         SqlCacheMembershipHst sqlCacheMembershipHst = new SqlCacheMembershipHst();
@@ -358,6 +373,7 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
       if (hib3GrouperLoaderLog != null) {
         hib3GrouperLoaderLog.addDeleteCount(bindVarsSqlCacheMshipHstDeletes.size());
       }
+      incrementCountInDebugMap(currentDebugMap, "sqlCacheMshipHstsDeletedCount", bindVarsSqlCacheMshipHstDeletes.size());
     }
     
     int numberOfInserts = SqlCacheMembershipHstDao.store(sqlCacheMembershipHstsToInsert, null, true, true, true);
@@ -365,6 +381,7 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
     if (hib3GrouperLoaderLog != null) {
       hib3GrouperLoaderLog.addInsertCount(numberOfInserts);
     }
+    incrementCountInDebugMap(currentDebugMap, "sqlCacheMshipHstsInsertedCount", numberOfInserts);
   }
   
   private void deleteInvalidRows() {
@@ -373,7 +390,8 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
     if (theOtherJobInput != null) {
       theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
     }
-    
+    incrementCountInDebugMap(debugMap, "sqlCacheMshipHstsDeletedCount", count);
+
     GrouperDaemonUtils.stopProcessingIfJobPaused();
       
     // delete invalid member ids
@@ -381,7 +399,8 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
     if (theOtherJobInput != null) {
       theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
     }
-    
+    incrementCountInDebugMap(debugMap, "sqlCacheMshipHstsDeletedCount", count);
+
     GrouperDaemonUtils.stopProcessingIfJobPaused();
   }
   
@@ -455,6 +474,7 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
     if (theOtherJobInput != null) {
       theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(bindVarsForDelete.size());
     }
+    incrementCountInDebugMap(debugMap, "sqlCacheDependenciesDeletedCount", bindVarsForDelete.size());
     
     if (sqlCacheDependenciesForInsert.size() > 0) {
       SqlCacheDependencyDao.store(sqlCacheDependenciesForInsert, null, true, true, true);
@@ -462,8 +482,20 @@ public class SqlCacheHistoryFullSyncDaemon extends OtherJobBase {
       if (theOtherJobInput != null) {
         theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(sqlCacheDependenciesForInsert.size());
       }
+      incrementCountInDebugMap(debugMap, "sqlCacheDependenciesInsertedCount", bindVarsForDelete.size());
     }
     
     GrouperDaemonUtils.stopProcessingIfJobPaused();
+  }
+  
+  private static void incrementCountInDebugMap(Map<String, Object> debugMap, String property, long count) {
+    if (debugMap != null) {
+      if (debugMap.containsKey(property)) {
+        long existingValue = (Long)debugMap.get(property);
+        debugMap.put(property, (existingValue + count));
+      } else {
+        debugMap.put(property, count);
+      }
+    }
   }
 }

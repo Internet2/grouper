@@ -8,6 +8,7 @@ import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Iterator;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -18,6 +19,7 @@ import org.quartz.DisallowConcurrentExecution;
 
 import edu.internet2.middleware.grouper.Field;
 import edu.internet2.middleware.grouper.FieldFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
@@ -48,426 +50,325 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
   private Map<String, Long> pitIdToAttributeDefIdIndex = new HashMap<>();
   
   private OtherJobInput theOtherJobInput = null;
+  private Map<String, Object> debugMap = null;
 
   @Override
   public OtherJobOutput run(final OtherJobInput theOtherJobInput) {
     
     this.theOtherJobInput = theOtherJobInput;
-    
-    // avoid when possible processing changes that are too recent if there's a backlog in change log temp
-    long recentTimeMillis = System.currentTimeMillis();
-    
-    Long changeLogTempMinCreatedOnMicros = new GcDbAccess().sql("select min(created_on) from grouper_change_log_entry_temp").select(Long.class);
-    if (changeLogTempMinCreatedOnMicros != null) {
-      long changeLogTempMinCreatedOnMillis = changeLogTempMinCreatedOnMicros / 1000L;
-      if (recentTimeMillis > changeLogTempMinCreatedOnMillis) {
-        recentTimeMillis = changeLogTempMinCreatedOnMillis;
-      }
-    }
-    
-    Timestamp lastSuccessRunTimestamp = new GcDbAccess().sql("select max(started_time) from grouper_loader_log where job_name='OTHER_JOB_sqlCacheFullSync' and status='SUCCESS'").select(Timestamp.class);
-    Long membershipSyncStartTimeMicros = lastSuccessRunTimestamp == null ? null : (lastSuccessRunTimestamp.getTime() * 1000L - 7200000000L);  // subtract a couple of hours to increase chances that we don't miss anything
-    LOG.info("membershipSyncStartTimeMicros=" + membershipSyncStartTimeMicros);
-    
-    int maxObjectFieldPairMembershipSyncBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.sqlCacheFullSync.maxObjectFieldPairMembershipSyncBatchSize", 1);
+    this.debugMap = new LinkedHashMap<String, Object>();
 
-    // cache some data
-    Set<Field> fields = FieldFinder.findAll();
-    Set<PITField> pitFields = GrouperDAOFactory.getFactory().getPITField().findBySourceIdsActive(fields.stream().map(Field::getId).toList());
-    fieldInternalIdToPITId = pitFields.stream()
-        .collect(Collectors.toMap(
-            PITField::getSourceInternalId,
-            PITField::getId
-        ));
-    pitIdToFieldInternalId = pitFields.stream()
-        .collect(Collectors.toMap(
-            PITField::getId,
-            PITField::getSourceInternalId
-        ));
-    fieldInternalIdToField = fields.stream()
-        .collect(Collectors.toMap(
-            Field::getInternalId,
-            field -> field
-        ));
-
-    List<Object[]> pitMembersData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_members where active='T'").selectList(Object[].class);
-    for (Object[] pitMemberData : pitMembersData) {
-      String pitId = (String)pitMemberData[0];
-      long sourceInternalId = GrouperUtil.longObjectValue(pitMemberData[1], false);
-      pitIdToMemberInternalId.put(pitId, sourceInternalId);
-    }
-    pitMembersData = null;
-    LOG.info("Done retrieving data from grouper_pit_members");
-    
-    List<Object[]> pitGroupsData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_groups where active='T'").selectList(Object[].class);
-    for (Object[] pitGroupData : pitGroupsData) {
-      String pitId = (String)pitGroupData[0];
-      long sourceInternalId = GrouperUtil.longObjectValue(pitGroupData[1], false);
-      groupInternalIdToPITId.put(sourceInternalId, pitId);
-      pitIdToGroupInternalId.put(pitId, sourceInternalId);
-    }
-    pitGroupsData = null;
-    LOG.info("Done retrieving data from grouper_pit_groups");
-    
-    List<Object[]> pitStemsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_stems where active='T'").selectList(Object[].class);
-    for (Object[] pitStemData : pitStemsData) {
-      String pitId = (String)pitStemData[0];
-      long sourceIdIndex = GrouperUtil.longObjectValue(pitStemData[1], false);
-      stemIdIndexToPITId.put(sourceIdIndex, pitId);
-      pitIdToStemIdIndex.put(pitId, sourceIdIndex);
-    }
-    pitStemsData = null;
-    LOG.info("Done retrieving data from grouper_pit_stems");
-    
-    List<Object[]> pitAttributeDefsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_attribute_def where active='T'").selectList(Object[].class);
-    for (Object[] pitAttributeDefData : pitAttributeDefsData) {
-      String pitId = (String)pitAttributeDefData[0];
-      long sourceIdIndex = GrouperUtil.longObjectValue(pitAttributeDefData[1], false);
-      attributeDefIdIndexToPITId.put(sourceIdIndex, pitId);
-      pitIdToAttributeDefIdIndex.put(pitId, sourceIdIndex);
-    }
-    pitAttributeDefsData = null;
-    LOG.info("Done retrieving data from grouper_pit_attribute_def");
-
-    
-    // STEP 1 - find rows in grouper_sql_cache_group that should be disabled
-    for (Field field : fields) {
-      String sql = null;
-      if (field.isGroupAccessField() || field.getName().equals("members")) {
-        sql = "select * from grouper_sql_cache_group gscg where gscg.field_internal_id = ? and gscg.disabled_on is null and gscg.enabled_on < ? and not exists (select 1 from grouper_pit_groups gpg where gscg.group_internal_id = gpg.source_internal_id and active='T')";
-      } else if (field.isStemListField()) {
-        sql = "select * from grouper_sql_cache_group gscg where gscg.field_internal_id = ? and gscg.disabled_on is null and gscg.enabled_on < ? and not exists (select 1 from grouper_pit_stems gps where gscg.group_internal_id = gps.source_id_index and active='T')";
-      } else if (field.isAttributeDefListField()) {
-        sql = "select * from grouper_sql_cache_group gscg where gscg.field_internal_id = ? and gscg.disabled_on is null and gscg.enabled_on < ? and not exists (select 1 from grouper_pit_attribute_def gpad where gscg.group_internal_id = gpad.source_id_index and active='T')";
-      }
+    try {
+      // avoid when possible processing changes that are too recent if there's a backlog in change log temp
+      long recentTimeMillis = System.currentTimeMillis();
       
-      if (sql != null) {
-        List<SqlCacheGroup> sqlCacheGroupsToUpdate = new GcDbAccess().sql(sql)
-          .addBindVar(field.getInternalId())
-          .addBindVar(new Date(recentTimeMillis))
-          .selectList(SqlCacheGroup.class);
-        for (SqlCacheGroup sqlCacheGroup : sqlCacheGroupsToUpdate) {
-          sqlCacheGroup.setDisabledOn(new Timestamp(System.currentTimeMillis()));
-          sqlCacheGroup.setMembershipSize(0);
-        }
-        
-        SqlCacheGroupDao.store(sqlCacheGroupsToUpdate);
-        if (theOtherJobInput != null) {
-          theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(sqlCacheGroupsToUpdate.size());
+      Long changeLogTempMinCreatedOnMicros = new GcDbAccess().sql("select min(created_on) from grouper_change_log_entry_temp").select(Long.class);
+      if (changeLogTempMinCreatedOnMicros != null) {
+        long changeLogTempMinCreatedOnMillis = changeLogTempMinCreatedOnMicros / 1000L;
+        if (recentTimeMillis > changeLogTempMinCreatedOnMillis) {
+          recentTimeMillis = changeLogTempMinCreatedOnMillis;
         }
       }
       
-      LOG.info("Done checking for rows in grouper_sql_cache_group that should be disabled for field=" + field.getName());
-    }
-    
-    // STEP 2 - find rows in grouper_sql_cache_group that should not be disabled
-    for (Field field : fields) {
-      String sql = null;
-      if (field.isGroupAccessField() || field.getName().equals("members")) {
-        sql = "select gscg.* from grouper_pit_groups gpg, grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ? and gscg.disabled_on is not null and gpg.active='T' and gpg.start_time < ? and gscg.enabled_on < ?";
-      } else if (field.isStemListField()) {
-        sql = "select gscg.* from grouper_pit_stems gps, grouper_sql_cache_group gscg where gscg.group_internal_id = gps.source_id_index and gscg.field_internal_id = ? and gscg.disabled_on is not null and gps.active='T' and gps.start_time < ? and gscg.enabled_on < ?";
-      } else if (field.isAttributeDefListField()) {
-        sql = "select gscg.* from grouper_pit_attribute_def gpad, grouper_sql_cache_group gscg where gscg.group_internal_id = gpad.source_id_index and gscg.field_internal_id = ? and gscg.disabled_on is not null and gpad.active='T' and gpad.start_time < ? and gscg.enabled_on < ?";
-      }
+      Timestamp lastSuccessRunTimestamp = new GcDbAccess().sql("select max(started_time) from grouper_loader_log where job_name='OTHER_JOB_sqlCacheFullSync' and status='SUCCESS'").select(Timestamp.class);
+      Long membershipSyncStartTimeMicros = lastSuccessRunTimestamp == null ? null : (lastSuccessRunTimestamp.getTime() * 1000L - 7200000000L);  // subtract a couple of hours to increase chances that we don't miss anything
+      LOG.info("membershipSyncStartTimeMicros=" + membershipSyncStartTimeMicros);
       
-      if (sql != null) {
-        List<SqlCacheGroup> sqlCacheGroupsToUpdate = new GcDbAccess().sql(sql)
-          .addBindVar(field.getInternalId())
-          .addBindVar(recentTimeMillis * 1000L)
-          .addBindVar(new Date(recentTimeMillis))
-          .selectList(SqlCacheGroup.class);
-        
-        for (SqlCacheGroup sqlCacheGroup : sqlCacheGroupsToUpdate) {
-          sqlCacheGroup.setDisabledOn(null);
+      int maxObjectFieldPairMembershipSyncBatchSize = GrouperLoaderConfig.retrieveConfig().propertyValueInt("otherJob.sqlCacheFullSync.maxObjectFieldPairMembershipSyncBatchSize", 1);
+  
+      // cache some data
+      Set<Field> fields = FieldFinder.findAll();
+      Set<PITField> pitFields = GrouperDAOFactory.getFactory().getPITField().findBySourceIdsActive(fields.stream().map(Field::getId).toList());
+      fieldInternalIdToPITId = pitFields.stream()
+          .collect(Collectors.toMap(
+              PITField::getSourceInternalId,
+              PITField::getId
+          ));
+      pitIdToFieldInternalId = pitFields.stream()
+          .collect(Collectors.toMap(
+              PITField::getId,
+              PITField::getSourceInternalId
+          ));
+      fieldInternalIdToField = fields.stream()
+          .collect(Collectors.toMap(
+              Field::getInternalId,
+              field -> field
+          ));
+  
+      List<Object[]> pitMembersData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_members where active='T'").selectList(Object[].class);
+      for (Object[] pitMemberData : pitMembersData) {
+        String pitId = (String)pitMemberData[0];
+        long sourceInternalId = GrouperUtil.longObjectValue(pitMemberData[1], false);
+        pitIdToMemberInternalId.put(pitId, sourceInternalId);
+      }
+      pitMembersData = null;
+      LOG.info("Done retrieving data from grouper_pit_members");
+      
+      List<Object[]> pitGroupsData = new GcDbAccess().sql("select id, source_internal_id from grouper_pit_groups where active='T'").selectList(Object[].class);
+      for (Object[] pitGroupData : pitGroupsData) {
+        String pitId = (String)pitGroupData[0];
+        long sourceInternalId = GrouperUtil.longObjectValue(pitGroupData[1], false);
+        groupInternalIdToPITId.put(sourceInternalId, pitId);
+        pitIdToGroupInternalId.put(pitId, sourceInternalId);
+      }
+      pitGroupsData = null;
+      LOG.info("Done retrieving data from grouper_pit_groups");
+      
+      List<Object[]> pitStemsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_stems where active='T'").selectList(Object[].class);
+      for (Object[] pitStemData : pitStemsData) {
+        String pitId = (String)pitStemData[0];
+        long sourceIdIndex = GrouperUtil.longObjectValue(pitStemData[1], false);
+        stemIdIndexToPITId.put(sourceIdIndex, pitId);
+        pitIdToStemIdIndex.put(pitId, sourceIdIndex);
+      }
+      pitStemsData = null;
+      LOG.info("Done retrieving data from grouper_pit_stems");
+      
+      List<Object[]> pitAttributeDefsData = new GcDbAccess().sql("select id, source_id_index from grouper_pit_attribute_def where active='T'").selectList(Object[].class);
+      for (Object[] pitAttributeDefData : pitAttributeDefsData) {
+        String pitId = (String)pitAttributeDefData[0];
+        long sourceIdIndex = GrouperUtil.longObjectValue(pitAttributeDefData[1], false);
+        attributeDefIdIndexToPITId.put(sourceIdIndex, pitId);
+        pitIdToAttributeDefIdIndex.put(pitId, sourceIdIndex);
+      }
+      pitAttributeDefsData = null;
+      LOG.info("Done retrieving data from grouper_pit_attribute_def");
+  
+      
+      // STEP 1 - find rows in grouper_sql_cache_group that should be disabled
+      for (Field field : fields) {
+        String sql = null;
+        if (field.isGroupAccessField() || field.getName().equals("members")) {
+          sql = "select * from grouper_sql_cache_group gscg where gscg.field_internal_id = ? and gscg.disabled_on is null and gscg.enabled_on < ? and not exists (select 1 from grouper_pit_groups gpg where gscg.group_internal_id = gpg.source_internal_id and active='T')";
+        } else if (field.isStemListField()) {
+          sql = "select * from grouper_sql_cache_group gscg where gscg.field_internal_id = ? and gscg.disabled_on is null and gscg.enabled_on < ? and not exists (select 1 from grouper_pit_stems gps where gscg.group_internal_id = gps.source_id_index and active='T')";
+        } else if (field.isAttributeDefListField()) {
+          sql = "select * from grouper_sql_cache_group gscg where gscg.field_internal_id = ? and gscg.disabled_on is null and gscg.enabled_on < ? and not exists (select 1 from grouper_pit_attribute_def gpad where gscg.group_internal_id = gpad.source_id_index and active='T')";
         }
         
-        SqlCacheGroupDao.store(sqlCacheGroupsToUpdate);
-        if (theOtherJobInput != null) {
-          theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(sqlCacheGroupsToUpdate.size());
-        }
-      }
-      
-      LOG.info("Done checking for rows in grouper_sql_cache_group that should not be disabled for field=" + field.getName());
-    }
-    
-    // STEP 3 - find rows in grouper_sql_cache_group that need to be added
-    //        - need to account for entities having limited access fields
-    for (Field field : fields) {
-      String sql = null;
-      if (field.isEntityListField()) {
-        sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg where gpg.active='T' and gpg.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
-      } else if (field.isGroupAccessField() || field.getName().equals("members")) {
-        // make sure not an entity
-        sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg, grouper_groups gg where gpg.source_id=gg.id and gg.type_of_group != 'entity' and gpg.active='T' and gpg.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
-      } else if (field.isStemListField()) {
-        sql = "select gps.source_id_index, gps.start_time from grouper_pit_stems gps where gps.active='T' and gps.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gps.source_id_index and gscg.field_internal_id = ?)";
-      } else if (field.isAttributeDefListField()) {
-        sql = "select gpad.source_id_index, gpad.start_time from grouper_pit_attribute_def gpad where gpad.active='T' and gpad.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpad.source_id_index and gscg.field_internal_id = ?)";
-      }
-      
-      if (sql != null) {
-        List<Object[]> ownerInternalIdOrIdIndexAndStartTimeList = new GcDbAccess().sql(sql)
-          .addBindVar(recentTimeMillis * 1000L)
-          .addBindVar(field.getInternalId())
-          .selectList(Object[].class);
-        
-        List<SqlCacheGroup> sqlCacheGroupsToInsert = new ArrayList<>();
-        
-        for (Object[] ownerInternalIdOrIdIndexAndStartTime : ownerInternalIdOrIdIndexAndStartTimeList) {
-          long ownerInternalIdOrIdIndex = GrouperUtil.longObjectValue(ownerInternalIdOrIdIndexAndStartTime[0], false);
-          long startTimeMicros = GrouperUtil.longObjectValue(ownerInternalIdOrIdIndexAndStartTime[1], false);
-
-          SqlCacheGroup sqlCacheGroup = new SqlCacheGroup();
-          sqlCacheGroup.setGroupInternalId(ownerInternalIdOrIdIndex);
-          sqlCacheGroup.setFieldInternalId(field.getInternalId());
-          sqlCacheGroup.setEnabledOn(new Timestamp(startTimeMicros / 1000L));
-          sqlCacheGroupsToInsert.add(sqlCacheGroup);
-        }
-        
-        if (sqlCacheGroupsToInsert.size() > 0) {
-          List<Long> ids = TableIndex.reserveIds(TableIndexType.sqlGroupCache, sqlCacheGroupsToInsert.size());
-          for (int i = 0; i < sqlCacheGroupsToInsert.size(); i++) {
-            SqlCacheGroup sqlCacheGroup = sqlCacheGroupsToInsert.get(i);
-            sqlCacheGroup.setTempInternalIdOnDeck(ids.get(i));
+        if (sql != null) {
+          List<SqlCacheGroup> sqlCacheGroupsToUpdate = new GcDbAccess().sql(sql)
+            .addBindVar(field.getInternalId())
+            .addBindVar(new Date(recentTimeMillis))
+            .selectList(SqlCacheGroup.class);
+          for (SqlCacheGroup sqlCacheGroup : sqlCacheGroupsToUpdate) {
+            sqlCacheGroup.setDisabledOn(new Timestamp(System.currentTimeMillis()));
+            sqlCacheGroup.setMembershipSize(0);
           }
           
-          int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
-          int numberOfBatches = GrouperUtil.batchNumberOfBatches(sqlCacheGroupsToInsert.size(), batchSize, true);
-          for (int i = 0; i < numberOfBatches; i++) {
-            List<SqlCacheGroup> sqlCacheGroupsToInsertBatch = GrouperUtil.batchList(sqlCacheGroupsToInsert, batchSize, i);
-            SqlCacheGroupDao.store(sqlCacheGroupsToInsertBatch);
-            if (theOtherJobInput != null) {
-              theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(sqlCacheGroupsToInsertBatch.size());
+          SqlCacheGroupDao.store(sqlCacheGroupsToUpdate);
+          if (theOtherJobInput != null) {
+            theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(sqlCacheGroupsToUpdate.size());
+          }
+          incrementCountInDebugMap("sqlCacheGroupsDisabledCount", sqlCacheGroupsToUpdate.size());
+        }
+        
+        LOG.info("Done checking for rows in grouper_sql_cache_group that should be disabled for field=" + field.getName());
+        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+      }
+      
+      // STEP 2 - find rows in grouper_sql_cache_group that should not be disabled
+      for (Field field : fields) {
+        String sql = null;
+        if (field.isGroupAccessField() || field.getName().equals("members")) {
+          sql = "select gscg.* from grouper_pit_groups gpg, grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ? and gscg.disabled_on is not null and gpg.active='T' and gpg.start_time < ? and gscg.enabled_on < ?";
+        } else if (field.isStemListField()) {
+          sql = "select gscg.* from grouper_pit_stems gps, grouper_sql_cache_group gscg where gscg.group_internal_id = gps.source_id_index and gscg.field_internal_id = ? and gscg.disabled_on is not null and gps.active='T' and gps.start_time < ? and gscg.enabled_on < ?";
+        } else if (field.isAttributeDefListField()) {
+          sql = "select gscg.* from grouper_pit_attribute_def gpad, grouper_sql_cache_group gscg where gscg.group_internal_id = gpad.source_id_index and gscg.field_internal_id = ? and gscg.disabled_on is not null and gpad.active='T' and gpad.start_time < ? and gscg.enabled_on < ?";
+        }
+        
+        if (sql != null) {
+          List<SqlCacheGroup> sqlCacheGroupsToUpdate = new GcDbAccess().sql(sql)
+            .addBindVar(field.getInternalId())
+            .addBindVar(recentTimeMillis * 1000L)
+            .addBindVar(new Date(recentTimeMillis))
+            .selectList(SqlCacheGroup.class);
+          
+          for (SqlCacheGroup sqlCacheGroup : sqlCacheGroupsToUpdate) {
+            sqlCacheGroup.setDisabledOn(null);
+          }
+          
+          SqlCacheGroupDao.store(sqlCacheGroupsToUpdate);
+          if (theOtherJobInput != null) {
+            theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(sqlCacheGroupsToUpdate.size());
+          }
+          incrementCountInDebugMap("sqlCacheGroupsEnabledCount", sqlCacheGroupsToUpdate.size());
+        }
+        
+        LOG.info("Done checking for rows in grouper_sql_cache_group that should not be disabled for field=" + field.getName());
+        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+      }
+      
+      // STEP 3 - find rows in grouper_sql_cache_group that need to be added
+      //        - need to account for entities having limited access fields
+      for (Field field : fields) {
+        String sql = null;
+        if (field.isEntityListField()) {
+          sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg where gpg.active='T' and gpg.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
+        } else if (field.isGroupAccessField() || field.getName().equals("members")) {
+          // make sure not an entity
+          sql = "select gpg.source_internal_id, gpg.start_time from grouper_pit_groups gpg, grouper_groups gg where gpg.source_id=gg.id and gg.type_of_group != 'entity' and gpg.active='T' and gpg.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpg.source_internal_id and gscg.field_internal_id = ?)";
+        } else if (field.isStemListField()) {
+          sql = "select gps.source_id_index, gps.start_time from grouper_pit_stems gps where gps.active='T' and gps.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gps.source_id_index and gscg.field_internal_id = ?)";
+        } else if (field.isAttributeDefListField()) {
+          sql = "select gpad.source_id_index, gpad.start_time from grouper_pit_attribute_def gpad where gpad.active='T' and gpad.start_time < ? and not exists (select 1 from grouper_sql_cache_group gscg where gscg.group_internal_id = gpad.source_id_index and gscg.field_internal_id = ?)";
+        }
+        
+        if (sql != null) {
+          List<Object[]> ownerInternalIdOrIdIndexAndStartTimeList = new GcDbAccess().sql(sql)
+            .addBindVar(recentTimeMillis * 1000L)
+            .addBindVar(field.getInternalId())
+            .selectList(Object[].class);
+          
+          List<SqlCacheGroup> sqlCacheGroupsToInsert = new ArrayList<>();
+          
+          for (Object[] ownerInternalIdOrIdIndexAndStartTime : ownerInternalIdOrIdIndexAndStartTimeList) {
+            long ownerInternalIdOrIdIndex = GrouperUtil.longObjectValue(ownerInternalIdOrIdIndexAndStartTime[0], false);
+            long startTimeMicros = GrouperUtil.longObjectValue(ownerInternalIdOrIdIndexAndStartTime[1], false);
+  
+            SqlCacheGroup sqlCacheGroup = new SqlCacheGroup();
+            sqlCacheGroup.setGroupInternalId(ownerInternalIdOrIdIndex);
+            sqlCacheGroup.setFieldInternalId(field.getInternalId());
+            sqlCacheGroup.setEnabledOn(new Timestamp(startTimeMicros / 1000L));
+            sqlCacheGroupsToInsert.add(sqlCacheGroup);
+          }
+          
+          if (sqlCacheGroupsToInsert.size() > 0) {
+            List<Long> ids = TableIndex.reserveIds(TableIndexType.sqlGroupCache, sqlCacheGroupsToInsert.size());
+            for (int i = 0; i < sqlCacheGroupsToInsert.size(); i++) {
+              SqlCacheGroup sqlCacheGroup = sqlCacheGroupsToInsert.get(i);
+              sqlCacheGroup.setTempInternalIdOnDeck(ids.get(i));
+            }
+            
+            int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+            int numberOfBatches = GrouperUtil.batchNumberOfBatches(sqlCacheGroupsToInsert.size(), batchSize, true);
+            for (int i = 0; i < numberOfBatches; i++) {
+              List<SqlCacheGroup> sqlCacheGroupsToInsertBatch = GrouperUtil.batchList(sqlCacheGroupsToInsert, batchSize, i);
+              SqlCacheGroupDao.store(sqlCacheGroupsToInsertBatch);
+              if (theOtherJobInput != null) {
+                theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(sqlCacheGroupsToInsertBatch.size());
+              }
+              incrementCountInDebugMap("sqlCacheGroupsInsertedCount", sqlCacheGroupsToInsertBatch.size());
             }
           }
         }
+        
+        LOG.info("Done checking for rows in grouper_sql_cache_group that need to be added for field=" + field.getName());
+        
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
       }
       
-      LOG.info("Done checking for rows in grouper_sql_cache_group that need to be added for field=" + field.getName());
-    }
-    
-    // STEP 4 - fix membership size for disabled groups
-    {
-      int count = new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '0' where membership_size != '0' and disabled_on is not null").executeSql();
-      if (theOtherJobInput != null) {
-        theOtherJobInput.getHib3GrouperLoaderLog().addUpdateCount(count);
-      }
-      
-      LOG.info("Done fixing membership size for disabled groups");
-    }
-    
-    // STEP 5 - delete from grouper_sql_cache_mship where rows have invalid references
-    {
-      int count = new GcDbAccess().sql("delete from grouper_sql_cache_mship gscm where not exists (select 1 from grouper_sql_cache_group gscg where gscg.internal_id = gscm.sql_cache_group_internal_id and gscg.disabled_on is null)").executeSql();
-      if (theOtherJobInput != null) {
-        theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
-      }
-      
-      count = new GcDbAccess().sql("delete from grouper_sql_cache_mship gscm where not exists (select 1 from grouper_pit_members gpm where gpm.source_internal_id = gscm.member_internal_id and gpm.active = 'T')").executeSql();
-      if (theOtherJobInput != null) {
-        theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
-      }
-      
-      LOG.info("Done deleting from grouper_sql_cache_mship where rows have invalid references");
-    }
-    
-    // STEP 6 - fix grouper_sql_cache_mship and counts in grouper_sql_cache_group
-    {
-      Set<MultiKey> pitOwnerFieldRecentMembershipChanges = null;
-      if (membershipSyncStartTimeMicros != null) {
-        String pitOwnerFieldRecentMembershipChangesBaseSql = "select distinct gpgs1.owner_id, gpgs1.field_id from grouper_pit_group_set gpgs1, grouper_pit_memberships gpm1 where gpm1.owner_id = gpgs1.member_id and gpm1.field_id = gpgs1.member_field_id and ";
-        List<Object[]> pitOwnerFieldRecentMembershipChangesTemp = new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpm1.end_time is not null and gpm1.end_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class);
-        pitOwnerFieldRecentMembershipChangesTemp.addAll(new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpgs1.end_time is not null and gpgs1.end_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class));
-        pitOwnerFieldRecentMembershipChangesTemp.addAll(new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpm1.start_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class));
-        pitOwnerFieldRecentMembershipChangesTemp.addAll(new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpgs1.start_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class));
-      
-        pitOwnerFieldRecentMembershipChanges = new HashSet<MultiKey>();
-        for (Object[] pitOwnerFieldRecentMembershipChange : pitOwnerFieldRecentMembershipChangesTemp) {
-          Long fieldInternalId = pitIdToFieldInternalId.get(pitOwnerFieldRecentMembershipChange[1]);
-          Long ownerInternalId = null;
-          
-          Field field = fieldInternalIdToField.get(fieldInternalId);
-          if (field.isGroupAccessField() || field.getName().equals("members")) {
-            ownerInternalId = pitIdToGroupInternalId.get(pitOwnerFieldRecentMembershipChange[0]);
-          } else if (field.isStemListField()) {
-            ownerInternalId = pitIdToStemIdIndex.get(pitOwnerFieldRecentMembershipChange[0]);
-          } else if (field.isAttributeDefListField()) {
-            ownerInternalId = pitIdToAttributeDefIdIndex.get(pitOwnerFieldRecentMembershipChange[0]);
-          } else {
-            continue;
-          }
-          
-          if (fieldInternalId != null && ownerInternalId != null) {
-            pitOwnerFieldRecentMembershipChanges.add(new MultiKey(ownerInternalId, fieldInternalId));
-          }
-        }
-        
-        LOG.info("pitOwnerFieldRecentMembershipChanges.size=" + pitOwnerFieldRecentMembershipChanges.size());
-      }
-      
-      List<Object[]> sqlCacheGroupsData = new GcDbAccess().sql("select internal_id, group_internal_id, field_internal_id, membership_size, last_membership_sync from grouper_sql_cache_group where disabled_on is null").selectList(Object[].class);
-      LOG.info("sqlCacheGroupsData.size=" + sqlCacheGroupsData.size());
-      
-      // sort by membership size desc but prioritze if not been sync'ed
-      sqlCacheGroupsData.sort((o1, o2) -> {
-        long s1 = ((Number) o1[3]).longValue();
-        long s2 = ((Number) o2[3]).longValue();
-
-        if (s1 == -1 && s2 != -1) {
-          return -1;
-        } else if (s2 == -1 && s1 != -1) {
-          return 1;
-        } else {
-          return Long.compare(s2, s1);
-        }
-      });
-      
-      
-      List<Object[]> sqlCacheGroupDataBatch = new ArrayList<>();
-      Map<Long, Timestamp> lastMembershipSyncUpdates = new HashMap<>();
-      
-      long batchMembershipSize = 0;      
-      int count = 0;
-      int countWithoutSkips = 0;
-      
-      // now go through with the comparison and updates
-      Iterator<Object[]> sqlCacheGroupsDataIterator = sqlCacheGroupsData.iterator();
-      while (sqlCacheGroupsDataIterator.hasNext()) {
-        count++;
-        
-        Object[] sqlCacheGroupData = sqlCacheGroupsDataIterator.next();
-        long internalId = GrouperUtil.longObjectValue(sqlCacheGroupData[0], false);
-        long ownerInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[1], false);
-        long fieldInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[2], false);
-        long membershipSize = GrouperUtil.longObjectValue(sqlCacheGroupData[3], false);
-        Timestamp lastMembershipSync = GrouperUtil.timestampObjectValue(sqlCacheGroupData[4], true);
-        
-        // skip unless the object/field has never been sync'ed or there's not a last success time for this job or there's been changes to the object/field since the last success
-        if (lastMembershipSync != null && membershipSyncStartTimeMicros != null) {
-          if (!pitOwnerFieldRecentMembershipChanges.contains(new MultiKey(ownerInternalId, fieldInternalId))) {
-            continue;
-          }
-        }
-        
-        Field field = fieldInternalIdToField.get(fieldInternalId);
-        if (field.isGroupAccessField() || field.getName().equals("members")) {
-          if (!groupInternalIdToPITId.containsKey(ownerInternalId)) {
-            continue;
-          }
-        } else if (field.isStemListField()) {
-          if (!stemIdIndexToPITId.containsKey(ownerInternalId)) {
-            continue;
-          }
-        } else if (field.isAttributeDefListField()) {
-          if (!attributeDefIdIndexToPITId.containsKey(ownerInternalId)) {
-            continue;
-          }
-        } else {
-          continue;
-        }
-        
-        countWithoutSkips++;
-        
-        if (countWithoutSkips % 100000 == 0) {
-          if (theOtherJobInput != null) {
-            theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage("Working on membership sync " + count + " of " + sqlCacheGroupsData.size());
-            theOtherJobInput.getHib3GrouperLoaderLog().store();
-          }
-        }
-
-        Object[] sqlCacheGroupDataModified = new Object[] { internalId, ownerInternalId, fieldInternalId, membershipSize };
-        sqlCacheGroupDataBatch.add(sqlCacheGroupDataModified);
-        
-        if (membershipSize > 0) {
-          batchMembershipSize += membershipSize;
-        }
-        
-        if (membershipSize == -1 || batchMembershipSize >= 10000 || sqlCacheGroupDataBatch.size() >= maxObjectFieldPairMembershipSyncBatchSize) {
-          Timestamp syncTimestamp = new Timestamp(System.currentTimeMillis());
-          processBatch(sqlCacheGroupDataBatch);
-          
-          for (Object[] sqlCacheGroupDataProcessed : sqlCacheGroupDataBatch) {
-            lastMembershipSyncUpdates.put((long)sqlCacheGroupDataProcessed[0], syncTimestamp);
-          }
-          
-          sqlCacheGroupDataBatch.clear();
-          batchMembershipSize = 0;
-          if (LOG.isDebugEnabled()) {
-            LOG.debug("Processed " + count);
-          }
-        }
-        
-        if (lastMembershipSyncUpdates.size() >= 500) {
-          List<List<Object>> batchBindVars = new ArrayList<>();
-          for (Long internalIdToUpdate : lastMembershipSyncUpdates.keySet()) {
-            Timestamp syncTimestamp = lastMembershipSyncUpdates.get(internalIdToUpdate);
-            batchBindVars.add(GrouperUtil.toListObject(syncTimestamp, internalIdToUpdate));
-          }
-
-          new GcDbAccess().sql("update grouper_sql_cache_group set last_membership_sync = ? where internal_id = ?").batchBindVars(batchBindVars).executeBatchSql();
-          
-          lastMembershipSyncUpdates.clear();
-        }
-      }
-      
-      if (sqlCacheGroupDataBatch.size() > 0) {
-        Timestamp syncTimestamp = new Timestamp(System.currentTimeMillis());
-        processBatch(sqlCacheGroupDataBatch);
-        
-        for (Object[] sqlCacheGroupDataProcessed : sqlCacheGroupDataBatch) {
-          lastMembershipSyncUpdates.put((long)sqlCacheGroupDataProcessed[0], syncTimestamp);
-        }
-      }
-      
-      if (lastMembershipSyncUpdates.size() > 0) {
-        List<List<Object>> batchBindVars = new ArrayList<>();
-        for (Long internalIdToUpdate : lastMembershipSyncUpdates.keySet()) {
-          Timestamp syncTimestamp = lastMembershipSyncUpdates.get(internalIdToUpdate);
-          batchBindVars.add(GrouperUtil.toListObject(syncTimestamp, internalIdToUpdate));
-        }
-
-        new GcDbAccess().sql("update grouper_sql_cache_group set last_membership_sync = ? where internal_id = ?").batchBindVars(batchBindVars).executeBatchSql();        
-      }
-      
-      // process more object/field pairs based on when it was last sync'ed for about an hour max
-      if (membershipSyncStartTimeMicros != null) {
-        // stop after one hour
-        long timeToStopMillis = System.currentTimeMillis() + 60*60*1000L;
-        
+      // STEP 4 - fix membership size for disabled groups
+      {
+        int count = new GcDbAccess().sql("update grouper_sql_cache_group set membership_size = '0' where membership_size != '0' and disabled_on is not null").executeSql();
         if (theOtherJobInput != null) {
-          theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage("Sync'ing other object/field pairs until: " + timeToStopMillis);
-          theOtherJobInput.getHib3GrouperLoaderLog().store();
+          theOtherJobInput.getHib3GrouperLoaderLog().addUpdateCount(count);
+        }
+        incrementCountInDebugMap("sqlCacheGroupsUpdatedMembershipSizeCount", count);
+        
+        LOG.info("Done fixing membership size for disabled groups");
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+      }
+      
+      // STEP 5 - delete from grouper_sql_cache_mship where rows have invalid references
+      {
+        int count = new GcDbAccess().sql("delete from grouper_sql_cache_mship gscm where not exists (select 1 from grouper_sql_cache_group gscg where gscg.internal_id = gscm.sql_cache_group_internal_id and gscg.disabled_on is null)").executeSql();
+        if (theOtherJobInput != null) {
+          theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
+        }
+        incrementCountInDebugMap("sqlCacheMshipsDeletedCount", count);
+        
+        count = new GcDbAccess().sql("delete from grouper_sql_cache_mship gscm where not exists (select 1 from grouper_pit_members gpm where gpm.source_internal_id = gscm.member_internal_id and gpm.active = 'T')").executeSql();
+        if (theOtherJobInput != null) {
+          theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(count);
+        }
+        incrementCountInDebugMap("sqlCacheMshipsDeletedCount", count);
+        
+        LOG.info("Done deleting from grouper_sql_cache_mship where rows have invalid references");
+        GrouperDaemonUtils.stopProcessingIfJobPaused();
+      }
+      
+      // STEP 6 - fix grouper_sql_cache_mship and counts in grouper_sql_cache_group
+      {
+        Set<MultiKey> pitOwnerFieldRecentMembershipChanges = null;
+        if (membershipSyncStartTimeMicros != null) {
+          String pitOwnerFieldRecentMembershipChangesBaseSql = "select distinct gpgs1.owner_id, gpgs1.field_id from grouper_pit_group_set gpgs1, grouper_pit_memberships gpm1 where gpm1.owner_id = gpgs1.member_id and gpm1.field_id = gpgs1.member_field_id and ";
+          List<Object[]> pitOwnerFieldRecentMembershipChangesTemp = new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpm1.end_time is not null and gpm1.end_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class);
+          pitOwnerFieldRecentMembershipChangesTemp.addAll(new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpgs1.end_time is not null and gpgs1.end_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class));
+          pitOwnerFieldRecentMembershipChangesTemp.addAll(new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpm1.start_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class));
+          pitOwnerFieldRecentMembershipChangesTemp.addAll(new GcDbAccess().sql(pitOwnerFieldRecentMembershipChangesBaseSql + " gpgs1.start_time > ?").addBindVar(membershipSyncStartTimeMicros).selectList(Object[].class));
+        
+          pitOwnerFieldRecentMembershipChanges = new HashSet<MultiKey>();
+          for (Object[] pitOwnerFieldRecentMembershipChange : pitOwnerFieldRecentMembershipChangesTemp) {
+            Long fieldInternalId = pitIdToFieldInternalId.get(pitOwnerFieldRecentMembershipChange[1]);
+            Long ownerInternalId = null;
+            
+            Field field = fieldInternalIdToField.get(fieldInternalId);
+            if (field.isGroupAccessField() || field.getName().equals("members")) {
+              ownerInternalId = pitIdToGroupInternalId.get(pitOwnerFieldRecentMembershipChange[0]);
+            } else if (field.isStemListField()) {
+              ownerInternalId = pitIdToStemIdIndex.get(pitOwnerFieldRecentMembershipChange[0]);
+            } else if (field.isAttributeDefListField()) {
+              ownerInternalId = pitIdToAttributeDefIdIndex.get(pitOwnerFieldRecentMembershipChange[0]);
+            } else {
+              continue;
+            }
+            
+            if (fieldInternalId != null && ownerInternalId != null) {
+              pitOwnerFieldRecentMembershipChanges.add(new MultiKey(ownerInternalId, fieldInternalId));
+            }
+          }
+          
+          LOG.info("pitOwnerFieldRecentMembershipChanges.size=" + pitOwnerFieldRecentMembershipChanges.size());
         }
         
-        sqlCacheGroupsData.sort((o1, o2) -> {
-          Timestamp s1 = GrouperUtil.timestampObjectValue(o1[4], true);
-          Timestamp s2 = GrouperUtil.timestampObjectValue(o2[4], true);
+        List<Object[]> sqlCacheGroupsData = new GcDbAccess().sql("select internal_id, group_internal_id, field_internal_id, membership_size, last_membership_sync from grouper_sql_cache_group where disabled_on is null").selectList(Object[].class);
+        LOG.info("sqlCacheGroupsData.size=" + sqlCacheGroupsData.size());
+        incrementCountInDebugMap("sqlCacheGroupsTotalCount", sqlCacheGroupsData.size());
 
-          if (s1 == null && s2 != null) {
+        // sort by membership size desc but prioritze if not been sync'ed
+        sqlCacheGroupsData.sort((o1, o2) -> {
+          long s1 = ((Number) o1[3]).longValue();
+          long s2 = ((Number) o2[3]).longValue();
+  
+          if (s1 == -1 && s2 != -1) {
             return -1;
-          } else if (s2 == null && s1 != null) {
+          } else if (s2 == -1 && s1 != -1) {
             return 1;
-          } else if (s1 == null && s2 == null) {
-            return 0;
           } else {
-            return Long.compare(s1.getTime(), s2.getTime());
+            return Long.compare(s2, s1);
           }
         });
         
-        sqlCacheGroupsDataIterator = sqlCacheGroupsData.iterator();
-        while (sqlCacheGroupsDataIterator.hasNext()) {          
+        
+        List<Object[]> sqlCacheGroupDataBatch = new ArrayList<>();
+        Map<Long, Timestamp> lastMembershipSyncUpdates = new HashMap<>();
+        
+        long batchMembershipSize = 0;      
+        int count = 0;
+        int countWithoutSkips = 0;
+        
+        // now go through with the comparison and updates
+        Iterator<Object[]> sqlCacheGroupsDataIterator = sqlCacheGroupsData.iterator();
+        while (sqlCacheGroupsDataIterator.hasNext()) {
+          count++;
+          
           Object[] sqlCacheGroupData = sqlCacheGroupsDataIterator.next();
-          
-          if (System.currentTimeMillis() > timeToStopMillis) {
-            break;
-          }
-          
           long internalId = GrouperUtil.longObjectValue(sqlCacheGroupData[0], false);
           long ownerInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[1], false);
           long fieldInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[2], false);
           long membershipSize = GrouperUtil.longObjectValue(sqlCacheGroupData[3], false);
           Timestamp lastMembershipSync = GrouperUtil.timestampObjectValue(sqlCacheGroupData[4], true);
+          
+          // skip unless the object/field has never been sync'ed or there's not a last success time for this job or there's been changes to the object/field since the last success
+          if (lastMembershipSync != null && membershipSyncStartTimeMicros != null) {
+            if (!pitOwnerFieldRecentMembershipChanges.contains(new MultiKey(ownerInternalId, fieldInternalId))) {
+              continue;
+            }
+          }
           
           Field field = fieldInternalIdToField.get(fieldInternalId);
           if (field.isGroupAccessField() || field.getName().equals("members")) {
@@ -486,19 +387,142 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
             continue;
           }
           
-          if (lastMembershipSync == null || pitOwnerFieldRecentMembershipChanges.contains(new MultiKey(ownerInternalId, fieldInternalId))) {
-            // this would have been done above
-            continue;
+          countWithoutSkips++;
+          
+          if (countWithoutSkips % 100000 == 0) {
+            if (theOtherJobInput != null) {
+              theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage("Working on membership sync " + count + " of " + sqlCacheGroupsData.size());
+              theOtherJobInput.getHib3GrouperLoaderLog().store();
+            }
+          }
+  
+          Object[] sqlCacheGroupDataModified = new Object[] { internalId, ownerInternalId, fieldInternalId, membershipSize };
+          sqlCacheGroupDataBatch.add(sqlCacheGroupDataModified);
+          
+          if (membershipSize > 0) {
+            batchMembershipSize += membershipSize;
           }
           
+          if (membershipSize == -1 || batchMembershipSize >= 10000 || sqlCacheGroupDataBatch.size() >= maxObjectFieldPairMembershipSyncBatchSize) {
+            Timestamp syncTimestamp = new Timestamp(System.currentTimeMillis());
+            processBatch(sqlCacheGroupDataBatch);
+            
+            for (Object[] sqlCacheGroupDataProcessed : sqlCacheGroupDataBatch) {
+              lastMembershipSyncUpdates.put((long)sqlCacheGroupDataProcessed[0], syncTimestamp);
+            }
+            
+            sqlCacheGroupDataBatch.clear();
+            batchMembershipSize = 0;
+            if (LOG.isDebugEnabled()) {
+              LOG.debug("Processed " + count);
+            }
+          }
+          
+          if (lastMembershipSyncUpdates.size() >= 500) {
+            List<List<Object>> batchBindVars = new ArrayList<>();
+            for (Long internalIdToUpdate : lastMembershipSyncUpdates.keySet()) {
+              Timestamp syncTimestamp = lastMembershipSyncUpdates.get(internalIdToUpdate);
+              batchBindVars.add(GrouperUtil.toListObject(syncTimestamp, internalIdToUpdate));
+            }
+  
+            new GcDbAccess().sql("update grouper_sql_cache_group set last_membership_sync = ? where internal_id = ?").batchBindVars(batchBindVars).executeBatchSql();
+            
+            lastMembershipSyncUpdates.clear();
+          }
+        }
+        
+        if (sqlCacheGroupDataBatch.size() > 0) {
           Timestamp syncTimestamp = new Timestamp(System.currentTimeMillis());
-          processBatch(Collections.singletonList(new Object[] { internalId, ownerInternalId, fieldInternalId, membershipSize }));
-          new GcDbAccess().sql("update grouper_sql_cache_group set last_membership_sync = ? where internal_id = ?").addBindVar(syncTimestamp).addBindVar(internalId).executeSql();
+          processBatch(sqlCacheGroupDataBatch);
+          
+          for (Object[] sqlCacheGroupDataProcessed : sqlCacheGroupDataBatch) {
+            lastMembershipSyncUpdates.put((long)sqlCacheGroupDataProcessed[0], syncTimestamp);
+          }
+        }
+        
+        if (lastMembershipSyncUpdates.size() > 0) {
+          List<List<Object>> batchBindVars = new ArrayList<>();
+          for (Long internalIdToUpdate : lastMembershipSyncUpdates.keySet()) {
+            Timestamp syncTimestamp = lastMembershipSyncUpdates.get(internalIdToUpdate);
+            batchBindVars.add(GrouperUtil.toListObject(syncTimestamp, internalIdToUpdate));
+          }
+  
+          new GcDbAccess().sql("update grouper_sql_cache_group set last_membership_sync = ? where internal_id = ?").batchBindVars(batchBindVars).executeBatchSql();        
+        }
+        
+        // process more object/field pairs based on when it was last sync'ed for about an hour max
+        if (membershipSyncStartTimeMicros != null) {
+          // stop after one hour
+          long timeToStopMillis = System.currentTimeMillis() + 60*60*1000L;
+          
+          if (theOtherJobInput != null) {
+            theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage("Sync'ing other object/field pairs until: " + timeToStopMillis);
+            theOtherJobInput.getHib3GrouperLoaderLog().store();
+          }
+          
+          sqlCacheGroupsData.sort((o1, o2) -> {
+            Timestamp s1 = GrouperUtil.timestampObjectValue(o1[4], true);
+            Timestamp s2 = GrouperUtil.timestampObjectValue(o2[4], true);
+  
+            if (s1 == null && s2 != null) {
+              return -1;
+            } else if (s2 == null && s1 != null) {
+              return 1;
+            } else if (s1 == null && s2 == null) {
+              return 0;
+            } else {
+              return Long.compare(s1.getTime(), s2.getTime());
+            }
+          });
+          
+          sqlCacheGroupsDataIterator = sqlCacheGroupsData.iterator();
+          while (sqlCacheGroupsDataIterator.hasNext()) {          
+            Object[] sqlCacheGroupData = sqlCacheGroupsDataIterator.next();
+            
+            if (System.currentTimeMillis() > timeToStopMillis) {
+              break;
+            }
+            
+            long internalId = GrouperUtil.longObjectValue(sqlCacheGroupData[0], false);
+            long ownerInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[1], false);
+            long fieldInternalId = GrouperUtil.longObjectValue(sqlCacheGroupData[2], false);
+            long membershipSize = GrouperUtil.longObjectValue(sqlCacheGroupData[3], false);
+            Timestamp lastMembershipSync = GrouperUtil.timestampObjectValue(sqlCacheGroupData[4], true);
+            
+            Field field = fieldInternalIdToField.get(fieldInternalId);
+            if (field.isGroupAccessField() || field.getName().equals("members")) {
+              if (!groupInternalIdToPITId.containsKey(ownerInternalId)) {
+                continue;
+              }
+            } else if (field.isStemListField()) {
+              if (!stemIdIndexToPITId.containsKey(ownerInternalId)) {
+                continue;
+              }
+            } else if (field.isAttributeDefListField()) {
+              if (!attributeDefIdIndexToPITId.containsKey(ownerInternalId)) {
+                continue;
+              }
+            } else {
+              continue;
+            }
+            
+            if (lastMembershipSync == null || pitOwnerFieldRecentMembershipChanges.contains(new MultiKey(ownerInternalId, fieldInternalId))) {
+              // this would have been done above
+              continue;
+            }
+            
+            Timestamp syncTimestamp = new Timestamp(System.currentTimeMillis());
+            processBatch(Collections.singletonList(new Object[] { internalId, ownerInternalId, fieldInternalId, membershipSize }));
+            new GcDbAccess().sql("update grouper_sql_cache_group set last_membership_sync = ? where internal_id = ?").addBindVar(syncTimestamp).addBindVar(internalId).executeSql();
+          }
         }
       }
-      
+    } catch (RuntimeException re) {
+      debugMap.put("exception", GrouperUtil.getFullStackTrace(re));
+      throw re;
+    } finally {
       if (theOtherJobInput != null) {
-        theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage("Job completed successfully");
+        theOtherJobInput.getHib3GrouperLoaderLog().setJobMessage(GrouperUtil.mapToString(debugMap));
         theOtherJobInput.getHib3GrouperLoaderLog().store();
       }
     }
@@ -709,6 +733,12 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
         pitMembershipsMemberInternalIds = new HashSet<>();
       }
       
+      // memberships processed
+      if (theOtherJobInput != null) {
+        theOtherJobInput.getHib3GrouperLoaderLog().addTotalCount(pitMembershipsMemberInternalIds.size());
+      }
+      incrementCountInDebugMap("sqlCacheMshipsTotalProcessedCount", pitMembershipsMemberInternalIds.size());
+
       Set<Long> cacheMembershipsMemberInternalIdsToAdd = new HashSet<>(pitMembershipsMemberInternalIds);
       cacheMembershipsMemberInternalIdsToAdd.removeAll(cacheMembershipsMemberInternalIds);
       
@@ -763,7 +793,8 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
     if (theOtherJobInput != null) {
       theOtherJobInput.getHib3GrouperLoaderLog().addInsertCount(numberOfInserts);
     }
-    
+    incrementCountInDebugMap("sqlCacheMshipsInsertedCount", numberOfInserts);
+
     int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
 
     if (bindVarsSqlCacheMshipDeletes.size() > 0) {
@@ -772,6 +803,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       if (theOtherJobInput != null) {
         theOtherJobInput.getHib3GrouperLoaderLog().addDeleteCount(bindVarsSqlCacheMshipDeletes.size());
       }
+      incrementCountInDebugMap("sqlCacheMshipsDeletedCount", bindVarsSqlCacheMshipDeletes.size());
     }
 
     if (bindVarsSqlCacheMshipUpdates.size() > 0) {
@@ -780,6 +812,7 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
       if (theOtherJobInput != null) {
         theOtherJobInput.getHib3GrouperLoaderLog().addUpdateCount(bindVarsSqlCacheMshipUpdates.size());
       }
+      incrementCountInDebugMap("sqlCacheMshipsUpdatedCount", bindVarsSqlCacheMshipUpdates.size());
     }
     
     if (sqlCacheGroupIdsForMembershipSizeUpdate.size() > 0) {
@@ -796,6 +829,20 @@ public class SqlCacheFullSyncDaemon extends OtherJobBase {
         if (theOtherJobInput != null) {
           theOtherJobInput.getHib3GrouperLoaderLog().addUpdateCount(1);
         }
+        incrementCountInDebugMap("sqlCacheGroupsUpdatedMembershipSizeCount", 1);
+      }
+    }
+    
+    GrouperDaemonUtils.stopProcessingIfJobPaused();
+  }
+  
+  private void incrementCountInDebugMap(String property, long count) {
+    if (debugMap != null) {
+      if (debugMap.containsKey(property)) {
+        long existingValue = (Long)debugMap.get(property);
+        debugMap.put(property, (existingValue + count));
+      } else {
+        debugMap.put(property, count);
       }
     }
   }
