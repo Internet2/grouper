@@ -728,7 +728,7 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
 
     List<GrouperOktaGroup> grouperOktaGroups = HibernateSession.byHqlStatic().createQuery(
-        "from GrouperOktaGroup where id = :theId or email = :theId")
+        "from GrouperOktaGroup where id = :theId")
         .setString("theId", groupId).list(GrouperOktaGroup.class);
 
     if (GrouperUtil.length(grouperOktaGroups) == 1) {
@@ -789,44 +789,6 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     
     ObjectNode objectNode = grouperOktaGroup.toJsonGroupOnly(null);
     
-    mockServiceResponse.setResponseCode(200);
-    mockServiceResponse.setContentType("application/json");
-    mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode)); 
-  }
-  
-  public void patchGroupSettings(MockServiceRequest mockServiceRequest, MockServiceResponse mockServiceResponse) {
-    try {      
-      checkAuthorization(mockServiceRequest);
-      checkRequestContentType(mockServiceRequest);
-    } catch (Exception e) {
-      mockServiceResponse.setResponseCode(401);
-      return;
-    }
-
-    // patch a group
-    String groupEmail = mockServiceRequest.getPostMockNamePaths()[1];
-    
-    mockServiceRequest.getDebugMap().put("groupEmail", groupEmail);
-
-    List<GrouperOktaGroup> grouperOktaGroups = HibernateSession.byHqlStatic().createQuery(
-        "from GrouperOktaGroup where email = :theEmail")
-        .setString("theEmail", groupEmail).list(GrouperOktaGroup.class);
-    
-    if (GrouperUtil.length(grouperOktaGroups) == 0) {
-      mockServiceRequest.getDebugMap().put("cantFindGroup", true);
-      mockServiceResponse.setResponseCode(404);
-      return;
-    }
-    if (GrouperUtil.length(grouperOktaGroups) > 1) {
-      throw new RuntimeException("Found multiple matched groups! " + GrouperUtil.length(grouperOktaGroups));
-    }
-    GrouperOktaGroup grouperOktaGroup = grouperOktaGroups.get(0);
-    
-
-    HibernateSession.byObjectStatic().saveOrUpdate(grouperOktaGroup);
-    
-    ObjectNode objectNode = grouperOktaGroup.toJsonGroupOnly(null);
-
     mockServiceResponse.setResponseCode(200);
     mockServiceResponse.setContentType("application/json");
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(objectNode)); 
