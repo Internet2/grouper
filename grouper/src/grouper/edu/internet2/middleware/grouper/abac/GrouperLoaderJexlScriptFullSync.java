@@ -213,7 +213,7 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         
         if (dependenciesFound.size() == 0) {
           // we need to add the history
-          SqlCacheHistoryFullSyncDaemon.syncMembershipHistory(sqlCacheGroup, null);
+          SqlCacheHistoryFullSyncDaemon.syncMembershipHistory(sqlCacheGroup, null, null);
         }
       }
     }
