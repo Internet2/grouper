@@ -1765,7 +1765,7 @@ public abstract class SqlBuilder
      */
     public String getTableName(Table table)
     {
-        return shortenName(table.getName(), getMaxTableNameLength());
+        return table.getName();
     }
     
     /** 
@@ -1864,7 +1864,7 @@ public abstract class SqlBuilder
      */
     protected String getColumnName(Column column) throws IOException
     {
-        return shortenName(column.getName(), getMaxColumnNameLength());
+        return column.getName();
     }
 
     /**
@@ -2184,7 +2184,6 @@ public abstract class SqlBuilder
             name.append(fk.getForeignTableName());
             fkName = getConstraintName(null, table, "FK", name.toString());
         }
-        fkName = shortenName(fkName, getMaxForeignKeyNameLength());
 
         if (needsName)
         {
@@ -2221,7 +2220,7 @@ public abstract class SqlBuilder
             result.append("_");
             result.append(suffix);
         }
-        return shortenName(result.toString(), getMaxConstraintNameLength());
+        return result.toString();
     }
 
     /**
@@ -2301,7 +2300,7 @@ public abstract class SqlBuilder
      */
     public String getIndexName(Index index)
     {
-        return shortenName(index.getName(), getMaxConstraintNameLength());
+        return index.getName();
     }
 
     /**
