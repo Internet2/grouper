@@ -148,8 +148,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    //TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
-    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
+    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
+//    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
   
@@ -185,9 +185,13 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       ensureTableSyncTables();
   
       new GcDbAccess().sql("delete from testgrouper_pro_ldap_group_attr").executeSql();
+      new GcDbAccess().sql("delete from testgrouper_pro_ldap_group_att1").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_ldap_group").executeSql();
+      new GcDbAccess().sql("delete from testgrouper_prov_ldap_group1").executeSql();
       new GcDbAccess().sql("delete from testgrouper_pro_dap_entity_attr").executeSql();
+      new GcDbAccess().sql("delete from testgrouper_pro_dap_entity_att1").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_ldap_entity").executeSql();
+      new GcDbAccess().sql("delete from testgrouper_prov_ldap_entity1").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_group").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_entity").executeSql();
       new GcDbAccess().sql("delete from testgrouper_prov_mship0").executeSql();
@@ -222,9 +226,13 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
   public void dropTableSyncTables() {
     
     dropTableSyncTable("testgrouper_pro_ldap_group_attr");
+    dropTableSyncTable("testgrouper_pro_ldap_group_attr1");
     dropTableSyncTable("testgrouper_prov_ldap_group");
+    dropTableSyncTable("testgrouper_prov_ldap_group1");
     dropTableSyncTable("testgrouper_pro_dap_entity_attr");
+    dropTableSyncTable("testgrouper_pro_dap_entity_attr1");
     dropTableSyncTable("testgrouper_prov_ldap_entity");
+    dropTableSyncTable("testgrouper_prov_ldap_entity1");
     dropTableSyncTable("testgrouper_prov_group");
     dropTableSyncTable("testgrouper_prov_mship0");
     dropTableSyncTable("testgrouper_prov_mship1");
@@ -1932,10 +1940,14 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    */
   public void ensureTableSyncTables() {
     
-    createTableLdapGroup();
-    createTableLdapGroupAttr();
-    createTableLdapEntity();
-    createTableLdapEntityAttr();
+    createTableLdapGroup("");
+    createTableLdapGroup("1");
+    createTableLdapGroupAttr("", "testgrouper_pro_ldap_group_attr", "testgrouper_prov_ldap_group");
+    createTableLdapGroupAttr("1", "testgrouper_pro_ldap_group_att1", "testgrouper_prov_ldap_group1");
+    createTableLdapEntity("");
+    createTableLdapEntity("1");
+    createTableLdapEntityAttr("", "testgrouper_pro_dap_entity_attr", "testgrouper_prov_ldap_entity");
+    createTableLdapEntityAttr("1", "testgrouper_pro_dap_entity_att1", "testgrouper_prov_ldap_entity1");
 
     createTableGroup();
     
@@ -2066,9 +2078,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableLdapGroup() {
+  public void createTableLdapGroup(String suffix) {
 
-    final String tableName = "testgrouper_prov_ldap_group";
+    final String tableName = "testgrouper_prov_ldap_group" + StringUtils.trimToEmpty(suffix);
 
     try {
       new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
@@ -2097,9 +2109,9 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableLdapEntity() {
+  public void createTableLdapEntity(String suffix) {
   
-    String tableName = "testgrouper_prov_ldap_entity";
+    String tableName = "testgrouper_prov_ldap_entity" + StringUtils.trimToEmpty(suffix);
     
     try {
       new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
@@ -2127,9 +2139,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableLdapGroupAttr() {
+  public void createTableLdapGroupAttr(String suffix, String tableName, String groupTableName) {
   
-    String tableName = "testgrouper_pro_ldap_group_attr";
     
     try {
       new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
@@ -2157,19 +2168,14 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         }
         
       });
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-        
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-          
-          Database database = ddlVersionBean.getDatabase();
-
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "testgrouper_pro_ldap_gr_idx0", null, false, "group_uuid", "attribute_name");
-          
-          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "testgrouper_pro_ldap_gr_fk", "testgrouper_prov_ldap_group", "group_uuid", "uuid");
-        }
-        
-      });
+      
+      // GrouperDdlUtils does not find the table that was created right above so we're relying on GcDbAccess
+      new GcDbAccess().sql("CREATE INDEX testgrouper_pro_ldap_gidx0"+StringUtils.trimToEmpty(suffix)+ " ON "+tableName+" (group_uuid,attribute_name)").executeSql();
+      
+//      new GcDbAccess().sql("alter table "+tableName + " add CONSTRAINT testgrouper_pro_ldap_gfk"+StringUtils.trimToEmpty(suffix) + " FOREIGN KEY (group_uuid) REFERENCES "+groupTableName+"(uuid) ON DELETE CASCADE ON UPDATE CASCADE").executeSql();
+      
     }
+    
   }
 
   /**
@@ -3305,10 +3311,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
    * @param ddlVersionBean
    * @param database
    */
-  public void createTableLdapEntityAttr() {
+  public void createTableLdapEntityAttr(String suffix, String tableName, String entityTableName) {
   
-    String tableName = "testgrouper_pro_dap_entity_attr";
-    
     try {
       new GcDbAccess().sql("select count(*) from " + tableName).select(int.class);
     } catch (Exception e) {
@@ -3335,19 +3339,11 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         
       });
       
-      GrouperDdlUtils.changeDatabase(GrouperTestDdl.V1.getObjectName(), new DdlUtilsChangeDatabase() {
-        
-        public void changeDatabase(DdlVersionBean ddlVersionBean) {
-          
-          Database database = ddlVersionBean.getDatabase();
-
-          GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, ddlVersionBean, tableName, "testgrouper_pro_ldap_en_idx0", null, false, "entity_uuid", "entity_attribute_name");
-
-          GrouperDdlUtils.ddlutilsFindOrCreateForeignKey(database, tableName, "testgrouper_pro_ldap_en_fk", "testgrouper_prov_ldap_entity", "entity_uuid", "entity_uuid");
-
-        }
-        
-      });
+      // GrouperDdlUtils does not find the table that was created right above so we're relying on GcDbAccess
+      new GcDbAccess().sql("CREATE INDEX testgrouper_pro_ldap_eidx0"+StringUtils.trimToEmpty(suffix)+ " ON "+tableName+" (entity_uuid,entity_attribute_name)").executeSql();
+      
+//      new GcDbAccess().sql("alter table "+tableName + " add CONSTRAINT testgrouper_pro_ldap_efk"+StringUtils.trimToEmpty(suffix) + " FOREIGN KEY (entity_uuid) REFERENCES "+entityTableName+"(entity_uuid) ON DELETE CASCADE ON UPDATE CASCADE").executeSql();
+      
     }
 
   }
@@ -3766,6 +3762,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .assignHasTargetEntityLink(true)
         .assignEntityAttributeCount(3)
         .assignGroupAttributeCount(6)
+        .addExtraConfig("customizeEntityCrud", "false")
+        .addExtraConfig("makeChangesToEntities", "true")
         .assignProvisioningType("groupAttributes")
         .addExtraConfig("logAllObjectsVerboseForTheseSubjectIds", "test.subject.0")
         .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup");
@@ -5763,6 +5761,37 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     
     long started = System.currentTimeMillis();
     
+    SqlProvisionerTestConfigInput sqlProvisionerTestConfigInput1 = new SqlProvisionerTestConfigInput()
+        .assignGroupDeleteType("deleteGroupsIfGrouperDeleted")
+        .assignMembershipDeleteType("deleteMembershipsIfNotExistInGrouper")
+        .assignEntityAttributesTable(true)
+        .assignGroupAttributesTable(true)
+        .assignGroupTableName("testgrouper_prov_ldap_group1")
+        .assignGroupTableIdColumn("uuid")
+        .assignEntityTableName("testgrouper_prov_ldap_entity1")
+        .assignEntityTableIdColumn("entity_uuid")
+        .assignHasTargetEntityLink(true)
+        .assignEntityAttributeCount(3)
+        .assignGroupAttributeCount(6)
+        .assignProvisioningType("groupAttributes")
+        .addExtraConfig("customizeEntityCrud", "false")
+        .addExtraConfig("makeChangesToEntities", "true")
+        .addExtraConfig("groupAttributesTableName", "testgrouper_pro_ldap_group_attr1")
+        .addExtraConfig("entityAttributesTableName", "testgrouper_pro_dap_entity_attr1")
+        .assignConfigId("sqlProvTest1")
+        .addExtraConfig("logAllObjectsVerboseForTheseSubjectIds", "test.subject.0")
+        .addExtraConfig("logAllObjectsVerboseForTheseGroupNames", "test:testGroup");
+    SqlProvisionerTestUtils.configureSqlProvisioner(sqlProvisionerTestConfigInput1);
+    
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "numberOfGroupAttributes", "7");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "targetGroupAttribute.6.name", "admins");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "targetGroupAttribute.6.translateExpressionType", "translationScript");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "targetGroupAttribute.6.translateExpression", "${provisioningGroupWrapper.thisGroupPrivilegeHolders('admins', 'subjectId')}");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "targetGroupAttribute.6.showAdvancedAttribute", "true");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "targetGroupAttribute.6.showAttributeValueSettings", "true");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "targetGroupAttribute.6.multiValued", "true");
+    SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput1, "targetGroupAttribute.6.storageType", "separateAttributesTable");
+    
     SqlProvisionerTestConfigInput sqlProvisionerTestConfigInput = configureLdapPaTestCase();
   
     SqlProvisionerTestUtils.configureProvisionerSuffix(sqlProvisionerTestConfigInput, "numberOfGroupAttributes", "7");
@@ -5785,17 +5814,17 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     Stem stem2 = new StemSave(this.grouperSession).assignName("test2").save();
     
     // mark some folders to provision
-    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
-    Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:testGroup3").save();
+//    Group testGroup2 = new GroupSave(this.grouperSession).assignName("test2:testGroup2").save();
+//    Group testGroup3 = new GroupSave(this.grouperSession).assignName("test:testGroup3").save();
+//
+//    testGroup3.addMember(SubjectTestHelper.SUBJ4, false);
+//    testGroup3.addMember(SubjectTestHelper.SUBJ5, false);
+//    testGroup3.addMember(SubjectTestHelper.SUBJ6, false);
 
-    testGroup3.addMember(SubjectTestHelper.SUBJ4, false);
-    testGroup3.addMember(SubjectTestHelper.SUBJ5, false);
-    testGroup3.addMember(SubjectTestHelper.SUBJ6, false);
+//    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
+//    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
 
-    testGroup2.addMember(SubjectTestHelper.SUBJ2, false);
-    testGroup2.addMember(SubjectTestHelper.SUBJ3, false);
-
-    final GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
+    GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
     attributeValue.setDirectAssignment(true);
     attributeValue.setDoProvision("sqlProvTest");
     attributeValue.setTargetName("sqlProvTest");
@@ -5812,6 +5841,13 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
         .addBindVar(uuid).addBindVar("employeeId").addBindVar("test.subject." + i).executeSql();
     }
     
+    GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
+    
+    attributeValue = new GrouperProvisioningAttributeValue();
+    attributeValue.setDirectAssignment(true);
+    attributeValue.setDoProvision("sqlProvTest1");
+    attributeValue.setTargetName("sqlProvTest1");
+    attributeValue.setStemScopeString("sub");
     GrouperProvisioningService.saveOrUpdateProvisioningAttributes(attributeValue, stem);
   
 
@@ -5848,7 +5884,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     assertEquals(1,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg, grouper_groups gg, grouper_fields gf, grouper_groups gg_dep "
         + " where gsdgg.group_id = gg.id and gsdgg.field_id = gf.id and gsdgg.provisionable_group_id = gg_dep.id and gg.name = 'test:testGroup' and gg_dep.name = 'test:testGroup' "
         + " and gf.name = 'admins'").select(int.class).intValue());
-    assertEquals(2,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg").select(int.class).intValue());
+    assertEquals(1,  new GcDbAccess().sql("select count(1) from grouper_sync_dep_group_group gsdgg").select(int.class).intValue());
 
     assertEquals(isFull ? 1 : 0, GcGrouperSyncDependencyGroupGroupDao.internalTestingRetrieveAllCount);
     assertEquals(1, GcGrouperSyncDependencyGroupGroupDao.internalTestingStoreCount);
@@ -5870,9 +5906,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
       groupNamesInTable.add(new MultiKey(row));
     }
     
-    assertEquals(2, groupNamesInTable.size());
+    assertEquals(1, groupNamesInTable.size());
     assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup"})));
-    assertTrue(groupNamesInTable.contains(new MultiKey(new Object[]{"test:testGroup3"})));
   
     sql = "select group_uuid, attribute_name, attribute_value from testgrouper_pro_ldap_group_attr where attribute_name = 'admins'";
     

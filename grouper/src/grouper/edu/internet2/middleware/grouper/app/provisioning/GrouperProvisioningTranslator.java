@@ -348,14 +348,28 @@ public class GrouperProvisioningTranslator {
 
       List<MultiKey> groupIdFieldIdBatch = GrouperUtil.batchList(groupIdFieldIdList, batchSizeGroups, i);
       
-      StringBuilder sqlBase = new StringBuilder("select gmlv.group_name, gmlv.group_id, gmlv.list_name, " 
-          + " gm.subject_id, gm.email0, gm.subject_identifier0, gm.subject_identifier1, gm.subject_identifier2 "
-          + " from grouper_members gm, grouper_memberships_lw_v gmlv where gmlv.member_id = gm.id ");
+      StringBuilder sqlBase = new StringBuilder("""
+              select gmlv.group_name, gmlv.group_id, gmlv.list_name,
+              gm.subject_id, gm.email0, gm.subject_identifier0, gm.subject_identifier1, gm.subject_identifier2, gm.id,
+              gsm.member_from_id2, gsm.member_from_id3, gsm.member_to_id2, gsm.member_to_id3
+              from grouper_members gm
+              join grouper_memberships_lw_v gmlv on gmlv.member_id = gm.id
+              left join grouper_sync_member gsm on gsm.member_id = gmlv.member_id and gsm.grouper_sync_id = ?
+              """);
 
+      gcDbAccess.addBindVar(this.grouperProvisioner.getGcGrouperSync().getId());
+        
+      boolean addedWhere = false;
       Set<String> subjectSources = GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getSubjectSourcesToProvision());
       
       if (subjectSources.size() > 0) {
-        sqlBase.append(" and ");
+        if (!addedWhere) {
+          sqlBase.append(" where ");
+          addedWhere = true;
+        } else {
+          sqlBase.append(" and ");
+        }
+        
         if (subjectSources.size() > 1) {
           sqlBase.append(" ( ");
         }
@@ -374,7 +388,12 @@ public class GrouperProvisioningTranslator {
 
       }
 
-      sqlBase.append(" and ( ");
+      if (!addedWhere) {
+        sqlBase.append(" where ( ");
+        addedWhere = true;
+      } else {
+        sqlBase.append(" and ( ");
+      }
       
       boolean first = true;
       for (MultiKey groupIdFieldId : groupIdFieldIdBatch) {
@@ -408,12 +427,14 @@ public class GrouperProvisioningTranslator {
         String subjectIdentifier0 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[5];
         String subjectIdentifier1 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[6];
         String subjectIdentifier2 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[7];
-//        String memberId = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[8];
-//
-//        String entityAttributeValueCache0 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[9];
-//        String entityAttributeValueCache1 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[10];
-//        String entityAttributeValueCache2 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[11];
-//        String entityAttributeValueCache3 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[12];
+        String memberId = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[8];
+
+        String entityAttributeValueCache0 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[9];
+        String entityAttributeValueCache1 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[10];
+        String entityAttributeValueCache2 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[11];
+        String entityAttributeValueCache3 = (String)groupNameGroupIdFieldNameSubjectIdEmailSubjectIdentifiers[12];
+
+
 
         this.groupNameToGroupId.put(groupName, groupId);
         Set<MultiKey> subjectIdAndEmailAndIdentifiers = this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.get(new MultiKey(groupId, field.getId()));
@@ -421,7 +442,8 @@ public class GrouperProvisioningTranslator {
           subjectIdAndEmailAndIdentifiers = new HashSet<>();
           this.groupIdFieldIdToSubjectIdAndEmailAndIdentifiers.put(new MultiKey(groupId, field.getId()), subjectIdAndEmailAndIdentifiers);
         }
-        subjectIdAndEmailAndIdentifiers.add(new MultiKey(subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2));
+        Object[] multikey = GrouperUtil.toArrayObject(subjectId, email, subjectIdentifier0, subjectIdentifier1, subjectIdentifier2, memberId, entityAttributeValueCache0, entityAttributeValueCache1, entityAttributeValueCache2, entityAttributeValueCache3);
+        subjectIdAndEmailAndIdentifiers.add(new MultiKey(multikey));
       }
     }
   } 
