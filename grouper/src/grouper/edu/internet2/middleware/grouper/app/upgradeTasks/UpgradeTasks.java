@@ -16,14 +16,16 @@
 
 package edu.internet2.middleware.grouper.app.upgradeTasks;
 
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.app.loader.OtherJobBase.OtherJobInput;
-import edu.internet2.middleware.grouper.ddl.GrouperDdlUtils;
+import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperVersion;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
 
 /**
  * @author shilen
@@ -337,4 +339,71 @@ public enum UpgradeTasks {
   public abstract UpgradeTasksInterface upgradeTask();
   
 
+  public static void bulkAssignAllUpgradeTasksDone() {
+    // get group name
+    String upgradeTasksRootStemName = UpgradeTasksJob.grouperUpgradeTasksStemName();
+
+    String groupName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_METADATA_GROUP;
+    
+    // TODO move these to a DAO in v7
+    
+    // get group id
+    String groupId = new GcDbAccess().sql("select id from grouper_groups where name = ?")
+        .addBindVar(groupName).select(String.class);
+
+    String nameOfAttributeDefName = upgradeTasksRootStemName + ":" + UpgradeTasksJob.UPGRADE_TASKS_VERSION_ATTR;
+    
+    // get the attribute def name id
+    String attributeDefNameId = new GcDbAccess()
+        .sql("select id from grouper_attribute_def_name where name = ?")
+        .addBindVar(nameOfAttributeDefName)
+        .select(String.class);
+    
+    // get the attribute def id
+    String attributeDefId = new GcDbAccess()
+        .sql("select attribute_def_id from grouper_attribute_def_name where id = ?")
+        .addBindVar(attributeDefNameId)
+        .select(String.class);
+    
+    // get the assign action id
+    String attributeAssignActionId = new GcDbAccess()
+        .sql("select id from grouper_attr_assign_action where name = 'assign' and attribute_def_id = ?")
+        .addBindVar(attributeDefId)
+        .select(String.class);
+
+    // insert an attribute assign for the group
+    long now = System.currentTimeMillis();
+    String attributeAssignId = GrouperUuid.getUuid();
+    new GcDbAccess().sql(
+        "insert into grouper_attribute_assign (owner_group_id, attribute_assign_action_id, created_on, "
+        + "enabled, attribute_def_name_id, disallowed, attribute_assign_type, attribute_assign_delegatable,"
+        + "last_updated, id, hibernate_version_number) "
+        + "values (?, ?, ?, 'T', ?, 'F', 'group', 'FALSE', ?, ?, 0)")
+        .addBindVar(groupId)
+        .addBindVar(attributeAssignActionId)
+        .addBindVar(now)
+        .addBindVar(attributeDefNameId)
+        .addBindVar(now)
+        .addBindVar(attributeAssignId)
+        .executeSql();
+
+    // bulk insert all the upgrade tasks
+    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    for (UpgradeTasks upgradeTask : UpgradeTasks.values()) {
+      List<Object> bindVars = new ArrayList<Object>();
+      bindVars.add(attributeAssignId);
+      bindVars.add(now);
+      bindVars.add(GrouperUuid.getUuid());
+      bindVars.add(now);
+      bindVars.add(upgradeTask.name().substring(1));
+      batchBindVars.add(bindVars);
+    }
+
+    new GcDbAccess().sql(
+        "insert into grouper_attribute_assign_value (attribute_assign_id, created_on, id, last_updated, value_string) "
+            + "values (?, ?, ?, ?, ?)")
+        .batchBindVars(batchBindVars).executeBatchSql();
+    
+    
+  }
 }
