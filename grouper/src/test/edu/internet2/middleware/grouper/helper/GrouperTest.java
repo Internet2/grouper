@@ -31,8 +31,6 @@
 */
 
 package edu.internet2.middleware.grouper.helper;
-import static org.junit.Assert.fail;
-
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
@@ -44,6 +42,7 @@ import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.syncToGrouper.SyncToGrouper;
+import edu.internet2.middleware.grouper.app.upgradeTasks.UpgradeTasks;
 import edu.internet2.middleware.grouper.audit.GrouperEngineBuiltin;
 import edu.internet2.middleware.grouper.cache.GrouperCacheUtils;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -59,7 +58,6 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.misc.GrouperShutdown;
 import edu.internet2.middleware.grouper.misc.GrouperStartup;
 import edu.internet2.middleware.grouper.plugins.GrouperPluginManager;
-import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.registry.RegistryInitializeSchema;
 import edu.internet2.middleware.grouper.registry.RegistryReset;
 import edu.internet2.middleware.grouper.testing.GrouperTestBase;
@@ -439,8 +437,9 @@ public class GrouperTest extends GrouperTestBase {
         
       @Override
         public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-  
+
           GrouperCheckConfig.checkObjects();
+          UpgradeTasks.bulkAssignAllUpgradeTasksDone();
           return null;
         }
       });
