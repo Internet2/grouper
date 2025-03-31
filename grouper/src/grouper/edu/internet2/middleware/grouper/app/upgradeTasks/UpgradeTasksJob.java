@@ -243,6 +243,12 @@ public class UpgradeTasksJob extends OtherJobBase {
   public static boolean isThereWorkToDo(Set<Integer> sortedOldDbVersions) {
     
     if (sortedOldDbVersions == null) {
+      // if there are no tables then dont do anything
+      try {
+        new GcDbAccess().sql("select 1 from grouper_groups where id = 'abc'").select(int.class);
+      } catch (Exception e) {
+        return false;
+      }
       sortedOldDbVersions = getDBVersions();
     }
     
