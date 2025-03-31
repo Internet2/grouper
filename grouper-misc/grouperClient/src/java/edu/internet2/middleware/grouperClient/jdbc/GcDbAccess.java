@@ -26,6 +26,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.regex.Pattern;
 
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.logging.Log;
@@ -2036,6 +2037,8 @@ public class GcDbAccess {
     return resultList;
   }
 
+  private static final Pattern wherePattern = Pattern.compile(".*\\swhere\\s.*", Pattern.DOTALL | Pattern.CASE_INSENSITIVE);
+  
   /**
    * pass in a query like select * from table and pass in the selectMultipleColumnName and batchBindVars of all the rows to retrieve
    * @param <T>
@@ -2049,6 +2052,7 @@ public class GcDbAccess {
     // one bind var in each record to retrieve
     int numberOfBatches = GrouperClientUtils.batchNumberOfBatches(GrouperClientUtils.length(bindVars), 1000, false);
     
+    
     String selectMultipleColumnNameTemp = this.selectMultipleColumnName;
     this.selectMultipleColumnName = null; // this will reset the selectMultipleColumnName so that selectList call below 
     // don't call this method again. Otherwise it will go in endless recursive loop where selectListByColumnName calls selectList
@@ -2056,7 +2060,8 @@ public class GcDbAccess {
     for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
       
       List<Object> batchOfBindVariables = GrouperClientUtils.batchList(bindVars, 1000, batchIndex);
-      boolean containsWhere = sql.toLowerCase().contains(" where ");
+      
+      boolean containsWhere = wherePattern.matcher(sql).matches();
       StringBuilder sqlBuilder = new StringBuilder(sql);
       if (containsWhere) {
         sqlBuilder.append(" and ( ");
@@ -2074,7 +2079,7 @@ public class GcDbAccess {
       }
       
       if (containsWhere) {
-        sqlBuilder.append(" and ) ");
+        sqlBuilder.append(" ) ");
       }
       
       List<T> listOfRows = gcDbAccess.sql(sqlBuilder.toString()).bindVars(batchOfBindVariables)
