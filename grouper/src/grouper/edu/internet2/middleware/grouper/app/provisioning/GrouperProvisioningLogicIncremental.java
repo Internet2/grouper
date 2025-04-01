@@ -1897,6 +1897,9 @@ public class GrouperProvisioningLogicIncremental {
     
     Iterator<ProvisioningMembershipWrapper> iterator = this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers().iterator();
 
+    
+
+    
     //go through and remove from elsewhere
     while(iterator.hasNext()) {
       
@@ -1925,10 +1928,21 @@ public class GrouperProvisioningLogicIncremental {
             break;
             
           case insert:
-
             if (hasGrouperMembership && gcGrouperSyncMembership != null && gcGrouperSyncMembership.isInTarget()) {
+
               shouldRemoveMembershipAction = true;
+              
+              // if this is a group rename and entity attributes then keep the membership object there since we might need to add it to the new value
+              if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior()
+                  .getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+
+                ProvisioningGroupWrapper provisioningGroupWrapper = provisioningMembershipWrapper.getProvisioningGroupWrapper();
+                if (provisioningGroupWrapper != null && provisioningGroupWrapper.getProvisioningStateGroup().isUpdate()) {  
+                  shouldRemoveMembershipAction = false;
+                }
+              }
             }
+
 
             break;
         }

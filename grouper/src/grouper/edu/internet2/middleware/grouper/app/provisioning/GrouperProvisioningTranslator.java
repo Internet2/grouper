@@ -1375,8 +1375,21 @@ public class GrouperProvisioningTranslator {
                     grouperTargetGroup.retrieveAttributeValue(grouperProvisioningConfigurationAttribute.getName()), elVariableMap, forCreate, 
                     grouperProvisioningConfigurationAttribute, provisioningGroupWrapper, null);
   
+                
                 if (grouperProvisioningConfigurationAttribute.getSyncGroupCacheAttribute() != null
                     && grouperProvisioningConfigurationAttribute.getSyncGroupCacheAttribute().getSource() == GrouperProvisioningConfigurationAttributeDbCacheSource.grouper) {
+
+                  // if we are doing entity attributes and this is the membership attribute and the value has changed then we need to store the old value in the state so we can remove those values later
+                  if (this.getGrouperProvisioner().retrieveGrouperProvisioningBehavior().getGrouperProvisioningBehaviorMembershipType() == GrouperProvisioningBehaviorMembershipType.entityAttributes) {
+                    if (StringUtils.equals(grouperProvisioningConfigurationAttribute.getSyncGroupCacheAttribute().getCacheName(), this.grouperProvisioner.retrieveGrouperProvisioningConfiguration().getEntityMembershipAttributeValue())) {
+
+                      String previousValue = gcGrouperSyncGroup.retrieveField(grouperProvisioningConfigurationAttribute.getSyncGroupCacheAttribute().getCacheName());
+                      if (!StringUtils.isBlank(previousValue) && !GrouperUtil.isBlank(result)) {
+                        provisioningGroupWrapper.getProvisioningStateGroup().setPreviousMembershipValue(previousValue);
+                      }
+                    }                    
+                  }
+
                   gcGrouperSyncGroup.assignField(grouperProvisioningConfigurationAttribute.getSyncGroupCacheAttribute().getCacheName(), result);
                 }
                 String attributeOrFieldName = grouperProvisioningConfigurationAttribute.getName();
