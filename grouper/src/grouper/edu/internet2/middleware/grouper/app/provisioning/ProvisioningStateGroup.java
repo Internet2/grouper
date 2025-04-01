@@ -8,6 +8,27 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 public class ProvisioningStateGroup extends ProvisioningStateBase {
 
   /**
+   * if entity attributes and a rename, then this is the previous value
+   */
+  private String previousMembershipValue;
+  
+  /**
+   * if entity attributes and a rename, then this is the previous value
+   * @return
+   */
+  public String getPreviousMembershipValue() {
+    return previousMembershipValue;
+  }
+
+  /**
+   * if entity attributes and a rename, then this is the previous value
+   * @param previousMembershipValue
+   */
+  public void setPreviousMembershipValue(String previousMembershipValue) {
+    this.previousMembershipValue = previousMembershipValue;
+  }
+
+  /**
    * deletes the attribute on groups who we arent deleting
    * note the sync object can be null if it is from target and grouper doesnt know about it
    */

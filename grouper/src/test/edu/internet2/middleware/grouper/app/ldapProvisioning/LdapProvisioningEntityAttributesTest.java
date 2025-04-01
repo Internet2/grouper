@@ -9,6 +9,8 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupSave;
 import edu.internet2.middleware.grouper.GrouperSession;
@@ -57,8 +59,8 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
    * @param args
    */
   public static void main(String[] args) {
-    // TestRunner.run(new SimpleLdapProvisionerTest("testSimpleLdapProvisionableIncremental"));    
-    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningDeletedByGrouperInGrouperNotIfUnmarkedProvisionableIncremental"));    
+    TestRunner.run(new LdapProvisioningEntityAttributesTest("testProvisioningDeleteNotExistInGrouperFull"));    
+    //TestRunner.run(LdapProvisioningEntityAttributesTest.class);
   }
 
   @Override
@@ -90,6 +92,14 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     boolean valueProvisionableGroupExistedUnmarkedProvisionable;
     boolean valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper;
     boolean valueProvisionableGroupExistedGroupDeletedInGrouper;
+    
+
+    boolean valueProvisionableGroupRenamedOldNameCreatedByGrouper;
+    boolean valueProvisionableGroupRenamedNewNameCreatedByGrouper;
+    boolean valueProvisionableGroupRenamedOldNameExisted;
+    boolean valueProvisionableGroupRenamedNewNameExisted;
+    
+    
     
   }
   
@@ -126,6 +136,12 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = true;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
+
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -138,7 +154,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
-    
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     provisioningEntityAttributesHelper(isFull, entityAttributeTestConfig, overallResult); 
   }
   
@@ -179,7 +199,16 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
       item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupExistedGroupDeletedInGrouper"));
       ldapModificationItems.add(item);
       
-    
+      if (StringUtils.equals(user,  "adoe")) {
+        item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupRenamedCreatedByGrouperOldName"));
+        ldapModificationItems.add(item);
+        
+      }
+
+      item = new LdapModificationItem(LdapModificationType.ADD_ATTRIBUTE, new LdapAttribute("eduPersonEntitlement", "provisionableGroupRenamedExistedOldName"));
+      ldapModificationItems.add(item);
+
+      
       new LdapSyncDaoForLdap().modify("personLdap", "uid=" + user + ",ou=People,dc=example,dc=edu", ldapModificationItems);
       
     }
@@ -198,6 +227,10 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
       .addExtraConfig("deleteMemberships", "false")
       .addExtraConfig("deleteMembershipsIfNotExistInGrouper", "false")
       .addExtraConfig("customizeMembershipCrud", "true");
+//      .addExtraConfig("groupAttributeValueCache1has", "true")
+//      .addExtraConfig("groupAttributeValueCache1source", "target")
+//      .addExtraConfig("groupAttributeValueCache1type", "groupAttribute")
+//      .addExtraConfig("groupAttributeValueCache1groupAttribute", "entitlement");
     
     LdapProvisionerTestUtils.configureLdapProvisioner(ldapProvisionerTestConfigInput);
      
@@ -220,6 +253,8 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     Group provisionableGroupExistedUnmarkedProvisionable = new GroupSave(this.grouperSession).assignName("provThenUnprov:provisionableGroupExistedUnmarkedProvisionable").save();
     Group provisionableGroupCreatedByGrouperGroupDeletedInGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupCreatedByGrouperGroupDeletedInGrouper").save();
     Group provisionableGroupExistedGroupDeletedInGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupExistedGroupDeletedInGrouper").save();
+    Group provisionableGroupRenamedCreatedByGrouper = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupRenamedCreatedByGrouperOldName").save();
+    Group provisionableGroupRenamedExisted = new GroupSave(this.grouperSession).assignName("prov:provisionableGroupRenamedExistedOldName").save();
     
     // mark some folders to provision
     GrouperProvisioningAttributeValue attributeValue = new GrouperProvisioningAttributeValue();
@@ -260,6 +295,10 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     
     provisionableGroupCreatedByGrouperGroupDeletedInGrouper.addMember(aclark);
  
+    provisionableGroupRenamedCreatedByGrouper.addMember(aclark);
+
+    provisionableGroupRenamedExisted.addMember(aclark);
+
     for (int i=0;i<2;i++) {
       if (isFull || i ==0) {
         fullProvision("eduPersonEntitlement");
@@ -280,6 +319,10 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
       assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupExistedUnmarkedProvisionable"));
       assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupCreatedByGrouperGroupDeletedInGrouper"));
       assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupExistedGroupDeletedInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedCreatedByGrouperOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedCreatedByGrouperNewName"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedExistedOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), aclarkValues.contains("provisionableGroupRenamedExistedNewName"));
   
       Set<String> adoeValues = retrieveLdapAttributes("adoe");
       assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("valueNotInGrouper"));
@@ -293,6 +336,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
       assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupExistedUnmarkedProvisionable"));
       assertFalse(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupCreatedByGrouperGroupDeletedInGrouper"));
       assertTrue(GrouperUtil.toStringForLog(adoeValues), adoeValues.contains("provisionableGroupExistedGroupDeletedInGrouper"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedCreatedByGrouperOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedCreatedByGrouperNewName"));
+      assertTrue(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedExistedOldName"));
+      assertFalse(GrouperUtil.toStringForLog(aclarkValues), adoeValues.contains("provisionableGroupRenamedExistedNewName"));
+
     }
     
     
@@ -326,18 +374,32 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     provisionableGroupCreatedByGrouperGroupDeletedInGrouper.delete();
     provisionableGroupExistedGroupDeletedInGrouper.delete();
 
-    for (int i=0;i<2;i++) {
+    int i=0;
+    for (i=0;i<2;i++) {
       if (isFull) {
         fullProvision("eduPersonEntitlement");
       } else {
         incrementalProvision("eduPersonEntitlement");
       }
   
-      checkResult(i, overallResult);
+      checkResult(i, overallResult, false);
     }
+
+    new GroupSave().assignGroupNameToEdit(provisionableGroupRenamedCreatedByGrouper.getName()).assignName("prov:provisionableGroupRenamedCreatedByGrouperNewName").save();
+    new GroupSave().assignGroupNameToEdit(provisionableGroupRenamedExisted.getName()).assignName("prov:provisionableGroupRenamedExistedNewName").save();
+    
+    if (isFull) {
+      fullProvision("eduPersonEntitlement");
+    } else {
+      incrementalProvision("eduPersonEntitlement");
+    }
+
+    checkResult(i, overallResult, true);
+
+    
   }
 
-  private static void checkResult(int i, OverallResult overallResult) {
+  private static void checkResult(int i, OverallResult overallResult, boolean postRename) {
     Set<String> aclarkValues = retrieveLdapAttributes("aclark");
     String aclarkValuesForLog = GrouperUtil.toStringForLog(aclarkValues);
     assertEquals(i + ": aclark valueNotInGrouper: " + aclarkValuesForLog, overallResult.aclarkResult.valueNotInGrouper, aclarkValues.contains("valueNotInGrouper"));
@@ -352,6 +414,15 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     assertEquals(i + ": aclark provisionableGroupCreatedByGrouperGroupDeletedInGrouper: " + aclarkValuesForLog, overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper, aclarkValues.contains("provisionableGroupCreatedByGrouperGroupDeletedInGrouper"));
     assertEquals(i + ": aclark provisionableGroupExistedGroupDeletedInGrouper: " + aclarkValuesForLog, overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper, aclarkValues.contains("provisionableGroupExistedGroupDeletedInGrouper"));
 
+    if (postRename) {
+
+      assertEquals(i + ": aclark provisionableGroupRenamedOldNameCreatedByGrouper: " + aclarkValuesForLog, overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper, aclarkValues.contains("provisionableGroupRenamedCreatedByGrouperOldName"));
+      assertEquals(i + ": aclark provisionableGroupRenamedNewNameCreatedByGrouper: " + aclarkValuesForLog, overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper, aclarkValues.contains("provisionableGroupRenamedCreatedByGrouperNewName"));
+      assertEquals(i + ": aclark provisionableGroupRenamedOldNameExisted: " + aclarkValuesForLog, overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted, aclarkValues.contains("provisionableGroupRenamedExistedOldName"));
+      assertEquals(i + ": aclark provisionableGroupRenamedNewNameExisted: " + aclarkValuesForLog, overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted, aclarkValues.contains("provisionableGroupRenamedExistedNewName"));
+      
+    }
+    
     Set<String> adoeValues = retrieveLdapAttributes("adoe");
     String adoeValuesForLog = GrouperUtil.toStringForLog(adoeValues);
     assertEquals(i + ": adoe valueNotInGrouper: " + adoeValuesForLog, overallResult.adoeResult.valueNotInGrouper, adoeValues.contains("valueNotInGrouper"));
@@ -366,6 +437,14 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     assertEquals(i + ": adoe provisionableGroupCreatedByGrouperGroupDeletedInGrouper: " + adoeValuesForLog, overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper, adoeValues.contains("provisionableGroupCreatedByGrouperGroupDeletedInGrouper"));
     assertEquals(i + ": adoe provisionableGroupExistedGroupDeletedInGrouper: " + adoeValuesForLog, overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper, adoeValues.contains("provisionableGroupExistedGroupDeletedInGrouper"));
 
+    if (postRename) {
+      
+      assertEquals(i + ": adoe provisionableGroupRenamedOldNameCreatedByGrouper: " + adoeValuesForLog, overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper, adoeValues.contains("provisionableGroupRenamedCreatedByGrouperOldName"));
+      assertEquals(i + ": adoe provisionableGroupRenamedNewNameCreatedByGrouper: " + adoeValuesForLog, overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper, adoeValues.contains("provisionableGroupRenamedCreatedByGrouperNewName"));
+      assertEquals(i + ": adoe provisionableGroupRenamedOldNameExisted: " + adoeValuesForLog, overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted, adoeValues.contains("provisionableGroupRenamedExistedOldName"));
+      assertEquals(i + ": adoe provisionableGroupRenamedNewNameExisted: " + adoeValuesForLog, overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted, adoeValues.contains("provisionableGroupRenamedExistedNewName"));
+      
+    }
   
   }
 
@@ -441,7 +520,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
-    
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
     overallResult.adoeResult.valueNotInGrouper = false;
     overallResult.adoeResult.valueUnprovisionableGroup = false;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouper = false;
@@ -453,7 +536,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
-    
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
   }
 
@@ -480,6 +567,10 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -492,6 +583,12 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
+   
     // provisionableGroupCreatedByGrouperUnmarkedProvisionable aclark expected:<false> but was:<true>
     provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
   }
@@ -519,6 +616,10 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -531,6 +632,10 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
     
     provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
   }
@@ -558,6 +663,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -570,6 +680,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     
     provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
   }
@@ -598,6 +713,10 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -610,6 +729,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     
     provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
   }
@@ -637,6 +761,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = false;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -649,6 +778,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     
     provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
   }
@@ -676,6 +810,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -688,6 +827,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     
     provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
   }
@@ -715,6 +859,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -727,6 +876,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     
     provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
   }
@@ -754,6 +908,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -766,6 +925,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     
     provisioningEntityAttributesHelper(true, entityAttributeTestConfig, overallResult); 
   }
@@ -793,6 +957,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.aclarkResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.aclarkResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.aclarkResult.valueProvisionableGroupExistedGroupDeletedInGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = true;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedOldNameExisted = false;
+    overallResult.aclarkResult.valueProvisionableGroupRenamedNewNameExisted = true;
+
     
     overallResult.adoeResult.valueNotInGrouper = true;
     overallResult.adoeResult.valueUnprovisionableGroup = true;
@@ -805,6 +974,11 @@ public class LdapProvisioningEntityAttributesTest extends GrouperProvisioningBas
     overallResult.adoeResult.valueProvisionableGroupExistedUnmarkedProvisionable = true;
     overallResult.adoeResult.valueProvisionableGroupCreatedByGrouperGroupDeletedInGrouper = false;
     overallResult.adoeResult.valueProvisionableGroupExistedGroupDeletedInGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameCreatedByGrouper = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameCreatedByGrouper = false;
+    overallResult.adoeResult.valueProvisionableGroupRenamedOldNameExisted = true;
+    overallResult.adoeResult.valueProvisionableGroupRenamedNewNameExisted = false;
+
     
     provisioningEntityAttributesHelper(false, entityAttributeTestConfig, overallResult); 
   }
