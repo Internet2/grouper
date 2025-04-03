@@ -22,9 +22,13 @@ import org.apache.commons.jexl3.parser.ASTAssignment;
 import org.apache.commons.jexl3.parser.ASTEQNode;
 import org.apache.commons.jexl3.parser.ASTERNode;
 import org.apache.commons.jexl3.parser.ASTFunctionNode;
+import org.apache.commons.jexl3.parser.ASTGENode;
+import org.apache.commons.jexl3.parser.ASTGTNode;
 import org.apache.commons.jexl3.parser.ASTIdentifier;
 import org.apache.commons.jexl3.parser.ASTIdentifierAccess;
 import org.apache.commons.jexl3.parser.ASTJexlScript;
+import org.apache.commons.jexl3.parser.ASTLENode;
+import org.apache.commons.jexl3.parser.ASTLTNode;
 import org.apache.commons.jexl3.parser.ASTMethodNode;
 import org.apache.commons.jexl3.parser.ASTNotNode;
 import org.apache.commons.jexl3.parser.ASTNullLiteral;
@@ -661,6 +665,70 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         }
         
       }
+    } else if (StringUtils.equals("hasAttributeLessThan", astIdentifierAccess.getName()) || StringUtils.equals("hasAttributeLessThanOrEqual", astIdentifierAccess.getName())
+        || StringUtils.equals("hasAttributeGreaterThan", astIdentifierAccess.getName()) || StringUtils.equals("hasAttributeGreaterThanOrEqual", astIdentifierAccess.getName())) {
+      
+      ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
+      if (astArguments.jjtGetNumChildren() != 2) {
+        throw new RuntimeException("Not expecting method with this many arguments! " + astArguments.jjtGetNumChildren());
+      }
+      if (!(astArguments.jjtGetChild(0) instanceof ASTStringLiteral) && !(astArguments.jjtGetChild(0) instanceof ASTIdentifier)) {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(0).getClass().getName());
+      }
+
+      String attributeAlias = null;
+      
+      if (astArguments.jjtGetChild(0) instanceof ASTStringLiteral) {
+        ASTStringLiteral astStringLiteral = (ASTStringLiteral)astArguments.jjtGetChild(0);
+        attributeAlias = astStringLiteral.getLiteral();
+      } else if (astArguments.jjtGetChild(0) instanceof ASTIdentifier) {
+        attributeAlias = ((ASTIdentifier)astArguments.jjtGetChild(0)).getName();
+      } else {
+        GrouperUtil.assertion(false, "Not expecting type of first argument");
+      }
+      
+      String operator = null;
+      String label = null;
+      if (StringUtils.equals("hasAttributeLessThan", astIdentifierAccess.getName())) {
+        operator = "<";
+        label = "jexlAnalysisHasAttributeValueLessThan2";
+      } else if (StringUtils.equals("hasAttributeLessThanOrEqual", astIdentifierAccess.getName())) {
+        operator = "<=";
+        label = "jexlAnalysisHasAttributeValueLessThanEqual2";
+      } else if (StringUtils.equals("hasAttributeGreaterThan", astIdentifierAccess.getName())) {
+        operator = ">";
+        label = "jexlAnalysisHasAttributeValueGreaterThan2";
+      } else if (StringUtils.equals("hasAttributeGreaterThanOrEqual", astIdentifierAccess.getName())) {
+        operator = ">=";
+        label = "jexlAnalysisHasAttributeValueGreaterThanEqual2";
+      } else {
+        throw new RuntimeException("Not expecting method: " + astIdentifierAccess.getName());
+      }
+
+
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_field_assign gdfa where gdfa.data_field_internal_id = ? "
+          + "and gdfa.member_internal_id = gm.internal_id and gdfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + operator + " ?) ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", attributeAlias));
+      if (astArguments.jjtGetChild(1) instanceof ASTStringLiteral) {
+        String value = ((ASTStringLiteral)astArguments.jjtGetChild(1)).getLiteral();
+        grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
+        
+        grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+          .append(" '").append(GrouperUtil.xmlEscape(attributeAlias)).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" '")
+          .append(GrouperUtil.xmlEscape(value)).append("'");
+
+      } else if (astArguments.jjtGetChild(1) instanceof ASTNumberLiteral) {
+        Number value = ((ASTNumberLiteral)astArguments.jjtGetChild(1)).getLiteral();
+        grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", value));
+        
+        grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasAttributeValue1"))
+          .append(" '").append(attributeAlias).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" ")
+          .append(value);
+
+      } else {
+        throw new RuntimeException("Not expecting argument of type! " + astArguments.jjtGetChild(1).getClass().getName());
+      }
+
       
     } else if (StringUtils.equals("hasAttribute", astIdentifierAccess.getName())) {
       ASTArguments astArguments = (ASTArguments)astMethodNode.jjtGetChild(1);
@@ -1134,7 +1202,8 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
         .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2"))
         .append(" null");
 
-    } else if ((jexlNode instanceof ASTEQNode || jexlNode instanceof ASTAssignment) && 2==jexlNode.jjtGetNumChildren()) {
+    } else if ((jexlNode instanceof ASTEQNode || jexlNode instanceof ASTAssignment || jexlNode instanceof ASTLTNode || jexlNode instanceof ASTLENode 
+        || jexlNode instanceof ASTGTNode || jexlNode instanceof ASTGENode) && 2==jexlNode.jjtGetNumChildren()) {
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
             + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
@@ -1154,19 +1223,54 @@ public class GrouperLoaderJexlScriptFullSync extends OtherJobBase {
       } else if (jexlNode.jjtGetChild(1) instanceof ASTStringLiteral) {
         rightPartValue = ((ASTStringLiteral)jexlNode.jjtGetChild(1)).getLiteral();
       } 
-      
+      String operator = null;
+      String label = null;
+      if (jexlNode instanceof ASTEQNode || jexlNode instanceof ASTAssignment) {
+        operator = "=";
+        label = "jexlAnalysisHasRowAttributeValue2";
+      } else if (jexlNode instanceof ASTLTNode) {
+        operator = "<";
+        label = "jexlAnalysisHasRowAttributeValueLessThan2";
+      } else if (jexlNode instanceof ASTLENode) {
+        operator = "<=";
+        label = "jexlAnalysisHasRowAttributeValueLessThanEqual2";
+      } else if (jexlNode instanceof ASTGTNode) {
+        operator = ">";
+        label = "jexlAnalysisHasRowAttributeValueGreaterThan2";
+      } else if (jexlNode instanceof ASTGENode) {
+        operator = ">=";
+        label = "jexlAnalysisHasRowAttributeValueGreaterThanEqual2";
+      } else {
+        throw new RuntimeException("Not expecting node type: " + jexlNode 
+            + ", children: " + jexlNode.jjtGetNumChildren());
+      }
       grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
-          + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ = ?) ");
+          + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ " + operator + " ?) ");
       grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
       grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", rightPartValue));
       
       grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
-        .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2")).append(" '")
+        .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull(label)).append(" '")
         .append(GrouperUtil.xmlEscape(rightPartValue)).append("'");
 
-    }  
-    
-    else if (jexlNode instanceof ASTERNode && 2==jexlNode.jjtGetNumChildren()) {
+    } else if ((jexlNode instanceof ASTEQNode || jexlNode instanceof ASTAssignment) && 2==jexlNode.jjtGetNumChildren() && jexlNode.jjtGetChild(1) instanceof ASTNullLiteral) {
+      if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
+        throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
+            + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
+      }
+      
+      ASTIdentifier leftPart = (ASTIdentifier)jexlNode.jjtGetChild(0);
+      
+      grouperJexlScriptPart.getWhereClause().append("exists (select 1 from grouper_data_row_field_assign gdrfa where data_row_assign_internal_id = gdra.internal_id "
+          + "and gdrfa.data_field_internal_id = ? and gdrfa.$$ATTRIBUTE_COL_" + (grouperJexlScriptPart.getArguments().size()+1) + "$$ is null) ");
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attribute", leftPart.getName()));
+      grouperJexlScriptPart.getArguments().add(new MultiKey("attributeValue", Void.TYPE));
+      
+      grouperJexlScriptPart.getDisplayDescription().append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue1"))
+        .append(" '").append(GrouperUtil.xmlEscape(leftPart.getName())).append("' ").append(GrouperTextContainer.textOrNull("jexlAnalysisHasRowAttributeValue2"))
+        .append(" null");
+
+    } else if (jexlNode instanceof ASTERNode && 2==jexlNode.jjtGetNumChildren()) {
       if (!(jexlNode.jjtGetChild(0) instanceof ASTIdentifier)) {
         throw new RuntimeException("Not expecting node type: " + jexlNode.jjtGetChild(0).getClass().getName() 
             + ", children: " + jexlNode.jjtGetChild(0).jjtGetNumChildren());
