@@ -339,6 +339,21 @@ public class AzureMockServiceHandler extends MockServiceHandler {
           }
           
           responsesNode.add(getGroupResponse);
+        } else if (urlPartsList.size() == 3 && StringUtils.equals(urlPartsList.get(0), "groups") 
+            && StringUtils.equals(urlPartsList.get(2), "owners")) { // get group owners
+
+          String groupId = urlPartsList.get(1);
+          
+          MultiKey getGroupResult = getGroupOwners(groupId);
+          
+          ObjectNode getGroupOwnersResponse = GrouperUtil.jsonJacksonNode();
+          getGroupOwnersResponse.put("id", id);
+          getGroupOwnersResponse.put("status", (Integer)getGroupResult.getKey(0));
+          if (getGroupResult.getKey(1) != null) {
+            getGroupOwnersResponse.set("body", (JsonNode)getGroupResult.getKey(1));
+          }
+          
+          responsesNode.add(getGroupOwnersResponse);
         } else if ( urlPartsList.size() == 1 && StringUtils.startsWith(urlPartsList.get(0), "users?")) {
           
           String groupsFilter = urlPartsList.get(0);
@@ -709,6 +724,34 @@ public class AzureMockServiceHandler extends MockServiceHandler {
     mockServiceResponse.setResponseBody(GrouperUtil.jsonJacksonToString(resultNode));
     
   }
+  
+  public MultiKey getGroupOwners(String groupId) {
+    
+    GrouperAzureGroup azureGroup = HibernateSession.byHqlStatic().createQuery("from GrouperAzureGroup where id = :theValue").setString("theValue", groupId)
+      .uniqueResult(GrouperAzureGroup.class);
+    
+    ObjectNode resultNode = GrouperUtil.jsonJacksonNode();
+    ArrayNode valueNode = GrouperUtil.jsonJacksonArrayNode();
+    
+    if (azureGroup == null) {
+      resultNode.set("value", valueNode);
+      return new MultiKey(200, resultNode);
+    }
+    
+    Set<String> owners = azureGroup.getOwners();
+    for (String owner : GrouperUtil.nonNull(owners)) {
+      
+      ObjectNode individualOwnerNode = GrouperUtil.jsonJacksonNode();
+      individualOwnerNode.put("id", owner);
+      valueNode.add(individualOwnerNode);
+    }
+    
+    resultNode.set("value", valueNode);
+    
+    return new MultiKey(200, resultNode);
+    
+  }
+  
   
   public MultiKey getGroups(String filter, String fieldsToRetrieveString) {
     
