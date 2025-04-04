@@ -318,5 +318,25 @@ public class ProvisioningStateEntity extends ProvisioningStateBase {
   public void setTranslatedMemberships(boolean theTranslatedMemberships) {
     this.translatedMemberships = theTranslatedMemberships;
   }
+
+  /**
+   * if we retrieved this past member because of a past membership
+   */
+  private boolean fromPastMembership;
   
+  /**
+   * if we retrieved this past member because of a past membership
+   * @return
+   */
+  public void setFromPastMembership(boolean b) {
+    this.fromPastMembership = b;
+  }
+
+  /**
+   * if we retrieved this past member because of a past membership
+   * @return
+   */
+  public boolean isFromPastMembership() {
+    return fromPastMembership;
+  }
 }

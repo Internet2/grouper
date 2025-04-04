@@ -622,7 +622,8 @@ public class GrouperProvisioningSyncIntegration {
           
           // see if not provisionable
           if (!gcGrouperSyncMember.isProvisionable() && grouperProvisioningEntity != null
-              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
+              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.getProvisioningStateEntity().isDelete())
+              && !provisioningEntityWrapper.getProvisioningStateEntity().isFromPastMembership()) {
             gcGrouperSyncMember.setProvisionableStart(new Timestamp(System.currentTimeMillis()));
             gcGrouperSyncMember.setProvisionableEnd(null);
             gcGrouperSyncMember.setProvisionable(true);
@@ -634,7 +635,8 @@ public class GrouperProvisioningSyncIntegration {
           
           // see if not provisionable
           if ((gcGrouperSyncMember.getInTarget() == null || !gcGrouperSyncMember.getInTarget()) && grouperProvisioningEntity != null
-              && (provisioningEntityWrapper == null || !provisioningEntityWrapper.getProvisioningStateEntity().isDelete())) {
+              && (provisioningEntityWrapper == null 
+                || (!provisioningEntityWrapper.getProvisioningStateEntity().isDelete() && !provisioningEntityWrapper.getProvisioningStateEntity().isFromPastMembership()))) {
             memberIdsToInsert.add(gcGrouperSyncMember.getMemberId());
           }
             
