@@ -230,7 +230,8 @@ public class GrouperProvisioningGrouperSyncDao {
         memberIdsToIgnore.add(provisioningEntityWrapper.getMemberId());
       }
     }
-    
+    Set<String> memberIdsInPastMemberships = new HashSet<String>();    
+    Set<String> memberIdsInPresentMemberships = new HashSet<String>();    
     for (ProvisioningMembershipWrapper provisioningMembershipWrapper : 
       this.grouperProvisioner.retrieveGrouperProvisioningData().getProvisioningMembershipWrappers()) {
       if (provisioningMembershipWrapper.getGroupIdMemberId() != null) {
@@ -240,10 +241,16 @@ public class GrouperProvisioningGrouperSyncDao {
               .retrieveGrouperProvisioningDataIndex().getMemberUuidToProvisioningEntityWrapper().get(memberId);
           if (provisioningEntityWrapper == null || provisioningEntityWrapper.getGcGrouperSyncMember() == null) {
             memberIdsToRetrieve.add(memberId);
+            if (provisioningMembershipWrapper.getGrouperProvisioningMembership() == null) {
+              memberIdsInPastMemberships.add(memberId);
+            } else {
+              memberIdsInPresentMemberships.add(memberId);
+            }
           }
         }
       }
     }
+    memberIdsInPastMemberships.removeAll(memberIdsInPresentMemberships);
 
     debugMap.put("syncMembersToQuery_"+logLabel,
         GrouperUtil.length(memberIdsToRetrieve));
@@ -267,6 +274,9 @@ public class GrouperProvisioningGrouperSyncDao {
           provisioningEntityWrapper.setGrouperProvisioner(this.getGrouperProvisioner());
           provisioningEntityWrapper.setMemberId(memberId);
           provisioningEntityWrapper.setGcGrouperSyncMember(grouperSyncMember);
+          if (memberIdsInPastMemberships.contains(memberId)) {
+            provisioningEntityWrapper.getProvisioningStateEntity().setFromPastMembership(true);
+          }
           this.getGrouperProvisioner().retrieveGrouperProvisioningData().addAndIndexEntityWrapper(provisioningEntityWrapper);
         } else {
           provisioningEntityWrapper.setGcGrouperSyncMember(grouperSyncMember);
