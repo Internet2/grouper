@@ -7,6 +7,8 @@ package edu.internet2.middleware.grouperClient.jdbc.tableSync;
 import java.util.ArrayList;
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
+
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 
 
@@ -54,8 +56,19 @@ public class GcTableSyncTableBean {
    * @param databaseFrom
    * @param tableFrom
    */
-  public void configureMetadata(String databaseFrom, String tableFrom) {
-    this.tableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase(databaseFrom, tableFrom);
+  public void configureMetadata(String databaseFrom, String tableName) {
+    tableName = tableName.trim();
+    if (StringUtils.endsWith(tableName, ";")) {
+      tableName = tableName.substring(0, tableName.length() - 1);
+    }
+    // this might be already a query
+    if (tableName.contains(" ")) {
+      this.tableMetadata = GcTableSyncTableMetadata.retrieveQueryMetadataFromCacheOrDatabase(databaseFrom, tableName);
+    } else {
+      this.tableMetadata = GcTableSyncTableMetadata.retrieveTableMetadataFromCacheOrDatabase(databaseFrom, tableName);
+    }
+
+    
   }
   
   /**

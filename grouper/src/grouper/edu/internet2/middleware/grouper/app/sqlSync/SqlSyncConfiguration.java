@@ -98,11 +98,12 @@ public class SqlSyncConfiguration extends GrouperConfigurationModuleBase impleme
       
       GrouperConfigurationModuleAttribute tableFromAttribute = attributes.get("tableFrom");
       String tableFrom = tableFromAttribute.getValueOrExpressionEvaluation();
-      
-      if (!tableFrom.matches("^[a-zA-Z0-9_\\.]+$")) {
-        String error = GrouperTextContainer.textOrNull("sqlSyncConfigSaveErrorTableFromContainsIllegalCharacters");
-        validationErrorsToDisplay.put(tableFromAttribute.getHtmlForElementIdHandle(), error);
-      }
+
+      //  allow a query in the from
+      //  if (!tableFrom.matches("^[a-zA-Z0-9_\\.]+$")) {
+      //    String error = GrouperTextContainer.textOrNull("sqlSyncConfigSaveErrorTableFromContainsIllegalCharacters");
+      //    validationErrorsToDisplay.put(tableFromAttribute.getHtmlForElementIdHandle(), error);
+      //  }
       
       GrouperConfigurationModuleAttribute tableToAttribute = attributes.get("tableTo");
       String tableTo = tableToAttribute.getValueOrExpressionEvaluation();
