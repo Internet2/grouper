@@ -3149,6 +3149,10 @@ public class GcDbAccess {
         Clob clob = resultSet.getClob(columnNumberOneIndexed);
         return clob != null ? clob.getSubString(1, (int) clob.length()) : null;
         
+      case Types.OTHER: 
+
+        return resultSet.getObject(columnNumberOneIndexed);
+
       default:
         throw new RuntimeException("Not expecting column type: " + type);
     }

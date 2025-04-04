@@ -104,6 +104,46 @@ public class GcTableSyncColumnMetadata {
     /**
      * 
      */
+    UUID {
+
+      @Override
+      public Object readDataFromResultSet(GcTableSyncColumnMetadata gcTableSyncColumnMetadata, ResultSet resultSet) throws SQLException {
+        return resultSet.getObject(gcTableSyncColumnMetadata.getColumnName());
+      }
+      
+      /**
+       * convert to type
+       */
+      @Override
+      public Object convertToType(Object input) {
+        
+        if (input == null) {
+          return null;
+        }
+        
+        if (input instanceof String) {
+          
+          java.util.UUID uuid = null;
+          try {
+            uuid = java.util.UUID.fromString((String)input);
+          } catch (IllegalArgumentException e) {
+            throw new RuntimeException("Error converting to UUID: " + input, e);
+          }
+          return uuid;
+        }
+        
+        if (input instanceof java.util.UUID) {
+          return (java.util.UUID) input;
+        }
+        
+        throw new RuntimeException("Error converting to UUID: " + input.getClass().getName() + ", '" + input + "'");
+      }
+
+    },
+    
+    /**
+     * 
+     */
     BOOLEAN {
 
       @Override

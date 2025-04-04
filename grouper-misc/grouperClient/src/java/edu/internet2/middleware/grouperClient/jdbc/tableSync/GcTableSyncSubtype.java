@@ -53,7 +53,14 @@ public enum GcTableSyncSubtype {
       
       captureCurrentMaxIncrementalIndexIfNeeded(debugMap, gcTableSync);
 
-      String sqlFrom = "select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAllQuoted() + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName();
+      String sqlFrom = gcTableSync.getGcTableSyncConfiguration().getTableFrom().trim().contains(" ") ? 
+          gcTableSync.getGcTableSyncConfiguration().getTableFrom().trim() :
+            ("select " + gcTableSync.getDataBeanFrom().getTableMetadata().columnListAllQuoted() + " from " + gcTableSync.getDataBeanFrom().getTableMetadata().getTableName());
+      
+      if (sqlFrom.endsWith(";")) {
+        sqlFrom = sqlFrom.substring(0, sqlFrom.length() - 1);
+      }
+      
       String sqlTo = "select " + gcTableSync.getDataBeanTo().getTableMetadata().columnListAllQuoted() + " from " + gcTableSync.getDataBeanTo().getTableMetadata().getTableName();
 
       GcTableSyncTableData[] gcTableSyncTableDatas = runQueryFromAndTo(debugMap, gcTableSync, sqlFrom, 

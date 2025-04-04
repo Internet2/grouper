@@ -452,6 +452,11 @@ public class GcTableSyncTableMetadata {
                 gcTableSyncColumnMetadata.setColumnType(ColumnType.TIMESTAMP);
                 break; 
                 
+              case Types.OTHER: 
+
+                gcTableSyncColumnMetadata.setColumnType(ColumnType.UUID);
+                break; 
+              
               default:
                 throw new RuntimeException("Type not supported: " + dataType + ", " + typeName);
                 
