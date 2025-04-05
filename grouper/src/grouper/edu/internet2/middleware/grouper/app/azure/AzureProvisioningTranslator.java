@@ -55,7 +55,12 @@ public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
           }
         }
         
-        grouperTargetGroup.assignAttributeValue(attributeName, newValue);
+        if (StringUtils.equals(attributeName, "groupOwners")) {
+          Set<String> owners = GrouperUtil.splitTrimToSet(newValue, ",");
+          grouperTargetGroup.assignAttributeValue(attributeName, owners);
+        } else {          
+          grouperTargetGroup.assignAttributeValue(attributeName, newValue);
+        }
         
       }
       
