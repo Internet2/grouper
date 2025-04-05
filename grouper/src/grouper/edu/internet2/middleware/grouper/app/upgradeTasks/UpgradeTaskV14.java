@@ -425,7 +425,7 @@ public class UpgradeTaskV14 implements UpgradeTasksInterface {
           }
 
         } catch (Throwable t) {
-          String message = "Could not perform upgrade task V14 adding tables/foreign keys/indexes for GRP-5784 adobe provisioner!  "
+          String message = "Could not perform upgrade task V14 adding tables/foreign keys/indexes for GRP-5794 adobe provisioner!  "
               + "Skipping this upgrade task, install the tables/foreign keys/indexes manually";
           LOG.error(message, t);
           if (otherJobInput != null) {
