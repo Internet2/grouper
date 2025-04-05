@@ -46,7 +46,7 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
   public static void main(String[] args) {
     
     GrouperStartup.startup();
-    TestRunner.run(new GrouperOktaProvisionerTest("testFullSyncOkta"));
+    TestRunner.run(new GrouperOktaProvisionerTest("testFullSyncOktaStartWithAndDiagnostics"));
     
   }
   
@@ -91,8 +91,9 @@ public class GrouperOktaProvisionerTest extends GrouperProvisioningBaseTest {
       startWithSuffixToValue.put("manageEntities", "true");
       startWithSuffixToValue.put("selectAllEntities", "true");
       startWithSuffixToValue.put("entityEmailSubjectAttribute", "email");
-      startWithSuffixToValue.put("entityFamilyName", "name");
-      startWithSuffixToValue.put("entityGivenName", "subjectId");
+      startWithSuffixToValue.put("entityLastName", "name");
+      startWithSuffixToValue.put("entityFirstName", "name");
+      startWithSuffixToValue.put("entityLoginSubjectAttribute", "email");
       
       Map<String, Object> provisionerSuffixToValue = new HashMap<>();
       

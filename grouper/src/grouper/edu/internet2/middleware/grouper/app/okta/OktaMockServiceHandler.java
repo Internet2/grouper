@@ -243,6 +243,20 @@ public class OktaMockServiceHandler extends MockServiceHandler {
 
     String limit = mockServiceRequest.getHttpServletRequest().getParameter("limit");
     String pageToken = mockServiceRequest.getHttpServletRequest().getParameter("after");
+    String search = mockServiceRequest.getHttpServletRequest().getParameter("search");
+    
+    String loginValue = null;
+    if (StringUtils.isNotBlank(search)) {
+      //profile.login eq "test.subject.0@somewhere.someSchool.edu"
+      if (!StringUtils.startsWith(search, "profile.login")) {
+        throw new RuntimeException("Only supports searching on profile.login");
+      }
+      
+      loginValue = StringUtils.substringAfterLast(search, "eq ");
+      loginValue = StringUtils.replace(loginValue, "\"", "");
+    }
+    
+   
       
     int limitInt = 100;
     if (StringUtils.isNotBlank(limit)) {
@@ -261,6 +275,9 @@ public class OktaMockServiceHandler extends MockServiceHandler {
     if (StringUtils.isNotBlank(pageToken)) {
       query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser where login > :pageToken");
       query.setScalar("pageToken", pageToken);
+    } else if (StringUtils.isNotBlank(loginValue)) {
+      query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser where login = :loginValue");
+      query.setScalar("loginValue", loginValue);
     } else {
       query = HibernateSession.byHqlStatic().createQuery("from GrouperOktaUser");
     }
