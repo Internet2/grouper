@@ -55,6 +55,11 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
       nameConfigurationAttribute.setGrouperProvisioningConfigurationAttributeType(GrouperProvisioningConfigurationAttributeType.group);
       nameConfigurationAttribute.setName(attributeName);
       nameConfigurationAttribute.setConfigIndex(this.getTargetGroupAttributeNameToConfig().size());
+      
+      if (StringUtils.equals(attributeName, "groupOwners")) {
+        nameConfigurationAttribute.setMultiValued(true);
+      }
+      
       this.getTargetGroupAttributeNameToConfig().put(attributeName, nameConfigurationAttribute);
     }
   }
