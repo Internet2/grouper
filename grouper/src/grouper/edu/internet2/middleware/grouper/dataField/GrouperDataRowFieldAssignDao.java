@@ -145,15 +145,15 @@ public class GrouperDataRowFieldAssignDao {
     return changed;
 
   }  
-
-  public static void store(Collection<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns) {
+  
+  public static void generateInternalIdsIfNeeded(Collection<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns) {
     if (GrouperUtil.length(grouperDataRowFieldAssigns) == 0) {
       return;
     }
-
+    
     int internalIdsNeeded = 0;
     for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssigns) {
-      if (grouperDataRowFieldAssign.getTempInternalIdOnDeck() == null) {
+      if (grouperDataRowFieldAssign.getTempInternalIdOnDeck() == null && grouperDataRowFieldAssign.getInternalId() == -1) {
         internalIdsNeeded++;
       }
     }
@@ -161,9 +161,15 @@ public class GrouperDataRowFieldAssignDao {
     List<Long> ids = TableIndex.reserveIds(TableIndexType.dataRowFieldAssign, internalIdsNeeded);
     int currentIndex = 0;
     for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssigns) {
-      if (grouperDataRowFieldAssign.getTempInternalIdOnDeck() == null) {
+      if (grouperDataRowFieldAssign.getTempInternalIdOnDeck() == null && grouperDataRowFieldAssign.getInternalId() == -1) {
         grouperDataRowFieldAssign.setTempInternalIdOnDeck(ids.get(currentIndex++));
       }
+    }
+  }
+
+  public static void store(Collection<GrouperDataRowFieldAssign> grouperDataRowFieldAssigns) {
+    if (GrouperUtil.length(grouperDataRowFieldAssigns) == 0) {
+      return;
     }
 
     for (GrouperDataRowFieldAssign grouperDataRowFieldAssign: grouperDataRowFieldAssigns) {      
