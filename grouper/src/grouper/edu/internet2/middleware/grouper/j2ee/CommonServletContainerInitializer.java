@@ -188,7 +188,7 @@ public class CommonServletContainerInitializer implements ServletContainerInitia
 
           if (runGrouperScim) {
             String scimServletName = "SCIMRestServlet";
-            Class scimServletClass = Class.forName("org.glassfish.jersey.servlet.ServletContainer");
+            Class scimServletClass = Class.forName("edu.internet2.middleware.grouper.ws.scim.GrouperScimServlet");
             javax.servlet.ServletRegistration.Dynamic scimServlet = context.addServlet(scimServletName, scimServletClass);
             scimServlet.addMapping("/scim/*");
             scimServlet.setInitParameter("jersey.config.server.provider.packages", "edu.internet2.middleware.grouper.ws.scim.providers");
