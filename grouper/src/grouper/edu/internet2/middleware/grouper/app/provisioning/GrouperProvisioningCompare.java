@@ -1603,8 +1603,8 @@ public class GrouperProvisioningCompare {
             if (provisioningGroupWrapper.getProvisioningStateGroup().isInGrouper() 
                 && provisioningGroupWrapper.getProvisioningStateGroup().isSelectResultProcessed()) {
             
-              if (provisioningGroupWrapper.getGrouperTargetGroup() != null && provisioningGroupWrapper.getTargetProvisioningGroup() == null) {
-                
+              if (provisioningGroupWrapper.getGrouperTargetGroup() != null && provisioningGroupWrapper.getTargetProvisioningGroup() == null 
+                  && !provisioningGroupWrapper.getProvisioningStateGroup().isGroupRemovedDueToAttribute()) {
                 provisioningGroupWrappersForInsert.add(provisioningGroupWrapper);
                 continue;
               }
