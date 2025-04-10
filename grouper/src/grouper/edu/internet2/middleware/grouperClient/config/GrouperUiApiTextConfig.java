@@ -196,13 +196,23 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
     HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequestThreadLocal.get(); 
     
     //cache this in the request
-    GrouperUiApiTextConfig grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+    GrouperUiApiTextConfig grouperUiTextConfig = null;
     
+    try {
+      grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+    } catch (Exception e) {
+      servletRequestThreadLocal.remove();
+    }
     if (grouperUiTextConfig == null) {
       Object synchronizedOnThis = httpServletRequest == null ? GrouperUiApiTextConfig.class : httpServletRequest;
       synchronized(synchronizedOnThis) {
         
-        grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+        try {
+          grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+        } catch (Exception e) {
+          servletRequestThreadLocal.remove();
+          httpServletRequest = null;
+        }
         
         if (grouperUiTextConfig == null) {
           
@@ -212,14 +222,20 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
             try {
               locale = httpServletRequest.getLocale();
             } catch (Exception e) {
-              //ignore
+              servletRequestThreadLocal.remove();
+              httpServletRequest = null;
             }
           }
           
           grouperUiTextConfig = retrieveText(locale);
           
           if (httpServletRequest != null) {
-            httpServletRequest.setAttribute("grouperUiTextConfig", grouperUiTextConfig);
+            try {
+              httpServletRequest.setAttribute("grouperUiTextConfig", grouperUiTextConfig);
+            } catch (Exception e) {
+              servletRequestThreadLocal.remove();
+              httpServletRequest = null;
+            }
           }
         }        
       }
