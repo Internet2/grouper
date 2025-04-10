@@ -3,6 +3,8 @@ package edu.internet2.middleware.grouper.app.dataProvider;
 import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.LinkedHashMap;
@@ -57,6 +59,8 @@ import edu.internet2.middleware.grouper.dictionary.GrouperDictionaryDao;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.jdbc.GcDbAccess;
+import edu.internet2.middleware.grouperClient.jdbc.GcTransactionCallback;
 import edu.internet2.middleware.grouperClient.jdbc.tableSync.GcGrouperSyncJob;
 import edu.internet2.middleware.subject.Subject;
 
@@ -726,25 +730,28 @@ public class GrouperDataProviderLogic {
   private void calculateAndStoreChanges(Map<String, Map<String, Integer>> queryConfigIdToLowerColumnNameToZeroIndex) {
     GrouperDataEngine dataEngine = grouperDataProviderSync.getGrouperDataEngine();
 
-    List<GrouperDataFieldAssign> grouperDataFieldAssignsToDelete = new ArrayList<GrouperDataFieldAssign>();
-    Set<ChangeLogEntry> changeLogEntriesDataFieldAssignsToDelete = new LinkedHashSet<ChangeLogEntry>();
+    Map<Long, GrouperDataFieldAssign> fieldAssignIdToGrouperDataFieldAssignsToDelete = new LinkedHashMap<>();
+    Map<Long, ChangeLogEntry> fieldAssignIdToChangeLogEntriesDataFieldAssignsToDelete = new LinkedHashMap<>();
     
     List<GrouperDataFieldAssign> grouperDataFieldAssignsToInsert = new ArrayList<GrouperDataFieldAssign>();
-    Set<ChangeLogEntry> changeLogEntriesDataFieldAssignsToInsert = new LinkedHashSet<ChangeLogEntry>();
+    Map<Long, ChangeLogEntry> fieldAssignIdToChangeLogEntriesDataFieldAssignsToInsert = new LinkedHashMap<>();
     
-    List<GrouperDataRowFieldAssign> grouperDataRowFieldAssignsToDelete = new ArrayList<GrouperDataRowFieldAssign>();
-    Set<ChangeLogEntry> changeLogEntriesDataRowFieldAssignsToDelete = new LinkedHashSet<ChangeLogEntry>();
+    Map<Long, List<GrouperDataRowFieldAssign>> rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete = new LinkedHashMap<>();
+    Map<Long, Set<ChangeLogEntry>> rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToDelete = new LinkedHashMap<>();
 
-    List<GrouperDataRowAssign> grouperDataRowAssignsToDelete = new ArrayList<GrouperDataRowAssign>();
-    Set<ChangeLogEntry> changeLogEntriesDataRowAssignsToDelete = new LinkedHashSet<ChangeLogEntry>();
+    Map<Long, GrouperDataRowAssign> rowAssignInternalIdToGrouperDataRowAssignsToDelete = new LinkedHashMap<>();
+    Map<Long, ChangeLogEntry> rowAssignInternalIdToChangeLogEntriesDataRowAssignsToDelete = new LinkedHashMap<>();
 
-    List<GrouperDataRowFieldAssign> grouperDataRowFieldAssignsToInsert = new ArrayList<GrouperDataRowFieldAssign>();
-    Set<ChangeLogEntry> changeLogEntriesDataRowFieldAssignsToInsert = new LinkedHashSet<ChangeLogEntry>();
+    List<GrouperDataRowFieldAssign> grouperDataRowFieldAssignsToInsert = new ArrayList<>();
+    Map<Long, Set<ChangeLogEntry>> rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToInsert = new LinkedHashMap<>();
 
-    List<GrouperDataRowAssign> grouperDataRowAssignsToInsert = new ArrayList<GrouperDataRowAssign>();
-    Set<ChangeLogEntry> changeLogEntriesDataRowAssignsToInsert = new LinkedHashSet<ChangeLogEntry>();
+    List<GrouperDataRowAssign> grouperDataRowAssignsToInsert = new ArrayList<>();
+    Map<Long, ChangeLogEntry> rowAssignInternalIdToChangeLogEntriesDataRowAssignsToInsert = new LinkedHashMap<>();
 
-    List<GrouperDataRowAssign> grouperDataRowAssignsToUpdate = new ArrayList<GrouperDataRowAssign>();
+    Map<Long, GrouperDataRowAssign> rowAssignInternalIdToGrouperDataRowAssignsToUpdate = new LinkedHashMap<>();
+    
+    Map<Long, Long> fieldAssignIdToMemberInternalId = new LinkedHashMap<>();
+    Map<Long, Long> rowAssignInternalIdToMemberInternalId = new LinkedHashMap<>();
 
     Set<String> needsDictionaryText = new HashSet<String>();
     
@@ -929,13 +936,15 @@ public class GrouperDataProviderLogic {
               
               GrouperDataFieldAssign grouperDataFieldAssign = grouperDataFieldAssignWrapper.getGrouperDataFieldAssign();
               
-              grouperDataFieldAssignsToDelete.add(grouperDataFieldAssign);
-              
+              fieldAssignIdToGrouperDataFieldAssignsToDelete.put(grouperDataFieldAssign.getInternalId(), grouperDataFieldAssign);
+              fieldAssignIdToMemberInternalId.put(grouperDataFieldAssign.getInternalId(), grouperDataFieldAssign.getMemberInternalId());
+
               Long valueOrInternalId = grouperDataFieldAssign.getValueInteger() != null ? 
                   grouperDataFieldAssign.getValueInteger() 
                   : grouperDataFieldAssign.getValueDictionaryInternalId();
               
-              changeLogEntriesDataFieldAssignsToDelete.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_FIELD_ASSIGN_DELETE,
+              fieldAssignIdToChangeLogEntriesDataFieldAssignsToDelete.put(grouperDataFieldAssign.getInternalId(), 
+                  new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_FIELD_ASSIGN_DELETE,
                   ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.id.name(),
                   GrouperUtil.stringValue(grouperDataFieldAssign.getInternalId()),
                   ChangeLogLabels.DATA_FIELD_ASSIGN_DELETE.dataFieldInternalId.name(),
@@ -958,21 +967,6 @@ public class GrouperDataProviderLogic {
               grouperDataFieldAssign.setMemberInternalId(grouperDataMemberWrapper.getInternalId());
               grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataFieldAssign, value, dataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
               grouperDataFieldAssignsToInsert.add(grouperDataFieldAssign);
-              
-              Long valueOrInternalId = grouperDataFieldAssign.getValueInteger() != null ? 
-                  grouperDataFieldAssign.getValueInteger() 
-                  : grouperDataFieldAssign.getValueDictionaryInternalId();
-
-              changeLogEntriesDataFieldAssignsToInsert.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_FIELD_ASSIGN_ADD,
-                  ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.id.name(),
-                  GrouperUtil.stringValue(grouperDataFieldAssign.getInternalId()),
-                  ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.dataFieldInternalId.name(),
-                  GrouperUtil.stringValue(grouperDataFieldAssign.getDataFieldInternalId()),
-                  ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.memberInternalId.name(),
-                  GrouperUtil.stringValue(grouperDataFieldAssign.getMemberInternalId()),
-                  ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.valueOrInternalId.name(),
-                  GrouperUtil.stringValue(valueOrInternalId)));
-
             }
           }
         }
@@ -1042,9 +1036,16 @@ public class GrouperDataProviderLogic {
                     grouperDataRowFieldAssign.getValueInteger() 
                     : grouperDataRowFieldAssign.getValueDictionaryInternalId();
 
-                grouperDataRowFieldAssignsToDelete.add(grouperDataRowFieldAssign);
+                if (rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.get(grouperDataRowAssign.getInternalId()) == null) {
+                  rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.put(grouperDataRowAssign.getInternalId(), new ArrayList<>());
+                  rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToDelete.put(grouperDataRowAssign.getInternalId(), new LinkedHashSet<>());
+                }
                 
-                changeLogEntriesDataRowFieldAssignsToDelete.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_DELETE,
+                rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.get(grouperDataRowAssign.getInternalId()).add(grouperDataRowFieldAssign);
+                rowAssignInternalIdToMemberInternalId.put(grouperDataRowAssign.getInternalId(), grouperDataRowAssign.getMemberInternalId());
+
+                rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToDelete.get(grouperDataRowAssign.getInternalId()).add(
+                    new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_DELETE,
                     ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.id.name(),
                     GrouperUtil.stringValue(grouperDataRowFieldAssign.getInternalId()),
                     ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataRowInternalId.name(),
@@ -1061,8 +1062,11 @@ public class GrouperDataProviderLogic {
               }
             }
 
-            grouperDataRowAssignsToDelete.add(grouperDataRowAssignWrapper.getGrouperDataRowAssign());
-            changeLogEntriesDataRowAssignsToDelete.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROW_ASSIGN_DELETE,
+            rowAssignInternalIdToGrouperDataRowAssignsToDelete.put(grouperDataRowAssign.getInternalId(), grouperDataRowAssignWrapper.getGrouperDataRowAssign());
+            rowAssignInternalIdToMemberInternalId.put(grouperDataRowAssign.getInternalId(), grouperDataRowAssign.getMemberInternalId());
+
+            rowAssignInternalIdToChangeLogEntriesDataRowAssignsToDelete.put(grouperDataRowAssign.getInternalId(),
+                new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROW_ASSIGN_DELETE,
                     ChangeLogLabels.DATA_ROW_ASSIGN_DELETE.id.name(),
                     GrouperUtil.stringValue(grouperDataRowAssign.getInternalId()),
                     ChangeLogLabels.DATA_ROW_ASSIGN_DELETE.dataRowInternalId.name(),
@@ -1084,15 +1088,6 @@ public class GrouperDataProviderLogic {
             
             grouperDataRowAssignsToInsert.add(grouperDataRowAssign);
             
-            changeLogEntriesDataRowAssignsToInsert.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROW_ASSIGN_ADD,
-                ChangeLogLabels.DATA_ROW_ASSIGN_ADD.id.name(),
-                GrouperUtil.stringValue(grouperDataRowAssign.getInternalId()),
-                ChangeLogLabels.DATA_ROW_ASSIGN_ADD.dataRowInternalId.name(),
-                GrouperUtil.stringValue(grouperDataRowAssign.getDataRowInternalId()),
-                ChangeLogLabels.DATA_ROW_ASSIGN_ADD.memberInternalId.name(),
-                GrouperUtil.stringValue(grouperDataRowAssign.getMemberInternalId())));
-            
-
             Map<Long, List<Object>> dataFieldInternalIdToValues = providerDataRowKeyToDataFieldInternalIdsAndValues.get(rowKeyFieldsToInsert);
             for (Long dataFieldInternalId : GrouperUtil.nonNull(dataFieldInternalIdToValues.keySet())) {
 
@@ -1107,27 +1102,7 @@ public class GrouperDataProviderLogic {
                 grouperDataRowFieldAssign.setDataRowAssign(grouperDataRowAssign);
                 grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, value, dataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
 
-                Long valueOrInternalId = grouperDataRowFieldAssign.getValueInteger() != null ? 
-                    grouperDataRowFieldAssign.getValueInteger() 
-                    : grouperDataRowFieldAssign.getValueDictionaryInternalId();
-
-                grouperDataRowFieldAssignsToInsert.add(grouperDataRowFieldAssign);
-                
-                changeLogEntriesDataRowFieldAssignsToInsert.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_ADD,
-                    ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.id.name(),
-                    GrouperUtil.stringValue(grouperDataRowFieldAssign.getInternalId()),
-                    ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowInternalId.name(),
-                    GrouperUtil.stringValue(grouperDataRowAssign.getDataRowInternalId()),
-                    ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowAssignInternalId.name(),
-                    GrouperUtil.stringValue(grouperDataRowAssign.getInternalId()),
-                    ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataFieldInternalId.name(),
-                    GrouperUtil.stringValue(grouperDataRowFieldAssign.getDataFieldInternalId()),
-                    ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.memberInternalId.name(),
-                    GrouperUtil.stringValue(grouperDataRowAssign.getMemberInternalId()),
-                    ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.valueOrInternalId.name(),
-                    GrouperUtil.stringValue(valueOrInternalId)));
-
-
+                grouperDataRowFieldAssignsToInsert.add(grouperDataRowFieldAssign);  
               }
             }
 
@@ -1161,13 +1136,21 @@ public class GrouperDataProviderLogic {
                   if (providerValues.contains(grouperValueConverted)) {
                     grouperValuesConverted.add(grouperValueConverted);
                   } else {
-                    grouperDataRowFieldAssignsToDelete.add(grouperDataRowFieldAssign);
                     
                     Long valueOrInternalId = grouperDataRowFieldAssign.getValueInteger() != null ? 
                         grouperDataRowFieldAssign.getValueInteger() 
                         : grouperDataRowFieldAssign.getValueDictionaryInternalId();
+                    
+                    if (rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.get(grouperDataRowAssign.getInternalId()) == null) {
+                      rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.put(grouperDataRowAssign.getInternalId(), new ArrayList<>());
+                      rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToDelete.put(grouperDataRowAssign.getInternalId(), new LinkedHashSet<>());
+                    }
+                    
+                    rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.get(grouperDataRowAssign.getInternalId()).add(grouperDataRowFieldAssign);
+                    rowAssignInternalIdToMemberInternalId.put(grouperDataRowAssign.getInternalId(), grouperDataRowAssign.getMemberInternalId());
 
-                    changeLogEntriesDataRowFieldAssignsToDelete.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_DELETE,
+                    rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToDelete.get(grouperDataRowAssign.getInternalId()).add(
+                        new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_DELETE,
                         ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.id.name(),
                         GrouperUtil.stringValue(grouperDataRowFieldAssign.getInternalId()),
                         ChangeLogLabels.DATA_ROWFIELD_ASSIGN_DELETE.dataRowInternalId.name(),
@@ -1194,25 +1177,6 @@ public class GrouperDataProviderLogic {
                     grouperDataRowFieldAssign.setDataRowAssign(grouperDataRowAssignWrapper.getGrouperDataRowAssign());
                     grouperDataFieldConfig.getFieldDataType().assignValue(grouperDataRowFieldAssign, valueToAdd, dataEngine.getGrouperDataProviderIndex().getDictionaryTextByString());
                     grouperDataRowFieldAssignsToInsert.add(grouperDataRowFieldAssign);
-                    
-                    Long valueOrInternalId = grouperDataRowFieldAssign.getValueInteger() != null ? 
-                        grouperDataRowFieldAssign.getValueInteger() 
-                        : grouperDataRowFieldAssign.getValueDictionaryInternalId();
-
-                    changeLogEntriesDataRowFieldAssignsToInsert.add(new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_ADD,
-                        ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.id.name(),
-                        GrouperUtil.stringValue(grouperDataRowFieldAssign.getInternalId()),
-                        ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowInternalId.name(),
-                        GrouperUtil.stringValue(grouperDataRowAssign.getDataRowInternalId()),
-                        ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowAssignInternalId.name(),
-                        GrouperUtil.stringValue(grouperDataRowAssign.getInternalId()),
-                        ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataFieldInternalId.name(),
-                        GrouperUtil.stringValue(grouperDataRowFieldAssign.getDataFieldInternalId()),
-                        ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.memberInternalId.name(),
-                        GrouperUtil.stringValue(grouperDataRowAssign.getMemberInternalId()),
-                        ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.valueOrInternalId.name(),
-                        GrouperUtil.stringValue(valueOrInternalId)));
-
                   }
                 }
               }
@@ -1223,12 +1187,92 @@ public class GrouperDataProviderLogic {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
     }
+    
+    // generate internal ids for any field assigns if needed and add to maps
+    GrouperDataFieldAssignDao.generateInternalIdsIfNeeded(grouperDataFieldAssignsToInsert);
+    Map<Long, GrouperDataFieldAssign> fieldAssignIdToGrouperDataFieldAssignsToInsert = new LinkedHashMap<>();
+    for (GrouperDataFieldAssign grouperDataFieldAssign : grouperDataFieldAssignsToInsert) {
+      Long internalId = grouperDataFieldAssign.getInternalId() == -1 ? grouperDataFieldAssign.getTempInternalIdOnDeck() : grouperDataFieldAssign.getInternalId();
+      fieldAssignIdToGrouperDataFieldAssignsToInsert.put(internalId, grouperDataFieldAssign);
+      fieldAssignIdToMemberInternalId.put(internalId, grouperDataFieldAssign.getMemberInternalId());
+      
+      Long valueOrInternalId = grouperDataFieldAssign.getValueInteger() != null ? 
+          grouperDataFieldAssign.getValueInteger() 
+          : grouperDataFieldAssign.getValueDictionaryInternalId();
+
+      fieldAssignIdToChangeLogEntriesDataFieldAssignsToInsert.put(internalId,
+          new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_FIELD_ASSIGN_ADD,
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.id.name(),
+          GrouperUtil.stringValue(internalId),
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.dataFieldInternalId.name(),
+          GrouperUtil.stringValue(grouperDataFieldAssign.getDataFieldInternalId()),
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.memberInternalId.name(),
+          GrouperUtil.stringValue(grouperDataFieldAssign.getMemberInternalId()),
+          ChangeLogLabels.DATA_FIELD_ASSIGN_ADD.valueOrInternalId.name(),
+          GrouperUtil.stringValue(valueOrInternalId)));
+    }
+    
+    // generate internal ids for any row assigns if needed and add to maps
+    GrouperDataRowAssignDao.generateInternalIdsIfNeeded(grouperDataRowAssignsToInsert);
+    Map<Long, GrouperDataRowAssign> rowAssignInternalIdToGrouperDataRowAssignsToInsert = new LinkedHashMap<>();
+    for (GrouperDataRowAssign grouperDataRowAssign : grouperDataRowAssignsToInsert) {
+      Long internalId = grouperDataRowAssign.getInternalId() == -1 ? grouperDataRowAssign.getTempInternalIdOnDeck() : grouperDataRowAssign.getInternalId();
+      rowAssignInternalIdToGrouperDataRowAssignsToInsert.put(internalId, grouperDataRowAssign);
+      rowAssignInternalIdToMemberInternalId.put(internalId, grouperDataRowAssign.getMemberInternalId());
+      
+      rowAssignInternalIdToChangeLogEntriesDataRowAssignsToInsert.put(internalId,
+          new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROW_ASSIGN_ADD,
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.id.name(),
+          GrouperUtil.stringValue(internalId),
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.dataRowInternalId.name(),
+          GrouperUtil.stringValue(grouperDataRowAssign.getDataRowInternalId()),
+          ChangeLogLabels.DATA_ROW_ASSIGN_ADD.memberInternalId.name(),
+          GrouperUtil.stringValue(grouperDataRowAssign.getMemberInternalId())));
+    }
+    
+    // generate internal ids for any row field assigns if needed and add to maps
+    GrouperDataRowFieldAssignDao.generateInternalIdsIfNeeded(grouperDataRowFieldAssignsToInsert);
+    Map<Long, List<GrouperDataRowFieldAssign>> rowAssignInternalIdToGrouperDataRowFieldAssignsToInsert = new LinkedHashMap<>();
+    for (GrouperDataRowFieldAssign grouperDataRowFieldAssign : grouperDataRowFieldAssignsToInsert) {
+      Long internalId = grouperDataRowFieldAssign.getInternalId() == -1 ? grouperDataRowFieldAssign.getTempInternalIdOnDeck() : grouperDataRowFieldAssign.getInternalId();
+      Long rowAssignId = grouperDataRowFieldAssign.getDataRowAssignInternalId();
+      if (rowAssignId == -1) {
+        rowAssignId = grouperDataRowFieldAssign.getDataRowAssign().getInternalId() == -1 ? grouperDataRowFieldAssign.getDataRowAssign().getTempInternalIdOnDeck() : grouperDataRowFieldAssign.getDataRowAssign().getInternalId();
+      }
+      
+      if (rowAssignInternalIdToGrouperDataRowFieldAssignsToInsert.get(rowAssignId) == null) {
+        rowAssignInternalIdToGrouperDataRowFieldAssignsToInsert.put(rowAssignId, new ArrayList<>());
+        rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToInsert.put(rowAssignId, new LinkedHashSet<>());
+      }
+      rowAssignInternalIdToGrouperDataRowFieldAssignsToInsert.get(rowAssignId).add(grouperDataRowFieldAssign);
+      rowAssignInternalIdToMemberInternalId.put(rowAssignId, grouperDataRowFieldAssign.getDataRowAssign().getMemberInternalId());
+      
+      Long valueOrInternalId = grouperDataRowFieldAssign.getValueInteger() != null ? 
+          grouperDataRowFieldAssign.getValueInteger() 
+          : grouperDataRowFieldAssign.getValueDictionaryInternalId();
+
+      rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToInsert.get(rowAssignId).add(
+          new ChangeLogEntry(true, ChangeLogTypeBuiltin.DATA_ROWFIELD_ASSIGN_ADD,
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.id.name(),
+          GrouperUtil.stringValue(internalId),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowInternalId.name(),
+          GrouperUtil.stringValue(grouperDataRowFieldAssign.getDataRowAssign().getDataRowInternalId()),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataRowAssignInternalId.name(),
+          GrouperUtil.stringValue(rowAssignId),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.dataFieldInternalId.name(),
+          GrouperUtil.stringValue(grouperDataRowFieldAssign.getDataFieldInternalId()),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.memberInternalId.name(),
+          GrouperUtil.stringValue(grouperDataRowFieldAssign.getDataRowAssign().getMemberInternalId()),
+          ChangeLogLabels.DATA_ROWFIELD_ASSIGN_ADD.valueOrInternalId.name(),
+          GrouperUtil.stringValue(valueOrInternalId)));
+    }
+
         
     // see if we're adding to field assign history
-    List<GrouperDataFieldAssignHst> grouperDataFieldAssignHstsToInsert = new ArrayList<>();
-    for (GrouperDataFieldAssign grouperDataFieldAssignToDelete : grouperDataFieldAssignsToDelete) {
+    Map<Long, GrouperDataFieldAssignHst> fieldAssignIdToGrouperDataFieldAssignHstsToInsert = new LinkedHashMap<>();
+    for (GrouperDataFieldAssign grouperDataFieldAssignToDelete : fieldAssignIdToGrouperDataFieldAssignsToDelete.values()) {
       GrouperDataFieldWrapper grouperDataFieldWrapper = dataEngine.getGrouperDataProviderIndex().getFieldWrapperByInternalId().get(grouperDataFieldAssignToDelete.getDataFieldInternalId());
-      
+
       if (grouperDataFieldWrapper != null) {
         if (grouperDataFieldWrapper.getGrouperDataFieldConfig().isFieldDataStorePit()) {
           GrouperDataFieldAssignHst grouperDataFieldAssignHst = new GrouperDataFieldAssignHst();
@@ -1238,7 +1282,9 @@ public class GrouperDataProviderLogic {
           grouperDataFieldAssignHst.setValueDictionaryInternalId(grouperDataFieldAssignToDelete.getValueDictionaryInternalId());
           grouperDataFieldAssignHst.setStartTime(grouperDataFieldAssignToDelete.getCreatedOn().getTime() * 1000L);
           grouperDataFieldAssignHst.setEndTime(System.currentTimeMillis() * 1000L);
-          grouperDataFieldAssignHstsToInsert.add(grouperDataFieldAssignHst);
+
+          fieldAssignIdToGrouperDataFieldAssignHstsToInsert.put(grouperDataFieldAssignToDelete.getInternalId(), grouperDataFieldAssignHst);
+          fieldAssignIdToMemberInternalId.put(grouperDataFieldAssignToDelete.getInternalId(), grouperDataFieldAssignToDelete.getMemberInternalId());
         }
       }
     }
@@ -1246,16 +1292,13 @@ public class GrouperDataProviderLogic {
     // see if we're adding to row assign history.
     // row assign history is added if row assign is being deleted or if a field is be added/deleted for an existing row assign
     Set<Long> rowAssignInternalIdsForHistoryIfConfigured = new LinkedHashSet<>();
-    Set<Long> rowAssignInternalIdsBeingDeleted = new LinkedHashSet<>();
-    List<GrouperDataRowAssignHst> grouperDataRowAssignHstsToInsert = new ArrayList<>();
-    List<GrouperDataRowFieldAssignHst> grouperDataRowFieldAssignHstsToInsert = new ArrayList<>();
-    for (GrouperDataRowFieldAssign grouperDataRowFieldAssignToDelete : grouperDataRowFieldAssignsToDelete) {
-      rowAssignInternalIdsForHistoryIfConfigured.add(grouperDataRowFieldAssignToDelete.getDataRowAssignInternalId());
-    }
-    for (GrouperDataRowAssign grouperDataRowAssignToDelete : grouperDataRowAssignsToDelete) {
-      rowAssignInternalIdsForHistoryIfConfigured.add(grouperDataRowAssignToDelete.getInternalId());
-      rowAssignInternalIdsBeingDeleted.add(grouperDataRowAssignToDelete.getInternalId());
-    }
+    Set<Long> rowAssignInternalIdsBeingDeleted = new LinkedHashSet<>(rowAssignInternalIdToGrouperDataRowAssignsToDelete.keySet());
+    Map<Long, GrouperDataRowAssignHst> rowAssignInternalIdToGrouperDataRowAssignHstsToInsert = new LinkedHashMap<>();
+    Map<Long, List<GrouperDataRowFieldAssignHst>> rowAssignInternalIdToGrouperDataRowFieldAssignHstsToInsert = new LinkedHashMap<>();
+    
+    rowAssignInternalIdsForHistoryIfConfigured.addAll(rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.keySet());
+    rowAssignInternalIdsForHistoryIfConfigured.addAll(rowAssignInternalIdToGrouperDataRowAssignsToDelete.keySet());
+    
     for (GrouperDataRowFieldAssign grouperDataRowFieldAssignToInsert : grouperDataRowFieldAssignsToInsert) {
       // for new row assigns, the internal id isn't assigned at this point so if it's not -1, then that means it's an existing one
       if (grouperDataRowFieldAssignToInsert.getDataRowAssign().getInternalId() != -1) {
@@ -1280,12 +1323,12 @@ public class GrouperDataProviderLogic {
           grouperDataRowAssignHst.setDataRowAssignInternalId(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getInternalId());
           grouperDataRowAssignHst.setStartTime(startTime);
           grouperDataRowAssignHst.setEndTime(endTime);
-          grouperDataRowAssignHstsToInsert.add(grouperDataRowAssignHst);
+          rowAssignInternalIdToGrouperDataRowAssignHstsToInsert.put(rowAssignInternalId, grouperDataRowAssignHst);
           
           if (!rowAssignInternalIdsBeingDeleted.contains(rowAssignInternalId)) {
             // we need to update the last_updated
             grouperDataRowAssignWrapper.getGrouperDataRowAssign().setLastUpdated(endTime);
-            grouperDataRowAssignsToUpdate.add(grouperDataRowAssignWrapper.getGrouperDataRowAssign());
+            rowAssignInternalIdToGrouperDataRowAssignsToUpdate.put(grouperDataRowAssignWrapper.getGrouperDataRowAssign().getInternalId(), grouperDataRowAssignWrapper.getGrouperDataRowAssign());
           }
     
           for (List<GrouperDataRowFieldAssignWrapper> grouperDataRowFieldAssignWrappers : grouperDataRowAssignWrapper.getRowFieldAssignWrappersByFieldInternalId().values()) {
@@ -1295,63 +1338,197 @@ public class GrouperDataProviderLogic {
               grouperDataRowFieldAssignHst.setDataFieldInternalId(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getDataFieldInternalId());
               grouperDataRowFieldAssignHst.setValueInteger(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getValueInteger());
               grouperDataRowFieldAssignHst.setValueDictionaryInternalId(grouperDataRowFieldAssignWrapper.getGrouperDataRowFieldAssign().getValueDictionaryInternalId());
-              grouperDataRowFieldAssignHstsToInsert.add(grouperDataRowFieldAssignHst);
+              
+              if (rowAssignInternalIdToGrouperDataRowFieldAssignHstsToInsert.get(rowAssignInternalId) == null) {
+                rowAssignInternalIdToGrouperDataRowFieldAssignHstsToInsert.put(rowAssignInternalId, new ArrayList<>()); 
+              }
+              rowAssignInternalIdToGrouperDataRowFieldAssignHstsToInsert.get(rowAssignInternalId).add(grouperDataRowFieldAssignHst);
             }
           }
         }
       }
     }
     
+    // TODO change log saves need to use GcDbAccess, or at least the same transaction
     
-    //TODO use transactions and maybe do the batching here
-    GrouperDataFieldAssignHstDao.store(grouperDataFieldAssignHstsToInsert);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataFieldAssignHstsToInsert.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
+    int batchSize = 500;
+    List<Long> fieldAssignIds = new ArrayList<>(fieldAssignIdToMemberInternalId.keySet());
+
+    // sort by member just to keep the changes for each member as close as possible
+    Collections.sort(fieldAssignIds, new Comparator<Long>() {
+      @Override
+      public int compare(Long key1, Long key2) {
+        return fieldAssignIdToMemberInternalId.get(key1).compareTo(fieldAssignIdToMemberInternalId.get(key2));
+      }
+    });
+
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(fieldAssignIds.size(), batchSize, false);
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      final int theBatchIndex = batchIndex;
+      
+      new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
+        
+        @Override
+        public Boolean callback(GcDbAccess dbAccessForStorage) {
     
-    GrouperDataFieldAssignDao.delete(grouperDataFieldAssignsToDelete);
-    GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataFieldAssignsToDelete, true);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(changeLogEntriesDataFieldAssignsToDelete.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
+          List<Long> batchOfFieldAssignIds = GrouperUtil.batchList(fieldAssignIds, batchSize, theBatchIndex);
+          List<GrouperDataFieldAssignHst> batchOfGrouperDataFieldAssignHstsToInsert = new ArrayList<>();
+          List<GrouperDataFieldAssign> batchOfGrouperDataFieldAssignsToDelete = new ArrayList<>();
+          List<GrouperDataFieldAssign> batchOfGrouperDataFieldAssignsToInsert = new ArrayList<>();
+          Set<ChangeLogEntry> batchOfChangeLogEntriesDataFieldAssignsToDelete = new LinkedHashSet<>();
+          Set<ChangeLogEntry> batchOfChangeLogEntriesDataFieldAssignsToInsert = new LinkedHashSet<>();
+          
+          for (Long fieldAssignId : batchOfFieldAssignIds) {
+            if (fieldAssignIdToGrouperDataFieldAssignHstsToInsert.containsKey(fieldAssignId)) {
+              batchOfGrouperDataFieldAssignHstsToInsert.add(fieldAssignIdToGrouperDataFieldAssignHstsToInsert.get(fieldAssignId));
+            }
+            
+            if (fieldAssignIdToGrouperDataFieldAssignsToDelete.containsKey(fieldAssignId)) {
+              batchOfGrouperDataFieldAssignsToDelete.add(fieldAssignIdToGrouperDataFieldAssignsToDelete.get(fieldAssignId));
+            }
+            
+            if (fieldAssignIdToGrouperDataFieldAssignsToInsert.containsKey(fieldAssignId)) {
+              batchOfGrouperDataFieldAssignsToInsert.add(fieldAssignIdToGrouperDataFieldAssignsToInsert.get(fieldAssignId));
+            }
+            
+            if (fieldAssignIdToChangeLogEntriesDataFieldAssignsToDelete.containsKey(fieldAssignId)) {
+              batchOfChangeLogEntriesDataFieldAssignsToDelete.add(fieldAssignIdToChangeLogEntriesDataFieldAssignsToDelete.get(fieldAssignId));
+            }
+            
+            if (fieldAssignIdToChangeLogEntriesDataFieldAssignsToInsert.containsKey(fieldAssignId)) {
+              batchOfChangeLogEntriesDataFieldAssignsToInsert.add(fieldAssignIdToChangeLogEntriesDataFieldAssignsToInsert.get(fieldAssignId));
+            }
+          }
+           
+          GrouperDataFieldAssignHstDao.store(batchOfGrouperDataFieldAssignHstsToInsert);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignHstsToInsert.size());
+          
+          GrouperDataFieldAssignDao.delete(batchOfGrouperDataFieldAssignsToDelete);
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(batchOfChangeLogEntriesDataFieldAssignsToDelete, true);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfGrouperDataFieldAssignsToDelete.size());
 
-
-    GrouperDataFieldAssignDao.store(grouperDataFieldAssignsToInsert);
-    GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataFieldAssignsToInsert, true);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(changeLogEntriesDataFieldAssignsToInsert.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
+          GrouperDataFieldAssignDao.store(batchOfGrouperDataFieldAssignsToInsert);
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(batchOfChangeLogEntriesDataFieldAssignsToInsert, true);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataFieldAssignsToInsert.size());
+          
+          return null;
+        }
+      });
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
     
-    GrouperDataRowAssignHstDao.store(grouperDataRowAssignHstsToInsert);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataRowAssignHstsToInsert.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
+    List<Long> rowAssignIds = new ArrayList<>(rowAssignInternalIdToMemberInternalId.keySet());
+
+    // sort by member just to keep the changes for each member as close as possible
+    Collections.sort(rowAssignIds, new Comparator<Long>() {
+      @Override
+      public int compare(Long key1, Long key2) {
+        return rowAssignInternalIdToMemberInternalId.get(key1).compareTo(rowAssignInternalIdToMemberInternalId.get(key2));
+      }
+    });
+
+    numberOfBatches = GrouperUtil.batchNumberOfBatches(rowAssignIds.size(), batchSize, false);
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      final int theBatchIndex = batchIndex;
+      
+      new GcDbAccess().callbackTransaction(new GcTransactionCallback<Boolean>() {
+        
+        @Override
+        public Boolean callback(GcDbAccess dbAccessForStorage) {
     
-    GrouperDataRowFieldAssignHstDao.store(grouperDataRowFieldAssignHstsToInsert);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(grouperDataRowFieldAssignHstsToInsert.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
-    
-    GrouperDataRowAssignDao.store(grouperDataRowAssignsToUpdate);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addUpdateCount(grouperDataRowAssignsToUpdate.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
-    
-    GrouperDataRowFieldAssignDao.delete(grouperDataRowFieldAssignsToDelete);
-    GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataRowFieldAssignsToDelete, true);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(changeLogEntriesDataRowFieldAssignsToDelete.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
+          List<Long> batchOfRowAssignIds = GrouperUtil.batchList(rowAssignIds, batchSize, theBatchIndex);
+          List<GrouperDataRowFieldAssign> batchOfGrouperDataRowFieldAssignsToInsert = new ArrayList<>();
+          List<GrouperDataRowFieldAssign> batchOfGrouperDataRowFieldAssignsToDelete = new ArrayList<>();
+          List<GrouperDataRowAssign> batchOfGrouperDataRowAssignsToInsert = new ArrayList<>();
+          List<GrouperDataRowAssign> batchOfGrouperDataRowAssignsToDelete = new ArrayList<>();
+          List<GrouperDataRowAssign> batchOfGrouperDataRowAssignsToUpdate = new ArrayList<>();
+          List<GrouperDataRowAssignHst> batchOfGrouperDataRowAssignHstsToInsert = new ArrayList<>();
+          List<GrouperDataRowFieldAssignHst> batchOfGrouperDataRowFieldAssignHstsToInsert = new ArrayList<>();
+          Set<ChangeLogEntry> batchOfChangeLogEntriesDataRowFieldAssignsToInsert = new LinkedHashSet<>();
+          Set<ChangeLogEntry> batchOfChangeLogEntriesDataRowFieldAssignsToDelete = new LinkedHashSet<>();
+          Set<ChangeLogEntry> batchOfChangeLogEntriesDataRowAssignsToInsert = new LinkedHashSet<>();
+          Set<ChangeLogEntry> batchOfChangeLogEntriesDataRowAssignsToDelete = new LinkedHashSet<>();
+          
+          for (Long rowAssignId : batchOfRowAssignIds) {
+            if (rowAssignInternalIdToGrouperDataRowAssignHstsToInsert.containsKey(rowAssignId)) {
+              batchOfGrouperDataRowAssignHstsToInsert.add(rowAssignInternalIdToGrouperDataRowAssignHstsToInsert.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToGrouperDataRowFieldAssignHstsToInsert.containsKey(rowAssignId)) {
+              batchOfGrouperDataRowFieldAssignHstsToInsert.addAll(rowAssignInternalIdToGrouperDataRowFieldAssignHstsToInsert.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.containsKey(rowAssignId)) {
+              batchOfGrouperDataRowFieldAssignsToDelete.addAll(rowAssignInternalIdToGrouperDataRowFieldAssignsToDelete.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToGrouperDataRowAssignsToDelete.containsKey(rowAssignId)) {
+              batchOfGrouperDataRowAssignsToDelete.add(rowAssignInternalIdToGrouperDataRowAssignsToDelete.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToGrouperDataRowAssignsToInsert.containsKey(rowAssignId)) {
+              batchOfGrouperDataRowAssignsToInsert.add(rowAssignInternalIdToGrouperDataRowAssignsToInsert.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToGrouperDataRowFieldAssignsToInsert.containsKey(rowAssignId)) {
+              batchOfGrouperDataRowFieldAssignsToInsert.addAll(rowAssignInternalIdToGrouperDataRowFieldAssignsToInsert.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToGrouperDataRowAssignsToUpdate.containsKey(rowAssignId)) {
+              batchOfGrouperDataRowAssignsToUpdate.add(rowAssignInternalIdToGrouperDataRowAssignsToUpdate.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToDelete.containsKey(rowAssignId)) {
+              batchOfChangeLogEntriesDataRowFieldAssignsToDelete.addAll(rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToDelete.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToChangeLogEntriesDataRowAssignsToDelete.containsKey(rowAssignId)) {
+              batchOfChangeLogEntriesDataRowAssignsToDelete.add(rowAssignInternalIdToChangeLogEntriesDataRowAssignsToDelete.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToChangeLogEntriesDataRowAssignsToInsert.containsKey(rowAssignId)) {
+              batchOfChangeLogEntriesDataRowAssignsToInsert.add(rowAssignInternalIdToChangeLogEntriesDataRowAssignsToInsert.get(rowAssignId));
+            }
+            
+            if (rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToInsert.containsKey(rowAssignId)) {
+              batchOfChangeLogEntriesDataRowFieldAssignsToInsert.addAll(rowAssignInternalIdToChangeLogEntriesDataRowFieldAssignsToInsert.get(rowAssignId));
+            }
+          }
+           
+          GrouperDataRowAssignHstDao.store(batchOfGrouperDataRowAssignHstsToInsert);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowAssignHstsToInsert.size());
+          
+          GrouperDataRowFieldAssignHstDao.store(batchOfGrouperDataRowFieldAssignHstsToInsert);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfGrouperDataRowFieldAssignHstsToInsert.size());
+          
+          GrouperDataRowFieldAssignDao.delete(batchOfGrouperDataRowFieldAssignsToDelete);
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(batchOfChangeLogEntriesDataRowFieldAssignsToDelete, true);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowFieldAssignsToDelete.size());
+          
+          GrouperDataRowAssignDao.delete(batchOfGrouperDataRowAssignsToDelete);
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(batchOfChangeLogEntriesDataRowAssignsToDelete, true);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(batchOfChangeLogEntriesDataRowAssignsToDelete.size());
+          
+          GrouperDataRowAssignDao.store(batchOfGrouperDataRowAssignsToInsert);
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(batchOfChangeLogEntriesDataRowAssignsToInsert, true);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowAssignsToInsert.size());
 
-    GrouperDataRowAssignDao.delete(grouperDataRowAssignsToDelete);
-    GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataRowAssignsToDelete, true);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addDeleteCount(changeLogEntriesDataRowAssignsToDelete.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-    GrouperDataRowAssignDao.store(grouperDataRowAssignsToInsert);
-    GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataRowAssignsToInsert, true);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(changeLogEntriesDataRowAssignsToInsert.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-    GrouperDataRowFieldAssignDao.store(grouperDataRowFieldAssignsToInsert);
-    GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(changeLogEntriesDataRowFieldAssignsToInsert, true);
-    grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(changeLogEntriesDataRowFieldAssignsToInsert.size());
-    GrouperDaemonUtils.stopProcessingIfJobPaused();
-
-
+          GrouperDataRowFieldAssignDao.store(batchOfGrouperDataRowFieldAssignsToInsert);
+          GrouperDAOFactory.getFactory().getChangeLogEntry().saveBatch(batchOfChangeLogEntriesDataRowFieldAssignsToInsert, true);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addInsertCount(batchOfChangeLogEntriesDataRowFieldAssignsToInsert.size());
+          
+          GrouperDataRowAssignDao.store(batchOfGrouperDataRowAssignsToUpdate);
+          grouperDataProviderSync.getHib3GrouperLoaderLog().addUpdateCount(batchOfGrouperDataRowAssignsToUpdate.size());
+          
+          return null;
+        }
+      });
+      
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
+    }
   }
   
   private void deleteOldHistory() {
