@@ -42,6 +42,8 @@ import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.misc.GrouperDAOFactory;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersist;
+import edu.internet2.middleware.grouperClient.jdbc.GcPersistableField;
 
 
 /**
@@ -557,6 +559,7 @@ public class ChangeLogEntry extends GrouperAPI {
   /**
    * when this record was created 
    */
+  @GcPersistableField(columnName = "created_on")
   private Long createdOnDb;
 
   /**
@@ -613,6 +616,7 @@ public class ChangeLogEntry extends GrouperAPI {
   }
 
   /** if this object is bound for the temp table, or regular table */
+  @GcPersistableField(persist = GcPersist.dontPersist)
   private boolean tempObject = true;
   
   /**

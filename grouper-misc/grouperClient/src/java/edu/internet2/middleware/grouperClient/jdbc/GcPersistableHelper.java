@@ -3,8 +3,10 @@ package edu.internet2.middleware.grouperClient.jdbc;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
@@ -176,7 +178,7 @@ public class GcPersistableHelper {
 	public static List<Field> heirarchicalFields(Class<?> clazz){
 	  List<Field> result = hierarchicalFieldsCache.get(clazz);
 	  if (result == null) {
-	    result =  heirarchicalFields(clazz,null);
+	    result =  heirarchicalFields(clazz,null, new HashSet<String>());
 	    hierarchicalFieldsCache.put(clazz, result);
 	  }
 	  return result;
@@ -187,18 +189,22 @@ public class GcPersistableHelper {
 	 * A list of heirachical fields from the entire object structure.
 	 * @param clazz is the child class.
 	 * @param heirarchicalFields is the list of fields to add to, pass null.
+	 * @param fieldNamesFound used to ignore fields also defined in super classes
 	 * @return the list.
 	 */
-	private static List<Field> heirarchicalFields(Class<?> clazz, List<Field> heirarchicalFields){
+	private static List<Field> heirarchicalFields(Class<?> clazz, List<Field> heirarchicalFields, Set<String> fieldNamesFound){
 		if (heirarchicalFields == null){
 			heirarchicalFields = new ArrayList<Field>();
 		}
 		for (Field field : clazz.getDeclaredFields()){
-			field.setAccessible(true);
-			heirarchicalFields.add(field);
+		  if (!fieldNamesFound.contains(field.getName())) {
+		    field.setAccessible(true);
+		    heirarchicalFields.add(field);
+		    fieldNamesFound.add(field.getName());
+		  }
 		}
 		if (clazz.getSuperclass() != null){
-			heirarchicalFields(clazz.getSuperclass(), heirarchicalFields);
+			heirarchicalFields(clazz.getSuperclass(), heirarchicalFields, fieldNamesFound);
 		}
 		return heirarchicalFields;
 	}
