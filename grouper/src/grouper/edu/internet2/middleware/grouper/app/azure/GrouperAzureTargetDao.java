@@ -11,6 +11,7 @@ import java.util.Set;
 import org.apache.commons.lang.StringUtils;
 
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningConfigurationAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningEntity;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningMembership;
@@ -87,9 +88,18 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       List<ProvisioningGroup> results = new ArrayList<ProvisioningGroup>();
       
       boolean lookupOwners = azureConfiguration.getTargetGroupAttributeNameToConfig().containsKey("groupOwners");
+      
+      Map<String,GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig = azureConfiguration.getTargetGroupAttributeNameToConfig();
+      
+      Set<String> extensionAttributeNames = new HashSet<String>();
+      for (String key: targetGroupAttributeNameToConfig.keySet()) {
+        if (StringUtils.startsWith(key, "extension_")) {          
+          extensionAttributeNames.add(key);
+        }
+      }
 
       List<GrouperAzureGroup> grouperAzureGroups = GrouperAzureApiCommands
-          .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), lookupOwners);
+          .retrieveAzureGroups(azureConfiguration.getAzureExternalSystemConfigId(), lookupOwners, extensionAttributeNames);
 
       for (GrouperAzureGroup grouperAzureGroup : grouperAzureGroups) {
         ProvisioningGroup targetGroup = grouperAzureGroup.toProvisioningGroup();
@@ -209,9 +219,19 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       
       boolean lookupOwners = azureConfiguration.getTargetGroupAttributeNameToConfig().containsKey("groupOwners");
       
+      Map<String,GrouperProvisioningConfigurationAttribute> targetGroupAttributeNameToConfig = azureConfiguration.getTargetGroupAttributeNameToConfig();
+      
+      Set<String> extensionAttributeNames = new HashSet<String>();
+      for (String key: targetGroupAttributeNameToConfig.keySet()) {
+        if (StringUtils.startsWith(key, "extension_")) {          
+          extensionAttributeNames.add(key);
+        }
+      }
+      
       // we can retrieve by id or displayName
       List<GrouperAzureGroup> azureGroups = GrouperAzureApiCommands.retrieveAzureGroups(
-          azureConfiguration.getAzureExternalSystemConfigId(), fieldValues, targetDaoRetrieveGroupsRequest.getSearchAttribute(), lookupOwners);
+          azureConfiguration.getAzureExternalSystemConfigId(), fieldValues, 
+          targetDaoRetrieveGroupsRequest.getSearchAttribute(), lookupOwners, extensionAttributeNames);
       
       
       List<ProvisioningGroup> targetGroupsFromAzure = new ArrayList<>();

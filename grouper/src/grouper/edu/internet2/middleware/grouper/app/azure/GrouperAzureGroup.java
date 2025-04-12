@@ -2,8 +2,11 @@ package edu.internet2.middleware.grouper.app.azure;
 
 import java.sql.Types;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.lang3.StringUtils;
@@ -11,6 +14,7 @@ import org.apache.commons.lang3.StringUtils;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
+import edu.internet2.middleware.grouper.app.provisioning.ProvisioningAttribute;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroup;
 import edu.internet2.middleware.grouper.app.provisioning.ProvisioningGroupWrapper;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -123,6 +127,14 @@ public class GrouperAzureGroup {
     targetGroup.assignAttributeValue("resourceProvisioningOptionsTeam", this.resourceProvisioningOptionsTeam);
     targetGroup.assignAttributeValue("groupOwners", this.owners);
     
+    Map<String, Object> extensionAttributes = this.getExtensionAttributes();
+    if (extensionAttributes != null) {
+      for (String extensionAttributeName: GrouperUtil.nonNull(extensionAttributes.keySet())) {
+        targetGroup.assignAttributeValue(extensionAttributeName, extensionAttributes.get(extensionAttributeName));
+      }
+    }
+    
+    
     return targetGroup;
   }
   
@@ -216,6 +228,14 @@ public class GrouperAzureGroup {
       grouperAzureGroup.setResourceProvisioningOptionsTeam(GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("resourceProvisioningOptionsTeam"), false));
     }
     
+    Map<String, ProvisioningAttribute> attributes = targetGroup.retrieveAttributes();
+    for (String attributeName: attributes.keySet()) {
+      if (attributeName.startsWith("extension_")) {        
+        grouperAzureGroup.getExtensionAttributes().put(attributeName, targetGroup.retrieveAttributeValue(attributeName));
+      }
+    }
+
+    
     return grouperAzureGroup;
 
   }
@@ -237,6 +257,8 @@ public class GrouperAzureGroup {
   private boolean resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled;
   private boolean resourceProvisioningOptionsTeam;
   private boolean groupOwnersManage;
+  
+  private Map<String, Object> extensionAttributes = new HashMap<String, Object>();
   
   /** if this is true then it has the Unified group type */
   private boolean groupTypeUnified;
@@ -434,6 +456,16 @@ public class GrouperAzureGroup {
       boolean resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled) {
     this.resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled = resourceBehaviorOptionsSubscribeMembersToCalendarEventsDisabled;
   }
+  
+  
+  public Map<String, Object> getExtensionAttributes() {
+    return extensionAttributes;
+  }
+
+  
+  public void setExtensionAttributes(Map<String, Object> extensionAttributes) {
+    this.extensionAttributes = extensionAttributes;
+  }
 
   /**
    * convert from jackson json
@@ -495,6 +527,16 @@ public class GrouperAzureGroup {
     Set<String> owners = GrouperUtil.jsonJacksonGetStringSet(groupNode, "owners@odata.bind");
     if (owners != null && owners.size() > 0) {
       grouperAzureGroup.setOwners(owners);
+    }
+    
+    Iterator<String> fieldNames = groupNode.fieldNames();
+    while (fieldNames.hasNext()) {
+      String fieldName = fieldNames.next();
+      if (StringUtils.startsWith(fieldName, "extension_") && !StringUtils.contains(fieldName, "@odata.type")) {
+        JsonNode extensionNode = GrouperUtil.jsonJacksonGetNode(groupNode, fieldName);
+        Object extensionValue = GrouperUtil.jsonConvertFrom(extensionNode, Object.class);
+        grouperAzureGroup.getExtensionAttributes().put(fieldName, extensionValue);
+      }
     }
     
     return grouperAzureGroup;
@@ -620,6 +662,12 @@ public class GrouperAzureGroup {
         GrouperUtil.jsonJacksonAssignStringArray(result, "resourceProvisioningOptions", resourceProvisioningOptions);
       }
       
+    }
+    
+    if (this.getExtensionAttributes() != null && this.getExtensionAttributes().size() > 0) {
+      for (String attributeName: this.getExtensionAttributes().keySet()) {
+        result.putPOJO(attributeName, this.getExtensionAttributes().get(attributeName));
+      }
     }
     
     return result;
