@@ -1190,7 +1190,7 @@ public class GrouperAzureApiCommands {
   }
 
 
-  public static List<GrouperAzureGroup> retrieveAzureGroups(String configId, boolean lookupOwners) {
+  public static List<GrouperAzureGroup> retrieveAzureGroups(String configId, boolean lookupOwners, Set<String> extensionAttributes) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1201,6 +1201,10 @@ public class GrouperAzureApiCommands {
     long startTime = System.nanoTime();
     
     String nextLink =  "/groups?$top=999&$select=" + GrouperAzureGroup.fieldsToSelect;
+    
+    if (extensionAttributes != null && extensionAttributes.size() > 0) {
+      nextLink = nextLink + "," + StringUtils.join(extensionAttributes, ",");
+    }
 
     // dont endless loop
     int j = -1;
@@ -1673,7 +1677,7 @@ public class GrouperAzureApiCommands {
 
   private static void retrieveGroupsHelper(String configId, Map<String, Object> debugMap, 
       String fieldName,
-      List<String> fieldValuesInOneHttpRequest, List<GrouperAzureGroup> result) {
+      List<String> fieldValuesInOneHttpRequest, List<GrouperAzureGroup> result, Set<String> extensionAttributes) {
     
     List<String> throttledFieldValues = new ArrayList<>();
     
@@ -1698,6 +1702,10 @@ public class GrouperAzureApiCommands {
         urlSuffix = "/groups?$filter=" + GrouperUtil.escapeUrlEncode(fieldName)
             + "%20eq%20'" + GrouperUtil.escapeUrlEncode(StringUtils.replace(fieldValue, "'", "''")) + "'&$select="
             + GrouperAzureGroup.fieldsToSelect;
+      }
+      
+      if (extensionAttributes != null && extensionAttributes.size() > 0) {
+        urlSuffix = urlSuffix + "," + StringUtils.join(extensionAttributes, ",");
       }
       
       innerRequestNode.put("url", urlSuffix);
@@ -1782,7 +1790,7 @@ public class GrouperAzureApiCommands {
         GrouperUtil.mapAddValue(GrouperProvisioner.retrieveCurrentGrouperProvisioner().getDebugMap(), "azureThrottleCount", 1);
       }
       
-      retrieveGroupsHelper(configId, debugMap, fieldName, throttledFieldValues, result);
+      retrieveGroupsHelper(configId, debugMap, fieldName, throttledFieldValues, result, extensionAttributes);
     }
   
   }
@@ -1908,7 +1916,8 @@ public class GrouperAzureApiCommands {
    * @param configId
    * @return
    */
-  public static List<GrouperAzureGroup> retrieveAzureGroups(String configId, List<String> fieldValues, String fieldName, boolean lookupOwners) {
+  public static List<GrouperAzureGroup> retrieveAzureGroups(String configId, List<String> fieldValues, 
+      String fieldName, boolean lookupOwners, Set<String> extensionAttributes) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
 
@@ -1927,7 +1936,7 @@ public class GrouperAzureApiCommands {
         
         List<String> fieldValuesInOneHttpRequest = GrouperUtil.batchList(fieldValues, 20, httpRequestIndex);
         
-        retrieveGroupsHelper(configId, debugMap, fieldName, fieldValuesInOneHttpRequest, result);
+        retrieveGroupsHelper(configId, debugMap, fieldName, fieldValuesInOneHttpRequest, result, extensionAttributes);
         
         if (lookupOwners) {
           retrieveGroupOwnersHelper(configId, debugMap, result);
