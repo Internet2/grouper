@@ -1262,6 +1262,7 @@ public abstract class Provisioner
           for ( GrouperGroupInfo grouperGroupInfo : batchOfGroupsToFetch ) {
             try {
               TSGroupClass tsGroup = fetchTargetSystemGroup(grouperGroupInfo);
+              result.put(grouperGroupInfo, tsGroup);
               cacheGroup(grouperGroupInfo, tsGroup);
             }
             catch (PspException e2) {
