@@ -31,6 +31,7 @@ import edu.internet2.middleware.grouper.app.duo.DuoProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.duo.role.DuoRoleProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.genericProvisioner.GenericProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.google.GoogleProvisionerConfiguration;
+import edu.internet2.middleware.grouper.app.gshTemplateProvisioner.GshTemplateProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.ldapProvisioning.LdapProvisionerConfiguration;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
@@ -95,6 +96,7 @@ public abstract class ProvisioningConfiguration extends GrouperConfigurationModu
     configClassNamesList.add(DuoProvisionerConfiguration.class.getName());
     configClassNamesList.add(DuoRoleProvisionerConfiguration.class.getName());
     configClassNamesList.add(GenericProvisionerConfiguration.class.getName());
+    configClassNamesList.add(GshTemplateProvisionerConfiguration.class.getName());
     configClassNamesList.add(GoogleProvisionerConfiguration.class.getName());
     configClassNamesList.add(LdapProvisionerConfiguration.class.getName());
     configClassNamesList.add(MessagingProvisionerConfiguration.class.getName());

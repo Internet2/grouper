@@ -54,6 +54,11 @@ public class GshTemplateConfig {
 
   private GshTemplateRunAsType gshTemplateRunAsType;
   
+  
+  public void setGshTemplateRunAsType(GshTemplateRunAsType gshTemplateRunAsType) {
+    this.gshTemplateRunAsType = gshTemplateRunAsType;
+  }
+
   private boolean enabled;
   
   private boolean useIndividualAudits;
@@ -392,8 +397,12 @@ public class GshTemplateConfig {
         
         actAsGroupUUID = grouperConfig.propertyValueString(configPrefix+"actAsGroupUUID", null);
         
-        String runAsType = grouperConfig.propertyValueStringRequired(configPrefix+"runAsType");
-        gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
+        if (gshTemplateType != GshTemplateType.provisioner) {
+          String runAsType = grouperConfig.propertyValueStringRequired(configPrefix+"runAsType");
+          gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
+        } else {
+          gshTemplateRunAsType = GshTemplateRunAsType.GrouperSystem;
+        }
         
         if (gshTemplateRunAsType == GshTemplateRunAsType.specifiedSubject) {
           runAsSpecifiedSubjectSourceId = grouperConfig.propertyValueStringRequired(configPrefix+"runAsSpecifiedSubjectSourceId");
@@ -433,6 +442,10 @@ public class GshTemplateConfig {
         
         allowWsFromNoOwner = grouperConfig.propertyValueBoolean(configPrefix+"allowWsFromNoOwner", false);
         
+        if (gshTemplateType == GshTemplateType.provisioner) {
+          allowWsFromNoOwner = true;
+        }
+
         showOnFolders = grouperConfig.propertyValueBoolean(configPrefix+"showOnFolders", false);
         
         if (showOnFolders) {
@@ -456,7 +469,9 @@ public class GshTemplateConfig {
           
         }
         
-        gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"securityRunType"), true);
+        if (gshTemplateType != GshTemplateType.provisioner) {
+          gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"securityRunType"), true);
+        }
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.specifiedGroup) {
           String groupUuidOrNameCanRun = grouperConfig.propertyValueStringRequired(configPrefix+"groupUuidCanRun");

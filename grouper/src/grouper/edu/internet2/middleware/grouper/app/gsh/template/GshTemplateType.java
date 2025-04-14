@@ -4,7 +4,7 @@ import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public enum GshTemplateType {
   
-  gsh, abac;
+  gsh, abac, provisioner;
   
   /**
    * do a case-insensitive matching
