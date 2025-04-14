@@ -23,6 +23,7 @@ import org.apache.commons.logging.Log;
 
 import com.amazonaws.endpointdiscovery.DaemonThreadFactory;
 
+import edu.internet2.middleware.grouper.app.gshTemplateProvisioner.GshTemplateProvisionerFactory;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
 import edu.internet2.middleware.grouper.app.loader.OtherJobException;
@@ -49,6 +50,16 @@ import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
  */
 public abstract class GrouperProvisioner {
   
+  private boolean gshTemplateProvisioner;
+  
+  public boolean isGshTemplateProvisioner() {
+    return gshTemplateProvisioner;
+  }
+  
+  public void setGshTemplateProvisioner(boolean gshTemplateProvisioner) {
+    this.gshTemplateProvisioner = gshTemplateProvisioner;
+  }
+
   private ProvisioningStateGlobal provisioningStateGlobal = new ProvisioningStateGlobal();
   
   private static boolean test_saveLastProvisionerInStaticVariable = false;
@@ -228,7 +239,16 @@ public abstract class GrouperProvisioner {
   public ProvisioningConfiguration getControllerForProvisioningConfiguration() {
     if (this.provisioningConfiguration == null) {
       this.provisioningConfiguration = ProvisioningConfiguration.retrieveConfigurationByConfigSuffix(this.getClass().getName());
-    
+      
+      // this happens with GSH template provisioners
+      if (this.provisioningConfiguration == null) {
+        if (this.isGshTemplateProvisioner()) {
+          this.provisioningConfiguration = ProvisioningConfiguration.retrieveConfigurationByConfigSuffix(GshTemplateProvisionerFactory.class.getName());
+        } else {
+          throw new RuntimeException(
+              "Provisioning configuration not found for: " + this.getClass().getName());
+        }
+      }
       this.provisioningConfiguration.setConfigId(this.getConfigId());
     }
     return this.provisioningConfiguration;
@@ -378,8 +398,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisionerTargetDaoAdapter retrieveGrouperProvisioningTargetDaoAdapter() {
     if (this.grouperProvisioningTargetDaoAdapter == null) {
-      Class<? extends GrouperProvisionerTargetDaoBase> grouperProvisionerTargetDaoBaseClass = this.grouperTargetDaoClass();
-      GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = GrouperUtil.newInstance(grouperProvisionerTargetDaoBaseClass);
+      GrouperProvisionerTargetDaoBase grouperProvisionerTargetDaoBase = grouperTargetDaoInstance();
       grouperProvisionerTargetDaoBase.setGrouperProvisioner(this);
       this.grouperProvisioningTargetDaoAdapter = new GrouperProvisionerTargetDaoAdapter(this, grouperProvisionerTargetDaoBase);
     }
@@ -404,7 +423,11 @@ public abstract class GrouperProvisioner {
   protected Class<? extends GrouperProvisioningGrouperDao> grouperDaoClass() {
     return GrouperProvisioningGrouperDao.class;
   }
-  
+
+  protected GrouperProvisioningGrouperDao grouperDaoInstance() {
+    return GrouperUtil.newInstance(grouperDaoClass());
+  }
+
   private GrouperProvisioningConfiguration grouperProvisioningConfiguration = null;
 
   private GrouperProvisioningLinkLogic grouperProvisioningLinkLogic = null;
@@ -425,8 +448,7 @@ public abstract class GrouperProvisioner {
   public GrouperProvisioningDiagnosticsContainer retrieveGrouperProvisioningDiagnosticsContainer() {
     
     if (this.grouperProvisioningDiagnosticsContainer == null) {
-      Class<? extends GrouperProvisioningDiagnosticsContainer> grouperProvisioningDiagnosticsContainerClass = this.grouperProvisioningDiagnosticsContainerClass();
-      this.grouperProvisioningDiagnosticsContainer = GrouperUtil.newInstance(grouperProvisioningDiagnosticsContainerClass);
+      this.grouperProvisioningDiagnosticsContainer = grouperProvisioningDiagnosticsContainerInstance();
       this.grouperProvisioningDiagnosticsContainer.setGrouperProvisioner(this);
     }
     
@@ -446,8 +468,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningConfiguration retrieveGrouperProvisioningConfiguration() {
     if (this.grouperProvisioningConfiguration == null) {
-      Class<? extends GrouperProvisioningConfiguration> grouperProvisioningConfigurationClass = this.grouperProvisioningConfigurationClass();
-      this.grouperProvisioningConfiguration = GrouperUtil.newInstance(grouperProvisioningConfigurationClass);
+      this.grouperProvisioningConfiguration = grouperProvisioningConfigurationInstance();
       this.grouperProvisioningConfiguration.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningConfiguration;
@@ -481,8 +502,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningSyncIntegration retrieveGrouperProvisioningSyncIntegration() {
     if (this.grouperProvisioningSyncIntegration == null) {
-      Class<? extends GrouperProvisioningSyncIntegration> grouperProvisioningLogicClass = this.grouperProvisioningSyncIntegrationClass();
-      this.grouperProvisioningSyncIntegration = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningSyncIntegration = grouperProvisioningSyncIntegrationInstance();
       this.grouperProvisioningSyncIntegration.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningSyncIntegration;
@@ -497,15 +517,21 @@ public abstract class GrouperProvisioner {
   protected Class<? extends GrouperProvisioningAttributeManipulation> grouperProvisioningAttributeManipulationClass() {
     return GrouperProvisioningAttributeManipulation.class;
   }
-  
+
+  /**
+   * return the instance of the attribute manipulation
+   */
+  protected GrouperProvisioningAttributeManipulation grouperProvisioningAttributeManipulationInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningAttributeManipulationClass());
+  }
+
   /**
    * return the instance of the attribute manipulation
    * @return the logic
    */
   public GrouperProvisioningAttributeManipulation retrieveGrouperProvisioningAttributeManipulation() {
     if (this.grouperProvisioningAttributeManipulation == null) {
-      Class<? extends GrouperProvisioningAttributeManipulation> grouperProvisioningLogicClass = this.grouperProvisioningAttributeManipulationClass();
-      this.grouperProvisioningAttributeManipulation = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningAttributeManipulation = grouperProvisioningAttributeManipulationInstance();
       this.grouperProvisioningAttributeManipulation.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningAttributeManipulation;
@@ -527,8 +553,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningValidation retrieveGrouperProvisioningValidation() {
     if (this.grouperProvisioningValidation == null) {
-      Class<? extends GrouperProvisioningValidation> grouperProvisioningValidationClass = this.grouperProvisioningValidationClass();
-      this.grouperProvisioningValidation = GrouperUtil.newInstance(grouperProvisioningValidationClass);
+      this.grouperProvisioningValidation = grouperProvisioningValidationInstance();
       this.grouperProvisioningValidation.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningValidation;
@@ -543,8 +568,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningLog retrieveGrouperProvisioningLog() {
     if (this.grouperProvisioningLog == null) {
-      Class<? extends GrouperProvisioningLog> grouperProvisioningLogClass = this.grouperProvisioningLogClass();
-      this.grouperProvisioningLog = GrouperUtil.newInstance(grouperProvisioningLogClass);
+      this.grouperProvisioningLog = grouperProvisioningLogInstance();
       this.grouperProvisioningLog.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningLog;
@@ -584,8 +608,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningLogic retrieveGrouperProvisioningLogic() {
     if (this.grouperProvisioningLogic == null) {
-      Class<? extends GrouperProvisioningLogic> grouperProvisioningLogicClass = this.grouperProvisioningLogicClass();
-      this.grouperProvisioningLogic = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningLogic = grouperProvisioningLogicInstance();
       this.grouperProvisioningLogic.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningLogic;
@@ -598,8 +621,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningLogicIncremental retrieveGrouperProvisioningLogicIncremental() {
     if (this.grouperProvisioningLogicIncremental == null) {
-      Class<? extends GrouperProvisioningLogicIncremental> grouperProvisioningLogicIncrementalClass = this.grouperProvisioningLogicIncrementalClass();
-      this.grouperProvisioningLogicIncremental = GrouperUtil.newInstance(grouperProvisioningLogicIncrementalClass);
+      this.grouperProvisioningLogicIncremental = grouperProvisioningLogicIncrementalInstance();
       this.grouperProvisioningLogicIncremental.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningLogicIncremental;
@@ -614,8 +636,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningTranslator retrieveGrouperProvisioningTranslator() {
     if (this.grouperProvisioningTranslator == null) {
-      Class<? extends GrouperProvisioningTranslator> grouperProvisioningTranslatorBaseClass = this.grouperTranslatorClass();
-      this.grouperProvisioningTranslator = GrouperUtil.newInstance(grouperProvisioningTranslatorBaseClass);
+      this.grouperProvisioningTranslator = grouperTranslatorInstance();
       this.grouperProvisioningTranslator.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningTranslator;
@@ -653,6 +674,13 @@ public abstract class GrouperProvisioner {
     @SuppressWarnings("unchecked")
     Class<GrouperProvisioner> provisionerClass = GrouperUtil.forName(provisionerClassName);
     GrouperProvisioner provisioner = GrouperUtil.newInstance(provisionerClass);
+    
+    if (provisioner instanceof GrouperProvisioningFactory) {
+      GrouperProvisioningFactory grouperProvisioningFactoryInterface = (GrouperProvisioningFactory)provisioner;
+      provisioner = grouperProvisioningFactoryInterface.generateGrouperProvisioner(configId);
+      provisioner.setGshTemplateProvisioner(true);
+    }
+    
     provisioner.setConfigId(configId);
     
     // dont waste memory
@@ -1108,8 +1136,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningCompare retrieveGrouperProvisioningCompare() {
     if (this.grouperProvisioningCompare == null) {
-      Class<? extends GrouperProvisioningCompare> grouperProvisioningLogicClass = this.grouperProvisioningCompareClass();
-      this.grouperProvisioningCompare = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningCompare = grouperProvisioningCompareInstance();
       this.grouperProvisioningCompare.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningCompare;
@@ -1132,8 +1159,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningMatchingIdIndex retrieveGrouperProvisioningMatchingIdIndex() {
     if (this.grouperProvisioningMatchingIdIndex == null) {
-      Class<? extends GrouperProvisioningMatchingIdIndex> grouperProvisioningLogicClass = this.grouperProvisioningMatchingIdIndexClass();
-      this.grouperProvisioningMatchingIdIndex = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningMatchingIdIndex = grouperProvisioningMatchingIdIndexInstance();
       this.grouperProvisioningMatchingIdIndex.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningMatchingIdIndex;
@@ -1152,8 +1178,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningConfigurationValidation retrieveGrouperProvisioningConfigurationValidation() {
     if (this.grouperProvisioningConfigurationValidation == null) {
-      Class<? extends GrouperProvisioningConfigurationValidation> grouperProvisioningLogicClass = this.grouperProvisioningConfigurationValidationClass();
-      this.grouperProvisioningConfigurationValidation = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningConfigurationValidation = grouperProvisioningConfigurationValidationInstance();
       this.grouperProvisioningConfigurationValidation.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningConfigurationValidation;
@@ -1172,8 +1197,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningGrouperSyncDao retrieveGrouperProvisioningSyncDao() {
     if (this.grouperProvisioningGrouperSyncDao == null) {
-      Class<? extends GrouperProvisioningGrouperSyncDao> grouperProvisionerGrouperSyncDaoClass = this.grouperSyncDaoClass();
-      this.grouperProvisioningGrouperSyncDao = GrouperUtil.newInstance(grouperProvisionerGrouperSyncDaoClass);
+      this.grouperProvisioningGrouperSyncDao = grouperSyncDaoInstance();
       this.grouperProvisioningGrouperSyncDao.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningGrouperSyncDao;
@@ -1194,8 +1218,7 @@ public abstract class GrouperProvisioner {
   
   public GrouperProvisioningBehavior retrieveGrouperProvisioningBehavior() {
     if (this.grouperProvisioningBehavior == null) {
-      Class<? extends GrouperProvisioningBehavior> grouperProvisioningLogicClass = this.grouperProvisioningBehaviorClass();
-      this.grouperProvisioningBehavior = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningBehavior = grouperProvisioningBehaviorInstance();
       this.grouperProvisioningBehavior.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningBehavior;
@@ -1216,8 +1239,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningLinkLogic retrieveGrouperProvisioningLinkLogic() {
     if (this.grouperProvisioningLinkLogic == null) {
-      Class<? extends GrouperProvisioningLinkLogic> grouperProvisioningLinkLogicClass = this.grouperProvisioningLinkLogicClass();
-      this.grouperProvisioningLinkLogic = GrouperUtil.newInstance(grouperProvisioningLinkLogicClass);
+      this.grouperProvisioningLinkLogic = grouperProvisioningLinkLogicInstance();
       this.grouperProvisioningLinkLogic.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningLinkLogic;
@@ -1230,8 +1252,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningObjectMetadata retrieveGrouperProvisioningObjectMetadata() {
     if (this.grouperProvisioningObjectMetadata == null) {
-      Class<? extends GrouperProvisioningObjectMetadata> grouperProvisioningObjectMetadataClass = this.grouperProvisioningObjectMetadataClass();
-      this.grouperProvisioningObjectMetadata = GrouperUtil.newInstance(grouperProvisioningObjectMetadataClass);
+      this.grouperProvisioningObjectMetadata = grouperProvisioningObjectMetadataInstance();
       this.grouperProvisioningObjectMetadata.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningObjectMetadata;
@@ -1299,8 +1320,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningFailsafe retrieveGrouperProvisioningFailsafe() {
     if (this.grouperProvisioningFailsafe == null) {
-      Class<? extends GrouperProvisioningFailsafe> grouperProvisioningLogicClass = this.grouperProvisioningFailsafeClass();
-      this.grouperProvisioningFailsafe = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningFailsafe = grouperProvisioningFailsafeInstance();
       this.grouperProvisioningFailsafe.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningFailsafe;
@@ -1317,8 +1337,7 @@ public abstract class GrouperProvisioner {
    */
   public GrouperProvisioningLogCommands retrieveGrouperProvisioningLogCommands() {
     if (this.grouperProvisioningLogCommands == null) {
-      Class<? extends GrouperProvisioningLogCommands> grouperProvisioningLogicClass = this.grouperProvisioningLogCommandsClass();
-      this.grouperProvisioningLogCommands = GrouperUtil.newInstance(grouperProvisioningLogicClass);
+      this.grouperProvisioningLogCommands = grouperProvisioningLogCommandsInstance();
       this.grouperProvisioningLogCommands.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningLogCommands;
@@ -1333,10 +1352,118 @@ public abstract class GrouperProvisioner {
   
   public GrouperProvisioningLoader retrieveGrouperProvisioningLoader() {
     if (this.grouperProvisioningLoader == null) {
-      Class<? extends GrouperProvisioningLoader> grouperProvisioningLoaderClass = this.grouperProvisioningLoaderClass();
-      this.grouperProvisioningLoader = GrouperUtil.newInstance(grouperProvisioningLoaderClass);
+      this.grouperProvisioningLoader = grouperProvisioningLoaderInstance();
       this.grouperProvisioningLoader.setGrouperProvisioner(this);
     }
     return this.grouperProvisioningLoader;
+  }
+
+  protected GrouperProvisioningBehavior grouperProvisioningBehaviorInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningBehaviorClass());
+  }
+
+  protected GrouperProvisioningCompare grouperProvisioningCompareInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningCompareClass());
+  }
+
+  /**
+   * return the instance of the DAO for this provisioner
+   */
+  protected GrouperProvisioningConfiguration grouperProvisioningConfigurationInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningConfigurationClass());
+  }
+
+  protected GrouperProvisioningConfigurationValidation grouperProvisioningConfigurationValidationInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningConfigurationValidationClass());
+  }
+
+  /**
+   * return the instance of the attribute manipulation
+   */
+  protected GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainerInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningDiagnosticsContainerClass());
+  }
+
+  protected GrouperProvisioningFailsafe grouperProvisioningFailsafeInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningFailsafeClass());
+  }
+
+  /**
+   * return the instance of the link logic
+   */
+  protected GrouperProvisioningLinkLogic grouperProvisioningLinkLogicInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningLinkLogicClass());
+  }
+
+  protected GrouperProvisioningLoader grouperProvisioningLoaderInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningLoaderClass());
+  }
+
+  /**
+   * return the instance of the provisioning logic
+   */
+  protected GrouperProvisioningLog grouperProvisioningLogInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningLogClass());
+  }
+
+  protected GrouperProvisioningLogCommands grouperProvisioningLogCommandsInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningLogCommandsClass());
+  }
+
+  /**
+   * return the instance of the provisioning logic
+   */
+  protected GrouperProvisioningLogic grouperProvisioningLogicInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningLogicClass());
+  }
+
+  /**
+   * return the instance of the provisioning logic Incremental
+   */
+  protected GrouperProvisioningLogicIncremental grouperProvisioningLogicIncrementalInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningLogicIncrementalClass());
+  }
+
+  protected GrouperProvisioningMatchingIdIndex grouperProvisioningMatchingIdIndexInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningMatchingIdIndexClass());
+  }
+
+  /**
+   * return the instance of the object metadata
+   */
+  protected GrouperProvisioningObjectMetadata grouperProvisioningObjectMetadataInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningObjectMetadataClass());
+  }
+
+  /**
+   * return the instance of the attribute manipulation
+   */
+  protected GrouperProvisioningSyncIntegration grouperProvisioningSyncIntegrationInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningSyncIntegrationClass());
+  }
+
+  /**
+   * return the instance of the provisioning validation
+   */
+  protected GrouperProvisioningValidation grouperProvisioningValidationInstance() {
+    return GrouperUtil.newInstance(grouperProvisioningValidationClass());
+  }
+
+  protected GrouperProvisioningGrouperSyncDao grouperSyncDaoInstance() {
+    return GrouperUtil.newInstance(grouperSyncDaoClass());
+  }
+
+  /**
+   * return the instance of the DAO for this provisioner
+   */
+  protected GrouperProvisionerTargetDaoBase grouperTargetDaoInstance() {
+    return GrouperUtil.newInstance(grouperTargetDaoClass());
+  }
+
+  /**
+   * @return the instance of the translator for this provisioner (optional)
+   */
+  protected GrouperProvisioningTranslator grouperTranslatorInstance() {
+    return GrouperUtil.newInstance(grouperTranslatorClass());
   }
 }

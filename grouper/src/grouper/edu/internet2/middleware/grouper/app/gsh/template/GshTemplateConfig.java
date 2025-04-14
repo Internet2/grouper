@@ -54,6 +54,11 @@ public class GshTemplateConfig {
 
   private GshTemplateRunAsType gshTemplateRunAsType;
   
+  
+  public void setGshTemplateRunAsType(GshTemplateRunAsType gshTemplateRunAsType) {
+    this.gshTemplateRunAsType = gshTemplateRunAsType;
+  }
+
   private boolean enabled;
   
   private boolean useIndividualAudits;
@@ -382,8 +387,12 @@ public class GshTemplateConfig {
         
         actAsGroupUUID = GrouperConfig.retrieveConfig().propertyValueString(configPrefix+"actAsGroupUUID", null);
         
-        String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
-        gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
+        if (gshTemplateType != GshTemplateType.provisioner) {
+          String runAsType = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsType");
+          gshTemplateRunAsType = GshTemplateRunAsType.valueOfIgnoreCase(runAsType, true);
+        } else {
+          gshTemplateRunAsType = GshTemplateRunAsType.GrouperSystem;
+        }
         
         if (gshTemplateRunAsType == GshTemplateRunAsType.specifiedSubject) {
           runAsSpecifiedSubjectSourceId = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"runAsSpecifiedSubjectSourceId");
@@ -423,6 +432,10 @@ public class GshTemplateConfig {
         
         allowWsFromNoOwner = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"allowWsFromNoOwner", false);
         
+        if (gshTemplateType == GshTemplateType.provisioner) {
+          allowWsFromNoOwner = true;
+        }
+
         showOnFolders = GrouperConfig.retrieveConfig().propertyValueBoolean(configPrefix+"showOnFolders", false);
         
         if (showOnFolders) {
@@ -446,7 +459,9 @@ public class GshTemplateConfig {
           
         }
         
-        gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"securityRunType"), true);
+        if (gshTemplateType != GshTemplateType.provisioner) {
+          gshTemplateSecurityRunType = GshTemplateSecurityRunType.valueOfIgnoreCase(GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"securityRunType"), true);
+        }
         
         if (gshTemplateSecurityRunType == GshTemplateSecurityRunType.specifiedGroup) {
           String groupUuidOrNameCanRun = GrouperConfig.retrieveConfig().propertyValueStringRequired(configPrefix+"groupUuidCanRun");

@@ -4,6 +4,7 @@ import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
 
+import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GshTemplateOutput {
@@ -149,6 +150,17 @@ public class GshTemplateOutput {
   
   public static void removeThreadLocalGshTemplateOutput() {
     threadLocalGshTemplateOutput.remove();
+  }
+  
+  public GshTemplateOutput assignGrouperProvisioner(GrouperProvisioner grouperProvisioner) {
+    this.grouperProvisioner = grouperProvisioner;
+    return this;
+  }
+
+  GrouperProvisioner grouperProvisioner;
+  
+  public GrouperProvisioner retrieveGrouperProvisioner() {
+    return grouperProvisioner;
   }
   
   

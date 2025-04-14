@@ -40,6 +40,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateTestExec;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
@@ -1078,6 +1079,15 @@ public class UiV2Template {
       GshTemplateConfig gshTemplateConfig = new GshTemplateConfig(templateType);
       gshTemplateConfig.populateConfiguration();
       
+      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
+
+      if (gshTemplateConfig.getGshTemplateType() == GshTemplateType.provisioner) {
+        guiResponseJs.addAction(GuiScreenAction.newMessageAppend(GuiMessageType.error,
+            TextContainer.retrieveFromRequest().getText()
+                .get("gshTemplate.error.cannotTestProvisioner.message")));
+        return;
+      }
+      
       String sessionId = request.getSession().getId();
       
       // uniquely identifies this task as opposed to other tasks in other tabs
@@ -1127,8 +1137,6 @@ public class UiV2Template {
         grouperCallable.callLogic();
       }
   
-      GuiResponseJs guiResponseJs = GuiResponseJs.retrieveGuiResponseJs();
-
       // running...
       guiResponseJs.addAction(GuiScreenAction.newInnerHtml("#templateHeader", GrouperTextContainer.textOrNull("stemTemplateCustomGshTemplateTestSubheading")));
       

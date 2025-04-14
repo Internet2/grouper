@@ -115,11 +115,23 @@ public class GshTemplateValidationService {
       }
       
     } else {
-      if (!templateConfig.isAllowWsFromNoOwner()) {
+      if (!templateConfig.isAllowWsFromNoOwner() && templateConfig.getGshTemplateType() != GshTemplateType.provisioner) {
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.ownerType.required.message");
         gshTemplateOutput.addValidationLine(errorMessage);
         return false;
       }
+    }
+    if (!StringUtils.equals("V2", templateConfig.getTemplateVersion())  && templateConfig.getGshTemplateType() == GshTemplateType.provisioner) {
+      String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.provisioner.mustBe.v2.message");
+      gshTemplateOutput.addValidationLine(errorMessage);
+      return false;
+    }
+    if ((gshTemplateExec.getGshTemplateOwnerType() == GshTemplateOwnerType.group 
+        || gshTemplateExec.getGshTemplateOwnerType() == GshTemplateOwnerType.stem ) 
+        && templateConfig.getGshTemplateType() == GshTemplateType.provisioner) {
+      String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.provisioner.notOnGroupsOrFolders.message");
+      gshTemplateOutput.addValidationLine(errorMessage);
+      return false;
     }
     
     return true;
