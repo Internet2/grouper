@@ -172,9 +172,9 @@ public class GrouperAzureGroup {
       }
       grouperAzureGroup.setGroupTypeUnified(groupTypeUnified);
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeDynamic")) {      
-      grouperAzureGroup.setGroupTypeDynamic(targetGroup.retrieveAttributeValueBoolean("groupTypeDynamic"));
-    }
+//    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeDynamic")) {      
+//      grouperAzureGroup.setGroupTypeDynamic(targetGroup.retrieveAttributeValueBoolean("groupTypeDynamic"));
+//    }
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
       grouperAzureGroup.setId(targetGroup.getId());
     }
@@ -581,7 +581,7 @@ public class GrouperAzureGroup {
       }
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypes") || fieldNamesToSet.contains("groupTypeUnified") ) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {      
 
       Set<String> groupTypes = new HashSet<String>();
       if (this.groupTypeUnified) {
