@@ -370,6 +370,16 @@ public enum UpgradeTasks {
         .sql("select id from grouper_attr_assign_action where name = 'assign' and attribute_def_id = ?")
         .addBindVar(attributeDefId)
         .select(String.class);
+    
+    // get the change log type for addAttributeAssign
+    String addAttributeAssignChangeLogType = new GcDbAccess()
+        .sql("select id from grouper_change_log_type where change_log_category='attributeAssign' and action_name='addAttributeAssign'")
+        .select(String.class);
+    
+    // get the change log type for addAttributeAssignValue
+    String addAttributeAssignValueChangeLogType = new GcDbAccess()
+        .sql("select id from grouper_change_log_type where change_log_category='attributeAssignValue' and action_name='addAttributeAssignValue'")
+        .select(String.class);
 
     // insert an attribute assign for the group
     long now = System.currentTimeMillis();
@@ -386,24 +396,57 @@ public enum UpgradeTasks {
         .addBindVar(now)
         .addBindVar(attributeAssignId)
         .executeSql();
+    
+    new GcDbAccess().sql(
+        "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string07, string08, string09) "
+        + "values (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        .addBindVar(GrouperUuid.getUuid())
+        .addBindVar(addAttributeAssignChangeLogType)
+        .addBindVar(now * 1000)
+        .addBindVar(attributeAssignId)
+        .addBindVar(attributeDefNameId)
+        .addBindVar(attributeAssignActionId)
+        .addBindVar("group")
+        .addBindVar(groupId)
+        .addBindVar("etc:attribute:upgradeTasks:upgradeTasksVersion")
+        .addBindVar("assign")
+        .addBindVar("F")
+        .executeSql();
 
     // bulk insert all the upgrade tasks
-    List<List<Object>> batchBindVars = new ArrayList<List<Object>>();
+    List<List<Object>> batchBindVarsAttributeAssignValues = new ArrayList<List<Object>>();
+    List<List<Object>> batchBindVarsChangeLogTemp = new ArrayList<List<Object>>();
     for (UpgradeTasks upgradeTask : UpgradeTasks.values()) {
-      List<Object> bindVars = new ArrayList<Object>();
-      bindVars.add(attributeAssignId);
-      bindVars.add(now);
-      bindVars.add(GrouperUuid.getUuid());
-      bindVars.add(now);
-      bindVars.add(upgradeTask.name().substring(1));
-      batchBindVars.add(bindVars);
+      String attributeAssignValueId = GrouperUuid.getUuid();
+      List<Object> bindVarsAttributeAssignValue = new ArrayList<Object>();
+      bindVarsAttributeAssignValue.add(attributeAssignId);
+      bindVarsAttributeAssignValue.add(now);
+      bindVarsAttributeAssignValue.add(attributeAssignValueId);
+      bindVarsAttributeAssignValue.add(now);
+      bindVarsAttributeAssignValue.add(upgradeTask.name().substring(1));
+      batchBindVarsAttributeAssignValues.add(bindVarsAttributeAssignValue);
+      
+      List<Object> bindVarsChangeLogTemp = new ArrayList<Object>();
+      bindVarsChangeLogTemp.add(GrouperUuid.getUuid());
+      bindVarsChangeLogTemp.add(addAttributeAssignValueChangeLogType);
+      bindVarsChangeLogTemp.add(now * 1000);
+      bindVarsChangeLogTemp.add(attributeAssignValueId);
+      bindVarsChangeLogTemp.add(attributeAssignId);
+      bindVarsChangeLogTemp.add(attributeDefNameId);
+      bindVarsChangeLogTemp.add("etc:attribute:upgradeTasks:upgradeTasksVersion");
+      bindVarsChangeLogTemp.add(upgradeTask.name().substring(1));
+      bindVarsChangeLogTemp.add("string");
+      batchBindVarsChangeLogTemp.add(bindVarsChangeLogTemp);
     }
 
     new GcDbAccess().sql(
-        "insert into grouper_attribute_assign_value (attribute_assign_id, created_on, id, last_updated, value_string) "
-            + "values (?, ?, ?, ?, ?)")
-        .batchBindVars(batchBindVars).executeBatchSql();
+        "insert into grouper_attribute_assign_value (attribute_assign_id, created_on, id, last_updated, value_string, hibernate_version_number) "
+            + "values (?, ?, ?, ?, ?, 0)")
+        .batchBindVars(batchBindVarsAttributeAssignValues).executeBatchSql();
     
-    
+    new GcDbAccess().sql(
+        "insert into grouper_change_log_entry_temp (id, change_log_type_id, created_on, string01, string02, string03, string04, string05, string06) "
+            + "values (?, ?, ?, ?, ?, ?, ?, ?, ?)")
+        .batchBindVars(batchBindVarsChangeLogTemp).executeBatchSql();
   }
 }
