@@ -77,7 +77,7 @@ public class PITMembershipTests extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new PITMembershipTests("testCompositeMemberships"));
+    TestRunner.run(new PITMembershipTests("testGroupSetAddDeleteAddSameTransaction"));
   }
   
   /**
@@ -1772,7 +1772,8 @@ public class PITMembershipTests extends GrouperTest {
     // clear change log
     ChangeLogTempToEntity.convertRecords();
     HibernateSession.byHqlStatic().createQuery("delete from ChangeLogEntryEntity").executeUpdate();
-    
+    new SyncPITTables().showResults(false).syncAllPITTables();
+
     final Group group1 = edu.addChildGroup("group1", "group1");    
     final Group group2 = edu.addChildGroup("group2", "group2");    
     final Group group3 = edu.addChildGroup("group3", "group3");    
