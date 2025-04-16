@@ -251,6 +251,21 @@ public class GrouperProvisioningGrouperSyncDao {
       }
     }
     memberIdsInPastMemberships.removeAll(memberIdsInPresentMemberships);
+    
+    // if there is a past membership, but also in a membership in this run, then it is not a past membership
+    for (ProvisioningMembershipWrapper provisioningMembershipWrapper : GrouperUtil.nonNull(this.getGrouperProvisioner().retrieveGrouperProvisioningData().getProvisioningMembershipWrappers())) {
+      
+      MultiKey groupIdMemberId = provisioningMembershipWrapper.getGroupIdMemberId();
+      if (groupIdMemberId == null || provisioningMembershipWrapper.getProvisioningStateMembership() == null) {
+        continue;
+      }
+      Object memberId = groupIdMemberId.getKey(1);
+      
+      if (provisioningMembershipWrapper.getProvisioningStateMembership().isCreate() || provisioningMembershipWrapper.getProvisioningStateMembership().getGrouperIncrementalDataAction() == GrouperIncrementalDataAction.insert) {
+        // if member id is in a current membership, remove it from past memberships
+        memberIdsInPastMemberships.remove(memberId);
+      }      
+    }
 
     debugMap.put("syncMembersToQuery_"+logLabel,
         GrouperUtil.length(memberIdsToRetrieve));
