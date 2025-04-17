@@ -148,7 +148,7 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
 
     GrouperStartup.startup();
     // testSimpleGroupLdapPa
-    TestRunner.run(new SqlProvisionerTest("testProvisionMembershipListsFull"));
+    TestRunner.run(new SqlProvisionerTest("testSimpleGroupMembershipProvisioningFullWithAttributesTableFailsafeMinGroupSize"));
 //    TestRunner.run(new SqlProvisionerTest("testSimpleGroupLdapPa"));
     
   }
@@ -4349,6 +4349,8 @@ public class SqlProvisionerTest extends GrouperProvisioningBaseTest {
     failsafeGroups.get(0).deleteMember(SubjectTestHelper.SUBJ2, false);
     failsafeGroups.get(0).deleteMember(SubjectTestHelper.SUBJ3, false);
     failsafeGroups.get(0).deleteMember(SubjectTestHelper.SUBJ4, false);
+
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
 
     try {
       GrouperLoader.runOnceByJobName(this.grouperSession, jobName);
