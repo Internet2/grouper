@@ -501,15 +501,15 @@ public class ChangeLogTempToEntity {
     for (ChangeLogEntry changeLogEntry : changeLogEntriesToSave) {
       if (membershipAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
         if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.membershipType))) {
-          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupName);
+          String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.groupId);
           String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.fieldName);
           String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.sourceId);
           String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_ADD.subjectId);
           long createdOnLongMicros = changeLogEntry.getCreatedOnDb();
           
           if ("members".equals(fieldName)) {
-            MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
-            MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLongMicros);
+            MultiKey key = new MultiKey(groupId, fieldName, sourceId, subjectId);
+            MultiKey value = new MultiKey(groupId, fieldName, sourceId, subjectId, createdOnLongMicros);
             //if (cachedMembershipDataDeletes.contains(key)) {
             //  cachedMembershipDataDeletes.remove(key);
             //} else {
@@ -520,15 +520,15 @@ public class ChangeLogTempToEntity {
         }
       } else if (membershipDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
         if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.membershipType))) {
-          String groupName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupName);
+          String groupId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.groupId);
           String fieldName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.fieldName);
           String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.sourceId);
           String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.MEMBERSHIP_DELETE.subjectId);
           long createdOnLongMicros = changeLogEntry.getCreatedOnDb();
 
           if ("members".equals(fieldName)) {
-            MultiKey key = new MultiKey(groupName, fieldName, sourceId, subjectId);
-            MultiKey value = new MultiKey(groupName, fieldName, sourceId, subjectId, createdOnLongMicros);
+            MultiKey key = new MultiKey(groupId, fieldName, sourceId, subjectId);
+            MultiKey value = new MultiKey(groupId, fieldName, sourceId, subjectId, createdOnLongMicros);
             if (cachedMembershipDataAdds.containsKey(key)) {
               MultiKey membershipAddMultiKey = cachedMembershipDataAdds.remove(key);
               
@@ -541,14 +541,14 @@ public class ChangeLogTempToEntity {
         }
       } else if (privilegeAddChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
         if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.membershipType))) {
-          String ownerName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerName);
+          String ownerId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.ownerId);
           String fieldName = Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.privilegeName), true).getListName();
           String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.sourceId);
           String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_ADD.subjectId);
           long createdOnLongMicros = changeLogEntry.getCreatedOnDb();
           
-          MultiKey key = new MultiKey(ownerName, fieldName, sourceId, subjectId);
-          MultiKey value = new MultiKey(ownerName, fieldName, sourceId, subjectId, createdOnLongMicros);
+          MultiKey key = new MultiKey(ownerId, fieldName, sourceId, subjectId);
+          MultiKey value = new MultiKey(ownerId, fieldName, sourceId, subjectId, createdOnLongMicros);
           //if (cachedMembershipDataDeletes.contains(key)) {
           //  cachedMembershipDataDeletes.remove(key);
           //} else {
@@ -558,14 +558,14 @@ public class ChangeLogTempToEntity {
         }
       } else if (privilegeDeleteChangeLogTypeId.equals(changeLogEntry.getChangeLogTypeId())) {
         if ("flattened".equals(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.membershipType))) {
-          String ownerName = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerName);
+          String ownerId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.ownerId);
           String fieldName = Privilege.getInstance(changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.privilegeName), true).getListName();
           String sourceId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.sourceId);
           String subjectId = changeLogEntry.retrieveValueForLabel(ChangeLogLabels.PRIVILEGE_DELETE.subjectId);
           long createdOnLongMicros = changeLogEntry.getCreatedOnDb();
 
-          MultiKey key = new MultiKey(ownerName, fieldName, sourceId, subjectId);
-          MultiKey value = new MultiKey(ownerName, fieldName, sourceId, subjectId, createdOnLongMicros);
+          MultiKey key = new MultiKey(ownerId, fieldName, sourceId, subjectId);
+          MultiKey value = new MultiKey(ownerId, fieldName, sourceId, subjectId, createdOnLongMicros);
           
           if (cachedMembershipDataAdds.containsKey(key)) {
             MultiKey membershipAddMultiKey = cachedMembershipDataAdds.remove(key);

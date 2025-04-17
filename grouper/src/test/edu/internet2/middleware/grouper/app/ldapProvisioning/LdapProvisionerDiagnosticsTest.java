@@ -10,6 +10,7 @@ import edu.internet2.middleware.grouper.RegistrySubject;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.StemSave;
 import edu.internet2.middleware.grouper.SubjectFinder;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioner;
 import edu.internet2.middleware.grouper.app.provisioning.GrouperProvisioningAttributeValue;
@@ -132,6 +133,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
     Subject banderson = SubjectFinder.findById("banderson", true);
 
     testGroup.addMember(testSubject0, false);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
     
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=groupOfNames)", new String[] {"objectClass", "cn", "member", "businessCategory"}, null).size());
 
@@ -246,6 +248,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
     // add another member
     {
       testGroup.addMember(banderson);
+      GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       provisioner.initialize(GrouperProvisioningType.diagnostics);
       GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();
@@ -373,6 +376,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
     Subject banderson = SubjectFinder.findById("banderson", true);
 
     testGroup.addMember(testSubject0, false);
+    GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
     
     assertEquals(0, LdapSessionUtils.ldapSession().list("personLdap", "ou=Groups,dc=example,dc=edu", LdapSearchScope.SUBTREE_SCOPE, "(objectClass=posixGroup)", new String[] {"objectClass", "cn", "description", "gidNumber"}, null).size());
   
@@ -473,6 +477,7 @@ public class LdapProvisionerDiagnosticsTest extends GrouperProvisioningBaseTest 
     // add another member
     {
       testGroup.addMember(banderson);
+      GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
       GrouperProvisioner provisioner = GrouperProvisioner.retrieveProvisioner("ldapProvTest");
       provisioner.initialize(GrouperProvisioningType.diagnostics);
       GrouperProvisioningDiagnosticsContainer grouperProvisioningDiagnosticsContainer = provisioner.retrieveGrouperProvisioningDiagnosticsContainer();

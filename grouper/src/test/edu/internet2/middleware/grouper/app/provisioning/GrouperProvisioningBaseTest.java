@@ -58,6 +58,7 @@ public abstract class GrouperProvisioningBaseTest extends GrouperTest {
   public GrouperProvisioningOutput fullProvision(String configId, boolean allowErrors) {
     
     try {
+      GrouperLoader.runOnceByJobName(grouperSession, "CHANGE_LOG_changeLogTempToChangeLog");
       GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), "OTHER_JOB_provisioner_full_" + configId);
     } catch (RuntimeException re) {
       if (!allowErrors) {

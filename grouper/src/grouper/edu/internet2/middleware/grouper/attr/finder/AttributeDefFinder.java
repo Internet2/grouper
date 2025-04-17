@@ -50,6 +50,7 @@ import edu.internet2.middleware.subject.Subject;
 public class AttributeDefFinder {
 
   private static ExpirableCache<String, Long> attributeDefNameToIdIndexCache = new ExpirableCache<>(60);
+  private static ExpirableCache<String, Long> attributeDefIdToIdIndexCache = new ExpirableCache<>(60);
 
   /**
    * names of attribute definitions to find
@@ -530,6 +531,63 @@ public class AttributeDefFinder {
         String attributeDefName = (String)nameAndIdIndex[0];
         Long idIndex = GrouperUtil.longObjectValue(nameAndIdIndex[1], false);
         result.put(attributeDefName, idIndex);
+      }
+      
+    }
+    
+    return result;
+  }
+  
+  /**
+   * this will cache for a minute, find id index by id
+   * @param attributeDefIds2
+   * @return the id indexes
+   */
+  public static Map<String, Long> findIdIndexesByIds(final Set<String> attributeDefIds2) {
+    final Map<String, Long> result = new HashMap<String, Long>();
+    final Set<String> attributeDefIdsToFind = new HashSet<>(attributeDefIds2);
+    
+    // try the cache
+    for (String attributeDefId : GrouperUtil.nonNull(attributeDefIds2)) {
+      Long idIndex = attributeDefIdToIdIndexCache.get(attributeDefId);
+      if (idIndex != null) {
+        result.put(attributeDefId, idIndex);
+        attributeDefIdsToFind.remove(attributeDefId);
+      }
+    }
+
+    if (attributeDefIdsToFind.size() == 0) { 
+      return result;
+    }
+    
+    List<String> attributeDefIdsToFindList = new ArrayList<String>(attributeDefIdsToFind);
+
+    // one bind var in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(attributeDefIdsToFindList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfAttributeDefIds = GrouperClientUtils.batchList(attributeDefIdsToFindList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select id, id_index from grouper_attribute_def where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      for (int i=0;i<batchOfAttributeDefIds.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" id = ? ");
+        gcDbAccess.addBindVar(batchOfAttributeDefIds.get(i));
+      }
+      
+      List<Object[]> idAndIdIndexes = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] idAndIdIndex : GrouperUtil.nonNull(idAndIdIndexes)) {
+        String attributeDefId = (String)idAndIdIndex[0];
+        Long idIndex = GrouperUtil.longObjectValue(idAndIdIndex[1], false);
+        result.put(attributeDefId, idIndex);
       }
       
     }

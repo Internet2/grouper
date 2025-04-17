@@ -996,6 +996,25 @@ public class HibUtils {
     }
     return result.toString();
   }
+  
+  /**
+   * convert a collection of anything (no parens) to an in clause
+   * @param collection
+   * @return the string of in clause (without parens)
+   */
+  public static String convertToInClauseAnyTypeForSqlStatic(Collection<?> collection) {
+    
+    StringBuilder result = new StringBuilder();
+    int collectionSize = collection.size();
+    for (int i = 0; i < collectionSize; i++) {
+      result.append("?");
+
+      if (i < collectionSize - 1) {
+        result.append(", ");
+      }
+    }
+    return result.toString();
+  }
 
 
   /**

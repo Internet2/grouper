@@ -117,6 +117,7 @@ public class GroupFinder {
       groupCacheAsRootIdsNamesAndIndexes.add(group.getIdIndex());
       groupCacheAsRootAddIfSupposedTo(group);
       groupNameToInternalIdCache.put(group.getName(), group.getInternalId());
+      groupIdToInternalIdCache.put(group.getId(), group.getInternalId());
     }
   }
 
@@ -365,6 +366,9 @@ public class GroupFinder {
    * cache stuff in groups by subjectSourceId, subjectId, name, uuid, idIndex
    */
   private static ExpirableCache<String, Long> groupNameToInternalIdCache = new ExpirableCache<>(60);
+  
+  private static ExpirableCache<String, Long> groupIdToInternalIdCache = new ExpirableCache<>(60);
+
 
   /**
    * if we are filtering for groups which are composite owners or not
@@ -1650,5 +1654,61 @@ public class GroupFinder {
     return result;
   }
 
+  /**
+   * this will cache for a minute, find internal ids by id
+   * @param groupIds
+   * @return the internal ids
+   */
+  public static Map<String, Long> findInternalIdsByIds(final Set<String> groupIds) {
+    final Map<String, Long> result = new HashMap<String, Long>();
+    final Set<String> groupIdsToFind = new HashSet<>(groupIds);
+    
+    // try the internal id cache
+    for (String groupId : GrouperUtil.nonNull(groupIds)) {
+      Long internalId = groupIdToInternalIdCache.get(groupId);
+      if (internalId != null) {
+        result.put(groupId, internalId);
+        groupIdsToFind.remove(groupId);
+      }
+    }
+
+    if (groupIdsToFind.size() == 0) {
+      return result;
+    }
+    
+    List<String> groupIdsToFindList = new ArrayList<String>(groupIdsToFind);
+
+    // one bind var in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(groupIdsToFindList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfGroupIds = GrouperClientUtils.batchList(groupIdsToFindList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select id, internal_id from grouper_groups where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      for (int i=0;i<batchOfGroupIds.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" id = ? ");
+        gcDbAccess.addBindVar(batchOfGroupIds.get(i));
+      }
+      
+      List<Object[]> idAndInternalIds = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] idAndInternalId : GrouperUtil.nonNull(idAndInternalIds)) {
+        String groupId = (String)idAndInternalId[0];
+        Long internalId = GrouperUtil.longObjectValue(idAndInternalId[1], false);
+        result.put(groupId, internalId);
+      }
+      
+    }
+    
+    return result;
+  }
 }
 

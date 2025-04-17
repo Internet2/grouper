@@ -89,6 +89,7 @@ import edu.internet2.middleware.subject.Subject;
 public class StemFinder {
 
   private static ExpirableCache<String, Long> stemNameToIdIndexCache = new ExpirableCache<>(60);
+  private static ExpirableCache<String, Long> stemIdToIdIndexCache = new ExpirableCache<>(60);
 
   /**
    * find by names
@@ -1259,6 +1260,63 @@ public class StemFinder {
         String stemName = (String)nameAndIdIndex[0];
         Long idIndex = GrouperUtil.longObjectValue(nameAndIdIndex[1], false);
         result.put(stemName, idIndex);
+      }
+      
+    }
+    
+    return result;
+  }
+  
+  /**
+   * this will cache for a minute, find id index by id
+   * @param stemIds2
+   * @return the id indexes
+   */
+  public static Map<String, Long> findIdIndexesByIds(final Set<String> stemIds2) {
+    final Map<String, Long> result = new HashMap<String, Long>();
+    final Set<String> stemIdsToFind = new HashSet<>(stemIds2);
+    
+    // try the cache
+    for (String stemId : GrouperUtil.nonNull(stemIds2)) {
+      Long idIndex = stemIdToIdIndexCache.get(stemId);
+      if (idIndex != null) {
+        result.put(stemId, idIndex);
+        stemIdsToFind.remove(stemId);
+      }
+    }
+
+    if (stemIdsToFind.size() == 0) { 
+      return result;
+    }
+    
+    List<String> stemIdsToFindList = new ArrayList<String>(stemIdsToFind);
+
+    // one bind var in each record to retrieve
+    int batchSize = GrouperClientConfig.retrieveConfig().propertyValueInt("grouperClient.syncTableDefault.maxBindVarsInSelect", 900);
+    int numberOfBatches = GrouperUtil.batchNumberOfBatches(GrouperUtil.length(stemIdsToFindList), batchSize, false);
+    
+    for (int batchIndex = 0; batchIndex<numberOfBatches; batchIndex++) {
+      
+      List<String> batchOfStemIds = GrouperClientUtils.batchList(stemIdsToFindList, batchSize, batchIndex);
+      
+      StringBuilder sql = new StringBuilder("select id, id_index from grouper_stems where ");
+      
+      GcDbAccess gcDbAccess = new GcDbAccess();
+      
+      for (int i=0;i<batchOfStemIds.size();i++) {
+        if (i>0) {
+          sql.append(" or ");
+        }
+        sql.append(" id = ? ");
+        gcDbAccess.addBindVar(batchOfStemIds.get(i));
+      }
+      
+      List<Object[]> idAndIdIndexes = gcDbAccess.sql(sql.toString()).selectList(Object[].class);
+      
+      for (Object[] idAndIdIndex : GrouperUtil.nonNull(idAndIdIndexes)) {
+        String stemId = (String)idAndIdIndex[0];
+        Long idIndex = GrouperUtil.longObjectValue(idAndIdIndex[1], false);
+        result.put(stemId, idIndex);
       }
       
     }

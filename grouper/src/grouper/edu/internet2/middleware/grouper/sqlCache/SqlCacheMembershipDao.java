@@ -62,58 +62,58 @@ public class SqlCacheMembershipDao {
 
   /**
    * things to add to sql cache memberships.  5 fields in multikey: 
-   * ownerName, fieldName, sourceId, subjectId, microsSince1970whenMembershipStarted (Long)
-   * @param ownerNameFieldNameSourceIdSubjectIdStartedMicros
+   * ownerId, fieldName, sourceId, subjectId, microsSince1970whenMembershipStarted (Long)
+   * @param ownerIdFieldNameSourceIdSubjectIdStartedMicros
    * @param connection optionally pass connection to use
    * @return number of cache membership inserts
    */
-  public static int insertSqlCacheMembershipsIfCacheable(Collection<MultiKey> ownerNameFieldNameSourceIdSubjectIdStartedMicros, Connection connection) {
+  public static int insertSqlCacheMembershipsIfCacheable(Collection<MultiKey> ownerIdFieldNameSourceIdSubjectIdStartedMicros, Connection connection) {
     
-    if (GrouperUtil.length(ownerNameFieldNameSourceIdSubjectIdStartedMicros) == 0) {
+    if (GrouperUtil.length(ownerIdFieldNameSourceIdSubjectIdStartedMicros) == 0) {
       return 0;
     }
         
-    Set<MultiKey> ownerNameFieldNames = new HashSet<>();
+    Set<MultiKey> ownerIdFieldNames = new HashSet<>();
     
-    Map<MultiKey, MultiKey> ownerNameFieldNameSourceIdSubjectIdStartedMicroToOwnerNameFieldName = new HashMap<>();
+    Map<MultiKey, MultiKey> ownerIdFieldNameSourceIdSubjectIdStartedMicroToOwnerIdFieldName = new HashMap<>();
     
-    for (MultiKey ownerNameFieldNameSourceIdSubjectIdStartedMicro : ownerNameFieldNameSourceIdSubjectIdStartedMicros) {
-      String ownerName = (String)ownerNameFieldNameSourceIdSubjectIdStartedMicro.getKey(0);
-      String fieldName = (String)ownerNameFieldNameSourceIdSubjectIdStartedMicro.getKey(1);
+    for (MultiKey ownerIdFieldNameSourceIdSubjectIdStartedMicro : ownerIdFieldNameSourceIdSubjectIdStartedMicros) {
+      String ownerId = (String)ownerIdFieldNameSourceIdSubjectIdStartedMicro.getKey(0);
+      String fieldName = (String)ownerIdFieldNameSourceIdSubjectIdStartedMicro.getKey(1);
       
-      MultiKey ownerNameFieldName = new MultiKey(ownerName, fieldName);
-      ownerNameFieldNames.add(ownerNameFieldName);
-      ownerNameFieldNameSourceIdSubjectIdStartedMicroToOwnerNameFieldName.put(ownerNameFieldNameSourceIdSubjectIdStartedMicro, ownerNameFieldName);
+      MultiKey ownerIdFieldName = new MultiKey(ownerId, fieldName);
+      ownerIdFieldNames.add(ownerIdFieldName);
+      ownerIdFieldNameSourceIdSubjectIdStartedMicroToOwnerIdFieldName.put(ownerIdFieldNameSourceIdSubjectIdStartedMicro, ownerIdFieldName);
       
     }
     
-    Map<MultiKey, SqlCacheGroup> ownerNameFieldNameToSqlCacheGroup = SqlCacheGroupDao.retrieveByOwnerNamesFieldNames(ownerNameFieldNames, connection);
+    Map<MultiKey, SqlCacheGroup> ownerIdFieldNameToSqlCacheGroup = SqlCacheGroupDao.retrieveByOwnerIdsFieldNames(ownerIdFieldNames, connection);
     
-    List<MultiKey> ownerNameFieldNameSourceIdSubjectIdStartedMicrosList = new ArrayList<>(ownerNameFieldNameSourceIdSubjectIdStartedMicros);
+    List<MultiKey> ownerIdFieldNameSourceIdSubjectIdStartedMicrosList = new ArrayList<>(ownerIdFieldNameSourceIdSubjectIdStartedMicros);
     
-    Iterator<MultiKey> iterator = ownerNameFieldNameSourceIdSubjectIdStartedMicrosList.iterator();
+    Iterator<MultiKey> iterator = ownerIdFieldNameSourceIdSubjectIdStartedMicrosList.iterator();
     
     // filter out uncacheable
     while (iterator.hasNext()) {
-      MultiKey ownerNameFieldNameSourceIdSubjectIdStartedMicro = iterator.next();
-      MultiKey ownerNameFieldName = ownerNameFieldNameSourceIdSubjectIdStartedMicroToOwnerNameFieldName.get(ownerNameFieldNameSourceIdSubjectIdStartedMicro);
-      SqlCacheGroup sqlCacheGroup = ownerNameFieldNameToSqlCacheGroup.get(ownerNameFieldName);
+      MultiKey ownerIdFieldNameSourceIdSubjectIdStartedMicro = iterator.next();
+      MultiKey ownerIdFieldName = ownerIdFieldNameSourceIdSubjectIdStartedMicroToOwnerIdFieldName.get(ownerIdFieldNameSourceIdSubjectIdStartedMicro);
+      SqlCacheGroup sqlCacheGroup = ownerIdFieldNameToSqlCacheGroup.get(ownerIdFieldName);
       
       if (sqlCacheGroup == null || sqlCacheGroup.getDisabledOn() != null) {
         iterator.remove();
       }
     }
 
-    Map<MultiKey, MultiKey> ownerNameFieldNameSourceIdSubjectIdStartedMicroToSourceIdSubjectId = new HashMap<>();
+    Map<MultiKey, MultiKey> ownerIdFieldNameSourceIdSubjectIdStartedMicroToSourceIdSubjectId = new HashMap<>();
     Set<MultiKey> sourceIdSubjectIds = new HashSet<>();
     
-    for (MultiKey ownerNameFieldNameSourceIdSubjectIdStartedMicro : ownerNameFieldNameSourceIdSubjectIdStartedMicrosList) {
-      String sourceId = (String)ownerNameFieldNameSourceIdSubjectIdStartedMicro.getKey(2);
-      String subjectId = (String)ownerNameFieldNameSourceIdSubjectIdStartedMicro.getKey(3);
+    for (MultiKey ownerIdFieldNameSourceIdSubjectIdStartedMicro : ownerIdFieldNameSourceIdSubjectIdStartedMicrosList) {
+      String sourceId = (String)ownerIdFieldNameSourceIdSubjectIdStartedMicro.getKey(2);
+      String subjectId = (String)ownerIdFieldNameSourceIdSubjectIdStartedMicro.getKey(3);
       
       MultiKey sourceIdSubjectId = new MultiKey(sourceId, subjectId);
       sourceIdSubjectIds.add(sourceIdSubjectId);
-      ownerNameFieldNameSourceIdSubjectIdStartedMicroToSourceIdSubjectId.put(ownerNameFieldNameSourceIdSubjectIdStartedMicro, sourceIdSubjectId);
+      ownerIdFieldNameSourceIdSubjectIdStartedMicroToSourceIdSubjectId.put(ownerIdFieldNameSourceIdSubjectIdStartedMicro, sourceIdSubjectId);
       
     }
 
@@ -122,9 +122,9 @@ public class SqlCacheMembershipDao {
     List<SqlCacheMembership> sqlCacheMembershipsToInsert = new ArrayList<>();
     Set<SqlCacheGroup> sqlCacheGroupsToUpdate = new HashSet<>();
 
-    for (MultiKey ownerNameFieldNameSourceIdSubjectIdStartedMicro : ownerNameFieldNameSourceIdSubjectIdStartedMicrosList) {
+    for (MultiKey ownerIdFieldNameSourceIdSubjectIdStartedMicro : ownerIdFieldNameSourceIdSubjectIdStartedMicrosList) {
 
-      MultiKey sourceIdSubjectId = ownerNameFieldNameSourceIdSubjectIdStartedMicroToSourceIdSubjectId.get(ownerNameFieldNameSourceIdSubjectIdStartedMicro);
+      MultiKey sourceIdSubjectId = ownerIdFieldNameSourceIdSubjectIdStartedMicroToSourceIdSubjectId.get(ownerIdFieldNameSourceIdSubjectIdStartedMicro);
       
       if (sourceIdSubjectId == null) {
         continue;
@@ -136,20 +136,20 @@ public class SqlCacheMembershipDao {
         continue;
       }
       
-      MultiKey ownerNameFieldName = ownerNameFieldNameSourceIdSubjectIdStartedMicroToOwnerNameFieldName.get(ownerNameFieldNameSourceIdSubjectIdStartedMicro);
+      MultiKey ownerIdFieldName = ownerIdFieldNameSourceIdSubjectIdStartedMicroToOwnerIdFieldName.get(ownerIdFieldNameSourceIdSubjectIdStartedMicro);
       
-      if (ownerNameFieldName == null) {
+      if (ownerIdFieldName == null) {
         continue;
       }
       
-      SqlCacheGroup sqlCacheGroup = ownerNameFieldNameToSqlCacheGroup.get(ownerNameFieldName);
+      SqlCacheGroup sqlCacheGroup = ownerIdFieldNameToSqlCacheGroup.get(ownerIdFieldName);
       
       if (sqlCacheGroup == null) {
         continue;
       }
       
       SqlCacheMembership sqlCacheMembership = new SqlCacheMembership();
-      Long membershipAddedLong = (Long)ownerNameFieldNameSourceIdSubjectIdStartedMicro.getKey(4);
+      Long membershipAddedLong = (Long)ownerIdFieldNameSourceIdSubjectIdStartedMicro.getKey(4);
       sqlCacheMembership.setFlattenedAddTimestamp(membershipAddedLong);
       sqlCacheMembership.setMemberInternalId(memberInternalId);
       sqlCacheMembership.setSqlCacheGroupInternalId(sqlCacheGroup.getInternalId());
@@ -165,67 +165,68 @@ public class SqlCacheMembershipDao {
     
     return numberOfChanges;
   }
+
   
   /**
    * Things to delete from sql cache memberships.  Also possibly add to history if cachable.  5 fields in multikey: 
-   * ownerName, fieldName, sourceId, subjectId, microsSince1970whenMembershipEnded (Long)
-   * @param ownerNameFieldNameSourceIdSubjectIdStartedMillis
+   * ownerId, fieldName, sourceId, subjectId, microsSince1970whenMembershipEnded (Long)
+   * @param ownerIdFieldNameSourceIdSubjectIdStartedMillis
    * @param connection optionally pass connection to use
    * @return number of cache membership deletes
    */
-  public static int deleteSqlCacheMembershipsIfCacheable(Collection<MultiKey> ownerNameFieldNameSourceIdSubjectIdsEndedMicros, Connection connection) {
+  public static int deleteSqlCacheMembershipsIfCacheable(Collection<MultiKey> ownerIdFieldNameSourceIdSubjectIdsEndedMicros, Connection connection) {
     
-    if (GrouperUtil.length(ownerNameFieldNameSourceIdSubjectIdsEndedMicros) == 0) {
+    if (GrouperUtil.length(ownerIdFieldNameSourceIdSubjectIdsEndedMicros) == 0) {
       return 0;
     }
     
-    Set<MultiKey> ownerNameFieldNames = new HashSet<>();
+    Set<MultiKey> ownerIdFieldNames = new HashSet<>();
     
-    Map<MultiKey, MultiKey> ownerNameFieldNameSourceIdSubjectIdEndedMicrosToOwnerNameFieldName = new HashMap<>();
+    Map<MultiKey, MultiKey> ownerIdFieldNameSourceIdSubjectIdEndedMicrosToOwnerIdFieldName = new HashMap<>();
     
-    for (MultiKey ownerNameFieldNameSourceIdSubjectIdEndedMicros : ownerNameFieldNameSourceIdSubjectIdsEndedMicros) {
-      String ownerName = (String)ownerNameFieldNameSourceIdSubjectIdEndedMicros.getKey(0);
-      String fieldName = (String)ownerNameFieldNameSourceIdSubjectIdEndedMicros.getKey(1);
+    for (MultiKey ownerIdFieldNameSourceIdSubjectIdEndedMicros : ownerIdFieldNameSourceIdSubjectIdsEndedMicros) {
+      String ownerId = (String)ownerIdFieldNameSourceIdSubjectIdEndedMicros.getKey(0);
+      String fieldName = (String)ownerIdFieldNameSourceIdSubjectIdEndedMicros.getKey(1);
       
-      MultiKey ownerNameFieldName = new MultiKey(ownerName, fieldName);
-      ownerNameFieldNames.add(ownerNameFieldName);
-      ownerNameFieldNameSourceIdSubjectIdEndedMicrosToOwnerNameFieldName.put(ownerNameFieldNameSourceIdSubjectIdEndedMicros, ownerNameFieldName);
+      MultiKey ownerIdFieldName = new MultiKey(ownerId, fieldName);
+      ownerIdFieldNames.add(ownerIdFieldName);
+      ownerIdFieldNameSourceIdSubjectIdEndedMicrosToOwnerIdFieldName.put(ownerIdFieldNameSourceIdSubjectIdEndedMicros, ownerIdFieldName);
       
     }
     
-    Map<MultiKey, SqlCacheGroup> ownerNameFieldNameToSqlCacheGroup = SqlCacheGroupDao.retrieveByOwnerNamesFieldNames(ownerNameFieldNames, connection);
+    Map<MultiKey, SqlCacheGroup> ownerIdFieldNameToSqlCacheGroup = SqlCacheGroupDao.retrieveByOwnerIdsFieldNames(ownerIdFieldNames, connection);
     Map<Long, SqlCacheGroup> internalIdToSqlCacheGroup = new HashMap<>();
-    for (SqlCacheGroup sqlCacheGroup : ownerNameFieldNameToSqlCacheGroup.values()) {
+    for (SqlCacheGroup sqlCacheGroup : ownerIdFieldNameToSqlCacheGroup.values()) {
       internalIdToSqlCacheGroup.put(sqlCacheGroup.getInternalId(), sqlCacheGroup);
     }
     
     Set<Long> sqlCacheGroupIdsInHistory = retrieveSqlCacheGroupIdsCachedInHistory(internalIdToSqlCacheGroup.keySet(), connection);
     
-    List<MultiKey> ownerNameFieldNameSourceIdSubjectIdEndedMicrosList = new ArrayList<>(ownerNameFieldNameSourceIdSubjectIdsEndedMicros);
+    List<MultiKey> ownerIdFieldNameSourceIdSubjectIdEndedMicrosList = new ArrayList<>(ownerIdFieldNameSourceIdSubjectIdsEndedMicros);
     
-    Iterator<MultiKey> iterator = ownerNameFieldNameSourceIdSubjectIdEndedMicrosList.iterator();
+    Iterator<MultiKey> iterator = ownerIdFieldNameSourceIdSubjectIdEndedMicrosList.iterator();
     
     // filter out uncacheable
     while (iterator.hasNext()) {
-      MultiKey ownerNameFieldNameSourceIdSubjectIdEndedMicros = iterator.next();
-      MultiKey ownerNameFieldName = ownerNameFieldNameSourceIdSubjectIdEndedMicrosToOwnerNameFieldName.get(ownerNameFieldNameSourceIdSubjectIdEndedMicros);
-      SqlCacheGroup sqlCacheGroup = ownerNameFieldNameToSqlCacheGroup.get(ownerNameFieldName);
+      MultiKey ownerIdFieldNameSourceIdSubjectIdEndedMicros = iterator.next();
+      MultiKey ownerIdFieldName = ownerIdFieldNameSourceIdSubjectIdEndedMicrosToOwnerIdFieldName.get(ownerIdFieldNameSourceIdSubjectIdEndedMicros);
+      SqlCacheGroup sqlCacheGroup = ownerIdFieldNameToSqlCacheGroup.get(ownerIdFieldName);
       
       if (sqlCacheGroup == null || sqlCacheGroup.getDisabledOn() != null) {
         iterator.remove();
       }
     }
 
-    Map<MultiKey, MultiKey> ownerNameFieldNameSourceIdSubjectIdEndedMicrosToSourceIdSubjectId = new HashMap<>();
+    Map<MultiKey, MultiKey> ownerIdFieldNameSourceIdSubjectIdEndedMicrosToSourceIdSubjectId = new HashMap<>();
     Set<MultiKey> sourceIdSubjectIds = new HashSet<>();
     
-    for (MultiKey ownerNameFieldNameSourceIdSubjectIdEndedMicros : ownerNameFieldNameSourceIdSubjectIdsEndedMicros) {
-      String sourceId = (String)ownerNameFieldNameSourceIdSubjectIdEndedMicros.getKey(2);
-      String subjectId = (String)ownerNameFieldNameSourceIdSubjectIdEndedMicros.getKey(3);
+    for (MultiKey ownerIdFieldNameSourceIdSubjectIdEndedMicros : ownerIdFieldNameSourceIdSubjectIdsEndedMicros) {
+      String sourceId = (String)ownerIdFieldNameSourceIdSubjectIdEndedMicros.getKey(2);
+      String subjectId = (String)ownerIdFieldNameSourceIdSubjectIdEndedMicros.getKey(3);
       
       MultiKey sourceIdSubjectId = new MultiKey(sourceId, subjectId);
       sourceIdSubjectIds.add(sourceIdSubjectId);
-      ownerNameFieldNameSourceIdSubjectIdEndedMicrosToSourceIdSubjectId.put(ownerNameFieldNameSourceIdSubjectIdEndedMicros, sourceIdSubjectId);
+      ownerIdFieldNameSourceIdSubjectIdEndedMicrosToSourceIdSubjectId.put(ownerIdFieldNameSourceIdSubjectIdEndedMicros, sourceIdSubjectId);
       
     }
 
@@ -236,10 +237,10 @@ public class SqlCacheMembershipDao {
     Set<MultiKey> sqlCacheGroupInternalIdsMemberInternalIdsForHistory = new HashSet<>();
     Map<MultiKey, Long> sqlCacheGroupInternalIdMemberInternalIdToEndedMicros = new HashMap<>();
 
-    for (MultiKey ownerNameFieldNameSourceIdSubjectIdEndedMicros : ownerNameFieldNameSourceIdSubjectIdEndedMicrosList) {
+    for (MultiKey ownerIdFieldNameSourceIdSubjectIdEndedMicros : ownerIdFieldNameSourceIdSubjectIdEndedMicrosList) {
 
-      MultiKey sourceIdSubjectId = ownerNameFieldNameSourceIdSubjectIdEndedMicrosToSourceIdSubjectId.get(ownerNameFieldNameSourceIdSubjectIdEndedMicros);
-      Long endedMicros = (Long)ownerNameFieldNameSourceIdSubjectIdEndedMicros.getKey(4);
+      MultiKey sourceIdSubjectId = ownerIdFieldNameSourceIdSubjectIdEndedMicrosToSourceIdSubjectId.get(ownerIdFieldNameSourceIdSubjectIdEndedMicros);
+      Long endedMicros = (Long)ownerIdFieldNameSourceIdSubjectIdEndedMicros.getKey(4);
 
       if (sourceIdSubjectId == null) {
         continue;
@@ -251,13 +252,13 @@ public class SqlCacheMembershipDao {
         continue;
       }
       
-      MultiKey ownerNameFieldName = ownerNameFieldNameSourceIdSubjectIdEndedMicrosToOwnerNameFieldName.get(ownerNameFieldNameSourceIdSubjectIdEndedMicros);
+      MultiKey ownerIdFieldName = ownerIdFieldNameSourceIdSubjectIdEndedMicrosToOwnerIdFieldName.get(ownerIdFieldNameSourceIdSubjectIdEndedMicros);
       
-      if (ownerNameFieldName == null) {
+      if (ownerIdFieldName == null) {
         continue;
       }
       
-      SqlCacheGroup sqlCacheGroup = ownerNameFieldNameToSqlCacheGroup.get(ownerNameFieldName);
+      SqlCacheGroup sqlCacheGroup = ownerIdFieldNameToSqlCacheGroup.get(ownerIdFieldName);
       
       if (sqlCacheGroup == null) {
         continue;

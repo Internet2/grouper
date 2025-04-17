@@ -91,34 +91,25 @@ public class SqlCacheGroupDao {
   public static void delete(SqlCacheGroup sqlCacheGroup) {
     new GcDbAccess().deleteFromDatabase(sqlCacheGroup);
   }
-
-  /**
-   * select caches by group names and field names
-   * @param groupNamesFieldNames
-   * @return the caches if they exist by groupName and fieldName
-   */
-  public static Map<MultiKey, SqlCacheGroup> retrieveByOwnerNamesFieldNames(Collection<MultiKey> ownerNamesFieldNames) {
-    return retrieveByOwnerNamesFieldNames(ownerNamesFieldNames, null);
-  }
   
   /**
-   * select caches by group names and field names
-   * @param groupNamesFieldNames
+   * select caches by owner ids and field names
+   * @param ownerIdsFieldNames
    * @param connection optionally pass connection to use
-   * @return the caches if they exist by groupName and fieldName
+   * @return the caches if they exist by ownerId and fieldName
    */
-  public static Map<MultiKey, SqlCacheGroup> retrieveByOwnerNamesFieldNames(Collection<MultiKey> ownerNamesFieldNames, Connection connection) {
+  public static Map<MultiKey, SqlCacheGroup> retrieveByOwnerIdsFieldNames(Collection<MultiKey> ownerIdsFieldNames, Connection connection) {
     
     Map<MultiKey, SqlCacheGroup> result = new HashMap<>();
 
-    if (GrouperUtil.length(ownerNamesFieldNames) == 0) {
+    if (GrouperUtil.length(ownerIdsFieldNames) == 0) {
       return result;
     }
 
     Set<String> fieldNames = new HashSet<>();
-    Set<String> groupNames = new HashSet<>();
-    Set<String> stemNames = new HashSet<>();
-    Set<String> attributeDefNames = new HashSet<>();
+    Set<String> groupIds = new HashSet<>();
+    Set<String> stemIds = new HashSet<>();
+    Set<String> attributeDefIds = new HashSet<>();
     
     @SuppressWarnings("unchecked")
     Set<Field> fields = FieldFinder.findAll();
@@ -127,52 +118,52 @@ public class SqlCacheGroupDao {
       fieldNameToField.put(field.getName(), field);
     }
 
-    for (MultiKey ownerNameFieldName : ownerNamesFieldNames) {
-      String ownerName = (String)ownerNameFieldName.getKey(0);
-      String fieldName = (String)ownerNameFieldName.getKey(1);
+    for (MultiKey ownerIdsFieldName : ownerIdsFieldNames) {
+      String ownerId = (String)ownerIdsFieldName.getKey(0);
+      String fieldName = (String)ownerIdsFieldName.getKey(1);
       fieldNames.add(fieldName);      
       Field field = fieldNameToField.get(fieldName);
       
       if (field.isAttributeDefListField()) {
-        attributeDefNames.add(ownerName);
+        attributeDefIds.add(ownerId);
       } else if (field.isStemListField()) {
-        stemNames.add(ownerName);
+        stemIds.add(ownerId);
       } else {
-        groupNames.add(ownerName);
+        groupIds.add(ownerId);
       }
     }
     
     // all fields and groups, note, some might not be there
     Map<String, Long> fieldNameToInternalId = FieldFinder.findInternalIdsByNames(fieldNames);
-    Map<String, Long> groupNameToInternalId = GroupFinder.findInternalIdsByNames(groupNames);
-    Map<String, Long> stemNameToIdIndex = StemFinder.findIdIndexesByNames(stemNames);
-    Map<String, Long> attributeDefNameToIdIndex = AttributeDefFinder.findIdIndexesByNames(attributeDefNames);
+    Map<String, Long> groupIdToInternalId = GroupFinder.findInternalIdsByIds(groupIds);
+    Map<String, Long> stemIdToIdIndex = StemFinder.findIdIndexesByIds(stemIds);
+    Map<String, Long> attributeDefIdToIdIndex = AttributeDefFinder.findIdIndexesByIds(attributeDefIds);
 
-    Map<MultiKey, MultiKey> cacheGroupInternalIdFieldInternalIdToOwnerNameFieldName = new HashMap<>();
+    Map<MultiKey, MultiKey> cacheGroupInternalIdFieldInternalIdToOwnerIdFieldName = new HashMap<>();
 
     List<MultiKey> cacheGroupInternalIdFieldInternalIdList = new ArrayList<MultiKey>();
-    for (MultiKey ownerNameFieldName : ownerNamesFieldNames) {
+    for (MultiKey ownerIdsFieldName : ownerIdsFieldNames) {
       
-      String ownerName = (String)ownerNameFieldName.getKey(0);
-      String fieldName = (String)ownerNameFieldName.getKey(1);
+      String ownerId = (String)ownerIdsFieldName.getKey(0);
+      String fieldName = (String)ownerIdsFieldName.getKey(1);
       Long fieldInternalId = fieldNameToInternalId.get(fieldName);
       
       Field field = fieldNameToField.get(fieldName);
       Long cacheGroupInternalId = null;
       
       if (field.isAttributeDefListField()) {
-        cacheGroupInternalId = attributeDefNameToIdIndex.get(ownerName);
+        cacheGroupInternalId = attributeDefIdToIdIndex.get(ownerId);
       } else if (field.isStemListField()) {
-        cacheGroupInternalId = stemNameToIdIndex.get(ownerName);
+        cacheGroupInternalId = stemIdToIdIndex.get(ownerId);
       } else {
-        cacheGroupInternalId = groupNameToInternalId.get(ownerName);
+        cacheGroupInternalId = groupIdToInternalId.get(ownerId);
       }
 
 
       if (cacheGroupInternalId != null && fieldInternalId != null) {
         MultiKey cacheGroupInternalIdFieldInternalId = new MultiKey(cacheGroupInternalId, fieldInternalId);
         cacheGroupInternalIdFieldInternalIdList.add(cacheGroupInternalIdFieldInternalId);
-        cacheGroupInternalIdFieldInternalIdToOwnerNameFieldName.put(cacheGroupInternalIdFieldInternalId, new MultiKey(ownerName, fieldName));
+        cacheGroupInternalIdFieldInternalIdToOwnerIdFieldName.put(cacheGroupInternalIdFieldInternalId, new MultiKey(ownerId, fieldName));
       }
     }
 
@@ -181,9 +172,9 @@ public class SqlCacheGroupDao {
     
     for (MultiKey cacheGroupInternalIdFieldInternalId : cacheGroupInternalIdFieldInternalIdToCacheGroup.keySet()) {
       SqlCacheGroup sqlCacheGroup  = cacheGroupInternalIdFieldInternalIdToCacheGroup.get(cacheGroupInternalIdFieldInternalId);
-      MultiKey ownerNameFieldName = 
-          cacheGroupInternalIdFieldInternalIdToOwnerNameFieldName.get(cacheGroupInternalIdFieldInternalId);
-      result.put(ownerNameFieldName, sqlCacheGroup);
+      MultiKey ownerIdFieldName = 
+          cacheGroupInternalIdFieldInternalIdToOwnerIdFieldName.get(cacheGroupInternalIdFieldInternalId);
+      result.put(ownerIdFieldName, sqlCacheGroup);
     }
 
     return result;
