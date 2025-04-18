@@ -582,8 +582,8 @@ public class EsbConsumer extends ChangeLogConsumerBase {
       }
     }
 
-    // not sure why this would happen
-    if (GrouperUtil.length(esbEventContainersToProcess) > 0 && currentId == -1) {
+    // no errors above while processing but still nothing was processed, that's an exception 
+    if (!hasError && GrouperUtil.length(esbEventContainersToProcess) > 0 && currentId == -1) {
       throw new RuntimeException("Couldn't process any records: " + GrouperUtil.mapToString(debugMapOverall));
     }
     return currentId;
