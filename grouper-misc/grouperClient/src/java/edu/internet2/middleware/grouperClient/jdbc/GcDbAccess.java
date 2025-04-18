@@ -214,6 +214,12 @@ public class GcDbAccess {
   
   /**
    * if you want to select rows in a batch based on one column, this is the column name
+   * e.g.
+   * <pre> 
+   * List<String> deprovisioningStemAttributeAssignIds = new GcDbAccess().sql(
+   * "select attribute_assign_id2 from grouper_aval_asn_asn_stem_v gaaasv")
+   * .selectMultipleColumnName("attribute_assign_id2").addBindVars(attributeAssignIds).selectList(String.class);
+   * </pre>
    */
   private String selectMultipleColumnName;
 
@@ -482,6 +488,12 @@ public class GcDbAccess {
   
   /**
    * Set the selectMultipleColumnName to use.
+   * e.g. 
+   * <pre> 
+   * List<String> deprovisioningStemAttributeAssignIds = new GcDbAccess().sql(
+   * "select attribute_assign_id2 from grouper_aval_asn_asn_stem_v gaaasv")
+   * .selectMultipleColumnName("attribute_assign_id2").addBindVars(attributeAssignIds).selectList(String.class);
+   * </pre>
    * @param selectMultipleColumnName is the sql column 
    * @return this.
    */
