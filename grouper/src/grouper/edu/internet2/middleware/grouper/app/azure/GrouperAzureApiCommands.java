@@ -1411,19 +1411,17 @@ public class GrouperAzureApiCommands {
           
           ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
 
-          boolean hasError = false;
           if (value != null && value.size() > 0) {
-            if (value.size() == 1) {
-              userNode = value.get(0);
-            } else {
-              hasError = true;
-              LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: "+fieldValue);
+            if (value.size() > 1) {
+              LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: '"+fieldValue+"'");
             }
-          }
-          if (!hasError) {
-            grouperAzureUser = GrouperAzureUser.fromJson(userNode);
-            if (grouperAzureUser != null) {
-              result.add(grouperAzureUser);
+            // if there are multiple that will be a match error
+            for (int j=0;j<value.size();j++) {
+              userNode = value.get(j);
+              grouperAzureUser = GrouperAzureUser.fromJson(userNode);
+              if (grouperAzureUser != null) {
+                result.add(grouperAzureUser);
+              }
             }
           }
         }
@@ -1451,7 +1449,7 @@ public class GrouperAzureApiCommands {
     
     
   }
-  
+
   /**
    * @param configId
    * @param fieldValues
@@ -1750,23 +1748,21 @@ public class GrouperAzureApiCommands {
         
           GrouperAzureGroup grouperAzureGroup = null;
           JsonNode groupNode = bodyNode;
-          boolean hasError = false;
           
           ArrayNode value = (ArrayNode) GrouperUtil.jsonJacksonGetNode(bodyNode, "value");
 
           if (value != null && value.size() > 0) {
-            if (value.size() == 1) {
-              groupNode = value.get(0);
-            } else {
-              hasError = true;
+            
+            if (value.size() > 1) {
               LOG.error("Query returned multiple results for field name: "+fieldName +" and fieldValue: "+fieldValue);
             }
-          }
-          
-          if (!hasError) {
-            grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
-            if (grouperAzureGroup != null) {
-              result.add(grouperAzureGroup);
+            // if there are multiple that will be a match error
+            for (int j=0;j<value.size();j++) {
+              groupNode = value.get(j);
+              grouperAzureGroup = GrouperAzureGroup.fromJson(groupNode);
+              if (grouperAzureGroup != null) {
+                result.add(grouperAzureGroup);
+              }
             }
           }
         }
@@ -1910,8 +1906,7 @@ public class GrouperAzureApiCommands {
     }
   
   }
-  
-  
+    
   /**
    * @param configId
    * @return

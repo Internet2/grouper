@@ -2264,6 +2264,12 @@ public class GrouperProvisioningLogic {
         continue;
       }
       
+      if (provisioningGroupWrapper.getErrorCode() == GcGrouperSyncErrorCode.MAT) {
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "provisioningGroupsToInsertWithMatchError", 1);
+
+        continue;
+      }
+      
       missingGroups.add(provisioningGroup);
       missingGroupWrappers.add(provisioningGroupWrapper);
     }
@@ -2580,6 +2586,11 @@ public class GrouperProvisioningLogic {
         continue;
       }
       
+      if (provisioningEntityWrapper.getErrorCode() == GcGrouperSyncErrorCode.MAT) {
+        GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "provisioningEntitiesToInsertWithMatchError", 1);
+        continue;
+      }
+
       missingEntities.add(provisioningEntity);
       missingEntityWrappers.add(provisioningEntityWrapper);    
     }
