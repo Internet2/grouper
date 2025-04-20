@@ -226,8 +226,8 @@ public class GrouperProvisioningFailsafe {
       
       // we need to full count of the group...  lets try to do that in few queries
       GcDbAccess gcDbAccess = new GcDbAccess().sql("select count(1) from grouper_sync_group gsg where gsg.grouper_sync_id = ? "
-          + " and exists (select 1 from grouper_sync_membership gsm " 
-          + " where gsg.id = gsm.grouper_sync_group_id and gsm.in_target = 'T' ) ");
+          + " and gsg.id in (select gsm.grouper_sync_group_id from grouper_sync_membership gsm " 
+          + " where gsm.in_target = 'T' ) ");
       
       gcDbAccess.addBindVar(this.getGrouperProvisioner().getGcGrouperSync().getId());
       this.groupCountWithMembers = gcDbAccess.select(int.class);
