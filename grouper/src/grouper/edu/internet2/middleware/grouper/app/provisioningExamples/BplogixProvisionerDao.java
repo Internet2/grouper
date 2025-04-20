@@ -1012,6 +1012,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
           bplogixUser.acctLocked = GrouperUtil.booleanValue(xPath.evaluate("/Envelope/Body/GetUserByUserIDResponse/GetUserByUserIDResult/AcctLocked", document, XPathConstants.STRING));
           bplogixUser.acctDisabled = GrouperUtil.booleanValue(xPath.evaluate("/Envelope/Body/GetUserByUserIDResponse/GetUserByUserIDResult/AcctDisabled", document, XPathConstants.STRING));
           bplogixUser.loggedIn = GrouperUtil.booleanValue(xPath.evaluate("/Envelope/Body/GetUserByUserIDResponse/GetUserByUserIDResult/LoggedIn", document, XPathConstants.STRING));
+          
         }
         
       } catch (XPathExpressionException e) {
@@ -1325,10 +1326,11 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
     String groupNameAllAlum = this.theState.isProd ? "penn:isc:ait:apps:bplogix:service:policy:userFeedGroups:ALL.ALUM" : null;
     String gidAllAlum = this.theState.isProd ? this.retrieveGidOrFromCache(groupNameAllAlum) : null;
     
-    Set<String> facPennids = groupHasPennids(groupNameAllFac, eppns);
-    Set<String> stfPennids = groupHasPennids(groupNameAllStf, eppns);
-    Set<String> stuPennids = groupHasPennids(groupNameAllStu, eppns);
-    Set<String> alumPennids = this.theState.isProd ? groupHasPennids(groupNameAllAlum, eppns) : null;
+    Collection<String> pennids = eppnToPennid.values();
+    Set<String> facPennids = groupHasPennids(groupNameAllFac, pennids);
+    Set<String> stfPennids = groupHasPennids(groupNameAllStf, pennids);
+    Set<String> stuPennids = groupHasPennids(groupNameAllStu, pennids);
+    Set<String> alumPennids = this.theState.isProd ? groupHasPennids(groupNameAllAlum, pennids) : null;
     
     for (ProvisioningEntity targetEntity : targetDaoInsertEntitiesRequest.getTargetEntityInserts()) {
       
@@ -1418,7 +1420,7 @@ public class BplogixProvisionerDao extends GrouperProvisionerTargetDaoBase {
           this.theState.bplogixCommands.createBplogixUser(eppn, GrouperEmail.retrieveEmailAddress(subject), subject.getName());
           GrouperUtil.mapAddValue(this.getGrouperProvisioner().getDebugMap(), "bplogixCreateCount", 1);
           
-          addBplogixUserRow(eppn, true);
+          addBplogixUserRow(eppn, false);
 
           // add log row
           addLogRow(eppn, "CREATE_SUCCESS", "Create succeeded");
