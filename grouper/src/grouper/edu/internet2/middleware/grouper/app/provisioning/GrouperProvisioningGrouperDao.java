@@ -267,11 +267,10 @@ public class GrouperProvisioningGrouperDao {
           "    left join grouper_sync_member gsm on gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
           "where " +
           "    gm.subject_resolution_deleted='F' " +
-          "    and exists ( select 1 from grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm " +
+          "    and gm.internal_id in ( select gscm.member_internal_id from grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm " +
           "    where gscg.internal_id = gscm.sql_cache_group_internal_id " +
           "    and gscg.group_internal_id = ? " +
-          "    and gscg.field_internal_id = ? " +
-          "    and gscm.member_internal_id = gm.internal_id ");
+          "    and gscg.field_internal_id = ? ");
       
       paramsInitial.add(this.grouperProvisioner.getGcGrouperSync().getId());
       typesInitial.add(StringType.INSTANCE);
@@ -296,11 +295,10 @@ public class GrouperProvisioningGrouperDao {
           "    left join grouper_sync_member gsm on  gsm.member_id = gm.id and gsm.grouper_sync_id = ? " + 
           "where " +
           "    gm.subject_resolution_deleted='F' " + 
-          "    and exists ( select 1 from grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_groups gg, grouper_sync_group gsg " +
+          "    and gm.internal_id in ( select gscm.member_internal_id from grouper_sql_cache_group gscg, grouper_sql_cache_mship gscm, grouper_groups gg, grouper_sync_group gsg " +
           "    where gscg.internal_id = gscm.sql_cache_group_internal_id " +
           "    and gscg.group_internal_id = gg.internal_id " +
           "    and gg.id = gsg.group_id " +
-          "    and gscm.member_internal_id = gm.internal_id " +
           "    and gsg.grouper_sync_id = ? " +
           "    and gsg.provisionable = 'T' ");
       
@@ -363,11 +361,10 @@ public class GrouperProvisioningGrouperDao {
     }
     
     if (excludeUsersByGroupId) {
-      sqlInitial.append(" and not exists (select 1 from grouper_sql_cache_group gscg_to_exclude, grouper_sql_cache_mship gscm_to_exclude " +
+      sqlInitial.append(" and gm.internal_id not in (select gscm_to_exclude.member_internal_id from grouper_sql_cache_group gscg_to_exclude, grouper_sql_cache_mship gscm_to_exclude " +
             " where gscg_to_exclude.internal_id = gscm_to_exclude.sql_cache_group_internal_id " +
             " and gscg_to_exclude.group_internal_id = ? " +
-            " and gscg_to_exclude.field_internal_id = ? " +
-            " and gscm_to_exclude.member_internal_id = gm.internal_id  ) ");
+            " and gscg_to_exclude.field_internal_id = ? ) ");
       typesInitial.add(LongType.INSTANCE);
       paramsInitial.add(groupInternalIdOfUsersToExclude);
       typesInitial.add(LongType.INSTANCE);
@@ -610,11 +607,10 @@ public class GrouperProvisioningGrouperDao {
     sqlInitial.append(") ");
     
     if (excludeUsersByGroupId) {
-      sqlInitial.append(" and not exists (select 1 from grouper_sql_cache_group gscg_to_exclude, grouper_sql_cache_mship gscm_to_exclude " +
+      sqlInitial.append(" and gm.internal_id not in (select gscm_to_exclude.member_internal_id from grouper_sql_cache_group gscg_to_exclude, grouper_sql_cache_mship gscm_to_exclude " +
             " where gscg_to_exclude.internal_id = gscm_to_exclude.sql_cache_group_internal_id " +
             " and gscg_to_exclude.group_internal_id = ? " +
-            " and gscg_to_exclude.field_internal_id = ? " +
-            " and gscm_to_exclude.member_internal_id = gm.internal_id  ) ");
+            " and gscg_to_exclude.field_internal_id = ? ) ");
       typesInitial.add(LongType.INSTANCE);
       paramsInitial.add(groupInternalIdOfUsersToExclude);
       typesInitial.add(LongType.INSTANCE);

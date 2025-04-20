@@ -445,6 +445,7 @@ public class GcGrouperSyncMemberDao {
   
   public List<GcGrouperSyncMember> internal_memberRetrieveFromDbDeletables() {
     
+    // this is faster than an in clause
     List<GcGrouperSyncMember> gcGrouperSyncMemberList = new GcDbAccess().connectionName(this.getGcGrouperSync().getConnectionName())
         .sql("select * from grouper_sync_member gsm where grouper_sync_id = ? and provisionable = 'F' and in_target = 'F' and not exists "
             + "( select  1 from grouper_sync_membership gsmem where gsmem.grouper_sync_member_id = gsm.id and (gsmem.in_target is null or gsmem.in_target = 'F') ) ").addBindVar(this.getGcGrouperSync().getId()).selectList(GcGrouperSyncMember.class);
