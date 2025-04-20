@@ -9,6 +9,7 @@ import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.StringWriter;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -27,10 +28,12 @@ import org.apache.commons.io.IOUtils;
 import org.apache.commons.lang.StringUtils;
 import org.apache.commons.logging.Log;
 
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOutput;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.cfg.text.TextBundleBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 
 
 
@@ -188,58 +191,96 @@ public class GrouperUiApiTextConfig extends ConfigPropertiesCascadeBase {
   }
 
   /**
+   * this has multikey of GrouperUiApiTextConfig and long millis that it expires, no need for inherited
+   */
+  private static ThreadLocal<WeakReference<MultiKey>> configCache = new ThreadLocal<>();
+  
+  /**
    * text config for this user's locale
    * @return the config for this user's locale
    */
   public static GrouperUiApiTextConfig retrieveTextConfig() {
     
-    HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequestThreadLocal.get(); 
-    
     //cache this in the request
     GrouperUiApiTextConfig grouperUiTextConfig = null;
     
-    try {
-      grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
-    } catch (Exception e) {
-      servletRequestThreadLocal.remove();
+    WeakReference<MultiKey> configCacheWeakReference = GrouperUiApiTextConfig.configCache.get();
+    MultiKey configAndExpiresMillis = null;
+    
+    if (configCacheWeakReference != null) {
+      configAndExpiresMillis = configCacheWeakReference.get();
+      if (configAndExpiresMillis != null) {
+        grouperUiTextConfig = (GrouperUiApiTextConfig) configAndExpiresMillis.getKey(0);
+        long expiresMillis = (Long) configAndExpiresMillis.getKey(1);
+        if (System.currentTimeMillis() < expiresMillis) {
+          return grouperUiTextConfig;
+        }
+      }
     }
-    if (grouperUiTextConfig == null) {
-      Object synchronizedOnThis = httpServletRequest == null ? GrouperUiApiTextConfig.class : httpServletRequest;
-      synchronized(synchronizedOnThis) {
-        
-        try {
-          grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
-        } catch (Exception e) {
-          servletRequestThreadLocal.remove();
-          httpServletRequest = null;
+    synchronized (configCache) {
+
+      configCacheWeakReference = GrouperUiApiTextConfig.configCache.get();
+      if (configCacheWeakReference != null) {
+        configAndExpiresMillis = configCacheWeakReference.get();
+        if (configAndExpiresMillis != null) {
+          grouperUiTextConfig = (GrouperUiApiTextConfig) configAndExpiresMillis
+              .getKey(0);
+          long expiresMillis = (Long) configAndExpiresMillis.getKey(1);
+          if (System.currentTimeMillis() < expiresMillis) {
+            return grouperUiTextConfig;
+          }
+        }
+      }
+      HttpServletRequest httpServletRequest = (HttpServletRequest)servletRequestThreadLocal.get(); 
+      
+      
+      
+      try {
+        grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+      } catch (Exception e) {
+        servletRequestThreadLocal.remove();
+      }
+      if (grouperUiTextConfig == null) {
+        Object synchronizedOnThis = httpServletRequest == null ? GrouperUiApiTextConfig.class : httpServletRequest;
+        synchronized(synchronizedOnThis) {
+          
+          try {
+            grouperUiTextConfig = httpServletRequest == null ? null : (GrouperUiApiTextConfig)httpServletRequest.getAttribute("grouperUiTextConfig");
+          } catch (Exception e) {
+            servletRequestThreadLocal.remove();
+            httpServletRequest = null;
+          }
+          
+          if (grouperUiTextConfig == null) {
+            
+            Locale locale = null;
+            
+            if (httpServletRequest != null) {
+              try {
+                locale = httpServletRequest.getLocale();
+              } catch (Exception e) {
+                servletRequestThreadLocal.remove();
+                httpServletRequest = null;
+              }
+            }
+            
+            grouperUiTextConfig = retrieveText(locale);
+            
+            if (httpServletRequest != null) {
+              try {
+                httpServletRequest.setAttribute("grouperUiTextConfig", grouperUiTextConfig);
+              } catch (Exception e) {
+                servletRequestThreadLocal.remove();
+                httpServletRequest = null;
+              }
+            }
+          }        
         }
         
-        if (grouperUiTextConfig == null) {
-          
-          Locale locale = null;
-          
-          if (httpServletRequest != null) {
-            try {
-              locale = httpServletRequest.getLocale();
-            } catch (Exception e) {
-              servletRequestThreadLocal.remove();
-              httpServletRequest = null;
-            }
-          }
-          
-          grouperUiTextConfig = retrieveText(locale);
-          
-          if (httpServletRequest != null) {
-            try {
-              httpServletRequest.setAttribute("grouperUiTextConfig", grouperUiTextConfig);
-            } catch (Exception e) {
-              servletRequestThreadLocal.remove();
-              httpServletRequest = null;
-            }
-          }
-        }        
       }
-      
+      // just cache for 50ms since we dont want people to get the wrong language and want to get updates
+      configAndExpiresMillis = new MultiKey(grouperUiTextConfig, System.currentTimeMillis() + 50);
+      GrouperUiApiTextConfig.configCache.set(new WeakReference<MultiKey>(configAndExpiresMillis));
     }
     
     return grouperUiTextConfig;

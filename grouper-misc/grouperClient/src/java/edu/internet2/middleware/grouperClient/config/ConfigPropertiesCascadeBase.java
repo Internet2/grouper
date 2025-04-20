@@ -19,6 +19,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStream;
 import java.io.StringReader;
+import java.lang.ref.WeakReference;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -34,12 +35,14 @@ import java.util.TreeSet;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+
+import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.config.db.ConfigDatabaseLogic;
 import edu.internet2.middleware.grouperClient.util.GrouperClientCommonUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLog;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
-import org.apache.commons.logging.Log;
-import org.apache.commons.logging.LogFactory;
 
 
 /**
@@ -85,6 +88,11 @@ public abstract class ConfigPropertiesCascadeBase {
   private static Map<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase> configSingletonFromClass = null;
 
   /**
+   * this has weak reference to a map of multikey of config and long millis that it expires, no need for inherited threadlocal
+   */
+  private static ThreadLocal<WeakReference<Map<Class<?>, MultiKey>>> configCache = new ThreadLocal<>();
+  
+  /**
    * retrieve a config from the config file or from cache
    * @param <T> class which is the return type of config class
    * @param configClass 
@@ -93,19 +101,90 @@ public abstract class ConfigPropertiesCascadeBase {
   @SuppressWarnings("unchecked")
   protected static <T extends ConfigPropertiesCascadeBase> T retrieveConfig(Class<T> configClass) {
     
-    if (configSingletonFromClass == null) {
-      configSingletonFromClass = 
-        new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
-    }
+    T configPropertiesCascadeBase = null;
+
+    MultiKey configAndExpiresMillis = null;
+
+    Map<Class<?>, MultiKey> mapOfClassToMultiKeyConfigAndExpires = null;
     
-    ConfigPropertiesCascadeBase configPropertiesCascadeBase = configSingletonFromClass.get(configClass);
-    if (configPropertiesCascadeBase == null) {
-      configPropertiesCascadeBase = ConfigPropertiesCascadeUtils.newInstance(configClass, true);
-      configSingletonFromClass.put(configClass, configPropertiesCascadeBase);
+    // get the cache
+    WeakReference<Map<Class<?>, MultiKey>> configCacheWeakReference = configCache.get();
+
+    if (configCacheWeakReference != null) {
       
+      // get the map from config class
+      mapOfClassToMultiKeyConfigAndExpires = configCacheWeakReference.get();
+      if (mapOfClassToMultiKeyConfigAndExpires != null) {
+        
+        // get the cached config and when it expires
+        configAndExpiresMillis = mapOfClassToMultiKeyConfigAndExpires.get(configClass);
+
+        if (configAndExpiresMillis != null) {
+          configPropertiesCascadeBase = (T) configAndExpiresMillis.getKey(0);
+          long expiresMillis = (Long) configAndExpiresMillis.getKey(1);
+        
+          // if its not expired, use it
+          if (System.currentTimeMillis() < expiresMillis) {
+            return configPropertiesCascadeBase;
+          }
+        }
+        
+      }
     }
-    //from the singleton, get the real config class
-    return (T)configPropertiesCascadeBase.retrieveFromConfigFileOrCache();
+    synchronized (configCache) {
+
+      // we werent synchronized before, so lets check again to see if another thread figured this out and cached it
+      // get the cache
+      configCacheWeakReference = configCache.get();
+
+      if (configCacheWeakReference != null) {
+        
+        // get the map from config class
+        mapOfClassToMultiKeyConfigAndExpires = configCacheWeakReference.get();
+        if (mapOfClassToMultiKeyConfigAndExpires != null) {
+          
+          // get the cached config and when it expires
+          configAndExpiresMillis = mapOfClassToMultiKeyConfigAndExpires.get(configClass);
+
+          if (configAndExpiresMillis != null) {
+            configPropertiesCascadeBase = (T) configAndExpiresMillis.getKey(0);
+            long expiresMillis = (Long) configAndExpiresMillis.getKey(1);
+          
+            // if its not expired, use it
+            if (System.currentTimeMillis() < expiresMillis) {
+              return configPropertiesCascadeBase;
+            }
+          }
+          
+        }
+      }
+
+      if (configSingletonFromClass == null) {
+        configSingletonFromClass = 
+          new HashMap<Class<? extends ConfigPropertiesCascadeBase>, ConfigPropertiesCascadeBase>();
+      }
+      
+      configPropertiesCascadeBase = (T)configSingletonFromClass.get(configClass);
+      if (configPropertiesCascadeBase == null) {
+        configPropertiesCascadeBase = ConfigPropertiesCascadeUtils.newInstance(configClass, true);
+        configSingletonFromClass.put(configClass, configPropertiesCascadeBase);
+        
+      }
+      //from the singleton, get the real config class
+      configPropertiesCascadeBase = (T)configPropertiesCascadeBase.retrieveFromConfigFileOrCache();
+      
+      // put this in the cache
+      // just cache text for 50ms since we dont want people to get the wrong language and want to get updates
+      long millisToCache = "edu.internet2.middleware.grouper.ui.util.GrouperUiConfigInApi".equals(configClass.getName()) ? 50 : 200;
+      configAndExpiresMillis = new MultiKey(configPropertiesCascadeBase, System.currentTimeMillis() + millisToCache);
+      if (mapOfClassToMultiKeyConfigAndExpires == null) {
+        mapOfClassToMultiKeyConfigAndExpires = new HashMap<Class<?>, MultiKey>();
+        configCache.set(new WeakReference<Map<Class<?>, MultiKey>>(mapOfClassToMultiKeyConfigAndExpires));
+      }
+      mapOfClassToMultiKeyConfigAndExpires.put(configClass, configAndExpiresMillis);
+
+    }
+    return configPropertiesCascadeBase;
   }
 
 
