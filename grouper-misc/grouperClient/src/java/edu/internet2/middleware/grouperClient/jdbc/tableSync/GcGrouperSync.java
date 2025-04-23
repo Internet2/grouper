@@ -321,6 +321,11 @@ public class GcGrouperSync implements GcSqlAssignPrimaryKey, GcDbVersionable {
   public static final String PROVISIONING = "provisioning";
 
   /**
+   * scripted groups
+   */
+  public static final String SCRIPTED_GROUPS = "scriptedGroups";
+
+  /**
    * use this for deprovisioning
    */
   public static final String DEPROVISIONING = "deprovisioning";
