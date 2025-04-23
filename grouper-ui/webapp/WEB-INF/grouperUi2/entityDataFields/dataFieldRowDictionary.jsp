@@ -81,31 +81,31 @@ ${grouper:title('miscAttestationDataFieldAndRowDictionaryLink')}
          <c:forEach items="${guiDataFieldRowDictionaryTable.guiDataFieldRowDictionary}" var="guiDataFieldRowDictionary">
               
             <tr>
-              <td style="white-space: nowrap;">
+              <td>
                 ${guiDataFieldRowDictionary.dataFieldAliases}
               </td>
               
-              <td style="white-space: nowrap;">
+              <td>
                 ${guiDataFieldRowDictionary.description}
               </td>
               
-              <td style="white-space: nowrap;">
+              <td>
                 ${guiDataFieldRowDictionary.privilege}
               </td>
               
-              <td style="white-space: nowrap;">
+              <td>
                 ${guiDataFieldRowDictionary.dataType}
               </td>
               
-              <td style="white-space: nowrap;">
+              <td>
                 ${guiDataFieldRowDictionary.dataOwner}
               </td>
               
-              <td style="white-space: nowrap;">
+              <td>
                 ${guiDataFieldRowDictionary.howToGetAccess}
               </td>
               
-              <td style="white-space: nowrap;">
+              <td>
                 <c:if test="${guiDataFieldRowDictionaryTable.dataField}">
                   <p>             
                     <a href="#" onclick="$('#about-datafield-${j}-${i}').slideToggle('slow'); return false;">${textContainer.text['entityDataFieldRowDictionaryHeaderAboutDataField']}</a>
