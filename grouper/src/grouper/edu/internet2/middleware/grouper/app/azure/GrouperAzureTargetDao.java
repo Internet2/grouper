@@ -525,6 +525,20 @@ public class GrouperAzureTargetDao extends GrouperProvisionerTargetDaoBase {
       Set<String> ownersToBeDeleted = new HashSet<>();
       for (ProvisioningObjectChange provisioningObjectChange : GrouperUtil.nonNull(targetGroup.getInternal_objectChanges())) {
         String fieldName = provisioningObjectChange.getAttributeName();
+        
+        // if the field name is visibility and the old value is hiddenMembership or the new value is hiddenMembership, skip it.
+        // and if it's an update
+        if (provisioningObjectChange.getProvisioningObjectChangeAction() == ProvisioningObjectChangeAction.update) {
+          if (StringUtils.equals(fieldName, "visibility")) {
+            String oldValue = (String)provisioningObjectChange.getOldValue();
+            String newValue = (String)provisioningObjectChange.getNewValue();
+            if (StringUtils.equalsIgnoreCase(oldValue, "HiddenMembership")
+                || StringUtils.equalsIgnoreCase(newValue, "HiddenMembership")) {
+              continue;
+            }
+          }
+        }
+        
         if (StringUtils.equals(fieldName, "groupOwners")) {
           boolean manageGroupOwnersInTarget = GrouperUtil.booleanValue(targetGroup.retrieveAttributeValueBoolean("groupOwnersManage"), true);
           if (!manageGroupOwnersInTarget) {

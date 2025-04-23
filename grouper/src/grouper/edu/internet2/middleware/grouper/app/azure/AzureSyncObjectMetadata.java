@@ -288,7 +288,69 @@ public class AzureSyncObjectMetadata extends GrouperProvisioningObjectMetadata {
       this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
     }
     
+    if (((GrouperAzureConfiguration)this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration()).isVisibilityMetadata() &&
+        (!this.containsMetadataItemByName("md_grouper_visibility") && !this.containsMetadataItemByName("md_grouper_hiddenMembership")) ) {
+      
+      GrouperProvisioningObjectMetadataItem grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
 
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataHiddenMembershipDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataHiddenMembershipLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_hiddenMembership");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      
+      boolean azureGroupType = false;
+      for (GrouperProvisioningObjectMetadataItem alreadyAddedMetadataItem : this.getGrouperProvisioningObjectMetadataItems()) {
+        if (alreadyAddedMetadataItem.getName().equals("md_grouper_azureGroupType")) {
+          azureGroupType = true;
+          break;
+        }
+        
+      }
+      if (azureGroupType) {        
+        grouperProvisioningObjectMetadataItem.setShowEl("${md_grouper_azureGroupType == 'unified' || md_grouper_azureGroupType == 'unifiedSecurityEnabled'}");
+      }
+      
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.BOOLEAN);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.RADIOBUTTON);
+      
+      List<MultiKey> valuesAndLabels = new ArrayList<MultiKey>();
+      
+      String falseLabel = GrouperTextContainer.textOrNull("config.defaultFalseLabel");
+      valuesAndLabels.add(new MultiKey("", GrouperTextContainer.textOrNull("config.defaultValueLabel")+" (" + falseLabel + ")"));
+      
+      valuesAndLabels.add(new MultiKey("true", GrouperTextContainer.textOrNull("config.defaultTrueLabel")));
+      valuesAndLabels.add(new MultiKey("false", GrouperTextContainer.textOrNull("config.defaultFalseLabel")));
+      
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+      
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+      
+      grouperProvisioningObjectMetadataItem = new GrouperProvisioningObjectMetadataItem();
+
+      grouperProvisioningObjectMetadataItem.setDescriptionKey("grouperProvisioningMetadataVisibilityDescription");
+      grouperProvisioningObjectMetadataItem.setLabelKey("grouperProvisioningMetadataVisibilityLabel");
+      grouperProvisioningObjectMetadataItem.setName("md_grouper_visibility");
+      grouperProvisioningObjectMetadataItem.setShowForGroup(true);
+      grouperProvisioningObjectMetadataItem.setShowForFolder(true);
+      
+      grouperProvisioningObjectMetadataItem.setShowEl("${md_grouper_hiddenMembership != 'true'}");
+      
+      grouperProvisioningObjectMetadataItem.setValueType(GrouperProvisioningObjectMetadataItemValueType.STRING);
+      grouperProvisioningObjectMetadataItem.setFormElementType(GrouperProvisioningObjectMetadataItemFormElementType.DROPDOWN);
+      
+      valuesAndLabels = new ArrayList<MultiKey>();
+      
+      valuesAndLabels.add(new MultiKey("", ""));
+      
+      valuesAndLabels.add(new MultiKey("Public", GrouperTextContainer.textOrNull("grouperProvisioningMetadataVisibilityPublicLabel")));
+      valuesAndLabels.add(new MultiKey("Private", GrouperTextContainer.textOrNull("grouperProvisioningMetadataVisibilityPrivateLabel")));
+      
+      grouperProvisioningObjectMetadataItem.setKeysAndLabelsForDropdown(valuesAndLabels);
+      
+      this.getGrouperProvisioningObjectMetadataItems().add(grouperProvisioningObjectMetadataItem);
+      
+    }
+    
   }
-
 }
