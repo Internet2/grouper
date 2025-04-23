@@ -555,14 +555,14 @@ public class GrouperAzureGroup {
    * @param fieldNamesToSet
    * @return the group
    */
-  public ObjectNode toJson(Set<String> fieldNamesToSet, boolean setGroupOwners) {
+  public ObjectNode toJson(Set<String> fieldNamesToSet, boolean isInsert) {
     ObjectNode result = GrouperUtil.jsonJacksonNode();
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
       result.put("description", this.description);
     }
     
-    if ((fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners")) && groupOwnersManage && setGroupOwners) {
+    if ((fieldNamesToSet == null || fieldNamesToSet.contains("groupOwners")) && groupOwnersManage && isInsert) {
       if (GrouperUtil.length(this.owners) > 0) {
         List<String> ownersToInsert = new ArrayList<String>();
         for (String owner: this.owners) {
@@ -581,16 +581,23 @@ public class GrouperAzureGroup {
       }
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypes") || fieldNamesToSet.contains("groupTypeUnified") ) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("groupTypeUnified")) {      
 
       Set<String> groupTypes = new HashSet<String>();
       if (this.groupTypeUnified) {
         groupTypes.add("Unified");
+        
       }
       // do we need to set null if none set?  hmmm
       if (groupTypes.size() > 0) {
         GrouperUtil.jsonJacksonAssignStringArray(result, "groupTypes", groupTypes);
       }
+      
+    }
+    
+    boolean allowedVisibilityHiddenMembership = false;
+    if (this.groupTypeUnified && isInsert) {
+      allowedVisibilityHiddenMembership = true;
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {
@@ -614,7 +621,10 @@ public class GrouperAzureGroup {
     }
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("visibility")) {
-      result.put("visibility", this.getVisibilityDb());
+      
+      if (allowedVisibilityHiddenMembership || this.visibility != AzureVisibility.HiddenMembership) {        
+        result.put("visibility", this.getVisibilityDb());
+      }
     }
 
     if (fieldNamesToSet == null || fieldNamesToSet.contains("isAssignableToRole")) {

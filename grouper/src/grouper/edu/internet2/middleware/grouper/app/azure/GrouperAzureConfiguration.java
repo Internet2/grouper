@@ -20,6 +20,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   private boolean azureGroupType;
   private boolean groupOwners;
   private boolean groupOwnersManage;
+  private boolean visibilityMetadata;
   
   private boolean resourceProvisioningOptionsTeam;
 
@@ -29,13 +30,21 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     
     for (String attributeName : new String[] {"assignableToRole", "azureGroupType", 
         "groupOwners", "groupOwnersManage", "allowOnlyMembersToPost", "hideGroupInOutlook",
-        "subscribeNewGroupMembers", "welcomeEmailDisabled", "subscribeMembersToCalendarEventsDisabled", "resourceProvisioningOptionsTeam"}) {
+        "subscribeNewGroupMembers", "welcomeEmailDisabled", "subscribeMembersToCalendarEventsDisabled", "resourceProvisioningOptionsTeam", "visibility"}) {
       
       // if metadata exists
       String metadataName = "md_grouper_" + attributeName;
-      if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
-        continue;
+      if (StringUtils.equals(attributeName, "visibility")) {
+        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey("md_grouper_visibility") 
+              || !this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey("md_grouper_hiddenMembership")) {
+          continue;
+        }
+      } else {
+        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
+          continue;
+        }
       }
+     
       
       if (StringUtils.equals(attributeName, "assignableToRole")) {
         attributeName = "isAssignableToRole";
@@ -80,6 +89,7 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
     this.welcomeEmailDisabled = GrouperUtil.booleanValue(this.retrieveConfigString("welcomeEmailDisabled", false), false);
     this.subscribeMembersToCalendarEventsDisabled = GrouperUtil.booleanValue(this.retrieveConfigString("subscribeMembersToCalendarEventsDisabled", false), false);
     this.resourceProvisioningOptionsTeam = GrouperUtil.booleanValue(this.retrieveConfigString("resourceProvisioningOptionsTeam", false), false);
+    this.visibilityMetadata = GrouperUtil.booleanValue(this.retrieveConfigString("visibilityMetadata", false), false);
   }
 
   public String getAzureExternalSystemConfigId() {
@@ -183,7 +193,16 @@ public class GrouperAzureConfiguration extends GrouperProvisioningConfiguration 
   public void setGroupOwnersManage(boolean groupOwnersManage) {
     this.groupOwnersManage = groupOwnersManage;
   }
+  
+  public boolean isVisibilityMetadata() {
+    return visibilityMetadata;
+  }
+  
+  public void setVisibilityMetadata(boolean visibilityMetadata) {
+    this.visibilityMetadata = visibilityMetadata;
+  }
 
+  
   @Override
   public int getDaoSleepBeforeSelectAfterInsertMillis() {
     return GrouperUtil.intValue(this.retrieveConfigInt("sleepBeforeSelectAfterInsertMillis", false), 3000);
