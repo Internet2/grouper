@@ -27,39 +27,81 @@ public class AzureProvisioningTranslator extends GrouperProvisioningTranslator {
     for (ProvisioningGroup grouperProvisioningGroup : GrouperUtil.nonNull(grouperProvisioningGroups)) {
       
       for (String attributeName : new String[] { "assignableToRole", "azureGroupType", "allowOnlyMembersToPost", "hideGroupInOutlook", "subscribeNewGroupMembers", 
-          "welcomeEmailDisabled", "subscribeMembersToCalendarEventsDisabled", "resourceProvisioningOptionsTeam", "groupOwners", "groupOwnersManage"}) {
+          "welcomeEmailDisabled", "subscribeMembersToCalendarEventsDisabled", "resourceProvisioningOptionsTeam", "groupOwners", "groupOwnersManage", "visibility"}) {
         String metadataName = "md_grouper_" + attributeName;
         if (StringUtils.equals(attributeName, "assignableToRole")) {
           attributeName = "isAssignableToRole";
         }
-        if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
-          continue;
-        }
         
-        String newValue = grouperProvisioningGroup.retrieveAttributeValueString(metadataName);
-        if (StringUtils.isBlank(newValue)) {
-          continue;
-        }
-            
-        ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
-        ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
-        if (grouperTargetGroup == null) {
-          continue;
-        }
-        
-        GrouperProvisioningConfigurationAttribute configurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
-        
-        if (configurationAttribute != null) {
-          if (configurationAttribute.getTranslateExpressionType() != null) {
+        if (StringUtils.equals(attributeName, "visibility")) {
+          
+          String visibilityMetadataName = "md_grouper_visibility";
+          String hiddenMembershipName = "md_grouper_hiddenMembership";
+          
+          if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(visibilityMetadataName) 
+                || !this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(hiddenMembershipName)) {
             continue;
           }
-        }
-        
-        if (StringUtils.equals(attributeName, "groupOwners")) {
-          Set<String> owners = GrouperUtil.splitTrimToSet(newValue, ",");
-          grouperTargetGroup.assignAttributeValue(attributeName, owners);
-        } else {          
-          grouperTargetGroup.assignAttributeValue(attributeName, newValue);
+          
+          String newValueVisibility = grouperProvisioningGroup.retrieveAttributeValueString(visibilityMetadataName);
+          String newValueHiddenMembership = grouperProvisioningGroup.retrieveAttributeValueString(hiddenMembershipName);
+          if (StringUtils.isBlank(newValueVisibility) && StringUtils.isBlank(newValueHiddenMembership)) {
+            continue;
+          }
+          
+          ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
+          ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
+          if (grouperTargetGroup == null) {
+            continue;
+          }
+          
+          GrouperProvisioningConfigurationAttribute configurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+          
+          if (configurationAttribute != null) {
+            if (configurationAttribute.getTranslateExpressionType() != null) {
+              continue;
+            }
+          }
+          
+          String visibilityValue = null;
+          if(GrouperUtil.booleanValue(newValueHiddenMembership, false)){ 
+            visibilityValue = "HiddenMembership";
+          } else {
+            visibilityValue = newValueVisibility;
+          }
+          
+          grouperTargetGroup.assignAttributeValue(attributeName, visibilityValue);
+          
+        } else {
+          if (!this.getGrouperProvisioner().retrieveGrouperProvisioningObjectMetadata().getGrouperProvisioningObjectMetadataItemsByName().containsKey(metadataName)) {
+            continue;
+          }
+          
+          String newValue = grouperProvisioningGroup.retrieveAttributeValueString(metadataName);
+          if (StringUtils.isBlank(newValue)) {
+            continue;
+          }
+              
+          ProvisioningGroupWrapper provisioningGroupWrapper = grouperProvisioningGroup == null ? null : grouperProvisioningGroup.getProvisioningGroupWrapper();
+          ProvisioningGroup grouperTargetGroup = provisioningGroupWrapper == null ? null : provisioningGroupWrapper.getGrouperTargetGroup();
+          if (grouperTargetGroup == null) {
+            continue;
+          }
+          
+          GrouperProvisioningConfigurationAttribute configurationAttribute = this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration().getTargetGroupAttributeNameToConfig().get(attributeName);
+          
+          if (configurationAttribute != null) {
+            if (configurationAttribute.getTranslateExpressionType() != null) {
+              continue;
+            }
+          }
+          
+          if (StringUtils.equals(attributeName, "groupOwners")) {
+            Set<String> owners = GrouperUtil.splitTrimToSet(newValue, ",");
+            grouperTargetGroup.assignAttributeValue(attributeName, owners);
+          } else {          
+            grouperTargetGroup.assignAttributeValue(attributeName, newValue);
+          }
         }
         
       }
