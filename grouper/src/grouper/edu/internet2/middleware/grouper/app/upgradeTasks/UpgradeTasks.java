@@ -276,6 +276,8 @@ public enum UpgradeTasks {
         .addBindVar("assign")
         .addBindVar("F")
         .executeSql();
+    
+    now++;
 
     // bulk insert all the upgrade tasks
     List<List<Object>> batchBindVarsAttributeAssignValues = new ArrayList<List<Object>>();
