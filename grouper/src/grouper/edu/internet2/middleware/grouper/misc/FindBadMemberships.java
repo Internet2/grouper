@@ -38,8 +38,10 @@ import java.io.IOException;
 import java.io.PrintStream;
 import java.io.StringWriter;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.LinkedHashSet;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.apache.commons.cli.CommandLine;
@@ -61,10 +63,12 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
+import edu.internet2.middleware.grouper.app.loader.GrouperLoader;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.exception.SessionException;
 import edu.internet2.middleware.grouper.group.GroupSet;
+import edu.internet2.middleware.grouper.hibernate.HibernateSession;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
 import edu.internet2.middleware.grouper.membership.MembershipType;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
@@ -467,6 +471,7 @@ public class FindBadMemberships {
     badMemberships.addAll(GrouperDAOFactory.getFactory().getMembership().findBadCompositeMembershipsOnNonCompositeGroup());
     
     Set<Object[]> potentialMissingMemberships = new LinkedHashSet<Object[]>();
+    Set<Object[]> missingMemberships = new LinkedHashSet<Object[]>();
     
     {
       int numberOfBatches = GrouperUtil.batchNumberOfBatches(unionCompositeIds, batchSize, false);
@@ -501,9 +506,40 @@ public class FindBadMemberships {
       }
     }
     
+    Map<String, Group> ownerGroupIdToGroup = new HashMap<>();
+    
+    // filter out disabled groups
+    for (Object[] ownerAndCompositeAndMember : potentialMissingMemberships) {
+      GrouperDaemonUtils.stopProcessingIfJobPaused();
 
+      String ownerGroupId = (String)ownerAndCompositeAndMember[0];
+      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
+
+      if (group.isEnabled()) {
+        missingMemberships.add(ownerAndCompositeAndMember);
+        ownerGroupIdToGroup.put(ownerGroupId, group);
+      }
+    }
+    
+    // now if there's anything wrong, let's give some time for the change log in case it's pending
+    int waitForChangeLogJobProcessTime = GrouperConfig.retrieveConfig().propertyValueInt("findBadMemberships.waitForChangeLogJobProcessTime", 600);
+    try {
+      GrouperLoader.waitForChangeLogJobProcess("CHANGE_LOG_consumer_compositeMemberships", true, waitForChangeLogJobProcessTime);
+    } catch (Exception e) {
+      LOG.warn("Exception while waiting for change log to catch up", e);
+    }
+    
+
+    int badMembershipsCount = 0;
 
     for (Membership ms : badMemberships) {
+      // check to make sure this wasn't deleted already
+      if (GrouperDAOFactory.getFactory().getMembership().findByImmediateUuid(ms.getImmediateMembershipId(), false) == null) {
+        continue;
+      }
+      
+      badMembershipsCount++;
+      
       if (printErrorsToSTOUT) {
         out.println("Bad composite membership: groupId=" + ms.getOwnerGroupId() + ", group name=" + ms.getOwnerGroup().getName() + ", subjectId=" + ms.getMember().getSubjectId() + ".");
       }
@@ -513,27 +549,38 @@ public class FindBadMemberships {
     
     int missingMembershipsCount = 0;
     
-    for (Object[] ownerAndCompositeAndMember : potentialMissingMemberships) {
+    for (Object[] ownerAndCompositeAndMember : missingMemberships) {
       GrouperDaemonUtils.stopProcessingIfJobPaused();
 
       String ownerGroupId = (String)ownerAndCompositeAndMember[0];
       String compositeId = (String)ownerAndCompositeAndMember[1];
       String memberId = (String)ownerAndCompositeAndMember[2];
-      Group group = GrouperDAOFactory.getFactory().getGroup().findByUuid(ownerGroupId, true);
+      Group group = ownerGroupIdToGroup.get(ownerGroupId);
+      
 
-      if (group.isEnabled()) {
-        missingMembershipsCount++;
-        
-        if (printErrorsToSTOUT) {
-          Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true);
-          out.println("Missing composite membership: groupId=" + group.getId() + ", group name=" + group.getName() + ", subjectId=" + member.getSubjectId() + ".");
-        }
-        
-        logGshScript("GrouperDAOFactory.getFactory().getMembership().save(Composite.internal_createNewCompositeMembershipObject(\"" + ownerGroupId + "\", \"" + memberId + "\", \"" + compositeId + "\"));\n");
+      Membership ms = HibernateSession.byHqlStatic()
+          .createQuery("select ms from ImmediateMembershipEntry as ms where ms.ownerId = :ownerId and ms.memberUuid = :memberId and ms.fieldId = :fieldId and ms.type='composite' and ms.enabledDb = 'T'")
+          .setCacheable(false)
+          .setString("ownerId", ownerGroupId)
+          .setString("memberId", memberId)
+          .setString("fieldId", Group.getDefaultList().getUuid())
+          .uniqueResult(Membership.class);
+      
+      if (ms != null) {
+        continue;
       }
+      
+      missingMembershipsCount++;
+      
+      if (printErrorsToSTOUT) {
+        Member member = GrouperDAOFactory.getFactory().getMember().findByUuid(memberId, true);
+        out.println("Missing composite membership: groupId=" + group.getId() + ", group name=" + group.getName() + ", subjectId=" + member.getSubjectId() + ".");
+      }
+      
+      logGshScript("GrouperDAOFactory.getFactory().getMembership().save(Composite.internal_createNewCompositeMembershipObject(\"" + ownerGroupId + "\", \"" + memberId + "\", \"" + compositeId + "\"));\n");
     }
     
-    return badMemberships.size() + missingMembershipsCount;
+    return badMembershipsCount + missingMembershipsCount;
   }
   
   /**

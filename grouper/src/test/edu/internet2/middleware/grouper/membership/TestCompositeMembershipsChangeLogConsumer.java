@@ -57,6 +57,7 @@ public class TestCompositeMembershipsChangeLogConsumer extends GrouperTest {
   @Override
   protected void setUp() {
     super.setUp();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("findBadMemberships.waitForChangeLogJobProcessTime", "1");
     grouperSession = GrouperSession.startRootSession();
   }
 

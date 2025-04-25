@@ -57,6 +57,7 @@ import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefType;
+import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.changeLog.ChangeLogTempToEntity;
 import edu.internet2.middleware.grouper.group.GroupSet;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
@@ -119,11 +120,12 @@ public class TestFindBadMemberships extends GrouperTest {
    * @param args
    */
   public static void main(String[] args) {
-    TestRunner.run(new TestFindBadMemberships("testWithBadGroupSetsForComposites"));
+    TestRunner.run(new TestFindBadMemberships("testWithMissingComposite"));
   }
   
   protected void setUp () {
     super.setUp();
+    GrouperConfig.retrieveConfig().propertiesOverrideMap().put("findBadMemberships.waitForChangeLogJobProcessTime", "1");
     FindBadMemberships.clearResults();
     FindBadMemberships.printErrorsToSTOUT(false);
   }
