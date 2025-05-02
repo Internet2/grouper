@@ -32,6 +32,7 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.loader.GrouperDaemonUtils;
 import edu.internet2.middleware.grouper.app.loader.GrouperLoaderStatus;
@@ -283,6 +284,22 @@ public class RuleEngine {
    */
   private void indexData() {
     this.ruleCheckIndex = new HashMap<RuleCheck, Set<RuleDefinition>>();
+    
+    // loop through rules and get stems to bulk select
+    Set<String> stemNames = new HashSet<String>();
+    Set<String> stemIds = new HashSet<String>();
+    for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
+      String stemName = ruleDefinition.getCheck().getCheckOwnerName();
+      String stemId = ruleDefinition.getCheck().getCheckOwnerId();
+      if (!StringUtils.isBlank(stemName) && stemName.contains(":")) {
+        stemNames.add(stemName);
+      }
+      if (!StringUtils.isBlank(stemId)) {
+        stemIds.add(stemId);
+      }
+    }
+    // look up stems in batches by names then by ids to populate the cache
+    new StemFinder().assignStemNames(stemNames).assignStemIds(stemIds).findStems();
     
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       
