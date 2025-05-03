@@ -251,7 +251,7 @@ public class UiV2Template {
             errorMessage));
       }
       
-      gshTemplateInputConfigAndValue.setValue(value);
+      gshTemplateInputConfigAndValue.setValueObject(value);
       
       variableMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfig.getGshTemplateInputType().convertToType(value));
       guiTemplateInputConfigsMap.put(gshTemplateInputConfig.getName(), gshTemplateInputConfigAndValue);
@@ -351,7 +351,7 @@ public class UiV2Template {
         GshTemplateInput input = new GshTemplateInput();
         input.assignName(inputName);
         GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = gshTemplateInputs.get(inputName);
-        input.assignValue(gshTemplateInputConfigAndValue.getValue());
+        input.assignValue(gshTemplateInputConfigAndValue.getValueObject());
         exec.addGshTemplateInput(input);
         
       }
@@ -487,7 +487,7 @@ public class UiV2Template {
         GshTemplateInput input = new GshTemplateInput();
         input.assignName(inputName);
         GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = gshTemplateInputs.get(inputName);
-        input.assignValue(gshTemplateInputConfigAndValue.getValue());
+        input.assignValue(gshTemplateInputConfigAndValue.getValueObject());
         exec.addGshTemplateInput(input);
         
       }

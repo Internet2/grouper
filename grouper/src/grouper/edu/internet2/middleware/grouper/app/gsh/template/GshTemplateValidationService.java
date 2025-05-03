@@ -55,7 +55,7 @@ public class GshTemplateValidationService {
         
         GshTemplateInput gshTemplateInput = nameToGshTemplateInput.get(gshTemplateInputConfig.getName());
         if (gshTemplateInput != null) {
-          gshTemplateInputConfigAndValue.setValue(gshTemplateInput.getValue());
+          gshTemplateInputConfigAndValue.setValueObject(gshTemplateInput.getValue());
         }
         
       }

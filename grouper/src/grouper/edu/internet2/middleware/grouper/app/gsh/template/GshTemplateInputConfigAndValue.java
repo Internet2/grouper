@@ -20,23 +20,51 @@ public class GshTemplateInputConfigAndValue {
     this.gshTemplateInputConfig = gshTemplateInputConfig;
   }
 
+  /**
+   * @deprecated use getValueObject()
+   */
+  @Deprecated
+  public String getValue() {
+    return GrouperUtil.stringValue(value);
+  }
+
   
-  public Object getValue() {
+  public Object getValueObject() {
     return value;
   }
 
   
-  public void setValue(Object value) {
+  public void setValueObject(Object value) {
     this.value = value;
   }
 
 
-  public Object getValueOrDefault() {
+  public Object getValueObjectOrDefault() {
     if (GrouperUtil.isBlank(value)) {
       return this.gshTemplateInputConfig.getDefaultValue();
     }
     return this.value;
   }
   
+  /**
+   * @deprecated use setValueObject(Object value)
+   */
+  @Deprecated
+  public void setValue(String value) {
+    this.value = value;
+  }
+
+
+  /**
+   * @deprecated use getValueObjectOrDefault(Object value)
+   * and handle File return types
+   */
+  @Deprecated
+  public String getValueOrDefault() {
+    if (GrouperUtil.isBlank(this.value)) {
+      return this.gshTemplateInputConfig.getDefaultValue();
+    }
+    return GrouperUtil.stringValue(this.value);
+  }
 
 }
