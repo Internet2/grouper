@@ -1,5 +1,7 @@
 package edu.internet2.middleware.grouper.grouperUi.serviceLogic;
 
+import java.io.File;
+import java.nio.charset.Charset;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -18,6 +20,8 @@ import java.util.regex.Pattern;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.commons.fileupload.FileItem;
+import org.apache.commons.io.FileUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.apache.commons.logging.Log;
@@ -38,6 +42,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateExecTestOutp
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInput;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfigAndValue;
+import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateOwnerType;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateTestExec;
 import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateType;
@@ -45,6 +50,7 @@ import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2;
 import edu.internet2.middleware.grouper.app.gsh.template.GshValidationLine;
 import edu.internet2.middleware.grouper.app.jexlTester.ScriptType;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
+import edu.internet2.middleware.grouper.cfg.dbConfig.ConfigItemFormElement;
 import edu.internet2.middleware.grouper.cfg.text.GrouperTextContainer;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiGroup;
 import edu.internet2.middleware.grouper.grouperUi.beans.api.GuiStem;
@@ -59,6 +65,7 @@ import edu.internet2.middleware.grouper.grouperUi.beans.ui.GuiGshTemplateConfig;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.ServiceAction;
 import edu.internet2.middleware.grouper.grouperUi.beans.ui.TextContainer;
 import edu.internet2.middleware.grouper.internal.util.GrouperUuid;
+import edu.internet2.middleware.grouper.j2ee.GrouperRequestWrapper;
 import edu.internet2.middleware.grouper.privs.AccessPrivilege;
 import edu.internet2.middleware.grouper.privs.PrivilegeHelper;
 import edu.internet2.middleware.grouper.subj.SubjectHelper;
@@ -199,17 +206,49 @@ public class UiV2Template {
       GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = new GshTemplateInputConfigAndValue();
       gshTemplateInputConfigAndValue.setGshTemplateInputConfig(gshTemplateInputConfig);
       
-      String value = request.getParameter("config_"+gshTemplateInputConfig.getName());
+      Object value = null;
+      if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.FILE) {
+        
+        GrouperRequestWrapper grouperRequestWrapper = GrouperRequestWrapper.retrieveGrouperRequestWrapper(request);
+        if (grouperRequestWrapper == null) {
+          continue;
+        }
+        FileItem gshTemplateFile = grouperRequestWrapper.isMultipart() ? grouperRequestWrapper.getParameterFileItem("config_"+gshTemplateInputConfig.getName()): null;
+        if (gshTemplateFile != null) {
+          String fileName = StringUtils.defaultString(gshTemplateFile == null ? "" : gshTemplateFile.getName());
+          try {
+            File file = File.createTempFile(fileName, "");
+            gshTemplateFile.write(file);
+            if (gshTemplateInputConfig.getGshTemplateInputType() == GshTemplateInputType.FILE) {
+              value = file;
+            } else if (gshTemplateInputConfig.getGshTemplateInputType() == GshTemplateInputType.STRING) {
+              value = FileUtils.readFileToString(file, Charset.defaultCharset());
+            } else {
+              throw new RuntimeException("With form element type 'file', input type must be 'string' or 'file'.");
+            }
+          } catch (Exception e) {
+            throw new RuntimeException("Cant process file upload '" + fileName + "'", e);
+          } 
+        } else {
+          String fileName = request.getParameter("config_"+gshTemplateInputConfig.getName());
+          if (StringUtils.isNotBlank(fileName)) {
+            String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.fileInput.selectAgain.message");
+            guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshTemplateInputConfig.getName()+"_id", 
+                errorMessage));
+          }
+        }
+      } else {
+        value = request.getParameter("config_"+gshTemplateInputConfig.getName());
+      }
       
       if (!gshTemplateInputConfig.getGshTemplateInputType().canConvertToCorrectType(value)) {
         
         String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");
-        errorMessage = errorMessage.replace("##valueFromUser##", GrouperUtil.escapeHtml(value, true));
+        errorMessage = errorMessage.replace("##valueFromUser##", GrouperUtil.escapeHtml(value.toString(), true));
         errorMessage = errorMessage.replace("##type##", GrouperUtil.escapeHtml(gshTemplateInputConfig.getGshTemplateInputType().name().toLowerCase(), true));
         
         guiResponseJs.addAction(GuiScreenAction.newValidationMessage(GuiMessageType.error, "#config_"+gshTemplateInputConfig.getName()+"_id", 
             errorMessage));
-        return null;
       }
       
       gshTemplateInputConfigAndValue.setValue(value);
@@ -301,8 +340,7 @@ public class UiV2Template {
       gshTemplateConfig.populateConfiguration();
       
       Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
-      
-      if (gshTemplateInputs == null) {
+      if (gshTemplateInputs == null || GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions()) > 0) {
         return;
       }
       
@@ -312,7 +350,8 @@ public class UiV2Template {
         
         GshTemplateInput input = new GshTemplateInput();
         input.assignName(inputName);
-        input.assignValueString(value);
+        GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = gshTemplateInputs.get(inputName);
+        input.assignValue(gshTemplateInputConfigAndValue.getValue());
         exec.addGshTemplateInput(input);
         
       }
@@ -437,7 +476,7 @@ public class UiV2Template {
       
       Map<String, GshTemplateInputConfigAndValue> gshTemplateInputs = populateCustomTemplateInputs(request, templateType);
       
-      if (gshTemplateInputs == null) {
+      if (gshTemplateInputs == null || GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions()) > 0) {
         return;
       }
       
@@ -447,7 +486,8 @@ public class UiV2Template {
         
         GshTemplateInput input = new GshTemplateInput();
         input.assignName(inputName);
-        input.assignValueString(value);
+        GshTemplateInputConfigAndValue gshTemplateInputConfigAndValue = gshTemplateInputs.get(inputName);
+        input.assignValue(gshTemplateInputConfigAndValue.getValue());
         exec.addGshTemplateInput(input);
         
       }
@@ -1271,6 +1311,9 @@ public class UiV2Template {
         if (templateLogic == null) {
           // must be gsh custom template
           Map<String, GshTemplateInputConfigAndValue> customTemplateInputs = populateCustomTemplateInputs(request, templateType);
+          if (customTemplateInputs == null || GrouperUtil.length(GuiResponseJs.retrieveGuiResponseJs().getActions()) > 0) {
+            return;
+          }
           if (StringUtils.equals("V2", templateContainer.getGuiGshTemplateConfig().getGshTemplateConfig().getTemplateVersion())) {
             GshTemplateExec gshTemplateExec = new GshTemplateExec();
             gshTemplateExec.assignConfigId(templateType);

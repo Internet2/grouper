@@ -1,5 +1,9 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
-<form id="newGroupTemplateFormId" class="form-horizontal">
+
+
+<form id="newGroupTemplateFormId" class="form-horizontal" method="post" action="UiV2Template.customTemplateExecute" enctype = "multipart/form-data">
+  <input type="hidden" name="groupId" value="${grouperRequestContainer.groupContainer.guiGroup.group.id}" />
+
   <grouper:browserPage jspName="newTemplate" />
   <p class="lead" id="templateHeader">${textContainer.text['gshTemplateScreenDecription']}</p>
   <table class="table table-condensed table-striped">
@@ -65,10 +69,13 @@
           style="white-space: nowrap; padding-top: 2em; padding-bottom: 2em;">
           
           <c:if test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
-            <input type="submit" class="btn btn-primary"
+            <%-- <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
-	          onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'newGroupTemplateFormId'}); return false;">
+	          onclick="$('#groupTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?groupId=${grouperRequestContainer.groupContainer.guiGroup.group.id}', {formIds: 'newGroupTemplateFormId'}); return false;"> --%>
+            
+            <a href="#" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#newGroupTemplateFormId', '../app/UiV2Template.customTemplateExecute');">${textContainer.text['stemTemplateSubmitButton'] }</a>
+            
           </c:if>
           
           &nbsp;

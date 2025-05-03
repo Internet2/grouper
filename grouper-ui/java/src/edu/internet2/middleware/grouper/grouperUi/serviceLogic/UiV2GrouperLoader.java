@@ -1115,7 +1115,7 @@ public class UiV2GrouperLoader {
                 
                 GshTemplateInput input = new GshTemplateInput();
                 input.assignName(inputName);
-                input.assignValueString(value);
+                input.assignValue(value);
                 exec.addGshTemplateInput(input);
               }
               

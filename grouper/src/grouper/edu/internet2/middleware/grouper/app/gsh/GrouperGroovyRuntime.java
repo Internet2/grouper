@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh;
 
+import java.io.File;
 import java.util.LinkedHashMap;
 import java.util.Map;
 
@@ -225,6 +226,25 @@ public class GrouperGroovyRuntime {
     }
     
     return (String)inputValue;
+  }
+  
+  /**
+   * 
+   * @param inputName
+   * @return the file value of the integer
+   */
+  public File retrieveInputValueFile(String inputName) {
+    
+    Object inputValue = this.retrieveInputValueObject(inputName);
+    if (inputValue == null) {
+      return null;
+    }
+    
+    if (!(inputValue instanceof File)) {
+      throw new RuntimeException("Expecting file but was: " + inputValue.getClass() + " for " + inputName + ": '" + inputValue + "'");
+    }
+    
+    return (File)inputValue;
   }
 
   public void setGrouperSession(GrouperSession grouperSession) {

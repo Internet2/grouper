@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -54,7 +55,7 @@ public class GshTemplateValidationService {
         
         GshTemplateInput gshTemplateInput = nameToGshTemplateInput.get(gshTemplateInputConfig.getName());
         if (gshTemplateInput != null) {
-          gshTemplateInputConfigAndValue.setValue(gshTemplateInput.getValueString());
+          gshTemplateInputConfigAndValue.setValue(gshTemplateInput.getValue());
         }
         
       }
@@ -294,19 +295,23 @@ public class GshTemplateValidationService {
       if (inputConfigs.containsKey(gshTemplateInput.getName())) {
         GshTemplateInputConfig gshTemplateInputConfig = inputConfigs.get(gshTemplateInput.getName());
         
-        String valueFromUser = gshTemplateInput.getValueString();
+        if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.FILE) {
+          continue;
+        }
+        
+        String valueFromUser = GrouperUtil.stringValue(gshTemplateInput.getValue());
         
         if (StringUtils.isBlank(valueFromUser) && !StringUtils.isBlank(gshTemplateInputConfig.getDefaultValue())) {
           valueFromUser = gshTemplateInputConfig.getDefaultValue();
         }
         
-        if (gshTemplateInputConfig.isTrimWhitespace() && gshTemplateInput.getValueString() != null) {
-          gshTemplateInput.assignValueString(gshTemplateInput.getValueString().trim());          
+        if (gshTemplateInputConfig.isTrimWhitespace() && valueFromUser != null) {
+          gshTemplateInput.assignValue(valueFromUser.trim());          
         }
         
         // textareas can have various newlines
         if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXTAREA) {
-          gshTemplateInput.assignValueString(GrouperUtil.whitespaceNormalizeNewLines(gshTemplateInput.getValueString()));
+          gshTemplateInput.assignValue(GrouperUtil.whitespaceNormalizeNewLines(valueFromUser));
         }
         
         if (!gshTemplateInputConfig.getGshTemplateInputType().canConvertToCorrectType(valueFromUser)) {
@@ -366,7 +371,34 @@ public class GshTemplateValidationService {
       }
       
       GshTemplateInputConfig gshTemplateInputConfig = inputConfigs.get(gshTemplateInput.getName());
-      String valueFromUser = gshTemplateInput.getValueString();
+      
+      Object valueFromUserObject = gshTemplateInput.getValue();
+      
+      {
+        if (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.FILE) {
+          if (gshTemplateInputConfig.isRequired() && valueFromUserObject == null) {
+            String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.required.message");
+            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
+            gshTemplateOutput.addValidationLine(gshTemplateInput.getName(), errorMessage);
+            
+            return false;
+          }
+          
+          
+          //max length of file contents
+          if (valueFromUserObject instanceof File && ((File)valueFromUserObject).length() > gshTemplateInputConfig.getMaxLength()) {
+            String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.maxLength.message");
+            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
+            errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$maxLength$$", gshTemplateInputConfig.getMaxLength()+"");
+            gshTemplateOutput.addValidationLine(gshTemplateInput.getName(), errorMessage);
+            return false;
+          }
+          
+        }
+      }
+      
+      
+      String valueFromUser = GrouperUtil.stringValue(valueFromUserObject);
       
       {
         // required
@@ -382,7 +414,8 @@ public class GshTemplateValidationService {
       
       {
         //max length
-        if (StringUtils.isNotBlank(valueFromUser) && (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT || gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXTAREA) && valueFromUser.length() > gshTemplateInputConfig.getMaxLength()) {
+        if (StringUtils.isNotBlank(valueFromUser) && (gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXT 
+            || gshTemplateInputConfig.getConfigItemFormElement() == ConfigItemFormElement.TEXTAREA) && valueFromUser.length() > gshTemplateInputConfig.getMaxLength()) {
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.maxLength.message");
           errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$inputName$$", gshTemplateInputConfig.getLabelForUi());
           errorMessage = substituteHtmlInErrorMessage(errorMessage, "$$maxLength$$", gshTemplateInputConfig.getMaxLength()+"");
@@ -394,7 +427,7 @@ public class GshTemplateValidationService {
       {
         // validate data type (string, int, boolean)
         GshTemplateInputType gshTemplateInputType = gshTemplateInputConfig.getGshTemplateInputType();
-        boolean canBeConverted = gshTemplateInputType.canConvertToCorrectType(valueFromUser);
+        boolean canBeConverted = gshTemplateInputType.canConvertToCorrectType(valueFromUserObject);
         if (!canBeConverted) {
           
           String errorMessage = GrouperTextContainer.textOrNull("gshTemplate.error.input.conversion.message");

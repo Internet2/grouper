@@ -423,6 +423,16 @@ public class ConfigFormElement extends SimpleTagSupport {
       
     }
     
+    if (configItemFormElement == ConfigItemFormElement.FILE) {
+      
+      field.append("<input type='file' data-gr-input-type='file' style='width:30em; "+ displayClass + "' cols='20' rows='3' id='config_"+configId+"_id' name='config_"
+          + configId + "'>");
+      if (value != null) {
+        field.append(GrouperUtil.escapeHtml(value, true));
+      }
+      field.append("</input>");
+    }
+    
     if (configItemFormElement == ConfigItemFormElement.PASSWORD) {
       
       field.append(

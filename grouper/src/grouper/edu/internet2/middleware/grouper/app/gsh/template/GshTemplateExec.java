@@ -1,5 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.GregorianCalendar;
@@ -157,27 +158,27 @@ public class GshTemplateExec {
          
         GshTemplateInput input = new GshTemplateInput();
         input.assignName("gsh_input_workingGroupExtension");
-        input.assignValueString("myGroup");
+        input.assignValue("myGroup");
         exec.addGshTemplateInput(input);
         input = new GshTemplateInput();
         input.assignName("gsh_input_workingGroupDisplayExtension");
-        input.assignValueString("My group");
+        input.assignValue("My group");
         exec.addGshTemplateInput(input);
         input = new GshTemplateInput();
         input.assignName("gsh_input_workingGroupDescription");
-        input.assignValueString("My working group will do a lot of group work");
+        input.assignValue("My working group will do a lot of group work");
         exec.addGshTemplateInput(input);
         input = new GshTemplateInput();
         input.assignName("gsh_input_isSympa");
-        input.assignValueString("true");
+        input.assignValue("true");
         exec.addGshTemplateInput(input);
         input = new GshTemplateInput();
         input.assignName("gsh_input_sympaDomain");
-        input.assignValueString("internet2");
+        input.assignValue("internet2");
         exec.addGshTemplateInput(input);
         input = new GshTemplateInput();
         input.assignName("gsh_input_isSympaModerated");
-        input.assignValueString("true");
+        input.assignValue("true");
         exec.addGshTemplateInput(input);
          
         // when
@@ -484,12 +485,12 @@ public class GshTemplateExec {
       
       GshTemplateInput gshTemplateInput = gshTemplateInputsMap.get(inputConfig.getName());
       
-      String valueFromUser = null;
+      Object valueFromUser = null;
       if (gshTemplateInput != null) {
-        valueFromUser = gshTemplateInput.getValueString();
+        valueFromUser = gshTemplateInput.getValue();
       }
       
-      if (StringUtils.isBlank(valueFromUser)) {
+      if (GrouperUtil.isBlank((valueFromUser))) {
         String defaultValue = inputConfig.getDefaultValue();
         if (!StringUtils.isBlank(defaultValue)) {
           valueFromUser = defaultValue;
@@ -543,7 +544,8 @@ public class GshTemplateExec {
           
           StringBuilder inputsStringBuilder = new StringBuilder();
           for (GshTemplateInput input: GshTemplateExec.this.gshTemplateInputs) {
-            inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(input.getValueString(), 100) + ";");
+            String stringValue = GrouperUtil.stringValue(input.getValue());
+            inputsStringBuilder.append(input.getName() + " = " + GrouperUtil.abbreviate(stringValue, 100) + ";");
           }
           
           final boolean success[] = {true};

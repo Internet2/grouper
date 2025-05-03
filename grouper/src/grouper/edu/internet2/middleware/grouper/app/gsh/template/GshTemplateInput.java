@@ -5,15 +5,15 @@ public class GshTemplateInput {
   
   private String name;
   
-  private String valueString;
+  private Object value;
   
   public GshTemplateInput assignName(String name) {
     this.name = name;
     return this;
   }
   
-  public GshTemplateInput assignValueString(String valueString) {
-    this.valueString = valueString;
+  public GshTemplateInput assignValue(Object value) {
+    this.value = value;
     return this;
   }
 
@@ -21,8 +21,8 @@ public class GshTemplateInput {
     return name;
   }
   
-  public String getValueString() {
-    return valueString;
+  public Object getValue() {
+    return value;
   }
 
 }

@@ -1,6 +1,8 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
@@ -13,8 +15,8 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.Stem.Scope;
+import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleBase;
 import edu.internet2.middleware.grouper.audit.AuditEntry;
@@ -265,6 +267,9 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
     String valueOrExpressionEvaluation = numberOfInputsAttribute.getValueOrExpressionEvaluationValue();
     
     int numberOfInputs = GrouperUtil.intValue(valueOrExpressionEvaluation, 0);
+    boolean hasSeenFileInput = false;
+    
+    Map<Integer, List<String>> indexToFormElementTypes = new LinkedHashMap<Integer, List<String>>();
     
     for (int i=0; i<numberOfInputs; i++) {
       GrouperConfigurationModuleAttribute nameAttribute = attributes.get("input."+i+".name");
@@ -321,6 +326,102 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
           
         }
                 
+      }
+      
+      {
+        
+        GrouperConfigurationModuleAttribute inputType = attributes.get("input."+i+".type");
+        if (inputType != null && StringUtils.equals(inputType.getValueOrExpressionEvaluation(), "file")) {
+          GrouperConfigurationModuleAttribute templateType = attributes.get("templateType");
+          if (templateType != null && !StringUtils.equals(templateType.getValueOrExpressionEvaluation(), "gsh")) {
+            String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputTypeFileNotAllowedWithNonGshTemplate");
+            validationErrorsToDisplay.put(inputType.getHtmlForElementIdHandle(), error);
+            return;
+          }
+          GrouperConfigurationModuleAttribute templateVersion = attributes.get("templateVersion");
+          if (templateVersion == null || GrouperUtil.isBlank(templateVersion.getValueOrExpressionEvaluation())
+              || StringUtils.equals(templateVersion.getValueOrExpressionEvaluation(), "V1")) {
+            String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputTypeFileNotAllowedWithV1GshTemplate");
+            validationErrorsToDisplay.put(inputType.getHtmlForElementIdHandle(), error);
+            return;
+          }
+        }
+      }
+      
+      {
+        //when input type is file, form element has to be file
+        GrouperConfigurationModuleAttribute inputType = attributes.get("input."+i+".type");
+        if (inputType != null && StringUtils.equals(inputType.getValueOrExpressionEvaluation(), "file")) {
+          GrouperConfigurationModuleAttribute formElementType = attributes.get("input."+i+".formElementType");
+          if (formElementType == null || !StringUtils.equals(formElementType.getValueOrExpressionEvaluation(), "file")) {
+            String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputTypeFileButFormElementTypeNotFile");
+            validationErrorsToDisplay.put(inputType.getHtmlForElementIdHandle(), error);
+            return;
+          }
+        }
+      }
+      
+      {
+        //when form type is file, input type has to be file or string. when it's string, we're going to read the file into a string
+        GrouperConfigurationModuleAttribute formElementType = attributes.get("input."+i+".formElementType");
+        if (formElementType != null && StringUtils.equals(formElementType.getValueOrExpressionEvaluation(), "file")) {
+          hasSeenFileInput = true; // after this input, all the inputs must be of type file only
+          GrouperConfigurationModuleAttribute inputType = attributes.get("input."+i+".type");
+          if (inputType != null && StringUtils.isNotBlank(inputType.getValueOrExpressionEvaluation())) {
+            if (!StringUtils.equals(inputType.getValueOrExpressionEvaluation(), "file") &&
+              !StringUtils.equals(inputType.getValueOrExpressionEvaluation(), "string")) {
+              String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorFormElementTypeFileButInputTypeNotNotFileOrString");
+              validationErrorsToDisplay.put(formElementType.getHtmlForElementIdHandle(), error);
+              return;
+            }
+          }
+        }
+      }
+      
+      GrouperConfigurationModuleAttribute formElementType = attributes.get("input."+i+".formElementType");
+      GrouperConfigurationModuleAttribute indexAttribute = attributes.get("input."+i+".index");
+      
+      String indexValue = GrouperUtil.defaultIfBlank(indexAttribute.getValueOrExpressionEvaluation(),
+          indexAttribute.getDefaultValue());
+      
+      String formElementTypeString = formElementType.getValueOrExpressionEvaluation();
+      if (StringUtils.isBlank(formElementTypeString)) {
+        formElementTypeString = formElementType.getDefaultValue();
+      }
+      
+      if (indexToFormElementTypes.containsKey(GrouperUtil.intValue(indexValue, 0))) {
+        indexToFormElementTypes.get(GrouperUtil.intValue(indexValue, 0)).add(formElementTypeString);
+      } else {
+        ArrayList<String> formElementTypeStrings = new ArrayList<String>();
+        formElementTypeStrings.add(formElementTypeString);
+        indexToFormElementTypes.put(GrouperUtil.intValue(indexValue, 0), formElementTypeStrings);
+      }
+    }
+    
+    //make sure the form element is the last one, take field index into account
+    // 0 -> text, file
+    // 1 -> file
+    // 2 -> text
+    int highestFileIndex = Integer.MAX_VALUE;
+    for (Integer index: indexToFormElementTypes.keySet()) {
+      List<String> elementTypes = indexToFormElementTypes.get(index);
+      boolean fileElementAlreadySeen = false;
+      for (String elementType: elementTypes) {
+        if (StringUtils.equals(elementType, "file")) {
+          fileElementAlreadySeen = true;
+          highestFileIndex = index;
+        } else {
+          if (fileElementAlreadySeen) {
+            String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorFormElementTypeFileMustBeTheLastFormElement");
+            errorsToDisplay.add(error);
+//            validationErrorsToDisplay.put(formElementType.getHtmlForElementIdHandle(), error);
+          }
+          if (index > highestFileIndex) {
+            String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorFormElementTypeFileMustBeTheLastFormElement");
+            errorsToDisplay.add(error);
+          }
+          
+        }
       }
     }
     

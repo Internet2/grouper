@@ -2,13 +2,13 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 
 import org.apache.commons.lang3.StringUtils;
 
-import edu.internet2.middleware.grouper.app.gsh.template.GshTemplateInputConfig;
+import edu.internet2.middleware.grouper.util.GrouperUtil;
 
 public class GshTemplateInputConfigAndValue {
   
   private GshTemplateInputConfig gshTemplateInputConfig;
   
-  private String value;
+  private Object value;
 
   
   public GshTemplateInputConfig getGshTemplateInputConfig() {
@@ -21,18 +21,18 @@ public class GshTemplateInputConfigAndValue {
   }
 
   
-  public String getValue() {
+  public Object getValue() {
     return value;
   }
 
   
-  public void setValue(String value) {
+  public void setValue(Object value) {
     this.value = value;
   }
 
 
-  public String getValueOrDefault() {
-    if (StringUtils.isBlank(this.value)) {
+  public Object getValueOrDefault() {
+    if (GrouperUtil.isBlank(value)) {
       return this.gshTemplateInputConfig.getDefaultValue();
     }
     return this.value;

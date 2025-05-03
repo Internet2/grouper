@@ -1,11 +1,10 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
 import edu.internet2.middleware.grouper.GrouperSession;
-import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
-import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyRuntime;
 import edu.internet2.middleware.subject.Subject;
 
 public class GshTemplateV2input {
@@ -87,6 +86,10 @@ public class GshTemplateV2input {
 
   public String getGsh_builtin_inputString(String inputName) {
     return (String)this.gsh_builtin_inputs.get(inputName);
+  }
+  
+  public File getGsh_builtin_inputFile(String inputName) {
+    return (File)this.gsh_builtin_inputs.get(inputName);
   }
 
   public Boolean getGsh_builtin_inputBoolean(String inputName) {

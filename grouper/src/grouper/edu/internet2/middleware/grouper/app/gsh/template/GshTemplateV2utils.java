@@ -188,7 +188,7 @@ public class GshTemplateV2utils {
         
         GshTemplateInput gshTemplateInput = new GshTemplateInput();
         gshTemplateInput.assignName(gshInputName);
-        gshTemplateInput.assignValueString(gshInputValue);
+        gshTemplateInput.assignValue(gshInputValue);
         
         gshTemplateExec.addGshTemplateInput(gshTemplateInput);
         

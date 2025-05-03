@@ -1,6 +1,15 @@
 <%@ include file="../assetsJsp/commonTaglib.jsp"%>
 <grouper:browserPage jspName="newTemplate" />
-<form id="newStemTemplateFormId" class="form-horizontal">
+
+<c:choose>
+  <c:when test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
+    <form id="newStemTemplateFormId" class="form-horizontal" method="post" action="UiV2Template.customTemplateExecute" enctype = "multipart/form-data">
+  </c:when>
+  <c:otherwise>
+    <form id="newStemTemplateFormId" class="form-horizontal">
+  </c:otherwise>
+</c:choose>
+
   <input type="hidden" name="stemId" value="${grouperRequestContainer.stemContainer.guiStem.stem.id}" />
   <p class="lead" id="templateHeader">${textContainer.text['gshTemplateScreenDecription']}</p>
   <table class="table table-condensed table-striped">
@@ -173,10 +182,13 @@
           </c:if>
           
           <c:if test="${grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig != null}">
-            <input type="submit" class="btn btn-primary"
+            <%-- <input type="submit" class="btn btn-primary"
 	          aria-controls="groupFilterResultsId" id="filterSubmitId"
 	          value="${textContainer.text['stemTemplateSubmitButton'] }"
-	          onclick="$('#stemTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;">
+	          onclick="$('#stemTemplateBody').empty(); guiScrollTop(); ajax('../app/UiV2Template.customTemplateExecute?stemId=${grouperRequestContainer.stemContainer.guiStem.stem.id}', {formIds: 'newStemTemplateFormId'}); return false;"> --%>
+            
+            <a href="#" class="btn btn-primary" onclick="return guiSubmitFileForm(event, '#newStemTemplateFormId', '../app/UiV2Template.customTemplateExecute');">${textContainer.text['stemTemplateSubmitButton'] }</a>
+            
           </c:if>
           
           <c:if test="${empty grouperRequestContainer.groupStemTemplateContainer.serviceActions and grouperRequestContainer.groupStemTemplateContainer.guiGshTemplateConfig == null}">

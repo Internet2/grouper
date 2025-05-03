@@ -1,6 +1,6 @@
 package edu.internet2.middleware.grouper.app.gsh.template;
 
-import org.apache.commons.lang.StringUtils;
+import java.io.File;
 
 import edu.internet2.middleware.grouper.app.gsh.GrouperGroovyInput;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
@@ -10,10 +10,10 @@ public enum GshTemplateInputType {
   INTEGER {
 
     @Override
-    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, Object valueFromUser) {
       
-     String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
-
+     String valueToUse = GrouperUtil.isEmpty(valueFromUser) ? gshTemplateInputConfig.getDefaultValue(): GrouperUtil.stringValue(valueFromUser);
+     
      Integer valueToUseInteger = GrouperUtil.intObjectValue(valueToUse, true);
      
      grouperGroovyInput.assignInputValueInteger(gshTemplateInputConfig.getName(), valueToUseInteger);
@@ -23,9 +23,9 @@ public enum GshTemplateInputType {
     }
 
     @Override
-    public boolean canConvertToCorrectType(String valueFromUser) {
+    public boolean canConvertToCorrectType(Object valueFromUser) {
       
-      if (StringUtils.isNotBlank(valueFromUser)) {
+      if (!GrouperUtil.isBlank(valueFromUser)) {
         try {
           GrouperUtil.intValue(valueFromUser);
         } catch(Throwable e) {
@@ -37,7 +37,7 @@ public enum GshTemplateInputType {
     }
     
     @Override
-    public Integer convertToType(String valueFromUser) {
+    public Integer convertToType(Object valueFromUser) {
       return GrouperUtil.intObjectValue(valueFromUser, true);
     }
     
@@ -46,9 +46,9 @@ public enum GshTemplateInputType {
   STRING {
     
     @Override
-    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, Object valueFromUser) {
       
-      String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
+      String valueToUse = GrouperUtil.isEmpty(valueFromUser) ? gshTemplateInputConfig.getDefaultValue(): GrouperUtil.stringValue(valueFromUser);
 
       grouperGroovyInput.assignInputValueString(gshTemplateInputConfig.getName(), valueToUse);
 
@@ -58,13 +58,38 @@ public enum GshTemplateInputType {
     }
     
     @Override
-    public boolean canConvertToCorrectType(String valueFromUser) {
+    public boolean canConvertToCorrectType(Object valueFromUser) {
       return true;
     }
     
     @Override
-    public String convertToType(String valueFromUser) {
-      return valueFromUser;
+    public String convertToType(Object valueFromUser) {
+       if (valueFromUser instanceof File) {
+         return GrouperUtil.readFileIntoString((File) valueFromUser);
+       }
+      return GrouperUtil.stringValue(valueFromUser);
+    }
+    
+  }, 
+  
+ FILE {
+    
+    @Override
+    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, Object valueFromUser) {
+      throw new RuntimeException("file type is not supported in V1 GSH templates!");
+    }
+    
+    @Override
+    public boolean canConvertToCorrectType(Object valueFromUser) {
+      if (valueFromUser == null || valueFromUser instanceof File) {
+        return true;
+      } 
+      return false;
+    }
+    
+    @Override
+    public File convertToType(Object valueFromUser) {
+      return valueFromUser != null ? ((File)valueFromUser): null;
     }
     
   }, 
@@ -72,9 +97,10 @@ public enum GshTemplateInputType {
   BOOLEAN {
     
     @Override
-    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser) {
+    public String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, Object valueFromUser) {
+     
       
-     String valueToUse = GrouperUtil.defaultIfEmpty(valueFromUser, gshTemplateInputConfig.getDefaultValue());
+     String valueToUse = GrouperUtil.isEmpty(valueFromUser) ? gshTemplateInputConfig.getDefaultValue(): GrouperUtil.stringValue(valueFromUser);
 
      Boolean valueToUseBoolean = GrouperUtil.booleanObjectValue(valueToUse);
 
@@ -84,9 +110,9 @@ public enum GshTemplateInputType {
     }
     
     @Override
-    public boolean canConvertToCorrectType(String valueFromUser) {
+    public boolean canConvertToCorrectType(Object valueFromUser) {
       
-      if (StringUtils.isNotBlank(valueFromUser)) {
+      if (!GrouperUtil.isBlank(valueFromUser)) {
         try {
           GrouperUtil.booleanValue(valueFromUser);
         } catch(Throwable e) {
@@ -97,7 +123,7 @@ public enum GshTemplateInputType {
     }
     
     @Override
-    public Boolean convertToType(String valueFromUser) {
+    public Boolean convertToType(Object valueFromUser) {
       return GrouperUtil.booleanObjectValue(valueFromUser);
     }
     
@@ -115,11 +141,11 @@ public enum GshTemplateInputType {
   }
   
   
-  public abstract String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, String valueFromUser);
+  public abstract String generateGshVariable(GrouperGroovyInput grouperGroovyInput, GshTemplateInputConfig gshTemplateInputConfig, Object valueFromUser);
 
-  public abstract boolean canConvertToCorrectType(String valueFromUser);
+  public abstract boolean canConvertToCorrectType(Object valueFromUser);
   
-  public abstract Object convertToType(String valueFromUser);
+  public abstract Object convertToType(Object valueFromUser);
 
 }
 

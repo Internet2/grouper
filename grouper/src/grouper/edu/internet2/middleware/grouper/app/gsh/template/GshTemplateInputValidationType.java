@@ -44,7 +44,7 @@ public enum GshTemplateInputValidationType {
       variableMap.put("value", valueFromUser == null ? "": valueFromUser);
       
       for (GshTemplateInput gshTemplateInput: templateInputs) {
-        variableMap.put(gshTemplateInput.getName(), gshTemplateInput.getValueString());
+        variableMap.put(gshTemplateInput.getName(), gshTemplateInput.getValue());
       }
       
       try {        

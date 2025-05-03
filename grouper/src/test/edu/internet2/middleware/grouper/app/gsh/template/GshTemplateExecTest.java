@@ -2,6 +2,7 @@ package edu.internet2.middleware.grouper.app.gsh.template;
 
 import java.util.List;
 
+import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
@@ -15,7 +16,6 @@ import edu.internet2.middleware.grouper.cfg.dbConfig.GrouperDbConfig;
 import edu.internet2.middleware.grouper.helper.GrouperTest;
 import edu.internet2.middleware.grouper.helper.SubjectTestHelper;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
-import org.apache.commons.lang3.StringUtils;
 import junit.textui.TestRunner;
 
 public class GshTemplateExecTest extends GrouperTest {
@@ -39,31 +39,31 @@ public class GshTemplateExecTest extends GrouperTest {
 //    
 //    GshTemplateInput input = new GshTemplateInput();
 //    input.assignName("gsh_input_workingGroupExtension");
-//    input.assignValueString("myGroup");
+//    input.assignValue("myGroup");
 //    exec.addGshTemplateInput(input);
 //    input = new GshTemplateInput();
 //    input.assignName("gsh_input_workingGroupDisplayExtension");
-//    input.assignValueString("My group");
+//    input.assignValue("My group");
 //    exec.addGshTemplateInput(input);
 //    input = new GshTemplateInput();
 //    input.assignName("gsh_input_workingGroupDescription");
-//    input.assignValueString("My working group will do a lot of group work");
+//    input.assignValue("My working group will do a lot of group work");
 //    exec.addGshTemplateInput(input);
 //    input = new GshTemplateInput();
 //    input.assignName("gsh_input_isSympa");
-//    input.assignValueString("true");
+//    input.assignValue("true");
 //    exec.addGshTemplateInput(input);
 //    input = new GshTemplateInput();
 //    input.assignName("gsh_input_sympaDomain");
-//    input.assignValueString("internet2");
+//    input.assignValue("internet2");
 //    exec.addGshTemplateInput(input);
 //    input = new GshTemplateInput();
 //    input.assignName("gsh_input_isSympaModerated");
-//    input.assignValueString("true");
+//    input.assignValue("true");
 //    exec.addGshTemplateInput(input);
 //    //  input = new GshTemplateInput();
 //    //  input.assignName("gsh_input_initialAdminSubjectId");
-//    //  input.assignValueString("GrouperSys");
+//    //  input.assignValue("GrouperSys");
 //    //  exec.addGshTemplateInput(input);
 //    
 //    // when
@@ -128,7 +128,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString(null);
+    input.assignValue(null);
     exec.addGshTemplateInput(input);
     
     
@@ -170,12 +170,12 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("zoomTest");
+    input.assignValue("zoomTest");
     exec.addGshTemplateInput(input);
     
     GshTemplateInput extraInput = new GshTemplateInput();
     extraInput.assignName("extraInputName");
-    extraInput.assignValueString("extraInputValue");
+    extraInput.assignValue("extraInputValue");
     exec.addGshTemplateInput(extraInput);
     
     
@@ -214,7 +214,7 @@ public class GshTemplateExecTest extends GrouperTest {
    
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("zoomTest");
+    input.assignValue("zoomTest");
     exec.addGshTemplateInput(input);
     
     
@@ -264,7 +264,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("zoomTest");
+    input.assignValue("zoomTest");
     exec.addGshTemplateInput(input);
     
     
@@ -317,7 +317,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("notInt");
+    input.assignValue("notInt");
     exec.addGshTemplateInput(input);
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.type", "integer");
@@ -337,7 +337,7 @@ public class GshTemplateExecTest extends GrouperTest {
     exec.getGshTemplateInputs().clear();
     input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("9");
+    input.assignValue("9");
     exec.addGshTemplateInput(input);
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.validationType", "regex");
@@ -382,7 +382,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abcd8");
+    input.assignValue("abcd8");
     exec.addGshTemplateInput(input);
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.validationType", "builtin");
@@ -405,7 +405,7 @@ public class GshTemplateExecTest extends GrouperTest {
     exec.getGshTemplateInputs().clear();
     input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abcd78_");
+    input.assignValue("abcd78_");
     exec.addGshTemplateInput(input);
     
     // when
@@ -424,7 +424,7 @@ public class GshTemplateExecTest extends GrouperTest {
     exec.getGshTemplateInputs().clear();
     input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abcd78-");
+    input.assignValue("abcd78-");
     exec.addGshTemplateInput(input);
     
     // when
@@ -443,7 +443,7 @@ public class GshTemplateExecTest extends GrouperTest {
     exec.getGshTemplateInputs().clear();
     input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abcd78_");
+    input.assignValue("abcd78_");
     exec.addGshTemplateInput(input);
     
     // when
@@ -463,7 +463,7 @@ public class GshTemplateExecTest extends GrouperTest {
     exec.getGshTemplateInputs().clear();
     input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abcd78^");
+    input.assignValue("abcd78^");
     exec.addGshTemplateInput(input);
     
     // when
@@ -482,7 +482,7 @@ public class GshTemplateExecTest extends GrouperTest {
     exec.getGshTemplateInputs().clear();
     input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abcd78:abc");
+    input.assignValue("abcd78:abc");
     exec.addGshTemplateInput(input);
     
     // when
@@ -524,7 +524,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abcdef");
+    input.assignValue("abcdef");
     exec.addGshTemplateInput(input);
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.maxLength", "5");
@@ -568,7 +568,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("abc");
+    input.assignValue("abc");
     exec.addGshTemplateInput(input);
     
     GrouperConfig.retrieveConfig().propertiesOverrideMap().put("grouperGshTemplate.testGshTemplateConfig.input.0.formElementType", "dropdown");
@@ -620,7 +620,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_myExtension");
-    input.assignValueString("zoomTest");
+    input.assignValue("zoomTest");
     exec.addGshTemplateInput(input);
     
     
@@ -672,7 +672,7 @@ public class GshTemplateExecTest extends GrouperTest {
     
     GshTemplateInput input = new GshTemplateInput();
     input.assignName("gsh_input_prefix");
-    input.assignValueString("TEST-Prefix");
+    input.assignValue("TEST-Prefix");
     exec.addGshTemplateInput(input);
     
     Group usersExcludedFromZoomGroup = new GroupSave(grouperSession).assignName("penn:isc:ait:apps:zoom:service:ref:usersExcludedFromZoom").assignCreateParentStemsIfNotExist(true).save();
