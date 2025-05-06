@@ -11,7 +11,6 @@ import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
 import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.exception.GrouperSessionException;
 import edu.internet2.middleware.grouper.misc.GrouperObject;
@@ -142,9 +141,9 @@ public class RuleConfig {
       
       @Override
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
-        Stem stem = StemFinder.findByName(stemIdOrName, false);
+        Stem stem = RuleEngine.findStemByName(stemIdOrName, false);
         if (stem == null) {
-          stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemIdOrName, false);
+          stem = RuleEngine.findStemById(stemIdOrName, false);
         }
         
         if (stemPrivilegeStrategy != null) {
@@ -567,9 +566,9 @@ public class RuleConfig {
         checkOwnerName = stem.getName();
       } else if (StringUtils.equals(checkOwner, "anotherStem")) {
         String stemIdOrName = this.getCheckOwnerUuidOrName();
-        Stem checkOwnerStem = StemFinder.findByName(stemIdOrName, false);
+        Stem checkOwnerStem = RuleEngine.findStemByName(stemIdOrName, false);
         if (checkOwnerStem == null) {
-          checkOwnerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemIdOrName, false);
+          checkOwnerStem = RuleEngine.findStemById(stemIdOrName, false);
         }
         
         if (checkOwnerStem != null) {

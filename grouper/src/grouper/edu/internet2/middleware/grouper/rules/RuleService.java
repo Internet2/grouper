@@ -11,9 +11,7 @@ import org.apache.commons.lang3.StringUtils;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssign;
 import edu.internet2.middleware.grouper.attr.assign.AttributeAssignAttrAssignDelegate;
@@ -94,9 +92,9 @@ public class RuleService {
         
         String stemIdOrName = ruleConfig.getCheckOwnerUuidOrName();
         if (StringUtils.isNotBlank(stemIdOrName)) {
-          Stem stem = StemFinder.findByName(stemIdOrName, false);
+          Stem stem = RuleEngine.findStemByName(stemIdOrName, false);
           if (stem == null) {
-            stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemIdOrName, false);
+            stem = RuleEngine.findStemById(stemIdOrName, false);
           }
           
           if (stem != null) {
@@ -148,9 +146,9 @@ public class RuleService {
         //maybe be group if not blank
         String stemIdOrName = ruleConfig.getIfConditionOwnerUuidOrName();
         if (StringUtils.isNotBlank(stemIdOrName)) {
-          Stem stem = StemFinder.findByName(stemIdOrName, false);
+          Stem stem = RuleEngine.findStemByName(stemIdOrName, false);
           if (stem == null) {
-            stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemIdOrName, false);
+            stem = RuleEngine.findStemById(stemIdOrName, false);
           }
           
           if (stem != null) {
@@ -188,9 +186,9 @@ public class RuleService {
           checkOwnerName = stem.getName();
         } else if (StringUtils.equals(checkOwner, "anotherStem")) {
           String stemIdOrName = ruleConfig.getCheckOwnerUuidOrName();
-          Stem checkOwnerStem = StemFinder.findByName(stemIdOrName, false);
+          Stem checkOwnerStem = RuleEngine.findStemByName(stemIdOrName, false);
           if (checkOwnerStem == null) {
-            checkOwnerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemIdOrName, false);
+            checkOwnerStem = RuleEngine.findStemById(stemIdOrName, false);
           }
           
           if (checkOwnerStem != null) {
@@ -235,9 +233,9 @@ public class RuleService {
           ifConditionOwnerName = stem.getName();
         } else if (StringUtils.equals(ifConditionOwner, "anotherStem")) {
           String stemIdOrName = ruleConfig.getIfConditionOwnerUuidOrName();
-          Stem ifConditionOwnerStem = StemFinder.findByName(stemIdOrName, false);
+          Stem ifConditionOwnerStem = RuleEngine.findStemByName(stemIdOrName, false);
           if (ifConditionOwnerStem == null) {
-            ifConditionOwnerStem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemIdOrName, false);
+            ifConditionOwnerStem = RuleEngine.findStemById(stemIdOrName, false);
           }
           
           if (ifConditionOwnerStem != null) {

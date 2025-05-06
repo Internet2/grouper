@@ -11,9 +11,7 @@ import org.apache.commons.logging.Log;
 
 import edu.internet2.middleware.grouper.Group;
 import edu.internet2.middleware.grouper.GroupFinder;
-import edu.internet2.middleware.grouper.GrouperSession;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.app.config.GrouperConfigurationModuleAttribute;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
@@ -1639,9 +1637,9 @@ public enum RulePattern {
       String folder = patternPropertiesValues.get("AddCreatedGroupsToAnotherGroup.folder");
       String folderScope = patternPropertiesValues.get("AddCreatedGroupsToAnotherGroup.stemScope");
       
-      Stem stem = StemFinder.findByName(folder, false);
+      Stem stem = RuleEngine.findStemByName(folder, false);
       if (stem == null) {
-        stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folder, false);
+        stem = RuleEngine.findStemById(folder, false);
       }
       
       if (stem == null) {
@@ -2023,9 +2021,9 @@ public enum RulePattern {
       String folderName = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.folder");
       String stemScope = patternPropertiesValues.get("SendEmailWhenGroupMemberInvalidDueToFolder.stemScope");
       
-      Stem stem = StemFinder.findByName(folderName, false);
+      Stem stem = RuleEngine.findStemByName(folderName, false);
       if (stem == null) {
-        stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folderName, false);
+        stem = RuleEngine.findStemById(folderName, false);
       }
       
       if (stem == null) {
@@ -2786,9 +2784,9 @@ public enum RulePattern {
       String folderName = patternPropertiesValues.get("VetoIfNotEligibleDueToFolder.folder");
       String stemScope = patternPropertiesValues.get("VetoIfNotEligibleDueToFolder.stemScope");
       
-      Stem stem = StemFinder.findByName(folderName, false);
+      Stem stem = RuleEngine.findStemByName(folderName, false);
       if (stem == null) {
-        stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folderName, false);
+        stem = RuleEngine.findStemById(folderName, false);
       }
       
       if (stem == null) {
@@ -3221,9 +3219,9 @@ public enum RulePattern {
       String folder = patternPropertiesValues.get("RemoveInvalidMembershipDueToFolder.folder");
       String folderScope = patternPropertiesValues.get("RemoveInvalidMembershipDueToFolder.stemScope");
       
-      Stem stem = StemFinder.findByName(folder, false);
+      Stem stem = RuleEngine.findStemByName(folder, false);
       if (stem == null) {
-        stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folder, false);
+        stem = RuleEngine.findStemById(folder, false);
       }
       
       if (stem == null) {
@@ -3740,9 +3738,9 @@ public enum RulePattern {
       
       String checkIfRemovedFromFolder = patternPropertiesValues.get("AddDisabledDateOnInvalidMembershipDueToFolder.checkIfRemovedFromFolder");
      
-      Stem stem = StemFinder.findByName(folder, false);
+      Stem stem = RuleEngine.findStemByName(folder, false);
       if (stem == null) {
-        stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), folder, false);
+        stem = RuleEngine.findStemById(folder, false);
       }
       
       if (stem == null) {

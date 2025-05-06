@@ -34,7 +34,6 @@ import edu.internet2.middleware.grouper.Member;
 import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -153,9 +152,9 @@ public class RuleUtils {
         
         Stem stem = null;
         if (!StringUtils.isBlank(stemId)) {
-          stem = StemFinder.findByUuid(grouperSession, stemId, false);
+          stem = RuleEngine.findStemById(stemId, false);
         } else if (!StringUtils.isBlank(stemName)) {
-          stem = StemFinder.findByName(grouperSession, stemName, false);
+          stem = RuleEngine.findStemByName(stemName, false);
         }
         
         if (stem == null) {
@@ -939,11 +938,11 @@ public class RuleUtils {
       public Object callback(GrouperSession grouperSession) throws GrouperSessionException {
         Stem stem = null;
         if (!StringUtils.isBlank(stemId)) {
-          stem = StemFinder.findByUuid(grouperSession, stemId, false);
+          stem = RuleEngine.findStemById(stemId, false);
         } else if (!StringUtils.isBlank(stemName)) {
-          stem = StemFinder.findByName(grouperSession, stemName, false);
+          stem = RuleEngine.findStemByName(stemName, false);
         } else if (!StringUtils.isBlank(alternateStemId)) {
-          stem = StemFinder.findByUuid(grouperSession, alternateStemId, false);
+          stem = RuleEngine.findStemById(alternateStemId, false);
         }
         
         if (throwExceptionIfNotFound && stem == null) {
