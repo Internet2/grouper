@@ -24,8 +24,6 @@ public class TeamDynamixGroup {
   
   private String description;
 
-  private Boolean active;
-
   
   public String getId() {
     return id;
@@ -49,22 +47,6 @@ public class TeamDynamixGroup {
   
   public void setDescription(String description) {
     this.description = description;
-  }
-  
-  public Boolean getActive() {
-    return active;
-  }
-
-  public void setActive(Boolean active) {
-    this.active = active;
-  }
-  
-  public String getActiveDb() {
-    return active == null ? "F" : active ? "T" : "F";
-  }
-  
-  public void setActiveDb(String active) {
-    this.active = GrouperUtil.booleanObjectValue(active);
   }
   
   /**
@@ -110,11 +92,11 @@ public class TeamDynamixGroup {
     
     TeamDynamixGroup teamDynamixGroup = new TeamDynamixGroup();
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
-      teamDynamixGroup.setDescription(targetGroup.retrieveAttributeValueString("description"));
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Description")) {      
+      teamDynamixGroup.setDescription(targetGroup.retrieveAttributeValueString("Description"));
     }
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
-      teamDynamixGroup.setName(targetGroup.getDisplayName());
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Name")) {      
+      teamDynamixGroup.setName(targetGroup.retrieveAttributeValueString("Name"));
     }
     
     if (fieldNamesToSet == null || fieldNamesToSet.contains("id")) {      
@@ -138,10 +120,6 @@ public class TeamDynamixGroup {
     teamDynamixGroup.description = GrouperUtil.jsonJacksonGetString(groupNode, "Description");
     teamDynamixGroup.name = GrouperUtil.jsonJacksonGetString(groupNode, "Name");
     teamDynamixGroup.id = GrouperUtil.jsonJacksonGetString(groupNode, "ID");
-    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupNode, "IsActive");
-    if (isActive != null && isActive) {
-      teamDynamixGroup.active = true;
-    }
     
     return teamDynamixGroup;
   }
@@ -154,11 +132,11 @@ public class TeamDynamixGroup {
   public ObjectNode toJson(Set<String> fieldNamesToSet) {
     ObjectNode result = GrouperUtil.jsonJacksonNode();
 
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("description")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Description")) {      
       result.put("Description", this.description);
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("name")) {      
+    if (fieldNamesToSet == null || fieldNamesToSet.contains("Name")) {      
       result.put("Name", this.name);
     }
     
@@ -168,10 +146,6 @@ public class TeamDynamixGroup {
       }
     }
     
-    if (fieldNamesToSet == null || fieldNamesToSet.contains("IsActive")) {      
-      result.put("IsActive", this.active);
-    }
-
     return result;
   }
   
