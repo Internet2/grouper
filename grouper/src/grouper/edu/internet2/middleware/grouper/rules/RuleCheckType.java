@@ -32,7 +32,6 @@ import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
 import edu.internet2.middleware.grouper.Stem.Scope;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -1042,9 +1041,9 @@ public enum RuleCheckType {
                 
                 Stem stem = null;
                 if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
-                  stem = StemFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+                  stem = RuleEngine.findStemById(ruleDefinition.getCheck().getCheckOwnerId(), false);
                 } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
-                  stem = StemFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+                  stem = RuleEngine.findStemByName(ruleDefinition.getCheck().getCheckOwnerName(), false);
                 }
 
                 if (stem == null) {
@@ -1117,9 +1116,9 @@ public enum RuleCheckType {
                 
                 Stem stem = null;
                 if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerId())) {
-                  stem = StemFinder.findByUuid(rootSession, ruleDefinition.getCheck().getCheckOwnerId(), false);
+                  stem = RuleEngine.findStemById(ruleDefinition.getCheck().getCheckOwnerId(), false);
                 } else if (!StringUtils.isBlank(ruleDefinition.getCheck().getCheckOwnerName())) {
-                  stem = StemFinder.findByName(rootSession, ruleDefinition.getCheck().getCheckOwnerName(), false);
+                  stem = RuleEngine.findStemByName(ruleDefinition.getCheck().getCheckOwnerName(), false);
                 }
 
                 if (stem == null) {
@@ -1581,7 +1580,7 @@ public enum RuleCheckType {
           
         }
         
-        Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, false);
+        Stem stem = RuleEngine.findStemById(stemId, false);
         if (stem!=null) {
           if (stem.grantPriv(subject, privilege, false)){
             RuleEngine.ruleFirings++;
@@ -3190,9 +3189,9 @@ public enum RuleCheckType {
         
         Stem stem = null;
         if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerId())) {
-          stem = StemFinder.findByUuid(rootSession, ruleDefinition.getIfCondition().getIfOwnerId(), false);
+          stem = RuleEngine.findStemById(ruleDefinition.getIfCondition().getIfOwnerId(), false);
         } else if (!StringUtils.isBlank(ruleDefinition.getIfCondition().getIfOwnerName())) {
-          stem = StemFinder.findByName(rootSession, ruleDefinition.getIfCondition().getIfOwnerName(), false);
+          stem = RuleEngine.findStemByName(ruleDefinition.getIfCondition().getIfOwnerName(), false);
         }
 
         if (stem == null) {
@@ -3289,7 +3288,7 @@ public enum RuleCheckType {
     String stemId = ruleCheck.getCheckOwnerId();
     ruleCheck.setCheckOwnerId(null);
     //set the owner to this stem
-    Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
+    Stem stem = RuleEngine.findStemById(stemId, true);
     String stemName = stem.getName();
     
     //if there is a rule on the root stem set that here

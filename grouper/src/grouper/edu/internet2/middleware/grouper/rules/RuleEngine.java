@@ -52,6 +52,7 @@ import edu.internet2.middleware.grouper.misc.GrouperSessionHandler;
 import edu.internet2.middleware.grouper.rules.beans.RulesBean;
 import edu.internet2.middleware.grouper.util.GrouperUtil;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
+import edu.internet2.middleware.grouperClient.util.ExpirableCache;
 import edu.internet2.middleware.subject.Subject;
 
 /**
@@ -61,6 +62,50 @@ import edu.internet2.middleware.subject.Subject;
  */
 public class RuleEngine {
 
+  /**
+   * string uuid or name to stem
+   */
+  private static ExpirableCache<String, Stem> stemCache = null;
+  
+  
+  /**
+   * string uuid or name to stem
+   * @return
+   */
+  private static ExpirableCache<String, Stem> stemCache() {
+    
+    if (stemCache == null) {
+      int stemCacheForMinutes = GrouperConfig.retrieveConfig().propertyValueInt("grouper.rules.stemCache.minutes", 5);
+      stemCache = new ExpirableCache<String, Stem>(stemCacheForMinutes);
+    }
+    return stemCache;
+  }
+
+  
+  public static Stem findStemById(String id, boolean exceptionOnNull) {
+    Stem stem = stemCache().get(id);
+    if (stem == null) {
+      stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), id, exceptionOnNull);
+      synchronized (stemCache()) {
+        stemCache().put(id, stem);
+        stemCache().put(stem.getName(), stem);
+      }
+    }
+    return stem;
+  }
+  
+  public static Stem findStemByName(String name, boolean exceptionOnNull) {
+    Stem stem = stemCache().get(name);
+    if (stem == null) {
+      stem = StemFinder.findByName(name, exceptionOnNull);
+      synchronized (stemCache()) {
+        stemCache().put(stem.getId(), stem);
+        stemCache().put(name, stem);
+      }
+    }
+    return stem;
+  }
+  
   /**
    * used for testing to see how many rule firings there are (that pass the check and if)
    */
@@ -297,9 +342,25 @@ public class RuleEngine {
       if (!StringUtils.isBlank(stemId)) {
         stemIds.add(stemId);
       }
+      AttributeAssign attributeAssignType = ruleDefinition.getAttributeAssignType();
+      if (attributeAssignType != null) {
+        if (!StringUtils.isBlank(attributeAssignType.getOwnerStemId())) {
+          stemIds.add(attributeAssignType.getOwnerStemId());
+        }
+      }
     }
     // look up stems in batches by names then by ids to populate the cache
-    new StemFinder().assignStemNames(stemNames).assignStemIds(stemIds).findStems();
+    Set<Stem> stems = GrouperUtil.nonNull(new StemFinder().assignStemNames(stemNames).findStems());
+    
+    stems.addAll(GrouperUtil.nonNull(new StemFinder().assignStemIds(stemIds).findStems()));
+    
+    synchronized (stemCache()) {
+      this.stemCache().clear();
+      for (Stem stem : GrouperUtil.nonNull(stems)) {
+        this.stemCache().put(stem.getId(), stem);
+        this.stemCache().put(stem.getName(), stem);
+      }
+    }
     
     for (RuleDefinition ruleDefinition : GrouperUtil.nonNull(this.ruleDefinitions)) {
       

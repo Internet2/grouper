@@ -32,7 +32,6 @@ import edu.internet2.middleware.grouper.MemberFinder;
 import edu.internet2.middleware.grouper.Membership;
 import edu.internet2.middleware.grouper.MembershipFinder;
 import edu.internet2.middleware.grouper.Stem;
-import edu.internet2.middleware.grouper.StemFinder;
 import edu.internet2.middleware.grouper.SubjectFinder;
 import edu.internet2.middleware.grouper.attr.AttributeDef;
 import edu.internet2.middleware.grouper.attr.AttributeDefName;
@@ -333,7 +332,7 @@ public class RuleElUtils {
           + ", subjectIdentifier: " + subjectIdentifier + " privilegeNamesCommaSeparated: " + privilegeNamesCommaSeparated);
     }
     boolean result = false;
-    Stem stem = StemFinder.findByUuid(GrouperSession.staticGrouperSession(), stemId, true);
+    Stem stem = RuleEngine.findStemById(stemId, true);
     Subject subject = SubjectFinder.findByOptionalArgs(sourceId, subjectId, subjectIdentifier, true);
     String[] privileges = GrouperUtil.splitTrim(privilegeNamesCommaSeparated, ",");
     
