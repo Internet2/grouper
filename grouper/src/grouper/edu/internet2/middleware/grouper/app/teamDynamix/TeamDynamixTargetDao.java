@@ -178,7 +178,6 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       TeamDynamixProvisioningConfiguration teamDynamixConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
       
       TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromProvisioningGroup(targetGroup, null);
-      teamDynamixGroup.setActive(true);
       
       TeamDynamixGroup createdTeamDynamixGroup = TeamDynamixApiCommands.createTeamDynamixGroup(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), teamDynamixGroup);
 
@@ -242,10 +241,11 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
 
     try {
       
-      TeamDynamixProvisioningConfiguration azureConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
+      TeamDynamixProvisioningConfiguration teamDynamixConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       // lets collate by group
       Map<String, List<String>> groupIdToUserIds = new LinkedHashMap<String, List<String>>();
+      Map<String, Boolean> groupIdToIsNotified = new LinkedHashMap<String, Boolean>();
 
       // keep track to mark as complete
       Map<MultiKey, ProvisioningMembership> groupIdUserIdToProvisioningMembership = new HashMap<MultiKey, ProvisioningMembership>();
@@ -254,14 +254,17 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
 
         groupIdUserIdToProvisioningMembership.put(new MultiKey(targetMembership.getProvisioningGroupId(), targetMembership.getProvisioningEntityId()), targetMembership);
         
+        boolean isNotified = GrouperUtil.booleanValue(targetMembership.getProvisioningGroup().getProvisioningGroupWrapper().getGrouperTargetGroup().retrieveAttributeValueBoolean("isNotified"), false);
+        groupIdToIsNotified.put(targetMembership.getProvisioningGroupId(), isNotified);
         List<String> userIds = groupIdToUserIds.get(targetMembership.getProvisioningGroupId());
         if (userIds == null) {
           userIds = new ArrayList<String>();
           groupIdToUserIds.put(targetMembership.getProvisioningGroupId(), userIds);
         }
         userIds.add(targetMembership.getProvisioningEntityId());
+        
       }
-
+      
       // send batches by group
       for (String groupId : groupIdToUserIds.keySet()) {
 
@@ -269,7 +272,7 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
         
         RuntimeException runtimeException = null;
         try {
-          TeamDynamixApiCommands.createTeamDynamixMemberships(azureConfiguration.getTeamDynamixExternalSystemConfigId(), groupId, userIds);
+          TeamDynamixApiCommands.createTeamDynamixMemberships(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), groupId, userIds, groupIdToIsNotified.get(groupId));
           
         } catch (RuntimeException e) {
           runtimeException = e;
@@ -373,7 +376,6 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       TeamDynamixProvisioningConfiguration teamDynamixConfiguration = (TeamDynamixProvisioningConfiguration) this.getGrouperProvisioner().retrieveGrouperProvisioningConfiguration();
 
       TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromProvisioningGroup(targetGroup, null);
-      teamDynamixGroup.setActive(false);
       
       TeamDynamixApiCommands.updateTeamDynamixGroup(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), teamDynamixGroup, null);
       
@@ -644,7 +646,6 @@ public class TeamDynamixTargetDao extends GrouperProvisionerTargetDaoBase {
       }
       
       TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromProvisioningGroup(targetGroup, null);
-      teamDynamixGroup.setActive(true);
       TeamDynamixApiCommands.updateTeamDynamixGroup(teamDynamixConfiguration.getTeamDynamixExternalSystemConfigId(), teamDynamixGroup, null);
 
       targetGroup.setProvisioned(true);
