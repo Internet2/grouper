@@ -81,7 +81,9 @@ public class TeamDynamixApiCommands {
     
     grouperHttpCall.addHeader("Content-Type", "application/json");
     grouperHttpCall.addHeader("Authorization", "Bearer " + bearerToken);
-    grouperHttpCall.assignBody(body);
+    if (StringUtils.isNotBlank(body)) {      
+      grouperHttpCall.assignBody(body);
+    }
     
     grouperHttpCall.setRetryForThrottlingOrNetworkIssuesSleepMillis(70*1000L); // 1 min and 10 secs
     
@@ -179,7 +181,7 @@ public class TeamDynamixApiCommands {
    * @return the result
    */
   public static void createTeamDynamixMemberships(String configId,
-      String groupId, Collection<String> userIds) {
+      String groupId, Collection<String> userIds, boolean isNotified) {
 
     Map<String, Object> debugMap = new LinkedHashMap<String, Object>();
     
@@ -200,7 +202,7 @@ public class TeamDynamixApiCommands {
       }
       String jsonStringToSend = GrouperUtil.jsonJacksonToString(arrayNode);
       
-      String urlSuffix = "api/groups/"+groupId+"/members";
+      String urlSuffix = "api/groups/"+groupId+"/members?isNotified="+isNotified;
 
       executeMethod(debugMap, "POST", configId, urlSuffix, GrouperUtil.toSet(200), 
           new int[] { -1 }, jsonStringToSend);
@@ -478,7 +480,8 @@ public class TeamDynamixApiCommands {
           teamDynamixGroup.getName(), null);
       
       if (groupByName == null) {
-        JsonNode jsonToSend = teamDynamixGroup.toJson(null);
+        ObjectNode jsonToSend = teamDynamixGroup.toJson(null);
+        GrouperUtil.jsonJacksonAssignBoolean(jsonToSend, "IsActive", true);
         String jsonStringToSend = GrouperUtil.jsonJacksonToString(jsonToSend);
         
         JsonNode jsonNode = executeMethod(debugMap, "POST", configId, "api/groups", GrouperUtil.toSet(201), 
@@ -490,10 +493,8 @@ public class TeamDynamixApiCommands {
       }
       
       if (!StringUtils.equals(groupByName.getDescription(), 
-          teamDynamixGroup.getDescription()) || 
-          (groupByName.getActive() == null || groupByName.getActive() == false)) {
+          teamDynamixGroup.getDescription())) {
         
-        groupByName.setActive(true);
         groupByName.setDescription(teamDynamixGroup.getDescription());
         
         TeamDynamixGroup teamDynamixGroupResult = updateTeamDynamixGroup(configId, groupByName, null);

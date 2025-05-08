@@ -9,7 +9,7 @@ public class TeamDynamixProvisioningConfigurationValidation extends GrouperProvi
   
   @Override
   public Collection<String> validateGroupAttributeNamesAllowed() {
-    return GrouperUtil.toSet("Description");
+    return GrouperUtil.toSet("Description", "isNotified");
 
   }
 

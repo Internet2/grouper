@@ -11,7 +11,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 
-import edu.internet2.middleware.grouper.app.scim2Provisioning.GrouperScim2User;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouper.ddl.DdlUtilsChangeDatabase;
 import edu.internet2.middleware.grouper.ddl.DdlVersionBean;
@@ -325,6 +324,10 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     String groupId = mockServiceRequest.getPostMockNamePaths()[1];
     
+    String isNotified = mockServiceRequest.getHttpServletRequest().getParameter("isNotified");
+    
+    boolean isNotifiedBoolean = GrouperUtil.booleanValue(isNotified, false);
+    
     GrouperUtil.assertion(GrouperUtil.length(groupId) > 0, "groupId is required");
     
     //check if group exists
@@ -360,8 +363,9 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
           membership.setGroupId(groupId);
           membership.setUserId(memberId);
           membership.setId(GrouperUuid.getUuid());
+          membership.setIsNotified(isNotifiedBoolean);
           
-          HibernateSession.byObjectStatic().save(membership); 
+          HibernateSession.byObjectStatic().save(membership);
         }
       }
     }
@@ -458,12 +462,12 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
     //check require args
     GrouperUtil.assertion(GrouperUtil.length(GrouperUtil.jsonJacksonGetString(groupJsonNode, "Name")) > 0, "Name is required");
     
-    TeamDynamixGroup grouperAzureGroup = TeamDynamixGroup.fromJson(groupJsonNode);
-    grouperAzureGroup.setId(GrouperUuid.getUuid());
+    TeamDynamixGroup teamDynamixGroup = TeamDynamixGroup.fromJson(groupJsonNode);
+    teamDynamixGroup.setId(GrouperUuid.getUuid());
     
-    HibernateSession.byObjectStatic().save(grouperAzureGroup);
+    HibernateSession.byObjectStatic().save(teamDynamixGroup);
     
-    JsonNode resultNode = grouperAzureGroup.toJson(null);
+    JsonNode resultNode = teamDynamixGroup.toJson(null);
 
     mockServiceResponse.setResponseCode(201);
     mockServiceResponse.setContentType("application/json");
@@ -558,32 +562,20 @@ public class TeamDynamixMockServiceHandler extends MockServiceHandler {
 
     //check require args
     String name = GrouperUtil.jsonJacksonGetString(groupJsonNode, "NameLike");
-    Boolean isActive = GrouperUtil.jsonJacksonGetBoolean(groupJsonNode, "IsActive");
-    
     
     List<TeamDynamixGroup> grouperAzureGroups = null;
     
-    StringBuilder query = new StringBuilder("from TeamDynamixGroup where ");
-    
+    StringBuilder query = new StringBuilder("from TeamDynamixGroup ");
     
     if (StringUtils.isNotBlank(name)) {
-      query.append("name like :theName ");
+      query.append("where name like :theName ");
     } 
     
-    if (isActive != null) {
-      if (StringUtils.isNotBlank(name)) {
-        query.append(" and ");
-      }
-      query.append("active = :theActive");
-    }
     
     ByHqlStatic createQuery = HibernateSession.byHqlStatic()
       .createQuery(query.toString());
     if (StringUtils.isNotBlank(name)) {
       createQuery.setString("theName", "%"+name+"%");
-    }
-    if (isActive != null) {
-      createQuery.setString("theActive", isActive ? "T": "F");
     }
     
     grouperAzureGroups = createQuery.list(TeamDynamixGroup.class);

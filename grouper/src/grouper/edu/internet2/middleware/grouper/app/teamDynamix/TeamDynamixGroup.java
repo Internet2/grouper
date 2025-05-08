@@ -67,7 +67,6 @@ public class TeamDynamixGroup {
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "description", Types.VARCHAR, "1024", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "name", Types.VARCHAR, "256", false, true);
       GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "id", Types.VARCHAR, "40", true, true);
-      GrouperDdlUtils.ddlutilsFindOrCreateColumn(loaderTable, "active", Types.VARCHAR, "1", false, false);
       GrouperDdlUtils.ddlutilsFindOrCreateIndex(database, tableName, "mock_teamdynamix_group_name_idx", false, "name");
     }
             
