@@ -67,6 +67,7 @@ import org.apache.http.util.EntityUtils;
 
 import com.fasterxml.jackson.databind.JsonNode;
 
+import edu.internet2.middleware.grouper.app.loader.GrouperLoaderConfig;
 import edu.internet2.middleware.grouper.cfg.GrouperConfig;
 import edu.internet2.middleware.grouperClient.collections.MultiKey;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
@@ -227,6 +228,11 @@ public class GrouperHttpClient {
   private String url;
   
   /**
+   * external system config id
+   */
+  private String externalSystemConfigId;
+  
+  /**
    * Whether you want the response as a file as opposed to a string in memory.
    */
   private boolean responseAsFile;
@@ -352,6 +358,15 @@ public class GrouperHttpClient {
     this.url = _url;
     return this;
 
+  }
+  
+  /**
+   * Sets the external system config id.
+   * @param external system config id
+   */
+  public GrouperHttpClient assignExternalSystemConfigId(String externalSystemConfigId) {
+    this.externalSystemConfigId = externalSystemConfigId;
+    return this;
   }
 
   /**
@@ -1359,6 +1374,14 @@ public class GrouperHttpClient {
         }
       } catch (Exception e) {
         LOG.error("error in http logging", e);
+      }
+      
+      //delay before the next call
+      if (StringUtils.isNotBlank(externalSystemConfigId)) {       
+        int delayInMs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.wsBearerToken."+externalSystemConfigId+".delayAfterEachCallInMs", 0);
+        if (delayInMs > 0) {
+          GrouperUtil.sleep(delayInMs);
+        }
       }
     }
   }
