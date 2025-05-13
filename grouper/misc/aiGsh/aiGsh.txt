@@ -1,0 +1,554 @@
+Write an AI GSH GrouperShell Java script to accomplish a specific task.
+
+This is a simple GSH script.  Note, use all imports whether they are needed or not.  Just in case.
+Write valid Java, but so it works in groovy.  For instance do not have java that uses multiple lines.
+Do not break up string concatenation across multiple lines.  You can use triple quoted strings if necessary.
+Queries should be in triple quoted strings.
+
+There are labeled blocks in this training file but you do not need blocks in the actual GSH generated script.
+
+#########
+
+import edu.internet2.middleware.grouper.*;
+import edu.internet2.middleware.subject.*;
+import edu.internet2.middleware.grouper.cfg.*;
+import edu.internet2.middleware.grouper.misc.*;
+import edu.internet2.middleware.grouper.util.*;
+import edu.internet2.middleware.grouper.app.attestation.*;
+import edu.internet2.middleware.grouper.app.loader.*;
+import edu.internet2.middleware.grouper.app.gsh.template.*;
+import edu.internet2.middleware.grouper.attr.assign.*;
+import edu.internet2.middleware.grouper.attr.finder.*;
+import edu.internet2.middleware.grouper.attr.value.*;
+import edu.internet2.middleware.grouperClient.jdbc.*;
+import org.apache.commons.lang.*;
+import java.util.*;
+
+public class Test124gshAi extends GshTemplateV2 {
+
+  /**
+   * this is the main logic method
+   */
+  @Override
+  public void gshRunLogic(GshTemplateV2input gshTemplateV2input,
+      GshTemplateV2output gshTemplateV2output) {
+    
+    GshTemplateOutput gsh_builtin_gshTemplateOutput = gshTemplateV2output.getGsh_builtin_gshTemplateOutput();
+    
+    // GSH code here
+    
+    // do all validations before doing any work
+    // any operation with validations has the validations up here
+    // the the work down below
+    
+    // see if validation problem, and return if so
+    if (GrouperUtil.length(gsh_builtin_gshTemplateOutput.getValidationLines()) > 0) {
+      gsh_builtin_gshTemplateOutput.assignIsError(true);
+      return;
+    }
+    
+    // perform the GSH template logic
+        
+  }
+  
+}
+
+    SUCCESS: {
+      // #########
+      // Each GSH script should output a success message at the end:
+      // #########
+
+      // tell the user the GSH template is complete
+      gsh_builtin_gshTemplateOutput.addOutputLine("Success: the task was completed");
+    }
+    
+    INPUT_VARIABLES: {
+      // #########
+      // Scripts can have input variables, the prompt will let AI know what variables to use.
+      // #########
+
+      // read the value of an input variable string.  the input variable is named gsh_input_action
+      String gsh_input_action = gshTemplateV2input.getGsh_builtin_inputString("gsh_input_action");
+     
+      // read the value of an input variable boolean.  the input variable is named gsh_input_requiresTwostep
+      boolean gsh_input_requiresTwostep = gshTemplateV2input.getGsh_builtin_inputBoolean("gsh_input_requiresTwostep");
+
+      // read the value of an input variable boolean with default: false.  the input variable is named gsh_input_requiresEmployee
+      boolean gsh_input_requiresEmployee = GrouperUtil.booleanValue(gshTemplateV2input.getGsh_builtin_inputBoolean("gsh_input_requiresEmployee"), false);
+
+    }
+
+    NO_REDIRECT: {
+      // #########
+      // If the GSH template should not redirect anywhere at the end, and stay on same screen, add this line in the script
+      // #########
+  
+      // the GSH template should not redirect anywhere, stay on same screen
+      gsh_builtin_gshTemplateOutput.assignRedirectToGrouperOperation("NONE");
+    }
+
+    CREATE_GROUP_WITH_DESCRIPTION: {
+      // #########
+      // Create a group for admins based on the input gsh_input_groupName in the folder a:b:c 
+      // with description: This is the group for the organitzation: gsh_input_groupName
+      // #########
+
+      // Create a group for an organization based on the input gsh_input_groupName in the folder a:b:c 
+      // with description: This is the group for the organitzation: gsh_input_groupName
+      GroupSave organizationGroupSave = new GroupSave();
+      organizationGroupSave.assignName("a:b:c:" + gsh_input_groupName);
+      organizationGroupSave.assignDescription("This is the group for organization: " + gsh_input_groupName);
+     
+      Group organizationGroup = organizationGroupSave.save();
+     
+      if (organizationGroupSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group existed: " + organizationGroup.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group created: " + organizationGroup.getName());
+      }
+    }
+
+    ADD_GROUPS_TO_GROUP: {
+      // #########
+      // Add a list of groups from an input variable gsh_input_groupNamesToAdd to be members of the referenceGroup "my:referenceGroup"
+      // #########
+      Group referenceGroup = GroupFinder.findByName("my:referenceGroup", true);
+    
+      // validate
+      List<String> groupNamesToAdd = GrouperUtil.splitTrimToList(gsh_input_groupNamesToAdd, ",");
+      List<Group> groupsToAdd = new ArrayList<>();
+      for (String groupName : GrouperUtil.nonNull(groupNamesToAdd)) {
+        Group group = GroupFinder.findByName(groupName, false);
+        if (group == null) {
+          gsh_builtin_gshTemplateOutput.addValidationLine("gsh_input_groupNamesToAdd", "Error: group cannot be found '" + groupName + "'!");
+        }
+        groupsToAdd.add(group);
+      }
+     
+      // perform logic
+      for (Group group : groupsToAdd) {
+        Subject groupSubject = group.toSubject();
+        MembershipSave membershipSave = new MembershipSave();
+        membershipSave.assignGroup(referenceGroup);
+        membershipSave.assignSubject(groupSubject);
+        membershipSave.save();
+
+        if (membershipSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+          gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + referenceGroup.getName() + 
+            "' already had member group: '" + group.getName() + "'");
+        } else {
+          gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + referenceGroup.getName() + 
+            "' added member group: '" + group.getName() + "'");
+        }
+       
+      }
+    }
+    
+    RUN_DAEMON: {
+      // ##########
+      // Run a daemon job with a specified name, probably on the daemon node unless otherwise specified
+      // ##########
+  
+      String jobName = "SQL_GROUP_LIST__penn:isc:clientCare:apps:grammarly:service:grammarlyPolicyGroupLoader__9c21f089d5d44aeab0a3244aa5fead30";
+      boolean runOnDaemonServer = true;
+      GrouperLoader.runOnceByJobName(GrouperSession.staticGrouperSession(), jobName, runOnDaemonServer);
+    }
+
+    CHANGE_LOG: {
+      // ##########
+      // Run a change log consumer by provisioner config id and wait for it to finish
+      // ##########
+
+      String provisionerConfigId = "grammarlyDev";
+      String provisionerJobNameChangeLog = "CHANGE_LOG_consumer_provisioner_incremental_" + provisionerConfigId;
+      boolean waitForProvisioningChangeLogTempToEntityProcess = true;  // default true if not mentioned
+      int exceptionIfNotProvisioningProcessedAfterSeconds = 30; // default 30 if not mentioned
+      GrouperLoader.waitForChangeLogJobProcess(provisionerJobNameChangeLog, waitForProvisioningChangeLogTempToEntityProcess, exceptionIfNotProvisioningProcessedAfterSeconds);
+    }
+
+    ASSIGN_DISPLAY_EXTENSION: {
+      // #########
+      // Assign a display extension to a group using GroupSave
+      // #########
+
+      // Create a GroupSave instance
+      GroupSave groupSaveWithDisplayExtension = new GroupSave();
+
+      // Assign the group name and display extension
+      groupSaveWithDisplayExtension.assignName("a:b:c:exampleGroup");
+      groupSaveWithDisplayExtension.assignDisplayExtension("Example Group Display Name");
+
+      // Save the group
+      Group groupWithDisplayExtension = groupSaveWithDisplayExtension.save();
+
+      // Check if the group was updated or newly created
+      if (groupSaveWithDisplayExtension.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the group: " + groupWithDisplayExtension.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group updated or created: " + groupWithDisplayExtension.getName());
+      }
+
+    }
+
+    CREATE_GROUP_WITH_PARENT_FOLDERS: {
+      // #########
+      // Create a group and ensure parent stems are created if they do not exist
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupSaveCreareParentStems = new GroupSave();
+
+      // Assign the group name and enable creating parent stems if they do not exist
+      groupSaveCreareParentStems.assignName("a:b:c:exampleGroup");
+      groupSaveCreareParentStems.assignCreateParentStemsIfNotExist(true);
+
+      // Save the group
+      Group groupCreateParentStems = groupSaveCreareParentStems.save();
+
+      // Check if the group was newly created or already existed
+      if (groupSaveCreareParentStems.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the group: " + groupCreateParentStems.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group created or updated: " + groupCreateParentStems.getName());
+      }
+    }
+
+    CREATE_GROUP_WITH_ROLE_TYPE: {
+      // #########
+      // Create a group with type of group set to "role" and ensure parent stems are created if they do not exist
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupSaveRoleType = new GroupSave();
+
+      // Assign the group name and enable creating parent stems if they do not exist
+      groupSaveRoleType.assignName("a:b:c:exampleRoleGroup");
+      groupSaveRoleType.assignCreateParentStemsIfNotExist(true);
+
+      // Assign the type of group to "role"
+      groupSaveRoleType.assignTypeOfGroup(TypeOfGroup.role);
+
+      // Save the group
+      Group groupRoleType = groupSaveRoleType.save();
+
+      // Check if the group was newly created or already existed
+      if (groupSaveRoleType.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the group: " + groupRoleType.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group created or updated: " + groupRoleType.getName());
+      }
+    }
+
+    RENAME_GROUP: {
+      // #########
+      // Rename a group using GroupSave
+      // #########
+
+      // Initialize a GroupSave instance
+      GroupSave groupSaveRename = new GroupSave();
+
+      // Specify the current name of the group to edit
+      String oldGroupName = "folder:oldGroupName";
+      groupSaveRename.assignGroupNameToEdit(oldGroupName);
+
+      // Specify the new name for the group
+      String newGroupName = "folder2:newGroupName";
+      groupSaveRename.assignName(newGroupName);
+
+      // Save the changes
+      Group renamedGroup = groupSaveRename.save();
+
+      // Output the result
+      if (groupSaveRename.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Group '" + oldGroupName + "' renamed to: '" + newGroupName + "'");
+      }
+    }
+
+    REMOVE_USER_FROM_GROUP_BY_SUBJECT_ID: {    
+      // #########
+      // Remove a member from a group using MembershipSave and subjectId
+      // #########
+
+      // Initialize a MembershipSave instance
+      MembershipSave membershipSaveRemove = new MembershipSave();
+
+      // Specify the group name from which the member will be removed
+      String groupName = "example:groupName";
+      membershipSaveRemove.assignGroupName(groupName);
+
+      // Specify the subject ID and source ID of the member to be removed
+      String subjectId = "exampleSubjectId";
+      String subjectSourceId = "exampleSourceId";
+      membershipSaveRemove.assignSubjectId(subjectId);
+      membershipSaveRemove.assignSubjectSourceId(subjectSourceId);
+
+      // Specify the save mode as DELETE
+      membershipSaveRemove.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes
+      Membership removedMembership = membershipSaveRemove.save();
+
+      // Output the result
+      if (membershipSaveRemove.getSaveResultType() == SaveResultType.DELETE) {
+        String outputLine = "Member with subject ID '" + subjectId;
+        outputLine += "' and source ID '" + subjectSourceId + "' removed from group: '" + groupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      } else {
+        String outputLine = "No changes made. Member with subject ID '" + subjectId + "' and source ID '";
+        outputLine += subjectSourceId + "' was not found directly in group: '" + groupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      }
+    }
+
+    REMOVE_USER_FROM_GROUP_BY_SUBJECT: {
+      // #########
+      // Remove a member from a group using MembershipSave and a Subject object
+      // #########
+
+      // Initialize a MembershipSave instance
+      MembershipSave membershipSaveRemoveMember = new MembershipSave();
+
+      // Specify the group name from which the member will be removed
+      String targetGroupName = "example:targetGroup";
+      membershipSaveRemoveMember.assignGroupName(targetGroupName);
+
+      // Create a Subject object for the member to be removed
+      Subject subjectToRemove = SubjectFinder.findByIdAndSource("uniqueSubjectId", "uniqueSourceId", true);
+      membershipSaveRemoveMember.assignSubject(subjectToRemove);
+
+      // Specify the save mode as DELETE
+      membershipSaveRemoveMember.assignSaveMode(SaveMode.DELETE);
+
+      // Save the changes
+      Membership deletedMembership = membershipSaveRemoveMember.save();
+
+      // Output the result
+      if (membershipSaveRemoveMember.getSaveResultType() == SaveResultType.DELETE) {
+        String outputLine = "Member with subject ID '" + subjectToRemove.getId() + "' removed from group: '" + targetGroupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      } else {
+        String outputLine = "No changes made. Member with subject ID '" + subjectToRemove.getId();
+        outputLine += "' was not found directly in group: '" + targetGroupName + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      }
+    }
+
+    ADD_MEMBERSHIP_WITH_END_DATE: {
+      //#########
+      //Add a membership with an end date using MembershipSave
+      //#########
+  
+      //Initialize a MembershipSave instance
+      MembershipSave membershipSaveAddEndDate = new MembershipSave();
+  
+      //Specify the group to which the membership will be added
+      String targetGroupNameEndDate = "example:targetGroup";
+      membershipSaveAddEndDate.assignGroupName(targetGroupNameEndDate);
+  
+      //Create a Subject object for the member to be added
+      Subject newMember = SubjectFinder.findByIdAndSource("uniqueSubjectId", "uniqueSourceId", true);
+      membershipSaveAddEndDate.assignSubject(newMember);
+  
+      //Specify the membership end date (e.g., 30 days from now)
+      Long membershipEndDate = System.currentTimeMillis() + (30L * 24 * 60 * 60 * 1000); // 30 days in milliseconds
+      membershipSaveAddEndDate.assignImmediateMshipDisabledTime(membershipEndDate);
+  
+      //Save the changes
+      Membership addedMembership = membershipSaveAddEndDate.save();
+  
+      //Output the result
+      if (membershipSaveAddEndDate.getSaveResultType() == SaveResultType.INSERT) {
+        String outputLine = "Membership added for subject ID '" + newMember.getId();
+        outputLine += "' in group: '" + targetGroupNameEndDate + "' with an end date.";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      } else {
+        String outputLine = "No changes made. Membership for subject ID '" + newMember.getId();
+        outputLine += "' already exists in group: '" + targetGroupNameEndDate + "'";
+        gsh_builtin_gshTemplateOutput.addOutputLine(outputLine);
+      }
+    }
+    
+    ADD_REPORT_ATTESTATION_TO_FOLDER: {
+      // #########
+      // Add report attestation to a folder on reportConfigName every 30 days, send emails to group a:b:c
+      // #########
+  
+      // Initialize an AttestationStemSave instance
+      AttestationStemSave attestationStemSave = new AttestationStemSave();
+  
+      // Specify the folder (stem) name to which attestation will be added
+      String attestationFolderName = "example:targetFolder";
+      attestationStemSave.assignStemName(attestationFolderName);
+  
+      // Set the attestation type (e.g., "report" or "group")
+      attestationStemSave.assignReportConfigName("reportConfigName");
+      attestationStemSave.assignAttestationType(AttestationType.report);
+  
+      // Specify the number of days before a reminder is sent
+      attestationStemSave.assignDaysBeforeToRemind(7);
+  
+      // Specify the number of days until recertification is required
+      attestationStemSave.assignDaysUntilRecertify(30);
+  
+      // Enable email notifications
+      attestationStemSave.assignSendEmail(true);
+      Group attributeStemSaveEmailToGroup = GroupFinder.findByName("a:b:c", true);
+      attestationStemSave.addEmailAddresses(attributeStemSaveEmailToGroup);
+  
+      // Save the attestation
+      attestationStemSave.save();
+  
+      // Output the result
+      if (attestationStemSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Attestation already existed for folder: '" + attestationFolderName + "'");
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation added to folder: '" + attestationFolderName + "'");
+      }
+    }
+    
+    ADD_ATTESTATION_TO_GROUP: {
+      // #########
+      // Assign attestation to a group using AttestationGroupSave, send email to group d:e:f
+      // #########
+  
+      // Initialize an AttestationGroupSave instance
+      AttestationGroupSave attestationGroupSave = new AttestationGroupSave();
+  
+      // Specify the group name to which attestation will be assigned
+      String attestationGroupSaveGroupName = "example:targetGroup";
+      attestationGroupSave.assignGroupName(attestationGroupSaveGroupName);
+  
+      // Set the attestation type (e.g., "report" or "group")
+      AttestationType attestationTypeToAssign = AttestationType.report;
+      attestationGroupSave.assignAttestationType(attestationTypeToAssign);
+  
+      // Specify the number of days before a reminder is sent
+      attestationGroupSave.assignDaysBeforeToRemind(7);
+  
+      // Specify the number of days until recertification is required
+      attestationGroupSave.assignDaysUntilRecertify(30);
+  
+      // Enable email notifications
+      attestationGroupSave.assignSendEmail(true);
+      Group attributeGroupSaveEmailToGroup = GroupFinder.findByName("d:e:f", true);
+      attestationGroupSave.addEmailAddresses(attributeGroupSaveEmailToGroup);
+  
+      // Save the attestation
+      attestationGroupSave.save();
+  
+      // Output the result
+      if (attestationGroupSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation added to group: '" + attestationGroupSaveGroupName + "'");
+      } else if (attestationGroupSave.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attestation updated for group: '" + attestationGroupSaveGroupName + "'");
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Attestation already exists for group: '" + attestationGroupSaveGroupName + "'");
+      }
+    }
+
+    CREATE_ATTRIBUTE_DEF: {
+      // #########
+      // Create an attribute definition with name "example:attributeDefName" and description: "This is a sample attribute definition."
+      // #########
+
+      // Start a Grouper session
+      GrouperSession grouperSession = GrouperSession.startRootSession();
+
+      // Initialize an AttributeDefSave instance
+      AttributeDefSave attributeDefSave = new AttributeDefSave(grouperSession);
+
+      // Specify the name of the attribute definition
+      String attributeDefName = "example:attributeDefName";
+      attributeDefSave.assignName(attributeDefName);
+
+      // Set the description for the attribute definition
+      String attributeDefDescription = "This is a sample attribute definition.";
+      attributeDefSave.assignDescription(attributeDefDescription);
+
+      // Set the type of the attribute definition (e.g., 'attr' or 'perm')
+      attributeDefSave.assignAttributeDefType(AttributeDefType.attr);
+
+      // Set the value type (e.g., 'string', 'integer', 'marker')
+      attributeDefSave.assignValueType(AttributeDefValueType.string);
+
+      // Allow multiple values to be assigned
+      attributeDefSave.assignMultiValued(false);
+
+      // Allow assigning this attribute to groups
+      attributeDefSave.assignToGroup(true);
+
+      // Allow assigning this attribute to stems
+      attributeDefSave.assignToStem(true);
+
+      // Create parent stems if they do not exist
+      attributeDefSave.assignCreateParentStemsIfNotExist(false);
+
+      // Save the attribute definition
+      AttributeDef attributeDef = attributeDefSave.save();
+
+      // Log the result using addOutputLine
+      if (attributeDefSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attribute definition created: " + attributeDef.getName());
+      } else if (attributeDefSave.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Attribute definition updated: " + attributeDef.getName());
+      } else {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made to the attribute definition: " + attributeDef.getName());
+      }
+    }
+    DATABASE_INSERT: {
+       // #########
+       // Insert a record into a database table using GcDbAccess
+       // #########
+      
+       // Define the SQL insert query
+       String sql = """
+         INSERT INTO example_table (column1, column2, column3)
+         VALUES (?, ?, ?)
+       """;
+      
+       // Create an instance of GcDbAccess
+       GcDbAccess gcDbAccess = new GcDbAccess();
+      
+       // Bind values to the query parameters
+       gcDbAccess.sql(sql);
+       gcDbAccess.addBindVar("value1");  // Bind value for column1
+       gcDbAccess.addBindVar(123);       // Bind value for column2
+       gcDbAccess.addBindVar("value3");  // Bind value for column3
+       gcDbAccess.executeSql();
+      
+       // Output success message
+       gsh_builtin_gshTemplateOutput.addOutputLine("Record inserted into example_table successfully.");
+    }
+
+    CREATE_STEM: {
+      // #########
+      // Create a folder (stem) using StemSave and log the output
+      // #########
+
+      // Specify the name of the folder to create
+      String folderName = "example:targetFolder";
+
+      // Initialize a StemSave instance
+      StemSave stemSave = new StemSave();
+
+      // Assign the folder name and description
+      stemSave.assignName(folderName);
+      stemSave.assignDescription("This is a description for the target folder.");
+
+      // Ensure parent folders are created if they do not exist
+      boolean createParentStems = false;
+      stemSave.assignCreateParentStemsIfNotExist(createParentStems);
+
+      // Save the folder
+      stemSave.save();
+
+      // Determine the result and log the appropriate message
+      if (stemSave.getSaveResultType() == SaveResultType.NO_CHANGE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("No changes made. Folder already exists: " + folderName);
+      } else if (stemSave.getSaveResultType() == SaveResultType.INSERT) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Folder created: " + folderName);
+      } else if (stemSave.getSaveResultType() == SaveResultType.UPDATE) {
+        gsh_builtin_gshTemplateOutput.addOutputLine("Folder updated: " + folderName);
+      }
+    }
+    
