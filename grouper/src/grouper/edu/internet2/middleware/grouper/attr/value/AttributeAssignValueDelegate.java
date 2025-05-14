@@ -1637,7 +1637,7 @@ public class AttributeAssignValueDelegate {
         return valueFloating == null ? null : Double.toString(valueFloating);
       case integer:
         Long valueLong = attributeAssignValue.getValueInteger();
-        return valueLong == null ? null : Double.toString(valueLong);
+        return valueLong == null ? null : Long.toString(valueLong);
       case marker:
         return null;
       case memberId:
