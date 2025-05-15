@@ -19,11 +19,8 @@
  */
 package edu.internet2.middleware.grouperClient.poc;
 
-import edu.internet2.middleware.grouperClient.ssl.EasySslSocketFactory;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.methods.GetMethod;
-import org.apache.commons.httpclient.protocol.Protocol;
-import org.apache.commons.httpclient.protocol.SecureProtocolSocketFactory;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 
 
 /**
@@ -37,21 +34,21 @@ public class SslPoc {
    */
   @SuppressWarnings("deprecation")
   public static void main(String[] args) throws Exception {
+
+    // grouper http client
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+    String url = "https://cosign-test-1.net.isc.upenn.edu/~jorj/file1.html";
     
-    Protocol easyhttps = new Protocol("https", (SecureProtocolSocketFactory)new EasySslSocketFactory(), 443);
-    Protocol.registerProtocol("https", easyhttps);
+    grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.get);
+    grouperHttpClient.assignTrust(true);
 
+    // execute
+    grouperHttpClient.executeRequest();
     
-    HttpClient httpClient = new HttpClient();
-
-    GetMethod method = new GetMethod(
-        "https://cosign-test-1.net.isc.upenn.edu/~jorj/file1.html");
-
-    int resultCode = httpClient.executeMethod(method);
+    int resultCode = grouperHttpClient.getResponseCode();
     
     System.out.println("resultCode: " + resultCode);
-    
-    
   }
 
 }

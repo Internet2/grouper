@@ -20,12 +20,8 @@
 package edu.internet2.middleware.grouperClient.poc;
 
 import edu.internet2.middleware.grouper.ws.util.RestClientSettings;
-import org.apache.commons.httpclient.Credentials;
-import org.apache.commons.httpclient.HttpClient;
-import org.apache.commons.httpclient.HttpMethod;
-import org.apache.commons.httpclient.UsernamePasswordCredentials;
-import org.apache.commons.httpclient.auth.AuthScope;
-import org.apache.commons.httpclient.methods.GetMethod;
+import edu.internet2.middleware.grouper.util.GrouperHttpClient;
+import edu.internet2.middleware.grouper.util.GrouperHttpMethod;
 
 
 /**
@@ -39,16 +35,24 @@ public class WsParamsRestPoc {
    */
   public static void main(String[] args) throws Exception {
 
-    HttpClient httpClient = new HttpClient();
-    HttpMethod httpMethod = new GetMethod(RestClientSettings.URL + "/json/" + RestClientSettings.VERSION + "/groups/test%3Atest1/members?wsLiteObjectType=WsRestGetMembersLiteRequest&subjectAttributeNames=PENNNAME");
-    Credentials defaultcreds = new UsernamePasswordCredentials(RestClientSettings.USER, 
-        RestClientSettings.PASS);
 
-    httpClient.getState()
-      .setCredentials(new AuthScope(RestClientSettings.HOST, RestClientSettings.PORT), defaultcreds);
-    httpClient.getParams().setAuthenticationPreemptive(true);
-    httpClient.executeMethod(httpMethod);
-    String result = httpMethod.getResponseBodyAsString();
+    // grouper http client
+    GrouperHttpClient grouperHttpClient = new GrouperHttpClient();
+
+    
+    String url = RestClientSettings.URL + "/json/" + RestClientSettings.VERSION + "/groups/test%3Atest1/members?wsLiteObjectType=WsRestGetMembersLiteRequest&subjectAttributeNames=PENNNAME";
+    
+    // assign the URL and method
+    grouperHttpClient.assignUrl(url).assignGrouperHttpMethod(GrouperHttpMethod.get);
+    // assign user and pass
+    grouperHttpClient.assignUser(RestClientSettings.USER)
+        .assignPassword(RestClientSettings.PASS);
+    
+
+    grouperHttpClient.executeRequest();
+    
+    String result = grouperHttpClient.getResponseBody();
+
     System.out.println(result);
   }
 
