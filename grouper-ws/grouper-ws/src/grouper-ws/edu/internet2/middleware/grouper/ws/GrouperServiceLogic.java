@@ -1293,6 +1293,16 @@ public class GrouperServiceLogic {
       if (usePIT && sortString != null && !sortString.equals("name")) {
         throw new WsInvalidQueryException("Can only sort by name for point in time queries.");
       }
+      
+      Stem stem = null;
+      if (wsStemLookup != null && !wsStemLookup.blank()) {
+        wsStemLookup.retrieveStemIfNeeded(session, true);
+        StemFindResult stemFindResult = wsStemLookup.retrieveStemFindResult();
+        if (stemFindResult == StemFindResult.STEM_NOT_FOUND && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.getGroups.throwErrorWhenStemNotFound", false)) {
+          throw new WsInvalidQueryException("Stem not found: '"+wsStemLookup.toStringCompact()+"'");
+        }
+        stem = wsStemLookup.retrieveStem();
+      }
         
       for (WsSubjectLookup wsSubjectLookup : subjectLookups) {
         WsGetGroupsResult wsGetGroupsResult = new WsGetGroupsResult();
@@ -1314,12 +1324,6 @@ public class GrouperServiceLogic {
               field = Group.getDefaultList();
             }
             
-            Stem stem = null;
-            if (wsStemLookup != null && !wsStemLookup.blank()) {
-              wsStemLookup.retrieveStemIfNeeded(session, true);
-              stem = wsStemLookup.retrieveStem();
-            }
-
             //if supposed to have stem but cant find, then dont get any groups
             Scope stemDotScope = null;
             if (wsStemLookup == null || stem != null ) {
