@@ -41,7 +41,11 @@ import org.apache.http.client.methods.HttpPatch;
 import org.apache.http.client.methods.HttpPost;
 import org.apache.http.client.methods.HttpPut;
 import org.apache.http.client.methods.HttpRequestBase;
+import org.apache.http.config.Registry;
+import org.apache.http.config.RegistryBuilder;
 import org.apache.http.conn.ConnectionKeepAliveStrategy;
+import org.apache.http.conn.socket.ConnectionSocketFactory;
+import org.apache.http.conn.socket.PlainConnectionSocketFactory;
 import org.apache.http.conn.ssl.SSLConnectionSocketFactory;
 import org.apache.http.conn.ssl.TrustSelfSignedStrategy;
 import org.apache.http.entity.ByteArrayEntity;
@@ -771,7 +775,7 @@ public class GrouperHttpClient {
               } 
               );
 
-          closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
+          closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom(), null).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslConnectionSocketFactory).useSystemProperties().build();
           boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
           if (httpClientReuse) {
             customTrustStoreClient.put(clientKey, closeableHttpClient);
@@ -1446,10 +1450,21 @@ public class GrouperHttpClient {
 
   private static Map<Integer, CloseableHttpClient> clients = new HashMap<>();
   
-  private static HttpClientBuilder httpClientBuilderDecorate(HttpClientBuilder httpClientBuilder) {
+  private static HttpClientBuilder httpClientBuilderDecorate(HttpClientBuilder httpClientBuilder, SSLConnectionSocketFactory sslSocketFactory) {
     
     // https://www.baeldung.com/httpclient-connection-management
-    PoolingHttpClientConnectionManager connManager = new PoolingHttpClientConnectionManager();
+    PoolingHttpClientConnectionManager connManager;
+    if (sslSocketFactory == null) {
+      connManager = new PoolingHttpClientConnectionManager();
+    } else {
+      Registry<ConnectionSocketFactory> socketFactoryRegistry = RegistryBuilder.<ConnectionSocketFactory>create()
+        .register("http", PlainConnectionSocketFactory.getSocketFactory())
+        .register("https", sslSocketFactory)
+        .build();
+      
+      connManager = new PoolingHttpClientConnectionManager(socketFactoryRegistry);
+    }
+    
     int httpClientMaxTotalPoolSize = GrouperConfig.retrieveConfig().propertyValueInt("httpClientMaxTotalPoolSize", 100);
     int httpClientDefaultMaxPerRoute = GrouperConfig.retrieveConfig().propertyValueInt("httpClientDefaultMaxPerRoute", 30);
     
@@ -1493,7 +1508,7 @@ public class GrouperHttpClient {
       synchronized (GrouperHttpClient.class) {
         closeableHttpClient = clients.get(retries);
         if (closeableHttpClient == null) {
-          closeableHttpClient = httpClientBuilderDecorate(HttpClientBuilder.create()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).useSystemProperties().build();
+          closeableHttpClient = httpClientBuilderDecorate(HttpClientBuilder.create(), null).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).useSystemProperties().build();
           boolean httpClientReuse = GrouperConfig.retrieveConfig().propertyValueBoolean("httpClientReuse", true);
           if (httpClientReuse) {
             clients.put(retries, closeableHttpClient);
@@ -1528,7 +1543,7 @@ public class GrouperHttpClient {
           try {
             builder.loadTrustMaterial(null, trustStrategy);
             SSLConnectionSocketFactory sslsf = new SSLConnectionSocketFactory(builder.build(), SSLConnectionSocketFactory.ALLOW_ALL_HOSTNAME_VERIFIER);
-            closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom()).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
+            closeableHttpClient = httpClientBuilderDecorate(HttpClients.custom(), sslsf).setRetryHandler(new DefaultHttpRequestRetryHandler(retries, false)).setSSLSocketFactory(sslsf).useSystemProperties().build();
           } catch (Exception e) {
             throw new RuntimeException(e);
           }
