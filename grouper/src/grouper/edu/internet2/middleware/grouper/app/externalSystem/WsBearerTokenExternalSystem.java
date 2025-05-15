@@ -392,7 +392,7 @@ public class WsBearerTokenExternalSystem extends GrouperExternalSystem {
     
     grouperHttpClient.assignProxyUrl(proxyUrl);
     grouperHttpClient.assignProxyType(proxyType);
-    grouperHttpClient.assignExternalSystemConfigId(externalSystemConfigId);
+    grouperHttpClient.assignWebServiceExternalSystemConfigId(externalSystemConfigId);
 
   }
   
