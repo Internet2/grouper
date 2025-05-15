@@ -1298,7 +1298,7 @@ public class GrouperServiceLogic {
       if (wsStemLookup != null && !wsStemLookup.blank()) {
         wsStemLookup.retrieveStemIfNeeded(session, true);
         StemFindResult stemFindResult = wsStemLookup.retrieveStemFindResult();
-        if (stemFindResult == StemFindResult.STEM_NOT_FOUND && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.getGroups.throwErrorWhenStemNotFound", false)) {
+        if (stemFindResult == StemFindResult.STEM_NOT_FOUND && GrouperWsConfig.retrieveConfig().propertyValueBoolean("ws.getGroups.throwErrorWhenStemNotFound", true)) {
           throw new WsInvalidQueryException("Stem not found: '"+wsStemLookup.toStringCompact()+"'");
         }
         stem = wsStemLookup.retrieveStem();
