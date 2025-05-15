@@ -228,9 +228,9 @@ public class GrouperHttpClient {
   private String url;
   
   /**
-   * external system config id
+   * web service external system config id
    */
-  private String externalSystemConfigId;
+  private String webServiceExternalSystemConfigId;
   
   /**
    * Whether you want the response as a file as opposed to a string in memory.
@@ -361,11 +361,11 @@ public class GrouperHttpClient {
   }
   
   /**
-   * Sets the external system config id.
-   * @param external system config id
+   * Sets the web service external system config id.
+   * @param web service external system config id
    */
-  public GrouperHttpClient assignExternalSystemConfigId(String externalSystemConfigId) {
-    this.externalSystemConfigId = externalSystemConfigId;
+  public GrouperHttpClient assignWebServiceExternalSystemConfigId(String webServiceExternalSystemConfigId) {
+    this.webServiceExternalSystemConfigId = webServiceExternalSystemConfigId;
     return this;
   }
 
@@ -954,6 +954,12 @@ public class GrouperHttpClient {
         }
         runtimeException = new RuntimeException("Error connecting to '" + this.url + "'", e);
       }
+      
+      if (code == 429 && StringUtils.isNotBlank(webServiceExternalSystemConfigId) && 
+          GrouperLoaderConfig.retrieveConfig().propertyValueBoolean("grouper.wsBearerToken."+webServiceExternalSystemConfigId+".treat429CodeAsError", false)) {
+        throw new RuntimeException("Error connecting to '" + this.url + "'. Received response code 429.");
+      }
+      
       if ( (code == 429 && this.grouperHttpThrottlingCallback == null) 
           || (this.grouperHttpThrottlingCallback != null && this.grouperHttpThrottlingCallback.setupThrottlingCallback(this))) {
         retry = true;
@@ -1376,9 +1382,9 @@ public class GrouperHttpClient {
         LOG.error("error in http logging", e);
       }
       
-      //delay before the next call
-      if (StringUtils.isNotBlank(externalSystemConfigId)) {       
-        int delayInMs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.wsBearerToken."+externalSystemConfigId+".delayAfterEachCallInMs", 0);
+      if (StringUtils.isNotBlank(webServiceExternalSystemConfigId)) {       
+        //delay before the next network call
+        int delayInMs = GrouperLoaderConfig.retrieveConfig().propertyValueInt("grouper.wsBearerToken."+webServiceExternalSystemConfigId+".delayAfterEachCallInMs", 0);
         if (delayInMs > 0) {
           GrouperUtil.sleep(delayInMs);
         }
