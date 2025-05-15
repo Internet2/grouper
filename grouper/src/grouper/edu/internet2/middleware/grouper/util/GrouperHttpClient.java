@@ -1206,8 +1206,7 @@ public class GrouperHttpClient {
       // Get the response.
       InputStream inputStream = null;
       FileOutputStream fileOutputStream = null;
-      // Apparently with a delete there is no content.
-      if (this.grouperHttpMethod != GrouperHttpMethod.delete && closeableHttpResponse.getEntity() != null ) {
+      if (closeableHttpResponse.getEntity() != null ) {
         try{
           inputStream = closeableHttpResponse.getEntity().getContent();
           if (this.responseAsFile){
