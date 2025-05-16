@@ -32,9 +32,7 @@ import javax.naming.directory.BasicAttributes;
 import javax.naming.directory.DirContext;
 import javax.naming.directory.SearchControls;
 
-import edu.internet2.middleware.grouperClient.failover.FailoverClient;
-import edu.internet2.middleware.grouperClient.failover.FailoverLogic;
-import edu.internet2.middleware.grouperClient.failover.FailoverLogicBean;
+import edu.internet2.middleware.grouperClient.util.GrouperClientConfig;
 import edu.internet2.middleware.grouperClient.util.GrouperClientLdapUtils;
 import edu.internet2.middleware.grouperClient.util.GrouperClientUtils;
 import org.apache.commons.logging.Log;
@@ -185,21 +183,10 @@ public class GcLdapSearchAttribute {
    * execute the call
    */
   public void execute() {
-    //configure the failover client (every 30 seconds)
-    GrouperClientLdapUtils.configureFailoverClient();
     
-    //there could be multiple ldaps accepting connections, try each one if error or timeout
-    GcLdapSearchAttribute gcLdapSearchAttribute = FailoverClient.failoverLogic(
-        GrouperClientLdapUtils.LDAP_FAILOVER_CONFIG_NAME, new FailoverLogic<GcLdapSearchAttribute>() {
+    String url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.ldap.url");
 
-      /**
-       * 
-       */
-      @Override
-      public GcLdapSearchAttribute logic(FailoverLogicBean failoverLogicBean) {
-        return executeHelper(GcLdapSearchAttribute.this, failoverLogicBean.getConnectionName());
-      }
-    });
+    GcLdapSearchAttribute gcLdapSearchAttribute = executeHelper(this, url);
     
     if (gcLdapSearchAttribute != null) {
       
