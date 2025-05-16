@@ -158,7 +158,18 @@ public class GrouperClientWs {
 
     if (StringUtils.isBlank(this.wsEndpoint)) {
 
-      throw new RuntimeException("Failover client is no longer supported");
+      if (!StringUtils.isBlank(this.wsUser)) {
+        throw new RuntimeException("wsUser is forbidden if wsEndpoint is not used");
+      }
+      if (!StringUtils.isBlank(this.wsPass)) {
+        throw new RuntimeException("wsPass is forbidden if wsEndpoint is not used");
+      }
+      
+
+      String url = GrouperClientConfig.retrieveConfig().propertyValueStringRequired("grouperClient.webService.url");
+      
+      grouperClientWs = executeServiceHelper(url, 
+          urlSuffix, toSend, labelForLog, clientVersion, contentType, false, this);
       
     } else {
       
