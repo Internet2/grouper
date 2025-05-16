@@ -509,7 +509,8 @@ public class GshTemplateExec {
     
     grouperGroovyInput.assignScriptPrependHeaders(GrouperUtil.whitespaceCountNewLines(scriptToRun.toString()));
 
-    scriptToRun.append(templateConfig.getGshTemplate());
+    String gshTemplateFromConfig = getGshTemplateFromConfig(templateConfig);
+    scriptToRun.append(gshTemplateFromConfig);
     GrouperSession grouperSession = null;
     
     Calendar calendar = new GregorianCalendar();
@@ -673,6 +674,23 @@ public class GshTemplateExec {
     
     return this.gshTemplateExecOutput;
   }
+  
+  private String getGshTemplateFromConfig(GshTemplateConfig templateConfig) {
+    String gshTemplateFromConfig = null;
+    if (StringUtils.equals(templateConfig.getGshTemplateSourceType(), "file")) {
+      //read file from the container
+      String fileName = templateConfig.getGshTemplateFileName();
+      File file = new File(fileName);
+      if (!file.exists()) {
+        throw new RuntimeException("File '"+fileName+"' does not exist in container!!");
+      }
+      String fileContents = GrouperUtil.readFileIntoString(file);
+      gshTemplateFromConfig = fileContents;
+    } else {              
+      gshTemplateFromConfig = templateConfig.getGshTemplate();
+    }
+    return gshTemplateFromConfig;
+  }
 
   /**
    * execute the gsh template (calls newInstance).
@@ -718,7 +736,10 @@ public class GshTemplateExec {
           
           gshTemplateV2[0] = configIdToGshTemplateV2.get(configId);
           String cachedSource = configIdToGshTemplateV2source.get(configId);
-          boolean needsNewV2template = gshTemplateV2[0] == null || !StringUtils.equals(cachedSource, templateConfig.getGshTemplate());
+          
+          String gshTemplateFromConfig = getGshTemplateFromConfig(templateConfig);
+          
+          boolean needsNewV2template = gshTemplateV2[0] == null || !StringUtils.equals(cachedSource, gshTemplateFromConfig);
         
           if (needsNewV2template) {
             GrouperGroovyInput grouperGroovyInput = new GrouperGroovyInput();
@@ -731,12 +752,13 @@ public class GshTemplateExec {
             
             grouperGroovyInput.assignScriptPrependHeaders(GrouperUtil.whitespaceCountNewLines(scriptToRun.toString()));
             
-            scriptToRun.append(templateConfig.getGshTemplate());
+            scriptToRun.append(gshTemplateFromConfig);
+            
             
             // class Test25membershipCountV2convert extends GshTemplateV2
             // class Test25membershipCountV2convert extends edu.internet2.middleware.grouper.app.gsh.template.GshTemplateV2
             Pattern pattern = Pattern.compile(".*class\\s+([^\\s]+)\\s+extends\\s+(edu\\.internet2\\.middleware\\.grouper\\.app\\.gsh\\.template\\.)?GshTemplateV2(\\{|\\s).*", Pattern.DOTALL);
-            Matcher matcher = pattern.matcher(templateConfig.getGshTemplate());
+            Matcher matcher = pattern.matcher(gshTemplateFromConfig);
             if (matcher.matches()) {
               String className = matcher.group(1);
               scriptToRun.append("\ngsh_builtin_gshTemplateRuntime.assignGshTemplateV2internal(new " + className + "());");
@@ -767,7 +789,7 @@ public class GshTemplateExec {
             gshTemplateV2[0].setScriptPrependHeaders(grouperGroovyInput.getScriptPrependHeaders());
             
             configIdToGshTemplateV2.put(configId, gshTemplateV2[0]);
-            configIdToGshTemplateV2source.put(configId, templateConfig.getGshTemplate());
+            configIdToGshTemplateV2source.put(configId, gshTemplateFromConfig);
             if (GrouperUtil.intValue(grouperGroovyResult.getResultCode(), -1) != 0) {
               GshTemplateExec.this.gshTemplateExecOutput.setGshScriptOutput(grouperGroovyResult.fullOutput());
               GshTemplateExec.this.gshTemplateExecOutput.setException(grouperGroovyResult.getException());

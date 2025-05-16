@@ -136,6 +136,10 @@ public class GshTemplateConfig {
   
   private List<GshTemplateInputConfig> gshTemplateInputConfigs = new ArrayList<GshTemplateInputConfig>();
   
+  private String gshTemplateSourceType;
+  
+  private String gshTemplateFileName;
+  
 
   public GshTemplateConfig(String configId) {
     this.configId = configId;
@@ -147,10 +151,14 @@ public class GshTemplateConfig {
   }
   
   
+  public String getGshTemplateSourceType() {
+    return gshTemplateSourceType;
+  }
 
   
-  
-
+  public String getGshTemplateFileName() {
+    return gshTemplateFileName;
+  }
 
 
   public String getTemplateName() {
@@ -490,7 +498,15 @@ public class GshTemplateConfig {
           gshTemplateRequireFolderPrivilege =  GshTemplateRequireFolderPrivilege.valueOfIgnoreCase(grouperConfig.propertyValueStringRequired(configPrefix+"requireFolderPrivilege"), true);
         }
         
-        gshTemplate = grouperConfig.propertyValueStringRequired(configPrefix+"gshTemplate");
+        gshTemplateSourceType = grouperConfig.propertyValueString(configPrefix+"gshTemplateSourceType", "textArea");
+        
+        if (StringUtils.equals(gshTemplateSourceType, "file")) {
+          gshTemplateFileName = grouperConfig.propertyValueString(configPrefix+"gshTemplateFileName");
+        } else if (StringUtils.equals(gshTemplateSourceType, "textArea")) {
+          gshTemplate = grouperConfig.propertyValueStringRequired(configPrefix+"gshTemplate");
+        } else {
+          throw new RuntimeException("Invalid gshTemplateSourceType: '"+gshTemplateSourceType+"'");
+        }
 
         gshLightweight = grouperConfig.propertyValueBoolean(configPrefix+"gshLightweight", false);
 

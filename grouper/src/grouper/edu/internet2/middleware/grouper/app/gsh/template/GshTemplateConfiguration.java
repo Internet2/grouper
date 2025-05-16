@@ -262,6 +262,16 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
       
     }
     
+    GrouperConfigurationModuleAttribute gshTemplateSourceTypeAttibute = attributes.get("gshTemplateSourceType");
+    
+    GrouperConfigurationModuleAttribute templateVersion = attributes.get("templateVersion");
+    
+    if (StringUtils.equals(gshTemplateSourceTypeAttibute.getValueOrExpressionEvaluationValue(), "file") && (templateVersion == null || GrouperUtil.isBlank(templateVersion.getValueOrExpressionEvaluation()))) {
+      String error = GrouperTextContainer.textOrNull("gshTemplate.error.configId.templateSourceTypeWithNonV2Version.message");
+      validationErrorsToDisplay.put(gshTemplateSourceTypeAttibute.getHtmlForElementIdHandle(), error);
+      return;
+    }
+    
     GrouperConfigurationModuleAttribute numberOfInputsAttribute = attributes.get("numberOfInputs");
     
     String valueOrExpressionEvaluation = numberOfInputsAttribute.getValueOrExpressionEvaluationValue();
@@ -338,7 +348,6 @@ public class GshTemplateConfiguration extends GrouperConfigurationModuleBase {
             validationErrorsToDisplay.put(inputType.getHtmlForElementIdHandle(), error);
             return;
           }
-          GrouperConfigurationModuleAttribute templateVersion = attributes.get("templateVersion");
           if (templateVersion == null || GrouperUtil.isBlank(templateVersion.getValueOrExpressionEvaluation())
               || StringUtils.equals(templateVersion.getValueOrExpressionEvaluation(), "V1")) {
             String error = GrouperTextContainer.textOrNull("gshTemplateSaveErrorInputTypeFileNotAllowedWithV1GshTemplate");
